@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013 The Apache Software Foundation.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.marmotta</groupId>
+    <artifactId>marmotta-parent</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Apache Marmotta</name>
+    <url>http://marmotta.incubator.apache.org</url>
+    <description>
+        The goal of Apache Marmotta is to provide an open implementation of a 
+        Linked Data Platform that can be used, extended, and deployed easily 
+        by organizations who want to publish Linked Data or build custom 
+        applications on Linked Data.
+    </description>
+
+    <prerequisites>
+        <maven>3.0.3</maven>
+    </prerequisites>
+
+    <properties>
+        <marmotta.version>3.0.0-SNAPSHOT</marmotta.version>
+        <sesame.version>2.7.0</sesame.version>
+    </properties>
+
+    <inceptionYear>2012</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>andy</id>
+            <name>Andy Seaborne</name>
+            <email>andy@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>dglachs</id>
+            <name>Dietmar Glachs</name>
+            <email>dglachs@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>fchrist</id>
+            <name>Fabian Christ</name>
+            <email>fchrist@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>jakob</id>
+            <name>Jakob Frank</name>
+            <email>jakob@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>nandana</id>
+            <name>Nandana Mihindukulasooriya</name>
+            <email>nandana@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>rwesten</id>
+            <name>Rupert Westenthaler</name>
+            <email>rwesten@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>andy</id>
+            <name>Andy Seaborne</name>
+            <email>andy@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>sschaffert</id>
+            <name>Sebastian Schaffert</name>
+            <email>sschaffert@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+            <id>wikier</id>
+            <name>Sergio Fernández</name>
+            <email>wikier@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+            <id>tkurz</id>
+            <name>Thomas Kurz </name>
+            <email>tkurz@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+    </developers>
+
+    <organization>
+        <name>The Apache Software Foundation</name>
+        <url>http://www.apache.org</url>
+    </organization>
+
+    <scm>
+        <url>https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</url>
+        <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>Jira</system>
+        <url>http://issues.apache.org/jira/browse/MARMOTTA</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>users</name>
+            <post>users@marmotta.incubator.apache.org</post>
+            <subscribe>users-subscribe@marmotta.incubator.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-users/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.users</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>dev</name>
+            <post>dev@marmotta.incubator.apache.org</post>
+            <subscribe>dev-subscribe@marmotta.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-dev/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.dev</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>commits</name>
+            <post>commits@marmotta.incubator.apache.org</post>
+            <subscribe>commits-subscribe@marmotta.incubator.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-commits/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.commits</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+
+</project>
