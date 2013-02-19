@@ -20,14 +20,15 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>lmf-parent</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>lmf-ldpath</artifactId>
+    <artifactId>marmotta-ldpath</artifactId>
     <packaging>jar</packaging>
 
-    <name>LMF Module: LDPath</name>
+    <name>Apache Marmotta Platform: LDPath</name>
     <description>
         Provides support for the LDPath query language for Linked Data. Querying support is available for other
         services as well as through a LDPath query endpoint (Web Service).
@@ -38,7 +39,7 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-core</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
            <groupId>org.apache.marmotta</groupId>

@@ -14,6 +14,7 @@
     <groupId>org.apache.marmotta</groupId>
     <artifactId>platform-reactor</artifactId>
     <version>3.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>Apache Marmotta Platform: Reactor</name>
     <description>Linked Data Platform implementation of Apache Marmotta</description>

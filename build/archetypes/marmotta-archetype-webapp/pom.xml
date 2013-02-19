@@ -20,16 +20,16 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>lmf-archetypes</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
 
-    <artifactId>lmf-archetype-webapp</artifactId>
+    <artifactId>marmotta-archetype-webapp</artifactId>
     <packaging>maven-archetype</packaging>
 
-    <name>LMF Archetype: Web Application</name>
+    <name>Apache Marmotta Archetype: Web Application</name>
 
     <build>
         <extensions>

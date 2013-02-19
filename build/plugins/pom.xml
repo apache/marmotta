@@ -26,7 +26,7 @@
     <artifactId>plugins-reactor</artifactId>
     <packaging>pom</packaging>
 
-    <name>LMF Maven Plugins</name>
+    <name>Apache Marmotta Maven Plugins</name>
     <description>LMF-specific maven plugins</description>
 
     <build>

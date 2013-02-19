@@ -28,7 +28,7 @@
     <artifactId>client-reactor</artifactId>
     <packaging>pom</packaging>
 
-    <name>LMF Client Library</name>
+    <name>Apache Marmotta Client Library: Reactor</name>
     <description>The Linked Media Framework Client Library</description>
 
     <modules>
