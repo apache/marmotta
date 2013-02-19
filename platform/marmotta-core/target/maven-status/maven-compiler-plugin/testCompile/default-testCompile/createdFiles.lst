@@ -1,0 +1,10 @@
+kiwi/core/test/base/jetty/TestInjectorFactory.class
+kiwi/core/test/base/AbstractLMF.class
+kiwi/core/util/http/UriUtilTests.class
+kiwi/core/test/embedded/EmbeddedLMFTest.class
+kiwi/core/test/user/UserServiceTest.class
+kiwi/core/test/config/ConfigurationWebServiceTest.class
+kiwi/core/test/base/EmbeddedLMF.class
+kiwi/core/test/base/JettyLMF.class
+kiwi/core/test/base/jetty/TestApplication.class
+kiwi/core/test/config/ConfigurationServiceTest.class

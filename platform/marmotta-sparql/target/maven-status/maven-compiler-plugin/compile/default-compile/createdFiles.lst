@@ -1,0 +1,15 @@
+at/newmedialab/lmf/sparql/model/tables/records/RNodes.class
+at/newmedialab/lmf/sparql/model/tables/records/RTriples.class
+at/newmedialab/lmf/sparql/model/tables/TNodes.class
+at/newmedialab/lmf/sparql/services/sparqlio/rdf/SPARQLGraphResultWriter.class
+at/newmedialab/lmf/sparql/webservices/SparqlWebService$1.class
+at/newmedialab/lmf/sparql/api/sparql/SparqlService.class
+at/newmedialab/lmf/sparql/webservices/SparqlWebService.class
+at/newmedialab/lmf/sparql/services/sparqlio/sparqlhtml/SPARQLBooleanHTMLWriter.class
+at/newmedialab/lmf/sparql/services/sparqlio/sparqljson/SPARQLBooleanJSONWriter.class
+at/newmedialab/lmf/sparql/services/sparqlio/sparqlhtml/SPARQLResultsHTMLWriter.class
+at/newmedialab/lmf/sparql/services/sparqlio/sparqljson/SPARQLResultsJSONWriter.class
+at/newmedialab/lmf/sparql/services/sparql/SparqlServiceImpl.class
+at/newmedialab/lmf/sparql/model/Public.class
+at/newmedialab/lmf/sparql/model/tables/TTriples.class
+at/newmedialab/lmf/sparql/model/Tables.class

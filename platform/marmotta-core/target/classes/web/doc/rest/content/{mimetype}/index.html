@@ -1,0 +1,41 @@
+<HTML><HEAD><TITLE>Resource {mimetype}</TITLE></TITLE><LINK REL='stylesheet' TYPE='text/css' HREF='../../doclet.css' TITLE='Style'/><META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</HEAD><BODY><!--###BEGIN_CONTENT###--><div class="javadoc"><table class='menu'><colgroup><col/><col/></colgroup><tbody><tr><td class='NavBarCell1' colspan='2'><table><tbody><tr><th><a href='../../overview-summary.html'>Overview</a></th><th><a href='../../overview-index.html'>Index</a></th><th><a href='../../index.html'>Root resource</a></th></tr></tbody></table></td></tr><tr><td class='NavBarCell3'>summary: <a href='#resources'>resource</a> | <a href='#methods-summary'>method</a></td><td class='NavBarCell3'>detail: <a href='#methods-details'>method</a></td></tr></table><h2>Path: / <a href='../../index.html'>LMF</a> / <a href='../index.html'>content</a> / {mimetype}</h2>Returns remote resource content with the given uri and an accepted return
+ type (mimetype)
+<P>
+<dl><dt><b>Path parameters:</b></dt><dd><b>mimetype</b><tt> ([^/]+/[^/]+)</tt> - , accepted mimetype follows the pattern .+/.+</dd></dl><hr/><table class='info' id='resources'><caption class='TableCaption'>Resources</caption><tbody><tr><th class='TableHeader'>Name</th><th class='TableHeader'>Description</th></tr><tr><td><a href='{uuid}/index.html'>{uuid}</a></td><td>Returns local resource content with the given uuid and an accepted return
+ type (mimetype)</td></tr></tbody></table><hr/><table class='info' id='methods-summary'><caption class='TableCaption'>Method Summary</caption><tbody><tr><th class='TableHeader'>Resource</th><th class='TableHeader'>Description</th></tr><tr><td><tt><a href='#GET'>GET /LMF/content/{mimetype}?uri=…</a></tt></td><td>Returns remote resource content with the given uri and an accepted return
+ type (mimetype)</td></tr><tr><td><tt><a href='#PUT'>PUT /LMF/content/{mimetype}?uri=…</a></tt></td><td>Sets content to a given remote resource</td></tr></tbody></table><hr/><table class='info' id='methods-details'><caption class='TableCaption'>Method Detail</caption><tbody></tr><tr><td><a name='GET'></a><table class='examples'><tr><td><b>HTTP Example:</b><pre>GET /LMF/content/{mimetype}?uri=…
+Range: …
+
+</pre></td><td><b>API Example:</b><p><tt>ContentWebService.getContentRemote({'uri': <span class='comment'>/* uri
+            , the fully-qualified URI of the resource to create in the
+            triple store */</span>,<br/>&nbsp;&nbsp;'mimetype': <span class='comment'>/* mimetype
+            , accepted mimetype follows the pattern */</span>,<br/>&nbsp;&nbsp;'Range': <span class='comment'>/* Returns remote resource content with the given uri and an accepted return
+ type (mimetype) */</span>});</tt></p></td></tr></table><p>Returns remote resource content with the given uri and an accepted return
+ type (mimetype)</p><dl><dt><b>Output:</b></dt><dd><tt>javax.ws.rs.core.Response</tt> - a remote resource's content (body is the resource content in
+         requested format)</dd><dt><b>Query parameters:</b></dt><dd><b>uri</b> - , the fully-qualified URI of the resource to create in the
+            triple store</dd><dt><b>Header parameters:</b></dt><dd><b>Range</b></dd>
+<DT><B>HTTP return codes:</B></DT><DD><B>200</B> - resource content found and returned</DD>
+<DD><B>400</B> - bad request (maybe uri is not defined)</DD>
+<DD><B>404</B> - resource cannot be found</DD>
+<DD><B>406</B> - resource cannot be found in the given format</DD>
+<DD><B>500</B> - Internal Error</DD>
+
+
+<DT><B>HTTP response headers:</B></DT><DD><B>Content-Type</B> - (for HTTP 406) available content type (if
+                 resource has content)</DD>
+
+</dl></td></tr><tr><td><a name='PUT'></a><table class='examples'><tr><td><b>HTTP Example:</b><pre>PUT /LMF/content/{mimetype}?uri=…
+
+</pre></td><td><b>API Example:</b><p><tt>ContentWebService.putContentRemote({'uri': <span class='comment'>/* uri
+            , the fully-qualified URI of the resource to create in the
+            triple store */</span>,<br/>&nbsp;&nbsp;'mimetype': <span class='comment'>/* mimetype
+            content-type of the body (content) follows the pattern */</span>});</tt></p></td></tr></table><p>Sets content to a given remote resource</p><dl><dt><b>Output:</b></dt><dd><tt>javax.ws.rs.core.Response</tt> - HTTP response (success or error)</dd><dt><b>Query parameters:</b></dt><dd><b>uri</b> - , the fully-qualified URI of the resource to create in the
+            triple store</dd>
+<DT><B>HTTP return codes:</B></DT><DD><B>200</B> - put was successful</DD>
+<DD><B>400</B> - bad request (e.g. uri is null)</DD>
+<DD><B>404</B> - resource cannot be found</DD>
+<DD><B>415</B> - Content-Type is not supported</DD>
+<DD><B>500</B> - Internal Error</DD>
+
+</dl></td></tr></tbody></table><hr/><table class='menu'><colgroup><col/><col/></colgroup><tbody><tr><td class='NavBarCell1' colspan='2'><table><tbody><tr><th><a href='../../overview-summary.html'>Overview</a></th><th><a href='../../overview-index.html'>Index</a></th><th><a href='../../index.html'>Root resource</a></th></tr></tbody></table></td></tr><tr><td class='NavBarCell3'>summary: <a href='#resources'>resource</a> | <a href='#methods-summary'>method</a></td><td class='NavBarCell3'>detail: <a href='#methods-details'>method</a></td></tr></table></div><!--###END_CONTENT###--><hr/><div class='footer'>Generated by <a href='http://www.lunatech-labs.com/open-source/jax-doclets'>Lunatech Labs jax-doclets</a> v0.10.0</div></BODY></HTML>
