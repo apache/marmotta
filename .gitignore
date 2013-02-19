@@ -2,4 +2,7 @@
 *.class
 *.jar
 *.war
+*.ipr
+*.iws
+*.iml
 target
