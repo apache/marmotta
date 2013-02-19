@@ -53,101 +53,109 @@
 
     <developers>
         <developer>
-            <name>Sebastian Schaffert</name>
-            <email>sebastian.schaffert@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
+            <id>andy</id>
+            <name>Andy Seaborne</name>
+            <email>andy@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
         </developer>
         <developer>
-            <name>Thomas Kurz</name>
-            <email>thomas.kurz@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
-            <name>Jakob Frank</name>
-            <email>jakob.frank@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
-            <name>Sergio Fernández</name>
-            <email>sergio.fernandez@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
+            <id>dglachs</id>
             <name>Dietmar Glachs</name>
-            <email>dietmar.glachs@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
+            <email>dglachs@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>fchrist</id>
+            <name>Fabian Christ</name>
+            <email>fchrist@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>jakob</id>
+            <name>Jakob Frank</name>
+            <email>jakob@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>nandana</id>
+            <name>Nandana Mihindukulasooriya</name>
+            <email>nandana@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>rwesten</id>
+            <name>Rupert Westenthaler</name>
+            <email>rwesten@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>sschaffert</id>
+            <name>Sebastian Schaffert</name>
+            <email>sschaffert@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>wikier</id>
+            <name>Sergio Fernández</name>
+            <email>wikier@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>tkurz</id>
+            <name>Thomas Kurz </name>
+            <email>tkurz@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
         </developer>
     </developers>
 
     <organization>
-        <name>Salzburg Research</name>
-        <url>http://www.salzburgresearch.at</url>
+        <name>The Apache Software Foundation</name>
+        <url>http://www.apache.org</url>
     </organization>
 
     <scm>
-        <connection>
-            scm:hg:https://code.google.com/p/lmf/
-        </connection>
-        <developerConnection>
-            scm:hg:https://code.google.com/p/lmf/
-        </developerConnection>
-        <url>https://code.google.com/p/lmf/</url>
-        <tag>HEAD</tag>
+        <url>https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</url>
+        <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</developerConnection>
     </scm>
 
     <issueManagement>
-        <system>GoogleCode</system>
-        <url>https://code.google.com/p/lmf/issues</url>
+        <system>Jira</system>
+        <url>http://issues.apache.org/jira/browse/MARMOTTA</url>
     </issueManagement>
 
     <mailingLists>
         <mailingList>
-            <name>LMF Users</name>
-            <post>lmf-users@googlegroups.com</post>
-            <subscribe>lmf-users-subscribe@googlegroups.com</subscribe>
-            <unsubscribe>lmf-users-unsubscribe@googlegroups.com</unsubscribe>
-            <archive>http://groups.google.com/group/lmf-users</archive>
+            <name>users</name>
+            <post>users@marmotta.incubator.apache.org</post>
+            <subscribe>users-subscribe@marmotta.incubator.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-users/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.users</otherArchive>
+            </otherArchives>
         </mailingList>
         <mailingList>
-            <name>LMF Commits</name>
-            <post>lmf-commits@googlegroups.com</post>
-            <subscribe>lmf-commits-subscribe@googlegroups.com</subscribe>
-            <unsubscribe>lmf-commits-unsubscribe@googlegroups.com</unsubscribe>
-            <archive>http://groups.google.com/group/lmf-commits</archive>
+            <name>dev</name>
+            <post>dev@marmotta.incubator.apache.org</post>
+            <subscribe>dev-subscribe@marmotta.incubator.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-dev/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.dev</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>commits</name>
+            <post>commits@marmotta.incubator.apache.org</post>
+            <subscribe>commits-subscribe@marmotta.incubator.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-commits/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.commits</otherArchive>
+            </otherArchives>
         </mailingList>
     </mailingLists>
-
-    <repositories>
-        <repository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <distributionManagement>
-        <repository>
-            <id>snml.releases</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snml.snapshots</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <site>
-            <id>lmf.googlecode.com</id>
-            <url>http://lmf.googlecode.com</url>
-        </site>
-    </distributionManagement>
 
     <profiles>
         <profile>
