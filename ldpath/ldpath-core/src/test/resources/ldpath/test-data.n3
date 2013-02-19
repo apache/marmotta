@@ -1,0 +1,32 @@
+@prefix ex:	<http://www.example.com/> .
+@prefix foo: <http://localhost/vcab#> .
+
+ex:start a ex:Test;
+	ex:hasItem	ex:1, ex:2.
+
+ex:1 a ex:Item;
+	foo:title	"One";
+	foo:subtitle	"SubOne";
+	foo:i	"1", "2", "3";
+	foo:j	"2".
+	
+ex:2 a ex:Item;
+	foo:title	"Two";
+	foo:subtitle	"SubTwo";
+	foo:i	"99";
+	foo:j	"99".
+
+ex:Compare a ex:Test;
+	ex:hasItem ex:Eq, ex:Lt, ex:Gt.
+	
+ex:Eq a ex:Item;
+	foo:left	"5";
+	foo:right	"5".
+
+ex:Lt a ex:Item;
+	foo:left	"1";
+	foo:right	"5".
+
+ex:Gt a ex:Item;
+	foo:left	"9";
+	foo:right	"5".

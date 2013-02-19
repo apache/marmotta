@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013 Salzburg Research.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>at.newmedialab.ldpath</groupId>
+        <artifactId>ldpath-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
+    <name>LDPath Templating: Core</name>
+    <artifactId>ldpath-template</artifactId>
+    <packaging>bundle</packaging>
+
+    <dependencies>
+
+
+        <dependency>
+            <groupId>at.newmedialab.ldpath</groupId>
+            <artifactId>ldpath-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>at.newmedialab.ldpath</groupId>
+            <artifactId>ldpath-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>LDPath Templating</Bundle-Name>
+                        <!-- Enable this for including your enhancement chain configuration -->
+                        <!-- <Install-Path>config</Install-Path> -->
+                        <Export-Package>
+                            at.newmedialab.ldpath.template;version=${project.version},
+                            at.newmedialab.ldpath.template.engine;version=${project.version},
+                            at.newmedialab.ldpath.template.model;version=${project.version},
+                            at.newmedialab.ldpath.template.util;version=${project.version}
+                        </Export-Package>
+                        <!--
+                        <_exportcontents>freemarker.*;version="2.3.19"</_exportcontents>
+                        <Embed-Dependency>freemarker;scope=compile</Embed-Dependency>
+                        <Import-Package>
+                            !com.sun.org.apache*, javax.el*;resolution:=optional;version="[1,2)",
+                            javax.servlet*;resolution:=optional;version="[2.5,3)",
+                            javax.servlet.jsp*;resolution:=optional;version="[2.1,3)",
+                            javax.swing*;resolution:=optional,
+                            org.apache.log;resolution:=optional;version="[1.0.1,1.0.1]",
+                            org.apache.log4j;resolution:=optional;version="[1.2,2)",
+                            org.apache.tools.ant*;resolution:=optional;version="[1.7,2)",
+                            org.apache.xml.utils;resolution:=optional;version="[2.7,3)",
+                            org.apache.xpath*;resolution:=optional;version="[2.7,3)",
+                            org.dom4j*;resolution:=optional;version="[1.6.1,2)",
+                            org.jaxen*;resolution:=optional;version="[1.1.1,2)",
+                            org.jdom*;resolution:=optional;version="[1,2)",
+                            org.mozilla.javascript;resolution:=optional,
+                            org.python*;resolution:=optional;version="[2.2.1,2.3)",
+                            org.zeroturnaround.javarebel;resolution:=optional,
+                            org.w3c.dom.traversal;resolution:=optional,
+                            *
+                        </Import-Package>
+                        -->
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-scr-scrdescriptor</id>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <service.vendor>Salzburg Research</service.vendor>
+                            </properties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

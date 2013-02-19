@@ -1,0 +1,24 @@
+@prefix dc : <http://purl.org/dc/elements/1.1/> ;
+@prefix sn : <http://lmf.salzburg.com/news-ns/> ;
+@prefix snc : <http://lmf.salzburg.com/news-ns/concepts/> ;
+@prefix iptc : <http://iptc.org/std/nar/2006-10-01/> ;
+@prefix hg : <http://www.holygoat.co.uk/owl/redwood/0.1/tags/> ;
+@prefix geo : <http://www.geonames.org/ontology#> ;
+@prefix wgs84 : <http://www.w3.org/2003/01/geo/wgs84_pos#> ;
+@prefix skos : <http://www.w3.org/2004/02/skos/core#> ;
+
+@filter rdf:type is snc:PublicationItem ;
+
+@boost sn:boostFactor ;
+
+  tag = hg:taggedWithTag / hg:name :: xsd:string ;
+  ressort = (sn:inRessort | sn:inCategory | ((sn:inRessort | sn:inCategory) / (skos:narrower)+)) / fn:first(skos:prefLabel[@de], skos:prefLabel) :: xsd:string ;
+  real_ressort = (sn:inRessort | sn:inCategory) / fn:first(skos:prefLabel[@de], skos:prefLabel) :: xsd:string ;
+  ort = iptc:located / fn:first(geo:officialName[@de], geo:alternateName[@de], geo:name[@de], geo:name) :: xsd:string ;
+  countrycode = iptc:located / geo:countryCode :: xsd:string ;
+  title = dc:title :: xsd:string ;
+  summary = fn:removeTags(dc:description) :: xsd:string ;
+  kind = rdf:type / rdfs:label :: xsd:string ;
+  type = rdf:type :: xsd:anyURI ;
+  thumbnail = sn:hasPreviewImage :: xsd:anyURI ;
+  geo =  iptc:located :: xsd:string ;

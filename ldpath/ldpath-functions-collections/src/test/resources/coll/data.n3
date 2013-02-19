@@ -1,0 +1,29 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex: <http://www.example.com/> .
+@prefix foo: <http://localhost/vcab#> .
+
+ex:Bag a foo:Test;
+	foo:hasItems [
+		a rdf:Bag;
+		rdf:_1	ex:1;
+		rdf:_2	ex:2;
+		rdf:_3	ex:3;
+		rdf:_4	ex:4
+	].
+
+ex:Seq a foo:Test;
+	foo:hasItems [
+		a rdf:Seq;
+		rdf:_1	ex:1;
+		rdf:_2	ex:2;
+		rdf:_3	ex:3;
+		rdf:_4	ex:4
+	].
+
+ex:List a foo:Test;
+	foo:hasItems (
+		ex:1
+		ex:2
+		ex:3
+		ex:4
+	).

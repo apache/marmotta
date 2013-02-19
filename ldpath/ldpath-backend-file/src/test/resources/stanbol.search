@@ -1,0 +1,18 @@
+@prefix foaf : <http://xmlns.com/foaf/0.1/> ;
+@prefix geo : <http://www.w3.org/2003/01/geo/wgs84_pos#> ;
+@prefix hgtags : <http://www.holygoat.co.uk/owl/redwood/0.1/tags/> ;
+@prefix dcterms : <http://purl.org/dc/terms/> ;
+@prefix labs : <http://labs.newmedialab.at/ontology/> ;
+@filter rdf:type is foaf:Document ;
+  summary = fn:removeTags(fn:cleanHtml(dc:description)) :: xsd:string ;
+  tag = hgtags:taggedWithTag / hgtags:name :: xsd:string ;
+  other = labs:related / (rdfs:label[@en] | (rdfs:label[@none] | skos:prefLabel[@en])) :: xsd:string ;
+  lat = labs:relatedLocation / geo:lat :: xsd:double ;
+  title = dcterms:title :: xsd:string ;
+  long = labs:relatedLocation / geo:long :: xsd:double ;
+  location = labs:relatedLocation / rdfs:label[@en] :: xsd:string ;
+  countrycode = labs:relatedLocation / <http://www.geonames.org/ontology#countryCode> :: xsd:string ;
+  type = rdf:type :: xsd:anyURI ;
+  person = labs:relatedPerson / rdfs:label[@en] :: xsd:string ;
+  date = dcterms:created :: xsd:dateTime ;
+  company = labs:relatedOrganisation / rdfs:label[@en] :: xsd:string ;

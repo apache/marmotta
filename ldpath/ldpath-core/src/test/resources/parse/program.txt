@@ -1,0 +1,16 @@
+@prefix test: <http://example.com/>;
+@prefix foo: <http://foo.com/some/path#> ;
+
+@filter test:type is foo:bar | test:p1 & is-a test:Case ;
+
+@boost foo:boost / ^test:boost ;
+
+path = test:p1 / test:p2 :: test:type;
+lang_test = test:p1[@en] :: test:type;
+type_test = foo:p2[^^test:int] :: test:type;
+int_s = (foo:go)* :: test:type;
+int_p = (foo:go)+ :: test:type;
+
+inverse = ^test:incoming :: test:type;
+
+config = test:foo :: test:type(c1=true, c2="false", c3="1.234");

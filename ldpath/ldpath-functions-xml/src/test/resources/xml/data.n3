@@ -1,0 +1,102 @@
+@prefix ex: <http://www.example.com/> .
+@prefix foo: <http://localhost/vcab#> .
+
+ex:Text a ex:Test;
+	foo:formatted """A <em>quiz</em> is a form of <strong>game</strong> or <strong>mind sport</strong> in which the players <font size="tiny">(as individuals or in teams)</font> attempt to answer questions <strong>correctly</strong>.""".
+
+ex:Quiz a ex:Test;
+	foo:xml """<?xml version="1.0" encoding="UTF-8"?>
+<!-- All changes here should be reflected in the actual test-data file data.n3 -->
+<quiz>
+    <!-- Selected questions from http://www.sciencekids.co.nz/quizzes.html -->
+    <question category="earth">
+        <qline>What is the name of the largest ocean on earth?</qline>
+        <answers>
+            <answer correct="true">The Pacific Ocean</answer>
+            <answer>The Atlantic Ocean</answer>
+            <answer>The Indian Ocean</answer>
+        </answers>
+    </question>
+    <question category="earth">
+        <qline>What do you call molten rock before it has erupted?</qline>
+        <answers>
+            <answer correct="true">Magma</answer>
+            <answer>Lava</answer>
+            <answer>Hot-Stone</answer>
+        </answers>
+    </question>
+    <question category="earth">
+        <qline>The gemstone ruby is typically what color?</qline>
+        <answers>
+            <answer correct="true">Red</answer>
+            <answer>Blue</answer>
+            <answer>Green</answer>
+            <answer>White</answer>
+        </answers>
+    </question>
+    <question category="earth">
+        <qline>What is the second most common gas found in the air we breathe?</qline>
+        <answers>
+            <answer>Carbon Dioxide</answer>
+            <answer>Nitrogen</answer>
+            <answer>Argon</answer>
+            <answer correct="true">Oxygen</answer>
+        </answers>
+    </question>
+    <question category="space">
+        <qline>What planet is famous for its big red spot on it?</qline>
+        <answers>
+            <answer correct="true">Jupiter</answer>
+            <answer>Uranus</answer>
+            <answer>Venus</answer>
+            <answer>Neptune</answer>
+        </answers>
+    </question>
+    <question category="space">
+        <qline>What is the name of Saturn’s largest moon?</qline>
+        <answers>
+            <answer correct="true">Titan</answer>
+            <answer>Enceladus</answer>
+            <answer>Rhea</answer>
+            <answer>Europa</answer>
+            <answer>Callisto</answer>
+            <answer>Ganymede</answer>
+        </answers>
+    </question>
+    <question category="space">
+        <qline>What is the closest planet to the Sun?</qline>
+        <answers>
+            <answer correct="true">Mercury</answer>
+            <answer>Venus</answer>
+            <answer>Mars</answer>
+            <answer>Saturn</answer>
+        </answers>
+    </question>
+    <question category="math">
+        <qline>What is the next prime number after 7?</qline>
+        <answers>
+            <answer>9</answer>
+            <answer correct="true">11</answer>
+            <answer>12</answer>
+            <answer>15</answer>
+        </answers>
+    </question>
+    <question category="math">
+        <qline>How many sides does a nonagon have?</qline>
+        <answers>
+            <answer>7</answer>
+            <answer>8</answer>
+            <answer correct="true">9</answer>
+            <answer>10</answer>
+        </answers>
+    </question>
+    <question category="math">
+        <qline>In statistics, the middle value of an ordered set of values is called what?</qline>
+        <answers>
+            <answer correct="true">The median</answer>
+            <answer>The mean</answer>
+            <answer>The average</answer>
+        </answers>
+    </question>
+</quiz>
+""".

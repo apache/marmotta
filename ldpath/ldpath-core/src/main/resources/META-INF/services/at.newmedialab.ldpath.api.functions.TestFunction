@@ -1,0 +1,6 @@
+at.newmedialab.ldpath.model.tests.functions.EqualTest
+at.newmedialab.ldpath.model.tests.functions.NotEqualTest
+at.newmedialab.ldpath.model.tests.functions.GreaterEqualTest
+at.newmedialab.ldpath.model.tests.functions.GreaterThanTest
+at.newmedialab.ldpath.model.tests.functions.LessEqualTest
+at.newmedialab.ldpath.model.tests.functions.LessThanTest

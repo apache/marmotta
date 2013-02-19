@@ -1,0 +1,19 @@
+@prefix ex: <http://www.example.com/> .
+@prefix foo: <http://localhost/vcab#> .
+
+ex:Simple a ex:HtmlTest;
+	foo:html	"""<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+  <h1>Marmotta</h1>
+  <div>Marmotta, italian for "Marmot"</div>
+  <div id="abstract">
+    <p id="p1">Marmots are generally large ground squirrels in the genus Marmota, of which there are 15 species. Those most often referred to as marmots tend to live in mountainous areas, such as the Alps, northern Apennines, Eurasian steppes, Carpathians, Tatras, and Pyrenees in Europe and northwestern Asia; the Rocky Mountains, Black Hills, Cascades, and Sierra Nevada in North America; and the Deosai Plateau in Pakistan and Ladakh in India. The groundhog, however, is also sometimes called a marmot, while the similarly sized, but more social, prairie dog is not classified in the genus Marmota but in the related genus Cynomys.</p>
+    <p id="p2">Marmots typically live in burrows (often within rockpiles, particularly in the case of the yellow-bellied marmot), and hibernate there through the winter. Most marmots are highly social and use loud whistles to communicate with one another, especially when alarmed.</p>
+    <p id="p3">Marmots mainly eat greens and many types of grasses, berries, lichens, mosses, roots and flowers.</p>
+  </div>
+  </body>
+</html>
+""".
