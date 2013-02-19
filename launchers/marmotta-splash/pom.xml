@@ -22,14 +22,15 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.0.0-incubating-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>marmotta-splash</artifactId>
   <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>LMF Splash</name>
+    <name>Apache Marmotta Splash Screen</name>
     <description>LMF Module offering splash screen for desktop environments</description>
 
     <build>

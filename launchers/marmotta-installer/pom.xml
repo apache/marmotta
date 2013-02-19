@@ -19,17 +19,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>marmotta-parent</artifactId>
         <groupId>org.apache.marmotta</groupId>
-        <version>3.0.0-SNAPSHOT</version>
+        <artifactId>marmotta-parent</artifactId>
+        <version>3.0.0-incubating-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>marmotta-installer</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
+    <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>LMF Installer</name>
-    <description>Builds the LMF IzPack-based installer</description>
+    <name>Apache Marmotta Installer</name>
+    <description>Builds the Apache Marmotta IzPack-based installer</description>
 
     <properties>
         <izpackVersion>4.3.5</izpackVersion>
@@ -167,9 +168,9 @@
                         <version>${project.version}</version>
                         <configuration>
                             <outputDirectory>${stagingDir}/refpacks</outputDirectory>
-                            <moduleGroupId>at.newmedialab.lmf</moduleGroupId>
+                            <moduleGroupId>org.apache.marmotta</moduleGroupId>
                             <requiredModules>
-                                <requiredModule>lmf-core</requiredModule>
+                                <requiredModule>marmotta-core</requiredModule>
                             </requiredModules>
                         </configuration>
                         <executions>
