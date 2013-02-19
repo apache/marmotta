@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.ldpath</groupId>
+       <groupId>org.apache.marmotta</groupId>
         <artifactId>ldpath-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
         <relativePath>../</relativePath>
@@ -32,12 +32,12 @@
     <dependencies>
 
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-backend-linkeddata</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-template</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -19,12 +19,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.lmf</groupId>
+        <groupId>org.apache.marmotta</groupId>
         <artifactId>lmf-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>at.newmedialab.lmf</groupId>
+    <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-commons</artifactId>
     <name>Apache Marmotta: Common Utilities</name>
 

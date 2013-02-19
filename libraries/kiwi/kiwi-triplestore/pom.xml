@@ -97,7 +97,7 @@
 
         <!-- Utilities -->
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-tripletable</artifactId>
         </dependency>
         <dependency>

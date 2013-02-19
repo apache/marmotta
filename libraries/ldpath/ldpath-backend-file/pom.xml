@@ -32,24 +32,24 @@
     <dependencies>
 
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-api</artifactId>
             </dependency>
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-backend-sesame</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-functions-html</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-functions-xml</artifactId>
         </dependency>
 

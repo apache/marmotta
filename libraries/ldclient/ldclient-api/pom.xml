@@ -30,7 +30,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-commons</artifactId>
         </dependency>
 

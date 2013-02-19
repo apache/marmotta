@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.lmf</groupId>
+        <groupId>org.apache.marmotta</groupId>
         <artifactId>lmf-parent</artifactId>
         <version>2.6.0-SNAPSHOT</version>
     </parent>
@@ -171,89 +171,89 @@
     <dependencies>
         <!-- LMF Modules, include the ones needed by the application -->
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-core</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-ldpath</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-ldcache</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-reasoner</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-sparql</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-skos</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-search</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-security</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-scheduler</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-versioning</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-stanbol</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-enhancer</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-geo</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <!--
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-templating</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         -->
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-user</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-social</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>lmf-demo-books</artifactId>
             <version>${lmf.version}</version>
         </dependency>

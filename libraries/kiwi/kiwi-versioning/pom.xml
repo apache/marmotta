@@ -36,11 +36,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-transactions</artifactId>
         </dependency>
 
@@ -94,7 +94,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>at.newmedialab.lmf</groupId>
+        	<groupId>org.apache.marmotta</groupId>
         	<artifactId>kiwi-triplestore</artifactId>
         	<type>test-jar</type>
         	<scope>test</scope>

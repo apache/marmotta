@@ -67,19 +67,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldcache-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldcache-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldcache-backend-kiwi</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
         </dependency>
         <dependency>
@@ -105,15 +105,15 @@
 
         <!-- LDClient -->
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldclient-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldclient-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldclient-provider-rdf</artifactId>
         </dependency>
 

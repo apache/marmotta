@@ -33,7 +33,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>
         </dependency>
         <dependency>
@@ -55,7 +55,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+           <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-backend-sesame</artifactId>
             <scope>test</scope>
         </dependency>

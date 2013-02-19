@@ -1103,27 +1103,27 @@
 
             <!-- KiWi Triple Store -->
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-triplestore</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-transactions</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-versioning</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-tripletable</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-contextaware</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1259,138 +1259,138 @@
             </dependency>
 
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>marmotta-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- LDClient -->
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-rdf</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-xml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-ldap</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-rdfa</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-html</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-mediawiki</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-phpbb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-youtube</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldclient-provider-vimeo</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- LDClient -->
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-backend-kiwi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-backend-ehcache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-sail-kiwi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-sail-generic</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <!-- LDPath -->
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-backend-sesame</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-xml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-math</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-html</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-date</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.ldpath</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-text</artifactId>
                 <version>${project.version}</version>
             </dependency>

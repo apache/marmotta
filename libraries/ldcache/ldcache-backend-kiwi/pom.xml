@@ -69,18 +69,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldcache-api</artifactId>
         </dependency>
 
 
         <!-- Use KiWi Triple Store for caching -->
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-contextaware</artifactId>
         </dependency>
 

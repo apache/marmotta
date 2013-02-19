@@ -158,7 +158,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>at.newmedialab.lmf</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-triplestore</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>

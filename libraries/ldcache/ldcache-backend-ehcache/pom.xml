@@ -38,11 +38,11 @@
 
 
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldcache-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-tripletable</artifactId>
         </dependency>
         <dependency>

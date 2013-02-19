@@ -37,7 +37,7 @@
     <!-- build a test jar for lmf-core so other modules can use the EmbeddedLMF configuration -->
     <!-- usage:
          <dependency>
-           <groupId>at.newmedialab.lmf</groupId>
+           <groupId>org.apache.marmotta</groupId>
            <artifactId>lmf-core</artifactId>
            <version>${project.version}</version>
            <type>test-jar</type>
@@ -94,7 +94,7 @@
     <!-- dependencies for all modules -->
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-commons</artifactId>
         </dependency>
 
@@ -433,11 +433,11 @@
 
 
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-transactions</artifactId>
         </dependency>
 
