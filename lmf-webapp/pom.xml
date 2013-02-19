@@ -200,11 +200,6 @@
         </dependency>
         <dependency>
             <groupId>at.newmedialab.lmf</groupId>
-            <artifactId>lmf-scheduler</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>at.newmedialab.lmf</groupId>
             <artifactId>lmf-versioning</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
