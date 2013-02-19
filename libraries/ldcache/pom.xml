@@ -19,46 +19,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.lmf</groupId>
-        <artifactId>lmf-parent</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <groupId>at.newmedialab.lmf</groupId>
-    <artifactId>ldcache-parent</artifactId>
-    <name>LDCache: Parent</name>
+    <artifactId>ldcache-reactor</artifactId>
+    <name>LDCache: Reactor</name>
     <packaging>pom</packaging>
 
     <description>
         Linked Data Caching: Parent POM
     </description>
-
-    <developers>
-        <developer>
-            <name>Sebastian Schaffert</name>
-            <email>sschaffert@apache.org</email>
-            <organization>Apache Software Foundation</organization>
-        </developer>
-        <developer>
-            <name>Jakob Frank</name>
-            <email>jfrank@apache.org</email>
-            <organization>Apache Software Foundation</organization>
-        </developer>
-    </developers>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin> <!-- generate JRebel Configuration -->
-                    <groupId>org.zeroturnaround</groupId>
-                    <artifactId>jrebel-maven-plugin</artifactId>
-                    <configuration>
-                        <relativePath>../../</relativePath>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <modules>
         <module>ldcache-api</module>

@@ -5,6 +5,7 @@
 *.ipr
 *.iws
 *.iml
+*.db
 .project
 .classpath
 .externalToolBuilders

@@ -25,7 +25,7 @@
     </parent>
 
     <groupId>org.apache.marmotta</groupId>
-    <artifactId>marmotta</artifactId>
+    <artifactId>marmotta-reactor</artifactId>
     <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -36,10 +36,6 @@
     <prerequisites>
         <maven>3.0.3</maven>
     </prerequisites>
-
-    <properties>
-        <sesame.version>2.7.0-beta2</sesame.version>
-    </properties>
 
     <inceptionYear>2010</inceptionYear>
     <licenses>
@@ -241,43 +237,13 @@
     </profiles>
 
     <modules>
-
-        <!-- LMF Maven Plugins -->
-        <module>maven-plugins</module>
-
-        <!-- Common Utilities -->
-        <module>marmotta-commons</module>
-
-        <!-- LMF Modules -->
-        <module>lmf-core</module>
-        <module>lmf-ldpath</module>
-        <module>lmf-ldcache</module>
-        <module>lmf-versioning</module>
-        <module>lmf-reasoner</module>
-        <module>lmf-security</module>
-        <module>lmf-sparql</module>
-        <module>lmf-user</module>
-
-        <!-- Other LMF Artifacts -->
-        <module>lmf-webapp</module>
-        <module>lmf-splash</module>
-        <module>lmf-installer</module>
-
-        <!-- LMF Archetypes -->
-        <module>lmf-archetypes</module>
-
-        <!-- LMF Client Library -->
-        <module>lmf-client</module>
-
-        <!-- Additional Support -->
-        <module>ldclient</module>
-        <module>ldcache</module>
-        <module>ldpath</module>
-        <module>kiwi</module>
-
-        <!-- Sesame Tools -->
-        <module>sesame</module>
-
+        <module>build</module>
+        <module>client</module>
+        <module>commons</module>
+        <module>extras</module>
+        <module>launchers</module>
+        <module>libraries</module>
+        <module>platform</module>
     </modules>
 
 </project>

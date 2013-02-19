@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright 2008-2012 Salzburg Research Forschungsgesellschaft
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  -->
+
+<configuration scan="true">
+
+
+    <!-- STDOUT logger, used for errors -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+
+        <!-- filter out Hibernate 4.x drop constraint messages, they clutter the log unnecessarily -->
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>logger.endsWith("SchemaExport") &amp;&amp; formattedMessage.contains("alter table")</expression>
+            </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+
+        <encoder>
+<!--            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern> -->
+            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="kiwi" level="INFO" />
+    <logger name="at.newmedialab" level="INFO" />
+    <logger name="org.hibernate.cache" level="ERROR" />
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="org.apache.solr" level="WARN" />
+
+    <logger name="org.quartz" level="WARN" />
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

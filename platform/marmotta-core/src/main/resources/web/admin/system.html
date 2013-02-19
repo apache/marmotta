@@ -1,0 +1,60 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <title>LMF Statistics</title>
+<script type="text/javascript">
+    var _SERVER_URL = "http://localhost:8080/LMF/";
+</script>
+<!--###BEGIN_HEAD###-->
+<script type="text/javascript" src="../public/js/lib/jquery-1.6.4.js"></script>
+<script type="text/javascript" src="../public/js/lib/strftime.js"></script>
+<script type="text/javascript" src="js/widgets/system.js"></script>
+
+<link rel="stylesheet" href="css/admin-style.css"/>
+<!--###END_HEAD###-->
+</head>
+<body id="center">
+<!--###BEGIN_CONTENT###-->
+<h1>System Overview</h1>
+<div><a href="#system_mod">[Modules]</a>&nbsp;<a href="#system_stats">[Statistics]</a></div>
+<div id="messages"></div>
+<div>
+<h2 id="system_mod">Modules</h2>
+<div id="system_mod_jump" class="jumplink"></div>
+<div id="build_info"><em class="loading">Fetching information...</em></div>
+</div>
+<div>
+<span id="refresh_box">
+	<input type="checkbox" id="refresh_auto" />
+	<label for="refresh_auto" id="refresh_auto_label">refresh every</label>
+	<input type="text" id="refresh_interval" value="5"/>
+	<label for="refresh_interval" id="refresh_interval_label">seconds.</label>
+	<button id="refresh_now">refresh now</button>
+</span>
+<h2 id="system_stats" style="margin-top: 50px;">Statistics</h2>
+<div id="system_stats_jump" class="jumplink"></div>
+<table id="stats" class="simple_table" style="margin-top: 10px">
+<thead><tr><th>&nbsp;</th><th colspan="2">Resource</th><th>Value</th><th></th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+<!--###END_CONTENT###-->
+</body>
+</html>
+

@@ -17,52 +17,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.lmf</groupId>
-        <artifactId>lmf-parent</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../parent</relativePath>
     </parent>
 
-    <groupId>at.newmedialab.sesame</groupId>
-    <artifactId>sesame-tools</artifactId>
+    <groupId>org.apache.marmotta</groupId>
+    <artifactId>commons-reactor</artifactId>
     <packaging>pom</packaging>
 
-    <name>Sesame Tools Parent</name>
-    <description>A collection of modules for OpenRDF Sesame, adding additional functionality like parsers or writers.</description>
-
-    <inceptionYear>2012</inceptionYear>
-    <licenses>
-        <license>
-            <name>Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Sebastian Schaffert</name>
-            <email>sebastian.schaffert@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-    </developers>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin> <!-- generate JRebel Configuration -->
-                    <groupId>org.zeroturnaround</groupId>
-                    <artifactId>jrebel-maven-plugin</artifactId>
-                    <configuration>
-                        <relativePath>../../</relativePath>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
+    <name>Apache Marmotta Commons: Reactor</name>
+    <description>A collection of support modules for Marmotta, adding additional functionality like parsers or writers.</description>
 
     <modules>
+        <module>marmotta-commons</module>
         <module>sesame-commons</module>
         <module>sesame-filter</module>
         <module>sesame-tools-rio-api</module>
@@ -74,15 +43,5 @@
         <module>sesame-tools-rio-vcard</module>
         <module>sesame-tools-facading</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>1.7.2</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
 </project>

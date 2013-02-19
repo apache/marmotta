@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2008-2012 Salzburg Research.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <!--
+
+            resources/META-INF/persistence.xml.tmpl should be the only place you change anything
+            any of persistence.*.xml. After changing it, "ant configure"
+            copies it to all places it is needed.
+
+    -->
+
+    <persistence-unit name="KiWi" transaction-type="RESOURCE_LOCAL">
+
+
+        <properties>
+
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.jdbc.fetch_size" value="50"/>
+            <property name="hibernate.jdbc.batch_size" value="50"/>
+            <property name="hibernate.default_batch_fetch_size" value="16" />
+            <property name="hibernate.max_fetch_depth" value="3" />
+
+            <!-- sort inserts so they can be performed more efficiently -->
+            <property name="hibernate.order_inserts" value="true" />
+
+            <property name="hibernate.connection.characterEncoding" value="utf8" />
+            <property name="hibernate.connection.charSet" value="utf8" />
+            <property name="hibernate.connection.useUnicode" value="true"/>
+            <property name="hibernate.connection.lc_type" value="UTF-8" />
+            <property name="hibernate.jdbc.use_streams_for_binary" value="true" />
+
+            <!--  caching -->
+            <property name="hibernate.cache.region.factory_class"
+                      value="org.hibernate.cache.ehcache.EhCacheRegionFactory"/>
+            <property name="net.sf.ehcache.configurationResourceName" value="/ehcache-db.xml"/>
+            <property name="hibernate.cache.use_query_cache" value="true" />
+            <property name="hibernate.cache.use_second_level_cache" value="true"/>
+            <property name="hibernate.cache.region_prefix" value=""/>
+
+            <property name="hibernate.c3p0.acquire_increment" value="5"/>
+            <property name="hibernate.c3p0.min_size" value="20"/>
+            <property name="hibernate.c3p0.max_size" value="50"/>
+            <property name="hibernate.c3p0.timeout" value="600"/>
+            <property name="hibernate.c3p0.max_statements" value="300"/>
+            <property name="hibernate.c3p0.idle_test_period" value="300"/>
+
+        </properties>
+    </persistence-unit>
+</persistence>

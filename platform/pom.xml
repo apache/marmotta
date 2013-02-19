@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
+    </parent>
+
+    <groupId>org.apache.marmotta</groupId>
+    <artifactId>platform-reactor</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+
+    <name>Apache Marmotta Platform: Reactor</name>
+    <description>Linked Data Platform implementation of Apache Marmotta</description>
+
+    <modules>
+        <module>marmotta-core</module>
+        <module>marmotta-ldcache</module>
+        <module>marmotta-ldpath</module>
+        <module>marmotta-reasoner</module>
+        <module>marmotta-security</module>
+        <module>marmotta-sparql</module>
+        <module>marmotta-user</module>
+        <module>marmotta-versioning</module>
+    </modules>
+
+</project>

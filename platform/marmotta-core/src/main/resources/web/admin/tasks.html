@@ -1,0 +1,167 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>LMF - Current Tasks</title>
+    <script type="text/javascript" src="../public/js/lib/jquery-1.6.4.js"></script>
+    <script type="text/javascript" src="../public/js/lib/strftime.js"></script>
+    <script type="text/javascript">
+    $(function() {
+		var container = $("#tasks"),
+			noTasks = $(".nocontent", container);
+    	var dMarker = "_deleteme",
+    		nMarker = "_new";
+    	var poller;
+    	
+    	var auto_refresh_interval = 5000;
+    	
+		var refresh = function() {
+			clearTimeout(poller);
+			
+			$("#refresh_box").addClass("updating");
+			
+			var isEmpty = true;
+			
+			$.getJSON(_SERVER_URL + "tasks", function(data, status, xhr) {
+				$("#updateError").remove();
+				// Mark eveything for deletion
+				$("div.groupContainer,li.task", container).addClass(dMarker);
+				
+				function createID(input) {
+				    return input.replace(/[^\w]+/g, "_");
+				} 
+				
+				// Process answer
+				$.each(data, function(group, tasks){
+					var gid = createID(group);
+					var groupE = $("div#" + gid, container);
+					if (groupE.length == 0) {
+						groupE = $("<div/>", {"id":gid, "class":"groupContainer " + nMarker + " " + dMarker});
+						groupE.append($("<h2/>").text(group));
+						groupE.append($("<ul/>"));
+						groupE.appendTo(container);
+					}
+					$.each(tasks, function() {
+						isEmpty = false;
+						var taskE = $("li#task" + createID(this.name+this.started));
+						if (taskE.length == 0) {
+							taskE = $("<li/>", {"id":"task" + createID(this.name+this.started), "class":"task " + nMarker});
+							taskE.appendTo($("ul", groupE));
+						}
+						taskE.empty();
+						taskE.append($("<span class='task-name'/>").text(this.name));
+						if (this.totalSteps > 0) {
+						    var _prText = "("+ this.progress + "/" + this.totalSteps + ", " + (Math.round(1000*this.progress/this.totalSteps)/10) + "%)";
+							taskE.append(' ').append($("<span class='task-progress' />").text(_prText)); 
+						} else if (this.progress > 0) {
+						    var _prText = "("+ this.progress+" iteration" + (this.progress>1?"s)":")");
+							taskE.append(' ').append($("<span class='task-progress' />").text(_prText)); 
+						}
+						taskE.append("<br/>"); 
+						taskE.append($("<div class='task-started' />").text("Started: " + new Date(this.started).strftime("%F %T")));
+						taskE.append($("<div class='task-status' />").text(this.message));
+						var details = $("<div class='task-details' />")
+						for (var k in this.detailMessages) {
+						    var v = this.detailMessages[k];
+						    $("<div>").append($("<strong>").text(k)).append(":&nbsp;").append($("<span>").text(v)).appendTo(details);
+						}
+						taskE.append(details); 
+				        if (this.eta){
+				            taskE.append($("<span class='task-eta' />").text("ETA: " + new Date(this.eta).strftime("%F %T")));
+				        }
+						taskE.append(" "); 
+						taskE.append($("<span class='task-update' />").text("Last Update: " + new Date(this.lastUpdate).strftime("%F %T")));
+						
+						taskE.removeClass(dMarker);
+						groupE.removeClass(dMarker);
+					});
+				});
+				
+				// Delete what still has the delete marker.
+				$("." + dMarker, container).slideUp("slow", function(){ $(this).remove();});
+				$("." + nMarker, container).slideDown("slow", function() { $(this).removeClass(nMarker); });
+				if (isEmpty) { noTasks.slideDown(); } else { noTasks.slideUp(); }
+			}).error(function() {
+				if ( $("#updateError").size() == 0)
+					$("<div>", {"id": "updateError", "class":"error"}).text("Update failed!").appendTo($("#messages"));
+				else
+					$("#updateError").slideDown();
+			}).complete(function() {
+				$("#refresh_box").removeClass("updating");
+				if ($("input#refresh_auto").prop('checked')) {
+					poller = setTimeout(refresh, auto_refresh_interval);
+				}
+			});
+		};
+		
+		$("button#refresh_now").click(refresh);
+		$("input#refresh_interval").change(function(event) {
+			if ($(this).val() * 1000 > 0) {
+				var oVal = auto_refresh_interval;
+				auto_refresh_interval = $(this).val() * 1000;
+				if (oVal > auto_refresh_interval && $("input#refresh_auto").prop('checked')) {
+					refresh();			
+				}	
+			} else {
+				$(this).val(auto_refresh_interval / 1000);
+			}
+		});
+		$("input#refresh_auto").change(function(event) {
+			if (this.checked) {
+				$("button#refresh_now").attr('disabled','disabled')
+				poller = setTimeout(refresh, auto_refresh_interval);
+			} else {
+				$("button#refresh_now").removeAttr('disabled');
+				clearTimeout(poller);
+			}
+		});
+		// Initial refresh
+		refresh();
+		$("input#refresh_auto").change();
+    });
+    </script>
+
+    <link rel="stylesheet" href="css/admin-style.css"/>
+    <style type="text/css">
+    	._new { display: none; }
+    	.nocontent { font-style: italic ; }
+    	.task-name { font-weight: bold ; }
+    	.task-progress {}
+    	.taks-status {}
+    	.task-eta { font-style: italic; }
+    </style>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<span id="refresh_box">
+	<input type="checkbox" id="refresh_auto" />
+	<label for="refresh_auto" id="refresh_auto_label">refresh every</label>
+	<input type="text" id="refresh_interval" value="5"/>
+	<label for="refresh_interval" id="refresh_interval_label">seconds.</label>
+	<button id="refresh_now">refresh now</button>
+</span>
+<div>
+<h1 id="tasks-head">Currently active tasks</h1>
+<div id="messages"></div>
+<div id="tasks"><span class="nocontent">No running tasks</span></div>
+</div>
+<!--###END_CONTENT###-->
+</body>
+</html>

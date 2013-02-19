@@ -1,0 +1,62 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Core Module Configuration</title>
+    <link type="text/css" rel="stylesheet" href="../public/js/widgets/configurator/style.css">
+    <script type="text/javascript" src="../public/js/lib/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../public/js/widgets/configurator/configurator.js"></script>
+    <script type="text/javascript" src="js/widgets/database.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            var options = {
+                url : _SERVER_URL,
+                container : "lmf_configurator",
+                blacklist: ['ldcache.endpoint.','ldcache.endpoint.','prefix.','security.permission.','security.restriction.','database.','solr.cores.available','solr.cores.enabled','user.admin.']
+            }
+            var configurator = new Configurator(options);
+            $('#lmf_database').lmf_database({host:_SERVER_URL});
+        });
+    </script>
+<!--###END_HEAD###-->
+</head>
+<body>
+<div id="main">
+<div id="contents">
+<!--###BEGIN_CONTENT###-->
+<h1>Linked Media Core Configuration</h1>
+        <p>
+            Here you can configure the LMF Core.<br/>
+            The configuration contains:
+        </p>
+        <ul>
+            <li><a href="#generic">Generic Parameter Configuration</a></li>
+            <li><a href="#database">Database Configuration</a></li>
+        </ul>
+        <div id="lmf_configurator">
+            <h4>Loading configurator</h4>
+        </div>
+        <div id="lmf_database">
+            <h4>Loading database manager</h4>
+        </div>
+<!--###END_CONTENT###-->
+</div>
+</div>
+</body>
+</html>

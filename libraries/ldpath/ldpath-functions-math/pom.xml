@@ -15,21 +15,21 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>at.newmedialab.ldpath</groupId>
-        <artifactId>ldpath-parent</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
     <name>LDPath Functions: Math</name>
     <artifactId>ldpath-functions-math</artifactId>
-  <packaging>bundle</packaging>
-  
-  <description>Math-Functions for ldpath</description>
-  
-      <dependencies>
+    <packaging>bundle</packaging>
+
+    <description>Math-Functions for ldpath</description>
+
+    <dependencies>
         <dependency>
             <groupId>at.newmedialab.ldpath</groupId>
             <artifactId>ldpath-core</artifactId>
@@ -37,8 +37,9 @@
 
 
         <dependency>
-            <groupId>at.newmedialab.ldpath</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -57,7 +58,7 @@
             <artifactId>ldpath-backend-sesame</artifactId>
             <scope>test</scope>
         </dependency>
-      </dependencies>
+    </dependencies>
 
 
     <build>

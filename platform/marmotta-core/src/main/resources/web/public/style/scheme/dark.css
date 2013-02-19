@@ -1,0 +1,128 @@
+/**
+ * Copyright (C) 2013 Salzburg Research.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/* main */
+html,body {
+    background-color: #4d4d4d;
+    color: #b5b5b5;
+}
+
+a {
+    color: #6dcff5;
+}
+
+a:visited {
+    color: #6dcff5;
+}
+
+#content {
+    background-color: #2c2c2c;
+    border-color: #b5b5b5;
+    box-shadow: 0px 0px 8px black;
+}
+
+#content h1 {
+    background-color: #2c2c2c;
+    border-color: #b5b5b5;
+    color: #b5b5b5;
+}
+
+#content h1 a {
+    color: #b5b5b5;
+}
+
+#content h2 a {
+    color: #b5b5b5;
+}
+
+#content h2 {
+    background-color: #b5b5b5;
+    border-color: #2c2c2c;
+    color: #2c2c2c;
+}
+
+#content pre {
+    background-color: #2c2c2c;
+    border-color: #b5b5b5;
+}
+
+#footer_line {
+    border-color: #2c2c2c;
+}
+
+#footer_line span{
+    color:#b5b5b5;
+}
+
+ul#menu {
+    border-color: #b5b5b5;
+    background-color: #4d4d4d;
+    box-shadow: 0px 0px 8px black;
+}
+
+ul#menu div.menu_heading {
+    background-color: #b5b5b5;
+    color: #2c2c2c;
+}
+
+ul.submenu {
+    background-color: #2c2c2c;
+}
+
+ul.submenu li:hover {
+    background-color: #2c2c2c;
+}
+
+ul.submenu li.active {
+    background-color: #6dcff5;
+}
+
+ul.submenu a {
+    color: #b5b5b5;
+}
+
+ul.submenu li.active a {
+    color: #2c2c2c;
+}
+
+table.simple_table tr.title td,
+table.simple_table th {
+    background-color: #4d4d4d;
+    color: #6dcff5;
+    border-color:#b5b5b5;
+}
+
+table.simple_table tr.subtitle td,
+table.simple_table tr.subtitle th,
+table.simple_table th.subtitle,
+table.simple_table tr.subheading td,
+table.simple_table tr.subheading th,
+table.simple_table th.subheading {
+    background-color: #b5b5b5;
+    color: #2c2c2c;
+}
+
+table.simple_table tr td{
+    color: #b5b5b5;
+    border-color: #b5b5b5;
+}
+
+table.simple_table tr {
+    background-color: #4d4d4d;
+}
+
+table.simple_table tr.even {
+    background-color: #6dcff5;
+}

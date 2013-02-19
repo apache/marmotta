@@ -1,0 +1,116 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+<title>Core Module</title>
+<!--###END_HEAD###-->
+</head>
+<body>
+  <!--###BEGIN_CONTENT###-->
+  <h1>About</h1>
+  <p>The Linked Media Framework is an easy-to-setup server application that bundles
+    central Semantic Web technologies to offer advanced services. The Linked Media
+    Framework consists of LMF Core and LMF Modules.</p>
+  <h2>
+    <a id="LMF_Core"></a>LMF Core<a class="section_anchor" href="#LMF_Core"></a>
+  </h2>
+  <p>
+    The core component of the Linked Media Framework is a <strong>Linked Data
+      Server</strong> that allows to expose data following the <a rel="nofollow"
+      href="http://linkeddatabook.com/editions/1.0/">Linked Data Principles</a>:
+  </p>
+  <ol>
+    <li>Use URIs as names for things.</li>
+    <li>Use HTTP URIs, so that people can look up those names.</li>
+    <li>When someone looks up a URI, provide useful information, using the standards
+      (RDF, SPARQL).</li>
+    <li>Include links to other URIs, so that they can discover more things.</li>
+  </ol>
+  <p></p>
+  <p>
+    The Linked Data Server implemented as part of the LMF goes beyond the Linked Data
+    principles by extending them with Linked Data Updates and by integrating management of
+    metadata and content and making both accessible in a uniform way. Our extensions are
+    described in more detail in <a
+      href="http://code.google.com/p/lmf/wiki/PrinciplesLinkedMedia">PrinciplesLinkedMedia</a>.
+    In addition to the Linked Data Server, the LMF Core also offers a SPARQL endpoint.
+  </p>
+  <p>Whereas the extension of the Linked Data principles is already conceptually
+    well-described, we are currently still working on a proper specification and extension
+    of Semantic Search and SPARQL endpoint for Linked Data servers.</p>
+  <p>
+    <strong>The LMF Core can be downloaded in the <a rel="nofollow"
+      href="http://code.google.com/p/lmf/downloads/list">Downloads</a> section!
+    </strong>
+  </p>
+  <h2>
+    <a id="LMF_Modules"></a>LMF Modules<a class="section_anchor" href="#LMF_Modules"></a>
+  </h2>
+  <p>As extension for the LMF Core, we are working on a number of optional modules
+    that can be used to extend the functionality of the Linked Media Server:</p>
+  <p>Implemented:</p>
+  <ul>
+    <li><strong><a
+        href="http://code.google.com/p/lmf/wiki/ModuleSemanticSearch">LMF Semantic
+          Search</a></strong> offers a highly configurable <strong>Semantic Search</strong> service
+      based on Apache SOLR. Several semantic search indexes can be configured in the same
+      LMF instance. Setting up and using the Semantic Search component is described in <a
+      href="http://code.google.com/p/lmf/wiki/ModuleSemanticSearch">SemanticSearch</a>,
+      the path language used for configuring it is described in <a
+      href="http://code.google.com/p/lmf/wiki/ModuleLDPath">LDPath</a>.
+    </li>
+    <li><strong><a
+        href="http://code.google.com/p/lmf/wiki/ModuleLinkedDataCaching">LMF Linked
+          Data Cache</a></strong> implements a cache to the Linked Data Cloud that is transparently
+      used when querying the content of the LMF using either SPARQL or the Semantic Search
+      component. In case a local resource links to a remote resource in the Linked Data
+      Cloud and this relationship is queried, the remote resource will be retrieved in the
+      background and cached locally.</li>
+    <li><strong><a
+        href="http://code.google.com/p/lmf/wiki/ModuleReasoning">LMF Reasoner</a></strong>
+      implements a rule-based reasoner that allows to process Datalog-style rules over RDF
+      triples; the LMF Reasoner will be based on the reasoning component developed in the
+      KiWi project, the predecessor of the LMF (state: implemented)</li>
+  </ul>
+  <p></p>
+  <p>In Progress:</p>
+  <ul>
+    <li><strong>LMF Permissions</strong> implements and extends the <a rel="nofollow"
+      href="http://www.w3.org/wiki/WebID">WebID</a> and <a rel="nofollow"
+      href="http://www.w3.org/wiki/WebAccessControl">WebACL</a> specifications for
+      standards-conforming authentication and access control in the Linked Media
+      Framework. (state: almost completed)</li>
+    <li><strong>LMF Enhancer</strong> offers semantic enhancement of content by
+      analysing textual and media content; the LMF Enhancer will build upon UIMA, Apache
+      Tika, and our own <a rel="nofollow" href="http://incubator.apache.org/stanbol/">Apache
+        Stanbol</a> framework (state: started)</li>
+    <li><strong>LMF Media Interlinking</strong> will implement support for multimedia
+      interlinking based on the work in the <a rel="nofollow"
+      href="http://www.w3.org/2008/WebVideo/Fragments/">W3C Multimedia Fragments WG</a>
+      and the <a rel="nofollow" href="http://www.w3.org/2008/01/media-annotations-wg.html">W3C
+        Multimedia Annotations WG</a></li>
+    <li><strong>LMF Versioning</strong> implements versioning of metadata updates;
+      versioning itself is already carried out by LMF Core, but the management of versions
+      will be carried out by this module (state: started)</li>
+  </ul>
+  <p></p>
+  <!--###END_CONTENT###-->
+</body>
+</html>
+
