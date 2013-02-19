@@ -372,32 +372,6 @@
                 <artifactId>maven-reactor-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>buildinfo-maven-plugin</artifactId>
-                <version>3.0.0-SNAPSHOT</version>
-                <configuration>
-                    <systemProperties>
-                        <systemProperty>user.name</systemProperty>
-                        <systemProperty>user.timezone</systemProperty>
-                        <systemProperty>java.vm.vendor</systemProperty>
-                        <systemProperty>java.vm.version</systemProperty>
-                        <systemProperty>java.vm.name</systemProperty>
-                        <systemProperty>java.runtime.version</systemProperty>
-                        <systemProperty>os.name</systemProperty>
-                        <systemProperty>os.version</systemProperty>
-                        <systemProperty>os.arch</systemProperty>
-                    </systemProperties>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>extract</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
@@ -727,6 +701,11 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
+                <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
                 <version>1.7.2</version>
             </dependency>
             <dependency>
@@ -1416,6 +1395,22 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

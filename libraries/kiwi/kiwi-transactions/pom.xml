@@ -153,6 +153,11 @@
             <artifactId>sesame-rio-rdfxml</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sail</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

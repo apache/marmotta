@@ -17,10 +17,10 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-       <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldpath-parent</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -51,6 +51,7 @@
         <dependency>
            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -86,6 +87,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>LDPath Functions: XML</Bundle-Name>
+                        <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
+                        <Bundle-Vendor>Apache Software Foundation</Bundle-Vendor>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <_versionpolicy>$${version;===;${@}}</_versionpolicy>
                         <!-- Enable this for including your enhancement chain configuration -->
                         <!-- <Install-Path>config</Install-Path> -->
                         <Export-Package>
@@ -111,7 +116,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <service.vendor>Salzburg Research</service.vendor>
+                                <service.vendor>Apache Software Foundation</service.vendor>
                             </properties>
                         </configuration>
                     </execution>

@@ -19,10 +19,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-       <groupId>org.apache.marmotta</groupId>
-        <artifactId>ldpath-parent</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
     <name>LDPath Templating: Linked Data</name>

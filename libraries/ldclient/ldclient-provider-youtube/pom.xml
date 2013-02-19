@@ -55,6 +55,10 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
 
         <dependency>

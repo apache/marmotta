@@ -119,7 +119,7 @@
         <!-- LMF Testing Package -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-core</artifactId>
+            <artifactId>marmotta-core</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
@@ -172,19 +172,19 @@
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-core</artifactId>
+            <artifactId>marmotta-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-ldpath</artifactId>
+            <artifactId>marmotta-ldpath</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-sparql</artifactId>
+            <artifactId>marmotta-sparql</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

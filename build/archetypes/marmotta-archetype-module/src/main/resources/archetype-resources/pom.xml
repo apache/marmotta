@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>lmf-parent</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>2.6.0</version>
     </parent>
 
@@ -33,14 +33,14 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-core</artifactId>
+            <artifactId>marmotta-core</artifactId>
             <version>2.6.0</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-core</artifactId>
+            <artifactId>marmotta-core</artifactId>
             <version>2.6.0</version>
             <type>test-jar</type>
             <scope>test</scope>

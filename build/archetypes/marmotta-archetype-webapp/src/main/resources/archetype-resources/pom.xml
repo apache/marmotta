@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>lmf-parent</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>2.6.0-SNAPSHOT</version>
     </parent>
 
@@ -172,84 +172,84 @@
         <!-- LMF Modules, include the ones needed by the application -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-core</artifactId>
+            <artifactId>marmotta-core</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-ldpath</artifactId>
+            <artifactId>marmotta-ldpath</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-ldcache</artifactId>
+            <artifactId>marmotta-ldcache</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-reasoner</artifactId>
+            <artifactId>marmotta-reasoner</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-sparql</artifactId>
+            <artifactId>marmotta-sparql</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-skos</artifactId>
+            <artifactId>marmotta-skos</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-search</artifactId>
+            <artifactId>marmotta-search</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-security</artifactId>
+            <artifactId>marmotta-security</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-scheduler</artifactId>
+            <artifactId>marmotta-scheduler</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-versioning</artifactId>
+            <artifactId>marmotta-versioning</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-stanbol</artifactId>
+            <artifactId>marmotta-stanbol</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-enhancer</artifactId>
+            <artifactId>marmotta-enhancer</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-geo</artifactId>
+            <artifactId>marmotta-geo</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <!--
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-templating</artifactId>
+            <artifactId>marmotta-templating</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-user</artifactId>
+            <artifactId>marmotta-user</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-social</artifactId>
+            <artifactId>marmotta-social</artifactId>
             <version>${lmf.version}</version>
         </dependency>
         <dependency>
