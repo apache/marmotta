@@ -19,9 +19,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.maven</groupId>
-        <artifactId>maven-plugins</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
     <artifactId>refpack-maven-plugin</artifactId>
@@ -85,7 +86,7 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>at.newmedialab.maven</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>buildinfo-maven-plugin</artifactId>
                 <version>3.0.0-SNAPSHOT</version>
                 <configuration>

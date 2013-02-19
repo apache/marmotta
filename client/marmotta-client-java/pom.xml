@@ -20,14 +20,15 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>lmf-client</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>lmf-client-java</artifactId>
+    <artifactId>marmotta-client-java</artifactId>
     <packaging>jar</packaging>
 
-    <name>LMF Client Library for Java</name>
+    <name>Apache Marmotta Client Library for Java</name>
     <description>
         A Java Library for accessing a remote LMF installation using REST webservice calls.
     </description>

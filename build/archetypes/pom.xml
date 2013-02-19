@@ -16,16 +16,17 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.apache.marmotta</groupId>
-    <artifactId>lmf-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
-  </parent>
-  <artifactId>lmf-archetypes</artifactId>
+    <parent>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
+    </parent>
+  <artifactId>archetypes-reactor</artifactId>
   <packaging>pom</packaging>
-  <name>LMF Archetypes</name>
+  <name>Apache Marmotta: Archetypes</name>
   <modules>
-      <module>lmf-archetype-module</module>
-      <module>lmf-archetype-webapp</module>
+      <module>marmotta-archetype-module</module>
+      <module>marmotta-archetype-webapp</module>
   </modules>
 </project>

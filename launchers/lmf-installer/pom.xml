@@ -161,7 +161,7 @@
                     </plugin>
 
                     <plugin>
-                        <groupId>at.newmedialab.maven</groupId>
+                        <groupId>org.apache.marmotta</groupId>
                         <artifactId>refpack-maven-plugin</artifactId>
                         <version>${project.version}</version>
                         <configuration>
