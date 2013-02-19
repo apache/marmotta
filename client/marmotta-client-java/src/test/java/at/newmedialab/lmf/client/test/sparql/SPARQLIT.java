@@ -20,8 +20,6 @@ import at.newmedialab.lmf.client.ClientConfiguration;
 import at.newmedialab.lmf.client.clients.SPARQLClient;
 import at.newmedialab.lmf.client.model.sparql.SPARQLResult;
 import at.newmedialab.lmf.client.test.ldpath.LDPathIT;
-import at.newmedialab.lmf.client.test.search.CoreIT;
-import at.newmedialab.lmf.search.api.indexing.SolrIndexingService;
 import kiwi.core.api.importer.ImportService;
 import kiwi.core.exception.io.LMFImportException;
 import kiwi.core.test.base.JettyLMF;

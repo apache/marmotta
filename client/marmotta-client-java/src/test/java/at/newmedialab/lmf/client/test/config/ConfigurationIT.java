@@ -65,7 +65,7 @@ public class ConfigurationIT {
         
         Set<String> keys = client.listConfigurationKeys();
         Assert.assertNotNull(keys);
-        Assert.assertThat(keys, Matchers.hasItem("solr.cores.enabled"));
+        Assert.assertThat(keys, Matchers.hasItem("kiwi.host"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ConfigurationIT {
         Assert.assertTrue(cfgs1.size() > 0);
 
 
-        Set<Configuration> cfgs2 = client.listConfigurations("solr");
+        Set<Configuration> cfgs2 = client.listConfigurations("kiwi");
         Assert.assertNotNull(cfgs2);
         Assert.assertTrue(cfgs2.size() > 0);
 
