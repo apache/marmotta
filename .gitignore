@@ -5,4 +5,8 @@
 *.ipr
 *.iws
 *.iml
+.project
+.classpath
+.externalToolBuilders
+.settings
 target
