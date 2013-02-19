@@ -48,7 +48,7 @@
             <artifactId>jsoup</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-commons</artifactId>
         </dependency>
 

@@ -1131,22 +1131,22 @@
 
             <!-- LMF Sesame Tools -->
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-filter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-vcard</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-ical</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -1157,32 +1157,32 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-rdfa</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-rdfjson</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-rss</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-jsonld</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>at.newmedialab.sesame</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-facading</artifactId>
                 <version>${project.version}</version>
             </dependency>

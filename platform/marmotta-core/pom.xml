@@ -382,39 +382,39 @@
         </dependency>
 
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-filter</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-vcard</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-ical</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-rdfa</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-rdfjson</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-rss</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-jsonld</artifactId>
         </dependency>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-facading</artifactId>
         </dependency>
 

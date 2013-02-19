@@ -19,10 +19,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>at.newmedialab.sesame</groupId>
-        <artifactId>sesame-tools</artifactId>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
     <name>Sesame I/O: RDF/JSON</name>
@@ -31,7 +31,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>at.newmedialab.sesame</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-api</artifactId>
         </dependency>
 
