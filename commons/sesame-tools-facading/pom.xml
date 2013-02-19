@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>sesame-tools-facading</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>Sesame Tools: Facading</name>
     <description>
         Allows using annotated Java interfaces (facades) to access an underlying 

@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>marmotta-webapp</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>LMF Web Application</name>

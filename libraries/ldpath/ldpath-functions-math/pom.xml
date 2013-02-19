@@ -25,6 +25,7 @@
 
     <name>LDPath Functions: Math</name>
     <artifactId>ldpath-functions-math</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>Math-Functions for ldpath</description>

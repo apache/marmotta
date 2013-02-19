@@ -26,6 +26,7 @@
     <name>LDPath Functions: Text</name>
 
     <artifactId>ldpath-functions-text</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>Text-Functions for ldpath</description>

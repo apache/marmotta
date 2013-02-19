@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>sesame-commons</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
 
     <name>Sesame Commons</name>
     <description>A collection of common utilities for working with Sesame repositories</description>

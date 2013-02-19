@@ -27,6 +27,7 @@
 
     <name>LDPath API</name>
     <artifactId>ldpath-api</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
 

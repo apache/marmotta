@@ -25,6 +25,7 @@
 
     <name>LDPath Functions: Date</name>
     <artifactId>ldpath-functions-date</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>date manipulation and arithmetics in ldpath</description>
     <dependencies>

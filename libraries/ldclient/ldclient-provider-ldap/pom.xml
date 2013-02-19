@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ldclient-provider-ldap</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>LDClient Provider: LDAP Resource Access</name>
 
     <description>

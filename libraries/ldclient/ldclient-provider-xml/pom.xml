@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ldclient-provider-xml</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>LDClient Provider: XML Resource Access</name>
 
     <description>

@@ -26,6 +26,7 @@
     <name>LDPath Functions: rdf-Collections</name>
 
     <artifactId>ldpath-functions-collections</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>Collection-Functions for ldpath (rdf:Bag, rdf:Sequence, rdf:Collection)</description>

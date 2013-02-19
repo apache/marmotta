@@ -27,6 +27,7 @@
 
     <name>LDPath Backend: Jena</name>
     <artifactId>ldpath-backend-jena</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>

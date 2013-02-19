@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>refpack-maven-plugin</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>Maven Refpack Plugin</name>

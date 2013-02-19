@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ldclient-provider-youtube</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>LDClient Provider: YouTube Resources</name>
 
     <description>

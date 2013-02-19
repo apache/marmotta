@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ldcache-api</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>LDCache: API</name>
 
     <description>

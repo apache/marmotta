@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ldcache-sail-kiwi</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>LDCache: Sesame SAIL (KiWi)</name>
 
     <description>

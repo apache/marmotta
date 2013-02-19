@@ -26,6 +26,7 @@
 
     <name>LDPath Functions: HTML</name>
     <artifactId>ldpath-functions-html</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
 

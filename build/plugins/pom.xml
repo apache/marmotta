@@ -24,6 +24,7 @@
     </parent>
 
     <artifactId>plugins-reactor</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Apache Marmotta: Maven Plugins</name>

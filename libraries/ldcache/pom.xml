@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>ldcache-reactor</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>LDCache: Reactor</name>
     <packaging>pom</packaging>
 

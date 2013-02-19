@@ -27,6 +27,7 @@
 
     <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-commons</artifactId>
+  <version>3.0.0-incubating-SNAPSHOT</version>
     <name>Apache Marmotta: Common Utilities</name>
 
     <dependencies>
