@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <title>Sgvizler</title>
+      <meta charset="UTF-8">
+      <link rel="shortcut icon" href="http://sgvizler.googlecode.com/svn/www/favicon.ico">
+      <link rel="stylesheet" type="text/css" href="http://sgvizler.googlecode.com/svn/www/sgvizler.css">
+      <link rel="stylesheet" type="text/css" href="examples.css"><script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script><script type="text/javascript" src="https://www.google.com/jsapi"></script><script type="text/javascript" id="sgvzlr_script" src="../sgvizler.js"></script><script type="text/javascript">sgvizler.option.namespace.npd = 'http://sws.ifi.uio.no/npd/';
+      sgvizler.option.namespace.npdv = 'http://sws.ifi.uio.no/vocab/npd#';
+      
+	$(document).ready(sgvizler.go());
+      </script></head>
+   <body>
+      <div id="logo"><a href="http://code.google.com/p/sgvizler/"><img src="http://sgvizler.googlecode.com/svn/www/mr.sgvizler.png" alt="mr.sgvizler.png"></a><br>Mr. Sgvizler
+         
+      </div>
+      <h3><code>gOrgChart</code>: Draws the structure -&gt; Company -&gt; Field with ExplorationWellbore
+      </h3>
+      <p></p>
+      <div id="sgvzl_example_query" data-sgvizler-endpoint="http://sws.ifi.uio.no/sparql/npd" data-sgvizler-query="SELECT DISTINCT ?node ?parent WHERE{ { LET(?node := &#34;ALL&#34;) LET(?parent := &#34;&#34;) LET(?value := 0)} UNION {?s npdv:name ?node ; a npdv:Company . [] a npdv:Field ; npdv:hasCompany ?s . LET(?parent := &#34;ALL&#34;) LET(?value := 0)} UNION {?s npdv:name ?node; a npdv:Field ; npdv:hasCompany [npdv:name ?parent] . [] a npdv:ExplorationWellbore ; npdv:hasField ?s . }}" data-sgvizler-chart="gOrgChart" data-sgvizler-loglevel="2" style="width:800px; height:400px;"></div>
+      <p>The element which draws the above chart:</p><pre id="sgvzl_example_pre">&lt;div id="sgvzl_example_query" 
+   data-sgvizler-endpoint="http://sws.ifi.uio.no/sparql/npd" 
+   data-sgvizler-query="SELECT DISTINCT ?node ?parent WHERE{ { LET(?node := &amp;quot;ALL&amp;quot;) LET(?parent := &amp;quot;&amp;quot;) LET(?value := 0)} UNION {?s npdv:name ?node ; a npdv:Company . [] a npdv:Field ; npdv:hasCompany ?s . LET(?parent := &amp;quot;ALL&amp;quot;) LET(?value := 0)} UNION {?s npdv:name ?node; a npdv:Field ; npdv:hasCompany [npdv:name ?parent] . [] a npdv:ExplorationWellbore ; npdv:hasField ?s . }}" 
+   data-sgvizler-chart="gOrgChart" 
+   data-sgvizler-loglevel="2" 
+   style="width:800px; height:400px;"/&gt;</pre><h3>The results of the query in <code>gTable</code></h3>
+      <div id="sgvzl_example_table" data-sgvizler-endpoint="http://sws.ifi.uio.no/sparql/npd" data-sgvizler-query="SELECT DISTINCT ?node ?parent WHERE{ { LET(?node := &#34;ALL&#34;) LET(?parent := &#34;&#34;) LET(?value := 0)} UNION {?s npdv:name ?node ; a npdv:Company . [] a npdv:Field ; npdv:hasCompany ?s . LET(?parent := &#34;ALL&#34;) LET(?value := 0)} UNION {?s npdv:name ?node; a npdv:Field ; npdv:hasCompany [npdv:name ?parent] . [] a npdv:ExplorationWellbore ; npdv:hasField ?s . }}" data-sgvizler-chart="gTable" data-sgvizler-loglevel="2" style="width:800px; height:200px;"></div>
+      <div id="footer">
+         <!--Please leave a link to the Sgvizler homepage.-->
+         <p>
+            	Sgvizler visualizes the result of SPARQL SELECT queries using
+            	javascript and the Google Visualization API. For more
+            	information, see the <a href="http://code.google.com/p/sgvizler/">Sgvizler</a>
+            	homepage. (c) 2011--2012 Martin G. Skjæveland.
+            
+         </p>
+      </div>
+   </body>
+</html>

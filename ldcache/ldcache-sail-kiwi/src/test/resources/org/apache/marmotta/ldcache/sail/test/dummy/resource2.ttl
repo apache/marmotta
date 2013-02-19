@@ -1,0 +1,3 @@
+@prefix ex: <http://remote/> .
+ex:resource2 ex:property1 "Value 2" ;
+             ex:property2 ex:resource3 .

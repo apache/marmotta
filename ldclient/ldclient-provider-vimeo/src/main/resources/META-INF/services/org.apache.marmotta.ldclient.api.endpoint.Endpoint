@@ -1,0 +1,3 @@
+org.apache.marmotta.ldclient.endpoint.vimeo.VimeoVideoEndpoint
+org.apache.marmotta.ldclient.endpoint.vimeo.VimeoChannelEndpoint
+org.apache.marmotta.ldclient.endpoint.vimeo.VimeoGroupEndpoint

@@ -1,0 +1,4 @@
+org.apache.marmotta.ldclient.provider.youtube.YoutubeChannelProvider
+org.apache.marmotta.ldclient.provider.youtube.YoutubePlaylistProvider
+org.apache.marmotta.ldclient.provider.youtube.YoutubeVideoProvider
+org.apache.marmotta.ldclient.provider.youtube.YoutubeVideoPagesProvider

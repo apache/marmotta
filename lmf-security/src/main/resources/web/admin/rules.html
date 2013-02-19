@@ -1,0 +1,93 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>Security Rules</title>
+    <link rel="stylesheet" type="text/css" href="../../core/public/style/smoothness/jquery-ui-1.8.21.custom.css" />
+    <script type="text/javascript" src="../../core/public/js/lib/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../../core/public/js/lib/jquery-ui-1.8.21.js"></script>
+    <style type="text/css">
+        table#security_rules tr td {
+            font-size: 10px;
+        }
+
+        #security_rules .cls-RESTRICTION td {
+            background-color: #dd9999;
+        }
+        #security_rules .cls-PERMISSION td {
+            background-color: #99dd99;
+        }
+    </style>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<h1>LMF Security Rules</h1>
+<p>
+    The following security rules are currently installed in the LMF system. Security rules are evaluated according to
+    priority. In case a rule matches a request (combination of URL pattern, method, host, and user roles), it fires and
+    triggers either a permission or a rejection. In case a rule does not match, it passes the request over to the next
+    rule in the chain.
+</p>
+
+<table class="simple_table" id="security_rules">
+    <tr>
+        <th>Type</th><th>Priority</th><th>Name</th><th>Methods</th><th>URL Pattern</th><th>Host Pattern</th><th>User Roles</th><th>Enabled</th>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    String.prototype.format = function () {
+        var args = arguments;
+        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
+    };
+
+    var fnJoin      = function(previousValue, currentValue, index, array){
+        return previousValue + ", " + currentValue;
+    };
+
+
+    var rowTemplate = '<tr class="cls-{0}"><td >{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>'
+
+    $(document).ready(function() {
+        $.getJSON(_SERVER_URL+"security/constraints", function(data) {
+            $.each(data, function(index,constraint) {
+                var hosts = "";
+                if(constraint.hosts.length > 0) {
+                    hosts = constraint.hosts.reduce(fnJoin)
+                }
+                var methods = "";
+                if(constraint.methods.length > 0) {
+                    methods = constraint.methods.reduce(fnJoin);
+                }
+                var roles = "";
+                if(constraint.roles.length > 0) {
+                    roles = constraint.roles.reduce(fnJoin);
+                }
+
+                $(rowTemplate.format(constraint.type, constraint.priority, constraint.name, methods, constraint.pattern, hosts, roles, constraint.enabled)).appendTo("#security_rules");
+            });
+
+        });
+    });
+</script>
+
+<!--###END_CONTENT###-->
+</body>
+</html>

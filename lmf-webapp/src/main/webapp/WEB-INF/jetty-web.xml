@@ -1,0 +1,34 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN"
+   "http://jetty.mortbay.org/configure.dtd">
+
+<Configure id="webAppCtx" class="org.mortbay.jetty.webapp.WebAppContext">
+
+    <Array id="annotationConfig" type="java.lang.String">
+      <Item>org.mortbay.jetty.webapp.WebInfConfiguration</Item>
+      <Item>org.mortbay.jetty.plus.webapp.EnvConfiguration</Item>
+      <Item>org.mortbay.jetty.annotations.Configuration</Item> <!-- Enables annotation support -->
+      <Item>org.mortbay.jetty.webapp.JettyWebXmlConfiguration</Item>
+      <Item>org.mortbay.jetty.webapp.TagLibConfiguration</Item>
+    </Array>
+
+   <Call class="org.jboss.weld.environment.jetty.MortbayWeldServletHandler" name="process">
+      <Arg><Ref id="webAppCtx"/></Arg>
+   </Call>
+</Configure>

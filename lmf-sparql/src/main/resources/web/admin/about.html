@@ -1,0 +1,84 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>Sparql Module</title>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<h1>SPARQL Query Language for RDF</h1>
+<p> RDF is a directed, labeled graph data format for representing information in the Web. RDF is often used to represent, among other things, personal information, social networks, metadata about digital artifacts, as well as to provide a means of integration over disparate sources of information. This specification defines the syntax and semantics of the SPARQL query language for RDF. </p>
+<p>
+  The SPARQL query language for RDF is designed to meet the use cases and requirements
+  identified by the RDF Data Access Working Group in
+  <cite>
+  <a class="inform" href="http://www.w3.org/TR/rdf-dawg-uc/">RDF Data Access Use
+  Cases and Requirements</a></cite> [<a href="#UCNR">UCNR</a>].
+</p>
+<p> The SPARQL query language is closely related to the following specifications: </p>
+<ul>
+<li>The <a href="http://www.w3.org/TR/rdf-sparql-protocol/" class="inform">SPARQL Protocol
+  for RDF</a> [<a href="#SPROT">SPROT</a>] specification defines the remote protocol for issuing SPARQL queries and receiving the results.</li>
+<li>The <a href="http://www.w3.org/TR/rdf-sparql-XMLres/" class="inform">SPARQL Query
+  Results XML Format</a> [<a href="#RESULTS">RESULTS</a>] specification defines an XML document format for representing the results of SPARQL SELECT and ASK queries.</li>
+</ul>
+<a href="http://www.w3.org/TR/rdf-sparql-query/">Read more</a>
+
+
+<h1>SPARQL 1.1 Update</h1>
+<p>SPARQL 1.1 Update is intended to be a standard language for specifying and executing updates to RDF graphs in a Graph Store.</p>
+<p>SPARQL 1.1 Update provides the following facilities:</p>
+<ul>
+<li>Insert triples into an RDF graph in the Graph Store.</li>
+<li>Delete triples from an RDF graph in the Graph Store.</li>
+<li>Load an RDF graph into the Graph Store.</li>
+<li>Clear an RDF graph in the Graph Store.</li>
+<li>Create a new RDF graph in a Graph Store.</li>
+<li>Drop an RDF graph from a Graph Store.</li>
+<li>Copy, move, or add the content of one RDF graph in the Graph Store to another.</li>
+<li>Perform a group of update operations as a single action.</li>
+</ul>
+<p>This document is particularly related to the following other specification documents:</p>
+<ul><li><a href="http://www.w3.org/TR/sparql11-query/">SPARQL 1.1 Query Language</a></li><li><a href="http://www.w3.org/TR/sparql11-http-rdf-update/">SPARQL 1.1 Graph Store HTTP Protocol</a></li><li><a href="http://www.w3.org/TR/sparql11-protocol/">SPARQL 1.1 Protocol for RDF</a></li></ul>
+<p>
+SPARQL 1.1 Update is a companion language and envisaged to be used in conjunction with the
+<em>SPARQL 1.1 Query language</em>
+. The present document refers to the grammar and several definitions from the
+<em>SPARQL 1.1 Query language</em>
+specification.
+</p>
+<p>
+The
+<em>SPARQL 1.1 Graph Store HTTP Protocol</em>
+specification employs the HTTP protocol to perform update operations using standard HTTP methods, such as PUT and DELETE. While providing a simple and well known API, it is necessarily restricted in its operations due to the limited set of methods in the HTTP protocol. In contrast, SPARQL 1.1 Update permits multiple modifications in a single operation, and can use complex SPARQL queries for constructing data to be inserted, or choosing data to be deleted. Also, the use of an update language facilitates operations over proprietary APIs and connections that may not involve HTTP.
+</p>
+<p>
+The
+<em>SPARQL 1.1 Protocol for RDF</em>
+specification describes a means of conveying SPARQL 1.1 Query and SPARQL 1.1 Update operations from clients to a
+<a href="http://www.w3.org/TR/sparql11-protocol/about.html#intro">SPARQL query processing service</a>
+, and for returning appropriate results. Together with the SPARQL 1.1 Query and SPARQL 1.1 Update (this document) specifications, these form an alternative to the
+<em>SPARQL 1.1 Graph Store HTTP Protocol</em>
+with comprehensive, though more complex functionality.
+</p>
+<a href="http://www.w3.org/TR/sparql11-update/">Read more</a>
+<!--###END_CONTENT###-->
+</body>
+</html>

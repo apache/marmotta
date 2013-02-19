@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>IKS Blog - The Semantic CMS Community</title>
+	<atom:link href="http://blog.iks-project.eu/feed/" rel="self" type="application/rss+xml" />
+	<link>http://blog.iks-project.eu</link>
+	<description>The Semantic CMS Community</description>
+	<lastBuildDate>Fri, 20 Jul 2012 08:06:38 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>http://wordpress.org/?v=3.4.1</generator>
+		<item>
+		<title>Ontotext @ IKS Workshop</title>
+		<link>http://blog.iks-project.eu/ontotext-iks-workshop/</link>
+		<comments>http://blog.iks-project.eu/ontotext-iks-workshop/#comments</comments>
+		<pubDate>Fri, 20 Jul 2012 08:06:08 +0000</pubDate>
+		<dc:creator>Vladimir</dc:creator>
+				<category><![CDATA[Events]]></category>
+		<category><![CDATA[General]]></category>
+		<category><![CDATA[Ontotext]]></category>
+
+		<guid isPermaLink="false">http://blog.iks-project.eu/?p=4537</guid>
+		<description><![CDATA[I presented a short introduction to Ontotext technologies at the IKS Workshop in Salzburg in June 2012. Ontotext is a Bulgarian company, a world leader in semantic technologies. Our main products include the OWLIM semantic repository and the KIM semantic &#8230; <a href="http://blog.iks-project.eu/ontotext-iks-workshop/">Continue reading <span class="meta-nav">&#8594;</span></a>]]></description>
+			<content:encoded><![CDATA[<p>I presented a short introduction to Ontotext technologies at the <a href="//wiki.iks-project.eu/index.php/Workshops/Salzburg2012">IKS Workshop</a> in Salzburg in June 2012. <a href="http://www.ontotext.com">Ontotext</a> is a Bulgarian company, a world leader in semantic technologies. Our main products include the <a href="http://www.ontotext.com/owlim">OWLIM</a> semantic repository and the <a href="http://www.ontotext.com/kim">KIM</a> semantic annotation and search platform, based on <a href="http://gate.ac.uk">GATE</a>.<span id="more-4537"></span></p>
+<p>The video is about 7 minutes and shows the following:</p>
+<p><iframe src="http://player.vimeo.com/video/46022176" width="620" height="349" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></p>
+<ul>
+<li>The Latest News <a href="http://www.ontotext.com/kim/showcases">KIM Showcase</a>, showing semantic annotation of general news articles. Back in Sep 2011 I did a comparison of the text analysis performance (precision and recall) of <a href="http://www.slideshare.net/valexiev1/comparing-ontotext-kim-and-apache-stanbol">KIM vs Stanbol</a>.</li>
+<li><a href="http://www.ontotext.com/lupedia">Lupedia Enrichment Service</a>, an entity lookup engine using our Large Knowledge Base Gazetteer, created as part of the <a href="http://notube.tv/">NoTube</a> project for Interactive TV</li>
+<li>The <a href="http://www.bbc.co.uk/sport/0/olympics/2012/">BBC Olympics 2012 site</a>, built using OWLIM and a Ontotext&#8217;s concept extraction and semantic disambiguation service, as <a href="http://semtechbizsf2012.semanticweb.com/sessionPop.cfm?confid=65&amp;proposalid=4597">presented at the SemTechBiz 2012</a> conference in San Francisco in June 2012. See a description of <a href="http://www.bbc.co.uk/blogs/bbcinternet/2012/04/sports_dynamic_semantic.html">Dynamic Semantic Publishing</a> by BBCs&#8217; Lead Technical Architect for the News and Knowledge Core Engineering department.</li>
+<li><a href="http://factforge.net/">http://factforge.net/</a>, a public service by Ontotext that presents a &#8220;reason-able view&#8221; of the most important LOD data sets</li>
+<li><a href="http://linkedlifedata.com/">http://linkedlifedata.com/</a>, another public service that integrates and correlates the most important public data sets in the Life Sciences domain. This service is regarded highly by global pharmaceuticals such as Astra Zeneca and UCB, and is used as global background knowledge by Ontotext&#8217;s <a href="http://www.ontotext.com/life-sciences/semantic-biomedical-tagger">Semantic Biomedical Tagger</a>.  It was also <a href="http://www.ontotext.com/news/LLD-for-drug-discovery-UCB-use-case">presented at SemTechBiz 2012</a>.</li>
+<li>Finally, I gave my thoughts on future technological directions for IKS. I think IKS should make it easier for commercial vendors to integrate their offerings in the Stanbol architecture, for example GATE and UIMA processing pipelines and language resources; Sesame and JENA semantic repositories, etc. It should also turn more towards established semantic web standards, such as RDF for representation; SPARQL for querying and update; SPIN for rules.</li>
+</ul>
+<p>Thanks to the organizers for inviting me to speak at the workshop!</p>
+<p>Vladimir Alexiev, PhD, PMP<br />
+Data and Ontology Management group<br />
+Ontotext Corp</p>
+]]></content:encoded>
+			<wfw:commentRss>http://blog.iks-project.eu/ontotext-iks-workshop/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Netzmühle eCommerce solution using Apache Stanbol</title>
+		<link>http://blog.iks-project.eu/netzmuhle-ecommerce-solution-using-apache-stanbol/</link>
+		<comments>http://blog.iks-project.eu/netzmuhle-ecommerce-solution-using-apache-stanbol/#comments</comments>
+		<pubDate>Wed, 18 Jul 2012 10:47:37 +0000</pubDate>
+		<dc:creator>Martin</dc:creator>
+				<category><![CDATA[Apache Stanbol]]></category>
+		<category><![CDATA[Enhancement Engines]]></category>
+		<category><![CDATA[EntityHub]]></category>
+		<category><![CDATA[Events]]></category>
+		<category><![CDATA[IKS Early Adopers]]></category>
+		<category><![CDATA[early_adopters]]></category>
+		<category><![CDATA[eCommerce]]></category>
+
+		<guid isPermaLink="false">http://blog.iks-project.eu/?p=4514</guid>
+		<description><![CDATA[Netzmühle is a web agency founded in 2008. Located in the city of Salzburg we are developing online marketing and individual e-commerce solutions. To develop very successful solutions we always observe trends in search engine optimization, design and technology. But &#8230; <a href="http://blog.iks-project.eu/netzmuhle-ecommerce-solution-using-apache-stanbol/">Continue reading <span class="meta-nav">&#8594;</span></a>]]></description>
+			<content:encoded><![CDATA[<p>Netzmühle is a web agency founded in 2008. Located in the city of Salzburg we are developing online marketing and individual e-commerce solutions. To develop very successful solutions we always observe trends in search engine optimization, design and technology. But we are not only observers we also want to take part in applying new technologies. Therefore is very interesting for us to be involved in the IKS community. As early adopters of Apache Stanbol we presented at the 7<sup>th</sup> IKS workshop in Salzburg a first demo solution to show the advantages of the semantic web in an e—commerce solution.<span id="more-4514"></span></p>
+<p>The main goals we wanted to address during development were:</p>
+<ul>
+<li>Using Apache Stanbol in an e-commerce solution</li>
+<li>Are semantic web technologies able to offer customer benefits?</li>
+<li>Is Apache Stanbol market-ready?</li>
+</ul>
+<p>The detailed goals for the concrete implementation were:</p>
+<ul>
+<li>Combine an online-shop with stories (content pages but with high quality content for search engines)</li>
+<li>Automatic matching of products within stories</li>
+<li>Find products using context of the stories</li>
+<li>Low-threshold buying incentives (e.g. describe how use a product in an emotional situation like drinking a bottle of wine during a candle light dinner)</li>
+<li>With many products manual assignments are too time consuming</li>
+</ul>
+<p>After developing the semantic e-commerce solution we were able to realise most of the above goals. The usage of semantic web technologies offer interesting new benefits and so we are planning a follow-up project in which integrate Apache Stanbol more deeply into our online-shop software Netzmühle BARTHII.</p>
+<p>Although Apache Stanbol is already a very powerful tool there will need to be further fine tuning in the enhancement configuration to improve the usage of very large DBPedia indexes.</p>
+<p>The slides of our presentation show in detail how the e-commerce solution works.</p>
+<p><iframe src="http://player.vimeo.com/video/45297455" width="620" height="349" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></p>
+]]></content:encoded>
+			<wfw:commentRss>http://blog.iks-project.eu/netzmuhle-ecommerce-solution-using-apache-stanbol/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>WordLift powers Enel.TV (Semantic TV Example)</title>
+		<link>http://blog.iks-project.eu/wordlift-powers-enel-tv-semantic-tv-example/</link>
+		<comments>http://blog.iks-project.eu/wordlift-powers-enel-tv-semantic-tv-example/#comments</comments>
+		<pubDate>Sun, 15 Jul 2012 10:44:49 +0000</pubDate>
+		<dc:creator>Avolpini</dc:creator>
+				<category><![CDATA[Apache Stanbol]]></category>
+		<category><![CDATA[Case Study]]></category>
+		<category><![CDATA[IKS Early Adopers]]></category>
+		<category><![CDATA[enel]]></category>
+		<category><![CDATA[IKS]]></category>
+		<category><![CDATA[insideout10]]></category>
+		<category><![CDATA[ioiojs]]></category>
+		<category><![CDATA[wordlift]]></category>
+		<category><![CDATA[wordlift2]]></category>
+		<category><![CDATA[Wordpress]]></category>
+
+		<guid isPermaLink="false">http://blog.iks-project.eu/?p=4406</guid>
+		<description><![CDATA[The overall idea of Enel.tv (a website that will go online next month) was to celebrate Enel’s 50th Anniversary with the development of an interactive video channel dedicated to their archive. Founded in 1962, after an historic political debate that &#8230; <a href="http://blog.iks-project.eu/wordlift-powers-enel-tv-semantic-tv-example/">Continue reading <span class="meta-nav">&#8594;</span></a>]]></description>
+			<content:encoded><![CDATA[<p><strong></strong>The overall idea of Enel.tv (a website that will go online next month) was to celebrate <a href="http://50.enel.com" target="_blank">Enel’s 50th Anniversary</a> with the development of an interactive video channel dedicated to their archive. Founded in 1962, after an historic political debate that led to the nationalisation of 1,300 local electricity companies, Enel is now Italy’s largest electricity company and one of the main players World-Wide. In this post we will present ioio.js a framework we developed for <a href="http://blog.iks-project.eu/wordlift-launches-in-beta-aims-to-be-your-wordpress-semantic-plugin-of-choice/" title="WordLift Launches In Beta, Aims To Be Your WordPress Semantic Plugin of Choice">WordLift</a> users to personalize the user-experience on semantic-aware WordPress blogs (WordLift brings the power of <a href="https://vimeo.com/45691481" target="_blank" title="a quick video explanation of IKS">Apache Stanbol</a> to WordPress).</p>
+<h3><span id="more-4406"></span>Challenges</h3>
+<p>Our project began in 2010 with the census of Enel’s video archive that was spread across various locations in Italy and included over 1.200 tapes (Betacam SP and Betacam Digital), 353 open reel video (1 and 1/2 inch) and 146 films (35 and 16 mm). For the first time we had the opportunity to view this unique account of Italian history (over 850 videos), classify all materials, digitalize it and create a comprehensive database for web access (this tremendous effort has been possible thanks to the collaboration with Interact SpA, a company we started in the mid-nineties). When we began working on the <strong>information architecture</strong> we wanted:</p>
+<ul>
+<li>To be as flexible as possible,</li>
+<li>To re-design the taxonomy of the web site based on the contents we had (roughly 600 selected videos for online access) mixing a typical bottom-up approach with some top-to-bottom re-organization that could make the overall architecture accessible and aligned with the company’s core objectives,</li>
+<li>To ensure a seamless experience from web to smart devices and&#8230;</li>
+<li>To use our CMS of choice (WordPress) making the site easy to manage for the internal editorial team (that would keep managing the site with newer contents once the anniversary is over) and compatible with Enel’s IT infrastructure.</li>
+</ul>
+<p>Moreover following the early discussions we had with the Digital Media team in Enel we all recognized <em>the web is a medium on its own</em> (and has little to do with video archives) and most of <em>the ideas around corporate online TV are quite distant from today&#8217;s web usage patterns</em>.</p>
+<p>The result was the mind-map you&#8217;ll see below where contents are accessible and clustered using various keys such as <strong>timeline</strong> (“Periodi storici”), <strong>geographical coordinates</strong> (“Territorio”) and <strong>topics</strong> (“Tematica”).</p>
+<p><iframe src="https://dl.dropbox.com/u/8801031/Enel-TV/WebTV-Archivio-ENEL/index.html" width="90%" height="480"></iframe></p>
+<p><a href="https://dl.dropbox.com/u/8801031/Enel-TV/WebTV-Archivio-ENEL/index.html" target="_blank">https://dl.dropbox.com/u/8801031/Enel-TV/WebTV-Archivio-ENEL/index.html</a></p>
+<h4><strong>Semantic Everywhere</strong></h4>
+<div id="attachment_4466" class="wp-caption alignright" style="width: 178px"><img class="size-medium wp-image-4466  " src="http://blog.iks-project.eu/wp-content/uploads/Screenshot_2012-07-13-15-14-25-168x300.png" alt="IOIO.JS Framework " width="168" height="300" /><p class="wp-caption-text">IOIO.JS Framework: responsive menu combined with ActiveElement on Android 4.0</p></div>
+<p>When getting back to WordPress we only had post and pages to deal with and we needed a much richer set of options to present our contents using the IA we had in mind.</p>
+<p>We though of using <strong><a href="http://wordlift.insideout.io">WordLift 2</a></strong> and <strong>Schema.org</strong> to boost WordPress adding a richer semantic organization of the assets and we developed a new plugin (code-named <a href="http://wordpress.org/extend/plugins/weeotv/">WeeoTV</a>) to publish all the videos from the Digital Asset Manager (DAM) to WordPress using a RESTfull interface. Having to deal with over 600 videos we created on WordPress a <a href="http://codex.wordpress.org/Post_Types">Custom Post Type</a> using <em>WL2 PHP framework</em> with the properties of the <a href="http://schema.org/VideoObject">VideoObject</a> (as defined by Schema.org); we eventually added the <a href="http://schema.org/Place">Place </a> for the GeoCoordinates and we ensured WeeoTV could handle properly the communication between the DAM and WP. In terms of UX after a lot of sketches, brainstorming sessions and a broad overview of the design trends we choose to feature:</p>
+<div id="attachment_4465" class="wp-caption alignleft" style="width: 220px"><img class=" wp-image-4465  " src="http://blog.iks-project.eu/wp-content/uploads/IMG_20120713_1456121-300x225.jpg" alt="Preview of Enel.tv" width="210" height="158" /><p class="wp-caption-text">Preview of the Sliding Menu and the Player Toolbar on Enel.tv</p></div>
+<ul>
+<li>Vertical Parallax Scrolling,</li>
+<li>Responsive design (smartphone, tablet, laptop and wide-screen TV),</li>
+<li>Dynamic tiles (already shown on WL2 early prototypes),</li>
+<li>Figure-Ground design where we could combine background images with multiple thumbs (each one presenting a single clip),</li>
+<li>Open Street Map to browse all clips that we could relate to places,</li>
+<li>Support for major browsers on Windows and Mac as well as touch devices running Android or iOS.</li>
+</ul>
+<h3></h3>
+<h4><a rel="attachment wp-att-4430" href="http://blog.iks-project.eu/wordlift-powers-enel-tv-semantic-tv-example/ioio-js-2/"><img class="alignleft size-full wp-image-4430" src="http://blog.iks-project.eu/wp-content/uploads/IOIO.js-2.gif" alt="IOIO.js" width="197" height="40" /></a></h4>
+<h3><strong>The ioio.js framework</strong></h3>
+<h4><em><strong>WordLift&#8217;s companion for client-side development </strong></em></h4>
+<p><strong>ioio.js </strong>is the semantic UI framework developed in connection with <a href="http://wordlift.insideout.io/">WordLift</a> our plugin for WordPress that uses <a href="http://incubator.apache.org/stanbol/" target="_blank"><strong>Apache Stanbol</strong></a> for content enrichment.</p>
+<p><strong>ioio.js</strong>  toolbox of front-end components to help you design a semantic user experience that has been developed for the Enel.tv website and it is the result of our effort as <a href="http://blog.iks-project.eu/wordlift-launches-in-beta-aims-to-be-your-wordpress-semantic-plugin-of-choice/" target="_blank" title="WordLift Launches In Beta, Aims To Be Your WordPress Semantic Plugin of Choice">IKS Early Adopters</a>.</p>
+<p>The <a href="https://github.com/insideout10/ioiojs" target="_blank">framework</a> consists of several components:</p>
+<div id="attachment_4464" class="wp-caption alignleft" style="width: 220px"><img class=" wp-image-4464   " src="http://blog.iks-project.eu/wp-content/uploads/IMG_20120713_145328-300x225.jpg" alt="Mapify in action - quickly add OSM to your website" width="210" height="158" /><p class="wp-caption-text">Mapify in action &#8211; quickly add Open Street Maps to your website</p></div>
+<ul>
+<li><strong><a href="https://github.com/insideout10/ioiojs#activeelement">ActiveElement</a></strong>: informs other components when the current active element has changed, useful to determine the active section.</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#arrowscroller">ArrowScroller</a></strong>: takes an scrollable element and draws two arrows on the sides to allow horizontal scrolling similar to the YouTube videos bar.</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#fillify">Fillify</a></strong>: creates a layout composed of stretchable background image, an overlayed container divided into a fixed height header and a variable height content, all controlled via stylesheets.</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#mapify">Mapify</a></strong>: eases the implementation of 3rd geomap libraries (OpenLayers) by providing a simplified facade, and allows easy integration of GeoRSS feeds with custom icons.</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#menufy">Menufy</a></strong>: creates a dynamic menu from a simple list and automatically moves the current selected menu item on the top of the list. Can be combined with ActiveElement to automatically update itself when the user scrolls the browser.</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#playertoolbar">PlayerToolbar</a></strong>: creates a 100% reusable HTML toolbar to manage a video player actions and events created via 3rd party libraries (LongTailVideo).</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#scrollbars">Scrollbars</a></strong>: creates non-obstrusive scrollbars that work just anywhere (Firefox included) and don&#8217;t break your existing CSS.</li>
+<li><strong><a href="https://github.com/insideout10/ioiojs#slidingmenu">SlidingMenu</a></strong>: updates the 2nd level navigation menu according to the current section, in combination with ActiveElement, optionally using animations to show the menu.</li>
+</ul>
+<h5>Requirements</h5>
+<h5>Requires jQuery 1.7.x and jQuery UI. Tested with jQuery 1.7.2 and jQuery UI 1.8.21.</h5>
+<h5>How to use it</h5>
+<p>Current version is <strong>0.9.1</strong>: to use it, get a copy of the library from here:</p>
+<ul>
+<li><strong>minified</strong> version: <a href="https://raw.github.com/insideout10/ioiojs/master/lib/ioio-0.9.1.min.js">https://raw.github.com/insideout10/ioiojs/master/lib/ioio-0.9.1.min.js</a>,</li>
+<li><strong>non-minified</strong> version: <a href="https://raw.github.com/insideout10/ioiojs/master/lib/ioio-0.9.1.js">https://raw.github.com/insideout10/ioiojs/master/lib/ioio-0.9.1.js</a>,</li>
+<li><strong>non-minified debug</strong> version: <a href="https://raw.github.com/insideout10/ioiojs/master/lib/ioio-0.9.1.debug.js">https://raw.github.com/insideout10/ioiojs/master/lib/ioio-0.9.1.debug.js</a>.</li>
+</ul>
+<p>For the <strong>debug version</strong> in order to see the debug messages, the following library is required:</p>
+<ul>
+<li><strong>ba-debug.js</strong>: <a href="https://raw.github.com/cowboy/javascript-debug/master/ba-debug.min.js">https://raw.github.com/cowboy/javascript-debug/master/ba-debug.min.js</a>.</li>
+</ul>
+<h5>How to report issues</h5>
+<p>Please use GitHub to report issues: <a href="https://github.com/insideout10/ioiojs/issues">https://github.com/insideout10/ioiojs/issues</a>.</p>
+<h3>Video: WordLift 2 Beta Program</h3>
+<p>For those of you interested on <a href="http://wordlift.insideout.io">WordLift</a> here is a video from the talk we gave at the IKS Salzburg Workshop that introduces the overall idea of WordPress going Semantic and <a href="https://docs.google.com/a/insideout.io/spreadsheet/viewform?formkey=dEZ1aGRjYVliT2ppUi14djQzUll2a2c6MQ" target="_blank">our Beta Program</a>.</p>
+<p><iframe src="http://player.vimeo.com/video/45243929" width="620" height="349" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe></p>
+<p>Once again thanks to the all <strong>IKS team</strong> for supporting this adventure and thanks to the team in <a href="http://www.enel.com/en-GB/" target="_blank"><strong>Enel</strong></a> investing on <strong>open source</strong> and <strong>web innovation</strong>!</p>
+]]></content:encoded>
+			<wfw:commentRss>http://blog.iks-project.eu/wordlift-powers-enel-tv-semantic-tv-example/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Analyzing Medical Records with Apache Stanbol</title>
+		<link>http://blog.iks-project.eu/analyzing-medical-records-with-apache-stanbol/</link>
+		<comments>http://blog.iks-project.eu/analyzing-medical-records-with-apache-stanbol/#comments</comments>
+		<pubDate>Fri, 13 Jul 2012 12:23:05 +0000</pubDate>
+		<dc:creator>AKumar</dc:creator>
+				<category><![CDATA[Apache Stanbol]]></category>
+		<category><![CDATA[Enhancement Engines]]></category>
+		<category><![CDATA[Entity Disambiguation]]></category>
+		<category><![CDATA[IKS Early Adopers]]></category>
+		<category><![CDATA[IKS Project]]></category>
+		<category><![CDATA[Topic Categorisation]]></category>
+		<category><![CDATA[Apach]]></category>
+		<category><![CDATA[Benchmarking]]></category>
+		<category><![CDATA[Healthcare demo]]></category>
+		<category><![CDATA[IKS]]></category>
+		<category><![CDATA[Tika Engine]]></category>
+
+		<guid isPermaLink="false">http://blog.iks-project.eu/?p=4452</guid>
+		<description><![CDATA[This blog describes a use case of analyzing medical records using Apache Stanbol. For more details, please read FORMCEPT&#8217;s proposal. In the previous blog post, we discussed about the basics of creating an Enhancement Engine for Apache Stanbol. This blog drills down into &#8230; <a href="http://blog.iks-project.eu/analyzing-medical-records-with-apache-stanbol/">Continue reading <span class="meta-nav">&#8594;</span></a>]]></description>
+			<content:encoded><![CDATA[<p>This blog describes a use case of analyzing medical records using <a href="http://incubator.apache.org/stanbol/" target="_blank" title="Apache Stanbol">Apache Stanbol</a>. For more details, please read <a href="http://wiki.iks-project.eu/index.php/Formcept_Proposal" target="_blank" title="FORMCEPT Proposal">FORMCEPT&#8217;s proposal</a>. In the previous blog post, we discussed about the basics of <a href="http://www.formcept.com/blog/stanbol" target="_blank" title="Apache Stanbol">creating an Enhancement Engine</a> for Apache Stanbol. This blog drills down into the Enhancement Structure of Apache Stanbol and various properties of a Metadata Graph that can be used to store the enhancements. The concepts are explained using a FORMCEPT Healthcare engine that can be used to annotate the medical records.<span id="more-4452"></span></p>
+<h2>Introduction</h2>
+<p>This section describes the concepts and terminologies used in the blog.</p>
+<h2>Content Item</h2>
+<p>A content item is the unit of content within Apache Stanbol. It contains the content as well as the entire Metadata graph of enhancements. You can read more about content item <a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/contentitem.html" target="_blank" title="Apache Stanbol - Content Item">here</a>.</p>
+<h2>Enhancement Engines</h2>
+<p>Enhancement Engines enhance the content item. A content item is processed by one or more enhancement engines based on the selected <a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/chains/" target="_blank" title="Apache Stanbol - Enhancement Chain">enhancement chain</a>. You can read more about enhancement engines <a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/engines/" target="_blank" title="Apache Stanbol - Enhancement Engines">here</a>.</p>
+<h2>Enhancement Structure</h2>
+<p>Enhancement structure defines the types and properties used in the Metadata graph of enhancements. The enhancement structure is based on <a href="http://www.w3.org/TR/rdf-primer/" target="_blank" title="RDF Primer">RDF</a> and <a href="http://www.w3.org/2004/OWL/" target="_blank" title="W3C - Web Ontology Language">OWL</a>. A sample enhancement structure is shown below. This example has been taken from Apache Stanbol wiki page. You can read more about enhancement structure <a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/enhancementstructure.html" target="_blank" title="Apache Stanbol - Enhancement Structure">here</a>.</p>
+<p><a href="http://formcept.com/blog/wp-content/uploads/2012/06/enhancementstructure.png"><img class="aligncenter size-full wp-image-150" src="http://formcept.com/blog/wp-content/uploads/2012/06/enhancementstructure.png" alt="Apache Stanbol - Enhancement Structure" width="782" height="565" /></a></p>
+<p style="text-align: center;">(Credit: Apache Stanbol)</p>
+<h2>Medical Record and Enhancements</h2>
+<p>[<a href="http://en.wikipedia.org/wiki/Medical_record" target="_blank" title="Medical Record">Wikipedia</a>] <em>The terms medical record, health record, and medical chart are used somewhat interchangeably to describe the systematic documentation of a single patient&#8217;s medical history and care across time within one particular health care provider&#8217;s jurisdiction.</em></p>
+<p>The healthcare enhancement engine considers a medical record as a content item. The knowledge base that is used by the enhancement engine is built on top of DBpedia 3.6 and specifically these domains-</p>
+<ol>
+<li>Drugs and Diseases</li>
+<li>Chemical Compounds</li>
+<li>Species</li>
+<li>Others, like- Health, Microbiology, Medical Diagnosis, Medicine, Perception and Biology</li>
+</ol>
+<h2>Implementation</h2>
+<p>This section describes the healthcare enhancement engine and how the enhancements are added to the Metadata graph for each Medical Record.</p>
+<h2>Healthcare Enhancement Chain</h2>
+<p>FORMCEPT Healthcare enhancement chain consists of-</p>
+<ol>
+<li><a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/engines/tikaengine.html" target="_blank" title="Apache Stanbol - Tika Engine">Tika Engine (Credit: Apache Stanbol)</a> (Credit: Apache Stanbol)</li>
+<li><a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/engines/langidengine.html" target="_blank" title="Apache Stanbol - Language Identification Engine">Language Identification Engine</a> (Credit: Apache Stanbol)</li>
+<li>FORMCEPT Healthcare Engine</li>
+</ol>
+<p>For research purpose, you can also take a look at the enhancement engine provided by <a href="https://github.com/apache/stanbol/tree/trunk/demos/ehealth" target="_blank" title="Apache Stanbol eHealth Demo">Apache Stanbol eHealth demo</a>.</p>
+<h2>An Example</h2>
+<p>Lets take an example of a typical medical record that describes the symptoms of a Brain Tumor-</p>
+<blockquote><p>Symptoms vary depending on the location of the tumour and may be slow in onset. Symptoms include <strong>headache</strong>, <strong>vomiting</strong>, <strong>nausea</strong>, dizziness, poor coordination, disturbance of vision, weakness affecting one side of the body, mental changes and fits. A person with any symptoms of brain disorder should seek medical advice.</p></blockquote>
+<p>Given a statement on symptom and indications, as shown above, FORMCEPT Healthcare Engine will try to annotate all the entities of interest. For example, in the above statement, headache, vomiting, nausea, etc. are all entities of interest. The annotated entities are then picked up and shown by Apache Stanbol enhancer user interface as shown below.</p>
+<div id="attachment_182" class="wp-caption aligncenter" style="width: 1077px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/FCHealthcareEnhancer-1.png"><img class="size-full wp-image-182" src="http://formcept.com/blog/wp-content/uploads/2012/07/FCHealthcareEnhancer-1.png" alt="FORMCEPT Healthcare Engine" width="1067" height="629" /></a><p class="wp-caption-text">FORMCEPT Healthcare Engine</p></div>
+<div id="attachment_183" class="wp-caption aligncenter" style="width: 1078px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/FCHealthcareEnhancer-2.png"><img class="size-full wp-image-183" src="http://formcept.com/blog/wp-content/uploads/2012/07/FCHealthcareEnhancer-2.png" alt="FORMCEPT Healthcare Engine Enhancements" width="1068" height="685" /></a><p class="wp-caption-text">FORMCEPT Healthcare Engine Enhancements</p></div>
+<h2>FORMCEPT Healthcare Engine</h2>
+<p>FORMCEPT Healthcare Engine relies on an external FORMCEPT Spotter Service that spots the keywords in the specified content. The spotter service returns a JSON that looks like-</p>
+<pre>{
+  "spotID": "64b3b8f0-2b14-44fd-9f07-a4276e377d55",
+  "createdOn": "Jul 11, 2012 2:55:26 PM",
+  "spottedElements": [
+    {
+      "spottedWord": "headache",
+      "startIndex": 97,
+      "endIndex": 105,
+      "elements": [
+        {
+          "uri": "http://dbpedia.org/resource/Headache",
+          "dataset": [
+            "DBPEDIA_RESOURCE"
+          ],
+          "label": "Headache",
+          "alsoKnownAs": [
+            "Headache and Migraine",
+            "Hofudverkur",
+            "Headech",
+            "Headaches",
+            "Headache (medical)",
+            "Headache disorders",
+            "Head pain",
+            "Headache syndromes",
+            "Encephalalgia",
+            "Toxic headache",
+            "Hoefudverkur",
+            "Höfuðverkur",
+            "Head Aches",
+            "Headach",
+            "Head ache",
+            "Chronic headache",
+            "Cephalgia"
+          ],
+          "description": "A headache or cephalgia is pain anywhere in the region of the head or neck. It can be a symptom of a number of different conditions of the head and neck. The brain tissue itself is not sensitive to pain because it lacks pain receptors. Rather, the pain is caused by disturbance of the pain-sensitive structures around the brain.",
+          "context": "Health-&gt;Diseases and disorders-&gt;Neurological disorders-&gt;Headache",
+          "broaderCategs": [
+            "Health",
+            "Diseases and disorders",
+            "Neurological disorders"
+          ],
+          "language": "en",
+          "timestamp": "Feb 17, 2012 10:56:00 PM"
+        }
+      ]
+    }
+    ...
+  ]
+}</pre>
+<p>The spotting result contains the spotted elements that were found in the specified content. Each spotted element has these features-</p>
+<ol>
+<li><strong>Spotted Word:</strong> Word as it appears in the specified content</li>
+<li><strong>Start and End Index:</strong> Word boundaries within the specified content. This is useful to locate the word within the specified content</li>
+<li><strong>Elements:</strong> One or more elements in the knowledge base that define the spotted word</li>
+</ol>
+<p>Each Knowledge Base Element has these features-</p>
+<ol>
+<li>URI of the Element</li>
+<li>Dataset associated with the Element  (For example, DBpedia)</li>
+<li>Standard label for the Element as defined in the Knowledge Base</li>
+<li>alsoKnownAs: Other labels by which the Element can be referred to</li>
+<li>Short description of the Element</li>
+<li>Hierarchical Context of the Element</li>
+<li>Broader Categories for the Element</li>
+<li>Language of the Element in which the label and other details are specified</li>
+<li>Timestamp of the last update</li>
+</ol>
+<p>FORMCEPT Healthcare Enhancer converts these features into the Metadata Graph. The <em>computeEnhancements</em> method contains all the implementation to update the Metadata Graph with the above features of the Knowledge Base Elements.</p>
+<p>As a first step, a text enhancement is created within the Metadata Graph for the spotted word. Since each spotted word can have one or more associated elements within the Knowledge Base, only the first element (closest match) defines the type of the enhancement. The type is derived from a class defined within the ontology of the dataset. If a type is not found, then the first category of the context is considered as the type. Here is a code snippet to create the text enhancement-</p>
+<pre>// get the literal factory
+LiteralFactory literalFactory = LiteralFactory.getInstance();
+// get the metadata graph
+MGraph metadata = ci.getMetadata();
+// text annotation
+UriRef elemAnnotation = EnhancementEngineHelper.createTextEnhancement(ci, this);
+// add metadata
+metadata.add(new TripleImpl(elemAnnotation, ENHANCER_SELECTED_TEXT, new PlainLiteralImpl(elem.getSpottedWord())));
+// add the type
+metadata.add(new TripleImpl(elemAnnotation, DC_TYPE, new UriRef(elemType)));
+// set the description
+metadata.add(new TripleImpl(elemAnnotation, RDFS_COMMENT, new PlainLiteralImpl(knowledgeElem.getDescription())));
+// set the context as broader categories
+metadata.add(new TripleImpl(elemAnnotation, SKOS_BROADER, new PlainLiteralImpl(knowledgeElem.getContext())));
+metadata.add(new TripleImpl(elemAnnotation, ENHANCER_START, literalFactory.createTypedLiteral(elem.getStartIndex())));
+metadata.add(new TripleImpl(elemAnnotation, ENHANCER_END, literalFactory.createTypedLiteral(elem.getEndIndex())));</pre>
+<p>The spotted word is added as a selected text along with other metadata, like- description, context and the start/end fields.</p>
+<p>Once the text enhancement is created, all the knowledge elements are added as an Entity Enhancement that refers to the text enhancement created for the spotted word. Here is a code snippet to create the entity enhancements for the spotted word-</p>
+<pre>// add other entities
+for(FCKnowledgeElement entityElem : spottedElems){
+    // add a topic enhancement
+    UriRef enhancement = EnhancementEngineHelper.createEntityEnhancement(ci, this);
+    metadata.add(new TripleImpl(enhancement, RDF_TYPE, TechnicalClasses.ENHANCER_TOPICANNOTATION));
+    metadata.add(new TripleImpl(enhancement, org.apache.stanbol.enhancer.servicesapi.rdf.Properties.DC_RELATION, elemAnnotation));
+    // add link to entity
+    metadata.add(new TripleImpl(enhancement, ENHANCER_ENTITY_REFERENCE, new UriRef(entityElem.getUri())));
+    metadata.add(new TripleImpl(enhancement, ENHANCER_ENTITY_TYPE, OntologicalClasses.SKOS_CONCEPT));
+    metadata.add(new TripleImpl(enhancement, ENHANCER_CONFIDENCE, literalFactory.createTypedLiteral(entityElem.getConfidence())));
+    metadata.add(new TripleImpl(enhancement, ENHANCER_ENTITY_LABEL, new PlainLiteralImpl(entityElem.getLabel())));
+    metadata.add(new TripleImpl(enhancement, RDFS_COMMENT, new PlainLiteralImpl(entityElem.getDescription())));
+    metadata.add(new TripleImpl(enhancement, SKOS_BROADER, new PlainLiteralImpl(entityElem.getContext())));
+}</pre>
+<p>Each entity enhancement is linked with the text enhancement using the DC_RELATION property. Stanbol User Interface groups all the related entities and links them to the external URI specified by the ENHANCER_ENTITY_REFERENCE property.</p>
+<h2>Results</h2>
+<p>A typical enhancement result generated by FORMCEPT Healthcare Engine, looks like-</p>
+<pre>{
+  "@context": {
+    "broader": "http://www.w3.org/2004/02/skos/core#broader",
+    "comment": "http://www.w3.org/2000/01/rdf-schema#comment",
+    "Concept": "http://www.w3.org/2004/02/skos/core#Concept",
+    "confidence": "http://fise.iks-project.eu/ontology/confidence",
+    "created": "http://purl.org/dc/terms/created",
+    "creator": "http://purl.org/dc/terms/creator",
+    "end": "http://fise.iks-project.eu/ontology/end",
+    "Enhancement": "http://fise.iks-project.eu/ontology/Enhancement",
+    "entity-label": "http://fise.iks-project.eu/ontology/entity-label",
+    "entity-reference": "http://fise.iks-project.eu/ontology/entity-reference",
+    "entity-type": "http://fise.iks-project.eu/ontology/entity-type",
+    "EntityAnnotation": "http://fise.iks-project.eu/ontology/EntityAnnotation",
+    "extracted-from": "http://fise.iks-project.eu/ontology/extracted-from",
+    "Health": "http://dbpedia.org/ontology/Health",
+    "language": "http://purl.org/dc/terms/language",
+    "LinguisticSystem": "http://purl.org/dc/terms/LinguisticSystem",
+    "relation": "http://purl.org/dc/terms/relation",
+    "selected-text": "http://fise.iks-project.eu/ontology/selected-text",
+    "start": "http://fise.iks-project.eu/ontology/start",
+    "TextAnnotation": "http://fise.iks-project.eu/ontology/TextAnnotation",
+    "TopicAnnotation": "http://fise.iks-project.eu/ontology/TopicAnnotation",
+    "type": "http://purl.org/dc/terms/type",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "@coerce": {
+      "@iri": [
+        "entity-reference",
+        "entity-type",
+        "extracted-from",
+        "relation",
+        "type"
+      ],
+      "xsd:dateTime": "created",
+      "xsd:double": "confidence",
+      "xsd:int": [
+        "end",
+        "start"
+      ],
+      "xsd:string": "creator"
+    }
+  },
+  "@subject": [
+    {
+      "@subject": "urn:enhancement-bf848e5d-decf-49ae-eaed-248e9e476d29",
+      "@type": [
+        "Enhancement",
+        "TextAnnotation"
+      ],
+      "created": "2012-07-11T10:54:53.141Z",
+      "creator": "org.apache.stanbol.enhancer.engines.langid.LangIdEnhancementEngine",
+      "extracted-from": "urn:content-item-sha1-ea34dfcefbb6b4e10c5e1d70953708aa65e7dd69",
+      "language": "en",
+      "type": "LinguisticSystem"
+    },
+    {
+      "@subject": "urn:enhancement-fd5f3241-f1ea-5b02-01b2-30986c2b7f90",
+      "@type": [
+        "Enhancement",
+        "TextAnnotation"
+      ],
+      "broader": "Health-&gt;Diseases and disorders-&gt;Neurological disorders-&gt;Headache",
+      "comment": "A headache or cephalgia is pain anywhere in the region of the head or neck. It can be a symptom of a number of different conditions of the head and neck. The brain tissue itself is not sensitive to pain because it lacks pain receptors. Rather, the pain is caused by disturbance of the pain-sensitive structures around the brain.",
+      "created": "2012-07-11T10:54:53.186Z",
+      "creator": "org.formcept.engine.enhancer.FCHealthCareEnhancer",
+      "end": 105,
+      "extracted-from": "urn:content-item-sha1-ea34dfcefbb6b4e10c5e1d70953708aa65e7dd69",
+      "selected-text": "headache",
+      "start": 97,
+      "type": "Health"
+    },
+    {
+      "@subject": "urn:enhancement-fdc05670-18b8-1703-0210-86e2d12fa36b",
+      "@type": [
+        "Enhancement",
+        "EntityAnnotation",
+        "TopicAnnotation"
+      ],
+      "broader": "Health-&gt;Diseases and disorders-&gt;Neurological disorders-&gt;Headache",
+      "comment": "A headache or cephalgia is pain anywhere in the region of the head or neck. It can be a symptom of a number of different conditions of the head and neck. The brain tissue itself is not sensitive to pain because it lacks pain receptors. Rather, the pain is caused by disturbance of the pain-sensitive structures around the brain.",
+      "confidence": 1.0,
+      "created": "2012-07-11T10:54:53.186Z",
+      "creator": "org.formcept.engine.enhancer.FCHealthCareEnhancer",
+      "entity-label": "Headache",
+      "entity-reference": "http://dbpedia.org/resource/Headache",
+      "entity-type": "Concept",
+      "extracted-from": "urn:content-item-sha1-ea34dfcefbb6b4e10c5e1d70953708aa65e7dd69",
+      "relation": "urn:enhancement-fd5f3241-f1ea-5b02-01b2-30986c2b7f90"
+    }
+  ]
+}</pre>
+<p>Stanbol User Interface groups the linked entities as shown below. The type is shown as a heading, i.e. <em>Health</em> in this case. The spotted word, i.e. headache in this case, is shown under <em>Mentions</em>.</p>
+<div id="attachment_201" class="wp-caption aligncenter" style="width: 367px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/Headache-Example.png"><img class="size-full wp-image-201" src="http://formcept.com/blog/wp-content/uploads/2012/07/Headache-Example.png" alt="FORMCEPT Healthcare Enhancer - Headache-Example" width="357" height="311" /></a><p class="wp-caption-text">FORMCEPT Healthcare Enhancer &#8211; Headache-Example</p></div>
+<h2>Evaluation</h2>
+<p>The results shown below are obtained by running the tests against the <a href="http://www.ebi.ac.uk/Rebholz-srv/CALBC/corpora/resources.html" target="_blank" title="CALBC Corpora">CALBC Corpora</a>. As of now, we have tested against <strong>1,725</strong> (<strong>42,368</strong> words) test cases. We will continue to add more test cases from different medical classes (type) and report the performance.</p>
+<div id="attachment_256" class="wp-caption aligncenter" style="width: 686px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/Result-Pass-Fail.png"><img class="size-full wp-image-256" src="http://formcept.com/blog/wp-content/uploads/2012/07/Result-Pass-Fail.png" alt="FORMCEPT Healthcare Engine - Evaluation Report" width="676" height="636" /></a><p class="wp-caption-text">FORMCEPT Healthcare Engine &#8211; Evaluation Report</p></div>
+<h5><strong>Credit:</strong> The result shown above has been generated using <a href="http://code.google.com/p/sgvizler/" target="_blank" title="JavaScript SPARQL Resultset Visualizer">sgvizler</a> tool that connects to the SPARQL endpoint provided by <a href="http://jena.apache.org/documentation/serving_data/index.html" target="_blank" title="Fuseki: Serving RDF data over HTTP">Fuseki</a> server. The performance report was generated by <a href="http://www.formcept.com" target="_blank" title="FORMCEPT - Your Analysis Platform">FORMCEPT</a> Benchmarking tool that uses <a href="http://www.w3.org/TR/EARL10-Schema/" target="_blank" title="EARL Schema">EARL</a> schema. The concept of visualizing through a SPARQL visualizer has been adopted from Rupert&#8217;s and Pablo&#8217;s comment on the improvement request [<a href="https://issues.apache.org/jira/browse/STANBOL-652" target="_blank" title="Benchmark should report evaluation summary">STANBOL-652</a>] for <a href="http://www.slideshare.net/bdelacretaz/bertrand-stanbolbenchmarksapril2011" target="_blank" title="Apache Stanbol Benchmark Tool [Slides]">Apache Stanbol Benchmark Tool</a>. Thanks to both of them.</h5>
+<h3><strong>Benchmark</strong></h3>
+<table>
+<tbody>
+<tr>
+<td><strong>Type</strong></td>
+<td><strong>TP</strong></td>
+<td><strong>FP</strong></td>
+<td><strong>FN</strong></td>
+<td><strong>Precision</strong></td>
+<td><strong>Recall</strong></td>
+<td><strong>F1</strong></td>
+</tr>
+<tr>
+<td>Disease</td>
+<td>1826</td>
+<td>132</td>
+<td>881</td>
+<td>0.9326</td>
+<td>0.6745</td>
+<td>0.7829</td>
+</tr>
+<tr>
+<td>Disease, Drugs</td>
+<td>1847</td>
+<td>140</td>
+<td>876</td>
+<td>0.9295</td>
+<td>0.6783</td>
+<td>0.7843</td>
+</tr>
+<tr>
+<td>Disease, Drugs, CC</td>
+<td>1961</td>
+<td>249</td>
+<td>848</td>
+<td>0.88733</td>
+<td>0.6981</td>
+<td>0.7814</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CC:</strong> Chemical Compound, <strong>TP:</strong> True Positives, <strong>FP:</strong> False Positives, <strong>FN:</strong> False Negatives,<br />
+<strong>F1:</strong> F-Measure/F-Score</p>
+<div id="attachment_265" class="wp-caption aligncenter" style="width: 532px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/Benchmark-TFPN-Bar.png"><img class="size-full wp-image-265" src="http://formcept.com/blog/wp-content/uploads/2012/07/Benchmark-TFPN-Bar.png" alt="FORMCEPT Healthcare Benchmark" width="522" height="323" /></a><p class="wp-caption-text">FORMCEPT Healthcare Benchmark</p></div>
+<div id="attachment_266" class="wp-caption aligncenter" style="width: 538px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/Benchmark-PRF.png"><img class="size-full wp-image-266" src="http://formcept.com/blog/wp-content/uploads/2012/07/Benchmark-PRF.png" alt="FORMCEPT Healthcare Benchmark" width="528" height="317" /></a><p class="wp-caption-text">FORMCEPT Healthcare Benchmark</p></div>
+<h3><strong>Performance</strong></h3>
+<p>The table given below shows the time taken by the spotting algorithm to spot the annotations out of 42,368 words present in the 1,725 test cases. The table also lists the number of entities present in the Knowledge Base out of which the annotations are identified.</p>
+<table>
+<tbody>
+<tr>
+<td><strong>Type</strong></td>
+<td><strong>Entities</strong></td>
+<td><strong>E1(sec)</strong></td>
+<td><strong>E2(sec)</strong></td>
+<td><strong>E3(sec)</strong></td>
+<td><strong>Avg(sec)</strong></td>
+<td><strong>Min(sec)</strong></td>
+</tr>
+<tr>
+<td>Disease</td>
+<td>5156</td>
+<td>0.125</td>
+<td>0.096</td>
+<td>0.083</td>
+<td>0.101</td>
+<td>0.083</td>
+</tr>
+<tr>
+<td>DiDr</td>
+<td>9814</td>
+<td>0.155</td>
+<td>0.135</td>
+<td>0.125</td>
+<td>0.138</td>
+<td>0.125</td>
+</tr>
+<tr>
+<td>DiDrCC</td>
+<td>16487</td>
+<td>0.209</td>
+<td>0.195</td>
+<td>0.182</td>
+<td>0.195</td>
+<td>0.182</td>
+</tr>
+<tr>
+<td>DiDrCCSp</td>
+<td>185020</td>
+<td>0.289</td>
+<td>0.284</td>
+<td>0.214</td>
+<td>0.262</td>
+<td>0.214</td>
+</tr>
+<tr>
+<td>TypeCateg</td>
+<td>221572</td>
+<td>0.428</td>
+<td>0.424</td>
+<td>0.418</td>
+<td>0.423</td>
+<td>0.418</td>
+</tr>
+</tbody>
+</table>
+<p><strong>E1</strong>, <strong>E2</strong> and <strong>E3</strong> represent the independent execution time of the test cases</p>
+<div id="attachment_273" class="wp-caption aligncenter" style="width: 426px"><a href="http://formcept.com/blog/wp-content/uploads/2012/07/Performance-E.png"><img class="size-full wp-image-273" src="http://formcept.com/blog/wp-content/uploads/2012/07/Performance-E.png" alt="FORMCEPT Healthcare Engine Performance" width="416" height="267" /></a><p class="wp-caption-text">FORMCEPT Healthcare Engine Performance</p></div>
+<p>FORMCEPT Spotter builds an in-memory model of the entities to annotate the content. The table given below mentions the amount of memory consumed and the time taken to build the in-memory model.</p>
+<table>
+<tbody>
+<tr>
+<td><strong>Type</strong></td>
+<td><strong>Entities</strong></td>
+<td><strong>Processor</strong></td>
+<td><strong>Memory</strong></td>
+<td><strong>Time (sec)</strong></td>
+</tr>
+<tr>
+<td>Disease</td>
+<td>5156</td>
+<td>i5-2400 3.10GHz</td>
+<td>23 MB</td>
+<td>1.081</td>
+</tr>
+<tr>
+<td>DiDr</td>
+<td>9814</td>
+<td>i5-2400 3.10GHz</td>
+<td>35 MB</td>
+<td>1.380</td>
+</tr>
+<tr>
+<td>DiDrCC</td>
+<td>16487</td>
+<td>i5-2400 3.10GHz</td>
+<td>182 MB</td>
+<td>2.152</td>
+</tr>
+<tr>
+<td>DiDrCCSp</td>
+<td>185020</td>
+<td>i5-2400 3.10GHz</td>
+<td>1.14 GB</td>
+<td>11.821</td>
+</tr>
+<tr>
+<td>TypeCateg</td>
+<td>221572</td>
+<td>i5-2400 3.10GHz</td>
+<td>1.39 GB</td>
+<td>19.880</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Entities: </strong>Total number of entities present in the Knowledge Base<br />
+<strong>DiDr</strong>: Disease and Drugs, <strong>DiDrCC</strong>: Disease, Drugs and Chemical Compound,<br />
+<strong>DiDrCCSp</strong>: Disease, Drugs, Chemical Compound and Species,<br />
+<strong>TypeCateg</strong> includes Disease, Drugs, Chemical Compound, Species, Health, Microbiology, Biology, Perception, Medical diagnosis and Medicine</p>
+<h2>Discussion</h2>
+<ul>
+<li>The results reported a high number of false negatives for each type. Here are the reasons for high number of false negatives-</li>
+</ul>
+<ol>
+<li>C2/C3/C4/C6/C6D/C7/C9 deficiency, hematopoiesis &#8211; were not marked as diseases within the Knowledge Base</li>
+<li>Close to 70% of the false negatives consisted of abbreviations, like- BMD, DMD, MJD, FAP, ALD, AMN, CL/P, PWS, VWS, CP, UPD14, DM, FAP, RCCs, MHP, WAS, CTX, DRD, HPD, VHL, HD, AS, AGU, MPS VII, FRDA, ASPA, etc. Full forms for these abbreviations have already been captured and some of the abbreviations were ambiguous</li>
+<li>Annotations, like- deficiency of norrin, deficiency of the enzyme, abnormal growth of lymphocytes  are not exact terms but a phrase</li>
+<li>Annotations, like- apoptosis, lesions, Enlarged vestibular aqueduct were not included within the Knowledge Base</li>
+</ol>
+<ul>
+<li>There were few more annotations that were not captured by the Knowledge Base. Some of them were- hyperalphalipoproteinemia, CETP deficiency, anhaptoglobinemia, Atm-deficient, cardiac abnormality, diurnal fluctuation, Peter&#8217;s anomaly, platyspondyly, Axenfeldt anomaly, neurogenetic disorder, fibular overgrowth, facial lesions, Chronic neisserial infection, hemochromatosis, skin pigmentation, lymphoid malignancy, hitch hiker thumb, GPI-anchor deficiency, attenuated polyposis, iminodipeptiduria, hair-follicle morphogenesis, pseudoglioma, hyperalphalipoproteinemia, hyperphenylalaninemic, Morphological abnormalities, cPNETs, Duarte 2 and microvesicular steatosis</li>
+<li>Number of true positives increased with the addition of types but that also increased the number of false positives. False positives were identified to be the drug names and chemical compounds that were not annotated in the Corpus.</li>
+<li>Memory requirements can be further reduced by keeping only the spotted element IDs in memory.</li>
+</ul>
+<p>We will continue to add more datasets to reduce the number of false negatives and incorporate the missing annotations.</p>
+<h2>References</h2>
+<ol>
+<li><a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/" target="_blank" title="Apache Stanbol - Enhancer">http://incubator.apache.org/stanbol/docs/trunk/enhancer/</a></li>
+<li><a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/enhancementstructure.html" target="_blank" title="Apache Stanbol - Enhancement Structure">http://incubator.apache.org/stanbol/docs/trunk/enhancer/enhancementstructure.html</a></li>
+<li><a href="http://incubator.apache.org/stanbol/docs/trunk/enhancementusage.html" target="_blank" title="Apache Stanbol - Using Enhancements">http://incubator.apache.org/stanbol/docs/trunk/enhancementusage.html</a></li>
+<li><a href="http://incubator.apache.org/stanbol/docs/trunk/enhancer/engines/" target="_blank" title="Apache Stanbol - Enhancement Engines">http://incubator.apache.org/stanbol/docs/trunk/enhancer/engines/</a></li>
+<li><a href="http://www.ebi.ac.uk/Rebholz-srv/CALBC/corpora/resources.html" target="_blank" title="CALBC Corpora">http://www.ebi.ac.uk/Rebholz-srv/CALBC/corpora/resources.html</a></li>
+</ol>
+]]></content:encoded>
+			<wfw:commentRss>http://blog.iks-project.eu/analyzing-medical-records-with-apache-stanbol/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Linked Media Framework 2.2 with Apache Stanbol Integration</title>
+		<link>http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/</link>
+		<comments>http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/#comments</comments>
+		<pubDate>Thu, 12 Jul 2012 16:19:16 +0000</pubDate>
+		<dc:creator>Schaffert</dc:creator>
+				<category><![CDATA[Apache Stanbol]]></category>
+		<category><![CDATA[IKS Early Adopers]]></category>
+		<category><![CDATA[Apache Stanbol LMF LinkedData IKS]]></category>
+
+		<guid isPermaLink="false">http://blog.iks-project.eu/?p=4396</guid>
+		<description><![CDATA[Last week we released version 2.2 of our Linked Media Framework (LMF). The LMF is our Open Source Linked Data Server with a rich collection of extension modules, ranging from versioning over rule-based reasoning to semantic search. The focus of this &#8230; <a href="http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/">Continue reading <span class="meta-nav">&#8594;</span></a>]]></description>
+			<content:encoded><![CDATA[<p>Last week we <a href="https://groups.google.com/d/topic/lmf-users/gLB2gFUYSo8/discussion">released version 2.2</a> of our <a href="http://code.google.com/p/lmf/">Linked Media Framework</a> (LMF). The LMF is our Open Source Linked Data Server with a rich collection of extension modules, ranging from versioning over rule-based reasoning to semantic search. The focus of this release was the integration with two important tools: (1) Google Refine as a data management application and (2) Apache Stanbol for fast entity lookup and automatic content enhancement. In this blog post, I would like to describe a bit the <a href="http://code.google.com/p/lmf/wiki/ModuleStanbol">Apache Stanbol integration</a>. The Stanbol integration focusses on the following major functionalities:<span id="more-4396"></span></p>
+<p><strong>Data reconciliation</strong> (in combination with <a href="http://code.google.com/p/lmf/wiki/GoogleRefineExtension">LMF Refine Integration</a>): you have string data and you want to find matching resources from the Linked Data cloud for interlinking; this helps you in the task of publishing legacy data as Linked Data, as well as in enriching existing data with additional information from the Linked Data Cloud. The following screenshots demonstrates the Stanbol integration in our version of Google Refine:</p>
+<p><a rel="attachment wp-att-4400" href="http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/google-chromeschnappschuss002/"><img class="aligncenter size-large wp-image-4400" src="http://blog.iks-project.eu/wp-content/uploads/Google-ChromeSchnappschuss002-1024x597.png" alt="" width="620" height="361" /></a></p>
+<p><strong>Content enhancement</strong>: you have text content and you want to extract relevant concepts (e.g. locations, persons, organisations) from it; this helps you in getting more structure out of your content, e.g. for improved semantic search or data analysis capabilities. Content enhancement works either based on entities from referenced sites like DBPedia or MusicBrainz, or using the data maintained in the LMF itself (through publication in the Stanbol Entityhub). The latter functionality becomes particularly interesting when using <a href="https://github.com/tkurz/skosjs">SKOSjs</a> (the LMF SKOS editor) to incrementally maintain a company thesaurus and use its concepts for enhancement:</p>
+<p><a rel="attachment wp-att-4401" href="http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/google-chromeschnappschuss003/"><img class="aligncenter size-large wp-image-4401" src="http://blog.iks-project.eu/wp-content/uploads/Google-ChromeSchnappschuss003-1024x597.png" alt="" width="620" height="361" /></a></p>
+<p><strong>Local Linked Data cache</strong>: instead of retrieving Linked Data resources from sometimes unreliable remote servers in the Linked Data Cloud, Stanbol can be used as a local cache for data from the sites it indexes; in many cases this allows a much faster and more reliable Linked Data integration, and allows using Linked Data inside company firewalls without access to the Internet.</p>
+<p>Since the web developers building tools on top of the LMF typically do not feel comfortable with the Felix Web console offered by Stanbol, we have also implemented a <strong>configuration interface</strong> that allows simplifying common tasks like installing referenced sites, configuring enhancement chains, and synchronizing LMF content with the Stanbol Entityhub. Using Stanbol is now just a few clicks away for LMF developers. For example, the following screenshot shows how preconfigured enhancement chains can be installed in Stanbol:</p>
+<p><a rel="attachment wp-att-4399" href="http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/google-chromeschnappschuss001/"><img class="aligncenter size-large wp-image-4399" src="http://blog.iks-project.eu/wp-content/uploads/Google-ChromeSchnappschuss001-1024x641.png" alt="" width="620" height="388" /></a></p>
+<p>A very nice scenario is using <strong>LMF + Stanbol for Semantic Search</strong>. The LMF includes a very powerful semantic search component. With the Stanbol integration comes a new option to send the texts that are indexed to Stanbol to extract entities and use this additional information to extend the search index with information from the Linked Data Cloud or the local thesaurus. The LMF semantic search component also supports incremental configuration of both the search index and the user interface. This allows for very fast &#8220;experimentation cycles&#8221;, where you improve both your search configuration (e.g. adding additional Stanbol-based enhancements) and the user experience very quickly. The following screenshot gives a preview of our search interface editor:</p>
+<p><a rel="attachment wp-att-4402" href="http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/google-chromeschnappschuss004/"><img class="aligncenter size-large wp-image-4402" src="http://blog.iks-project.eu/wp-content/uploads/Google-ChromeSchnappschuss004-1024x597.png" alt="" width="620" height="361" /></a></p>
+<p><strong>Download today!</strong> The LMF including Google Refine and Apache Stanbol is available for download in a bundled installer that you can use for installing the whole package on your own computer. Go to the <a href="http://code.google.com/p/lmf/downloads/list">LMF Downloads</a> section and try it out!</p>
+<p>&nbsp;</p>
+]]></content:encoded>
+			<wfw:commentRss>http://blog.iks-project.eu/linked-media-framework-2-2-with-apache-stanbol-integration/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+	</channel>
+</rss>

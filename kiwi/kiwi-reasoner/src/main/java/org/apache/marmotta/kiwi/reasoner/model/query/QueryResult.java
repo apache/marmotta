@@ -1,0 +1,63 @@
+/**
+ * Copyright (C) 2013 Salzburg Research.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.marmotta.kiwi.reasoner.model.query;
+
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Add file description here!
+ * <p/>
+ * User: sschaffe
+ */
+public class QueryResult {
+
+    private Map<VariableField,KiWiNode> bindings;
+
+    private Set<KiWiTriple> justifications;
+
+    public QueryResult() {
+        bindings       = new HashMap<VariableField, KiWiNode>();
+        justifications = new HashSet<KiWiTriple>();
+    }
+
+    public QueryResult(Map<VariableField, KiWiNode> bindings, Set<KiWiTriple> justifications) {
+        this.bindings = bindings;
+        this.justifications = justifications;
+    }
+
+    public Map<VariableField, KiWiNode> getBindings() {
+        return bindings;
+    }
+
+    public void setBindings(Map<VariableField, KiWiNode> bindings) {
+        this.bindings = bindings;
+    }
+
+    public Set<KiWiTriple> getJustifications() {
+        return justifications;
+    }
+
+    public void setJustifications(Set<KiWiTriple> justifications) {
+        this.justifications = justifications;
+    }
+}

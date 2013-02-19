@@ -1,0 +1,7 @@
+ASK WHERE {
+	?x <http://www.w3.org/2006/vcard/ns#fn> "Gwendolina Brown" .
+	?x <http://www.w3.org/2006/vcard/ns#n> ?y .
+	?y <http://www.w3.org/2006/vcard/ns#given-name> "Gwendolina" .
+	?y <http://www.w3.org/2006/vcard/ns#family-name> "Brown" .
+	?x <http://www.w3.org/2006/vcard/ns#email> <mailto:Gwendolina.Brown@sap.com>
+}

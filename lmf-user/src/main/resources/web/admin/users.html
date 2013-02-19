@@ -1,0 +1,291 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<script type="text/javascript">
+	_SERVER_URL = "http://localhost:8080/LMF/";
+</script>
+<!--###BEGIN_HEAD###-->
+<title>LMF User Management</title>
+<script type="text/javascript" src="../../core/public/js/lib/jquery-1.7.2.js"></script>
+<style type="text/css">
+    .label_values label {
+        position: absolute;
+        margin-top: 4px;
+    }
+
+    .label_values input {
+        margin-left:100px;
+    }
+
+    input {
+        width: 300px;
+    }
+
+    input[type=checkbox] {
+        width: 1px;
+    }
+</style>
+<!--###END_HEAD###-->
+</head>
+<body>
+<div id="center">
+  <!--###BEGIN_CONTENT###-->
+  <h1>LMF User Accounts</h1>
+  <div>
+  <table class="simple_table" id="account-table">
+  <thead>
+  <tr><th>&nbsp;</th><th>login</th><th>roles</th><th>webId</th><th style="width:100px">actions</th></tr>
+  <tbody>
+  </table>
+  <div style="text-align:center;margin-top:10px"><button id="createAccount">New Account</button>&nbsp;<span class="icon"></span></div>
+  </div>
+  <div id="account-details" style="display: none;">
+  <h2>Manage <span class="login"></span></h2>
+  <span id="details-icon" class="icon"></span>
+  <div class="msg"></div>
+  <div>
+  <div class="label_values" style="margin-bottom:3px;"><label for="passwd">Set password:</label> <input type="password" name="passwd" id="passwd" />&nbsp;<button id="savePasswd">Save</button><span id="passwd_check" class="icon"></span></div>
+  <div class="label_values"><label for="roles">Change roles:</label> <input type="text" name="roles" id="roles" />&nbsp;<button id="saveRoles">Save</button><span id="roles_check" class="icon"></span></div>
+  </div>
+  <div id="profile_wrap">
+  <h2>User Profile (foaf)</h2>
+  <div>
+  <table id="profile">
+  <tr><td style="width:95px">Nick</td><td><input name=nick class="literal" /></td></tr>
+  <tr><td>Title</td><td><input name=title class="literal" /></td></tr>
+  <tr><td>First Name</td><td><input name=firstName class="literal" /></td></tr>
+  <tr><td>Last Name</td><td><input name=lastName class="literal" /></td></tr>
+  <tr><td>Mail</td><td><input name=mbox class="uri" /></td></tr>
+  <tr><td>Homepage</td><td><input name=homepage class="uri" /></td></tr>
+  </table>
+  <div style="margin-top:10px"><button id="saveProfile">Save Profile</button><span class="icon"></span></div>
+  </div>
+  </div>
+  </div>
+  <script type="text/javascript">
+  	$(function() {
+		
+  	    function selectRow(login, select) {
+  	        var tbl = $("table#account-table"),
+  	        row = $("tr#account_"+login, tbl);
+  	        // if select not given -> toggle!
+  	        if (select === undefined) select = !row.hasClass("selected");
+  
+  	        $("td:first-child input", tbl).removeAttr("checked");
+            $("tr", tbl).removeClass("selected");
+            
+            if (select) {
+	        	row.addClass("selected");
+    	      	$("td:first-child input", row).attr("checked", "checked");
+          }
+          updateDetails();
+  	    }
+  	    
+  	    // load user list
+  	    function loadAccounts(current) {
+  		   var tbl = $("table#account-table tbody");
+		   current = current || $("tr.selected").attr("data-login");
+  		$.getJSON(_SERVER_URL + "users", function(data) {
+  		   tbl.empty();
+  		   for (var i in data) {
+  		       var u = data[i];
+  		       
+  		       var tr = $("<tr>", {id: "account_" + u.login, "data-login": u.login});
+  		       $("<td>").append($("<input>", {type: "checkbox", class: "accountSelect"})).appendTo(tr);
+  		       $("<td>", {text: u.login}).appendTo(tr);
+  		       $("<td>", {text: u.roles.join(", ")}).appendTo(tr);
+  		       $("<td>").append($("<a>", {text: u.uri, href: u.uri})).appendTo(tr);
+  		       $("<td>").append($("<button>", {text: "edit", click: function() {
+                   selectRow($(this).closest("tr").attr("data-login"));
+  		           return false;
+  		       }})).append($("<button>", {text: "delete", click: function() {
+  		           var login = $(this).closest("tr").attr("data-login");
+  		           if (!confirm("Delete user '" + login + "'")) return false;
+  		           $.ajax(_SERVER_URL + "users/"+login, {
+  		               type: "DELETE",
+  		               complete: function() { loadAccounts(); }
+  		           });
+  		           return false;
+  		       }})).appendTo(tr);
+ 		       
+  		       tr.click(function(){
+					selectRow($(this).attr("data-login"));
+					return false;
+  		       });
+  		       
+  		       tbl.append(tr);
+  		   }
+  		   if (current) selectRow(current, true);
+  		});
+  	    }
+  	    
+  	    function updateDetails() {
+		   var current = $("table#account-table tr.selected").attr("data-login"),
+   		   detail = $("#account-details");
+   		   $(".login", detail).text(current);
+   		   var status = $("#details-icon").removeClass("ok error warning success").addClass("loading").text("loading...");
+   		   
+   		   
+   		   function setFoaf(key, value) {
+   		       var i = $('input[name="'+key+'"]', detail);
+  	           if (i.hasClass("uri")) {
+  	               if (key == "mbox") value = value.replace("mailto:", "");
+  	               i.val(value.replace(/^<([^>]+)>$/, "$1"));
+  	           } else {
+	  	           i.val(value);
+  	           }
+  	           $('.foaf_'+key, detail).text(value);
+   		   }
+
+		   if (current) {
+		       $.getJSON(_SERVER_URL + "users/" + current, function(data) {
+			       $("input", detail).val("");
+		           $(".login", detail).text(data.login);
+				   $("input#roles").val(data.roles.join(", "));
+		           
+		  	       var ns = "http://xmlns.com/foaf/0.1/";
+		  	       for (var k in data.foaf) {
+		  	           if (k.search(ns) == 0) {
+		  	               setFoaf(k.substr(ns.length), data.foaf[k]);
+		  	           }
+		  	       }
+		           
+		           $(".msg", detail).removeClass("error warning success").text("");
+				   detail.slideDown();
+				   status.removeClass("error warning success ok loading").text("");
+		       }).error(function(xhr, msg, err) {
+		           $(".msg", detail).addClass("error").text(msg);
+				   status.removeClass("error warning success ok loading").text("");
+		       });
+		       
+		   } else {
+		       $("input", detail).val("");
+		       detail.slideUp();
+		   }
+  	    }
+  	    $("button#saveProfile").click(function() {
+   		   var tbl = $("table#account-table tbody");
+ 		   var current = $("tr.selected", tbl).attr("data-login");
+  	        var btn = this;
+  	        var data = {};
+  	        $("table#profile input").each(function(i, input) {
+  	            var key = $(input).attr("name"),
+  	            val = $(input).val();
+  	            if (val == "") {
+  	                data[key] = "";
+  	            } else {
+    	            if ($(input).hasClass("uri")) {
+    	                if (key == "mbox" && val.search("mailto:") != 0) val = "mailto:"+val;
+    	                val = "<" + val + ">";
+    	            }
+    	            data[key] = val;
+  	            }
+  	        });
+  	        $.post(_SERVER_URL + "users/"+current+"/profile", data, function(data) {
+  	            updateDetails();
+    	        
+  	          	var icon = $(btn).siblings("span.icon");
+    	        icon.removeClass("ok error warning loading").addClass("ok").text("profile saved");
+    	        setTimeout(function() { icon.removeClass("ok error warning loading").text(""); }, 5000);
+  	        }).error(function() {
+   	          	var icon = $(btn).siblings("span.icon");
+    	        icon.removeClass("ok error warning loading").addClass("error").text("saving profile failed");
+    	        setTimeout(function() { icon.removeClass("ok error warning loading").text(""); }, 5000);
+  	        });
+  	    });
+  	    $("button#savePasswd").click(function() {
+ 		   var login = $("table#account-table tr.selected").attr("data-login"),
+ 		   passwd = $("input#passwd"),
+ 		   msg = $(this).siblings("span.icon").addClass("loading");
+ 		   
+ 		   if (!passwd || !passwd.val || passwd.val() == "") {
+ 		       msg.removeClass("ok warning error loading").addClass("error").text("empty password not allowed!");
+               setTimeout(function() { msg.removeClass("ok error warning loading").text(""); }, 5000);
+ 		   } else {
+ 		       $.post(_SERVER_URL + "users/"+login+"/password", {password: passwd.val()}, function() {
+ 	 		       msg.removeClass("ok warning error loading").addClass("ok").text("password changed");
+ 	               setTimeout(function() { msg.removeClass("ok error warning loading").text(""); }, 5000);
+ 	               passwd.val("");
+ 		       }).error(function(xhr, errMsg, err){
+    	           msg.removeClass("ok error warning loading").addClass("error").text("password change failed: " + errMsg);
+    	           setTimeout(function() { msg.removeClass("ok error warning loading").text(""); }, 5000);
+    	           passwd.val("");
+ 		       });
+ 		   }
+ 		  return false;  	        
+  	    });
+  	    $("button#saveRoles").click(function() {
+  		   var login = $("table#account-table tr.selected").attr("data-login"),
+ 		   roles = $("input#roles"),
+ 		   msg = $(this).siblings("span.icon").addClass("loading");
+ 		   
+ 		   if (!roles || !roles.val) {
+ 		       msg.removeClass("ok warning error loading").addClass("error").text("could not read roles");
+               setTimeout(function() { msg.removeClass("ok error warning loading").text(""); }, 5000);
+ 		   } else {
+ 		       var roleArr = roles.val().split(/\s*[\s|,]\s*/);
+ 		       $.post(_SERVER_URL + "users/"+login+"/roles?" + $.param({role: roleArr}), {}, function() {
+ 	 		       msg.removeClass("ok warning error loading").addClass("ok").text("roles updated");
+ 	               setTimeout(function() { msg.removeClass("ok error warning loading").text(""); }, 5000);
+ 	               loadAccounts();
+ 	               updateDetails();
+ 		       }).error(function(xhr, errMsg, err){
+    	           msg.removeClass("ok error warning loading").addClass("error").text("updating roles failed: " + errMsg);
+    	           setTimeout(function() { msg.removeClass("ok error warning loading").text(""); }, 5000);
+ 		       });
+ 		   }
+ 		  return false;  	        
+  	    });
+  	    $("button#createAccount").click(function() {
+			var icon = $(this).siblings("span.icon").removeClass("ok warning error loading").text("");  	        
+  	        var login = prompt("Enter username (login)");
+  	        if (!login || login == "") return;
+  	        if ($("table#account-table tr#account_"+login).length != 0) {
+  	            icon.addClass("error").text("username '"+login+"' already exists!");
+  	            selectRow(login, true);
+  	            setTimeout(function() { icon.removeClass("error").text("");}, 5000);
+  	            //return false;
+  	        } 
+  	        icon.addClass("loading").text("creating...");
+  	        $.post(_SERVER_URL+"users/"+login, function() {
+  	            icon.removeClass("loading").addClass("ok").text(login+" created.");
+  	            loadAccounts(login);
+  	            setTimeout(function() { icon.removeClass("ok").text("");}, 5000);
+  	        }).error(function(xhr, msg, err) {
+  	            if (xhr.status == 409) {
+  	                // Username exists!
+  	  	            icon.removeClass("loading").addClass("error").text("username '"+login+"' already exists!");
+  	  	        	selectRow(login, true);
+  	  	            setTimeout(function() { icon.removeClass("error").text("");}, 5000);
+  	            } else {
+  	  	            icon.removeClass("loading").addClass("error").text(xhr.responseText);
+  	  	            setTimeout(function() { icon.removeClass("error").text("");}, 5000);
+  	            }
+  	        });
+  	        return false;
+  	    });
+
+  	    loadAccounts();
+  	});
+  </script>  
+  <!--###END_CONTENT###-->
+  </div>
+</body>
+</html>
+

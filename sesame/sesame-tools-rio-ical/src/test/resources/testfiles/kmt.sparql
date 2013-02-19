@@ -1,0 +1,6 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ical: <http://www.w3.org/2002/12/cal/icaltzd#>
+ASK {
+    ?x rdf:type ical:Vevent .
+    ?x ical:summary "KMT Group Meeting"
+}

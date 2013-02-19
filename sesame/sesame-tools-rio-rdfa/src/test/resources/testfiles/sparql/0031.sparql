@@ -1,0 +1,3 @@
+ASK WHERE {
+	<http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0031.xhtml#wtw> <http://purl.org/dc/elements/1.1/identifier> <urn:ISBN:0752820907> .
+}

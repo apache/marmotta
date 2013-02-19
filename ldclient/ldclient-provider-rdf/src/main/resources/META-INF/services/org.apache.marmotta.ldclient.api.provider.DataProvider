@@ -1,0 +1,5 @@
+# add the RDF data providers
+org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider
+org.apache.marmotta.ldclient.provider.rdf.CacheProvider
+org.apache.marmotta.ldclient.provider.rdf.RegexUriProvider
+org.apache.marmotta.ldclient.provider.rdf.SPARQLProvider

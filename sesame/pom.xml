@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright (c) 2013 The Apache Software Foundation
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>at.newmedialab.lmf</groupId>
+        <artifactId>lmf-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
+    <groupId>at.newmedialab.sesame</groupId>
+    <artifactId>sesame-tools</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Sesame Tools Parent</name>
+    <description>A collection of modules for OpenRDF Sesame, adding additional functionality like parsers or writers.</description>
+
+    <inceptionYear>2012</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Sebastian Schaffert</name>
+            <email>sebastian.schaffert@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+    </developers>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <configuration>
+                        <relativePath>../../</relativePath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <modules>
+        <module>sesame-commons</module>
+        <module>sesame-filter</module>
+        <module>sesame-tools-rio-api</module>
+        <module>sesame-tools-rio-ical</module>
+        <module>sesame-tools-rio-jsonld</module>
+        <module>sesame-tools-rio-rdfa</module>
+        <module>sesame-tools-rio-rdfjson</module>
+        <module>sesame-tools-rio-rss</module>
+        <module>sesame-tools-rio-vcard</module>
+        <module>sesame-tools-facading</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>1.7.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

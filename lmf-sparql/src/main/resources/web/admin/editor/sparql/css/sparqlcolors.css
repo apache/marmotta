@@ -1,0 +1,74 @@
+/**
+ * Copyright (C) 2013 Salzburg Research.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+html {
+  cursor: text;
+}
+
+.editbox {
+  margin: .4em;
+  padding: 0;
+  font-family: monospace;
+  font-size: 10pt;
+  color: black;
+}
+
+.editbox p {
+  margin: 0;
+}
+
+span.sp-keyword {
+  color: #92a;
+}
+
+span.sp-prefixed {
+  color: #f80;
+}
+
+span.sp-var {
+  color: #00c;
+}
+
+span.sp-comment {
+  color: #a70;
+}
+
+span.sp-literal {
+  color: #a22;
+}
+
+span.sp-uri {
+  color: #292;
+}
+
+span.sp-operator {
+  color: #088;
+}
+
+span.sp-punc {
+  color: #088;
+}
+
+span.sp-number {
+  color: #a22;
+}
+
+
+span.sp-error {
+  /* color:rgb(0,255,255); */
+  /* background-color:rgb(255,0,0); */
+  /* text-decoration: underline; */
+  border-bottom:2px dotted red;
+}

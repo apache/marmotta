@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013 Salzburg Research.
+  ~  
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~  
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~  
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>lmf-parent</artifactId>
+        <groupId>at.newmedialab.lmf</groupId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lmf-installer</artifactId>
+    <packaging>pom</packaging>
+
+    <name>LMF Installer</name>
+    <description>Builds the LMF IzPack-based installer</description>
+
+    <properties>
+        <izpackVersion>4.3.5</izpackVersion>
+        <stagingDir>${project.build.directory}/installer</stagingDir>
+
+        <!-- these are replaced in installer files -->
+        <TOMCAT_VERSION>7.0.35</TOMCAT_VERSION>
+        <LMF_VERSION>${project.version}</LMF_VERSION>
+        <LMF_ROOT>${project.basedir}/../</LMF_ROOT>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>snml</id>
+            <name>Salzburg NewMediaLab Repository</name>
+            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snml</id>
+            <name>Salzburg NewMediaLab Repository</name>
+            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <!-- this makes maven to compile and package your related izpack sources into a predictable name and location
+                 ie your target directory's ${project.artifactId}.jar, to that you can configure your izpack descriptor
+                 to merge it to finally installer via <jar> tag
+        -->
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.codehaus.izpack</groupId>
+            <artifactId>izpack-standalone-compiler</artifactId>
+            <version>${izpackVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>at.newmedialab.lmf</groupId>
+            <artifactId>lmf-webapp</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>installer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.6</version>
+                        <executions>
+                            <execution>
+                                <id>create-staging</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${stagingDir}</outputDirectory>
+                                    <encoding>UTF-8</encoding>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/main/resources/installer</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/shortcuts</directory>
+                                            <targetPath>shortcuts</targetPath>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/panels</directory>
+                                            <targetPath>panels</targetPath>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/tomcat</directory>
+                                            <targetPath>tomcat</targetPath>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/refine</directory>
+                                            <targetPath>refine</targetPath>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/images</directory>
+                                            <targetPath>images</targetPath>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/macos</directory>
+                                            <targetPath>macos</targetPath>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/log</directory>
+                                            <targetPath>log</targetPath>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/resources/refpacks</directory>
+                                            <targetPath>refpacks</targetPath>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>at.newmedialab.maven</groupId>
+                        <artifactId>refpack-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <configuration>
+                            <outputDirectory>${stagingDir}/refpacks</outputDirectory>
+                            <moduleGroupId>at.newmedialab.lmf</moduleGroupId>
+                            <requiredModules>
+                                <requiredModule>lmf-core</requiredModule>
+                            </requiredModules>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.6</version>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>at.newmedialab.lmf</groupId>
+                                            <artifactId>lmf-webapp</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>war</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${stagingDir}/webapp</outputDirectory>
+                                            <excludes>**/*.jar</excludes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <excludes>**/*.jar</excludes>
+                                    <outputDirectory>${stagingDir}/webapp</outputDirectory>
+                                    <overWriteReleases>true</overWriteReleases>
+                                    <overWriteSnapshots>true</overWriteSnapshots>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>com.googlecode.maven-download-plugin</groupId>
+                        <artifactId>maven-download-plugin</artifactId>
+                        <version>1.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>download-tomcat</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>wget</goal>
+                                </goals>
+                                <configuration>
+                                    <url>http://www.eu.apache.org/dist/tomcat/tomcat-7/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.zip</url>
+                                    <unpack>false</unpack>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <md5>1c7a7869d86b74dddb0a22d15f020922</md5>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>download-refine</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>wget</goal>
+                                </goals>
+                                <configuration>
+                                    <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/com/google/refine/2.6.LMF-SNAPSHOT/refine-2.6.LMF-20121029.114459-1.war</url>
+                                    <unpack>false</unpack>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <outputFileName>refine.war</outputFileName>
+                                    <md5>08e913ae01c7ecca1682f8175d9a1956</md5>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.7</version>
+                        <executions>
+                            <execution>
+                                <id>izpack</id>
+                                <phase>package</phase>
+                                <configuration>
+                                    <target>
+                                        <taskdef name="IzPack" classname="com.izforge.izpack.ant.IzPackTask" classpathref="maven.plugin.classpath" />
+                                        <IzPack input="${stagingDir}/standalone.xml" output="${project.build.directory}/${artifactId}-${project.version}.jar" installerType="standard" basedir="${stagingDir}" IzPackDir="${stagingDir}/" />
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>googlecode</id>
+                                <phase>deploy</phase>
+                                <configuration>
+                                    <target>
+                                        <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpathref="maven.plugin.classpath" />
+                                        <!--suppress MavenModelInspection -->
+                                        <gcupload projectname="lmf" username="${google.username}" password="${google.password}" filename="${project.build.directory}/lmf-installer-${project.version}.jar" targetfilename="lmf-installer-${project.version}.jar" summary="LMF ${project.version} Standalone Installer (includes Apache Tomcat, LMF, Google Refine, and Apache Stanbol)" labels="Featured, Type-Installer, OpSys-All" />
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.apache.ant</groupId>
+                                <artifactId>ant</artifactId>
+                                <version>1.8.3</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.codehaus.izpack</groupId>
+                                <artifactId>izpack-standalone-compiler</artifactId>
+                                <version>${izpackVersion}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>net.bluecow.googlecode.ant</groupId>
+                                <artifactId>ant-googlecode</artifactId>
+                                <version>0.0.3</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

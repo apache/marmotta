@@ -1,0 +1,62 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>LD Path</title>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+ <!-- Copy from http://code.google.com/p/kiwi/wiki/Reasoning  --->
+ <h1><a id="Introduction"></a>Introduction<a class="section_anchor" href="#Introduction"></a></h1>
+<p>
+    LD Path is a simple path-based query language similar to XPath or SPARQL Property Paths that is particularly well-suited for querying and retrieving resources from the Linked Data Cloud by following RDF links between resources and servers. For example, the following path query would select the names of all friends of the context resource:
+</p>
+
+    <pre>
+    foaf:knows / foaf:name :: xsd:string
+    </pre>
+<p>
+    The complete LDPath documentation can be found at the <a href="http://code.google.com/p/ldpath/wiki/PathLanguage">LDPath project site</a>.
+</p>
+<h1><a id="Services"></a>LDPath Web Services<a class="section_anchor" href="#Services"></a></h1>
+<p>
+    Inside the LMF, the LDPath language is available to other components through the LDPathService (<a href="http://doc.lmf.googlecode.com/hg/api/at/newmedialab/lmf/ldpath/api/LDPathService.html">API Documentation</a>) as well as through an
+    easy-to-use webservice. Using the web service you can either evaluate a single LDPath selection as in:
+</p>
+<pre>
+    GET /LMF/ldpath/path?uri=&lt;context-resource&gt;&amp;path=/path/selection
+</pre>
+<p>
+    where &lt;context-resource&gt; is the URI of the resource where the path selection starts, and /path/selection is a path selector as described in
+    <a href="http://code.google.com/p/ldpath/wiki/PathLanguage#Path_Selectors">the LDPath documentation</a>. Result is a RDF/JSON formatted list of nodes.
+    Alternatively, you can evaluate a complete LDPath Program (see <a href="http://code.google.com/p/ldpath/wiki/PathLanguage#FOAF">the FOAF example</a> by 
+    calling the following webservice:
+</p>
+<pre>
+    GET /LMF/ldpath/program?uri=&lt;context-resource&gt;&amp;program=&lt;program&gt;
+</pre>
+<p>
+    where &lt;context-resource&gt; is the URI of the resource where the path selection starts, and &lt;program&gt; is the complete LDPath program. Note that
+    the parameters need to be URL-encoded.
+</p>
+
+<!--###END_CONTENT###-->
+</body>
+</html>

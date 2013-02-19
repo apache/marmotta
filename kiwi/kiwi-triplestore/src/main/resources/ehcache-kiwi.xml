@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!--
+CacheManager Configuration
+==========================
+An ehcache.xml corresponds to a single CacheManager.
+
+See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
+
+System property tokens can be specified in this file which are replaced when the configuration
+is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
+System property either from an environment variable or a system property specified with a
+command line switch such as -DmulticastGroupPort=4446.
+
+The attributes of <ehcache> are:
+* name - an optional name for the CacheManager.  The name is optional and primarily used 
+for documentation or to distinguish Terracotta clustered cache state.  With Terracotta 
+clustered caches, a combination of CacheManager name and cache name uniquely identify a 
+particular cache store in the Terracotta clustered memory.
+* updateCheck - an optional boolean flag specifying whether this CacheManager should check
+for new versions of Ehcache over the Internet.  If not specified, updateCheck="true".
+* monitoring - an optional setting that determines whether the CacheManager should 
+automatically register the SampledCacheMBean with the system MBean server.  Currently,
+this monitoring is only useful when using Terracotta and thus the "autodetect" value 
+will detect the presence of Terracotta and register the MBean.  Other allowed values 
+are "on" and "off".  The default is "autodetect".
+-->    
+<ehcache name="kiwi"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         updateCheck="false"
+         xsi:noNamespaceSchemaLocation="http://ehcache.sf.net/ehcache.xsd">
+
+    <!-- 
+    DiskStore configuration
+    =======================
+
+    The diskStore element is optional. To turn off disk store path creation, comment out the diskStore
+    element below.
+
+    Configure it if you have overflowToDisk or diskPersistent enabled for any cache.
+
+    If it is not configured, and a cache is created which requires a disk store, a warning will be
+     issued and java.io.tmpdir will automatically be used.
+
+    diskStore has only one attribute - "path". It is the path to the directory where
+    .data and .index files will be created.
+
+    If the path is one of the following Java System Property it is replaced by its value in the
+    running VM. For backward compatibility these are not specified without being enclosed in the ${token}
+    replacement syntax.
+
+    The following properties are translated:
+    * user.home - KiWiUser's home directory
+    * user.dir - KiWiUser's current working directory
+    * java.io.tmpdir - Default temp file path
+    * ehcache.disk.store.dir - A system property you would normally specify on the command line
+      e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+
+    Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+
+    -->
+    <diskStore path="java.io.tmpdir/kiwi-cache"/>
+
+
+    <!-- Cache configuration.
+
+    The following attributes are required.
+
+    name:
+    Sets the name of the cache. This is used to identify the cache. It must be unique.
+
+    maxElementsInMemory:
+    Sets the maximum number of objects that will be created in memory
+
+        maxElementsOnDisk:
+    Sets the maximum number of objects that will be maintained in the DiskStore
+        The default value is zero, meaning unlimited.
+
+    eternal:
+    Sets whether elements are eternal. If eternal,  timeouts are ignored and the
+    element is never expired.
+
+    overflowToDisk:
+    Sets whether elements can overflow to disk when the memory store
+    has reached the maxInMemory limit.
+
+    The following attributes are optional.
+
+    timeToIdleSeconds:
+    Sets the time to idle for an element before it expires.
+    i.e. The maximum amount of time between accesses before an element expires
+    Is only used if the element is not eternal.
+    Optional attribute. A value of 0 means that an Element can idle for infinity.
+    The default value is 0.
+
+    timeToLiveSeconds:
+    Sets the time to live for an element before it expires.
+    i.e. The maximum time between creation time and when an element expires.
+    Is only used if the element is not eternal.
+    Optional attribute. A value of 0 means that and Element can live for infinity.
+    The default value is 0.
+
+    diskPersistent:
+    Whether the disk store persists between restarts of the Virtual Machine.
+    The default value is false.
+
+    diskExpiryThreadIntervalSeconds:
+    The number of seconds between runs of the disk expiry thread. The default value
+    is 120 seconds.
+
+    memoryStoreEvictionPolicy:
+    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
+    policy is Least Recently Used (specified as LRU). Other policies available -
+    First In First Out (specified as FIFO) and Less Frequently Used
+    (specified as LFU)
+
+    -->
+
+    <!--
+    Mandatory Default Cache configuration. These settings will be applied to caches
+    created programmtically using CacheManager.add(String cacheName)
+    -->
+    <defaultCache
+            maxElementsInMemory="20000"
+            eternal="true"
+            overflowToDisk="false"
+            memoryStoreEvictionPolicy="LRU"
+            />
+
+    <!--
+       a cache from database ID to KiWiNode; should be very large since this kind of lookup is a very frequent operation
+    -->
+    <cache name="node-cache"
+           maxElementsInMemory="500000"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <!--
+        a cache from database ID to KiWiTriple; should be fairly large since it can speed up loading query results
+        from the database by avoiding reconstructing each triple from the database result
+    -->
+    <cache name="triple-cache"
+           maxElementsInMemory="100000"
+           overflowToDisk="false"
+           timeToLiveSeconds="3600"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <!--
+        the cache used for triple queries (getStatements) by the KiWi triplestore; this can be helpful if the same
+        query is repeated very often, but needs not be very big
+    -->
+    <cache name="query-cache"
+           statistics="true"
+           maxElementsInMemory="10000"
+           timeToLiveSeconds="3600"
+           overflowToDisk="false"/>
+
+    <!-- a cache from URI to KiWiUriResource -->
+    <cache name="uri-cache"
+           maxElementsInMemory="50000"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <!-- a cache from anonymous ID to KiWiAnonResource -->
+    <cache name="bnode-cache"
+           maxElementsInMemory="5000"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU"/>
+
+
+    <!-- a cache from literal cache key to KiWiLiteral -->
+    <cache name="literal-cache"
+           maxElementsInMemory="50000"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU"/>
+
+
+    <cache name="namespace-prefix-cache"
+           maxElementsInMemory="100"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <cache name="namespace-uri-cache"
+           maxElementsInMemory="100"
+           eternal="true"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LFU"/>
+
+    <!--  uncomment to enable cache debugging -->
+<!-- 
+	<cacheManagerPeerListenerFactory
+	    class="org.terracotta.ehcachedx.monitor.probe.ProbePeerListenerFactory"
+	    properties="monitorAddress=localhost, monitorPort=9889" />
+-->
+
+</ehcache>

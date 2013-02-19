@@ -1,0 +1,84 @@
+/**
+ * Copyright (C) 2013 Salzburg Research.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+h2 {
+    margin: 10px 0;
+}
+
+.CodeMirror {
+    border: 1px solid #eee;
+    line-height: 1.25em !important;
+}
+
+[contenteditable='true'] {
+	border: 1px solid #333;
+	background-color: #fff;
+	margin: 3px 0;
+	padding: 3px;
+	min-width: 450px;
+	min-height: 1.2em;
+}
+/*pre[contenteditable='true'],*/
+div[contenteditable='true'] {
+	min-height: 10em;
+	max-height: 30em;
+}
+span[contenteditable='true'] {
+	display: inline-block;
+}
+
+#coreDisplay .cName {
+	display: inline-block;
+}
+
+#coreDisplay .cProgram {
+	border: 1px solid #333;
+	width: 100%;
+	min-height: 10em;
+}
+
+#coreDisplay .cProgram_wrap {
+    margin: 0 2px 0 0;
+}
+#coreDisplay .cProgram_wrap .CodeMirror{
+    margin-right: -2px;
+}
+
+#coreDisplay .icon {
+	margin-left: 10px;
+}
+
+.coreDebug {
+    margin: 10px 0;
+    border: 1px dotted #666;
+}
+
+.coreDebug input {
+    font-size: 13px;
+}
+
+.chooseEditor {
+    float: right;
+    font-size: 80%
+}
+
+.chooseEditor a {
+    
+}
+
+#coreDisplay.editor_cm a.editor_cm,
+#coreDisplay.editor_plain a.editor_plain {
+    text-decoration: none;
+}

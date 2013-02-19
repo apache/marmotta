@@ -1,0 +1,108 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <style type="text/css">
+        body, table{
+           font-family: verdana;
+           font-size: 0.95em;
+        }
+    </style>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+    <script type="text/javascript">
+        var hash;
+        var baseURI;
+
+        function setBaseURI() {
+            var uri = window.location.href;
+            uri = uri.substring(0,uri.lastIndexOf("/"));
+            uri = uri.substring(0,uri.lastIndexOf("/"));
+            uri = uri.substring(0,uri.lastIndexOf("/"));
+            baseURI = uri.substring(0,uri.lastIndexOf("/"))+"/";
+        }
+        function init() {
+            setBaseURI();
+            hash = window.location.hash.substring(1);
+            var that = this;
+            $.getJSON(baseURI+"reasoner/engine/justify?id="+hash,function(data){
+                that.writeContent(data[0]);
+            });
+        }
+
+        function writeContent(data) {
+            $("#content").html("");
+            $("#content").append("Triple<br>");
+            $("#content").append(triplesToTable([data.triple]));
+            $("#content").append();
+            $("#content").append("<br>has been inferred because of<br>");
+            for(var i=0; i<data.justifications.length;i++) {
+                var box = $("<div style='border:1px solid black;'/>");
+                box.append("Triples<br>");
+                box.append(triplesToTable(data.justifications[i].triples));
+                box.append("<br>and Rules<br>");
+                var table3 = $("<table></table>");
+                for(var j=0; j<data.justifications[i].rules.length;j++) {
+                    var trx = $("<tr></tr>").append($("<td>").text(data.justifications[i].rules[j]));
+                    table3.append(trx);
+                }
+                box.append(table3);
+                $("#content").append(box);
+                if(i<data.justifications.length-1) {
+                    $("#content").append("<br>and<br>");
+                }
+            }
+            resize();
+        }
+
+        function resize() {
+            parent.document.getElementById('iframe'+hash).style.height=(document.getElementById('tooltip').offsetHeight)+20+'px';
+        }
+
+        function triplesToTable(triples) {
+            var table = $("<table></table>");
+            for(var i=0; i<triples.length; i++) {
+                for(property in triples[i]) {
+                    var td1 = $("<td/>").text(property);
+                    for(prop2 in triples[i][property]) {
+                        var td2 = $("<td/>").text(prop2);
+                        for(var j=0;j< triples[i][property][prop2].length;j++) {
+                            var td3 = $("<td/>").text(triples[i][property][prop2][j].value);
+                            var tr=$("<tr/>");
+                            tr.append(td1);
+                            tr.append(td2);
+                            tr.append(td3);
+                            table.append(tr);
+                        }
+                    }
+                }
+            }
+            return table;
+        }
+
+        $(document).ready(function(){
+            init();
+        });
+    </script>
+</head>
+<body>
+    <div id="tooltip">
+        <h2 style="color:#006D8F;margin:0;">Reasoning-Maintenance</h2>
+        <div id="content"></div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"  ?>
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!--<!DOCTYPE installation PUBLIC "" "izpack.dtd" >-->
+
+<installation version="1.0">
+
+    <variables>
+        <variable name="TOMCAT_VERSION" value="${TOMCAT_VERSION}"/>
+        <variable name="LMF_VERSION" value="${LMF_VERSION}"/>
+    </variables>
+    <info>
+        <appname>Linked Media Framework</appname>
+        <appversion>${LMF_VERSION}</appversion>
+        <appsubpath>LMF</appsubpath>
+        <url>http://lmf.googlecode.com</url>
+        <authors>
+            <author name="Sebastian Schaffert" email="sebastian.schaffert@salzburgresearch.at"/>
+            <author name="Thomas Kurz" email="thomas.kurz@salzburgresearch.at"/>
+            <author name="Jakob Frank" email="jakob.frank@salzburgresearch.at"/>
+            <author name="Sergio Fernández" email="sergio.fernandez@salzburgresearch.at"/>
+            <author name="Rupert Westenthaler" email="rupert.westenthaler@salzburgresearch.at"/>
+            <author name="Dietmar Glachs" email="dietmar.glachs@salzburgresearch.at"/>
+        </authors>
+        <javaversion>1.6</javaversion>
+        <requiresjdk>no</requiresjdk>
+    </info>
+    <packaging>
+        <packager class="com.izforge.izpack.compiler.Packager">
+            <options/>
+        </packager>
+        <unpacker class="com.izforge.izpack.installer.Unpacker"/>
+    </packaging>
+    <guiprefs resizable="no" width="800" height="600">
+    </guiprefs>
+    <locale>
+        <langpack iso3="eng"/>
+    </locale>
+    <resources>
+        <res src="panels/COPYING" id="LicencePanel.licence" />
+        <res src="shortcuts/shortcutSpec.xml" id="shortcutSpec.xml" />
+        <res src="shortcuts/Unix_shortcutSpec.xml" id="Unix_shortcutSpec.xml" />
+        <res src="images/lmfbck.png" id="lmfbck" />
+        <res src="${LMF_ROOT}/lmf-core/src/main/resources/web/public/img/logo/lmf-logo.png" id="lmflogo" />
+        <res src="panels/installerInfo.html" id="HTMLHelloPanel.info" />
+    </resources>
+    <panels>
+        <panel classname="HTMLHelloPanel"/>
+        <panel classname="HelloPanel"/>
+        <panel classname="LicencePanel"/>
+        <panel classname="PacksPanel"/>
+        <panel classname="TargetPanel"/>
+        <panel classname="InstallPanel"/>
+        <panel classname="ShortcutPanel"/>
+        <panel classname="SimpleFinishPanel" />
+    </panels>
+    <packs>
+        <pack name="Apache Tomcat ${TOMCAT_VERSION}" required="yes">
+            <description>Apache Tomcat ${TOMCAT_VERSION}, the application server used to run the Linked Media Framework</description>
+            <file src="${LMF_ROOT}/lmf-installer/target/apache-tomcat-${TOMCAT_VERSION}.zip" targetdir="\$INSTALL_PATH" unpack="true"/>
+            <file src="tomcat/server.xml" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/conf" override="true"/>
+            <file src="tomcat/setenv.sh" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin"/>
+            <file src="tomcat/setenv.bat" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin"/>
+            <file src="images/icon_start.ico" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons"/>
+            <file src="images/icon_stop.ico" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons"/>
+            <file src="images/icon_start.png" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons"/>
+            <file src="images/icon_stop.png" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons"/>
+            <file src="images/splashscreen.png" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons"/>
+            <file src="log/catalina.out" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/logs"/>
+            <file src="${LMF_ROOT}/lmf-splash/target/lmf-splash-${LMF_VERSION}.jar" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/lib"/>
+            <file src="tomcat/index.jsp" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT" override="true"/>
+            <file src="macos/Start LMF Server.app" targetdir="\$INSTALL_PATH" os="mac" />
+            <file src="images/icon_start.icns" targetdir="\$INSTALL_PATH/Start LMF Server.app/Contents/Resources" os="mac" />
+            <file src="macos/Stop LMF Server.app" targetdir="\$INSTALL_PATH" os="mac" />
+            <file src="images/icon_stop.icns" targetdir="\$INSTALL_PATH/Stop LMF Server.app/Contents/Resources" os="mac" />
+            <parsable type="shell" targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/setenv.sh" parse="yes"/>
+            <parsable type="shell" targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/setenv.bat" parse="yes"/>
+            <parsable type="shell" targetfile="\$INSTALL_PATH/Start LMF Server.app/Contents/MacOS/run.sh" parse="yes" os="mac"/>
+            <parsable type="shell" targetfile="\$INSTALL_PATH/Stop LMF Server.app/Contents/MacOS/run.sh" parse="yes" os="mac"/>
+            <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/setenv.sh" stage="never" />
+            <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/catalina.sh" stage="never" />
+            <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/startup.sh" stage="never" />
+            <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/shutdown.sh" stage="never" />
+            <executable targetfile="\$INSTALL_PATH/Start LMF Server.app/Contents/MacOS/run.sh" stage="never" os="mac" />
+            <executable targetfile="\$INSTALL_PATH/Stop LMF Server.app/Contents/MacOS/run.sh" stage="never" os="mac"/>
+        </pack>
+        <refpack file="refpacks/lmf-webapp.xml" />
+        <refpack file="refpacks/lmf-core.xml" />
+        <refpack file="refpacks/lmf-ldcache.xml" />
+        <refpack file="refpacks/lmf-ldpath.xml" />
+        <refpack file="refpacks/lmf-reasoner.xml" />
+        <refpack file="refpacks/lmf-skos.xml" />
+        <refpack file="refpacks/lmf-search.xml" />
+        <refpack file="refpacks/lmf-security.xml" />
+        <refpack file="refpacks/lmf-sparql.xml" />
+        <refpack file="refpacks/lmf-user.xml" />
+        <refpack file="refpacks/lmf-scheduler.xml" />
+        <refpack file="refpacks/lmf-social.xml" />
+        <refpack file="refpacks/lmf-versioning.xml" />
+        <refpack file="refpacks/lmf-enhancer.xml" />
+        <refpack file="refpacks/lmf-stanbol.xml" />
+        <refpack file="refpacks/lmf-geo.xml" />
+        <refpack file="refpacks/lmf-demo-books.xml" />
+        <refpack file="refpacks/refine.xml" />
+    </packs>
+
+    <!-- shortcut generation -->
+    <native type="izpack" name="ShellLink.dll" />
+    <native type="izpack" name="ShellLink_x64.dll" />
+</installation>

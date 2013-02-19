@@ -1,0 +1,7 @@
+ASK WHERE {
+ <http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0106.xhtml> <http://purl.org/dc/elements/1.1/creator>  ?a .
+ OPTIONAL {
+   ?x ?y <http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/manu.html> .
+ }
+ FILTER (isBlank(?a) && !BOUND(?x) && !BOUND(?y))
+}

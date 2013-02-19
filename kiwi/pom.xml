@@ -1,0 +1,179 @@
+<!--
+  ~ Copyright (c) 2013 The Apache Software Foundation
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>at.newmedialab.lmf</groupId>
+        <artifactId>lmf-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
+    <artifactId>kiwi-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <name>KiWi Triplestore: Parent</name>
+    <description>A Sesame Triple Store based on a relational database. Supports reasoning and versioning.</description>
+    <url>https://code.google.com/p/ldpath/</url>
+
+    <inceptionYear>2008</inceptionYear>
+    <licenses>
+        <license>
+            <name>Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Sebastian Schaffert</name>
+            <email>sebastian.schaffert@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+    </developers>
+
+    <organization>
+        <name>Salzburg Research</name>
+        <url>http://www.salzburgresearch.at</url>
+    </organization>
+
+    <properties>
+        <sesameVersion>2.6.10</sesameVersion>
+        <sl4jVersion>1.7.2</sl4jVersion>
+        <logbackVersion>1.0.7</logbackVersion>
+    </properties>
+
+
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.13</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <h2.url>jdbc:h2:mem:test;MVCC=true;DB_CLOSE_ON_EXIT=TRUE</h2.url>
+                            <h2.user>sa</h2.user>
+                            <h2.pass />
+
+                            <!-- enable or pass on command line for testing local PostgreSQL -->
+                            <postgresql.url>jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</postgresql.url>
+                            <postgresql.user>lmf</postgresql.user>
+                            <postgresql.pass>lmf</postgresql.pass>
+
+                            <!-- enable or pass on command line for testing local MySQL -->
+                            <mysql.url>jdbc:mysql://localhost:3306/kiwitest</mysql.url>
+                            <mysql.user>lmf</mysql.user>
+                            <mysql.pass>lmf</mysql.pass>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>surefire-booter</artifactId>
+                    <version>2.13</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.4</version>
+                    <!-- uncomment for release deployment -->
+                                        <executions>
+                                            <execution>
+                                                <id>sign-artifacts</id>
+                                                <phase>verify</phase>
+                                                <goals>
+                                                    <goal>sign</goal>
+                                                </goals>
+                                            </execution>
+                                        </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.3.7</version>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <instructions>
+                            <Bundle-DocURL>http://code.google.com/p/ldpath/</Bundle-DocURL>
+                            <Bundle-Vendor>Salzburg Research</Bundle-Vendor>
+                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                            <_versionpolicy>$${version;===;${@}}</_versionpolicy>
+                        </instructions>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>1.7.4</version>
+                    <executions>
+                        <execution>
+                            <id>generate-scr-scrdescriptor</id>
+                            <goals>
+                                <goal>scr</goal>
+                            </goals>
+                            <configuration>
+                                <properties>
+                                    <service.vendor>Salzburg Research</service.vendor>
+                                </properties>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <configuration>
+                        <relativePath>../../</relativePath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>at.newmedialab.lmf</groupId>
+                <artifactId>kiwi-triplestore</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>kiwi-contextaware</module>
+        <module>kiwi-triplestore</module>
+        <module>kiwi-transactions</module>
+        <module>kiwi-tripletable</module>
+        <module>kiwi-versioning</module>
+        <module>kiwi-reasoner</module>
+    </modules>
+
+</project>

@@ -1,0 +1,7 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ma: <http://www.w3.org/ns/ma-ont#>
+ASK {
+    <http://youtu.be/_3BmNcHW4Ew> ma:title "LMF Screencast: Publishing Legacy Data as Linked Data" .
+    <http://youtu.be/_3BmNcHW4Ew> rdf:type ma:VideoTrack
+}

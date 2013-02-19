@@ -1,0 +1,9 @@
+ASK {
+	?x <http://www.w3.org/2006/vcard/ns#fn> "Frank Dawson" .
+	?x <http://www.w3.org/2006/vcard/ns#n> ?y .
+	?y <http://www.w3.org/2006/vcard/ns#given-name> "Frank" .
+	?y <http://www.w3.org/2006/vcard/ns#family-name> "Dawson" .
+	?x <http://www.w3.org/2006/vcard/ns#workTel> <tel:+1-919-676-9515> .
+	?x <http://www.w3.org/2006/vcard/ns#org> ?org .
+	?org <http://www.w3.org/2006/vcard/ns#organization-name> "Lotus Development Corporation"
+}

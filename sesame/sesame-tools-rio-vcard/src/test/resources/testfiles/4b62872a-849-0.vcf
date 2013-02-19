@@ -1,0 +1,15 @@
+begin:vcard
+n:Branntwein;Franz;M.;Herr;
+title:
+fn:
+org:
+adr;charset=UTF-8:;Medizinstraße 4711;;Köln;Nordrhein-Westfalen;50441;Deutschland
+tel;home:0221 12345678
+tel;work:
+tel;fax:
+tel;cell:
+email;internet:franz.m.branntwein@example.com
+VERSION:2.1
+UID:4b62872a-849-0
+end:vcard
+

@@ -1,0 +1,16 @@
+BEGIN:VCARD
+VERSION:4.0
+FN:Simon Perreault
+N:Perreault;Simon;;;ing. jr.,M.Sc.
+BDAY:1983-02-03
+GENDER:M
+ORG:Viagenie
+ADR;TYPE=work:;;2600 boul. Laurier\, suite 625;
+ Quebec;QC;G1V 4W1;Canada
+TEL;TYPE=voice,work:tel:+1-418-656-9254;ext=102
+TEL;TYPE=fax,work:tel:+1-418-656-9257
+EMAIL;TYPE=internet,work:simon.perreault@viagenie.ca
+GEO:46.772673,-71.282945
+CLASS:PUBLIC
+KEY;VALUE=uri:http://www.viagenie.ca/simon.perreault/simon.asc
+END:VCARD

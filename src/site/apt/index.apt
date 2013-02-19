@@ -1,0 +1,77 @@
+~~
+~~ Copyright (C) 2013 Salzburg Research.
+~~
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~
+
+Linked Media Framework
+
+  The Linked Media Framework (aka LMF) is a Web application that bundles central Semantic Web technologies to offer some advanced services.
+  
+Modules 
+
+  LMF Core and LMF Modules
+  
+* LMF Core
+
+  The core component of the Linked Media Framework is a Linked Data Server that allows to expose data following the Linked Data Principles:
+  
+  [[1]] Use URIs as names for things.
+  
+  [[2]] Use HTTP URIs, so that people can look up those names.
+  
+  [[3]] When someone looks up a URI, provide useful information, using the standards (RDF, SPARQL).
+  
+  [[4]] Include links to other URIs, so that they can discover more things.
+
+
+  The Linked Data Server implemented as part of the LMF goes beyond the Linked Data principles by extending them with Linked Data Updates and by integrating management of metadata and content and making both accessible in a uniform way. Our extensions are described in more detail in our Linked Media Principles. In addition to the Linked Data Server, the LMF Core also offers a SPARQL endpoint.
+
+* LMF Modules
+
+  As extension for the LMF Core, LMF offers a number of optional modules that can be used to extend the functionality of the Linked Media Server:
+
+  * LMF SPARQL offers complete SPARQL 1.1 Query and Update support for modifying the triple store underlying the Linked Media Framework
+  
+  * LMF LD Path offers user-friendly querying over the Linked Data Cloud based on the LDPath language
+  
+  * LMF Semantic Search offers a highly configurable Semantic Search service based on Apache SOLR. Several semantic search indexes can be configured in the same LMF instance. Setting up and using the Semantic Search component is described in ModuleSemanticSearch, the path language used for configuring it is described on the LDPath Webpage.
+
+  * LMF Linked Data Cache implements a cache to the Linked Data Cloud that is transparently used when querying the content of the LMF using either LDPath, SPARQL (to some extent) or the Semantic Search component. In case a local resource links to a remote resource in the Linked Data Cloud and this relationship is queried, the remote resource will be retrieved in the background and cached locally.
+
+  * LMF Reasoner implements a rule-based reasoner that allows to process Datalog-style rules over RDF triples; the LMF Reasoner will be based on the reasoning component developed in the KiWi? project, the predecessor of the LMF (state: implemented)
+
+  * LMF Text Classification provides basic statistical text classification services; multiple classifiers can be created, trained with sample data and used to classify texts into categories
+
+  * LMF Versioning implements versioning of metadata updates; the module allows getting metadata snapshots for a resource for any time in its history and provides an implementation of the memento protocol
+
+  * LMF Stanbol Integration allows integrating with Apache Stanbol for content analysis and interlinking; the LMF provides some automatic configuration of Stanbol for common tasks
+
+  * LMF SKOS Editor allows to directly display and update SKOS thesauruses imported in the Linked Media Framework using the Open Source SKOSjs editor.
+
+* LMF Client Library
+
+  A convenient option to use the LMF for Linked Data development is to build applications based on the LMF Client Library and a standalone LMF Server (can be either the generic server or a custom server as described above). The LMF Client Library provides an API abstraction around the LMF webservices and is currently available in Java, PHP, and Javascript. While each language-specific implementation retains the same general API structure, the way of accessing the API functionality is customised to the respective environment, so that e.g. a PHP developer can access the LMF in a similar way to other PHP libraries. No in-depth knowledge of RDF, Linked Data, or the Linked Media Framework is required. The library provides the following functionalities:
+
+  * Resource Management: retrieving, updating and deleting resources and associated content/metadata
+
+  * Configuration: reading and updating the LMF system configuration
+
+  * LDPath: querying the LMF and the Linked Data Cloud using path expressions or path programs
+
+  * SPARQL: querying and updating the LMF using SPARQL 1.1 Queries/Updates
+
+  * Semantic Search: configuring semantic search cores and performing queries
+
+  * Reasoner: uploading and removing rule programs
+  

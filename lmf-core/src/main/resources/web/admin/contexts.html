@@ -1,0 +1,89 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Contexts</title>
+    <link type="text/css" rel="stylesheet" href="../public/js/widgets/configurator/style.css" />
+<!--###END_HEAD###-->
+</head>
+<body>
+<div id="main">
+<div id="contents">
+<!--###BEGIN_CONTENT###-->
+    <h1>Contexts</h1>
+    <h2>Triple Contexts / Graphs</h2>
+    <p>
+        In LMF we call <em>contexts</em> to triple containers with their own URI; 
+        what is commonly known as 
+        <a href="http://www.w3.org/TR/sparql11-query/#namedAndDefaultGraph">graphs</a>
+        in SPARQL.
+    </p>
+    <p>
+        Currently there are <span id="contexts-count">0</span> contexts in LMF:
+    </p>    
+    <table id="contexts" class="simple_table">
+      <tr class="subtitle">
+        <th>Context</th>
+        <th>Label</th>
+        <th>&nbsp;</th>
+      </tr>    
+    </table>  
+    
+    <script type="text/javascript" src="/webjars/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+
+            function appendContext(ctx, id) {
+                var uri = ctx["uri"];
+                var label = (ctx["label"] ? ctx["label"] : "");
+            	$("table#contexts > tbody:last").append("<tr id=\"context" + id + "\"><td><a href=\"" + uri + "\">" + uri + "</a></td><td>" + label + "</td><td><a href=\"#contexts\" class=\"deleteContext\">delete</a></td></tr>");
+            }
+
+            function deleteContext(uri, id) {
+            	$.ajax({
+            	    url: uri,
+            	    type: "DELETE",
+            	    success: function(result) {
+            	    	alert("Context " + uri + " deleted!");
+            	        $("tr#" + id).remove();
+            	    }
+            	});
+            }        
+            
+            $.getJSON("../../context/list", {labels:"true"}, function(data) {
+                var count = 0;
+                for (i in data) {                  
+                	appendContext(data[i], count);
+                	$("span#contexts-count").html(++count);
+                }
+                $("a.deleteContext").click(function() {
+                    var row = $(this).closest("td").closest("tr");
+                    var uri = row.find("td:first").text();
+                    var id = row.attr("id");
+                    deleteContext(uri, id);
+                });
+            });        
+            
+        });
+    </script>
+<!--###END_CONTENT###-->
+</div>
+</div>
+</body>
+</html>

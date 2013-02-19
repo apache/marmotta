@@ -1,0 +1,63 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<shortcuts>
+
+    <skipIfNotSupported/>
+    <programGroup defaultName="Linked Media Framework"
+                  location="applications"/>
+
+    <shortcut
+            name="Start Linked Media Framework"
+            programGroup="yes"
+            desktop="yes"
+            applications="no"
+            startMenu="no"
+            startup="no"
+            target="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/startup.sh"
+            workingDirectory="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/"
+            commandLine=""
+            initialState="noShow"
+            iconFile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons/icon_start.png"
+            iconIndex="0"
+            url=""
+            type="Application"
+            encoding="UTF-8"
+            description="This will start the Linked Media Framework Server">
+    </shortcut>
+
+    <shortcut
+            name="Stop Linked Media Framework"
+            programGroup="yes"
+            desktop="yes"
+            applications="no"
+            startMenu="no"
+            startup="no"
+            target="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/shutdown.sh"
+            workingDirectory="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/"
+            commandLine=""
+            initialState="noShow"
+            iconFile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/icons/icon_stop.png"
+            iconIndex="0"
+            url=""
+            type="Application"
+            encoding="UTF-8"
+            description="This will shutdown the Linked Media Framework Server">
+    </shortcut>
+
+
+</shortcuts>

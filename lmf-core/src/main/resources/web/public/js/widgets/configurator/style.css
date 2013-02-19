@@ -1,0 +1,117 @@
+/**
+ * Copyright (C) 2013 Salzburg Research.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+.config_datatable {
+    display: table;
+    margin: 0px auto;
+    margin-bottom: 10px;
+}
+
+.config_datatable td {
+    border: 1px solid black;
+    padding: 1px 5px;
+    vertical-align: top;
+}
+
+.config_datatable td input {
+    width: 400px
+}
+
+.config_intergerfield_short {
+    width: 330px !important;
+}
+
+.config_selectfield {
+    min-width: 400px
+}
+
+#config_add_buttons {
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.config_saveButton {
+    position: fixed;
+    right:20px;
+    top:20px;
+    background-color: red;
+    border: 2px solid #a50000;
+    color: #ffffff;
+    font-weight:bold;
+    padding: 10px 20px;
+    cursor: pointer
+}
+
+.config_tdtitle {
+    width: 400px;
+}
+
+.config_tdtitle h3 {
+    margin: 0 !important;
+    font-size: 14px !important;
+}
+
+.config_tdtitle span {
+    font-style: italic;
+    font-size: 14px;
+    color: #4d4d4d;
+}
+
+.config_textfield {
+    width: 400px;
+    height: 100px;
+}
+
+.config_background {
+    z-index:1001;
+    position:fixed;
+    background-color:black;
+    opacity:0.5;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+}
+
+#config_popup {
+    z-index:1001;
+    position:fixed;
+    top:100px;
+    left:50%;
+    margin-left: -150px;
+    width:300px;
+    background-color: white;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid black;
+    box-shadow: 0px 0px 8px #333;
+}
+
+#config_popup h1 {
+    background-color: #004ea4;
+    color: white;
+    margin: 0;
+    padding: 5px;
+    font-size: 16px;
+}
+#config_popup table {
+    margin: 15px;
+}
+#config_popup button {
+    margin: ;
+}
+
+
+

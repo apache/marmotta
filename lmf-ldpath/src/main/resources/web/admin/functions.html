@@ -1,0 +1,68 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>LDPath Functions</title>
+    <script type="text/javascript" src="../../core/public/js/lib/jquery-1.7.2.js"></script>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<h1>LDPath Functions</h1>
+<p>
+    The different LMF components can register custom LDPath functions to extend the LDPath functionality. Currently,
+    the following LDPath functions are registered:
+</p>
+
+<table class="simple_table" id="ldpath_functions">
+    <tr>
+        <th>Name</th><th>Signature</th><th>Description</th>
+    </tr>
+</table>
+
+<h3>
+    Legend:
+</h3>
+<ul>
+    <li><strong>Name:</strong> name of the function as registered by the different modules</li>
+    <li><strong>Signature:</strong> how this LDPath function can be called</li>
+    <li><strong>Description:</strong> a free text description of the LDPath function</li>
+</ul>
+
+
+<script type="text/javascript">
+    String.prototype.format = function () {
+        var args = arguments;
+        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
+    };
+
+
+    $.getJSON(_SERVER_URL+"ldpath/functions", function(data) {
+        var rowTemplate = '<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>'
+
+        $.each(data, function(index,result) {
+            $(rowTemplate.format(result.name,result.signature,result.description)).appendTo("#ldpath_functions");
+        })
+    });
+</script>
+
+
+<!--###END_CONTENT###-->
+</body>
+</html>

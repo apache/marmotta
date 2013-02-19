@@ -1,0 +1,9 @@
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubeChannelEndpointGData
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubeChannelEndpointWeb
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubePlaylistEndpointGData
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubePlaylistEndpointWeb
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubePlaylistEndpointWebLong
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubeVideoEndpoint
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubeVideoPageEndpointGData
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubeVideoPageEndpointWatch
+org.apache.marmotta.ldclient.endpoint.youtube.YoutubeVideoPageEndpointWeb

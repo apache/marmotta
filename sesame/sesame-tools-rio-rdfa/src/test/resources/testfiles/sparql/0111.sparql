@@ -1,0 +1,5 @@
+ASK WHERE {
+ <http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0111.xhtml> <http://www.w3.org/1999/xhtml/vocab#next> ?a .
+ ?a <http://www.w3.org/1999/xhtml/vocab#next> ?b .
+  FILTER (isBlank(?a) && isBlank(?b) )
+}

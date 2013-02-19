@@ -1,0 +1,323 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+<title>Reasoning Module</title>
+<link rel="stylesheet" type="text/css"
+	href="../../core/public/style/center.css" />
+<!--###END_HEAD###-->
+</head>
+<body>
+	<!--###BEGIN_CONTENT###-->
+	<!-- Copy from http://code.google.com/p/kiwi/wiki/Reasoning  --->
+	<h1>
+		<a id="Introduction"></a>Introduction<a class="section_anchor"
+			href="#Introduction"></a>
+	</h1>
+	<p>The Linked Media Framework includes an (optional) rule-based
+		reasoner that is highly customizable and allows to evaluate
+		user-defined rules over triples in the LMF Triple Store. Rules can be
+		uploaded and stored in the LMF via an easy-to-use web service. The
+		evaluation strategy is an incremental forward chaining reasoning with
+		truth maintenance and is reasonably efficient even for big data sets.
+		The truth maintenance can be used to provide explanations for inferred
+		triples as well as for efficient updating of the reasoning
+		information.</p>
+	<p>The sKWRL reasoner has originally been developed for the KiWi
+		project, but has been re-implemented in context of the LMF using more
+		efficient evaluation strategies but also a simplified language with no
+		negation.</p>
+	<h1>
+		<a id="Rules_and_Programs"></a>Rules and Programs<a
+			class="section_anchor" href="#Rules_and_Programs"></a>
+	</h1>
+	<p>
+		The LMF Reasoner can load one or more <i>programs</i>, which are
+		themselves a collection of <i>rules</i>. Each rule consists of a rule
+		body ("condition") and a rule head ("consequence"). For example, the
+		following rule is part of the RDFS reasoning typically found in triple
+		stores:
+	</p>
+	<pre class="prettyprint">
+		<span class="pun">(</span><span class="pln">$p http</span><span
+			class="pun">:</span><span class="com">//www.w3.org/2000/01/rdf-schema#domain $d), ($1 $p $2) </span><span
+			class="pln"><br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </span><span
+			class="pun">-&gt;</span><span class="pln"> </span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/1999/02/22-rdf-syntax-ns#type $d)</span>
+	</pre>
+	<p>The rule can be read as "if there is a property $p with domain
+		$d and there is a triple ($1 $p $2), then the subject $1 of this
+		triple gets the inferred type $d".</p>
+	<p>The syntax of the reasoning rules is thus as follows:</p>
+	<ul>
+		<li>$X denotes the variable X; variables are universally
+			quantified over the rule, i.e. existentially quantified over the
+			body, read: "if there exists a triple such that variable X can be
+			bound"... Variables are bound using so-called unification, i.e. the
+			system looks for bindings that are compatible with all occurrences of
+			the variable in patterns</li>
+		<li>(S P O) denotes a triple pattern; S and P can be either URIs
+			or variables, and O can be either a URI, a variable, or a literal. A
+			triple pattern occurring in the body of a rule is considered a query
+			pattern, a triple pattern occurring in the head of a rule is
+			considered a construction pattern used for creating new triples</li>
+		<li>BODY -&gt; HEAD denotes a rule; BODY is a comma-separated
+			conjunctive (AND-connected) list of one or more triple patterns used
+			for querying; the HEAD is a single triple pattern used for
+			construction of inferred triples</li>
+	</ul>
+	<p></p>
+	<h1>
+		<a id="Program_Web_Service"></a>Program Web Service<a
+			class="section_anchor" href="#Program_Web_Service"></a>
+	</h1>
+	<p>Programs can be uploaded and managed by the Program Webservice,
+		which provides methods for uploading and deleting programs and
+		triggers the necessary executions of the reasoning engine when the
+		rule set is changed.</p>
+	<p>Note that the services described below are also available with a
+		simple UI from the Admin interface (Tab "Reasoner").</p>
+	<h2>
+		<a id="Uploading_a_Program"></a>Uploading a Program<a
+			class="section_anchor" href="#Uploading_a_Program"></a>
+	</h2>
+	<p>
+		A program can be uploaded by posting to the service
+		<span class="tt">reasoner/program/PROGRAM</span>
+		as follows (where
+		<span class="tt">PROGRAM</span>
+		is the name of the program to upload, in the example
+		<span class="tt">rdfs.kwrl</span>
+		):
+	</p>
+	<pre class="prettyprint">
+		<span class="pln">curl </span><span class="pun">-</span><span
+			class="pln">i </span><span class="pun">-</span><span class="pln">H </span><span
+			class="str">"Content-Type: text/plain"</span><span class="pln"> </span><span
+			class="pun">-</span><span class="pln">X POST </span><span class="pun">--</span><span
+			class="pln">data</span><span class="pun">-</span><span class="pln">binary </span><span
+			class="lit">@rdfs</span><span class="pun">.</span><span class="pln">kwrl http</span><span
+			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/program/rdfs.kwrl</span>
+	</pre>
+	<p>When the program is uploaded, the web service will return 200 OK
+		and the parsed program for checking. It will also immediately trigger
+		a full re-reasoning over the knowledge base.</p>
+	<h2>
+		<a id="Listing_Programs"></a>Listing Programs<a
+			class="section_anchor" href="#Listing_Programs"></a>
+	</h2>
+	<p>
+		The currently stored programs can be listed by calling the service
+		<span class="tt">reasoner/program/list</span>
+		using the GET method:
+	</p>
+	<pre class="prettyprint">
+		<span class="pln">curl </span><span class="pun">-</span><span
+			class="pln">i &nbsp;</span><span class="pun">-</span><span
+			class="pln">X GET http</span><span class="pun">:</span><span
+			class="com">//localhost:8080/LMF/reasoner/program/list</span>
+	</pre>
+	<h2>
+		<a id="Deleting_a_Program"></a>Deleting a Program<a
+			class="section_anchor" href="#Deleting_a_Program"></a>
+	</h2>
+	<p>Programs can be deleted by calling the service for the
+		respective program with the DELETE method:</p>
+	<pre class="prettyprint">
+		<span class="pln">curl </span><span class="pun">-</span><span
+			class="pln">i </span><span class="pun">-</span><span class="pln">X DELETE http</span><span
+			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/program/rdfs.kwrl</span>
+	</pre>
+	<h1>
+		<a id="Reasoning_Web_Service"></a>Reasoning Web Service<a
+			class="section_anchor" href="#Reasoning_Web_Service"></a>
+	</h1>
+	<p>The Reasoning Webservice provides access to the functionalities
+		of the reasoner. In particular, it allows to provide justifications
+		why a certain triple has been inferred. This information is e.g. used
+		in the HTML resource view of the Linked Data Server.</p>
+	<h2>
+		<a id="Listing_Justifications"></a>Listing Justifications<a
+			class="section_anchor" href="#Listing_Justifications"></a>
+	</h2>
+	<p>The reason maintenance component of the LMF Reasoner offers
+		explanations to why a triple has been inferred. Each explanation
+		consists of a set of base triples and rules that have been used in the
+		reasoning process for inferring the triple. Each inferred triple might
+		have one (if only one reasoning path leads to this triple) or more (if
+		there are several different ways of inferring this triple)
+		justification. When all justifications are removed (e.g. because a
+		base triple or rule is removed), the inferred triple is also removed.
+	</p>
+	<p>
+		The Reasoning Webservice offers to retrieve the justifications for a
+		triple using the
+		<span class="tt">reasoner/engine/justify?id=TRIPLEID</span>
+		service call. For example, the following call returns the
+		justifications for the triple with ID 27:
+	</p>
+	<pre class="prettyprint">
+		<span class="pln">curl </span><span class="pun">-</span><span
+			class="pln">i </span><span class="pun">-</span><span class="pln">X GET http</span><span
+			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/engine/justify?id=27</span>
+	</pre>
+	<p>The justifications are returned in JSON format so they can be
+		displayed to the user. The justifications might look as follows:</p>
+	<pre class="prettyprint">
+		<span class="pun">[{</span><span class="pln"><br>&nbsp;</span><span
+			class="str">"triple"</span><span class="pun">:</span><span
+			class="pln"> </span><span class="pun">{</span><span class="pln"> </span><span
+			class="str">"http://www.kiwi-project.eu/kiwi/core/E"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">{</span><span class="pln"> </span><span class="str">"http://www.w3.org/2000/01/rdf-schema#subClassOf"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">[{</span><span class="pln"> &nbsp;</span><span
+			class="str">"type"</span><span class="pln"> </span><span class="pun">:</span><span
+			class="pln"> </span><span class="str">"uri"</span><span class="pun">,</span><span
+			class="pln"> </span><span class="str">"value"</span><span class="pln"> </span><span
+			class="pun">:</span><span class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/A"</span><span
+			class="pln"> </span><span class="pun">}]</span><span class="pln"> </span><span
+			class="pun">}</span><span class="pln"> </span><span class="pun">},</span><span
+			class="pln"><br></span><span class="str">"justifications"</span><span
+			class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span
+			class="pln"><br>&nbsp; </span><span class="pun">{</span><span
+			class="pln"><br>&nbsp; &nbsp; </span><span class="str">"triples"</span><span
+			class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span
+			class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="pun">{</span><span
+			class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/E"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">{</span><span class="pln"> </span><span class="str">"http://www.w3.org/2000/01/rdf-schema#subClassOf"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">[{</span><span class="pln"> &nbsp;</span><span
+			class="str">"type"</span><span class="pln"> </span><span class="pun">:</span><span
+			class="pln"> </span><span class="str">"uri"</span><span class="pun">,</span><span
+			class="pln"> </span><span class="str">"value"</span><span class="pln"> </span><span
+			class="pun">:</span><span class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/D"</span><span
+			class="pln"> </span><span class="pun">}]</span><span class="pln"> </span><span
+			class="pun">}</span><span class="pln"> </span><span class="pun">},</span><span
+			class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="pun">{</span><span
+			class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/C"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">{</span><span class="pln"> </span><span class="str">"http://www.w3.org/2000/01/rdf-schema#subClassOf"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">[{</span><span class="pln"> &nbsp;</span><span
+			class="str">"type"</span><span class="pln"> </span><span class="pun">:</span><span
+			class="pln"> </span><span class="str">"uri"</span><span class="pun">,</span><span
+			class="pln"> </span><span class="str">"value"</span><span class="pln"> </span><span
+			class="pun">:</span><span class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/B"</span><span
+			class="pln"> </span><span class="pun">}]</span><span class="pln"> </span><span
+			class="pun">}</span><span class="pln"> </span><span class="pun">},</span><span
+			class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="pun">{</span><span
+			class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/D"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">{</span><span class="pln"> </span><span class="str">"http://www.w3.org/2000/01/rdf-schema#subClassOf"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">[{</span><span class="pln"> &nbsp;</span><span
+			class="str">"type"</span><span class="pln"> </span><span class="pun">:</span><span
+			class="pln"> </span><span class="str">"uri"</span><span class="pun">,</span><span
+			class="pln"> </span><span class="str">"value"</span><span class="pln"> </span><span
+			class="pun">:</span><span class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/C"</span><span
+			class="pln"> </span><span class="pun">}]</span><span class="pln"> </span><span
+			class="pun">}</span><span class="pln"> </span><span class="pun">},</span><span
+			class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="pun">{</span><span
+			class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/B"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">{</span><span class="pln"> </span><span class="str">"http://www.w3.org/2000/01/rdf-schema#subClassOf"</span><span
+			class="pln"> </span><span class="pun">:</span><span class="pln"> </span><span
+			class="pun">[{</span><span class="pln"> &nbsp;</span><span
+			class="str">"type"</span><span class="pln"> </span><span class="pun">:</span><span
+			class="pln"> </span><span class="str">"uri"</span><span class="pun">,</span><span
+			class="pln"> </span><span class="str">"value"</span><span class="pln"> </span><span
+			class="pun">:</span><span class="pln"> </span><span class="str">"http://www.kiwi-project.eu/kiwi/core/A"</span><span
+			class="pln"> </span><span class="pun">}]</span><span class="pln"> </span><span
+			class="pun">}</span><span class="pln"> </span><span class="pun">}</span><span
+			class="pln"><br>&nbsp; &nbsp; </span><span class="pun">],</span><span
+			class="pln"> &nbsp; &nbsp;</span><span class="str">"rules"</span><span
+			class="pun">:</span><span class="pln"> </span><span class="pun">[</span><span
+			class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="str">"($1 http://www.w3.org/2000/01/rdf-schema#subClassOf $2), ($2 http://www.w3.org/2000/01/rdf-schema#subClassOf $3) -&gt; ($1 http://www.w3.org/2000/01/rdf-schema#subClassOf $3)"</span><span
+			class="pln"><br>&nbsp; &nbsp; </span><span class="pun">]</span><span
+			class="pln"> &nbsp;</span><span class="pun">}</span><span class="pln"><br></span><span
+			class="pun">]}</span><span class="pln"><br></span><span
+			class="pun">]</span>
+	</pre>
+	<p>The triple (E subClassOf A) is inferred because of the
+		subClassOf rule (see below) and because of the base triples (E
+		subClassOf D), (D subClassOf C), (C subClassOf B) and (B subClassOf
+		A).</p>
+	<h2>
+		<a id="Full_Reasoning"></a>Full Reasoning<a class="section_anchor"
+			href="#Full_Reasoning"></a>
+	</h2>
+	<p>The reasoner also provides a method to completely restart all
+		reasoning and carry out a full reasoning from scratch. This might be
+		useful in case a running reasoning process has been interrupted. The
+		service is called as follows:</p>
+	<pre class="prettyprint">
+		<span class="pln">curl </span><span class="pun">-</span><span
+			class="pln">i </span><span class="pun">-</span><span class="pln">X POST http</span><span
+			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/engine/run</span>
+	</pre>
+	<h1>
+		<a id="Example_Programs"></a>Example Programs<a
+			class="section_anchor" href="#Example_Programs"></a>
+	</h1>
+	<p>In the following, we give a collection of sample reasoning
+		programs that you can directly use in the Linked Media Framework.</p>
+	<h2>
+		<a id="RDFS_Reasoning"></a>RDFS Reasoning<a class="section_anchor"
+			href="#RDFS_Reasoning"></a>
+	</h2>
+	<p>The following program implements RDFS subclass, type, domain and
+		range reasoning:</p>
+	<pre class="prettyprint">
+		<span class="pun">(</span><span class="pln">$1 http</span><span
+			class="pun">:</span><span class="com">//www.w3.org/2000/01/rdf-schema#subClassOf $2), ($2 http://www.w3.org/2000/01/rdf-schema#subClassOf $3) -&gt; ($1 http://www.w3.org/2000/01/rdf-schema#subClassOf $3)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/2000/01/rdf-schema#subPropertyOf $2), ($2 http://www.w3.org/2000/01/rdf-schema#subPropertyOf $3) -&gt; ($1 http://www.w3.org/2000/01/rdf-schema#subPropertyOf $3)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/1999/02/22-rdf-syntax-ns#type $2), ($2 http://www.w3.org/2000/01/rdf-schema#subClassOf $3) -&gt; ($1 http://www.w3.org/1999/02/22-rdf-syntax-ns#type $3)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$p http</span><span class="pun">:</span><span class="com">//www.w3.org/2000/01/rdf-schema#range $r), ($1 $p $2) -&gt; ($2 http://www.w3.org/1999/02/22-rdf-syntax-ns#type $r)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$p http</span><span class="pun">:</span><span class="com">//www.w3.org/2000/01/rdf-schema#domain $d), ($1 $p $2) -&gt; ($1 http://www.w3.org/1999/02/22-rdf-syntax-ns#type $d)</span>
+	</pre>
+	<h2>
+		<a id="SKOS_Reasoning"></a>SKOS Reasoning<a class="section_anchor"
+			href="#SKOS_Reasoning"></a>
+	</h2>
+	<p>The following SKOS program is very exhaustive; in most scenarios
+		it is sufficient to only use the first rule or the first three rules.
+	</p>
+	<pre class="prettyprint">
+		<span class="pun">(</span><span class="pln">$1 http</span><span
+			class="pun">:</span><span class="com">//www.w3.org/2004/02/skos/core#broader $2), ($2 http://www.w3.org/2004/02/skos/core#broader $3) -&gt; ($1 http://www.w3.org/2004/02/skos/core#broader $3)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/2004/02/skos/core#broader $2) -&gt; ($2 http://www.w3.org/2004/02/skos/core#narrower $1)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/2004/02/skos/core#narrower $2) -&gt; ($2 http://www.w3.org/2004/02/skos/core#broader $1)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/2004/02/skos/core#broader $2) -&gt; ($1 http://www.w3.org/2004/02/skos/core#related $2)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/2004/02/skos/core#narrower $2) -&gt; ($1 http://www.w3.org/2004/02/skos/core#related $2)</span><span
+			class="pln"><br></span><span class="pun">(</span><span
+			class="pln">$1 http</span><span class="pun">:</span><span class="com">//www.w3.org/2004/02/skos/core#related $2) -&gt; ($2 http://www.w3.org/2004/02/skos/core#related $1)</span>
+	</pre>
+	<!--###END_CONTENT###-->
+</body>
+</html>

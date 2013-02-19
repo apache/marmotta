@@ -1,0 +1,268 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Data Views</title>
+    <meta charset="UTF-8"/>
+    <script type="text/javascript" src="../public/js/lib/jquery-1.6.4.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/lib/sgvizler.pack.js"></script>
+    <script type="text/javascript">
+
+        var HAS_DATA = true;
+
+        var SERVER_URL = _SERVER_URL;
+
+        var colors = [  '#3366CC','#DC3912','#FF9900','#109618','#990099','#0099C6','#DD4477','#66AA00','#B82E2E','#316395','#994499','#22AA99','#AAAA11',
+                        'blue','red','orange','green','navy','Crimson','DarkGreen','DarkTurquoise','DodgerBlue','OliveDrab','pink','violet',
+                        'GoldenRod','Fuchsia','Darkorange','DarkSlateBlue','GreenYellow','LightSeaGreen','Maroon','MediumVioletRed']
+
+        sgvizler.option.libfolder = "lib/";
+
+        sgvizler.option.query.endpoint = SERVER_URL+"sparql/select";
+        sgvizler.option.query.endpoint_output = 'json';
+
+        function drawGraphs() {
+            $("#graphs").empty().append(loader());
+
+            var query = "SELECT ?graph (COUNT(?s) AS ?triples) WHERE { GRAPH ?graph { ?s ?p ?o }} GROUP BY ?graph";
+
+            $("#graphs").attr('data-sgvizler-query',query);
+            $("#graphs").attr('data-sgvizler-chart','gPieChart');
+            $("#graphs").attr('data-sgvizler-log',"2");
+
+            var query = new sgvizler.query();
+            $.extend(query,sgvizler.option.query,sgvizler.ui.getQueryOptionAttr(document.getElementById('graphs')));
+            $.extend(query.chartOptions,sgvizler.ui.getChartOptionAttr(document.getElementById('graphs')));
+            query.draw({
+                'select':function(chart,data) {
+                    var selection = chart.getSelection();
+                    if(selection.length > 0) {
+                        drawClasses(data.getValue(selection[0].row,0));
+                    }
+                }
+            },{is3D:true,title:'All Graphs in the system. Click to select!',colors:colors})
+        }
+
+        function drawClasses(graph) {
+            if(graph) {
+                $("#classes_all").removeAttr("disabled").show();
+            }
+            else $("#classes_all").prop("disabled", "disabled").hide();
+
+            var title = graph ? "Classes in graph "+graph : "Classes in all graphs";
+
+            var query = graph ?
+                    "SELECT ?class (COUNT(?s) AS ?count) WHERE { GRAPH <"+graph+"> {{?s a ?class} UNION {SELECT ?s WHERE { GRAPH <"+graph+"> { ?s ?a ?b. FILTER NOT EXISTS{?s a ?class}}}GROUP BY ?s}}}GROUP BY ?class" :
+                    "SELECT ?class (COUNT(?s) AS ?count) WHERE {{?s a ?class} UNION {SELECT ?s WHERE{ ?s ?a ?b. FILTER NOT EXISTS{?s a ?class}}GROUP BY ?s}}GROUP BY ?class";
+
+            $("#classes").attr('data-sgvizler-query',query);
+            $("#classes").attr('data-sgvizler-chart','gPieChart');
+            $("#classes").attr('data-sgvizler-log',"2");
+
+            var query = new sgvizler.query();
+            $.extend(query,sgvizler.option.query,sgvizler.ui.getQueryOptionAttr(document.getElementById('classes')));
+            $.extend(query.chartOptions,sgvizler.ui.getChartOptionAttr(document.getElementById('classes')));
+            query.draw({
+                'select':function(chart,data) {
+                    var selection = chart.getSelection();
+                    if(selection.length > 0) {
+                        drawResources(graph,data.getValue(selection[0].row,0),undefined,colors[selection[0].row]);
+                    }
+                }
+            },{is3D:true,title:title,colors:colors},function(data){
+               drawResources(graph,data.getValue(0,0),undefined,colors[0]);
+            });
+        }
+
+
+        function drawResources(graph,clazz,lim,color) {
+            var limit = lim ? lim : 5;
+            var query;
+            var l_s = limit=="all" ? "":" LIMIT "+limit;
+            if(graph) {
+                if(clazz) {
+                    query = "SELECT ?a ?b ?c WHERE { GRAPH <"+graph+"> {?a ?b ?c.{SELECT ?a WHERE {GRAPH <"+graph+"> {?a a <"+clazz+">}}ORDER BY ?a "+l_s+"}}}";
+                } else {
+                   query = "SELECT ?a ?b ?c WHERE { GRAPH <"+graph+"> {?a ?b ?c.{SELECT ?a WHERE {GRAPH <"+graph+"> {?a ?b ?c.FILTER NOT EXISTS {?a a ?class}}}ORDER BY ?a "+l_s+"}}}";
+                }
+            } else {
+                if(clazz) {
+                   query = "SELECT ?a ?b ?c WHERE {?a ?b ?c.{SELECT ?a WHERE {?a a <"+clazz+">}ORDER BY ?a "+l_s+"}}";
+                } else {
+                   query = "SELECT ?a ?b ?c WHERE {?a ?b ?c.{SELECT ?a WHERE {?a ?b ?c.FILTER NOT EXISTS {?a a ?class}}ORDER BY ?a "+l_s+"}}";
+                }
+            }
+
+            sparql(query,function(data){
+                $("#resources").empty();
+                if(data.results.bindings.length==0) return $("#resources").append("<p>Nothing to display!</p>");
+                else {
+                   var sel = $("<select></select>")
+                           .append("<option>5</option>")
+                           .append("<option>10</option>")
+                           .append("<option>25</option>")
+                           .append("<option>50</option>")
+                           .append("<option>all</option>")
+                           .change(function(){
+                                drawResources(graph,clazz,$(this).val(),color);
+                           });
+                    sel.val(limit);
+                    var c_s = clazz ? " of type "+clazz : " without type relation";
+                    var g_s = graph ? " in graph "+graph : "";
+                    $("#resources").append($("<div></div>").append("Show ").append(sel).append(" items"+c_s+g_s));
+                    $("#resources").append(parse(data,color));
+                }
+
+            },function(){alert("cannot show data")});
+        }
+
+        //return a result object
+        function parse(data,color) {
+            var x = 0;
+            var current;
+            var table;
+            var res = $("<div style='margin:10px'></div>");
+            for(var i=0; i<data.results.bindings.length;i++) {
+               var d = data.results.bindings[i];
+                if(d.a.value!=current) {
+                    x = 0;
+                    current = d.a.value;
+                    table = $("<table class='resource' style='margin-bottom:10px'></table>").append("<th style='background-color:"+color+" !important' colspan='2'><a target='_blank' href='../../../../resource?uri="+encodeURIComponent(d.a.value)+"'>"+d.a.value+"</a></th>");
+                    res.append(table);
+                }
+                var style = x%2==0 ? "white" : "#efefef";
+                x++;
+                var value = d.c.type=="uri" ? "<a target='_blank' href='../../../../resource?uri="+encodeURIComponent(d.c.value)+"'>"+d.c.value+"</a>" : d.c.value;
+                table.append($("<tr></tr>")
+                        .append("<td style='background-color:"+style+"'>"+d.b.value+"</td>")
+                        .append("<td style='background-color:"+style+"'>"+value+"</td></tr>"));
+            }
+            return res;
+        }
+
+        function drawStatistics() {
+
+            $("#view").append("<h2>Overview</h2>");
+            $("#view").append("<div id='statistics'></div>");
+            $("#statistics").append(loader());
+            count();
+
+            function count() {
+                var statistics = {};
+
+                //count triples
+                var Q1 = "SELECT (COUNT (?s) AS ?triples) WHERE { ?s ?p ?o }";
+                sparql(Q1,function(data){
+                    statistics.triples = data.results.bindings[0].triples.value;
+
+                },error);
+
+                if(statistics.triples == 0) {
+                    draw(statistics);
+                    HAS_DATA = false;
+                    return;
+                }
+
+                //count subjects
+                var Q2 = "SELECT (COUNT (?s) AS ?subjects) WHERE { SELECT ?s WHERE { ?s ?p ?o } GROUP BY ?s }";
+                sparql(Q2,function(data){
+                    statistics.subjects = data.results.bindings[0].subjects.value;
+                },error);
+
+                //count graphs
+                var Q3 = "SELECT (COUNT (?x) AS ?graphs) WHERE { SELECT ?x {GRAPH ?x { ?s ?p ?o }} GROUP BY ?x}";
+                sparql(Q3,function(data){
+                    statistics.graphs = data.results.bindings[0].graphs.value;
+                },error);
+
+                draw(statistics);
+            }
+
+            function draw(statistics) {
+               if(statistics.triples == 0) {
+                    $("#statistics").empty().html("System does not contain any data");
+               } else {
+                   var s = "System contains $2 subjects with overall $1 triples in $3 graphs";
+                   s = s.replace(/\$1/g,statistics.triples);
+                   s = s.replace(/\$2/g,statistics.subjects);
+                   s = s.replace(/\$3/g,statistics.graphs);
+                   $("#statistics").empty().text(s);
+               }
+            }
+
+            function error() {
+                alert("an error occurred!");
+            }
+        }
+
+        function sparql(query,onsuccess,onfailure) {
+           $.ajax({url:SERVER_URL+"sparql/select?output=json&query="+encodeURIComponent(query),success:onsuccess,error:onfailure,async:false});
+        }
+
+        function loader() {
+            return $("<img src='../public/img/loader/lmf-loader_32.gif'>");
+        }
+
+        sgvizler.go(function(){
+            drawStatistics();
+            if(HAS_DATA) {
+                $("#view").append("<h2>Graphs</h2>");
+                $("#view").append("<div id='graphs' style='height:350px;'></div>");
+                $("#view").append($("<h2>Types</h2>").append($("<button id='classes_all' style='font-size: 12px;margin-left:5px;'>(show types of all graphs)</button>").click(function(){drawClasses()})));
+                $("#view").append("<div id='classes' style='height:350px;'></div>");
+                $("#view").append("<h2>Resources</h2>");
+                $("#view").append("<div id='resources' style=''></div>");
+                drawGraphs();
+                drawClasses();
+            }
+        });
+
+    </script>
+    <style type="text/css">
+        .resource {
+            border:1px solid #666;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .resource th {
+            background: none !important;
+            padding: 3px;
+        }
+        .resource th a {
+            color:white !important;
+            font-weight: bold !important;
+        }
+        .resource td a {
+            color:black !important;
+        }
+        .resource td {
+            padding: 2px;
+        }
+    </style>
+<!--###END_HEAD###-->
+</head>
+<body>
+  <!--###BEGIN_CONTENT###-->
+  <h1>Dataview</h1>
+  <div id="view"></div>
+  <!--###END_CONTENT###-->
+</body>
+</html>

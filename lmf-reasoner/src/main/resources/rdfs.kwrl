@@ -1,0 +1,8 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+($1 rdfs:subClassOf $2), ($2 rdfs:subClassOf $3) -> ($1 rdfs:subClassOf $3)
+($1 rdfs:subPropertyOf $2), ($2 rdfs:subPropertyOf $3) -> ($1 rdfs:subPropertyOf $3)
+($1 rdf:type $2), ($2 rdfs:subClassOf $3) -> ($1 rdf:type $3)
+($p rdfs:range $r), ($1 $p $2) -> ($2 rdf:type $r)
+($p rdfs:domain $d), ($1 $p $2) -> ($1 rdf:type $d)

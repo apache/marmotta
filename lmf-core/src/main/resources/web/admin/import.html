@@ -1,0 +1,51 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Importer</title>
+    <script type="text/javascript" src="../public/js/lib/jquery-1.6.4.js"></script>
+    <script type="text/javascript" src="../public/js/lib/lmf-0.0.1.js"></script>
+    <script type="text/javascript" src="js/widgets/import.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var imp = new Importer("importer_div",_SERVER_URL);
+        })
+    </script>
+    <style>
+        .import_type {
+            padding: 2px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .importer_table {
+            background-color: #eeeeee;
+            padding: 10px;
+            border: 1px solid gray;
+            -webkit-border-radius: 3px;
+            border-radius: 3px;
+        }
+    </style>
+<!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<div id="importer_div"></div>
+<!--###END_CONTENT###-->
+</body>
+</html>

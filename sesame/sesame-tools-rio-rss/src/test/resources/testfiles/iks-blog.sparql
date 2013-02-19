@@ -1,0 +1,11 @@
+PREFIX dc: <http://purl.org/dc/terms/>
+PREFIX sioc: <http://rdfs.org/sioc/ns#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+ASK {
+	?x a sioc:Post .
+	?x dc:title "Ontotext @ IKS Workshop" .
+	?x dc:creator "Vladimir" .
+    ?x sioc:topic ?y .
+    ?y skos:prefLabel "Ontotext"
+}

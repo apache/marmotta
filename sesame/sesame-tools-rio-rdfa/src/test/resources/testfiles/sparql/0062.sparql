@@ -1,0 +1,3 @@
+ASK WHERE {
+	<http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0063.xhtml> <http://www.w3.org/1999/xhtml/vocab#prev> <http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0062.xhtml> .
+}

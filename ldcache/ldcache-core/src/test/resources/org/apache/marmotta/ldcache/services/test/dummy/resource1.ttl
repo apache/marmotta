@@ -1,0 +1,4 @@
+@prefix ex: <http://localhost/> .
+ex:resource1 ex:property1 "Value 1" ;
+             ex:property2 ex:resource2 ;
+             ex:property3 "Value X" .

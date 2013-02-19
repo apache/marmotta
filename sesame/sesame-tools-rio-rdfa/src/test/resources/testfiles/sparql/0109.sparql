@@ -1,0 +1,3 @@
+ASK WHERE {
+	<http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0109.xhtml> <http://purl.org/dc/elements/1.1/title> "Test 0109" .
+ }

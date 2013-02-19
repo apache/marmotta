@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013 Salzburg Research.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>at.newmedialab.lmf</groupId>
+        <artifactId>lmf-archetypes</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
+
+    <artifactId>lmf-archetype-webapp</artifactId>
+    <packaging>maven-archetype</packaging>
+
+    <name>LMF Archetype: Web Application</name>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>2.2</version>
+            </extension>
+        </extensions>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-archetype-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                    <skipDeploy>true</skipDeploy>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <description>Web Application bundle (WAR file) containing the complete Linked Media Framework</description>
+
+    <url>https://code.google.com/p/lmf/lmf-webapp/</url>
+
+    <developers>
+        <developer>
+            <name>Sebastian Schaffert</name>
+            <email>sebastian.schaffert@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+        <developer>
+            <name>Thomas Kurz</name>
+            <email>thomas.kurz@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+        <developer>
+            <name>Jakob Frank</name>
+            <email>jakob.frank@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+        <developer>
+            <name>Sergio Fernández</name>
+            <email>sergio.fernandez@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+        <developer>
+            <name>Dietmar Glachs</name>
+            <email>dietmar.glachs@salzburgresearch.at</email>
+            <organization>Salzburg Research</organization>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:hg:https://code.google.com/p/lmf/lmf-webapp/</connection>
+        <developerConnection>scm:hg:https://code.google.com/p/lmf/lmf-webapp/</developerConnection>
+        <url>https://code.google.com/p/lmf/lmf-webapp/</url>
+      <tag>HEAD</tag>
+  </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>snml.releases</id>
+            <name>Salzburg NewMediaLab Repository</name>
+            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snml.snapshots</id>
+            <name>Salzburg NewMediaLab Repository</name>
+            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

@@ -1,0 +1,3 @@
+org.apache.marmotta.ldclient.provider.phpbb.PHPBBForumProvider
+org.apache.marmotta.ldclient.provider.phpbb.PHPBBPostProvider
+org.apache.marmotta.ldclient.provider.phpbb.PHPBBTopicProvider

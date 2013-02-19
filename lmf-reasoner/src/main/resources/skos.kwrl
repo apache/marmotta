@@ -1,0 +1,14 @@
+@prefix: skos: <http://www.w3.org/2004/02/skos/core#>
+
+($1 skos:broader $2) -> ($1 skos:broaderTransitive $2)
+($1 skos:narrower $2) -> ($1 skos:narrowerTransitive $2)
+
+($1 skos:broaderTransitive $2), ($2 skos:broaderTransitive $3) -> ($1 skos:broaderTransitive $3)
+($1 skos:narrowerTransitive $2), ($2 skos:narrowerTransitive $3) -> ($1 skos:narrowerTransitive $3)
+
+($1 skos:broader $2) -> ($2 skos:narrower $1)
+($1 skos:narrower $2) -> ($2 skos:broader $1)
+
+($1 skos:broader $2) -> ($1 skos:related $2)
+($1 skos:narrower $2) -> ($1 skos:related $2)
+($1 skos:related $2) -> ($2 skos:related $1)

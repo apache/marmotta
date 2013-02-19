@@ -1,0 +1,352 @@
+/*
+ * Copyright (c) 2013 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+/** JavaCC parser of simple KWRL programs.
+ *
+ * Simplified for the Linked Media Framework (2011), adapted for Apache Marmotta (2013).
+ * 
+ * 
+ * @author Jakub Kotowski
+ * @author Sebastian Schaffert
+ *
+ */
+ // ($1 http://rdf.com/type $2), ($1 http://rdf.com/subclass $3) -> ($3 http://rdf.com/superclass http://zoo.org/animal)
+ // (http://www.seznam.cz/subj http://www.seznam.cz/prop http://www.seznam.cz/obj) -> (http://sign-o-matic.com/ont#subj http://sign-o-matic.com/ont#prop http://sign-o-matic.com/ont#obj)
+ //($1 http://ex.com/p $2), ($2 http://ex.com/p $1), ($1 http://ex.com/sc "ahoj kocko") -> ($4 $5 'a tady zkusime neco delsiho a hroznejsiho):""#$@%///...')
+ //($1 http://ex.com/p $2), ($2 http://ex.com/p $1), ($1 http://ex.com/sc "ahoj kocko") -> ($4 $5 "a tady zkusime neco delsiho a hroznejsiho):#$@%///..."^^http://example.com/type#string)
+ //($1 http://ex.com/p $2) -> (uri(http://ex.com/p) @ $3  $4  $5)
+ //($1 http://ex.com/p $2) -> (uri(http://ex.com/p) @ $3  $4  uri(http://www.kiwi-project.eu/core/tagging/) @ $5)
+
+ /**
+@prefix rdf: <http://w3c.org/rdf/>
+@prefix rdfs: <http://w3c.org/rdfs/pat/hayes/mt#>
+
+(($1 http://rdf.com/type $2) , ($1 http://rdf.com/subclass $3)) -> ($3 http://rdf.com/superclass http://zoo.org/animal)
+(($1 rdf:type $2) , ($1 rdf:subclass $3)) -> ($3 rdf:superclass xxx:animal)
+rdf-subclass-transitivity: (($c1 rdfs:subClassOf $c2) , ($c2 rdfs:subClassOf $c3)) -> ($c1 rdfs:subClassOf $c3),($3 rdf:superclass xxx:animal)
+(($1 rdf:type $1') , ($1' rdf:subclass $3)) -> ($3 rdf:superclass xxx:animal)
+
+(($1 rdf:type $1');($2 rdf:type $2')), not ($3 rdf:type $3') , 
+(($3 rdf:type $3'),not ($3 rdf:type $3'))
+									-> inconsistency
+ */
+ 
+options {
+  STATIC=false;
+  KEEP_LINE_COLUMN = false;
+  CACHE_TOKENS=true;
+//  FORCE_LA_CHECK=true;
+//  CHOICE_AMBIGUITY_CHECK=5;
+  LOOKAHEAD=2147483647;
+//  DEBUG_PARSER=true;
+//  DEBUG_TOKEN_MANAGER=true;
+//  DEBUG_LOOKAHEAD=true;
+}
+
+PARSER_BEGIN(KWRLProgramParser)
+package org.apache.marmotta.kiwi.reasoner.parser;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.InputStream;
+import org.openrdf.model.*;
+import java.util.*;
+import org.apache.marmotta.kiwi.reasoner.model.program.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+public class KWRLProgramParser extends KWRLProgramParserBase {
+
+    public KWRLProgramParser(Reader in, ValueFactory valueFactory) {
+        this(in);
+
+        setValueFactory(valueFactory);
+    }
+
+    public KWRLProgramParser(ValueFactory valueFactory, String content) {
+        this(new StringReader(content));
+
+        setValueFactory(valueFactory);
+    }
+
+    public KWRLProgramParser(ValueFactory valueFactory, InputStream in) {
+        this(in);
+
+        setValueFactory(valueFactory);
+    }
+
+    public KWRLProgramParser(ValueFactory valueFactory, InputStream in, String encoding) {
+        this(in, encoding);
+
+         setValueFactory(valueFactory);
+    }
+
+
+}
+PARSER_END(KWRLProgramParser)
+
+SKIP :
+{
+ 	" "
+|	"\r"
+|	"\t"
+|	"\n"
+}
+
+MORE:
+{
+ "\"" : WithinString
+}
+
+<WithinString> TOKEN:
+{
+  <STRLIT: "\""> : DEFAULT
+}
+
+<WithinString> MORE:
+{
+  <~["\n","\r"]>
+}
+
+TOKEN : /* OPERATORS */
+{
+	< AND: "," > |
+	< OR: ";" > |
+	< NOT: "not" > |
+  	< THEN: "->" > |
+  	< TYPE: "^^" > 
+}
+
+TOKEN :
+{
+  	< LEFTP: "(" > |
+  	< RIGHTP: ")" > |
+  	< INCONSISTENCY: "inconsistency" > |
+  	//URICHARS should oficially include "(" and ")", I excluded them because of resulting conflicts with the rule grammar  	  
+  	//< URICHARS: ["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"] > |
+    // URI is oficially more general see the comment below
+    //TODO: parser now allows URIs ending with # so that the same URI token spec can be used for namespaces too                                                                    
+    < URI: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","+","-","."])* "://"  (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+ ("#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])*)? | "#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+> |
+    < NS_URI: <IDENTIFIER> ":" (<URICHAR>)+ > | 
+    < VARIABLE: "$" <IDENTIFIER> > |
+    < URICONSTRUCTION: "uri" > |
+    < IDENTIFIER: ["a"-"z","A"-"Z","0"-"9","_"](["a"-"z","A"-"Z","0"-"9","_","'","-"])* > |
+    < #URICHAR: ["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"] >
+}
+//https://javacc.dev.java.net/doc/javaccgrm.html
+//	If the label is preceded by a "#", then this regular expression may not be referred to from expansion units, but only from within other regular expressions. When the "#" is present, the regular expression is referred to as a "private regular expression". 
+//  If the "#" is omitted, the token manager will erroneously recognize a string like E123 as a legal token of kind EXPONENT (instead of IDENTIFIER in the Java grammar).
+ 
+// (([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?/{0,2}[0-9a-zA-Z;/?:@&=+$\\.\\-_!~*'()%]+)? (#[0-9a-zA-Z;/?:@&=+$\\.\\-_!~*'()%]+)?
+// http://aspn.activestate.com/ASPN/Mail/Message/xml-dev/754445
+
+Program Program() :
+{
+    Program program = new Program();
+    int nullNameCount = 0;
+    Rule rule;
+    Token name = null;
+    Token prefix = null;
+     Token uri;
+}
+{
+  (
+    "@prefix" prefix = <IDENTIFIER> ":" "<" uri = <URI> ">" (";")? {
+        program.addNamespace(prefix.image, uri.image );
+        namespaces.put(prefix.image, uri.image);
+    }
+  )*
+
+  (
+    (name = <IDENTIFIER> ":")? rule = Rule()
+    { 
+    if (name == null) {
+    	nullNameCount++;
+    	rule.setName("rule_" + nullNameCount);
+    } else {
+    	rule.setName(name.image);
+    } 
+    
+    program.addRule(rule); name=null; //it's declared above, once set it doesn't get cleared
+    }
+  )+
+  <EOF>
+  {
+    return program;
+  }
+}
+
+
+Rule Rule() : {
+    Pattern head;
+    List<Pattern> body;
+    Rule rule = new Rule();
+    startRule();
+}
+{
+    body = Body() <THEN> head = HeadTriplePattern() (";"|".")?
+    {
+        rule.setHead(head);
+        rule.setBody(body);
+        endRule();
+        return rule;
+    }
+}
+
+
+List<Pattern> Body() : {
+    Pattern       pattern, pattern2;
+    List<Pattern> body = new LinkedList<Pattern>();
+}
+{
+    pattern = BodyTriplePattern() { body.add(pattern); } ( "," pattern2 = BodyTriplePattern() { body.add(pattern2); } )*
+    { return body; }
+}
+
+
+Pattern BodyTriplePattern() : {Field subject; Field property; Field object; }
+{
+	<LEFTP> subject = Subject() property = Property() object = BodyObject() <RIGHTP>
+	{
+	  return new Pattern(subject, property, object);
+	}
+}
+
+Pattern HeadTriplePattern() : {Field subject; Field property; Field object; }
+{
+	<LEFTP> subject = HeadSubject() property = Property() object = HeadObject() <RIGHTP>
+	{
+	  return new Pattern(subject, property, object);
+	}
+}
+
+Field HeadSubject() : { ResourceField uri = null; VariableField variable = null; }
+{
+(
+	uri = Uri() | variable = Variable()
+)
+	{
+		if (uri != null) {
+			return uri;
+		}
+		
+		return variable;
+	}
+}
+
+Field Property() : { ResourceField uri = null; VariableField variable = null; }
+{
+(
+	uri = Uri() | variable = Variable()
+)
+	{
+		if (uri != null)
+			return uri;
+			
+		return variable;
+	}	
+}
+
+Field HeadObject() : { ResourceField uri = null; VariableField variable = null; LiteralField literal = null; }
+{
+	(
+	  uri = Uri() | variable = Variable() | literal = Literal()
+	)
+	{
+		if (uri != null)
+			return uri;
+			
+		if (variable != null)
+			return variable;
+			
+		return literal;
+	}	
+}
+
+Field Subject() : { ResourceField uri = null; VariableField variable = null; }
+{
+(
+	uri = Uri() | variable = Variable()
+)
+	{
+		if (uri != null)
+			return uri;
+			
+		if (variable != null)
+			return variable;
+	}
+}
+
+Field BodyObject() : { ResourceField uri = null; VariableField variable = null; LiteralField literal = null; }
+{
+	(
+	  uri = Uri() | variable = Variable() | literal = Literal() 
+	)
+	{
+		if (uri != null)
+			return uri;
+			
+		if (variable != null)
+			return variable;
+			
+		return literal;
+	}	
+}
+
+ResourceField Uri() : { Token uri; }
+{
+	(
+	    "<" uri = <URI> ">"
+	    {
+	      return getResource(uri.image);
+	    }
+	  | uri = <URI> // backwards compatibility
+	    {
+	      log.warn("DEPRECATION: please enclose URIs always in < and >; URI was: {}", uri.image);
+	      return getResource(uri.image);
+	    }
+	  | uri = <NS_URI>
+	    {
+	      return getResourceByNS(uri.image);
+	    }
+	)
+}
+
+VariableField Variable() : {Token t;}
+{
+    t = <VARIABLE>
+    {
+      return getVariable(t.image);
+    }
+}
+
+//TODO language tags
+LiteralField Literal() : {Token literal = null; Token type = null;}
+{
+(
+   literal = <STRLIT>  (<TYPE> type = <URI>)? | "\"\""
+){ //have to remove the leading " character first
+	if (type != null) {
+	    return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), Locale.getDefault(), type.image));
+	}
+	
+	return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), Locale.getDefault(), null));
+  }
+
+}
+
+

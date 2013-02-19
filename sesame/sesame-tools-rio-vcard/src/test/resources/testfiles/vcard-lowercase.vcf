@@ -1,0 +1,4 @@
+BEGIN:VCARD
+VERSION:2.1
+EMAIL;type=INTERNET;type=WORK;type=pref:xy@zz.com
+END:VCARD

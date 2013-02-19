@@ -1,0 +1,65 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Classification Module Configuration</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="../../core/public/js/widgets/property_config.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            var settings = {
+	            host: _SERVER_URL,
+                anker_name: 'generic',
+                title: 'Versioning Properties <span style="font-size:12px">(parameter name MUST start with \'versioning.\')</small>',
+                loading_img: '../../core/public/img/ajax-loader_small.gif',
+                blacklist_keys:[],
+                toplink:true,
+                prefix:'versioning'
+            }
+            $('#lmf_configurator').lmf_configurator(settings);
+        });
+    </script>
+    <link rel="stylesheet" type="text/css" href="../../core/public/style/center.css"/>
+    <style type="text/css">
+        h2 {
+            margin: 10px 0;
+        }
+    </style>
+<!--###END_HEAD###-->
+</head>
+<body>
+<div id="main">
+<div id="contents">
+<!--###BEGIN_CONTENT###-->
+<h1>LMF Versioning Configuration</h1>
+        <p>
+            Here you can configure the LMF Versioning Services.<br/>
+            The configuration contains:
+        </p>
+        <ul>
+            <li><a href="#lmf_configurator">Generic Parameter Configuration</a></li>
+        </ul>
+        <div id="lmf_configurator">
+            <h4>Loading configurator</h4>
+        </div>
+<!--###END_CONTENT###-->
+</div>
+</div>
+</body>
+</html>

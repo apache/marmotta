@@ -1,0 +1,66 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>Security Profiles</title>
+    <script type="text/javascript" src="../../core/public/js/lib/jquery-1.7.2.js"></script>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<h1>LMF Security Profiles</h1>
+<p>
+    Please choose between the following pre-configured security profiles and press "save":
+</p>
+
+<div>
+    <select id="profiles">
+        <option>simple</option>
+        <option>standard</option>
+        <option>restricted</option>
+    </select>
+    <button id="btn_save">Save</button>
+</div>
+<h3>Description</h3>
+<ul>
+    <li><strong>simple:</strong> simple security profile allowing read access by anyone and write access only from localhost</li>
+    <li><strong>standard:</strong> security profile allowing read access by anyone and write access only from authenticated users of the manager role</li>
+    <li><strong>restricted:</strong> security profile allowing read access only from authenticated users and write access only from authenticated users of the manager role</li>
+</ul>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#btn_save").click(function() {
+            $.ajax({
+                    type: "POST",
+                    url: _SERVER_URL+"config/data/security.profile",
+                    data: JSON.stringify([$("#profiles").val()]),
+                    contentType: "application/json",
+                    success: function(data) {
+                        alert("profile updated successfully");
+                    },
+                    dataType: "json"
+            })
+        });
+    });
+</script>
+
+<!--###END_CONTENT###-->
+</body>
+</html>

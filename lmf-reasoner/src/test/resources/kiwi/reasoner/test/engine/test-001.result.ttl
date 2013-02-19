@@ -1,0 +1,6 @@
+@prefix local : <http://localhost:8080/LMF/resource/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+local:A rdfs:subClassOf local:C .
+local:A rdfs:subClassOf local:D .
+local:B rdfs:subClassOf local:D .

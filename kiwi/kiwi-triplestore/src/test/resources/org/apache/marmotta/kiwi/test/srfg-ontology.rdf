@@ -1,0 +1,126 @@
+<!--
+  ~ Copyright (c) 2012 Salzburg Research.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE rdf:RDF [
+<!ENTITY lmf "http://localhost:8080/LMF/resource/">]>
+
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+        xmlns:foaf="http://xmlns.com/foaf/0.1/"
+        xmlns:lmfc="http://localhost:8080/LMF/resource/concepts/">
+
+
+    <lmfc:NationalProject about="&lmf;SNML-TNG">
+        <rdfs:label>SNML TNG</rdfs:label>
+        <rdfs:comment>Salzburg NewMediaLab - The Next Generation</rdfs:comment>
+        <lmfc:projectFolder>snml-tng</lmfc:projectFolder>
+    </lmfc:NationalProject>
+
+    <lmfc:NationalProject about="&lmf;SNML">
+        <rdfs:label>SNML</rdfs:label>
+        <rdfs:comment>Salzburg NewMediaLab</rdfs:comment>
+        <lmfc:projectFolder>snml</lmfc:projectFolder>
+    </lmfc:NationalProject>
+
+    <lmfc:NationalProject about="&lmf;myTV">
+        <rdfs:label>myTV</rdfs:label>
+        <rdfs:comment>my Semantically Enhanced Personalized TV Experience</rdfs:comment>
+        <lmfc:projectFolder>mytv</lmfc:projectFolder>
+    </lmfc:NationalProject>
+
+    <lmfc:NationalProject about="&lmf;ConnectMe">
+        <rdfs:label>ConnectMe</rdfs:label>
+        <rdfs:comment>Connected Media Experience</rdfs:comment>
+        <lmfc:projectFolder>connectme</lmfc:projectFolder>
+    </lmfc:NationalProject>
+
+    <lmfc:NationalProject about="&lmf;CAPKOM">
+        <rdfs:label>CAPKOM</rdfs:label>
+        <rdfs:comment>CAPKOM - Innovative Benutzeroberflächen für Men-schen mit kognitiver Beeinträchtigung</rdfs:comment>
+        <lmfc:projectFolder>capkom</lmfc:projectFolder>
+    </lmfc:NationalProject>
+
+
+    <lmfc:EUProject about="&lmf;KiWi">
+        <rdfs:label>KiWi</rdfs:label>
+        <rdfs:comment>KiWi - Knowledge in a Wiki</rdfs:comment>
+        <lmfc:projectFolder>kiwi</lmfc:projectFolder>
+    </lmfc:EUProject>
+
+    <lmfc:EUProject about="&lmf;IKS">
+        <rdfs:label>IKS</rdfs:label>
+        <rdfs:comment>IKS - Interactive Knowledge Stack</rdfs:comment>
+        <lmfc:projectFolder>iks</lmfc:projectFolder>
+    </lmfc:EUProject>
+
+    <lmfc:EUProject about="&lmf;Mosep">
+        <rdfs:label>Mosep</rdfs:label>
+        <rdfs:comment>Mosep - More self-esteem with my ePortfolio</rdfs:comment>
+        <lmfc:projectFolder>mosep</lmfc:projectFolder>
+    </lmfc:EUProject>
+
+    <lmfc:EUProject about="&lmf;ImportNET">
+        <rdfs:label>ImportNET</rdfs:label>
+        <rdfs:comment>Intelligent modular open source Platform for intercultural and cross-domain SME Networks</rdfs:comment>
+        <lmfc:projectFolder>importnet</lmfc:projectFolder>
+    </lmfc:EUProject>
+
+
+    <foaf:Project about="&lmf;KMT">
+        <rdfs:label>KMT</rdfs:label>
+        <rdfs:comment>Knowledge and Media Technologies</rdfs:comment>
+    </foaf:Project>
+
+
+    <foaf:Person about="&lmf;gguentner">
+        <foaf:name>Georg Güntner</foaf:name>
+        <foaf:nick>gguentner</foaf:nick>
+        <foaf:nick>georg.guentner@salzburgresearch.at</foaf:nick>
+    </foaf:Person>
+
+    <foaf:Person about="&lmf;sschaffe">
+        <foaf:name>Sebastian Schaffert</foaf:name>
+        <foaf:nick>sschaffe</foaf:nick>
+    </foaf:Person>
+
+    <foaf:Person about="&lmf;wbehrendt">
+        <foaf:name>Wernher Behrendt</foaf:name>
+        <foaf:nick>wbehrendt</foaf:nick>
+    </foaf:Person>
+
+    <foaf:Person about="&lmf;uatzlinger">
+        <foaf:name>Ursula Atzlinger</foaf:name>
+        <foaf:nick>uatzlinger</foaf:nick>
+    </foaf:Person>
+
+    <foaf:Person about="&lmf;awagner">
+        <foaf:name>Alexandra Wagner</foaf:name>
+        <foaf:nick>awagner</foaf:nick>
+    </foaf:Person>
+
+    <foaf:Person about="&lmf;agruber">
+        <foaf:name>Andreas Gruber</foaf:name>
+        <foaf:nick>agruber</foaf:nick>
+    </foaf:Person>
+
+    <foaf:Person about="&lmf;bstroh">
+        <foaf:name>Birgit Strohmeier</foaf:name>
+        <foaf:nick>bstroh</foaf:nick>
+    </foaf:Person>
+
+
+</rdf:RDF>

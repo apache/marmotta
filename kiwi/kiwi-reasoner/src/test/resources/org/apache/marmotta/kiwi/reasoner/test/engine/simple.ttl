@@ -1,0 +1,5 @@
+@prefix ex: <http://localhost/resource/> .
+ex:a ex:transitive ex:b .
+ex:b ex:transitive ex:c .
+ex:c ex:transitive ex:d .
+ex:a ex:symmetric ex:b .

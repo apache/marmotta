@@ -1,0 +1,8 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ma: <http://www.w3.org/ns/ma-ont#>
+ASK {
+    <http://www.youtube.com/user/dieSpringer> ma:collectionName "Uploads by dieSpringer" .
+    <http://www.youtube.com/user/dieSpringer> ma:hasMember <http://gdata.youtube.com/feeds/api/videos/hIA1RU3HpXA> .
+    <http://www.youtube.com/user/dieSpringer> rdf:type ma:Collection
+}

@@ -1,0 +1,96 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>Versioning Services</title>
+    <link rel="stylesheet" type="text/css" href="../../core/public/style/center.css"/>
+    <!--###END_HEAD###-->
+</head>
+<body>
+<!--###BEGIN_CONTENT###-->
+<h1><a name="Introduction"></a>Introduction<a class="section_anchor" href="#Introduction"></a></h1>
+
+<p>The Linked Media Framework offers versioning services that keep track of any resource updates in the triple store.
+    Versioning is transaction based, i.e. every time a transaction is committed successfully, a new version entry is
+    created by the versioning services. The LMF currently supports listing versions (system-wide and for a single resource)
+    as well as inspecting "snapshots" (i.e. going back in time).
+</p>
+
+
+<h1><a name="Versions"></a>Version Access<a class="section_anchor" href="#Versions"></a></h1>
+
+<p>
+    The LMF provides basic access to versioning information through the /versions web service:    
+</p>
+<ul>
+    <li>/versions/list (optionally with parameters resource, offset, limit) will list all versions of the system or all versions of the specified resource</li>
+    <li>/versions/{id} will display details about the version with the id {id}</li>
+</ul>
+<p>
+    Be aware that listing all versions of the system might be a very expensive operation on large systems and
+    should be used with care.
+</p>
+
+<h1><a name="Snapshots"></a>Snapshots<a class="section_anchor" href="#Snapshots"></a></h1>
+
+<p>
+    The Snapshot service (accessible under /snapshot) allows to access a resource as it used to be at a certain point in time. The /snapshot service accepts the
+    following query parameters:
+</p>
+<ul>
+    <li>resource=... - the URI of the resource of which to return the snapshot; needs to be URL-encoded; REQUIRED</li>
+    <li>time=... - the time for which to return the snapshot; time is in ISO8601 or in GMT format and needs to be URL-encoded</li>
+    <li>version=... - the ID of the version for which to return the snapshot</li>
+</ul>
+<p>
+    The resource parameter is always required. Either the time or the version parameter must also be given. If both are present,
+    the time parameter takes precedence.
+</p>
+<h3>Examples</h3>
+<p>
+    Retrieve version 6 of resource http://localhost:8080/LMF/resource/1234:
+</p>
+<pre>
+    http://localhost:8080/LMF/snapshot?resource=http%253A%252F%252Flocalhost%253A8080%252FLMF%252Fresource%252F1234&version=6
+</pre>
+
+
+<h1><a name="Memento"></a>Memento Support<a class="section_anchor" href="#Memento"></a></h1>
+
+<p>
+    In case the versioning.memento configuration property is enabled, the LMF also provides support for the
+    <a href="http://www.mementoweb.org/guide/rfc/ID/">Memento specification</a>, which allows access to earlier
+    versions of a resource through an extension of the HTTP protocol. 
+</p>
+<p>
+    In case memento support is enabled, the LMF resource web service will produce additional "Link:" headers for
+    each resource request pointing back to the Memento timegate service (located at /timegate?resource=...) provided
+    by the versioning module. Depending on the Accept-Datetime header, the timegate service will redirect to the
+    appropriate snapshot of the resource.
+</p>
+<p>
+    Several tools exist for accessing Memento
+    archives, e.g. the <a href="https://addons.mozilla.org/de/firefox/addon/mementofox/">MementoFox</a> browser 
+    extension.
+</p>
+
+
+<!--###END_CONTENT###-->
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!--
+
+    Copyright (C) 2013 Salzburg Research.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<script type="text/javascript">
+	_SERVER_URL = "http://localhost:8080/LMF/";
+</script>
+<!--###BEGIN_HEAD###-->
+<title>LMF User Profile</title>
+<script type="text/javascript" src="../core/public/js/lib/jquery-1.7.2.js"></script>
+    <style>
+        .user_table th {
+            font-weight: bold;
+        }
+        .label_values label {
+            position: absolute;
+            margin-top: 4px;
+        }
+
+        .label_values input {
+            margin-left:140px;
+        }
+    </style>
+<!--###END_HEAD###-->
+</head>
+<body>
+<div id="center">
+  <!--###BEGIN_CONTENT###-->
+  <h1>LMF User Profile for <span class="lmf_login foaf_nick"></span></h1>
+  <div>
+  <table class="user_table">
+  <tr><th align="left">username (login)</th><td><span class="lmf_login"></span></td></tr>
+  <tr><th align="left">roles</th><td><span class="lmf_roles"></span></td></tr>
+  <tr><th align="left">resource</th><td><a class="lmf_webid lmf_href_webid" target="_blank"></a></td></tr>
+  </table>
+  </div>
+  <div id="password_wrap">
+  <h2>Change Password</h2>
+  <div class="label_values">
+  <div><label for="oldPasswd">current password:</label> <input type="password" name="oldPasswd" id="oldPasswd" /><span id="oldPasswd_check" class="icon"></span></div>
+  <div><label for="newPasswd">new password:</label> <input type="password" name="newPasswd" id="newPasswd" /><span id="newPasswd_check" class="icon"></span></div>
+  <div><label for="newPasswd2">confirm new password:</label> <input type="password" name="newPasswd2" id="newPasswd2" /><span id="newPasswd2_check" class="icon"></span></div>
+  <div style="margin-top:10px"><button id="changePasswd">Change Password</button><span id="changePasswd_check" class="icon"></span></div>
+  <script type="text/javascript">
+  	$(function() {
+  	    var p0 = $("input#oldPasswd"),
+  	    p1 = $("input#newPasswd"),
+  	    p2 = $("input#newPasswd2"),
+  	    btn = $("button#changePasswd");
+  	    
+  	    function setIcon(input, status, message) {
+  	        status = status || "";
+  	        message = message || "";
+  	        var icon = $(input).siblings("span.icon");
+  	        
+  	        icon.removeClass("ok error warning loading").addClass(status).text(message);
+  	    }
+  	    
+  	    function checkVals() {
+  	        var v1 = false, v2 = false, v0 = false;
+  	        // p0
+  	        if ((p1.val() != "" || p2.val() != "") && (p0.val() == "")) {
+	            setIcon(p0, "error", "enter your current password");
+  	        } else {
+  	            v0 = true;
+	  	        setIcon(p0);
+  	        }
+  	        //p1
+  	        if (p2.val() != "" && p1.val() == "") {
+  	            setIcon(p1, "error", "confirm new password");
+  	        } else {
+  	            if (p1.val() != "" && p1.val() == p2.val()) {
+  	                setIcon(p1, "ok");
+  	            	v1 = true;
+  	            } else
+	  	            setIcon(p1);
+  	        }
+  	        //p2
+  	        if (p1.val() != "") {
+  	            if (p1.val() == p2.val()) {
+  	                setIcon(p2, "ok");
+  	                v2 = true;
+  	            } else {
+  	                setIcon(p2, "error", "confirm new password");
+  	            }
+  	        } else {
+  	            setIcon(p2);
+  	        }
+  	        
+  	        return v0 && v1 && v2;
+  	    }
+  	    
+  	    p0.change(checkVals);
+  	    p1.change(checkVals);
+  	    p2.change(checkVals);
+  	    $("button#changePasswd").click(function() {
+  	        var self = this;
+  	        if (checkVals()) {
+  	            setIcon(self, "loading")
+  	            $.post(_SERVER_URL + "user/me/passwd", {
+  	                oldPasswd: p0.val(),
+  	                newPasswd: p1.val()
+  	            },
+  	            function() {
+		  	        p0.val(""); p1.val(""); p2.val("");
+  			        checkVals();
+  			        setIcon(self, "ok", "password changed");
+  	            }).error(function() {
+  	                setIcon(self, "error", "password update failed");
+  	            });
+  	        }
+  	        return false;
+  	    });
+  	});
+  </script>
+  </div>
+  </div>
+  <div id="profile_wrap">
+  <h2>User Profile (foaf)</h2>
+  <div>
+  <table id="profile">
+  <tr><td>Nick</td><td><input name=nick class="literal" /></td></tr>
+  <tr><td>Title</td><td><input name=title class="literal" /></td></tr>
+  <tr><td>First Name</td><td><input name=firstName class="literal" /></td></tr>
+  <tr><td>Last Name</td><td><input name=lastName class="literal" /></td></tr>
+  <tr><td>Mail</td><td><input name=mbox class="uri" /></td></tr>
+  <tr><td>Homepage</td><td><input name=homepage class="uri" /></td></tr>
+  </table>
+  <div style="margin-top:10px"><button id="saveProfile">Save Profile</button><span class="icon"></span></div>
+  </div>
+  </div>
+  <script type="text/javascript">
+  	$(function() {
+  	    function loadInfo(data) {
+  	        if (data.login === "anonymous") {
+  	            $("#password_wrap, #profile_wrap").hide();
+  	        } else {
+  	            $("#password_wrap, #profile_wrap").show();
+  	        }
+  	        
+  	        
+  	        function setFoaf(key, value) {
+  	            var i = $('input[name="'+key+'"]');
+  	            if (i.hasClass("uri")) {
+  	                if (key == "mbox") {
+  	                    value = value.replace("mailto:", "");
+  	                }
+  	                i.val(value.replace(/^<([^>]+)>$/, "$1"));
+  	            } else {
+	  	            i.val(value);
+  	            }
+  	            $('.foaf_'+key).text(value);
+  	        }
+  	        function setLmf(key, value) {
+  	            $('.lmf_'+key).text(value);
+  	            $('.lmf_href_'+key).attr('href', value);
+  	        }
+  	        setLmf('login', data.login);
+  	        setLmf('roles', data.roles);
+  	        setLmf('webid', data.uri);
+  	        
+  	        var ns = "http://xmlns.com/foaf/0.1/";
+  	        for (var k in data.foaf) {
+  	            if (k.search(ns) == 0) {
+  	                setFoaf(k.substr(ns.length), data.foaf[k]);
+  	            }
+  	        }
+  	            // TODO: foo
+  	    }
+  	    $("button#saveProfile").click(function() {
+  	        var btn = this;
+  	        var data = {};
+  	        $("table#profile input").each(function(i, input) {
+  	            var key = $(input).attr("name"),
+  	            val = $(input).val();
+  	            if (val == "") {
+  	                data[key] = "";
+  	            } else {
+    	            if ($(input).hasClass("uri")) {
+    	                if (key == "mbox" && val.search("mailto:") != 0) val = "mailto:"+val;
+    	                val = "<" + val + ">";
+    	            }
+    	            data[key] = val;
+  	            }
+  	        });
+  	        $.post(_SERVER_URL + "user/me", data, function(data) {
+  	            loadInfo(data);
+    	        
+  	          	var icon = $(btn).siblings("span.icon");
+    	        icon.removeClass("ok error warning loading").addClass("ok").text("profile saved");
+    	        setTimeout(function() { icon.removeClass("ok error warning loading").text(""); }, 5000);
+  	        }).error(function() {
+   	          	var icon = $(btn).siblings("span.icon");
+    	        icon.removeClass("ok error warning loading").addClass("error").text("saving profile failed");
+    	        setTimeout(function() { icon.removeClass("ok error warning loading").text(""); }, 5000);
+  	        });
+  	    });
+  	    
+        $.getJSON(_SERVER_URL + "user/me", loadInfo);
+  	});
+  </script>  
+  <!--###END_CONTENT###-->
+  </div>
+</body>
+</html>
+

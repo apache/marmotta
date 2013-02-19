@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Hennessy;Denis
+FN:Denis Hennessy
+ORG:ISOCOR
+ADR;TYPE=WORK,POSTAL,PARCEL:;;42-47 Lower Mount St;
+ Dublin 2;Ireland
+TEL;TYPE=WORK,MSG:+353-1-676-0366
+TEL;TYPE=WORK,FAX:+353-1-676-0856
+EMAIL;TYPE=INTERNET:denis.hennessy@isocor.com
+CALADRURI:MAILTO:denis.hennessy@isocor.com
+END:VCARD

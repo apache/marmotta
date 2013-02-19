@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013 Salzburg Research.
+  ~  
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~  
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~  
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>at.newmedialab.lmf</groupId>
+        <artifactId>lmf-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../</relativePath>
+    </parent>
+
+    <artifactId>ldclient-parent</artifactId>
+    <name>LDClient: Parent</name>
+    <packaging>pom</packaging>
+
+    <description>
+        Linked Data Client: Parent POM
+    </description>
+
+    <developers>
+        <developer>
+            <name>Sebastian Schaffert</name>
+            <email>sschaffert@apache.org</email>
+            <organization>Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <name>Jakob Frank</name>
+            <email>jfrank@apache.org</email>
+            <organization>Apache Software Foundation</organization>
+        </developer>
+    </developers>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <configuration>
+                        <relativePath>../../</relativePath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    
+    <dependencyManagement>
+	    <dependencies>
+	    	<dependency>
+	    		<groupId>at.newmedialab.lmf</groupId>
+	    		<artifactId>ldclient-core</artifactId>
+	    		<version>${project.version}</version>
+	    		<type>test-jar</type>
+	    		<scope>test</scope>
+	    	</dependency>
+	    </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>ldclient-api</module>
+        <module>ldclient-core</module>
+        <module>ldclient-provider-rdf</module>
+        <module>ldclient-provider-rdfa</module>
+        <module>ldclient-provider-xml</module>
+        <module>ldclient-provider-html</module>
+        <module>ldclient-provider-youtube</module>
+        <module>ldclient-provider-vimeo</module>
+        <module>ldclient-provider-ldap</module>
+        <module>ldclient-provider-mediawiki</module>
+        <module>ldclient-provider-phpbb</module>
+    </modules>
+    
+</project>

@@ -1,0 +1,2 @@
+org.apache.marmotta.ldclient.endpoint.mediawiki.WikipediaIndexEndpoint
+org.apache.marmotta.ldclient.endpoint.mediawiki.WikipediaPageEndpoint
