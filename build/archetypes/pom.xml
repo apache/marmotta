@@ -23,7 +23,6 @@
         <relativePath>../../parent</relativePath>
     </parent>
     <artifactId>archetypes-reactor</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Apache Marmotta: Archetypes</name>
     <modules>

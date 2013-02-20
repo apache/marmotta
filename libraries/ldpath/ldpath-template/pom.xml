@@ -27,7 +27,6 @@
 
     <name>LDPath Templating: Core</name>
     <artifactId>ldpath-template</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>

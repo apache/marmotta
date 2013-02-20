@@ -25,9 +25,7 @@
         <relativePath>../../../parent</relativePath>
     </parent>
 
-    <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-maven-plugin</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>Maven Marmotta Plugin</name>

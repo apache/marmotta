@@ -26,7 +26,6 @@
 
     <name>LDPath Functions: XML</name>
     <artifactId>ldpath-functions-xml</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <description>LDPath Functions for XML content.</description>

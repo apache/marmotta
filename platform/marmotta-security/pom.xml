@@ -26,7 +26,6 @@
     </parent>
 
     <artifactId>marmotta-security</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Apache Marmotta Platform: Security</name>

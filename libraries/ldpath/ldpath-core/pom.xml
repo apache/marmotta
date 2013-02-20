@@ -27,7 +27,6 @@
 
     <name>LDPath Core</name>
     <artifactId>ldpath-core</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <dependencies>

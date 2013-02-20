@@ -27,7 +27,6 @@
 
     <name>Sesame I/O: API</name>
     <artifactId>sesame-tools-rio-api</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>

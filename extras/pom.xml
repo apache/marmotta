@@ -9,9 +9,7 @@
         <relativePath>../parent</relativePath>
     </parent>
 
-    <groupId>org.apache.marmotta</groupId>
     <artifactId>extras-reactor</artifactId>
-    <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Apache Marmotta Extras: Reactor</name>

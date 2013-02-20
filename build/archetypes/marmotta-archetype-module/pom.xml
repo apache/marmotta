@@ -26,7 +26,6 @@
     </parent>
 
     <artifactId>marmotta-archetype-module</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <name>Apache Marmotta Archetype: Module</name>

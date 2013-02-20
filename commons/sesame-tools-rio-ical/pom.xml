@@ -27,7 +27,6 @@
 
     <name>Sesame I/O: ICal</name>
     <artifactId>sesame-tools-rio-ical</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>

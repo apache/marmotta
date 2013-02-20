@@ -24,7 +24,6 @@
     </parent>
 
     <artifactId>kiwi-parent</artifactId>
-  <version>3.0.0-incubating-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>KiWi Triplestore: Parent</name>
