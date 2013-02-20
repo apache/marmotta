@@ -41,29 +41,29 @@
 
     <repositories>
         <repository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
+            <id>apache.releases</id>
+            <name>Apache Relesases Repository</name>
+            <url>https://repository.apache.org/content/repositories/releases/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
+            <id>apache.releases</id>
+            <name>Apache Relesases Repository</name>
+            <url>https://repository.apache.org/content/repositories/releases/</url>
         </pluginRepository>
     </pluginRepositories>
 
     <distributionManagement>
         <repository>
-            <id>snml.releases</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/releases/</url>
+            <id>apache.releases</id>
+            <name>Apache Relesases Repository</name>
+            <url>https://repository.apache.org/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <id>snml.snapshots</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/</url>
+            <id>apache.snapshots</id>
+            <name>Apache Snapshots Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <site>
             <id>lmf.googlecode.com</id>
