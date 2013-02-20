@@ -6,8 +6,11 @@
 *.iws
 *.iml
 *.db
-*/.project
-*/.classpath
-*/.externalToolBuilders/**
-*/.settings/**
-*/target/**
+.project
+.classpath
+.externalToolBuilders
+.externalToolBuilders/*
+.settings
+.settings/*
+target
+target/*
