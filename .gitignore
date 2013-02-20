@@ -9,5 +9,8 @@
 .project
 .classpath
 .externalToolBuilders
+.externalToolBuilders/*
 .settings
+.settings/*
 target
+target/*

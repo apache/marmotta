@@ -235,6 +235,7 @@
     </profiles>
 
     <modules>
+        <module>parent</module>
         <module>build</module>
         <module>client</module>
         <module>commons</module>
