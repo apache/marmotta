@@ -403,7 +403,7 @@
                                 <version>0.10.0</version>
                             </docletArtifact>
                             <additionalparam>
-                                -jaxrscontext /LMF -charset UTF-8
+                                -jaxrscontext {BASE} -charset UTF-8
                             </additionalparam>
 
                             <!--
