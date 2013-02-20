@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-client</artifactId>
-        <version>2.6.0-SNAPSHOT</version>
+        <version>3.0.0-incubating-SNAPSHOT</version>
     </parent>
 
     <artifactId>lmf-client-php</artifactId>

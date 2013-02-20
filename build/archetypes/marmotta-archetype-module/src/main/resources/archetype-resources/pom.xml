@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>2.6.0</version>
+        <version>3.0.0-incubating-SNAPSHOT</version>
     </parent>
 
     <groupId>${groupId}</groupId>
