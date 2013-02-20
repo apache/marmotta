@@ -25,7 +25,6 @@
   <script type="text/javascript" src="${baseUri}core/public/js/lib/jquery-ui-1.8.21.js"></script>
   <link href="${baseUri}core/public/style/style1.css" title="screen" rel="stylesheet" type="text/css" />
   <link href="${baseUri}core/public/style/rdfhtml.css" title="screen" rel="stylesheet" type="text/css" />
-  <link href="${baseUri}core/public/style/smoothness/jquery-ui-1.8.21.custom.css" title="screen" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
