@@ -17,7 +17,6 @@ package kiwi.core.services.content;
 
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import at.newmedialab.sesame.facading.FacadingFactory;
 import com.google.common.io.ByteStreams;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.content.ContentReader;
@@ -29,6 +28,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;

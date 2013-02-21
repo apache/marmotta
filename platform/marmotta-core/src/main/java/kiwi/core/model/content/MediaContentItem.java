@@ -15,9 +15,9 @@
  */
 package kiwi.core.model.content;
 
+import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
+import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import at.newmedialab.sesame.facading.annotations.RDF;
-import at.newmedialab.sesame.facading.model.Facade;
 
 /**
  * User: Thomas Kurz

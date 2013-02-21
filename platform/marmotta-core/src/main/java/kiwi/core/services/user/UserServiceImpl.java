@@ -18,8 +18,9 @@ package kiwi.core.services.user;
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import static org.apache.marmotta.commons.sesame.model.Namespaces.ADMIN_LOGIN;
 import static org.apache.marmotta.commons.sesame.model.Namespaces.ANONYMOUS_LOGIN;
+
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import at.newmedialab.sesame.facading.FacadingFactory;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.api.user.UserService;
