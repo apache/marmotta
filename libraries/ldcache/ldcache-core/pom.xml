@@ -74,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-commons</artifactId>
+            <artifactId>marmotta-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

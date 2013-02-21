@@ -1135,7 +1135,7 @@
             <!-- LMF Sesame Tools -->
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-commons</artifactId>
+                <artifactId>marmotta-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

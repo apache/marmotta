@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.sesame.commons.constants;
+package org.apache.marmotta.commons.constants;
 
 /**
  * Created with IntelliJ IDEA.
