@@ -1140,11 +1140,6 @@
             <!-- LMF Sesame Tools -->
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>marmotta-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-filter</artifactId>
                 <version>${project.version}</version>
             </dependency>
