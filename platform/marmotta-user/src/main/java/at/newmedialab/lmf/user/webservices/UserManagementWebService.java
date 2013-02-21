@@ -17,8 +17,8 @@ package at.newmedialab.lmf.user.webservices;
 
 import at.newmedialab.lmf.user.api.AccountService;
 import at.newmedialab.lmf.user.model.UserAccount;
-import at.newmedialab.sesame.commons.model.Namespaces;
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.triplestore.SesameService;
 import org.apache.commons.lang.StringUtils;

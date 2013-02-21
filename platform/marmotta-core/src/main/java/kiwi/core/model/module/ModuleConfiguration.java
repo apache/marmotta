@@ -15,7 +15,7 @@
  */
 package kiwi.core.model.module;
 
-import at.newmedialab.sesame.commons.util.DateUtils;
+import org.apache.marmotta.commons.util.DateUtils;
 import com.google.common.base.Preconditions;
 import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.commons.collections.CollectionUtils;

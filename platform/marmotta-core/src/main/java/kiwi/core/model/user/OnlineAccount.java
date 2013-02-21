@@ -15,7 +15,7 @@
  */
 package kiwi.core.model.user;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import at.newmedialab.sesame.facading.annotations.RDF;
 import at.newmedialab.sesame.facading.annotations.RDFType;
 import at.newmedialab.sesame.facading.model.Facade;

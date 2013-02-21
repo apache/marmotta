@@ -15,14 +15,11 @@
  */
 package at.newmedialab.sesame.facading.impl;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
-import at.newmedialab.sesame.facading.annotations.RDF;
-import at.newmedialab.sesame.facading.annotations.RDFContext;
-import at.newmedialab.sesame.facading.annotations.RDFFilter;
-import at.newmedialab.sesame.facading.annotations.RDFType;
-import at.newmedialab.sesame.facading.api.Facading;
-import at.newmedialab.sesame.facading.model.Facade;
-import at.newmedialab.sesame.facading.util.FacadeUtils;
+import java.lang.reflect.Proxy;
+import java.util.Collection;
+import java.util.LinkedList;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -30,9 +27,13 @@ import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Proxy;
-import java.util.Collection;
-import java.util.LinkedList;
+import at.newmedialab.sesame.facading.annotations.RDF;
+import at.newmedialab.sesame.facading.annotations.RDFContext;
+import at.newmedialab.sesame.facading.annotations.RDFFilter;
+import at.newmedialab.sesame.facading.annotations.RDFType;
+import at.newmedialab.sesame.facading.api.Facading;
+import at.newmedialab.sesame.facading.model.Facade;
+import at.newmedialab.sesame.facading.util.FacadeUtils;
 
 /**
  * Offers methods for loading and proxying Facades. A {@link Facade} is an interface that defines a

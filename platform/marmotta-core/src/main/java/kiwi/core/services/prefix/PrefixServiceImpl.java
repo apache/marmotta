@@ -26,8 +26,6 @@ import javax.inject.Inject;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.prefix.PrefixService;
 import kiwi.core.events.ConfigurationChangedEvent;
-import kiwi.core.events.ConfigurationServiceInitEvent;
-
 import kiwi.core.events.SesameStartupEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;

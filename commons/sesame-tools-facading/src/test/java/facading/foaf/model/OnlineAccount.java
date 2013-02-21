@@ -16,7 +16,6 @@
 package facading.foaf.model;
 
 
-import at.newmedialab.sesame.commons.model.Namespaces;
 import at.newmedialab.sesame.facading.annotations.RDF;
 import at.newmedialab.sesame.facading.annotations.RDFInverse;
 import at.newmedialab.sesame.facading.annotations.RDFType;
@@ -25,6 +24,8 @@ import at.newmedialab.sesame.facading.model.Facade;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 
 /**
  * @author Stephanie Stroka

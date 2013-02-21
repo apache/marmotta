@@ -15,7 +15,6 @@
  */
 package at.newmedialab.sesame.facading.impl;
 
-import at.newmedialab.sesame.commons.util.DateUtils;
 import at.newmedialab.sesame.facading.annotations.RDF;
 import at.newmedialab.sesame.facading.annotations.RDFInverse;
 import at.newmedialab.sesame.facading.annotations.RDFPropertyBuilder;
@@ -23,6 +22,8 @@ import at.newmedialab.sesame.facading.api.Facading;
 import at.newmedialab.sesame.facading.api.FacadingPredicateBuilder;
 import at.newmedialab.sesame.facading.model.Facade;
 import at.newmedialab.sesame.facading.util.FacadeUtils;
+
+import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;

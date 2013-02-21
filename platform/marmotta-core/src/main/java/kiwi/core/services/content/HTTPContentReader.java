@@ -15,6 +15,8 @@
  */
 package kiwi.core.services.content;
 
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+
 import at.newmedialab.sesame.facading.FacadingFactory;
 import com.google.common.io.ByteStreams;
 import kiwi.core.api.config.ConfigurationService;
@@ -38,8 +40,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * Add file description here!

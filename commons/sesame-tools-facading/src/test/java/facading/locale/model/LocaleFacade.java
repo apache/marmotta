@@ -1,10 +1,11 @@
 package facading.locale.model;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
 import at.newmedialab.sesame.facading.annotations.RDF;
 import at.newmedialab.sesame.facading.model.Facade;
 
 import java.util.Locale;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 
 public interface LocaleFacade extends Facade {
 

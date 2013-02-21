@@ -16,7 +16,7 @@
 package at.newmedialab.lmf.user.filters;
 
 import at.newmedialab.lmf.user.api.AuthenticationService;
-import at.newmedialab.sesame.commons.model.Namespaces;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.modules.LMFHttpFilter;
 import kiwi.core.api.user.UserService;

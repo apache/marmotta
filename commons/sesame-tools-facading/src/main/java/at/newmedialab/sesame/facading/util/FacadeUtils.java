@@ -15,14 +15,14 @@
  */
 package at.newmedialab.sesame.facading.util;
 
-import at.newmedialab.sesame.commons.util.DateUtils;
 import at.newmedialab.sesame.facading.model.Facade;
+
+import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 
 import java.lang.annotation.Annotation;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;

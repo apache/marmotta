@@ -19,12 +19,7 @@ import info.aduna.iteration.CloseableIteration;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * A wrapper class for creating ClosableIterations from a SQL JDBC ResultSet. Takes a

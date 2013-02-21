@@ -16,7 +16,7 @@
 
 package org.apache.marmotta.kiwi.test;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -59,7 +59,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeThat;
 
 /**

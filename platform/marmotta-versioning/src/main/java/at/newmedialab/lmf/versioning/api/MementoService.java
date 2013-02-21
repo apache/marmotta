@@ -19,8 +19,6 @@ import at.newmedialab.lmf.versioning.exception.MementoException;
 import at.newmedialab.lmf.versioning.model.MementoVersionSet;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.openrdf.model.Resource;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**

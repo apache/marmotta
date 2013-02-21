@@ -16,9 +16,10 @@
 package at.newmedialab.lmf.versioning.webservices;
 
 import at.newmedialab.lmf.versioning.services.VersioningSailProvider;
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
-import at.newmedialab.sesame.commons.util.DateUtils;
-import at.newmedialab.sesame.commons.util.JSONUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.commons.util.JSONUtils;
+
 import info.aduna.iteration.Iterations;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.triplestore.SesameService;

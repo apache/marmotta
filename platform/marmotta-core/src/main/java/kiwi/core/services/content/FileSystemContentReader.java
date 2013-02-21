@@ -15,6 +15,8 @@
  */
 package kiwi.core.services.content;
 
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+
 import at.newmedialab.sesame.facading.FacadingFactory;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
@@ -39,8 +41,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content reader that reads the content of a resource from the file system.

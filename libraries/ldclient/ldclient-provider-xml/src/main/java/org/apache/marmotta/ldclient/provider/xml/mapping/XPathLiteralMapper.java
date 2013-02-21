@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.ldclient.provider.xml.mapping;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 

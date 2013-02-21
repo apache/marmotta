@@ -15,13 +15,13 @@
  */
 package at.newmedialab.lmf.user.model;
 
-import at.newmedialab.sesame.commons.util.HashUtils;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.marmotta.commons.util.HashUtils;
 
 /**
  * User: Stephanie Stroka

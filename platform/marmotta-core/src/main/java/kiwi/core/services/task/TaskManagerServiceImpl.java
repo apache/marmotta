@@ -15,10 +15,11 @@
  */
 package kiwi.core.services.task;
 
-import at.newmedialab.sesame.commons.util.HashUtils;
 import kiwi.core.api.task.Task;
 import kiwi.core.api.task.TaskInfo;
 import kiwi.core.api.task.TaskManagerService;
+
+import org.apache.marmotta.commons.util.HashUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;

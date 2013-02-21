@@ -15,11 +15,10 @@
  */
 package kiwi.core.services.user;
 
-import static at.newmedialab.sesame.commons.model.Namespaces.ADMIN_LOGIN;
-import static at.newmedialab.sesame.commons.model.Namespaces.ANONYMOUS_LOGIN;
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
-
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.model.Namespaces.ADMIN_LOGIN;
+import static org.apache.marmotta.commons.sesame.model.Namespaces.ANONYMOUS_LOGIN;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import at.newmedialab.sesame.facading.FacadingFactory;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.triplestore.SesameService;

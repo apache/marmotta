@@ -15,6 +15,8 @@
  */
 package kiwi.core.services.content;
 
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+
 import at.newmedialab.sesame.facading.FacadingFactory;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
@@ -40,8 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.UUID;
-
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content writer that writes the content of a resource to the file system.

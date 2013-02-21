@@ -8,12 +8,13 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assume.assumeThat;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
 import at.newmedialab.sesame.facading.FacadingFactory;
 import at.newmedialab.sesame.facading.api.Facading;
 import facading.AbstractFacadingTest;
 import facading.foaf.model.OnlineAccount;
 import facading.foaf.model.Person;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;

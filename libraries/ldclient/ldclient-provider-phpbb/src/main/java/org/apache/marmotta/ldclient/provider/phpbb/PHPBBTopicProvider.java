@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.ldclient.provider.phpbb;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;

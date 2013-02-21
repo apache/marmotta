@@ -15,9 +15,9 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import at.newmedialab.sesame.commons.model.LiteralCommons;
-import at.newmedialab.sesame.commons.model.Namespaces;
-import at.newmedialab.sesame.commons.util.DateUtils;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
 import org.apache.marmotta.kiwi.model.collection.WeakValueMap;

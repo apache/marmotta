@@ -15,7 +15,6 @@
  */
 package kiwi.core.webservices.resource;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.content.ContentService;
 import kiwi.core.api.io.LMFIOService;
@@ -24,6 +23,8 @@ import kiwi.core.events.ContentCreatedEvent;
 import kiwi.core.exception.LMFException;
 import kiwi.core.exception.WritingNotSupportedException;
 import kiwi.core.qualifiers.event.ContentCreated;
+
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
