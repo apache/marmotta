@@ -1,0 +1,6 @@
+org.apache.marmotta.ldpath.model.tests.functions.EqualTest
+org.apache.marmotta.ldpath.model.tests.functions.NotEqualTest
+org.apache.marmotta.ldpath.model.tests.functions.GreaterEqualTest
+org.apache.marmotta.ldpath.model.tests.functions.GreaterThanTest
+org.apache.marmotta.ldpath.model.tests.functions.LessEqualTest
+org.apache.marmotta.ldpath.model.tests.functions.LessThanTest

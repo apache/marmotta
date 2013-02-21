@@ -20,9 +20,6 @@ import static at.newmedialab.sesame.commons.repository.ResourceUtils.listOutgoin
 import static at.newmedialab.sesame.commons.repository.ResourceUtils.listResourcesByPrefix;
 import static at.newmedialab.sesame.commons.repository.ResultUtils.iterable;
 
-import at.newmedialab.ldpath.api.functions.SelectorFunction;
-import at.newmedialab.ldpath.backend.sesame.SesameConnectionBackend;
-import at.newmedialab.ldpath.exception.LDPathParseException;
 import at.newmedialab.lmf.ldpath.api.LDPathService;
 import at.newmedialab.sesame.commons.model.Namespaces;
 import at.newmedialab.sesame.commons.repository.ResourceUtils;
@@ -33,6 +30,9 @@ import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.services.prefix.PrefixCC;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;

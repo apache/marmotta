@@ -65,10 +65,10 @@
                         <!-- Enable this for including your enhancement chain configuration -->
                         <!-- <Install-Path>config</Install-Path> -->
                         <Export-Package>
-                            at.newmedialab.ldpath.template;version=${project.version},
-                            at.newmedialab.ldpath.template.engine;version=${project.version},
-                            at.newmedialab.ldpath.template.model;version=${project.version},
-                            at.newmedialab.ldpath.template.util;version=${project.version}
+                            org.apache.marmotta.ldpath.template;version=${project.version},
+                            org.apache.marmotta.ldpath.template.engine;version=${project.version},
+                            org.apache.marmotta.ldpath.template.model;version=${project.version},
+                            org.apache.marmotta.ldpath.template.util;version=${project.version}
                         </Export-Package>
                         <!--
                         <_exportcontents>freemarker.*;version="2.3.19"</_exportcontents>

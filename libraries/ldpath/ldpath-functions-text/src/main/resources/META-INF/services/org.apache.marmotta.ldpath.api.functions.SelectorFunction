@@ -1,0 +1,6 @@
+org.apache.marmotta.ldpath.model.functions.text.ReplaceFunction
+org.apache.marmotta.ldpath.model.functions.text.StrLeftFunction
+org.apache.marmotta.ldpath.model.functions.text.StrRightFunction
+org.apache.marmotta.ldpath.model.functions.text.StrLenFunction
+org.apache.marmotta.ldpath.model.functions.text.SubstringFunction
+org.apache.marmotta.ldpath.model.functions.text.WordCountFunction

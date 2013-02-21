@@ -107,7 +107,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
                 <executions>
                     <execution>
                         <goals>
@@ -115,7 +114,7 @@
                         </goals>
                         <configuration>
                             <includes>
-                                <include>core/**</include>
+                                <include>org/apache/marmotta/ldpath/test/**</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -171,11 +170,11 @@
                         <!-- Enable this for including your enhancement chain configuration -->
                         <!-- <Install-Path>config</Install-Path> -->
                         <Export-Package>
-                            at.newmedialab.ldpath;version=${project.version},
-                            at.newmedialab.ldpath.exception;version=${project.version},
-                            at.newmedialab.ldpath.model.*;version=${project.version},
-                            at.newmedialab.ldpath.util;version=${project.version}
-                            at.newmedialab.ldpath.parser;version=${project.version}
+                            org.apache.marmotta.ldpath;version=${project.version},
+                            org.apache.marmotta.ldpath.exception;version=${project.version},
+                            org.apache.marmotta.ldpath.model.*;version=${project.version},
+                            org.apache.marmotta.ldpath.util;version=${project.version}
+                            org.apache.marmotta.ldpath.parser;version=${project.version}
                         </Export-Package>
                         <_include>src/main/resources/META-INF/MANIFEST.MF</_include>
                     </instructions>

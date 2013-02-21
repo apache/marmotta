@@ -15,9 +15,10 @@
  */
 package at.newmedialab.lmf.ldpath.api;
 
-import at.newmedialab.ldpath.api.functions.SelectorFunction;
-import at.newmedialab.ldpath.api.transformers.NodeTransformer;
-import at.newmedialab.ldpath.exception.LDPathParseException;
+
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Value;
 
 import java.util.Collection;
@@ -65,7 +66,7 @@ public interface LDPathService {
      * @param context    the context node where to start with the path query
      * @param program    the path program to evaluate starting from the context node
      * @return           a map mapping from field names to the resulting collection of KiWiNodes for the field
-     * @throws at.newmedialab.ldpath.exception.LDPathParseException when the path passed as argument could not be parsed
+     * @throws org.apache.marmotta.ldpath.exception.LDPathParseException when the path passed as argument could not be parsed
      */
     public Map<String, Collection<?>> programQuery(Value context, String program) throws LDPathParseException;
 

@@ -1,0 +1,3 @@
+org.apache.marmotta.ldpath.model.functions.coll.FlattenFunction
+org.apache.marmotta.ldpath.model.functions.coll.GetFunction
+org.apache.marmotta.ldpath.model.functions.coll.SubListFunction

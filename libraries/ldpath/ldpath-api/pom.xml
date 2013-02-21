@@ -46,12 +46,12 @@
                         <!-- Enable this for including your enhancement chain configuration -->
                         <!-- <Install-Path>config</Install-Path> -->
 						<Export-Package>
-                            at.newmedialab.ldpath.api;version=${project.version},
-                            at.newmedialab.ldpath.api.backend;version=${project.version},
-                            at.newmedialab.ldpath.api.functions;version=${project.version},
-                            at.newmedialab.ldpath.api.selectors;version=${project.version},
-                            at.newmedialab.ldpath.api.tests;version=${project.version},
-                            at.newmedialab.ldpath.api.transformers;version=${project.version}
+                            org.apache.marmotta.ldpath.api;version=${project.version},
+                            org.apache.marmotta.ldpath.api.backend;version=${project.version},
+                            org.apache.marmotta.ldpath.api.functions;version=${project.version},
+                            org.apache.marmotta.ldpath.api.selectors;version=${project.version},
+                            org.apache.marmotta.ldpath.api.tests;version=${project.version},
+                            org.apache.marmotta.ldpath.api.transformers;version=${project.version}
                         </Export-Package>
                      </instructions>
                 </configuration>

@@ -15,7 +15,7 @@
  */
 package at.newmedialab.lmf.ldpath.api;
 
-import at.newmedialab.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.openrdf.model.Value;
 
 /**

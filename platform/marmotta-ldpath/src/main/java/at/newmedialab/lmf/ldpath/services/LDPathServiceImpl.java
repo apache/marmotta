@@ -15,17 +15,18 @@
  */
 package at.newmedialab.lmf.ldpath.services;
 
-import at.newmedialab.ldpath.LDPath;
-import at.newmedialab.ldpath.api.functions.SelectorFunction;
-import at.newmedialab.ldpath.api.transformers.NodeTransformer;
-import at.newmedialab.ldpath.backend.sesame.SesameConnectionBackend;
-import at.newmedialab.ldpath.exception.LDPathParseException;
-import at.newmedialab.ldpath.model.Constants;
-import at.newmedialab.ldpath.parser.Configuration;
-import at.newmedialab.ldpath.parser.DefaultConfiguration;
 import at.newmedialab.lmf.ldpath.api.LDPathService;
 import at.newmedialab.lmf.ldpath.api.LMFLDPathFunction;
 import kiwi.core.api.triplestore.SesameService;
+
+import org.apache.marmotta.ldpath.LDPath;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
+import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
+import org.apache.marmotta.ldpath.model.Constants;
+import org.apache.marmotta.ldpath.parser.Configuration;
+import org.apache.marmotta.ldpath.parser.DefaultConfiguration;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;

@@ -1,0 +1,4 @@
+#org.apache.marmotta.ldpath.model.functions.math.SumFunction
+org.apache.marmotta.ldpath.model.functions.math.MinFunction
+org.apache.marmotta.ldpath.model.functions.math.MaxFunction
+org.apache.marmotta.ldpath.model.functions.math.RoundFunction

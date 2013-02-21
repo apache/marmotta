@@ -12,23 +12,23 @@ options
 }
 
 PARSER_BEGIN(RdfPathParser)
-package at.newmedialab.ldpath.parser;
+package org.apache.marmotta.ldpath.parser;
 
-import at.newmedialab.ldpath.model.Constants;
+import org.apache.marmotta.ldpath.model.Constants;
 
-import at.newmedialab.ldpath.api.backend.*;
-import at.newmedialab.ldpath.api.functions.*;
-import at.newmedialab.ldpath.api.selectors.*;
-import at.newmedialab.ldpath.api.tests.*;
-import at.newmedialab.ldpath.api.transformers.*;
+import org.apache.marmotta.ldpath.api.backend.*;
+import org.apache.marmotta.ldpath.api.functions.*;
+import org.apache.marmotta.ldpath.api.selectors.*;
+import org.apache.marmotta.ldpath.api.tests.*;
+import org.apache.marmotta.ldpath.api.transformers.*;
 
 
-import at.newmedialab.ldpath.model.fields.*;
-import at.newmedialab.ldpath.model.functions.*;
-import at.newmedialab.ldpath.model.programs.*;
-import at.newmedialab.ldpath.model.selectors.*;
-import at.newmedialab.ldpath.model.tests.*;
-import at.newmedialab.ldpath.model.transformers.*;
+import org.apache.marmotta.ldpath.model.fields.*;
+import org.apache.marmotta.ldpath.model.functions.*;
+import org.apache.marmotta.ldpath.model.programs.*;
+import org.apache.marmotta.ldpath.model.selectors.*;
+import org.apache.marmotta.ldpath.model.tests.*;
+import org.apache.marmotta.ldpath.model.transformers.*;
 
 
 import java.util.ArrayList;

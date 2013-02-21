@@ -15,8 +15,9 @@
  */
 package at.newmedialab.lmf.ldpath.backend;
 
-import at.newmedialab.ldpath.backend.sesame.SesameRepositoryBackend;
 import kiwi.core.api.triplestore.SesameService;
+
+import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -29,7 +30,7 @@ import javax.inject.Inject;
  * <p/>
  * Author: Sebastian Schaffert
  * 
- * @deprecated Use a {@link at.newmedialab.ldpath.backend.sesame.SesameConnectionBackend} instead
+ * @deprecated Use a {@link org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend} instead
  *             and handle transactions manually.
  */
 @ApplicationScoped

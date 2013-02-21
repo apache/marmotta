@@ -18,15 +18,15 @@ package at.newmedialab.lmf.ldpath.webservices;
 import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
 import static at.newmedialab.sesame.commons.repository.ResultUtils.iterable;
 
-import at.newmedialab.ldpath.api.functions.SelectorFunction;
-import at.newmedialab.ldpath.backend.sesame.SesameConnectionBackend;
-import at.newmedialab.ldpath.exception.LDPathParseException;
 import at.newmedialab.lmf.ldpath.api.LDPathService;
 import at.newmedialab.sesame.commons.repository.ResourceUtils;
 import at.newmedialab.sesame.commons.util.JSONUtils;
 import kiwi.core.api.triplestore.SesameService;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
+import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
+import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;

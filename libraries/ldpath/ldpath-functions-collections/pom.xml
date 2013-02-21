@@ -82,7 +82,7 @@
                         <!-- Enable this for including your enhancement chain configuration -->
                         <!-- <Install-Path>config</Install-Path> -->
                         <Export-Package>
-                            at.newmedialab.ldpath.model.*;version=${project.version},
+                            org.apache.marmotta.ldpath.model.*;version=${project.version},
                         </Export-Package>
                         <_include>src/main/resources/META-INF/MANIFEST.MF</_include>
                     </instructions>

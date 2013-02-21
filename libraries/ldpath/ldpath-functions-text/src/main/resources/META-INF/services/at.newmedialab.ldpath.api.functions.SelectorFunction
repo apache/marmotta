@@ -1,6 +1,0 @@
-at.newmedialab.ldpath.model.functions.text.ReplaceFunction
-at.newmedialab.ldpath.model.functions.text.StrLeftFunction
-at.newmedialab.ldpath.model.functions.text.StrRightFunction
-at.newmedialab.ldpath.model.functions.text.StrLenFunction
-at.newmedialab.ldpath.model.functions.text.SubstringFunction
-at.newmedialab.ldpath.model.functions.text.WordCountFunction

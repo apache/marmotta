@@ -15,9 +15,10 @@
  */
 package at.newmedialab.lmf.ldpath.model.functions;
 
-import at.newmedialab.ldpath.api.backend.RDFBackend;
-import at.newmedialab.ldpath.model.transformers.StringTransformer;
 import at.newmedialab.lmf.ldpath.api.LMFLDPathFunction;
+
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -69,7 +70,7 @@ public class JsoupFunction extends LMFLDPathFunction {
             it = Collections.singleton(context).iterator();
         } else {
             log.debug("apply css-selector {} on parsed parameters", jsoupSelectors);
-            it = at.newmedialab.ldpath.util.Collections.iterator(1, args);
+            it = org.apache.marmotta.ldpath.util.Collections.iterator(1, args);
         }
         List<Value> result = new ArrayList<Value>();
         while (it.hasNext()) {

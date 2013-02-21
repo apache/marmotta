@@ -15,11 +15,11 @@
  */
 package at.newmedialab.lmf.ldpath.model.functions;
 
-import at.newmedialab.ldpath.api.backend.RDFBackend;
 import at.newmedialab.lmf.ldpath.api.LMFLDPathFunction;
 import kiwi.core.api.content.ContentService;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.slf4j.Logger;
@@ -65,7 +65,7 @@ public class ContentFunction extends LMFLDPathFunction {
      * or the number of arguments is not correct.
      *
      * @param context the context of the execution. Same as using the
-     *                {@link at.newmedialab.ldpath.api.selectors.NodeSelector} '.' as parameter.
+     *                {@link org.apache.marmotta.ldpath.api.selectors.NodeSelector} '.' as parameter.
      * @param args    a nested list of KiWiNodes
      * @return
      */
