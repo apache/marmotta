@@ -1,8 +1,9 @@
-package at.newmedialab.sesame.commons.model;
+package org.apache.marmotta.commons.sesame.model;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
+import org.apache.marmotta.commons.sesame.model.URICommons;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

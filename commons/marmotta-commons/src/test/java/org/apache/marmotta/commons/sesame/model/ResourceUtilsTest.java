@@ -1,4 +1,4 @@
-package at.newmedialab.sesame.commons.model;
+package org.apache.marmotta.commons.sesame.model;
 /*
  * Copyright (c) 2012 Salzburg Research.
  *
@@ -25,10 +25,12 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assume.assumeThat;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -60,7 +62,7 @@ import java.util.Locale;
  */
 public class ResourceUtilsTest {
 
-    private static final String TEST_DATA = "/foaf/demo-data.foaf";
+    private static final String TEST_DATA = "demo-data.foaf";
 
     private Repository repository;
 

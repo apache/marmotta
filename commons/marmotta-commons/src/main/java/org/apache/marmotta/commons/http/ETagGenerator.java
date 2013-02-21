@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.sesame.commons.http;
+package org.apache.marmotta.commons.http;
 
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;

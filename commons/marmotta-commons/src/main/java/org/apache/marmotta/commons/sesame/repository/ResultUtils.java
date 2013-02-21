@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.sesame.commons.repository;
+package org.apache.marmotta.commons.sesame.repository;
 
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * Some static utility methods for working with RepositoryResults

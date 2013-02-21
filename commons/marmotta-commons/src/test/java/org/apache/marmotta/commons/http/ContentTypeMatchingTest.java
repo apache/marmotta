@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.apache.marmotta.commons.http.test;
+package org.apache.marmotta.commons.http;
 
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.LMFHttpUtils;

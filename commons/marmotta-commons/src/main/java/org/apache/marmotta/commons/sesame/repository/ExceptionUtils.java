@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.sesame.commons.repository;
+package org.apache.marmotta.commons.sesame.repository;
 
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;

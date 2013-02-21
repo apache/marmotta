@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package at.newmedialab.sesame.commons.http;
+package org.apache.marmotta.commons.http;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assume.assumeThat;
@@ -21,6 +21,7 @@ import static org.junit.Assume.assumeThat;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.marmotta.commons.http.ETagGenerator;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

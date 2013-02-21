@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package org.apache.marmotta.commons.http.test;
+package org.apache.marmotta.commons.http;
 
 import static org.junit.Assert.assertEquals;
 

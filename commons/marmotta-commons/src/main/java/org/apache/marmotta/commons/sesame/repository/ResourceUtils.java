@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.sesame.commons.repository;
+package org.apache.marmotta.commons.sesame.repository;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;

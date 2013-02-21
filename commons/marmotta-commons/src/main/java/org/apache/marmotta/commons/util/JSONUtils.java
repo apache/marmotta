@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.sesame.commons.util;
+package org.apache.marmotta.commons.util;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;

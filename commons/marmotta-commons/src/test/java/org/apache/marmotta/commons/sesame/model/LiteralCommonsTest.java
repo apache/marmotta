@@ -1,4 +1,4 @@
-package at.newmedialab.sesame.commons.model;
+package org.apache.marmotta.commons.sesame.model;
 /*
  * Copyright (c) 2012 Salzburg Research.
  *
@@ -15,8 +15,10 @@ package at.newmedialab.sesame.commons.model;
  *  limitations under the License.
  */
 
-import at.newmedialab.sesame.commons.util.DateUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openrdf.model.Literal;
