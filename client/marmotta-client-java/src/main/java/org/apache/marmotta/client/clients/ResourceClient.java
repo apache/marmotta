@@ -167,8 +167,8 @@ public class ResourceClient {
                         return null;
                     }
                 case 406:
-                    log.error("server does not support metadata type application/json for resource {}, cannot retrieve", uri);
-                    throw new ContentFormatException("server does not support metadata type application/json for resource "+uri);
+                    log.error("server does not support metadata type application/rdf+json for resource {}, cannot retrieve", uri);
+                    throw new ContentFormatException("server does not support metadata type application/rdf+json for resource "+uri);
                 case 404:
                     log.error("resource {} does not exist, cannot retrieve", uri);
                     throw new NotFoundException("resource "+uri+" does not exist, cannot retrieve");
