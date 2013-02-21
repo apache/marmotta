@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.sesame.filter.statement;
-
-import org.apache.marmotta.sesame.filter.SesameFilter;
-import org.openrdf.model.Statement;
+package org.apache.marmotta.commons.sesame.filter;
 
 /**
- * Add file description here!
+ * Generic superinterface for all filters. Only defines an accept() method.
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public interface StatementFilter extends SesameFilter<Statement> {
+public interface SesameFilter<T> {
+
+    /**
+     * Return false in case the filter does not accept the object passed as argument, true otherwise.
+     *
+     *
+     * @param object the object to check
+     * @return true in case the object is accepted, false otherwise
+     */
+    public boolean accept(T object);
+
 }

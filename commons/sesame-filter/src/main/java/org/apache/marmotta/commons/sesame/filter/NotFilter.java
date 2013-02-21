@@ -13,22 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.sesame.filter;
+package org.apache.marmotta.commons.sesame.filter;
 
 /**
- * Generic superinterface for all filters. Only defines an accept() method.
+ * Negates a wrapped filter
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public interface SesameFilter<T> {
+public class NotFilter<T> implements SesameFilter<T> {
+
+    SesameFilter<T> wrapped;
+
+    public NotFilter(SesameFilter<T> wrapped) {
+        this.wrapped = wrapped;
+    }
 
     /**
-     * Return false in case the filter does not accept the object passed as argument, true otherwise.
+     * Return false in case the filter does not accept the resource passed as argument, true otherwise.
      *
-     *
-     * @param object the object to check
-     * @return true in case the object is accepted, false otherwise
+     * @param resource
+     * @return
      */
-    public boolean accept(T object);
-
+    @Override
+    public boolean accept(T resource) {
+        return !wrapped.accept(resource);
+    }
 }

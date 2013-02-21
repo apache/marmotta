@@ -13,35 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.sesame.filter.resource;
-
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+package org.apache.marmotta.commons.sesame.filter;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A filter only accepting resources starting with a given prefix.
+ * A filter combining several filters and requiring that all filters match.
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class UriPrefixFilter implements ResourceFilter {
+public class AllOfFilter<T> implements SesameFilter<T> {
+
+    private Set<SesameFilter<T>> children;
 
 
-    private Set<String> prefixes;
-
-    public UriPrefixFilter(String... prefixes) {
-        this(new HashSet<String>(Arrays.asList(prefixes)));
+    public AllOfFilter(SesameFilter<T>... children) {
+        this(new HashSet<SesameFilter<T>>(Arrays.asList(children)));
     }
 
-    public UriPrefixFilter(Set<String> prefixes) {
-        this.prefixes = prefixes;
-    }
-
-    public Set<String> getPrefixes() {
-        return prefixes;
+    public AllOfFilter(Set<SesameFilter<T>> children) {
+        this.children = children;
     }
 
     /**
@@ -52,21 +45,14 @@ public class UriPrefixFilter implements ResourceFilter {
      * @return
      */
     @Override
-    public boolean accept(Resource resource) {
-        if(! (resource instanceof URI)) {
-            return false;
-        }
+    public boolean accept(T resource) {
 
-        URI uri = (URI) resource;
-
-        for(String prefix : prefixes) {
-            if(uri.stringValue().startsWith(prefix)) {
-                return true;
+        for(SesameFilter<T> filter : children) {
+            if(!filter.accept(resource)) {
+                return false;
             }
         }
 
-
-        return false;
+        return true;
     }
-
 }

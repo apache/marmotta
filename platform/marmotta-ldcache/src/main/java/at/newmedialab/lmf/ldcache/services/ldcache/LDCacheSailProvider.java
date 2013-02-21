@@ -22,12 +22,13 @@ import kiwi.core.api.triplestore.NotifyingSailProvider;
 import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.events.ConfigurationChangedEvent;
 import kiwi.core.model.filter.LMFLocalFilter;
+
+import org.apache.marmotta.commons.sesame.filter.NotFilter;
 import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;
 import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
-import org.apache.marmotta.sesame.filter.NotFilter;
 import org.openrdf.model.Resource;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.helpers.NotifyingSailWrapper;

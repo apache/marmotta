@@ -17,6 +17,9 @@
 package org.apache.marmotta.ldcache.sail.test;
 
 import info.aduna.iteration.CloseableIteration;
+
+import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
+import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -25,8 +28,6 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;
 import org.apache.marmotta.ldcache.sail.test.dummy.DummyEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
-import org.apache.marmotta.sesame.filter.resource.ResourceFilter;
-import org.apache.marmotta.sesame.filter.resource.UriPrefixFilter;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;

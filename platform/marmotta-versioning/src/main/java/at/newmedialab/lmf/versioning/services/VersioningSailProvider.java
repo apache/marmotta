@@ -19,14 +19,15 @@ import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.api.triplestore.TransactionalSailProvider;
 import kiwi.core.events.ConfigurationChangedEvent;
+
+import org.apache.marmotta.commons.sesame.filter.AllOfFilter;
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
+import org.apache.marmotta.commons.sesame.filter.statement.StatementFilter;
 import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.repository.SnapshotRepositoryConnection;
 import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
-import org.apache.marmotta.sesame.filter.AllOfFilter;
-import org.apache.marmotta.sesame.filter.SesameFilter;
-import org.apache.marmotta.sesame.filter.statement.StatementFilter;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.repository.RepositoryException;

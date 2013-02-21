@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.sesame.filter;
+package org.apache.marmotta.commons.sesame.filter.statement;
+
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
+import org.openrdf.model.Statement;
 
 /**
- * Negates a wrapped filter
+ * Add file description here!
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public class NotFilter<T> implements SesameFilter<T> {
-
-    SesameFilter<T> wrapped;
-
-    public NotFilter(SesameFilter<T> wrapped) {
-        this.wrapped = wrapped;
-    }
-
-    /**
-     * Return false in case the filter does not accept the resource passed as argument, true otherwise.
-     *
-     * @param resource
-     * @return
-     */
-    @Override
-    public boolean accept(T resource) {
-        return !wrapped.accept(resource);
-    }
+public interface StatementFilter extends SesameFilter<Statement> {
 }

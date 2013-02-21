@@ -16,8 +16,9 @@
 package org.apache.marmotta.ldcache.sail;
 
 import info.aduna.iteration.CloseableIteration;
+
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.ldcache.services.LDCache;
-import org.apache.marmotta.sesame.filter.SesameFilter;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.sesame.filter;
+package org.apache.marmotta.commons.sesame.filter;
 
 /**
  * A filter that accepts everything.

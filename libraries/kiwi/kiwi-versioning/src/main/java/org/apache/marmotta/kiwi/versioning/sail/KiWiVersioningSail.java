@@ -15,6 +15,8 @@
  */
 package org.apache.marmotta.kiwi.versioning.sail;
 
+import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
@@ -25,8 +27,6 @@ import org.apache.marmotta.kiwi.versioning.api.VersioningSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence;
-import org.apache.marmotta.sesame.filter.AlwaysTrueFilter;
-import org.apache.marmotta.sesame.filter.SesameFilter;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
