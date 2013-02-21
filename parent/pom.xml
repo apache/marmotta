@@ -241,6 +241,25 @@
                                         <ignore />
                                     </action>
                                 </pluginExecution>
+                                <pluginExecution>
+                                	<pluginExecutionFilter>
+                                		<groupId>
+                                			org.apache.felix
+                                		</groupId>
+                                		<artifactId>
+                                			maven-scr-plugin
+                                		</artifactId>
+                                		<versionRange>
+                                			[1.8.0,)
+                                		</versionRange>
+                                		<goals>
+                                			<goal>scr</goal>
+                                		</goals>
+                                	</pluginExecutionFilter>
+                                	<action>
+                                		<ignore></ignore>
+                                	</action>
+                                </pluginExecution>
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
