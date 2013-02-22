@@ -62,7 +62,7 @@ public interface ConfigurationService {
 
     /**
      * Get the base URI of the system.
-     * The base URI is used by the LMF to create local resource URIs. In this way, all LMF resources
+     * The base URI is used by the LMF to create local resource URIs. In this way, all Apache Marmotta resources
      * are "Linked Open Data" compatible.
      * 
      * The base URI is calculated based on the request URI given by the user.
@@ -457,7 +457,7 @@ public interface ConfigurationService {
     ServletContext getServletContext();
 
     /**
-     * Get a string describing the type and version of the application server running the LMF.
+     * Get a string describing the type and version of the application server running the Apache Marmotta.
      *
      * @return
      */

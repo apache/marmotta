@@ -44,7 +44,7 @@ import java.io.IOException;
 public class PrefixCC implements PrefixProvider {
 
     private static final String URI = "http://prefix.cc/";
-    private static final String USER_AGENT = "LMF Prefix";
+    private static final String USER_AGENT = "Apache Marmotta Prefix";
 
     @Inject
     private Logger log;

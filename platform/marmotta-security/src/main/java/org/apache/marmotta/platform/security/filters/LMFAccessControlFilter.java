@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * A filter providing basic access control for the Linked Media Framework. Makes use of container-managed
+ * A filter providing basic access control for the Apache Marmotta. Makes use of container-managed
  * user authentication and security roles as provided e.g. by the {@link org.apache.marmotta.platform.user.filters.LMFAuthenticationFilter}.
  * <p/>
  * Whenever an HTTP request is received, the filter runs through the configured security constraints and checks

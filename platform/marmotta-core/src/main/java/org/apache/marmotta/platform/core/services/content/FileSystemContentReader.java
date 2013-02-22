@@ -147,7 +147,7 @@ public class FileSystemContentReader implements ContentReader {
                             log.warn("accessing file {}, which is outside the default directory; this is a potential security risk; " +
                                     "enable the option content.filesystem.secure in the configuration",path);
                         } else {
-                            throw new FileNotFoundException("the file "+path+" is outside the LMF default directory location; access denied");
+                            throw new FileNotFoundException("the file "+path+" is outside the Apache Marmotta default directory location; access denied");
                         }
                     }
 

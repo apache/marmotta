@@ -56,7 +56,7 @@ public class CachingServiceImpl implements CachingService {
     public void initialize() {
         URL url = this.getClass().getClassLoader().getResource("ehcache-lmf.xml");
 
-        log.info("LMF Caching Service starting up (configuration at {}) ...",url);
+        log.info("Apache Marmotta Caching Service starting up (configuration at {}) ...",url);
         manager = CacheManager.create(url);
     }
 
@@ -125,7 +125,7 @@ public class CachingServiceImpl implements CachingService {
 
     @PreDestroy
     public void destroy() {
-        log.info("LMF Caching Service shutting down ...");
+        log.info("Apache Marmotta Caching Service shutting down ...");
         /*
         for(String cacheName : manager.getCacheNames()) {
             log.info("Disposing cache {} ...",cacheName);
@@ -134,6 +134,6 @@ public class CachingServiceImpl implements CachingService {
         }
          */
         manager.shutdown();
-        log.info("LMF Caching Service shut down successfully.");
+        log.info("Apache Marmotta Caching Service shut down successfully.");
     }
 }

@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A client that supports accessing the configuration webservice of the Linked Media Framework. May be used for
+ * A client that supports accessing the configuration webservice of the Apache Marmotta. May be used for
  * retrieving as well as changing properties.
  *
  * <p/>

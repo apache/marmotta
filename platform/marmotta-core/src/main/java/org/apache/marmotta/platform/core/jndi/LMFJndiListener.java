@@ -41,7 +41,7 @@ public class LMFJndiListener implements ServletContextListener {
      */
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        log.info("JNDI: registering LMF JNDI implementation ...");
+        log.info("JNDI: registering Apache Marmotta JNDI implementation ...");
         try {
             NamingManager.setInitialContextFactoryBuilder(new LMFInitialContextFactoryBuilder());
         } catch (NamingException e) {

@@ -76,7 +76,7 @@ public class KiWiResourceFilter implements Filter {
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("LMF Resource Filter {} starting up ... ", configurationService.getConfiguration("kiwi.version"));
+        log.info("Apache Marmotta Resource Filter {} starting up ... ", configurationService.getConfiguration("kiwi.version"));
 
 
         // initialise filter chain and sort it according to priority

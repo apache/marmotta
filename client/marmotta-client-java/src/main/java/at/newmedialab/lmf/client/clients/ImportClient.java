@@ -41,7 +41,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This client class provides support for importing ontologies in various formats into the Linked Media Framework.
+ * This client class provides support for importing ontologies in various formats into the Apache Marmotta.
  * 
  * Author: Sebastian Schaffert
  */

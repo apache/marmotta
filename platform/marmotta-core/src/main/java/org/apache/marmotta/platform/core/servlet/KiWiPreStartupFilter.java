@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * This filter is evaluated when the LMF system is accessed for the very first time using an HTTP client (e.g. a
+ * This filter is evaluated when the Apache Marmotta system is accessed for the very first time using an HTTP client (e.g. a
  * browser). Its purpose is to set configuration variables that cannot be determined when the server is starting
  * up because they need information how the server is accessed. In particular, it will set the following
  * configuration variables in case the system has not yet been configured:
@@ -100,7 +100,7 @@ public class KiWiPreStartupFilter implements Filter {
                 if(baseUrl != null) {
                     startupService.startupHost(baseUrl, baseUrl);
                 } else {
-                    log.error("could not determine host name; cannot startup LMF");
+                    log.error("could not determine host name; cannot startup Apache Marmotta");
                 }
             }
         }

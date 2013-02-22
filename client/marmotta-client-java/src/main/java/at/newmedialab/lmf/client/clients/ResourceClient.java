@@ -185,7 +185,7 @@ public class ResourceClient {
 
     /**
      * Update (overwrite) the metadata of the resource identified by the given uri. The metadata will be serialised to
-     * application/json and sent to the Linked Media Framework server. The given metadata will override any metadata
+     * application/json and sent to the Apache Marmotta server. The given metadata will override any metadata
      * for the resource already existing on the server. The resource has to exist or be created before updating, otherwise
      * the method will throw a NotFoundException.
      *

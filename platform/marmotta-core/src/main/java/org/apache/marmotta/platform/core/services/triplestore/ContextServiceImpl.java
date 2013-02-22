@@ -47,8 +47,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The context (named graphs in LMF, formerly "knowledge space" in KiWi) service offers convenience
- * functions for working with LMF Contexts. Low level manipulation of contexts is offered by
+ * The context (named graphs in Apache Marmotta, formerly "knowledge space" in KiWi) service offers convenience
+ * functions for working with Apache Marmotta Contexts. Low level manipulation of contexts is offered by
  * TripleStore.
  * <p/>
  * A context or (other name) named graph represent a own graph for a separation of the whole

@@ -44,7 +44,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * A web service for exporting data from the LMF triple store
+ * A web service for exporting data from the Apache Marmotta triple store
  * <p/>
  * Author: Sebastian Schaffert
  */
@@ -77,7 +77,7 @@ public class ExportWebService {
 
     /**
      * Download the triple data contained in the (optional) context (named graph) in the format specified by the Accept
-     * header of the request. If the context parameter is not given, all triples contained in this LMF installation will
+     * header of the request. If the context parameter is not given, all triples contained in this Apache Marmotta installation will
      * be written to the response.
      *
      * @param types          list of MIME types the client accepts
@@ -88,7 +88,7 @@ public class ExportWebService {
      *
      * @HTTP 200 in case the triples were written to the output stream correctly
      * @HTTP 404 in case the context passed as argument could not be found
-     * @HTTP 406 in case the LMF could not find any matching serializer for the MIME types in the Accept header
+     * @HTTP 406 in case the Apache Marmotta could not find any matching serializer for the MIME types in the Accept header
      */
     @GET
     @Path("/download")

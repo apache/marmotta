@@ -186,7 +186,7 @@ public class LMFAuthenticationFilter implements LMFHttpFilter {
             //                } else if("DIGEST".equalsIgnoreCase(configurationService.getStringConfiguration("security.method"))) {
             //                    authMethod = "Digest";
         }
-        String authRealm  = configurationService.getStringConfiguration("security.realm","Linked Media Framework");
+        String authRealm  = configurationService.getStringConfiguration("security.realm","Apache Marmotta");
 
         httpResponse.setHeader("WWW-Authenticate",authMethod + " realm=\""+authRealm+"\"");
     }

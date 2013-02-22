@@ -41,9 +41,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This service unifies the different steps in the LMF startup. It offers several methods
+ * This service unifies the different steps in the Apache Marmotta startup. It offers several methods
  * for triggering the different startup sequences and can be used e.g. by web applications or
- * embedded applications to initiate LMF startup. Note that the LMF Startup requires a running
+ * embedded applications to initiate Apache Marmotta startup. Note that the Apache Marmotta Startup requires a running
  * CDI/Weld environment before being used.
  * <p/>
  * Author: Sebastian Schaffert
@@ -79,14 +79,14 @@ public class LMFStartupService {
     }
 
     /**
-     * Startup the LMF Configuration. This method ensures that the LMF home directory is created and the
+     * Startup the Apache Marmotta Configuration. This method ensures that the Apache Marmotta home directory is created and the
      * ConfigurationService is properly initialised. It must be called first in the startup sequence.
      * The parameters lmfHome and configurationOverride can be used to override the default settings
-     * of the LMF.
+     * of the Apache Marmotta.
      *
-     * @param lmfHome                 home directory of the LMF instance (may be null, in which case the default will be used)
+     * @param lmfHome                 home directory of the Apache Marmotta instance (may be null, in which case the default will be used)
      * @param configurationOverride   configuration options that should override the default values from default-config.properties (may be null)
-     * @param context                 the servlet context the LMF is running in (may be null)
+     * @param context                 the servlet context the Apache Marmotta is running in (may be null)
      */
     public void startupConfiguration(String lmfHome, Configuration configurationOverride, ServletContext context) {
         lock.lock();
@@ -96,14 +96,14 @@ public class LMFStartupService {
 
         try {
             if(configurationStarted) {
-                log.warn("LMF Startup: configuration already started; ignoring second request");
+                log.warn("Apache Marmotta Startup: configuration already started; ignoring second request");
                 return;
             }
 
             ModuleConfiguration coreConfiguration = moduleService.getModuleConfiguration(this.getClass());
 
             if(coreConfiguration.hasBuildInfo()) {
-                log.info("LMF Core Version {} starting up ... ", coreConfiguration.getModuleVersion());
+                log.info("Apache Marmotta Core Version {} starting up ... ", coreConfiguration.getModuleVersion());
                 log.info("Build Information:");
                 log.info(" - Build User: {}", coreConfiguration.getBuildUser());
                 log.info(" - Build Host: {}", coreConfiguration.getBuildHost());
@@ -112,7 +112,7 @@ public class LMFStartupService {
                 log.info(" - Revision:   {}:{}", coreConfiguration.getBuildRevisionNumber(), coreConfiguration.getBuildRevisionHash());
                 versionNumber = coreConfiguration.getModuleVersion();
             } else {
-                log.info("LMF Core (Development Version) starting up ... ");
+                log.info("Apache Marmotta Core (Development Version) starting up ... ");
             }
 
             String kiwiHome = lmfHome;
@@ -138,7 +138,7 @@ public class LMFStartupService {
                                 log.info("Configured working directory {} from servlet context parameter kiwi.home",kiwiHome);
                             }
                         } else {
-                            log.error("could not determine LMF home directory, please set the environment variable LMF_HOME");
+                            log.error("could not determine Apache Marmotta home directory, please set the environment variable LMF_HOME");
                         }
                     }
                 }
@@ -184,15 +184,15 @@ public class LMFStartupService {
 
 
     /**
-     * Start up the LMF server environment. This method ensures that the base URL for the host (used by the
+     * Start up the Apache Marmotta server environment. This method ensures that the base URL for the host (used by the
      * web interface) and the context (used for creating local Linked Data URIs) is properly set and thus
      * the services depending on this configuration can start up. This method must be called in the second
-     * phase of LMF startup, i.e. when the configuration service is already configured.
+     * phase of Apache Marmotta startup, i.e. when the configuration service is already configured.
      * <p/>
      * The method expects a host URL and a context URL to be given. In case the context URL is not given,
      * it will be the same as the host URL.
      *
-     * @param hostUrl     the URL of the host, used as based URL for building the LMF web interface
+     * @param hostUrl     the URL of the host, used as based URL for building the Apache Marmotta web interface
      * @param contextUrl  the base URL used to construct Linked Data resources
      */
     public void startupHost(String hostUrl, String contextUrl) {
@@ -200,7 +200,7 @@ public class LMFStartupService {
 
         try {
             if(hostStarted) {
-                log.warn("LMF Startup: host already started; ignoring subsequent startup requests");
+                log.warn("Apache Marmotta Startup: host already started; ignoring subsequent startup requests");
                 return;
             }
  
@@ -238,7 +238,7 @@ public class LMFStartupService {
     }
 
     public void shutdown() {
-        log.info("LMF Core shutting down ...");
+        log.info("Apache Marmotta Core shutting down ...");
     }
 
 }

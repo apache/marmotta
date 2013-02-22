@@ -48,7 +48,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 /**
- * Offers access to the Sesame repository underlying this LMF instance. The activation/deactivation methods
+ * Offers access to the Sesame repository underlying this Apache Marmotta instance. The activation/deactivation methods
  * of this service make sure the repository is properly initialised and shut down.
  * <p/>
  * Usage: to access the triple store properly through Sesame, you should follow the following
@@ -120,7 +120,7 @@ public class SesameServiceImpl implements SesameService {
      */
     @Override
     public synchronized void initialise() {
-        log.info("LMF Sesame Repository Service starting up ...");
+        log.info("Apache Marmotta Sesame Repository Service starting up ...");
 
         if(repository != null) {
             log.warn("RDF repository has already been initialized");
@@ -186,7 +186,7 @@ public class SesameServiceImpl implements SesameService {
         try {
             repository.initialize();
         } catch (RepositoryException e) {
-            log.error("error while initialising LMF Sesame repository",e);
+            log.error("error while initialising Apache Marmotta Sesame repository",e);
         }
     }
 
@@ -197,11 +197,11 @@ public class SesameServiceImpl implements SesameService {
     @PreDestroy
     public synchronized void shutdown() {
         if(repository != null) {
-            log.info("LMF Sesame Repository Service shutting down ...");
+            log.info("Apache Marmotta Sesame Repository Service shutting down ...");
             try {
                 repository.shutDown();
             } catch (RepositoryException e) {
-                log.error("error while shutting down LMF Sesame repository",e);
+                log.error("error while shutting down Apache Marmotta Sesame repository",e);
             }
             repository = null;
         }

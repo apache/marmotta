@@ -37,7 +37,7 @@ public class LMFContextFactory implements InitialContextFactory {
     private static LMFContextFactory instance;
 
     public LMFContextFactory() {
-        log.info("JNDI: initialising LMF Context Factory ...");
+        log.info("JNDI: initialising Apache Marmotta Context Factory ...");
 
     }
 

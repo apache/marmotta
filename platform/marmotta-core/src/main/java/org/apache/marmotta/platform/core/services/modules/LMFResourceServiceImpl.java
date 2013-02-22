@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A service for resolving and accessing resources contained in the LMF modules. The resource service takes care
+ * A service for resolving and accessing resources contained in the Apache Marmotta modules. The resource service takes care
  * of retrieving, caching and refreshing resources from the appropriate locations.
  * <p/>
  * Note that the resource service is not to be confused with the RDF resources maintained by the server. It is

@@ -74,9 +74,9 @@ public class KiWiPostStartupFilter implements Filter {
         }
 
         if(moduleConfiguration.hasBuildInfo()) {
-            log.warn("LMF Core Version {} has started up successfully!", moduleConfiguration.getModuleVersion());
+            log.warn("Apache Marmotta Core Version {} has started up successfully!", moduleConfiguration.getModuleVersion());
         } else {
-            log.warn("LMF Core (Development Version) has started up successfully!");
+            log.warn("Apache Marmotta Core (Development Version) has started up successfully!");
         }
 
         log.warn("You can access the system now at the URL {}", "http://"+configurationService.getServerName()+":"+configurationService.getServerPort()+configurationService.getServerContext()+"/");

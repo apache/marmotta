@@ -38,7 +38,7 @@ import java.util.Arrays;
 /**
  * This filter checks for OPTIONS requests. If the response returned by the other filters throws an exception
  * org.jboss.resteasy.spi.DefaultOptionsMethodException, the filter writes to the response the default options
- * of the LMF system, in particular the following headers:
+ * of the Apache Marmotta system, in particular the following headers:
  *
  * Access-Control-Allow-Origin: * (or as configured in config.properties)
  * Access-Control-Allow-Methods: POST, PUT, GET, DELETE, HEAD, OPTIONS

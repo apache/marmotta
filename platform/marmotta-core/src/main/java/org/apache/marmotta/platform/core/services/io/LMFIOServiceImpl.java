@@ -46,7 +46,7 @@ public class LMFIOServiceImpl implements LMFIOService {
 
     @PostConstruct
     public void initialise() {
-        log.info("initialising LMF I/O service ...");
+        log.info("initialising Apache Marmotta I/O service ...");
 
         parserRegistry = RDFParserRegistry.getInstance();
 

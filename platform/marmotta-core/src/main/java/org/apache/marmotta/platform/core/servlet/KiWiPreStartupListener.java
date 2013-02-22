@@ -22,7 +22,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
- * This filter is executed first in the startup chain. It initialises the LMF system variables if necessary and
+ * This filter is executed first in the startup chain. It initialises the Apache Marmotta system variables if necessary and
  * starts up the configuration service.
  */
 public class KiWiPreStartupListener implements ServletContextListener {

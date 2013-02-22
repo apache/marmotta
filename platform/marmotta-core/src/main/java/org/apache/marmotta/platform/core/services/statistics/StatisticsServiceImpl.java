@@ -57,7 +57,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      */
     @Inject
     protected void initModules(@Any Instance<StatisticsModule> modules) {
-        log.info("LMF StatisticsService starting up ...");
+        log.info("Apache Marmotta StatisticsService starting up ...");
 
         this.modules = new LinkedHashMap<String,StatisticsModule>();
 

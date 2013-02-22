@@ -187,7 +187,7 @@ public class SystrayListener implements LifecycleListener {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     TaskDialogs.inform(null,
-                            "About Linked Media Framework",
+                            "About Apache Marmotta",
                             "LMF 2.3.1-SNAPSHOT, (c)2012 Salzburg NewMediaLab \n" +
                             "Visit http://code.google.com/p/lmf/ for details");
                 }
@@ -207,7 +207,7 @@ public class SystrayListener implements LifecycleListener {
             // load icon image
             try {
                 Image image = ImageIO.read(SystrayListener.class.getResource("lmf1.png"));
-                icon = new TrayIcon(image,"Linked Media Framework",popup);
+                icon = new TrayIcon(image,"Apache Marmotta",popup);
                 icon.setImageAutoSize(true);
                 tray.add(icon);
 

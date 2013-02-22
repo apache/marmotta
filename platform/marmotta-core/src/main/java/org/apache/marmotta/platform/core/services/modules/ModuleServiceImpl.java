@@ -223,7 +223,7 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     /**
-     * Get the path relative to the LMF base URL where the web contents of this URL can be found
+     * Get the path relative to the Apache Marmotta base URL where the web contents of this URL can be found
      *
      * @param moduleName
      * @return

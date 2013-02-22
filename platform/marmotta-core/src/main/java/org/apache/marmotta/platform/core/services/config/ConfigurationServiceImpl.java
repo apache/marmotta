@@ -124,18 +124,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public void initialize(String lmfHome, Configuration override) {
         initialising = true;
 
-        log.info("LMF Configuration Service starting up ...");
+        log.info("Apache Marmotta Configuration Service starting up ...");
 
         if(isTomcat7()) {
-            log.info("LMF running on Apache Tomcat 7.x");
+            log.info("Apache Marmotta running on Apache Tomcat 7.x");
         } else if(isTomcat6()) {
-            log.info("LMF running on Apache Tomcat <= 6.x");
+            log.info("Apache Marmotta running on Apache Tomcat <= 6.x");
         } else if(isJetty7()) {
-            log.info("LMF running on Jetty 7.x");
+            log.info("Apache Marmotta running on Jetty 7.x");
         } else if(isJetty6()) {
-            log.info("LMF running on Jetty <= 6.x");
+            log.info("Apache Marmotta running on Jetty <= 6.x");
         } else {
-            log.info("LMF running on an unknown servlet container");
+            log.info("Apache Marmotta running on an unknown servlet container");
         }
 
 
@@ -257,7 +257,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         save();
 
-        log.info("LMF Configuration Service: initialisation completed");
+        log.info("Apache Marmotta Configuration Service: initialisation completed");
 
         configurationInitEvent.fire(new ConfigurationServiceInitEvent());
 
@@ -266,10 +266,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Initialise the LMF Logging Configuration.
+     * Initialise the Apache Marmotta Logging Configuration.
      * <ul>
      * <li>if the logback.xml file does not yet exist, create it based on the logback-template.xml resource</li>
-     * <li>reiniaialise the logging framework using the logback.xml file from LMF Home, overwriting the basic logging configured on startup</li>
+     * <li>reiniaialise the logging framework using the logback.xml file from Apache Marmotta Home, overwriting the basic logging configured on startup</li>
      * <li>in case debug.enabled = true, set the root logger level to debug, otherwise set it to info</li>
      * </ul>
      */
@@ -291,7 +291,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-        log.warn("LOGGING: Switching to LMF logging configuration; further output will be found in {}/log/*.log", getWorkDir());
+        log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}/log/*.log", getWorkDir());
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         try {
             JoranConfigurator configurator = new JoranConfigurator();
@@ -314,7 +314,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private void initDatabaseConfiguration() {
         if (!config.getBoolean("kiwi.setup.database")) {
-            log.info("SETUP: Setting up initial LMF database configuration ...");
+            log.info("SETUP: Setting up initial Apache Marmotta database configuration ...");
             String db_type = config.getString("database.type", "h2");
             config.setProperty("database.h2.url", "jdbc:h2:" + getWorkDir() + "/db/lmf;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
             if (db_type.equals("h2")) {

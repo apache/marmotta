@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  Manage the system configuration of the LMF Server. Provides methods for displaying and updating the configuration
+ *  Manage the system configuration of the Apache Marmotta Server. Provides methods for displaying and updating the configuration
  *  values.
  */
 @ApplicationScoped

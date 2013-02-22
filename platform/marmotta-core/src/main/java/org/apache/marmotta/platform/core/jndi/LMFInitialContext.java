@@ -47,7 +47,7 @@ public class LMFInitialContext extends LMFContext {
     public LMFInitialContext(Hashtable<Object, Object> env) {
         super(env);
 
-        log.info("JNDI: creating LMF Initial Context ...");
+        log.info("JNDI: creating Apache Marmotta Initial Context ...");
 
         try {
             Context ctx_java = this.createSubcontext("java:comp");
@@ -57,7 +57,7 @@ public class LMFInitialContext extends LMFContext {
             registerSolrHome(ctx_env);
 
         } catch (NamingException e) {
-            log.error("error while initialising LMF JNDI context",e);
+            log.error("error while initialising Apache Marmotta JNDI context",e);
         }
 
         KiWiContext.showJndiContext(this,"java:", "");

@@ -164,7 +164,7 @@ public class RDFImporterImpl implements Importer {
 
         final String taskName = String.format("RDF Importer Task %d (%s)", ++taskCounter, f.getName());
         Task task = taskManagerService.createSubTask(taskName,"Importer");
-        task.updateMessage("importing data into LMF repository");
+        task.updateMessage("importing data into Apache Marmotta repository");
         task.updateDetailMessage("format", f.getDefaultMIMEType());
         task.updateDetailMessage("baseUri", baseUri);
 
@@ -194,7 +194,7 @@ public class RDFImporterImpl implements Importer {
                     c_import.commit();
                     c_import.close();
                 }
-                log.debug("imported data into LMF repository ({} ms)", System.currentTimeMillis() - timer);
+                log.debug("imported data into Apache Marmotta repository ({} ms)", System.currentTimeMillis() - timer);
 
             } else {
                 log.error("could not load ontology; InputStream was null");
@@ -229,7 +229,7 @@ public class RDFImporterImpl implements Importer {
         String baseUri = configurationService.getBaseUri() + "resource/";
         final String taskName = String.format("RDF Importer Task %d (%s)", ++taskCounter, f.getName());
         Task task = taskManagerService.createSubTask(taskName, "Importer");
-        task.updateMessage("importing data into LMF repository");
+        task.updateMessage("importing data into Apache Marmotta repository");
         task.updateDetailMessage("format", f.getDefaultMIMEType());
         task.updateDetailMessage("baseURI", baseUri);
 
@@ -260,7 +260,7 @@ public class RDFImporterImpl implements Importer {
                     c_import.close();
                 }
 
-                log.info("imported data into LMF repository ({} ms)", System.currentTimeMillis() - timer);
+                log.info("imported data into Apache Marmotta repository ({} ms)", System.currentTimeMillis() - timer);
 
             } else {
                 log.error("could not load ontology; InputStream was null");

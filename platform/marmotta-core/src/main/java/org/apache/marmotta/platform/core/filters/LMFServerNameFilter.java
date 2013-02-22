@@ -97,7 +97,7 @@ public class LMFServerNameFilter implements LMFHttpFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse resp = (HttpServletResponse)response;
-        resp.setHeader("Server","Linked Media Framework/"+moduleConfiguration.getModuleVersion() + " (build "+moduleConfiguration.getBuildRevisionNumber()+")");
+        resp.setHeader("Server","Apache Marmotta/"+moduleConfiguration.getModuleVersion() + " (build "+moduleConfiguration.getBuildRevisionNumber()+")");
 
         chain.doFilter(request,response);
     }

@@ -18,7 +18,7 @@ package at.newmedialab.lmf.client.model.content;
 import java.io.InputStream;
 
 /**
- * Representation of media content returned by the Linked Media Framework. Provides an InputStream for
+ * Representation of media content returned by the Apache Marmotta. Provides an InputStream for
  * reading the media data. Optionally, supports reading all content into a byte array.
  *
  * <p/>
