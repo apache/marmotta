@@ -392,35 +392,35 @@ are "on" and "off".  The default is "autodetect".
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Pattern"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Pattern"
            statistics="true"
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Field"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Field"
            statistics="true"
            maxElementsInMemory="10000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Rule"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Rule"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Rule.body"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Rule.body"
            statistics="true"
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Program"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Program"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"

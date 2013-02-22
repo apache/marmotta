@@ -19,7 +19,7 @@ package at.newmedialab.lmf.client.test.ldpath;
 import at.newmedialab.lmf.client.ClientConfiguration;
 import at.newmedialab.lmf.client.clients.LDPathClient;
 import at.newmedialab.lmf.client.model.rdf.RDFNode;
-import at.newmedialab.lmf.ldpath.webservices.LDPathWebService;
+import org.apache.marmotta.platform.ldpath.webservices.LDPathWebService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.exception.io.LMFImportException;
 import org.apache.marmotta.platform.core.test.base.JettyLMF;

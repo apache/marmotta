@@ -28,7 +28,7 @@
 
     <logger name="org.apache.marmotta.platform.core" level="INFO" />
 
-    <logger name="kiwi.reasoner" level="INFO" />
+    <logger name="org.apache.marmotta.platform.reasoner" level="INFO" />
 
 	<logger name="at.newmedialab.sn" level="TRACE" />
     
