@@ -45,12 +45,12 @@
         <class>org.apache.marmotta.platform.core.model.rdf.KiWiNamespace</class>
         <class>org.apache.marmotta.platform.core.model.rdf.KiWiTriple</class>
 
-        <class>at.newmedialab.lmf.user.model.UserAccount</class>
+        <class>org.apache.marmotta.platform.user.model.UserAccount</class>
         <!--<class>kiwi.core.model.user.KiWiUser</class>-->
         <!--<class>kiwi.core.model.user.KiWiGroup</class>-->
         <!--<class>kiwi.core.model.user.Role</class>-->
 
-        <class>at.newmedialab.lmf.versioning.model.Version</class>
+        <class>org.apache.marmotta.platform.versioning.model.Version</class>
 
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>

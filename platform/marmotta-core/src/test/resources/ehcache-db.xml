@@ -355,7 +355,7 @@ are "on" and "off".  The default is "autodetect".
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="at.newmedialab.lmf.versioning.model.Version"
+    <cache name="org.apache.marmotta.platform.versioning.model.Version"
            statistics="true"
            maxElementsInMemory="10000"
            eternal="true"
@@ -377,7 +377,7 @@ are "on" and "off".  The default is "autodetect".
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="at.newmedialab.lmf.user.model.UserAccount"
+    <cache name="org.apache.marmotta.platform.user.model.UserAccount"
            statistics="true"
            maxElementsInMemory="100"
            eternal="false"

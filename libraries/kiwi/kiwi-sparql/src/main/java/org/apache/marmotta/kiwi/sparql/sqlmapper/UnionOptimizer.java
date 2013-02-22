@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.sparql.services.evaluation.sql;
+package org.apache.marmotta.platform.sparql.services.evaluation.sql;
 
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;

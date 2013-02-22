@@ -78,7 +78,7 @@
         <target>
             <!-- The destination package of your generated classes (within the
           destination directory) -->
-            <packageName>at.newmedialab.lmf.sparql.model</packageName>
+            <packageName>org.apache.marmotta.platform.sparql.model</packageName>
 
             <!-- The destination directory of your generated classes -->
             <directory>/Users/sschaffe/Documents/projects/LMF/lmf-sparql/src/main/java</directory>

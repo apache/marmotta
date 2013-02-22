@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.sparql.services.evaluation.sql;
+package org.apache.marmotta.platform.sparql.services.evaluation.sql;
 
-import at.newmedialab.lmf.sparql.model.Tables;
-import at.newmedialab.lmf.sparql.model.tables.TNodes;
-import at.newmedialab.lmf.sparql.model.tables.TTriples;
-import at.newmedialab.lmf.sparql.model.tables.records.RNodes;
+import org.apache.marmotta.platform.sparql.model.Tables;
+import org.apache.marmotta.platform.sparql.model.tables.TNodes;
+import org.apache.marmotta.platform.sparql.model.tables.TTriples;
+import org.apache.marmotta.platform.sparql.model.tables.records.RNodes;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import at.newmedialab.sesame.commons.util.HashUtils;
