@@ -15,8 +15,8 @@
     limitations under the License.
 
 --%>
-<%@ page import="kiwi.core.api.config.ConfigurationService" %>
-<%@ page import="kiwi.core.util.KiWiContext" %>
+<%@ page import="org.apache.marmotta.platform.core.api.config.ConfigurationService" %>
+<%@ page import="org.apache.marmotta.platform.core.util.KiWiContext" %>
 <%--
   ~ Copyright (c) 2012 Salzburg Research.
   ~

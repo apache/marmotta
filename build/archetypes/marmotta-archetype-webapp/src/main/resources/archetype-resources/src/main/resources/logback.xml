@@ -46,7 +46,7 @@
         </encoder>
     </appender>
 
-    <logger name="kiwi.core" level="INFO" />
+    <logger name="org.apache.marmotta.platform.core" level="INFO" />
 
     <logger name="kiwi.reasoner" level="INFO" />
 

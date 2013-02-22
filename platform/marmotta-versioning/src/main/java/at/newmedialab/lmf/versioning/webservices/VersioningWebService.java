@@ -21,9 +21,9 @@ import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
 
 import info.aduna.iteration.Iterations;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.events.SystemStartupEvent;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.openrdf.model.URI;

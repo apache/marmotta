@@ -17,11 +17,11 @@
 -->
 <configuration scan="true">
 
-    <define name="LMF_HOME" class="kiwi.core.services.logging.LMFLogbackPropertyDefiner">
+    <define name="LMF_HOME" class="org.apache.marmotta.platform.core.services.logging.LMFLogbackPropertyDefiner">
         <key>kiwi.home</key>
     </define>
 
-    <define name="DEBUG" class="kiwi.core.services.logging.LMFLogbackPropertyDefiner">
+    <define name="DEBUG" class="org.apache.marmotta.platform.core.services.logging.LMFLogbackPropertyDefiner">
         <key>debug.enabled</key>
     </define>
 

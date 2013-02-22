@@ -22,7 +22,7 @@ import at.newmedialab.lmf.ldpath.api.LDPathService;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
 
-import kiwi.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;

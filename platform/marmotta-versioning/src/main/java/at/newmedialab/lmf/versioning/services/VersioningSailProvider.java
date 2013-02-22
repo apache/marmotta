@@ -15,10 +15,10 @@
  */
 package at.newmedialab.lmf.versioning.services;
 
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.api.triplestore.TransactionalSailProvider;
-import kiwi.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 
 import org.apache.marmotta.commons.sesame.filter.AllOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;

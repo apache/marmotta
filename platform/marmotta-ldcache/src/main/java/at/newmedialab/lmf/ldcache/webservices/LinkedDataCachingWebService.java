@@ -18,7 +18,7 @@ package at.newmedialab.lmf.ldcache.webservices;
 import at.newmedialab.lmf.ldcache.api.endpoint.LinkedDataEndpointService;
 import at.newmedialab.lmf.ldcache.services.ldcache.LDCacheSailProvider;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import kiwi.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.model.ClientResponse;

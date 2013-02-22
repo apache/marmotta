@@ -16,8 +16,8 @@
 package at.newmedialab.lmf.sparql.api.sparql;
 
 import at.newmedialab.lmf.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import kiwi.core.exception.InvalidArgumentException;
-import kiwi.core.exception.LMFException;
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
+import org.apache.marmotta.platform.core.exception.LMFException;
 import org.openrdf.model.Value;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -50,7 +50,7 @@ public interface SparqlService {
      * @param booleanWriter the writer to use to write boolean query results
      * @param graphWriter
      * @throws InvalidArgumentException if the output format or query language are undefined
-     * @throws kiwi.core.exception.LMFException if the query evaluation fails
+     * @throws org.apache.marmotta.platform.core.exception.LMFException if the query evaluation fails
      */
 	public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, LMFException, MalformedQueryException, QueryEvaluationException;
 

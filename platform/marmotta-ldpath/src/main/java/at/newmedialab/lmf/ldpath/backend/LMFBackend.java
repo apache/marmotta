@@ -15,7 +15,7 @@
  */
 package at.newmedialab.lmf.ldpath.backend;
 
-import kiwi.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
 import org.slf4j.Logger;

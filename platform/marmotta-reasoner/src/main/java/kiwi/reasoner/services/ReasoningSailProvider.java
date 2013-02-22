@@ -16,10 +16,10 @@
 package kiwi.reasoner.services;
 
 import info.aduna.iteration.CloseableIteration;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.api.triplestore.TransactionalSailProvider;
-import kiwi.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
 import org.apache.marmotta.kiwi.reasoner.model.program.Program;

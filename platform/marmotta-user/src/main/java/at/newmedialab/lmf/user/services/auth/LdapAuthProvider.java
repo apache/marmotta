@@ -17,7 +17,7 @@ package at.newmedialab.lmf.user.services.auth;
 
 import at.newmedialab.lmf.user.api.AuthenticationProvider;
 import at.newmedialab.lmf.user.model.UserAccount;
-import kiwi.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;

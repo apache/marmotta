@@ -18,7 +18,7 @@ package at.newmedialab.lmf.versioning.io;
 import at.newmedialab.lmf.versioning.utils.MementoUtils;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
-import kiwi.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import freemarker.template.Template;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.kiwi.versioning.model.Version;

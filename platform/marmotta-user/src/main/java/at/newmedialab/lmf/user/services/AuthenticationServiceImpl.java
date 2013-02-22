@@ -19,9 +19,9 @@ import at.newmedialab.lmf.user.api.AccountService;
 import at.newmedialab.lmf.user.api.AuthenticationProvider;
 import at.newmedialab.lmf.user.api.AuthenticationService;
 import at.newmedialab.lmf.user.model.UserAccount;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.events.ConfigurationChangedEvent;
-import kiwi.core.util.CdiUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.util.CdiUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;

@@ -31,19 +31,19 @@
 
     <persistence-unit name="KiWi" transaction-type="RESOURCE_LOCAL">
 
-        <class>kiwi.core.model.rdf.KiWiNode</class>
-        <class>kiwi.core.model.rdf.KiWiResource</class>
-        <class>kiwi.core.model.rdf.KiWiUriResource</class>
-        <class>kiwi.core.model.rdf.KiWiAnonResource</class>
-        <class>kiwi.core.model.rdf.KiWiLiteral</class>
-        <class>kiwi.core.model.rdf.KiWiStringLiteral</class>
-        <class>kiwi.core.model.rdf.KiWiIntLiteral</class>
-        <class>kiwi.core.model.rdf.KiWiDoubleLiteral</class>
-        <class>kiwi.core.model.rdf.KiWiTextContentLiteral</class>
-        <class>kiwi.core.model.rdf.KiWiMediaContentLiteral</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiNode</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiResource</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiUriResource</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiAnonResource</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiLiteral</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiStringLiteral</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiIntLiteral</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiDoubleLiteral</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiTextContentLiteral</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiMediaContentLiteral</class>
 
-        <class>kiwi.core.model.rdf.KiWiNamespace</class>
-        <class>kiwi.core.model.rdf.KiWiTriple</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiNamespace</class>
+        <class>org.apache.marmotta.platform.core.model.rdf.KiWiTriple</class>
 
         <class>at.newmedialab.lmf.user.model.UserAccount</class>
         <!--<class>kiwi.core.model.user.KiWiUser</class>-->

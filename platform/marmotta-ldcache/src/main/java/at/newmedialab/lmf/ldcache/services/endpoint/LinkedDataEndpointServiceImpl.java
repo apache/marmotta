@@ -17,7 +17,7 @@ package at.newmedialab.lmf.ldcache.services.endpoint;
 
 import at.newmedialab.lmf.ldcache.api.endpoint.LinkedDataEndpointService;
 import com.google.common.base.Joiner;
-import kiwi.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.LMFHttpUtils;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;

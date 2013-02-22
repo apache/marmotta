@@ -18,7 +18,7 @@ package at.newmedialab.lmf.user.services;
 import at.newmedialab.lmf.user.api.UserConfigurationService;
 import at.newmedialab.lmf.user.model.UserAccount;
 import com.google.common.base.Preconditions;
-import kiwi.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.MapConfiguration;

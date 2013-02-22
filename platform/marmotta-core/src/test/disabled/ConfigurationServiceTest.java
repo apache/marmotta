@@ -13,10 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package kiwi.core.test.config;
+package org.apache.marmotta.platform.core.test.config;
 
 import com.google.common.collect.Lists;
-import kiwi.core.test.base.LMFBaseTest;
+import org.apache.marmotta.platform.core.test.base.LMFBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
 

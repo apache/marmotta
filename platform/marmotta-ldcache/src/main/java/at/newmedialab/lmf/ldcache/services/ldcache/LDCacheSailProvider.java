@@ -16,12 +16,12 @@
 package at.newmedialab.lmf.ldcache.services.ldcache;
 
 import at.newmedialab.lmf.ldcache.api.endpoint.LinkedDataEndpointService;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.http.HttpClientService;
-import kiwi.core.api.triplestore.NotifyingSailProvider;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.events.ConfigurationChangedEvent;
-import kiwi.core.model.filter.LMFLocalFilter;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.http.HttpClientService;
+import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.model.filter.LMFLocalFilter;
 
 import org.apache.marmotta.commons.sesame.filter.NotFilter;
 import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;

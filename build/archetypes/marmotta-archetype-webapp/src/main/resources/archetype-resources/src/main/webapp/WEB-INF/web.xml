@@ -27,7 +27,7 @@
 
     <!-- enable LMF custom JNDI implementation -->
     <listener>
-        <listener-class>kiwi.core.jndi.LMFJndiListener</listener-class>
+        <listener-class>org.apache.marmotta.platform.core.jndi.LMFJndiListener</listener-class>
     </listener>
 
 
@@ -39,7 +39,7 @@
 
     <!-- Initialise the KiWi system -->
     <listener>
-        <listener-class>kiwi.core.servlet.KiWiPreStartupListener</listener-class>
+        <listener-class>org.apache.marmotta.platform.core.servlet.KiWiPreStartupListener</listener-class>
     </listener>
 
 
@@ -61,7 +61,7 @@
     -->
     <filter>
         <filter-name>KiWiPreStartupFilter</filter-name>
-        <filter-class>kiwi.core.servlet.KiWiPreStartupFilter</filter-class>
+        <filter-class>org.apache.marmotta.platform.core.servlet.KiWiPreStartupFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>KiWiPreStartupFilter</filter-name>
@@ -73,7 +73,7 @@
     <!-- handle OPTIONS requests -->
     <filter>
       <filter-name>LMFOptionsFilter</filter-name>
-      <filter-class>kiwi.core.servlet.LMFOptionsFilter</filter-class>
+      <filter-class>org.apache.marmotta.platform.core.servlet.LMFOptionsFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>LMFOptionsFilter</filter-name>
@@ -85,7 +85,7 @@
     <!-- Serve static resources from file system and from .jar files of the respective modules -->
     <filter>
         <filter-name>KiWiResourceFilter</filter-name>
-        <filter-class>kiwi.core.servlet.KiWiResourceFilter</filter-class>
+        <filter-class>org.apache.marmotta.platform.core.servlet.KiWiResourceFilter</filter-class>
         <init-param>
             <!-- cache resources loaded from module jar files? -->
             <param-name>kiwi.resourceCaching</param-name>
@@ -100,7 +100,7 @@
 
     <filter>
       <filter-name>KiWiTransactionFilter</filter-name>
-      <filter-class>kiwi.core.servlet.KiWiTransactionFilter</filter-class>
+      <filter-class>org.apache.marmotta.platform.core.servlet.KiWiTransactionFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>KiWiTransactionFilter</filter-name>
@@ -113,7 +113,7 @@
     <!-- H2 Configuration -->
     <filter>
       <filter-name>KiWiH2ConsoleFilter</filter-name>
-      <filter-class>kiwi.core.servlet.KiWiH2ConsoleFilter</filter-class>
+      <filter-class>org.apache.marmotta.platform.core.servlet.KiWiH2ConsoleFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>KiWiH2ConsoleFilter</filter-name>
@@ -157,7 +157,7 @@
         </filter-class>
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>kiwi.core.webservices.CoreApplication</param-value>
+            <param-value>org.apache.marmotta.platform.core.webservices.CoreApplication</param-value>
         </init-param>
     </filter>
 
@@ -174,7 +174,7 @@
     <filter>
         <filter-name>KiWiPostStartupFilter</filter-name>
         <filter-class>
-            kiwi.core.servlet.KiWiPostStartupFilter
+            org.apache.marmotta.platform.core.servlet.KiWiPostStartupFilter
         </filter-class>
     </filter>
     <filter-mapping>

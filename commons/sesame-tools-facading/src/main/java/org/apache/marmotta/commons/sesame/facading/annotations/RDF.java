@@ -29,14 +29,14 @@ import java.lang.annotation.Target;
  * The TripleStore class checks for <b>RDF</b> annotations
  * during persist and load. <br>
  * Classes using this annotation must currently implement the
- * {@link kiwi.core.model.rdf.KiWiEntity} interface, so that the
+ * {@link org.apache.marmotta.platform.core.model.rdf.KiWiEntity} interface, so that the
  * KnowledgeSpace has access to the resource associated with the
  * entity.<br>
  * This is a runtime annotation and it is applicable on fields
  * and on getter methods.<br>
  *
  * @author Sebastian Schaffert
- * @see kiwi.core.model.rdf.KiWiEntity
+ * @see org.apache.marmotta.platform.core.model.rdf.KiWiEntity
  */
 
 @Retention(RetentionPolicy.RUNTIME)

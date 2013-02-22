@@ -22,8 +22,8 @@ import java.sql.SQLException;
 /**
  * An iterator over query results. Allows lazy iterating over the database results of the query.
  *
- * @see kiwi.core.api.persistence.ResultIterator
- * @see kiwi.core.services.persistence.PersistenceServiceImpl#evaluateNamedCursorQuery(String, java.util.Map)
+ * @see org.apache.marmotta.platform.core.api.persistence.ResultIterator
+ * @see org.apache.marmotta.platform.core.services.persistence.PersistenceServiceImpl#evaluateNamedCursorQuery(String, java.util.Map)
  *
  * <p/>
  * Author: Sebastian Schaffert

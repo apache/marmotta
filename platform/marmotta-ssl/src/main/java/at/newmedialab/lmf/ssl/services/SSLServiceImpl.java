@@ -16,7 +16,7 @@
 package at.newmedialab.lmf.ssl.services;
 
 import at.newmedialab.lmf.ssl.api.SSLService;
-import kiwi.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;

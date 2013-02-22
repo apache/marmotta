@@ -23,10 +23,10 @@ import at.newmedialab.lmf.sparql.services.sparqlio.sparqljson.SPARQLBooleanJSONW
 import at.newmedialab.lmf.sparql.services.sparqlio.sparqljson.SPARQLResultsJSONWriter;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.exception.InvalidArgumentException;
-import kiwi.core.exception.LMFException;
-import kiwi.core.util.WebServiceUtil;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
+import org.apache.marmotta.platform.core.exception.LMFException;
+import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.LMFHttpUtils;

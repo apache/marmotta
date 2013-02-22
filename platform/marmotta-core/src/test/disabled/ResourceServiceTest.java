@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package kiwi.core.test.resource;
+package org.apache.marmotta.platform.core.test.resource;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 import com.googlecode.jatl.Html;
-import kiwi.core.test.base.LMFBaseTest;
+import org.apache.marmotta.platform.core.test.base.LMFBaseTest;
 import org.hamcrest.Matchers;
 import org.junit.Ignore;
 import org.junit.Rule;

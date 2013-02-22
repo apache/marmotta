@@ -16,7 +16,7 @@
 package at.newmedialab.lmf.ldpath.model.functions;
 
 import at.newmedialab.lmf.ldpath.api.LMFLDPathFunction;
-import kiwi.core.api.content.ContentService;
+import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;

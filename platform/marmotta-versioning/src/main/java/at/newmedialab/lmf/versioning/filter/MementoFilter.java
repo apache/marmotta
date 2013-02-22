@@ -16,8 +16,8 @@
 package at.newmedialab.lmf.versioning.filter;
 
 import at.newmedialab.lmf.versioning.utils.MementoUtils;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.modules.LMFHttpFilter;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;

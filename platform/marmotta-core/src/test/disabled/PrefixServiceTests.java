@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package kiwi.core.services.prefix;
+package org.apache.marmotta.platform.core.services.prefix;
 
-import kiwi.core.api.prefix.PrefixService;
+import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -17,12 +17,12 @@ package at.newmedialab.lmf.sparql.services.evaluation.sql;
 
 import at.newmedialab.sesame.commons.model.LiteralCommons;
 import info.aduna.iteration.CloseableIteration;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.persistence.PersistenceService;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.events.DBInitialisationEvent;
-import kiwi.core.model.rdf.KiWiNode;
-import kiwi.core.services.sail.LMFEvaluationStrategy;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.persistence.PersistenceService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.events.DBInitialisationEvent;
+import org.apache.marmotta.platform.core.model.rdf.KiWiNode;
+import org.apache.marmotta.platform.core.services.sail.LMFEvaluationStrategy;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jooq.Cursor;
 import org.jooq.Record;

@@ -16,7 +16,7 @@
 package at.newmedialab.lmf.versioning.io;
 
 import at.newmedialab.lmf.versioning.utils.MementoUtils;
-import kiwi.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.openrdf.model.Resource;

@@ -17,11 +17,11 @@ package at.newmedialab.lmf.user.filters;
 
 import at.newmedialab.lmf.user.api.AuthenticationService;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.modules.LMFHttpFilter;
-import kiwi.core.api.user.UserService;
-import kiwi.core.exception.UserExistsException;
-import kiwi.core.exception.security.AccessDeniedException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
+import org.apache.marmotta.platform.core.api.user.UserService;
+import org.apache.marmotta.platform.core.exception.UserExistsException;
+import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
 import org.jboss.resteasy.spi.UnhandledException;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
  *   authentication information, and it sets the current user for all activities carried out in the thread.</li>
  * <li>In case authentication fails, no user information is added to the request.</li>
  * </ul>
- * The filter also listens for {@link kiwi.core.exception.security.AccessDeniedException} thrown by
+ * The filter also listens for {@link org.apache.marmotta.platform.core.exception.security.AccessDeniedException} thrown by
  * subsequent filters or servlets in the chain, in which case it returns an HTTP authorization request to the
  * client. In particular, this functionality is used by the LMFAccessControlFilter to restrict access to
  * services based on security profiles.

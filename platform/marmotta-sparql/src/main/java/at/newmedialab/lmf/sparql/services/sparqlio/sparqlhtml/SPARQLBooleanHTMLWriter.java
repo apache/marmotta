@@ -15,8 +15,8 @@
  */
 package at.newmedialab.lmf.sparql.services.sparqlio.sparqlhtml;
 
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.util.KiWiContext;
 import org.jdom2.Document;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;

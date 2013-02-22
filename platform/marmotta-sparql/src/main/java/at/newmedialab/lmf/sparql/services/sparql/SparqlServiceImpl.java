@@ -17,10 +17,10 @@ package at.newmedialab.lmf.sparql.services.sparql;
 
 import at.newmedialab.lmf.sparql.api.sparql.SparqlService;
 import at.newmedialab.lmf.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.exception.InvalidArgumentException;
-import kiwi.core.exception.LMFException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
+import org.apache.marmotta.platform.core.exception.LMFException;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.openrdf.model.Value;
 import org.openrdf.query.*;

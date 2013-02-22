@@ -1,4 +1,4 @@
-package kiwi.core.services.prefix;
+package org.apache.marmotta.platform.core.services.prefix;
 
 import org.junit.After;
 import org.junit.Before;

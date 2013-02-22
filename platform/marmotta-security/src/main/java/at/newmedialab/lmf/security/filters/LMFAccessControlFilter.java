@@ -16,10 +16,10 @@
 package at.newmedialab.lmf.security.filters;
 
 import at.newmedialab.lmf.security.api.SecurityService;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.modules.LMFHttpFilter;
-import kiwi.core.api.user.UserService;
-import kiwi.core.exception.security.AccessDeniedException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
+import org.apache.marmotta.platform.core.api.user.UserService;
+import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;

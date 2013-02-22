@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package kiwi.core.test.sparql;
+package org.apache.marmotta.platform.core.test.sparql;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
@@ -22,7 +22,7 @@ import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 import com.google.common.io.Resources;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.parsing.Parser;
-import kiwi.core.test.base.LMFBaseTest;
+import org.apache.marmotta.platform.core.test.base.LMFBaseTest;
 import org.junit.Rule;
 import org.junit.Test;
 

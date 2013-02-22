@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package kiwi.core.test.base;
+package org.apache.marmotta.platform.core.test.base;
 
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.lang.RandomStringUtils;

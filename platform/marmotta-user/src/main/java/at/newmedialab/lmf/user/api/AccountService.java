@@ -16,7 +16,7 @@
 package at.newmedialab.lmf.user.api;
 
 import at.newmedialab.lmf.user.model.UserAccount;
-import kiwi.core.model.user.KiWiUser;
+import org.apache.marmotta.platform.core.model.user.KiWiUser;
 import org.openrdf.model.URI;
 
 import java.util.List;

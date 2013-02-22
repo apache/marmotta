@@ -15,7 +15,7 @@
  */
 package at.newmedialab.lmf.ssl.api;
 
-import kiwi.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
 
 /**
  * A service managing the configuration of the SSL context needed for establishing SSL connections.

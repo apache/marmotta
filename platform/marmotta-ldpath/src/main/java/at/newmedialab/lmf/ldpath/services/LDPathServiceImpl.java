@@ -17,7 +17,7 @@ package at.newmedialab.lmf.ldpath.services;
 
 import at.newmedialab.lmf.ldpath.api.LDPathService;
 import at.newmedialab.lmf.ldpath.api.LMFLDPathFunction;
-import kiwi.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;

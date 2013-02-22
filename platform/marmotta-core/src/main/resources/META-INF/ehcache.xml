@@ -348,7 +348,7 @@ are "on" and "off".  The default is "autodetect".
             memoryStoreEvictionPolicy="LRU"
             />
 
-    <cache name="kiwi.core.model.rdf.KiWiNode"
+    <cache name="org.apache.marmotta.platform.core.model.rdf.KiWiNode"
            statistics="true"
            maxElementsInMemory="10000"
            eternal="true"
@@ -363,21 +363,21 @@ are "on" and "off".  The default is "autodetect".
            memoryStoreEvictionPolicy="LRU"/>
 
 
-    <cache name="kiwi.core.model.rdf.KiWiNamespace"
+    <cache name="org.apache.marmotta.platform.core.model.rdf.KiWiNamespace"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.core.model.user.KiWiGroup"
+    <cache name="org.apache.marmotta.platform.core.model.user.KiWiGroup"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.core.model.user.KiWiUser"
+    <cache name="org.apache.marmotta.platform.core.model.user.KiWiUser"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"
@@ -385,7 +385,7 @@ are "on" and "off".  The default is "autodetect".
            memoryStoreEvictionPolicy="LRU"/>
 
 
-    <cache name="kiwi.core.model.rdf.KiWiTriple"
+    <cache name="org.apache.marmotta.platform.core.model.rdf.KiWiTriple"
            statistics="true"
            maxElementsInMemory="100000"
            eternal="true"
