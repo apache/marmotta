@@ -15,8 +15,8 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import org.apache.marmotta.platform.core.startup.LMFStartupService;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
+import org.apache.marmotta.platform.core.util.CDIContext;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -27,7 +27,7 @@ import javax.servlet.ServletContextListener;
  */
 public class KiWiPreStartupListener implements ServletContextListener {
 
-    private LMFStartupService lmfStartupService;
+    private MarmottaStartupService lmfStartupService;
 
     /**
      * * Notification that the web application initialization
@@ -40,7 +40,7 @@ public class KiWiPreStartupListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
 
         if(lmfStartupService == null) {
-            lmfStartupService = KiWiContext.getInstance(LMFStartupService.class);
+            lmfStartupService = CDIContext.getInstance(MarmottaStartupService.class);
         }
 
         lmfStartupService.startupConfiguration(null,null,sce.getServletContext());

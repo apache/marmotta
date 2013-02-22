@@ -40,7 +40,7 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
-import org.apache.marmotta.platform.core.api.io.LMFIOService;
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
@@ -83,7 +83,7 @@ public class MetaWebService {
     private SesameService sesameService;
 
     @Inject
-    private LMFIOService kiWiIOService;
+    private MarmottaIOService kiWiIOService;
 
     /**
      * Returns remote resource metadata with the given uri and an accepted

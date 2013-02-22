@@ -16,7 +16,7 @@
 package org.apache.marmotta.platform.core.model.filter;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.openrdf.model.BNode;
@@ -29,20 +29,20 @@ import org.openrdf.model.URI;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFLocalFilter implements ResourceFilter {
+public class MarmottaLocalFilter implements ResourceFilter {
 
     private ConfigurationService configurationService;
 
-    public LMFLocalFilter() {
-        configurationService = KiWiContext.getInstance(ConfigurationService.class);
+    public MarmottaLocalFilter() {
+        configurationService = CDIContext.getInstance(ConfigurationService.class);
     }
 
 
-    private static LMFLocalFilter instance = null;
+    private static MarmottaLocalFilter instance = null;
 
-    public static LMFLocalFilter getInstance() {
+    public static MarmottaLocalFilter getInstance() {
         if(instance == null) {
-            instance = new LMFLocalFilter();
+            instance = new MarmottaLocalFilter();
         }
         return instance;
     }

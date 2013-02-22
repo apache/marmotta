@@ -31,12 +31,12 @@ import java.util.List;
  * 
  * @author Sebastian Schaffert
  */
-public class KiWiContext {
+public class CDIContext {
     private static BeanManager beanManager;
 
     private static final List<String> beanManagerLocations;
 
-    private static Logger log = LoggerFactory.getLogger(KiWiContext.class);
+    private static Logger log = LoggerFactory.getLogger(CDIContext.class);
 
     static {
         beanManagerLocations = new ArrayList<String>();

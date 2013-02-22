@@ -19,7 +19,7 @@ package org.apache.marmotta.platform.core.test.base;
 import org.apache.marmotta.platform.core.servlet.KiWiResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -82,7 +82,7 @@ public class JettyLMF extends AbstractLMF {
 
 
         // register the LMF filters
-        FilterHolder resourceFilter = new FilterHolder(KiWiContext.getInstance(KiWiResourceFilter.class));
+        FilterHolder resourceFilter = new FilterHolder(CDIContext.getInstance(KiWiResourceFilter.class));
         resourceFilter.setInitParameter("kiwi.resourceCaching", "true");
         ctx.addFilter(resourceFilter,"/*", Handler.DEFAULT);
 

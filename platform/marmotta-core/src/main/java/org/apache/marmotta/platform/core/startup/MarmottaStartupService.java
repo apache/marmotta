@@ -29,12 +29,12 @@ import javax.servlet.ServletContext;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.api.ui.LMFSystrayLink;
+import org.apache.marmotta.platform.core.api.ui.MarmottaSystrayLink;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.SesameStartupEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
@@ -49,11 +49,11 @@ import org.slf4j.LoggerFactory;
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
-public class LMFStartupService {
+public class MarmottaStartupService {
 
     private static final String DEFAULT_KIWI_VERSION = "undefined";
 
-    private Logger log  = LoggerFactory.getLogger(LMFStartupService.class);
+    private Logger log  = LoggerFactory.getLogger(MarmottaStartupService.class);
 
     @Inject
     private ConfigurationService configurationService;
@@ -120,25 +120,30 @@ public class LMFStartupService {
             if(kiwiHome != null) {
 
             } else {
-                kiwiHome = System.getProperty("kiwi.home");
+                kiwiHome = System.getProperty("marmotta.home");
 
                 if(kiwiHome != null) {
-                    log.info("Configured working directory {} from system property kiwi.home",kiwiHome);
+                    log.info("Configured working directory {} from system property marmotta.home",kiwiHome);
                 } else {
-                    kiwiHome = System.getenv("LMF_HOME");
+                    kiwiHome = System.getenv("MARMOTTA_HOME");
                     if(kiwiHome != null) {
-                        log.info("Configured working directory {} from environment variable LMF_HOME",kiwiHome);
+                        log.info("Configured working directory {} from environment variable MARMOTTA_HOME",kiwiHome);
                     } else {
-                        kiwiHome = System.getenv("KIWI_HOME");
+                        kiwiHome = System.getenv("LMF_HOME");
                         if(kiwiHome != null) {
-                            log.info("Configured working directory {} from environment variable KIWI_HOME",kiwiHome);
-                        } else if (context != null) {
-                            kiwiHome = context.getInitParameter("kiwi.home");
-                            if(kiwiHome != null) {
-                                log.info("Configured working directory {} from servlet context parameter kiwi.home",kiwiHome);
-                            }
+                            log.info("Configured working directory {} from environment variable LMF_HOME",kiwiHome);
                         } else {
-                            log.error("could not determine Apache Marmotta home directory, please set the environment variable LMF_HOME");
+                            kiwiHome = System.getenv("KIWI_HOME");
+                            if(kiwiHome != null) {
+                                log.info("Configured working directory {} from environment variable KIWI_HOME",kiwiHome);
+                            } else if (context != null) {
+                                kiwiHome = context.getInitParameter("marmotta.home");
+                                if(kiwiHome != null) {
+                                    log.info("Configured working directory {} from servlet context parameter marmotta.home",kiwiHome);
+                                }
+                            } else {
+                                log.error("could not determine Apache Marmotta home directory, please set the environment variable MARMOTTA_HOME");
+                            }
                         }
                     }
                 }
@@ -164,10 +169,10 @@ public class LMFStartupService {
                 Map<String, String> demoLinks  = new HashMap<String, String>();
                 Map<String, String> adminLinks = new HashMap<String, String>();
 
-                for(LMFSystrayLink link : KiWiContext.getInstances(LMFSystrayLink.class)) {
-                    if(link.getSection() == LMFSystrayLink.Section.DEMO) {
+                for(MarmottaSystrayLink link : CDIContext.getInstances(MarmottaSystrayLink.class)) {
+                    if(link.getSection() == MarmottaSystrayLink.Section.DEMO) {
                         demoLinks.put(link.getLabel(), link.getLink());
-                    } else if(link.getSection() == LMFSystrayLink.Section.ADMIN) {
+                    } else if(link.getSection() == MarmottaSystrayLink.Section.ADMIN) {
                         adminLinks.put(link.getLabel(), link.getLink());
                     }
                 }
@@ -203,7 +208,7 @@ public class LMFStartupService {
                 log.warn("Apache Marmotta Startup: host already started; ignoring subsequent startup requests");
                 return;
             }
- 
+
             // check whether this is a first-time initialization
             boolean isSetup = configurationService.getBooleanConfiguration("kiwi.setup.host");
 
@@ -219,12 +224,12 @@ public class LMFStartupService {
 
             // trigger startup of the sesame service once the hostname is ready (we need the correct URIs for
             // default, cache and inferred context)
-            SesameService sesameService  = KiWiContext.getInstance(SesameService.class);
+            SesameService sesameService  = CDIContext.getInstance(SesameService.class);
             sesameService.initialise();
             sesameEvent.fire(new SesameStartupEvent());
 
             // trigger startup of the user service once the sesame service is ready
-            UserService   userService    = KiWiContext.getInstance(UserService.class);
+            UserService   userService    = CDIContext.getInstance(UserService.class);
 
             userService.createDefaultUsers();
 

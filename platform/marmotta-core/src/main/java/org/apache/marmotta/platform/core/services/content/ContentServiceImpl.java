@@ -20,7 +20,7 @@ import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.content.ContentWriter;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.exception.LMFException;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.openrdf.model.Resource;
 import org.slf4j.Logger;
@@ -308,7 +308,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     @Override
-    public boolean deleteContent(Resource resource) throws LMFException {
+    public boolean deleteContent(Resource resource) throws MarmottaException {
         // iterate over all possible writers; if the pattern matches, try to store the content and return
         for(Pattern p : writerMap.keySet()) {
             if(p.matcher(resource.toString()).matches()) {

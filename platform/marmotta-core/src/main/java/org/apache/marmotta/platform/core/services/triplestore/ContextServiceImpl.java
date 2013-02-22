@@ -23,7 +23,7 @@ import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
-import org.apache.marmotta.platform.core.exception.io.LMFImportException;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.qualifiers.kspace.*;
 import org.apache.commons.lang.StringUtils;
 import org.openrdf.model.Resource;
@@ -324,7 +324,7 @@ public class ContextServiceImpl implements ContextService {
                 URI ctx = conn.getValueFactory().createURI(context);
                 int imported = importService.importData(is, format, userService.getCurrentUser(), ctx);
                 return imported > 0;
-            } catch (LMFImportException e) {
+            } catch (MarmottaImportException e) {
                 log.error(e.getMessage(), e);
             } finally {
                 conn.commit();

@@ -22,7 +22,7 @@ package org.apache.marmotta.platform.core.api.ui;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public interface LMFSystrayLink {
+public interface MarmottaSystrayLink {
 
     public enum Section {
         ADMIN, DEMO

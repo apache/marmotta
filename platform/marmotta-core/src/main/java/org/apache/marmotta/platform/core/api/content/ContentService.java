@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.platform.core.api.content;
 
-import org.apache.marmotta.platform.core.exception.LMFException;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.openrdf.model.Resource;
 
@@ -116,6 +116,6 @@ public interface ContentService {
      *
      * @param resource the resource for which to delete the content
      */
-	public boolean deleteContent(Resource resource) throws LMFException;
+	public boolean deleteContent(Resource resource) throws MarmottaException;
 
 }

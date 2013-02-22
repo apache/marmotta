@@ -15,13 +15,13 @@
  */
 package org.apache.marmotta.platform.user.services;
 
+import org.apache.marmotta.platform.core.util.CDIUtils;
 import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.api.AuthenticationProvider;
 import org.apache.marmotta.platform.user.api.AuthenticationService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.util.CdiUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -64,13 +64,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         final String prov = configurationService.getStringConfiguration("user.auth.provider", DEFAULT_AUTH_PROVIDER_NAMED);
 
-        Instance<AuthenticationProvider> selected = CdiUtils.selectNamed(providers, prov);
+        Instance<AuthenticationProvider> selected = CDIUtils.selectNamed(providers, prov);
         if (selected.isAmbiguous()) {
             authenticationProvider = selected.iterator().next();
             log.error("multiple candidates for AuthenticationProvider '{}' found. Chose randomly!", prov);
         } else if (selected.isUnsatisfied()) {
             log.error("no candidate for AuthenticationProvider '{}' found, falling back to default", prov);
-            authenticationProvider = CdiUtils.selectNamed(providers, DEFAULT_AUTH_PROVIDER_NAMED).iterator().next();
+            authenticationProvider = CDIUtils.selectNamed(providers, DEFAULT_AUTH_PROVIDER_NAMED).iterator().next();
         } else {
             authenticationProvider = selected.get();
         }

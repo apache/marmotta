@@ -26,9 +26,9 @@ import java.util.Hashtable;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
+public class MarmottaInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
 
-    public LMFInitialContextFactoryBuilder() {
+    public MarmottaInitialContextFactoryBuilder() {
     }
 
     @Override
@@ -36,7 +36,7 @@ public class LMFInitialContextFactoryBuilder implements InitialContextFactoryBui
         // check if we are inside the LMF or outside; inside the LMF we return our own context factory,
         // outside the system default
         try {
-            return (InitialContextFactory) Thread.currentThread().getContextClassLoader().loadClass(LMFContextFactory.class.getName()).getMethod("getInstance").invoke(null);
+            return (InitialContextFactory) Thread.currentThread().getContextClassLoader().loadClass(MarmottaContextFactory.class.getName()).getMethod("getInstance").invoke(null);
         } catch (Exception e) {
             String factoryName = Context.INITIAL_CONTEXT_FACTORY;
 

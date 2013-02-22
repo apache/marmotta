@@ -17,7 +17,7 @@ package org.apache.marmotta.platform.core.services.importer;
 
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.importer.Importer;
-import org.apache.marmotta.platform.core.exception.io.LMFImportException;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -68,22 +68,22 @@ public class ImportServiceImpl implements ImportService{
 	}
 
 	@Override
-	public int importData(URL url, String format, Resource user, URI context) throws LMFImportException {
+	public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException {
 		return getImporterInstance(format).importData(url,format,user,context);
 	}
 
 	@Override
-	public int importData(InputStream is, String format, Resource user, URI context) throws LMFImportException {
+	public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException {
 		return getImporterInstance(format).importData(is,format,user,context);
 	}
 
 	@Override
-	public int importData(Reader reader, String format, Resource user, URI context) throws LMFImportException {
+	public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException {
 		return getImporterInstance(format).importData(reader,format,user,context);
 	}
 
-	private Importer getImporterInstance(String type) throws LMFImportException {
-		if(!importerMap.containsKey(type)) throw new LMFImportException("no importer defined for type "+type);
+	private Importer getImporterInstance(String type) throws MarmottaImportException {
+		if(!importerMap.containsKey(type)) throw new MarmottaImportException("no importer defined for type "+type);
 		return importerMap.get(type);
 	}
 }

@@ -26,7 +26,7 @@ import java.net.URL;
  *
  * User: sschaffe
  */
-public interface LMFResourceService {
+public interface MarmottaResourceService {
 
 
     /**

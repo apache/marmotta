@@ -22,26 +22,26 @@ package org.apache.marmotta.platform.core.exception.io;
  *			(stephanie.stroka@salzburgresearch.at)
  *
  */
-public class LMFImportException extends Exception {
+public class MarmottaImportException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8157237047910758443L;
 
-	public LMFImportException() {
+	public MarmottaImportException() {
 		super();
 	}
 
-	public LMFImportException(String message, Throwable cause) {
+	public MarmottaImportException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public LMFImportException(String message) {
+	public MarmottaImportException(String message) {
 		super(message);
 	}
 
-	public LMFImportException(Throwable cause) {
+	public MarmottaImportException(Throwable cause) {
 		super(cause);
 	}
 

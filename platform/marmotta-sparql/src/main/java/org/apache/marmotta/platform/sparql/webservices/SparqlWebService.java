@@ -15,6 +15,7 @@
  */
 package org.apache.marmotta.platform.sparql.webservices;
 
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
@@ -25,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
-import org.apache.marmotta.platform.core.exception.LMFException;
 import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
@@ -300,7 +300,7 @@ public class SparqlWebService {
         } catch(UpdateExecutionException e) {
             log.error("update execution threw an exception",e);
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (LMFException e) {
+        } catch (MarmottaException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         } catch (URISyntaxException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
@@ -354,7 +354,7 @@ public class SparqlWebService {
         } catch(UpdateExecutionException e) {
             log.error("update execution threw an exception",e);
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (LMFException e) {
+        } catch (MarmottaException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         } catch (IOException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
@@ -367,7 +367,7 @@ public class SparqlWebService {
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
                     sparqlService.query(QueryLanguage.SPARQL,query,getTupleResultWriter(resultType,output),getBooleanResultWriter(resultType,output), getGraphResultWriter(resultType,output));
-                } catch (LMFException ex) {
+                } catch (MarmottaException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
                 } catch (QueryEvaluationException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());

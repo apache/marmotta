@@ -19,31 +19,22 @@ package org.apache.marmotta.platform.core.exception;
  *
  * @author Sebastian Schaffert
  */
-public class LMFException extends Exception {
+public class MarmottaConfigurationException extends MarmottaException {
 
-    private static final long serialVersionUID = 6193753017649674995L;
+	private static final long serialVersionUID = 5573137610964184957L;
 
-
-    /**
-     * Creates a new instance of <code>KiWiException</code> without detail message.
+	/**
+     * Creates a new instance of <code>KiWiConfigurationException</code> without detail message.
      */
-    public LMFException() {
+    public MarmottaConfigurationException() {
     }
 
 
     /**
-     * Constructs an instance of <code>KiWiException</code> with the specified detail message.
+     * Constructs an instance of <code>KiWiConfigurationException</code> with the specified detail message.
      * @param msg the detail message.
      */
-    public LMFException(String msg) {
+    public MarmottaConfigurationException(String msg) {
         super(msg);
-    }
-
-    public LMFException(String s, Throwable throwable) {
-        super(s, throwable);
-    }
-
-    public LMFException(Throwable c) {
-        super(c);
     }
 }

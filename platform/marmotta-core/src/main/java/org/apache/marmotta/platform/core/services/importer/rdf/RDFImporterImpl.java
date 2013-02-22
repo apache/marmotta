@@ -20,7 +20,7 @@ import org.apache.marmotta.platform.core.api.importer.Importer;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.exception.io.LMFImportException;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -117,7 +117,7 @@ public class RDFImporterImpl implements Importer {
      */
     @Override
     //@RaiseEvent("ontologyChanged")
-    public int importData(URL url, String format, Resource user, URI context) throws LMFImportException {
+    public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException {
         try {
             return importData(url.openStream(), format, user,context, url.toString());
         } catch (IOException ex) {
@@ -140,7 +140,7 @@ public class RDFImporterImpl implements Importer {
      */
     @Override
     //@RaiseEvent("ontologyChanged")
-    public int importData(InputStream is, String format, Resource user, URI context) throws LMFImportException {
+    public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException {
         String baseUri = configurationService.getBaseUri() + "resource/";
         return importData(is,format,user,context,baseUri);
     }
@@ -157,7 +157,7 @@ public class RDFImporterImpl implements Importer {
      * @param user the user to use as author of all imported data
      */
     //@RaiseEvent("ontologyChanged")
-    private int importData(InputStream is, String format, Resource user, URI context, String baseUri) throws LMFImportException {
+    private int importData(InputStream is, String format, Resource user, URI context, String baseUri) throws MarmottaImportException {
 
         // TODO: need to figure out format automatically!
         RDFFormat f = getFormat(format);
@@ -201,7 +201,7 @@ public class RDFImporterImpl implements Importer {
             }
         } catch (Exception ex) {
             log.error("error while importing Sesame data:", ex);
-            throw new LMFImportException(ex);
+            throw new MarmottaImportException(ex);
         } finally {
             taskManagerService.endTask(task);
         }
@@ -221,7 +221,7 @@ public class RDFImporterImpl implements Importer {
      * @param user the user to use as author of all imported data
      */
     @Override
-    public int importData(Reader reader, String format, Resource user, URI context) throws LMFImportException {
+    public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException {
 
         // TODO: need to figure out format automatically!
         RDFFormat f = getFormat(format);
@@ -267,7 +267,7 @@ public class RDFImporterImpl implements Importer {
             }
         } catch (Exception ex) {
             log.error("error while importing Sesame data:", ex);
-            throw new LMFImportException(ex);
+            throw new MarmottaImportException(ex);
         } finally {
             taskManagerService.endTask(task);
         }

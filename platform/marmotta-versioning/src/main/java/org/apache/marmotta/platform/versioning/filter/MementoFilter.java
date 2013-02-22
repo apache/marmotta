@@ -15,9 +15,9 @@
  */
 package org.apache.marmotta.platform.versioning.filter;
 
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.versioning.utils.MementoUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  * Author: Thomas Kurz (tkurz@apache.org)
  */
 @ApplicationScoped
-public class MementoFilter implements LMFHttpFilter {
+public class MementoFilter implements MarmottaHttpFilter {
 
     //filter all requests on resource webservice
     private static final String FILTER_PATTERN = "/(" + ConfigurationService.RESOURCE_PATH + "|" +

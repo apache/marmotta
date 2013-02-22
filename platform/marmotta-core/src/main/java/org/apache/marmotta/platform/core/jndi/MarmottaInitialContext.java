@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.platform.core.jndi;
 
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,17 +34,17 @@ import java.util.Hashtable;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFInitialContext extends LMFContext {
+public class MarmottaInitialContext extends MarmottaContext {
 
-    private static Logger log = LoggerFactory.getLogger(LMFInitialContext.class);
+    private static Logger log = LoggerFactory.getLogger(MarmottaInitialContext.class);
 
-    private static LMFInitialContext instance;
+    private static MarmottaInitialContext instance;
 
 
     /**
      * @param env
      */
-    public LMFInitialContext(Hashtable<Object, Object> env) {
+    public MarmottaInitialContext(Hashtable<Object, Object> env) {
         super(env);
 
         log.info("JNDI: creating Apache Marmotta Initial Context ...");
@@ -60,13 +60,13 @@ public class LMFInitialContext extends LMFContext {
             log.error("error while initialising Apache Marmotta JNDI context",e);
         }
 
-        KiWiContext.showJndiContext(this,"java:", "");
+        CDIContext.showJndiContext(this, "java:", "");
 
     }
 
-    public static LMFInitialContext getInstance(Hashtable<Object, Object> env) {
+    public static MarmottaInitialContext getInstance(Hashtable<Object, Object> env) {
         if(instance == null) {
-            instance = new LMFInitialContext(env);
+            instance = new MarmottaInitialContext(env);
         }
         return instance;
     }

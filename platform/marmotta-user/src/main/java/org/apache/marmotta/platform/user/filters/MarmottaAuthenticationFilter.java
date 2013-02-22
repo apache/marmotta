@@ -15,10 +15,10 @@
  */
 package org.apache.marmotta.platform.user.filters;
 
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.user.api.AuthenticationService;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
 import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
@@ -66,7 +66,7 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
-public class LMFAuthenticationFilter implements LMFHttpFilter {
+public class MarmottaAuthenticationFilter implements MarmottaHttpFilter {
 
     @Inject
     private Logger log;

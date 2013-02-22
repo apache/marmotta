@@ -21,7 +21,7 @@ import org.apache.marmotta.platform.core.api.task.TaskInfo;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.user.UserService;
-import org.apache.marmotta.platform.core.exception.io.LMFImportException;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.URI;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
@@ -105,7 +105,7 @@ public class ImportWebService {
      */
     @POST
     @Path("/upload")
-    public Response uploadData(@HeaderParam("Content-Type") String type, @Context HttpServletRequest request, @QueryParam("context") String context_string) throws IOException, LMFImportException {
+    public Response uploadData(@HeaderParam("Content-Type") String type, @Context HttpServletRequest request, @QueryParam("context") String context_string) throws IOException, MarmottaImportException {
         if(type != null && type.lastIndexOf(';') >= 0) {
             type = type.substring(0,type.lastIndexOf(';'));
         }
@@ -151,7 +151,7 @@ public class ImportWebService {
      */
     @POST
     @Path("/external")
-    public Response externalData(@HeaderParam("Content-Type") String type, @QueryParam("url") String url, @QueryParam("context") String context_string) throws IOException, LMFImportException {
+    public Response externalData(@HeaderParam("Content-Type") String type, @QueryParam("url") String url, @QueryParam("context") String context_string) throws IOException, MarmottaImportException {
         try {
             log.debug("Received 'external' request for {} with {}%n", type, url);
             if(type != null && type.lastIndexOf(';') >= 0) {

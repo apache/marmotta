@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.core.exception;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class WritingNotSupportedException extends LMFException {
+public class WritingNotSupportedException extends MarmottaException {
 
     /**
      * 

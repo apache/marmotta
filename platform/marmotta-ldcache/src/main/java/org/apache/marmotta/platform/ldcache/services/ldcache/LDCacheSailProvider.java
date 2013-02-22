@@ -15,13 +15,13 @@
  */
 package org.apache.marmotta.platform.ldcache.services.ldcache;
 
+import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.http.HttpClientService;
 import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.model.filter.LMFLocalFilter;
 
 import org.apache.marmotta.commons.sesame.filter.NotFilter;
 import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;
@@ -139,7 +139,7 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
     @Override
     public NotifyingSailWrapper createSail(NotifyingSail parent) {
         String cache_context = configurationService.getCacheContext();
-        sail = new KiWiLinkedDataSail(parent, new NotFilter<Resource>(LMFLocalFilter.getInstance()), cache_context, ldclientConfig);
+        sail = new KiWiLinkedDataSail(parent, new NotFilter<Resource>(MarmottaLocalFilter.getInstance()), cache_context, ldclientConfig);
         return sail;
     }
 

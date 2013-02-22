@@ -30,20 +30,20 @@ import java.util.Hashtable;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFContextFactory implements InitialContextFactory {
+public class MarmottaContextFactory implements InitialContextFactory {
 
-    private static Logger log = LoggerFactory.getLogger(LMFContextFactory.class);
+    private static Logger log = LoggerFactory.getLogger(MarmottaContextFactory.class);
 
-    private static LMFContextFactory instance;
+    private static MarmottaContextFactory instance;
 
-    public LMFContextFactory() {
+    public MarmottaContextFactory() {
         log.info("JNDI: initialising Apache Marmotta Context Factory ...");
 
     }
 
-    public static LMFContextFactory getInstance() {
+    public static MarmottaContextFactory getInstance() {
         if(instance == null) {
-            instance = new LMFContextFactory();
+            instance = new MarmottaContextFactory();
         }
         return instance;
     }
@@ -58,6 +58,6 @@ public class LMFContextFactory implements InitialContextFactory {
 
         env.putAll(hashtable);
 
-        return LMFInitialContext.getInstance(env);
+        return MarmottaInitialContext.getInstance(env);
     }
 }

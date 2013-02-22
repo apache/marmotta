@@ -26,7 +26,7 @@ import java.util.List;
  * Date: 18.02.11
  * Time: 10:37
  */
-public interface LMFIOService {
+public interface MarmottaIOService {
 
 	/**
 	 * returns a list of all mimetypes which can be parsed by implemented parsers

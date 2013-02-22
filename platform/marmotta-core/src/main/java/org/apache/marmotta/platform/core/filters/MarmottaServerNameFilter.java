@@ -16,7 +16,7 @@
 package org.apache.marmotta.platform.core.filters;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 
 import javax.inject.Inject;
@@ -33,7 +33,7 @@ import java.io.IOException;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFServerNameFilter implements LMFHttpFilter {
+public class MarmottaServerNameFilter implements MarmottaHttpFilter {
 
     @Inject
     private ConfigurationService configurationService;

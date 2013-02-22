@@ -17,7 +17,7 @@ package org.apache.marmotta.platform.core.services.cache;
 
 import org.apache.marmotta.platform.core.api.cache.CachingService;
 import org.apache.marmotta.platform.core.events.SystemRestartingEvent;
-import org.apache.marmotta.platform.core.qualifiers.cache.LMFCache;
+import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import org.slf4j.Logger;
@@ -74,9 +74,9 @@ public class CachingServiceImpl implements CachingService {
      * @return
      */
     @Override
-    @Produces @LMFCache("")
+    @Produces @MarmottaCache("")
     public Ehcache getCache(InjectionPoint injectionPoint) {
-        String cacheName = injectionPoint.getAnnotated().getAnnotation(LMFCache.class).value();
+        String cacheName = injectionPoint.getAnnotated().getAnnotation(MarmottaCache.class).value();
 
         return getCacheByName(cacheName);
     }

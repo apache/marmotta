@@ -16,7 +16,7 @@
 package org.apache.marmotta.platform.core.servlet;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.slf4j.Logger;
 
@@ -60,9 +60,9 @@ public class KiWiResourceFilter implements Filter {
     private ModuleService moduleService;
 
     @Inject @Any
-    private Instance<LMFHttpFilter> filters;
+    private Instance<MarmottaHttpFilter> filters;
 
-    private List<LMFHttpFilter> filterList;
+    private List<MarmottaHttpFilter> filterList;
 
     /**
      * Called by the web container to indicate to a filter that it is being placed into
@@ -80,9 +80,9 @@ public class KiWiResourceFilter implements Filter {
 
 
         // initialise filter chain and sort it according to priority
-        this.filterList  = new ArrayList<LMFHttpFilter>();
+        this.filterList  = new ArrayList<MarmottaHttpFilter>();
 
-        for(LMFHttpFilter filter : filters) {
+        for(MarmottaHttpFilter filter : filters) {
             try {
                 filter.init(filterConfig);
                 filterList.add(filter);
@@ -146,7 +146,7 @@ public class KiWiResourceFilter implements Filter {
      */
     @Override
     public void destroy() {
-        for(LMFHttpFilter filter : filterList) {
+        for(MarmottaHttpFilter filter : filterList) {
             filter.destroy();
         }
     }
@@ -157,7 +157,7 @@ public class KiWiResourceFilter implements Filter {
      */
     private class LMFFilterChain implements FilterChain {
 
-        private Iterator<LMFHttpFilter> filters;
+        private Iterator<MarmottaHttpFilter> filters;
 
         private String path;
 
@@ -173,7 +173,7 @@ public class KiWiResourceFilter implements Filter {
         @Override
         public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
             if(filters.hasNext()) {
-                LMFHttpFilter filter = filters.next();
+                MarmottaHttpFilter filter = filters.next();
 
                 if(path.matches(filter.getPattern())) {
                     filter.doFilter(request,response,this);
@@ -188,7 +188,7 @@ public class KiWiResourceFilter implements Filter {
 
 
 
-    private static class FilterComparator implements Comparator<LMFHttpFilter>, Serializable {
+    private static class FilterComparator implements Comparator<MarmottaHttpFilter>, Serializable {
 
         private static final long serialVersionUID = -7264645592168345092L;
 
@@ -207,7 +207,7 @@ public class KiWiResourceFilter implements Filter {
          *                            being compared by this comparator.
          */
         @Override
-        public int compare(LMFHttpFilter o1, LMFHttpFilter o2) {
+        public int compare(MarmottaHttpFilter o1, MarmottaHttpFilter o2) {
             if(o1.getPriority() < o2.getPriority())
                 return -1;
             else if(o1.getPriority() > o2.getPriority()) return 1;

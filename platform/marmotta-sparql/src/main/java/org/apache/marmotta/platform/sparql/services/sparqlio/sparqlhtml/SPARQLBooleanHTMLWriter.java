@@ -16,7 +16,7 @@
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 import org.jdom2.Document;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
@@ -88,7 +88,7 @@ public class SPARQLBooleanHTMLWriter implements BooleanQueryResultWriter {
         byte[] queryResult = xmlOut.toByteArray();
 
         // get server uri
-        String server_uri = KiWiContext.getInstance(ConfigurationService.class).getServerUri();
+        String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
 
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
         try {

@@ -16,8 +16,8 @@
 package org.apache.marmotta.platform.core.filters;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
-import org.apache.marmotta.platform.core.api.modules.LMFResourceService;
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
+import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
 import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.slf4j.Logger;
 
@@ -39,13 +39,13 @@ import java.net.URL;
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
-public class ModuleResourceFilter implements LMFHttpFilter {
+public class ModuleResourceFilter implements MarmottaHttpFilter {
 
     @Inject
     private Logger log;
 
     @Inject
-    private LMFResourceService resourceService;
+    private MarmottaResourceService resourceService;
 
     @Inject
     private ConfigurationService configurationService;

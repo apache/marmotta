@@ -15,8 +15,8 @@
  */
 package org.apache.marmotta.platform.user.api;
 
+import org.apache.marmotta.platform.core.model.user.MarmottaUser;
 import org.apache.marmotta.platform.user.model.UserAccount;
-import org.apache.marmotta.platform.core.model.user.KiWiUser;
 import org.openrdf.model.URI;
 
 import java.util.List;
@@ -72,13 +72,13 @@ public interface AccountService {
     UserAccount getAccount(URI userResource);
 
     /**
-     * Retrieve the user account for a given {@link KiWiUser} (facaded user resource)
+     * Retrieve the user account for a given {@link org.apache.marmotta.platform.core.model.user.MarmottaUser} (facaded user resource)
      * 
-     * @param user the {@link KiWiUser}
+     * @param user the {@link org.apache.marmotta.platform.core.model.user.MarmottaUser}
      * @return the corresponding {@link UserAccount}, of <code>null</code> if none present.
      * @see #getAccount(org.openrdf.model.URI)
      */
-    UserAccount getAccount(KiWiUser user);
+    UserAccount getAccount(MarmottaUser user);
 
     /**
      * Deletes the given user account. The user will (obviously loose all access-rights to the

@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.platform.core.services.io;
 
-import org.apache.marmotta.platform.core.api.io.LMFIOService;
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriterRegistry;
@@ -34,7 +34,7 @@ import java.util.List;
  * Time: 10:41
  */
 @ApplicationScoped
-public class LMFIOServiceImpl implements LMFIOService {
+public class MarmottaIOServiceImpl implements MarmottaIOService {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 

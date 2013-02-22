@@ -21,6 +21,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.versioning.api.VersionSerializerService;
 import org.apache.marmotta.platform.versioning.io.VersionSerializer;
 import org.apache.marmotta.platform.versioning.utils.MementoUtils;
@@ -32,7 +33,6 @@ import com.google.common.base.Preconditions;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.io.LMFIOService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
@@ -83,7 +83,7 @@ public class MementoWebService {
     @Inject
     private VersioningSailProvider versioningService;
     @Inject
-    private LMFIOService lmfIOService;
+    private MarmottaIOService lmfIOService;
     @Inject
     private VersionSerializerService versionSerializerService;
 

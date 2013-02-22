@@ -17,7 +17,7 @@ package org.apache.marmotta.platform.core.services.exporter;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.marmotta.platform.core.api.exporter.ExportService;
-import org.apache.marmotta.platform.core.api.io.LMFIOService;
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
 import org.openrdf.model.URI;
@@ -50,7 +50,7 @@ public class ExporterServiceImpl implements ExportService {
     private Logger log;
 
     @Inject
-    private LMFIOService ioService;
+    private MarmottaIOService ioService;
 
 
     @Inject

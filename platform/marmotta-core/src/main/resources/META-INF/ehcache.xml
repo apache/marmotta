@@ -377,7 +377,7 @@ are "on" and "off".  The default is "autodetect".
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="org.apache.marmotta.platform.core.model.user.KiWiUser"
+    <cache name="org.apache.marmotta.platform.core.model.user.MarmottaUser"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"

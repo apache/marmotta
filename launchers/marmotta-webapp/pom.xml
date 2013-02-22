@@ -79,7 +79,7 @@
                         <path>${lmf.context}</path>
                         <port>${lmf.port}</port>
                         <systemProperties>
-                            <kiwi.home>${lmf.home}</kiwi.home>
+                            <marmotta.home>${lmf.home}</marmotta.home>
                         </systemProperties>
                     </configuration>
                 </plugin>
@@ -91,7 +91,7 @@
                         <path>${lmf.context}</path>
                         <port>${lmf.port}</port>
                         <systemProperties>
-                            <kiwi.home>${lmf.home}</kiwi.home>
+                            <marmotta.home>${lmf.home}</marmotta.home>
                         </systemProperties>
                         <!--                         <contextReloadable>true</contextReloadable> -->
                         <!--                         <backgroundProcessorDelay>10</backgroundProcessorDelay> -->
@@ -110,7 +110,7 @@
                         </connectors>
                         <systemProperties>
                             <systemProperty>
-                                <name>kiwi.home</name>
+                                <name>marmotta.home</name>
                                 <value>${lmf.home}</value>
                             </systemProperty>
                         </systemProperties>

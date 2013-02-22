@@ -17,10 +17,10 @@ package org.apache.marmotta.platform.core.webservices.resource;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
-import org.apache.marmotta.platform.core.api.io.LMFIOService;
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.ContentCreatedEvent;
-import org.apache.marmotta.platform.core.exception.LMFException;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
 
@@ -69,7 +69,7 @@ public class ContentWebService {
     private Event<ContentCreatedEvent> afterContentCreated;
 
     @Inject
-    private LMFIOService kiWiIOService;
+    private MarmottaIOService kiWiIOService;
 
     @Inject
     private SesameService sesameService;
@@ -197,7 +197,7 @@ public class ContentWebService {
                 conn.commit();
                 conn.close();
             }
-        } catch (LMFException ex) {
+        } catch (MarmottaException ex) {
             return Response.serverError().entity(ex.getMessage()).build();
         } catch (RepositoryException ex) {
             return Response.serverError().entity(ex.getMessage()).build();

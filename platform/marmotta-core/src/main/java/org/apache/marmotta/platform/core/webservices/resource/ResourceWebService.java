@@ -20,7 +20,7 @@ import static javax.ws.rs.core.Response.status;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
-import org.apache.marmotta.platform.core.api.io.LMFIOService;
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
 import org.apache.commons.lang.StringUtils;
@@ -75,7 +75,7 @@ public class ResourceWebService {
     private ContentService contentService;
 
     @Inject
-    private LMFIOService kiWiIOService;
+    private MarmottaIOService kiWiIOService;
 
     @Inject
     private SesameService sesameService;

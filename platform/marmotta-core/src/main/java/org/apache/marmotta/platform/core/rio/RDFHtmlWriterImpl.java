@@ -20,7 +20,7 @@ import org.apache.marmotta.platform.core.api.io.RDFHtmlWriter;
 import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
@@ -83,9 +83,9 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
         this.writer = writer;
 
         // FIXME: usage of KiWiContext is not recommened!
-        configurationService = KiWiContext
+        configurationService = CDIContext
                 .getInstance(ConfigurationService.class);
-        prefixService = KiWiContext.getInstance(PrefixService.class);
+        prefixService = CDIContext.getInstance(PrefixService.class);
     }
 
     /**

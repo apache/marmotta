@@ -1,8 +1,8 @@
 package org.apache.marmotta.platform.core.test.base;
 
 import com.google.common.io.Files;
-import org.apache.marmotta.platform.core.jndi.LMFInitialContextFactoryBuilder;
-import org.apache.marmotta.platform.core.startup.LMFStartupService;
+import org.apache.marmotta.platform.core.jndi.MarmottaInitialContextFactoryBuilder;
+import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -29,7 +29,7 @@ public abstract class AbstractLMF {
 
     protected Weld weld;
     protected WeldContainer container;
-    protected LMFStartupService startupService;
+    protected MarmottaStartupService startupService;
     protected Configuration override;
 
     protected File lmfHome;
@@ -37,7 +37,7 @@ public abstract class AbstractLMF {
     protected AbstractLMF() {
         // initialise JNDI environment
         try {
-            NamingManager.setInitialContextFactoryBuilder(new LMFInitialContextFactoryBuilder());
+            NamingManager.setInitialContextFactoryBuilder(new MarmottaInitialContextFactoryBuilder());
         } catch (NamingException e) {
 
         } catch (IllegalStateException e) {
@@ -67,7 +67,7 @@ public abstract class AbstractLMF {
         override.setProperty("logging.template", "/logback-testing.xml");
 
         // initialise LMF using a temporary directory
-        startupService = getService(LMFStartupService.class);
+        startupService = getService(MarmottaStartupService.class);
     }
 
 

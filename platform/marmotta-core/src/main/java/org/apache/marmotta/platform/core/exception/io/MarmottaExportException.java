@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.core.exception.io;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFExportException extends Exception {
+public class MarmottaExportException extends Exception {
 
     /**
      * 
@@ -32,7 +32,7 @@ public class LMFExportException extends Exception {
      * The cause is not initialized, and may subsequently be initialized by a
      * call to {@link #initCause}.
      */
-    public LMFExportException() {
+    public MarmottaExportException() {
     }
 
     /**
@@ -43,7 +43,7 @@ public class LMFExportException extends Exception {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public LMFExportException(String message) {
+    public MarmottaExportException(String message) {
         super(message);
     }
 
@@ -61,7 +61,7 @@ public class LMFExportException extends Exception {
      *                unknown.)
      * @since 1.4
      */
-    public LMFExportException(String message, Throwable cause) {
+    public MarmottaExportException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -79,7 +79,7 @@ public class LMFExportException extends Exception {
      *              unknown.)
      * @since 1.4
      */
-    public LMFExportException(Throwable cause) {
+    public MarmottaExportException(Throwable cause) {
         super(cause);
     }
 }

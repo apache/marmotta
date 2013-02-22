@@ -19,12 +19,12 @@ import com.google.common.io.ByteStreams;
 import eu.medsea.mimeutil.MimeType;
 import eu.medsea.mimeutil.MimeUtil2;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFResourceService;
+import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.apache.marmotta.platform.core.qualifiers.cache.LMFCache;
+import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ import java.util.Map;
  * User: sschaffe
  */
 @ApplicationScoped
-public class LMFResourceServiceImpl implements LMFResourceService {
+public class MarmottaResourceServiceImpl implements MarmottaResourceService {
 
     @Inject
     private Logger log;
@@ -63,7 +63,7 @@ public class LMFResourceServiceImpl implements LMFResourceService {
     private ModuleService moduleService;
 
 
-    @Inject @LMFCache("resource-cache")
+    @Inject @MarmottaCache("resource-cache")
     private Ehcache resourceCache;
 
     /**

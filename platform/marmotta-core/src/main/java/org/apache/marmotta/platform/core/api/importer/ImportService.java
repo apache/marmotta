@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.platform.core.api.importer;
 
-import org.apache.marmotta.platform.core.exception.io.LMFImportException;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 
@@ -55,9 +55,9 @@ public interface ImportService {
 	 * @param context the context of the import data; if null, default context is used
      *
      * @return the number of Content Items imported
-	 * @throws org.apache.marmotta.platform.core.exception.io.LMFImportException in case the import fails
+	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-	public int importData(URL url, String format, Resource user, URI context) throws LMFImportException;
+	public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException;
 
 
 	/**
@@ -71,9 +71,9 @@ public interface ImportService {
 	 * @param context the context of the import data; if null, default context is used
      *
      * @return the number of Content Items imported
-	 * @throws org.apache.marmotta.platform.core.exception.io.LMFImportException in case the import cannot execute
+	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import cannot execute
 	 */
-	public int importData(InputStream is, String format, Resource user, URI context) throws LMFImportException;
+	public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException;
 
 	/**
 	 * Import data from the reader provided as argument into the KiWi database.
@@ -86,9 +86,9 @@ public interface ImportService {
 	 * @param context the context of the import data; if null, default context is used
      *
      * @return the number of Content Items imported
-	 * @throws org.apache.marmotta.platform.core.exception.io.LMFImportException in case the import fails
+	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-	public int importData(Reader reader, String format, Resource user, URI context) throws LMFImportException;
+	public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException;
 
 	
 	/**

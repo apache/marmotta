@@ -45,7 +45,7 @@ public class LMFBaseTest {
     protected final int PORT = 8080;
     protected final String CTX = "LMF";
     protected final String RSC = "resource";
-    protected final String PROP = "kiwi.home";
+    protected final String PROP = "marmotta.home";
     protected String baseUrl;
     protected String baseResource;
     protected String basePath;

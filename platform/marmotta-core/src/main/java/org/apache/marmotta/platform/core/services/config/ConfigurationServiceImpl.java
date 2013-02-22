@@ -72,7 +72,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private CompositeConfiguration config;
 
     /**
-     * The backend for storing configuration values, usually ${kiwi.home}/system-config.properties
+     * The backend for storing configuration values, usually ${marmotta.home}/system-config.properties
      */
     private Configuration saveConfiguration;
 
@@ -105,7 +105,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Initialise the ConfigurationService. Takes the kiwi.home system property from the servlet
+     * Initialise the ConfigurationService. Takes the marmotta.home system property from the servlet
      * init parameters
      * (web.xml) as bootstrap home. In case a system-config.properties file is found in this
      * directory, the
@@ -172,7 +172,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 }
                 saveConfiguration = new PropertiesConfiguration(f);
             } else {
-                log.error("error while initialising configuration: no kiwi.home property given; creating memory-only configuration");
+                log.error("error while initialising configuration: no marmotta.home property given; creating memory-only configuration");
                 saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
 
             }
@@ -231,7 +231,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         // setup KiWi home - if it is given as system property, the bootstrap configuration is
         // overwritten
         if (getLMFHome() != null) {
-            config.setProperty("kiwi.home", getLMFHome());
+            config.setProperty("marmotta.home", getLMFHome());
             config.setProperty("solr.home", getLMFHome() + File.separator + "solr");
         }
 
@@ -880,7 +880,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public String getWorkDir() {
-        final String value = getStringConfiguration("kiwi.home");
+        final String value = getStringConfiguration("marmotta.home");
         return value != null ? value : new File(System.getProperty("java.io.tmpdir", "/tmp"), "lmf").getAbsolutePath();
     }
 

@@ -19,7 +19,7 @@ import ch.qos.logback.core.Context;
 import ch.qos.logback.core.spi.PropertyDefiner;
 import ch.qos.logback.core.status.Status;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.util.KiWiContext;
+import org.apache.marmotta.platform.core.util.CDIContext;
 
 /**
  * An abstract class with access to the LMF Configuration Service to get access to LMF runtime configuration.
@@ -36,7 +36,7 @@ public class LMFLogbackPropertyDefiner implements PropertyDefiner {
     protected String key;
 
     public LMFLogbackPropertyDefiner() {
-        configurationService = KiWiContext.getInstance(ConfigurationService.class);
+        configurationService = CDIContext.getInstance(ConfigurationService.class);
     }
 
     /**

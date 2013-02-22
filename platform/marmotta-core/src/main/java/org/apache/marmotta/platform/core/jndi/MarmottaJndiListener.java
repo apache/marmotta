@@ -28,9 +28,9 @@ import javax.servlet.ServletContextListener;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFJndiListener implements ServletContextListener {
+public class MarmottaJndiListener implements ServletContextListener {
 
-    private static Logger log = LoggerFactory.getLogger(LMFJndiListener.class);
+    private static Logger log = LoggerFactory.getLogger(MarmottaJndiListener.class);
 
     /**
      * * Notification that the web application initialization
@@ -43,7 +43,7 @@ public class LMFJndiListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         log.info("JNDI: registering Apache Marmotta JNDI implementation ...");
         try {
-            NamingManager.setInitialContextFactoryBuilder(new LMFInitialContextFactoryBuilder());
+            NamingManager.setInitialContextFactoryBuilder(new MarmottaInitialContextFactoryBuilder());
         } catch (NamingException e) {
 
         } catch (IllegalStateException e) {

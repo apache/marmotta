@@ -16,7 +16,7 @@
 package org.apache.marmotta.platform.core.servlet;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.startup.LMFStartupService;
+import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -47,7 +47,7 @@ public class KiWiPreStartupFilter implements Filter {
     private Logger log;
 
     @Inject
-    private LMFStartupService startupService;
+    private MarmottaStartupService startupService;
 
     @Inject
     private ConfigurationService configurationService;

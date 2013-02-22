@@ -21,7 +21,7 @@ package org.apache.marmotta.platform.core.exception.io;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class UnsupportedExporterException extends LMFExportException {
+public class UnsupportedExporterException extends MarmottaExportException {
 
     /**
      * 

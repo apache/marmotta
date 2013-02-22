@@ -15,9 +15,9 @@
  */
 package org.apache.marmotta.platform.sparql.api.sparql;
 
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
-import org.apache.marmotta.platform.core.exception.LMFException;
 import org.openrdf.model.Value;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -50,9 +50,9 @@ public interface SparqlService {
      * @param booleanWriter the writer to use to write boolean query results
      * @param graphWriter
      * @throws InvalidArgumentException if the output format or query language are undefined
-     * @throws org.apache.marmotta.platform.core.exception.LMFException if the query evaluation fails
+     * @throws org.apache.marmotta.platform.core.exception.MarmottaException if the query evaluation fails
      */
-	public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, LMFException, MalformedQueryException, QueryEvaluationException;
+	public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, MarmottaException, MalformedQueryException, QueryEvaluationException;
 
 
 
@@ -65,7 +65,7 @@ public interface SparqlService {
      * @param queryLanguage the query language to use
      * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
      */
-    public List<Map<String,Value>> query(QueryLanguage queryLanguage, String query) throws LMFException;
+    public List<Map<String,Value>> query(QueryLanguage queryLanguage, String query) throws MarmottaException;
 
 
     /**
@@ -77,7 +77,7 @@ public interface SparqlService {
      * @param query  a string representing the update query in SPARQL Update 1.1 syntax
      * @throws Exception
      */
-    public void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, LMFException, MalformedQueryException, UpdateExecutionException;
+    public void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
 
 
 }

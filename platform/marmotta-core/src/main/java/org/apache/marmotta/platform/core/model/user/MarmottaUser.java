@@ -30,7 +30,7 @@ import java.util.Set;
  * Time: 11:29:17
  */
 @RDFType(Namespaces.NS_FOAF + "Person")
-public interface KiWiUser extends Facade {
+public interface MarmottaUser extends Facade {
 
     @RDF(Namespaces.NS_FOAF + "nick")
     public String getNick();

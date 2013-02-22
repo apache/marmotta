@@ -15,9 +15,9 @@
  */
 package org.apache.marmotta.platform.security.filters;
 
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.security.api.SecurityService;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.LMFHttpFilter;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ import java.io.IOException;
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
-public class LMFAccessControlFilter implements LMFHttpFilter {
+public class MarmottaAccessControlFilter implements MarmottaHttpFilter {
 
     @Inject
     private Logger log;

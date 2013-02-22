@@ -24,7 +24,7 @@
 
     <!-- enable LMF custom JNDI implementation -->
     <listener>
-        <listener-class>org.apache.marmotta.platform.core.jndi.LMFJndiListener</listener-class>
+        <listener-class>org.apache.marmotta.platform.core.jndi.MarmottaJndiListener</listener-class>
     </listener>
 
 
@@ -46,10 +46,10 @@
     </listener>
 
     <!--
-        specifies the LMF home directory; overridden by environment variable LMF_HOME or system property kiwi.home
+        specifies the LMF home directory; overridden by environment variable MARMOTTA_HOME or system property marmotta.home
     -->
     <context-param>
-        <param-name>kiwi.home</param-name>
+        <param-name>marmotta.home</param-name>
         <param-value>/tmp/lmf</param-value>
     </context-param>
 

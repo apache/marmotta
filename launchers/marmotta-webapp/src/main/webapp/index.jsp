@@ -16,7 +16,7 @@
 
 --%>
 <%@ page import="org.apache.marmotta.platform.core.api.config.ConfigurationService" %>
-<%@ page import="org.apache.marmotta.platform.core.util.KiWiContext" %>
+<%@ page import="org.apache.marmotta.platform.core.util.CDIContext" %>
 <%--
   ~ Copyright (c) 2012 Salzburg Research.
   ~
@@ -33,6 +33,6 @@
   ~ limitations under the License.
   --%>
 <%
-    ConfigurationService configurationService = KiWiContext.getInstance(ConfigurationService.class);
+    ConfigurationService configurationService = CDIContext.getInstance(ConfigurationService.class);
     response.sendRedirect(configurationService.getBaseUri()+configurationService.getStringConfiguration("kiwi.pages.startup"));
 %>

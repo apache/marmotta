@@ -22,7 +22,7 @@ import javax.servlet.Filter;
  * <p/>
  * User: sschaffe
  */
-public interface LMFHttpFilter extends Filter {
+public interface MarmottaHttpFilter extends Filter {
 
     // authentication and access control have to come before everything else
     public static int PRIO_AUTH = Integer.MIN_VALUE;

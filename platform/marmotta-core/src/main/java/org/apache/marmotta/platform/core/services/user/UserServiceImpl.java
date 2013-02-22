@@ -27,7 +27,7 @@ import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.SystemRestartedEvent;
 import org.apache.marmotta.platform.core.events.SystemRestartingEvent;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
-import org.apache.marmotta.platform.core.model.user.KiWiUser;
+import org.apache.marmotta.platform.core.model.user.MarmottaUser;
 import org.apache.marmotta.platform.core.qualifiers.user.AdminUser;
 import org.apache.marmotta.platform.core.qualifiers.user.AnonymousUser;
 import org.apache.marmotta.platform.core.qualifiers.user.CurrentUser;
@@ -275,7 +275,7 @@ public class UserServiceImpl implements UserService {
                     log.info("creating user with webId: {} ", webId.stringValue());
 
                     if (!login.equals(ANONYMOUS_LOGIN) && !login.equals(ADMIN_LOGIN)) {
-                        KiWiUser u = FacadingFactory.createFacading(conn).createFacade(webId, KiWiUser.class);
+                        MarmottaUser u = FacadingFactory.createFacading(conn).createFacade(webId, MarmottaUser.class);
                         u.setFirstName(firstName);
                         u.setLastName(lastName);
                         u.setNick(login);

@@ -25,7 +25,7 @@ import java.util.*;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFContext implements Context {
+public class MarmottaContext implements Context {
 
     private Hashtable<Object, Object>      environment;
 
@@ -39,7 +39,7 @@ public class LMFContext implements Context {
         parseProperties.put("jndi.syntax.separator","/");
     }
 
-    public LMFContext(Hashtable<Object, Object> environment) {
+    public MarmottaContext(Hashtable<Object, Object> environment) {
         this.environment = environment;
 
         this.bindings  = new HashMap<Name, Object>();
@@ -73,7 +73,7 @@ public class LMFContext implements Context {
     public Object lookup(Name name) throws NamingException {
         if(name.size() == 0) {
             // clone current context
-            LMFContext clone = new LMFContext(new Hashtable<Object, Object>(this.environment));
+            MarmottaContext clone = new MarmottaContext(new Hashtable<Object, Object>(this.environment));
             clone.bindings = new HashMap<Name, Object>(this.bindings);
             return clone;
         } else if(name.size() > 1) {
@@ -492,7 +492,7 @@ public class LMFContext implements Context {
      */
     @Override
     public Context createSubcontext(Name name) throws NamingException {
-        LMFContext subcontext = new LMFContext(new Hashtable<Object, Object>(this.environment));
+        MarmottaContext subcontext = new MarmottaContext(new Hashtable<Object, Object>(this.environment));
         bind(name,subcontext);
         return subcontext;
     }

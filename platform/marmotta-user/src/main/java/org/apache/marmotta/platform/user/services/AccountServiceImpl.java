@@ -15,6 +15,8 @@
  */
 package org.apache.marmotta.platform.user.services;
 
+import org.apache.marmotta.platform.core.model.user.MarmottaUser;
+import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.apache.marmotta.platform.user.model.UserAccount.PasswordHash;
@@ -24,8 +26,6 @@ import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
-import org.apache.marmotta.platform.core.model.user.KiWiUser;
-import org.apache.marmotta.platform.core.qualifiers.cache.LMFCache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
     private UserService          userService;
 
     @Inject
-    @LMFCache("user-cache")
+    @MarmottaCache("user-cache")
     private Ehcache              userCache;
 
     private PasswordHash         hashAlgo;
@@ -234,7 +234,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserAccount getAccount(KiWiUser user) {
+    public UserAccount getAccount(MarmottaUser user) {
         Resource delegate = user.getDelegate();
         if (delegate instanceof URI)
             return getAccount((URI) delegate);

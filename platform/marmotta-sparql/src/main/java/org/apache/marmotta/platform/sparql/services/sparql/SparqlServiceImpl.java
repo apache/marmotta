@@ -15,12 +15,12 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparql;
 
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
-import org.apache.marmotta.platform.core.exception.LMFException;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.openrdf.model.Value;
 import org.openrdf.query.*;
@@ -67,7 +67,7 @@ public class SparqlServiceImpl implements SparqlService {
 
 
     @Override
-    public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws LMFException, MalformedQueryException, QueryEvaluationException {
+    public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
         long start = System.currentTimeMillis();
 
         log.debug("executing SPARQL query:\n{}", query);
@@ -98,11 +98,11 @@ public class SparqlServiceImpl implements SparqlService {
             }
         } catch(RepositoryException ex) {
             log.error("error while getting repository connection");
-            throw new LMFException("error while getting repository connection",ex);
+            throw new MarmottaException("error while getting repository connection",ex);
         } catch (TupleQueryResultHandlerException e) {
-            throw new LMFException("error while writing query result in format ",e);
+            throw new MarmottaException("error while writing query result in format ",e);
         } catch (IOException e) {
-            throw new LMFException("error while writing query result in format ",e);
+            throw new MarmottaException("error while writing query result in format ",e);
         }
 
         log.debug("SPARQL execution took {}ms",System.currentTimeMillis()-start);
@@ -130,7 +130,7 @@ public class SparqlServiceImpl implements SparqlService {
      * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
      */
     @Override
-    public List<Map<String, Value>> query(QueryLanguage queryLanguage, String query) throws LMFException {
+    public List<Map<String, Value>> query(QueryLanguage queryLanguage, String query) throws MarmottaException {
         long start = System.currentTimeMillis();
 
         log.debug("executing {} query:\n{}", queryLanguage.getName(), query);
@@ -166,9 +166,9 @@ public class SparqlServiceImpl implements SparqlService {
             }
         } catch(RepositoryException ex) {
             log.error("error while getting repository connection");
-            throw new LMFException("error while getting repository connection",ex);
+            throw new MarmottaException("error while getting repository connection",ex);
         } catch (QueryEvaluationException e) {
-            throw new LMFException("error while evaluating SPARQL query "+query,e);
+            throw new MarmottaException("error while evaluating SPARQL query "+query,e);
         } catch (MalformedQueryException e) {
             throw new InvalidArgumentException("malformed SPARQL query ("+query+") for language "+queryLanguage,e);
         }
@@ -187,7 +187,7 @@ public class SparqlServiceImpl implements SparqlService {
      * @throws Exception
      */
     @Override
-    public void update(QueryLanguage queryLanguage, String query) throws LMFException {
+    public void update(QueryLanguage queryLanguage, String query) throws MarmottaException {
         long start = System.currentTimeMillis();
 
         log.debug("executing SPARQL update:\n{}", query);
@@ -201,16 +201,16 @@ public class SparqlServiceImpl implements SparqlService {
                 connection.commit();
             } catch (UpdateExecutionException e) {
                 connection.rollback();
-                throw new LMFException("error while executing update",e);
+                throw new MarmottaException("error while executing update",e);
             } catch (MalformedQueryException e) {
                 connection.rollback();
-                throw new LMFException("malformed query, update failed",e);
+                throw new MarmottaException("malformed query, update failed",e);
             } finally {
                 connection.close();
             }
         } catch(RepositoryException ex) {
             log.error("error while getting repository connection", ex);
-            throw new LMFException("error while getting repository connection",ex);
+            throw new MarmottaException("error while getting repository connection",ex);
         }
         log.debug("SPARQL update execution took {}ms",System.currentTimeMillis()-start);
 

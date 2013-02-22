@@ -22,7 +22,7 @@ import org.apache.marmotta.platform.core.api.statistics.StatisticsService;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.qualifiers.cache.LMFCache;
+import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import org.apache.marmotta.platform.core.services.http.response.LastModifiedResponseHandler;
 import org.apache.marmotta.platform.core.services.http.response.StatusCodeResponseHandler;
 import org.apache.marmotta.platform.core.services.http.response.StringBodyResponseHandler;
@@ -99,7 +99,7 @@ public class HttpClientServiceImpl implements HttpClientService {
     private StatisticsService            statisticsService;
 
     @Inject
-    @LMFCache("http-client-cache")
+    @MarmottaCache("http-client-cache")
     private Instance<Ehcache>            ehcache;
 
     private HttpClient                   httpClient;

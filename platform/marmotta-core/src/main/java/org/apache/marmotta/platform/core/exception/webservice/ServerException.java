@@ -15,14 +15,14 @@
  */
 package org.apache.marmotta.platform.core.exception.webservice;
 
-import org.apache.marmotta.platform.core.exception.LMFException;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
 
 /**
  * User: Thomas Kurz
  * Date: 21.02.11
  * Time: 13:15
  */
-public class ServerException extends LMFException {
+public class ServerException extends MarmottaException {
 
     private static final long serialVersionUID = 8374959314074759653L;
 
