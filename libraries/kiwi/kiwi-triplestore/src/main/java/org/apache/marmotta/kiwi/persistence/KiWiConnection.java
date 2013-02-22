@@ -15,9 +15,9 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import at.newmedialab.sesame.commons.model.LiteralCommons;
-import at.newmedialab.sesame.commons.model.Namespaces;
-import at.newmedialab.sesame.commons.util.DateUtils;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
 import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.EmptyIteration;

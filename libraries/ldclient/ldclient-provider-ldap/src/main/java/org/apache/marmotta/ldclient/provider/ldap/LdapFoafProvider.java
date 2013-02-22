@@ -15,8 +15,9 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap;
 
-import at.newmedialab.sesame.commons.constants.Namespace;
 import com.unboundid.ldap.sdk.*;
+
+import org.apache.marmotta.commons.constants.Namespace;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;

@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import at.newmedialab.sesame.commons.util.DateUtils;
+import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Literal;
 
 import javax.xml.datatype.DatatypeConfigurationException;

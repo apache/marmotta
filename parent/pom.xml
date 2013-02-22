@@ -50,6 +50,11 @@
             <name>Apache Snapshots Repository</name>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>lmf</id>
+            <name>Legacy LMF Repository</name>
+            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -1133,11 +1138,6 @@
 
 
             <!-- LMF Sesame Tools -->
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-commons</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-filter</artifactId>

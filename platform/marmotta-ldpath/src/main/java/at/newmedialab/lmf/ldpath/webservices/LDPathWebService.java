@@ -15,12 +15,13 @@
  */
 package at.newmedialab.lmf.ldpath.webservices;
 
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
-import static at.newmedialab.sesame.commons.repository.ResultUtils.iterable;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 import at.newmedialab.lmf.ldpath.api.LDPathService;
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
-import at.newmedialab.sesame.commons.util.JSONUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.commons.util.JSONUtils;
+
 import kiwi.core.api.triplestore.SesameService;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;

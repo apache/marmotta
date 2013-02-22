@@ -17,11 +17,9 @@ package at.newmedialab.lmf.ldcache.webservices;
 
 import at.newmedialab.lmf.ldcache.api.endpoint.LinkedDataEndpointService;
 import at.newmedialab.lmf.ldcache.services.ldcache.LDCacheSailProvider;
-import at.newmedialab.sesame.commons.model.Namespaces;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import kiwi.core.api.triplestore.SesameService;
-import org.apache.marmotta.ldcache.api.LDCachingService;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
-import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
@@ -31,9 +29,7 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.slf4j.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;

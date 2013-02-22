@@ -15,7 +15,7 @@
  */
 package org.apache.marmotta.ldclient.provider.html;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;

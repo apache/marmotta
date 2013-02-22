@@ -15,12 +15,12 @@
  */
 package org.apache.marmotta.ldcache.sail;
 
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
 import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
-import org.apache.marmotta.sesame.filter.SesameFilter;
 import org.openrdf.model.Resource;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.NotifyingSailConnection;

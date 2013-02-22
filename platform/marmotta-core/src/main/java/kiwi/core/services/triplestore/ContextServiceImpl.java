@@ -15,9 +15,9 @@
  */
 package kiwi.core.services.triplestore;
 
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.importer.ImportService;
 import kiwi.core.api.triplestore.ContextService;

@@ -15,16 +15,17 @@
  */
 package kiwi.core.webservices.resource;
 
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
-import static at.newmedialab.sesame.commons.repository.ResourceUtils.getAnonResource;
-import static at.newmedialab.sesame.commons.repository.ResourceUtils.getLabel;
-import static at.newmedialab.sesame.commons.repository.ResourceUtils.getUriResource;
-import static at.newmedialab.sesame.commons.repository.ResourceUtils.listOutgoing;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getAnonResource;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getLabel;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getUriResource;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.content.ContentService;
 import kiwi.core.api.triplestore.SesameService;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.openrdf.model.*;

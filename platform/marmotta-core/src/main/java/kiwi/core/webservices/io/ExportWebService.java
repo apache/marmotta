@@ -15,10 +15,10 @@
  */
 package kiwi.core.webservices.io;
 
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
-import at.newmedialab.sesame.commons.util.DateUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.commons.util.DateUtils;
 import kiwi.core.api.exporter.ExportService;
 import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.exception.io.UnsupportedExporterException;

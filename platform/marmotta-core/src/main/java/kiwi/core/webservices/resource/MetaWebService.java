@@ -47,6 +47,7 @@ import kiwi.core.services.sesame.KiWiSesameUtil;
 import kiwi.core.services.sesame.ResourceSubjectMetadata;
 
 import org.apache.marmotta.commons.collections.CollectionUtils;
+import org.apache.marmotta.commons.http.ETagGenerator;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -58,8 +59,6 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
-
-import at.newmedialab.sesame.commons.http.ETagGenerator;
 
 /**
  * Meta Web Services

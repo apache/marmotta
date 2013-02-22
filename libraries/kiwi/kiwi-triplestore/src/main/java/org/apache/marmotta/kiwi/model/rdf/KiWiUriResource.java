@@ -15,10 +15,11 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import at.newmedialab.sesame.commons.model.URICommons;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+
+import org.apache.marmotta.commons.sesame.model.URICommons;
 import org.openrdf.model.URI;
 
 /**

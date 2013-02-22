@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 package kiwi.core.services.triplestore;
-
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
-
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +39,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 
 /**
  * (Experimental) Implementation for supporting LDP (WIP)

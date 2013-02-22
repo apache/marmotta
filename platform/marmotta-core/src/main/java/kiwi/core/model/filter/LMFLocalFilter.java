@@ -17,7 +17,8 @@ package kiwi.core.model.filter;
 
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.util.KiWiContext;
-import org.apache.marmotta.sesame.filter.resource.ResourceFilter;
+
+import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;

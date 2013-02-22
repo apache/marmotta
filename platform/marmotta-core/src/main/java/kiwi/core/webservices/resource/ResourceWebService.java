@@ -17,8 +17,7 @@ package kiwi.core.webservices.resource;
 
 import static javax.ws.rs.core.Response.status;
 
-import at.newmedialab.sesame.commons.http.ETagGenerator;
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.content.ContentService;
 import kiwi.core.api.io.LMFIOService;
@@ -26,6 +25,7 @@ import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.services.sesame.KiWiSesameUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.http.LMFHttpUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;

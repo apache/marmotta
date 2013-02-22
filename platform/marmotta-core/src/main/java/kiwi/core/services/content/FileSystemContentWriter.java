@@ -15,13 +15,16 @@
  */
 package kiwi.core.services.content;
 
-import at.newmedialab.sesame.facading.FacadingFactory;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.content.ContentWriter;
 import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.model.content.MediaContentItem;
+
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
@@ -40,8 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.UUID;
-
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content writer that writes the content of a resource to the file system.

@@ -16,8 +16,10 @@
 
 package org.apache.marmotta.kiwi.test;
 
-import at.newmedialab.sesame.commons.model.Namespaces;
-import at.newmedialab.sesame.commons.util.DateUtils;
+import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.marmotta.kiwi.model.rdf.*;
@@ -45,7 +47,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import static at.newmedialab.sesame.commons.model.LiteralCommons.getRDFLangStringType;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 

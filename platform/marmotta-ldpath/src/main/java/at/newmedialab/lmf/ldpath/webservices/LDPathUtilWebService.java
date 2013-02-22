@@ -15,14 +15,14 @@
  */
 package at.newmedialab.lmf.ldpath.webservices;
 
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
-import static at.newmedialab.sesame.commons.repository.ResourceUtils.listOutgoing;
-import static at.newmedialab.sesame.commons.repository.ResourceUtils.listResourcesByPrefix;
-import static at.newmedialab.sesame.commons.repository.ResultUtils.iterable;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listResourcesByPrefix;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 
 import at.newmedialab.lmf.ldpath.api.LDPathService;
-import at.newmedialab.sesame.commons.model.Namespaces;
-import at.newmedialab.sesame.commons.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import kiwi.core.api.prefix.PrefixService;

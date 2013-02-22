@@ -15,13 +15,16 @@
  */
 package kiwi.core.services.content;
 
-import at.newmedialab.sesame.facading.FacadingFactory;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import kiwi.core.api.config.ConfigurationService;
 import kiwi.core.api.content.ContentReader;
 import kiwi.core.api.triplestore.SesameService;
 import kiwi.core.model.content.MediaContentItem;
+
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
@@ -39,8 +42,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-
-import static at.newmedialab.sesame.commons.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content reader that reads the content of a resource from the file system.
