@@ -77,10 +77,9 @@ public class JettyLMF extends AbstractLMF {
         startupService.startupConfiguration(lmfHome.getAbsolutePath(),override,ctx.getServletContext());
 
         // register the RestEasy CDI injector factory
-        ctx.setAttribute("resteasy.injector.factory","kiwi.core.test.base.jetty.TestInjectorFactory");
+        ctx.setAttribute("resteasy.injector.factory", "org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory");
 
-
-        // register the LMF filters
+        // register filters
         FilterHolder resourceFilter = new FilterHolder(CDIContext.getInstance(KiWiResourceFilter.class));
         resourceFilter.setInitParameter("kiwi.resourceCaching", "true");
         ctx.addFilter(resourceFilter,"/*", Handler.DEFAULT);
@@ -90,16 +89,15 @@ public class JettyLMF extends AbstractLMF {
         // if a single web service is given, only register that webservice, otherwise startup the default configuration
         //FilterHolder restEasyFilter = new FilterHolder(org.jboss.resteasy.plugins.server.servlet.FilterDispatcher.class);
         ServletHolder restEasyFilter  = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
-        restEasyFilter.setInitParameter("resteasy.injector.factory", "kiwi.core.test.base.jetty.TestInjectorFactory");
+        restEasyFilter.setInitParameter("resteasy.injector.factory", "org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory");
 
 
         if(webservice != null) {
             TestApplication.setTestedWebServices(webservice);
-
             //restEasyFilter.setInitParameter("resteasy.resources", webservice.getName());
-            restEasyFilter.setInitParameter("javax.ws.rs.Application","kiwi.core.test.base.jetty.TestApplication");
+            restEasyFilter.setInitParameter("javax.ws.rs.Application", "org.apache.marmotta.platform.core.test.base.jetty.TestApplication");
         } else {
-            restEasyFilter.setInitParameter("javax.ws.rs.Application","kiwi.core.webservices.CoreApplication");
+            restEasyFilter.setInitParameter("javax.ws.rs.Application", "org.apache.marmotta.platform.core.webservices.CoreApplication");
         }
 
         //ctx.addFilter(restEasyFilter,"/*", Handler.ALL);
