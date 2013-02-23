@@ -326,7 +326,7 @@
                     <groupId>com.mycila.maven-license-plugin</groupId>
                     <artifactId>maven-license-plugin</artifactId>
                     <configuration>
-                        <header>${project.parent.relativePath}/src/etc/header.txt</header>
+                        <header>parent/src/etc/header.txt</header>
                         <strictCheck>true</strictCheck>
                         <excludes>
                             <exclude>COPYING.txt</exclude>
