@@ -49,7 +49,7 @@ public class LoggingServiceImpl implements LoggingService {
 
     @PostConstruct
     public void initialize() {
-        log.info("KiWi Logging Service starting up ...");
+        log.info("Apache Marmotta Logging Service starting up ...");
 
         for(String key : configurationService.listConfigurationKeys("logging.")) {
             String loggerName   = key.substring("logging.".length());
