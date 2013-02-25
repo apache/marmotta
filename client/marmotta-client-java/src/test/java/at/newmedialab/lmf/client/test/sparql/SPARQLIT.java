@@ -21,7 +21,7 @@ import at.newmedialab.lmf.client.model.sparql.SPARQLResult;
 import at.newmedialab.lmf.client.test.ldpath.LDPathIT;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.apache.marmotta.platform.core.test.base.JettyLMF;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -42,7 +42,7 @@ import static org.hamcrest.Matchers.*;
 public class SPARQLIT {
     private final static Logger log = LoggerFactory.getLogger(SPARQLIT.class);
 
-    private static JettyLMF lmf;
+    private static JettyMarmotta lmf;
 
     private static ClientConfiguration config;
 
@@ -52,7 +52,7 @@ public class SPARQLIT {
 
     @BeforeClass
     public static void init() throws MarmottaImportException {
-        lmf = new JettyLMF("/LMF",8080);
+        lmf = new JettyMarmotta("/LMF",8080);
         config = new ClientConfiguration("http://localhost:8080/LMF");
 
         importService = lmf.getService(ImportService.class);

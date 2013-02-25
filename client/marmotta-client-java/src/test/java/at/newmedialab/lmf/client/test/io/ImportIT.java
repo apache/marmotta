@@ -20,7 +20,7 @@ import at.newmedialab.lmf.client.clients.ImportClient;
 import at.newmedialab.lmf.client.clients.ResourceClient;
 import at.newmedialab.lmf.client.exception.LMFClientException;
 import at.newmedialab.lmf.client.model.meta.Metadata;
-import org.apache.marmotta.platform.core.test.base.JettyLMF;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.io.ImportWebService;
 import org.apache.marmotta.platform.core.webservices.resource.MetaWebService;
 import org.apache.marmotta.platform.core.webservices.resource.ResourceWebService;
@@ -38,13 +38,13 @@ import java.io.IOException;
  */
 public class ImportIT {
 
-    private static JettyLMF lmf;
+    private static JettyMarmotta lmf;
 
     private static ClientConfiguration config;
 
     @BeforeClass
     public static void init() {
-        lmf = new JettyLMF("/LMF", 8080, ImportWebService.class, ResourceWebService.class, MetaWebService.class);
+        lmf = new JettyMarmotta("/LMF", 8080, ImportWebService.class, ResourceWebService.class, MetaWebService.class);
 
         config = new ClientConfiguration("http://localhost:8080/LMF");
 

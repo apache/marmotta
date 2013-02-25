@@ -17,7 +17,7 @@ package org.apache.marmotta.platform.core.test.config;
 
 import junit.framework.Assert;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.test.base.EmbeddedLMF;
+import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,12 +33,12 @@ import java.util.Random;
  */
 public class ConfigurationServiceTest {
 
-    private static EmbeddedLMF lmf;
+    private static EmbeddedMarmotta lmf;
     private static ConfigurationService configurationService;
 
     @BeforeClass
     public static void setUp() {
-        lmf = new EmbeddedLMF();
+        lmf = new EmbeddedMarmotta();
         configurationService = lmf.getService(ConfigurationService.class);
     }
 

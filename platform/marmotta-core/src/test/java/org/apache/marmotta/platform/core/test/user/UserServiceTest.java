@@ -17,7 +17,7 @@ package org.apache.marmotta.platform.core.test.user;
 
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
-import org.apache.marmotta.platform.core.test.base.EmbeddedLMF;
+import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -32,12 +32,12 @@ import org.openrdf.model.URI;
  */
 public class UserServiceTest {
 
-    private static EmbeddedLMF lmf;
+    private static EmbeddedMarmotta lmf;
     private static UserService userService;
 
     @BeforeClass
     public static void setUp() {
-        lmf = new EmbeddedLMF();
+        lmf = new EmbeddedMarmotta();
         userService = lmf.getService(UserService.class);
     }
 

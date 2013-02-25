@@ -15,10 +15,15 @@
  */
 package org.apache.marmotta.platform.core.test.config;
 
-import com.google.common.collect.Lists;
-import com.jayway.restassured.RestAssured;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+
+import java.io.IOException;
+
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.test.base.JettyLMF;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.config.ConfigurationWebService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.AfterClass;
@@ -26,12 +31,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import com.google.common.collect.Lists;
+import com.jayway.restassured.RestAssured;
 
 /**
  * Add file description here!
@@ -40,7 +41,7 @@ import static org.hamcrest.Matchers.hasItems;
  */
 public class ConfigurationWebServiceTest {
 
-    private static JettyLMF lmf;
+    private static JettyMarmotta marmotta;
     private static ConfigurationService configurationService;
 
     private static ObjectMapper mapper = new ObjectMapper();
@@ -48,18 +49,18 @@ public class ConfigurationWebServiceTest {
 
     @BeforeClass
     public static void setUp() {
-        lmf = new JettyLMF("/LMF",8080, ConfigurationWebService.class);
-        configurationService = lmf.getService(ConfigurationService.class);
+        marmotta = new JettyMarmotta("/marmotta", 8080, ConfigurationWebService.class);
+        configurationService = marmotta.getService(ConfigurationService.class);
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = 8080;
-        RestAssured.basePath = "/LMF";
+        RestAssured.basePath = "/marmotta";
 
     }
 
     @AfterClass
     public static void tearDown() {
-        lmf.shutdown();
+        marmotta.shutdown();
     }
 
     @Test

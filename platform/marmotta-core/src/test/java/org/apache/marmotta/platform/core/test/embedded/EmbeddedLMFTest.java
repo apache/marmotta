@@ -16,7 +16,7 @@
 package org.apache.marmotta.platform.core.test.embedded;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.test.base.EmbeddedLMF;
+import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class EmbeddedLMFTest {
 
     @Test
     public void testLMFStartup() {
-        EmbeddedLMF lmf = new EmbeddedLMF();
+        EmbeddedMarmotta lmf = new EmbeddedMarmotta();
 
         ConfigurationService cs = lmf.getService(ConfigurationService.class);
 

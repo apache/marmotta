@@ -20,7 +20,7 @@ import at.newmedialab.lmf.client.clients.ConfigurationClient;
 import at.newmedialab.lmf.client.exception.LMFClientException;
 import at.newmedialab.lmf.client.model.config.Configuration;
 import com.google.common.collect.Lists;
-import org.apache.marmotta.platform.core.test.base.JettyLMF;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.config.ConfigurationWebService;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
@@ -39,13 +39,13 @@ import java.util.Set;
 public class ConfigurationIT {
 
 
-    private static JettyLMF lmf;
+    private static JettyMarmotta lmf;
 
     private static ClientConfiguration config;
 
     @BeforeClass
     public static void init() {
-        lmf = new JettyLMF("/LMF",8080, ConfigurationWebService.class);
+        lmf = new JettyMarmotta("/LMF",8080, ConfigurationWebService.class);
 
         config = new ClientConfiguration("http://localhost:8080/LMF");
 

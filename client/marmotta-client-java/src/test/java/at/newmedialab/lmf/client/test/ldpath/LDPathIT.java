@@ -21,7 +21,7 @@ import at.newmedialab.lmf.client.model.rdf.RDFNode;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.ldpath.webservices.LDPathWebService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
-import org.apache.marmotta.platform.core.test.base.JettyLMF;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -42,7 +42,7 @@ import static org.hamcrest.Matchers.*;
 public class LDPathIT {
 
 
-    private static JettyLMF lmf;
+    private static JettyMarmotta lmf;
 
     private static ClientConfiguration config;
 
@@ -51,7 +51,7 @@ public class LDPathIT {
 
     @BeforeClass
     public static void init() throws MarmottaImportException {
-        lmf = new JettyLMF("/LMF",8080, LDPathWebService.class);
+        lmf = new JettyMarmotta("/LMF",8080, LDPathWebService.class);
 
         config = new ClientConfiguration("http://localhost:8080/LMF");
 
