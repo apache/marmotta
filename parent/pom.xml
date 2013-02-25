@@ -817,8 +817,8 @@
             <dependency>
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
-                <version>1.1.EDR1.2</version>
-            </dependency>
+                <version>1.1-PRD</version>
+             </dependency>
             <dependency>
                 <groupId>org.jboss.weld</groupId>
                 <artifactId>weld-api</artifactId>
