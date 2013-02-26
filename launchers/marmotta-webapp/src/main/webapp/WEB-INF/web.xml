@@ -21,68 +21,56 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-
     <!-- enable LMF custom JNDI implementation -->
     <listener>
         <listener-class>org.apache.marmotta.platform.core.jndi.MarmottaJndiListener</listener-class>
     </listener>
-
 
     <!-- enable CDI / Weld for dependency injection -->
     <listener>
        <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
     </listener>
 
-
     <!-- Initialise the KiWi system -->
     <listener>
-        <listener-class>org.apache.marmotta.platform.core.servlet.KiWiPreStartupListener</listener-class>
+        <listener-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupListener</listener-class>
     </listener>
-
 
     <!-- RESTeasy Webservices -->
     <listener>
       <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
     </listener>
 
-    <!--
-        specifies the LMF home directory; overridden by environment variable MARMOTTA_HOME or system property marmotta.home
-    -->
+    <!-- specifies the LMF home directory; overridden by environment variable LMF_HOME or system property kiwi.home -->
     <context-param>
-        <param-name>marmotta.home</param-name>
+        <param-name>kiwi.home</param-name>
         <param-value>/tmp/lmf</param-value>
     </context-param>
 
-    <!--
-        this filter performs startup configurations for first installation
-    -->
+    <!-- this filter performs startup configurations for first installation -->
     <filter>
-        <filter-name>KiWiPreStartupFilter</filter-name>
-        <filter-class>org.apache.marmotta.platform.core.servlet.KiWiPreStartupFilter</filter-class>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>KiWiPreStartupFilter</filter-name>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
-
 
     <!-- handle OPTIONS requests -->
     <filter>
-      <filter-name>LMFOptionsFilter</filter-name>
-      <filter-class>org.apache.marmotta.platform.core.servlet.LMFOptionsFilter</filter-class>
+      <filter-name>MarmottaOptionsFilter</filter-name>
+      <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaOptionsFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>LMFOptionsFilter</filter-name>
+        <filter-name>MarmottaOptionsFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-
-
     <!-- Serve static resources from file system and from .jar files of the respective modules -->
     <filter>
-        <filter-name>KiWiResourceFilter</filter-name>
-        <filter-class>org.apache.marmotta.platform.core.servlet.KiWiResourceFilter</filter-class>
+        <filter-name>MarmottaResourceFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter</filter-class>
         <init-param>
             <!-- cache resources loaded from module jar files? -->
             <param-name>kiwi.resourceCaching</param-name>
@@ -90,19 +78,17 @@
         </init-param>
     </filter>
     <filter-mapping>
-        <filter-name>KiWiResourceFilter</filter-name>
+        <filter-name>MarmottaResourceFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-
-
     <!-- H2 Configuration -->
     <filter>
-      <filter-name>KiWiH2ConsoleFilter</filter-name>
-      <filter-class>org.apache.marmotta.platform.core.servlet.KiWiH2ConsoleFilter</filter-class>
+      <filter-name>MarmottaH2ConsoleFilter</filter-name>
+      <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaH2ConsoleFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>KiWiH2ConsoleFilter</filter-name>
+        <filter-name>MarmottaH2ConsoleFilter</filter-name>
         <url-pattern>/database/*</url-pattern>
     </filter-mapping>
 	<servlet>
@@ -116,14 +102,12 @@
 		<servlet-name>H2Console</servlet-name>
 		<url-pattern>/database/*</url-pattern>
 	</servlet-mapping>
-	
 
-     <mime-mapping>
-       <extension>.xsl</extension>
-       <!-- per http://www.w3.org/TR/2006/PR-xslt20-20061121/ -->
-       <mime-type>application/xslt+xml</mime-type>
-     </mime-mapping>
-
+    <mime-mapping>
+        <extension>.xsl</extension>
+        <!-- per http://www.w3.org/TR/2006/PR-xslt20-20061121/ -->
+        <mime-type>application/xslt+xml</mime-type>
+    </mime-mapping>
 
     <servlet>
         <servlet-name>ViewStatusMessages</servlet-name>
@@ -135,9 +119,8 @@
         <url-pattern>/logging/status</url-pattern>
     </servlet-mapping>
 
-
     <filter>
-        <filter-name>KiWi Webservices</filter-name>
+        <filter-name>MarmottaWebservices</filter-name>
         <filter-class>
             org.jboss.resteasy.plugins.server.servlet.FilterDispatcher
         </filter-class>
@@ -148,7 +131,7 @@
     </filter>
 
     <filter-mapping>
-        <filter-name>KiWi Webservices</filter-name>
+        <filter-name>MarmottaWebservices</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     
@@ -158,15 +141,14 @@
     </context-param>
 
     <filter>
-        <filter-name>KiWiPostStartupFilter</filter-name>
+        <filter-name>MarmottaPostStartupFilter</filter-name>
         <filter-class>
-            org.apache.marmotta.platform.core.servlet.KiWiPostStartupFilter
+            org.apache.marmotta.platform.core.servlet.MarmottaPostStartupFilter
         </filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>KiWiPostStartupFilter</filter-name>
+        <filter-name>MarmottaPostStartupFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
 
 </web-app>
