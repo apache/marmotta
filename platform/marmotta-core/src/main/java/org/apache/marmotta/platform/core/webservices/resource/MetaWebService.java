@@ -38,6 +38,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.marmotta.commons.collections.CollectionUtils;
+import org.apache.marmotta.commons.http.ETagGenerator;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
@@ -45,9 +48,6 @@ import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
 import org.apache.marmotta.platform.core.services.sesame.ResourceSubjectMetadata;
-
-import org.apache.marmotta.commons.collections.CollectionUtils;
-import org.apache.marmotta.commons.http.ETagGenerator;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -238,6 +238,10 @@ public class MetaWebService {
     private Response getMeta(String uri, String mimetype, String uuid) throws UnsupportedEncodingException {
         try {
             RepositoryConnection conn = sesameService.getConnection();
+            
+            if (!ResourceUtils.existsResource(conn, uri)) {
+            	return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future");
+            }
 
             try {
                 conn.begin();
