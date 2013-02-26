@@ -15,20 +15,25 @@
  */
 package org.apache.marmotta.maven.plugins.buildinfo;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.model.Build;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProject;
-
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.model.Build;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Date: 13.05.2011
@@ -51,14 +56,14 @@ public class BuildInfoMojo extends AbstractMojo {
     private MavenProject project;
 
 
-    private static Map<String,String> lmfCommiters = new HashMap<String, String>();
+    private static Map<String,String> marmottaCommiters = new HashMap<String, String>();
     static {
-        lmfCommiters.put("sschaffe", "Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>");
-        lmfCommiters.put("tkurz", "Thomas Kurz <thomas.kurz@salzburgresearch.at>");
-        lmfCommiters.put("dglachs", "Dietmar Glachs <dietmar.glachs@salzburgresearch.at>");
-        lmfCommiters.put("jfrank", "Jakob Frank <jakob.frank@salzburgresearch.at>");
-        lmfCommiters.put("jakob","Jakob Frank <jakob.frank@salzburgresearch.at>");
-        lmfCommiters.put("sfernandez","Sergio Fernández <sergio.fernandez@salzburgresearch.at>");
+        marmottaCommiters.put("sschaffe", "Sebastian Schaffert <wastl@apache.org>");
+        marmottaCommiters.put("tkurz", "Thomas Kurz <tkurz@apache.org>");
+        marmottaCommiters.put("dglachs", "Dietmar Glachs <dglachs@apache.org>");
+        marmottaCommiters.put("jfrank", "Jakob Frank <jakob@apache.org>");
+        marmottaCommiters.put("jakob", "Jakob Frank <jakob@apache.org>");
+        marmottaCommiters.put("sfernandez","Sergio Fernández <wikier@apache.org>");
     }
 
 
@@ -92,8 +97,8 @@ public class BuildInfoMojo extends AbstractMojo {
         }
 
         // user name
-        if(lmfCommiters.get(System.getProperty("user.name")) != null) {
-            map.put("build.user", lmfCommiters.get(System.getProperty("user.name")));
+        if(marmottaCommiters.get(System.getProperty("user.name")) != null) {
+            map.put("build.user", marmottaCommiters.get(System.getProperty("user.name")));
         } else {
             map.put("build.user", System.getProperty("user.name"));
         }

@@ -79,7 +79,7 @@ public class RefPackMojo extends AbstractMojo {
      * the dependency tree, the process will break at each module of this group id and instead add
      * a dependency to the other module to the refpacks.
      *
-     * @parameter expression="${refpack.moduleGroupId}" default-value="at.newmedialab.lmf"
+     * @parameter expression="${refpack.moduleGroupId}" default-value="org.apache.marmotta"
      * @required
      * @readonly
      */

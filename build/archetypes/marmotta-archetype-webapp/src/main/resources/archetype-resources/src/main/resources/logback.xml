@@ -46,19 +46,12 @@
         </encoder>
     </appender>
 
+    <logger name="org.apache.marmotta" level="WARN" />
     <logger name="org.apache.marmotta.platform.core" level="INFO" />
 
     <logger name="org.apache.marmotta.platform.reasoner" level="INFO" />
 
-	<logger name="at.newmedialab.sn" level="TRACE" />
-    
-    <logger name="kiwi.social" level="TRACE" />
-
     <logger name="org.hibernate" level="WARN" />
-    <!--
-    <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.pretty" level="DEBUG" />
-    -->
 
     <logger name="org.apache.solr" level="WARN" />
 

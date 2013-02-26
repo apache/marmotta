@@ -21,7 +21,7 @@
     <packaging>pom</packaging>
 
     <name>Apache Marmotta: Maven Plugins</name>
-    <description>LMF-specific maven plugins</description>
+    <description>Marmotta-specific maven plugins</description>
 
     <build>
         <plugins>
