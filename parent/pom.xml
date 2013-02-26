@@ -500,12 +500,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--
-            <plugin>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>repocheck-maven-plugin</artifactId>
-            </plugin>
--->
              <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -520,7 +514,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.1</version>
                 <executions>
                     <execution>
                         <id>bundle-sources</id>
@@ -539,7 +532,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
                     <!--
                       During release:perform, enable the "sign" profile
