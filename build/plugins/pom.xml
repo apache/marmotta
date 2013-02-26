@@ -71,6 +71,20 @@
                 </configuration>
             </plugin>
             <plugin>
+                <!-- No need for the repocheck plugin here -->
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>repocheck-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
                 <!-- No need for jrebel here -->
                 <groupId>org.zeroturnaround</groupId>
                 <artifactId>jrebel-maven-plugin</artifactId>

@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
-    license agreements. See the NOTICE file distributed with this work for additional 
-    information regarding copyright ownership. The ASF licenses this file to 
-    You under the Apache License, Version 2.0 (the "License"); you may not use 
-    this file except in compliance with the License. You may obtain a copy of 
-    the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
-    by applicable law or agreed to in writing, software distributed under the 
-    License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
-    OF ANY KIND, either express or implied. See the License for the specific 
-    language governing permissions and limitations under the License. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -445,11 +450,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
-                    <!-- <execution> <id>aggregate</id> <goals> <goal>aggregate</goal> 
-                        </goals> <phase>site</phase> </execution> -->
+                    <!--
                     <execution>
-                        <!-- configure how the REST API documentation will 
-                            be produced -->
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                    -->
+                    <execution>
+                        <!-- configure how the REST API documentation will be produced -->
                         <id>restapi</id>
                         <configuration>
                             <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
@@ -471,7 +482,9 @@
                                 -charset UTF-8
                             </additionalparam>
 
-                            <!-- <stylesheetfile>${project.parent.basedir}/config/doc/doclet.css</stylesheetfile> -->
+                            <!--
+                                                        <stylesheetfile>${project.parent.basedir}/config/doc/doclet.css</stylesheetfile>
+                            -->
 
                             <header><![CDATA[<!--###BEGIN_CONTENT###--><div class="javadoc">]]></header>
                             <footer><![CDATA[</div><!--###END_CONTENT###-->]]></footer>
@@ -487,11 +500,13 @@
                     </execution>
                 </executions>
             </plugin>
+<!--
             <plugin>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>repocheck-maven-plugin</artifactId>
             </plugin>
-            <plugin>
+-->
+             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
             </plugin>
@@ -504,101 +519,36 @@
                 <artifactId>jrebel-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <id>bundle-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <!-- produce source artifact for main project sources -->
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
-                    <!-- During release:perform, enable the "sign" profile -->
+                    <!--
+                      During release:perform, enable the "sign" profile
+                     -->
                     <releaseProfiles>sign</releaseProfiles>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9</version>
-                <reportSets>
-                    <!-- Create Java API Documentation -->
-                    <reportSet>
-                        <id>javaapi</id>
-                        <configuration>
-                            <name>Java API</name>
-                            <description>Aggregated Java API
-                                documentation</description>
-                            <destDir>javaapi</destDir>
-                            <encoding>UTF-8</encoding>
-                        </configuration>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-
-                    <!-- Create REST API Documentation -->
-                    <reportSet>
-                        <!-- configure how the REST API documentation will 
-                            be produced -->
-                        <id>restapi</id>
-                        <configuration>
-                            <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
-                            <name>REST API</name>
-                            <description>REST API for LMF Webservices</description>
-                            <destDir>restapi</destDir>
-                            <docletArtifact>
-                                <groupId>com.lunatech.jax-doclets</groupId>
-                                <artifactId>doclets</artifactId>
-                                <version>0.10.0</version>
-                            </docletArtifact>
-                            <additionalparam>
-                                -jaxrscontext /LMF -charset
-                                UTF-8
-                            </additionalparam>
-                            <encoding>UTF-8</encoding>
-                            <detectOfflineLinks>false</detectOfflineLinks>
-                        </configuration>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-
-            <!-- Create Release Notes -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-changes-plugin</artifactId>
-                <version>2.8</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>changes-report</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-
-            <!-- Check License Headers -->
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-                <version>0.8</version>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <dependencyManagement>
         <dependencies>
@@ -1396,42 +1346,42 @@
 
             <!-- LDPath -->
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-backend-sesame</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-xml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-math</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-html</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-date</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.marmotta</groupId>
+               <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-text</artifactId>
                 <version>${project.version}</version>
             </dependency>
