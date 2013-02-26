@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.maven.plugins.buildinfo;
+package org.apache.marmotta.maven.plugins.buildinfo;
 
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.scm.CommandParameters;
@@ -46,7 +46,6 @@ public class GitInfoProvider extends AbstractInfoProvider {
         return isActive(project, DOT_GIT);
     }
 
-    @SuppressWarnings("unchecked")
     public Map<String, String> getInfo(MavenProject project) {
         File basedir = project.getBasedir();
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.maven.plugins.refpack;
+package org.apache.marmotta.maven.plugins.refpack;
 
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.model.Model;
