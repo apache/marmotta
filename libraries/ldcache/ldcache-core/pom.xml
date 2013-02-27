@@ -126,11 +126,6 @@
             <groupId>junit</groupId>
             <scope>test</scope>
         </dependency>
-        <dependency> <!-- see http://www.dbunit.org/howto.html -->
-            <artifactId>dbunit</artifactId>
-            <groupId>org.dbunit</groupId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <artifactId>hamcrest-core</artifactId>
             <groupId>org.hamcrest</groupId>

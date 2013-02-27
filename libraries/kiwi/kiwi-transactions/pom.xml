@@ -93,11 +93,6 @@
         	<type>test-jar</type>
         	<scope>test</scope>
         </dependency>
-        <dependency> <!-- see http://www.dbunit.org/howto.html -->
-            <artifactId>dbunit</artifactId>
-            <groupId>org.dbunit</groupId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>

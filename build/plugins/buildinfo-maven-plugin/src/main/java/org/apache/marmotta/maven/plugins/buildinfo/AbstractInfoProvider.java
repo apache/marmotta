@@ -29,9 +29,22 @@ import java.io.FileNotFoundException;
 public abstract class AbstractInfoProvider implements InfoProvider {
 
     private File lookupDirectory(MavenProject project, String child) throws FileNotFoundException {
-        File dir;
+        File dir, vcs;
+
+        // walk up the directory structure looking for the .git or .hg directory
+        dir = project.getBasedir();
+
+        while(dir != null) {
+            vcs = new File(dir, child);
+            if (vcs.exists() && vcs.isDirectory()) {
+                return dir;
+            }
+            dir = dir.getParentFile();
+        }
+
 
         //Walk up the project parent hierarchy seeking the .hg directory
+/*
         MavenProject mavenProject = project;
         while (mavenProject != null) {
             dir = new File(mavenProject.getBasedir(), child);
@@ -47,6 +60,7 @@ public abstract class AbstractInfoProvider implements InfoProvider {
             }
             mavenProject = mavenProject.getParent();
         }
+*/
 
         throw new FileNotFoundException("Could not find " + child + " directory");
     }

@@ -109,7 +109,13 @@ public class ModuleConfiguration {
      * @return   he version management revision of the module as determined at build time, or ""
      */
     public String getBuildRevisionHash() {
-        return config.getString("build.revhash","");
+        if(config.getString("build.revhash") != null) {
+            return "hg:" + config.getString("build.revhash");
+        } else if(config.getString("git.revision") != null) {
+            return "git:"+config.getString("git.revision").substring(0,6);
+        } else {
+            return "";
+        }
     }
     
     

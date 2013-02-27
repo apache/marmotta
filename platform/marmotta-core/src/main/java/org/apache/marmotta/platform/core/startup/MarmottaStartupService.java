@@ -109,7 +109,7 @@ public class MarmottaStartupService {
                 log.info(" - Build Host: {}", coreConfiguration.getBuildHost());
                 log.info(" - Build Time: {}", coreConfiguration.getBuildTimestamp());
                 log.info(" - Build OS:   {}", coreConfiguration.getBuildOS());
-                log.info(" - Revision:   {}:{}", coreConfiguration.getBuildRevisionNumber(), coreConfiguration.getBuildRevisionHash());
+                log.info(" - Revision:   {}", coreConfiguration.getBuildRevisionHash());
                 versionNumber = coreConfiguration.getModuleVersion();
             } else {
                 log.info("Apache Marmotta Core (Development Version) starting up ... ");
