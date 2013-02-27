@@ -20,15 +20,16 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>marmotta-client</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.0.0-incubating-SNAPSHOT</version>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>lmf-client-js</artifactId>
+    <artifactId>marmotta-client-js</artifactId>
     <packaging>jar</packaging>
 
-    <name>LMF Client Library for JavaScript</name>
-    <description>A JavaScript Library for accessing a remote LMF installation using REST webservice calls.</description>
+    <name>Marmotta Client Library for JavaScript</name>
+    <description>A JavaScript Library for accessing a remote Marmotta installation using REST webservice calls.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 /**
- * Creates a LMF Client object which implements all methods below.
+ * Creates a Marmotta Client object which implements all methods below.
  *
  * Author: Thomas Kurz
  * @param url The basic URL of the Linked Media Framework.
  * @param opts an options object (OPTIONAL)
  */
-function LMFClient(url,opts) {
+function MarmottaClient(url,opts) {
 
     if( url==undefined) throw "url must be defined"; //test if url is defined
     if( url.lastIndexOf("/")==url.length-1) url=url.substring(0,url.length-1); //clean url
@@ -39,17 +39,8 @@ function LMFClient(url,opts) {
         sparql : {
             path : "/sparql"
         },
-        cores : {
-            path : "/solr/cores"
-        },
-        search : {
-            path : "/solr"
-        },
         ldpath : {
             path : "/ldpath"
-        },
-        classifier : {
-        	path : "/classifier"	
         }
     }
     if ( opts ) {
@@ -129,7 +120,7 @@ function LMFClient(url,opts) {
          */
         this.resourceClient = {
             /**
-             * Create a resource in the remote LMF installation
+             * Create a resource in the remote Marmotta installation
              * @param uri The uri of the new resource. If parameter is null, the system creates a random uri.
              * @param onsuccess Function is executed on success with parameter uri (identifier of new resource).(OPTIONAL)
              * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
@@ -271,87 +262,6 @@ function LMFClient(url,opts) {
             }
         }
 
-        var coresClient = new CoresClient(options.cores);
-        /**
-         *  A client for core management
-         */
-        this.coresClient = {
-            /**
-             * List all cores available
-             * @param onsuccess Function is executed on success with an array list of corenames as parameter.
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            listCores : function(onsuccess,onfailure) {
-                coresClient.listCores(onsuccess,onfailure);
-            },
-            /**
-             *
-             * @param name The name of the requested core
-             * @param onsuccess Function is executed on success with core program (string) as parameter.
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            getCoreConfiguration : function(name,onsuccess,onfailure) {
-                coresClient.getCoreConfiguration(name,onsuccess,onfailure);
-            },
-            /**
-             * Creates a new solr core. If core already exist, an Error is thrown (or an ServerError is retrieved).
-             * @param name The name of the core to create
-             * @param program The program string
-             * @param onsuccess Function is executed on success.(OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            createCoreConfiguration : function(name,program,onsuccess,onfailure) {
-                coresClient.createCoreConfiguration(name,program,onsuccess,onfailure)
-            },
-            /**
-             * Updates an existing core.
-             * @param name The name of the core to create
-             * @param program The program string
-             * @param onsuccess Function is executed on success.(OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            updateCoreConfiguration : function(name,program,onsuccess,onfailure) {
-                coresClient.updateCoreConfiguration(name,program,onsuccess,onfailure)
-            },
-            /**
-             * Deletes an existing core
-             * @param name The core name to delete
-             * @param onsuccess Function is executed on success.(OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            deleteCore : function(name,onsuccess,onfailure) {
-                coresClient.deleteCore(name,onsuccess,onfailure);
-            }
-        }
-
-
-        var searchClient = new SearchClient(options.search);
-        /**
-         * A client for solr search (just basics, it's better to use specialized solr client libraries)
-         */
-        this.searchClient = {
-            /**
-             * Execute a solr query on a given core
-             * @param corename The name of the core
-             * @param query A query object (e.g. {q:'*:*'})
-             * @param onsuccess Function is executed on success with solr result object as parameter.
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            search : function(corename, query, onsuccess, onfailure) {
-                searchClient.search(corename, query, onsuccess, onfailure);
-            },
-            /**
-             * Queries for recommended resources for a basic resource
-             * @param corename The name of the core
-             * @param uri The basic resource
-             * @param onsuccess Function is executed on success with solr result object as parameter.
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            recommendation : function(corename, uri, onsuccess, onfailure) {
-                searchClient.recommendation(corename, uri, onsuccess, onfailure);
-            }
-        }
-
         var ldPathClient = new LDPathClient(options.ldpath);
         /**
          * A client for ld path evaluation
@@ -378,129 +288,8 @@ function LMFClient(url,opts) {
                 ldPathClient.evaluateProgram(uri, program, onsuccess, onfailure);
             }
         }
-
-        var classificationClient = new ClassificationClient(options.classifier);
-
-        this.classificationClient = {
-            /**
-             * Create a new classifier with the given name. The service will take care of creating the appropriate
-             * configuration entries and work files in the LMF work directory.
-             * @param name a string identifying the classifier; should only consist of alphanumeric characters (no white spaces)
-             * @param onsuccess Function is executed on success. (OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            createClassifier : function(name, onsuccess, onfailure) {
-                classificationClient.createClassifier(name, onsuccess, onfailure);
-            },
-            /**
-             * Remove the classifier with the given name from the system configuration.
-             *
-             * @param name a string identifying the classifier; should only consist of alphanumeric characters (no white spaces)
-             * @param removeData also remove all training and model data of this classifier from the file system
-             * @param onsuccess Function is executed on success. (OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            removeClassifier : function(name, removeData, onsuccess, onfailure) {
-                classificationClient.removeClassifier(name, removeData, onsuccess, onfailure);
-            },
-            /**
-             * List all classifiers registered in the classification service.
-             * @param onsuccess Function is executed on success with list of classifiers as parameter.
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            listClassifiers : function(onsuccess, onfailure) {
-                classificationClient.listClassifiers(onsuccess, onfailure);
-            },
-            /**
-             * Add training data to the classifier identified by the given name and for the concept passed as argument. Note
-             * that training data is not immediately taken into account by the classifier. Retraining of the classifier will
-             * take place when a certain threshold of training datasets has been added or when a certain (configurable) time has
-             * passed.
-             * @param name a string identifying the classifier; should only consist of alphanumeric characters (no white spaces)
-             * @param uri the URI of the concept which to train with the sample text
-             * @param data the sample text for the concept
-             * @param onsuccess Function is executed on success. (OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            trainClassifier : function(name, uri, data, onsuccess, onfailure) {
-                classificationClient.trainClassifier(name, uri, data, onsuccess, onfailure);
-            },
-            /**
-             * Retrain the classifier with the given name immediately. Will read in the training data and create a new
-             * classification model.
-             * @param name
-             * @param onsuccess Function is executed on success. (OPTIONAL)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            retrainClassifier : function(name, onsuccess, onfailure) {
-                classificationClient.retrainClassifier(name, onsuccess, onfailure);
-            },
-            /**
-             * Get classifications from the given classifier for the given text. The classifications will be ordered by
-             * descending probability, so that classifications with higher probability will be first. A classification object
-             * consists of a KiWiUriResource identifying the classified concept and a probability indicating how likely it is
-             * that the text matches the given concept.
-             *
-             * @param name a string identifying the classifier; should only consist of alphanumeric characters (no white spaces)
-             * @param data the text to classify
-             * @param threshold the minimum probability of a classification to be considered in the result (may be null).
-             * @param onsuccess Function is executed on success with a list of classifications ordered by descending probability as parameter (all having higher probability than threshold)
-             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
-             */
-            listClassifications : function(name, data, threshold, onsuccess, onfailure) {
-                classificationClient.listClassifications(name, data, threshold, onsuccess, onfailure);
-            }
-        }
     }
     
-    function ClassificationClient(options) {
-    	function checkClassificationName(name) {
-    		return !/[^A-Za-z0-9]/.test(name);
-    	}
-    	this.createClassifier = function(name,onsuccess,onfailure) {
-    		if(!checkClassificationName(name)) throw new Error("name for classifier is not valid");
-    		HTTP.post(options.path+"/"+name,null,null,null,{
-    			200:function(){if(onsuccess)onsuccess();console.debug("created classifier "+name)},
-    			403:function(){if(onfailure)onfailure(new ServerError("classifier "+name+" already exists",403));else throw new Error("classifier "+name+" already exists")},
-    			"default":function(err,request){if(onfailure)onfailure(new ServerError("unexpected error",request.status));else throw new Error("unexpected error")}
-    		});	
-    	}
-    	this.removeClassifier = function(name,removeData,onsuccess,onfailure) {
-    		if(!checkClassificationName(name)) throw new Error("name for classifier is not valid");
-    		var query=removeData?{removeData:true}:null;
-    		HTTP.delete(options.path+"/"+name,query,null,null,{
-    			200:function(){if(onsuccess)onsuccess();console.debug("deleted classifier "+name)},
-    			404:function(){if(onfailure)onfailure(new ServerError("classifier "+name+" does not exist",404));else throw new Error("classifier "+name+" does not exist")},
-    			"default":function(err,request){if(onfailure)onfailure(new ServerError("unexpected error",request.status));else throw new Error("unexpected error")}
-    		});		
-    	}
-    	this.listClassifiers = function(onsuccess,onfailure) {
-    		HTTP.get(options.path+"/list",null,null,null,{
-    			200:function(data){if(onsuccess)onsuccess(JSON.parse(data));console.debug("classifiers listed successfully");},
-    			"default":function(err,request){if(onfailure)onfailure(new ServerError("unexpected error",request.status));else throw new Error("unexpected error")}
-    		});	
-    	}	
-    	this.trainClassifier = function(name,uri,data,onsuccess,onfailure) {
-    		var query = {concept:encodeURIComponent(uri)};
-    		HTTP.post(options.path+"/"+name+"/train",query,data,"text/plain",{
-    			200:function(){if(onsuccess)onsuccess();console.debug("classifier "+name+" updated successfully");},
-    			"default":function(err,request){if(onfailure)onfailure(new ServerError("unexpected error",request.status));else throw new Error("unexpected error")}
-    		});
-    	}
-    	this.retrainClassifier = function(name,onsuccess,onfailure) {
-    		HTTP.post(options.path+"/"+name+"/retrain",null,null,null,{
-    			200:function(){if(onsuccess)onsuccess();console.debug("classifier "+name+" retrained successfully");},
-    			"default":function(err,request){if(onfailure)onfailure(new ServerError("unexpected error",request.status));else throw new Error("unexpected error")}
-    		});
-    	}
-    	this.listClassifications = function(name,data,threshold,onsuccess,onfailure) {
-            var query = threshold?{threshold:encodeURIComponent(threshold)}:null;
-    		HTTP.post(options.path+"/"+name+"/classify",query,data,"text/plain",{
-    			200:function(data){if(onsuccess)onsuccess(JSON.parse(data));console.debug("classification executed successfully");},
-    			"default":function(err,request){if(onfailure)onfailure(new ServerError("unexpected error",request.status));else throw new Error("unexpected error")}
-    		});
-    	}
-    }
 
     function LDPathClient(options) {
         this.evaluatePath = function(uri,path,onsuccess,onfailure) {
@@ -521,68 +310,6 @@ function LMFClient(url,opts) {
         }
     }
 
-    /**
-     * Internal sorl search implementation (it is better to use solr client library like ajax/solr)
-     * @param options
-     */
-    function SearchClient(options) {
-        this.search = function(corename,query,onsuccess,onfailure) {
-            query.wt="json";
-            HTTP.get(options.path+"/"+corename+"/select",query,null,null,{
-                200:function(data){if(onsuccess)onsuccess(JSON.parse(data));console.debug("query successful");},
-                "default":function(err,request){if(onfailure)onfailure(new ServerError(err,request.status));else throw new Error(err)}
-            });
-        }
-        this.recommendation = function(corename,uri,onsuccess,onfailure) {
-            //TODO not implemented yet
-            alert("Recommendation function is not yet implemented");
-        }
-    }
-
-    /**
-     * Internal Cores client implementation
-     * @param options
-     */
-    function CoresClient(options) {
-        this.listCores = function(onsuccess,onfailure) {
-            HTTP.get(options.path,null,null,null,{
-                200:function(data){if(onsuccess)onsuccess(JSON.parse(data));console.debug("listed cores");},
-                "default":function(){if(onfailure)onfailure(new ServerError("Cannot list cores"));else throw new Error("Cannot list cores")}
-            });
-        }
-        this.getCoreConfiguration = function(name,onsuccess,onfailure) {
-            HTTP.get(options.path+"/"+encodeURIComponent(name),null,null,"text/plain",{
-                200:function(data){if(onsuccess)onsuccess(data);console.debug("return core "+name);},
-                404:function(){if(onfailure)onfailure(new ServerError("Core '"+name+"' does not exist",404));else throw new Error("Core '"+name+"' does not exist")},
-                "default":function(){if(onfailure)onfailure(new ServerError("Cannot return core '"+name+"'"));else throw new Error("Cannot return core '"+name+"'")}
-            });
-        }
-        this.createCoreConfiguration = function(name,program,onsuccess,onfailure) {
-            HTTP.post(options.path+"/"+encodeURIComponent(name),null,program,"text/plain",{
-                200:function(){if(onsuccess)onsuccess("created '"+name+"' successful");console.debug("created '"+name+"' successful")},
-                403:function(err){if(onfailure)onfailure(new ServerError(err,403));else throw new Error(err)},
-                400:function(err){if(onfailure)onfailure(new ServerError(err,400));else throw new Error(err)},
-                500:function(err){if(onfailure)onfailure(new ServerError(err,500));else throw new Error(err)},
-                "default":function(){if(onfailure)onfailure(new ServerError("unknown error"));else throw new Error("unknown error")}
-            });
-        }
-        this.updateCoreConfiguration = function(name,program,onsuccess,onfailure) {
-            HTTP.put(options.path+"/"+encodeURIComponent(name),null,program,"text/plain",{
-                200:function(msg){if(onsuccess)onsuccess("updated '"+name+"' successful");console.debug("updated '"+name+"' successful")},
-                400:function(err){if(onfailure)onfailure(new ServerError(err,400));else throw new Error(err)},
-                404:function(err){if(onfailure)onfailure(new ServerError(err,404));else throw new Error(err)},
-                500:function(err){if(onfailure)onfailure(new ServerError(err,500));else throw new Error(err)},
-                "default":function(){if(onfailure)onfailure(new ServerError("unknown error"));else throw new Error("unknown error")}
-            });
-        }
-        this.deleteCore = function(name,onsuccess,onfailure) {
-            HTTP.delete(options.path+"/"+encodeURIComponent(name),null,null,null,{
-                200:function(msg){if(onsuccess)onsuccess(msg);console.debug(msg)},
-                404:function(err){if(onfailure)onfailure(new ServerError(err,404));else throw new Error(err)},
-                "default":function(){if(onfailure)onfailure(new ServerError("unknown error"));else throw new Error("unknown error")}
-            });
-        }
-    }
 
     /**
      * Internal Spaqrl Client implementation
