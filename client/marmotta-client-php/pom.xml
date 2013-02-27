@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013 Salzburg Research.
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
+        <version>3.0.0-incubating-SNAPSHOT</version>
+        <relativePath>../../parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>marmotta-client-php</artifactId>
+    <packaging>php</packaging>
+
+    <name>Marmotta Client Library for PHP</name>
+    <description>
+        A PHP Library for accessing a remote Marmotta installation using REST webservice calls.
+    </description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.phpmaven</groupId>
+                <artifactId>maven-php-plugin</artifactId>
+                <version>2.0.2</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.phpmaven</groupId>
+                <artifactId>maven-php-phpdoc</artifactId>
+                <version>2.0.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.phpmaven</groupId>
+                <artifactId>maven-php-phar</artifactId>
+                <version>2.0.2</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <!-- Test Support -->
+        <dependency>
+            <groupId>de.phpunit</groupId>
+            <artifactId>PHPUnit</artifactId>
+            <version>3.6.10</version>
+            <type>phar</type>
+        </dependency>
+
+    </dependencies>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>release-repo1.php-maven.org</id>
+            <name>PHP Maven Release Repository</name>
+            <url>http://repos.php-maven.org/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>snapshot-repo1.php-maven.org</id>
+            <name>PHP Maven Snapshot Repository</name>
+            <url>http://repos.php-maven.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+    <repositories>
+        <repository>
+            <id>release-repo1.php-maven.org</id>
+            <name>PHP Maven Release Repository</name>
+            <url>http://repos.php-maven.org/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>snapshot-repo1.php-maven.org</id>
+            <name>PHP Maven Snapshot Repository</name>
+            <url>http://repos.php-maven.org/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+</project>
+

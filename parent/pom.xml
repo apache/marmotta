@@ -397,11 +397,11 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>1.4</version>
                 </plugin>
-<!--
                 <plugin>
                     <groupId>org.apache.marmotta</groupId>
                     <artifactId>repocheck-maven-plugin</artifactId>
                     <version>${project.version}</version>
+<!--
                     <executions>
                         <execution>
                             <id>check</id>
@@ -430,8 +430,8 @@
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>
 -->
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
