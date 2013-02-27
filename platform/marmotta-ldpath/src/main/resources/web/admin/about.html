@@ -23,7 +23,6 @@
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
- <!-- Copy from http://code.google.com/p/kiwi/wiki/Reasoning  --->
  <h1><a id="Introduction"></a>Introduction<a class="section_anchor" href="#Introduction"></a></h1>
 <p>
     LD Path is a simple path-based query language similar to XPath or SPARQL Property Paths that is particularly well-suited for querying and retrieving resources from the Linked Data Cloud by following RDF links between resources and servers. For example, the following path query would select the names of all friends of the context resource:
@@ -33,11 +32,11 @@
     foaf:knows / foaf:name :: xsd:string
     </pre>
 <p>
-    The complete LDPath documentation can be found at the <a href="http://code.google.com/p/ldpath/wiki/PathLanguage">LDPath project site</a>.
+    The complete LDPath documentation can be found at the <a href="http://wiki.apache.org/marmotta/LDPath">LDPath project site</a>.
 </p>
 <h1><a id="Services"></a>LDPath Web Services<a class="section_anchor" href="#Services"></a></h1>
 <p>
-    Inside the LMF, the LDPath language is available to other components through the LDPathService (<a href="http://doc.lmf.googlecode.com/hg/api/at/newmedialab/lmf/ldpath/api/LDPathService.html">API Documentation</a>) as well as through an
+    Inside the LMF, the LDPath language is available to other components through the LDPathService as well as through an
     easy-to-use webservice. Using the web service you can either evaluate a single LDPath selection as in:
 </p>
 <pre>
@@ -45,8 +44,8 @@
 </pre>
 <p>
     where &lt;context-resource&gt; is the URI of the resource where the path selection starts, and /path/selection is a path selector as described in
-    <a href="http://code.google.com/p/ldpath/wiki/PathLanguage#Path_Selectors">the LDPath documentation</a>. Result is a RDF/JSON formatted list of nodes.
-    Alternatively, you can evaluate a complete LDPath Program (see <a href="http://code.google.com/p/ldpath/wiki/PathLanguage#FOAF">the FOAF example</a> by 
+    <a href="http://wiki.apache.org/marmotta/LDPath#Path_Selectors">the LDPath documentation</a>. Result is a RDF/JSON formatted list of nodes.
+    Alternatively, you can evaluate a complete LDPath Program (see <a href="http://wiki.apache.org/marmotta/LDPath#FOAF">the FOAF example</a> by 
     calling the following webservice:
 </p>
 <pre>
