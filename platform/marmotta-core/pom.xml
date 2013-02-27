@@ -243,7 +243,6 @@
             <version>1.0.0.GA</version>
         </dependency>
 
-
         <!-- XML Processing -->
         <dependency>
             <groupId>xml-apis</groupId>
@@ -448,7 +447,6 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>

@@ -816,6 +816,12 @@
                 <artifactId>weld-core</artifactId>
                 <version>1.1.10.Final</version>
                 <scope>runtime</scope>
+                <exclusions>        
+                    <exclusion>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>     
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld.se</groupId>
@@ -827,6 +833,11 @@
                 <artifactId>weld-servlet-core</artifactId>
                 <version>1.1.10.Final</version>
                 <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.17.1-GA</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.interceptor</groupId>
@@ -1106,7 +1117,6 @@
                 <artifactId>kiwi-contextaware</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
 
             <!-- LMF Sesame Tools -->
             <dependency>
