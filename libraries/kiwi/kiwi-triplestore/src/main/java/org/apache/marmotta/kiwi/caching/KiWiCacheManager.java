@@ -84,7 +84,7 @@ public class KiWiCacheManager {
      * Return the literal cache key -> KiWiLiteral cache from the cache manager. This cache is used when constructing new
      * KiWiLiterals to avoid a database lookup.
      *
-     * @see at.newmedialab.sesame.commons.model.LiteralCommons#createCacheKey(String, java.util.Locale, String)
+     * @see org.apache.marmotta.commons.sesame.model.LiteralCommons#createCacheKey(String, java.util.Locale, String)
      * @return
      */
     public Cache getLiteralCache() {

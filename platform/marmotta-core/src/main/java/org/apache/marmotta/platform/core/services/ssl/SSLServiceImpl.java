@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.ssl.services;
+package org.apache.marmotta.platform.core.services.ssl;
 
-import at.newmedialab.lmf.ssl.api.SSLService;
-import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
-import org.slf4j.Logger;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,11 +27,10 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+
+import org.apache.marmotta.platform.core.api.ssl.SSLService;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.slf4j.Logger;
 
 /**
  * A service managing the configuration of the SSL context needed for establishing SSL connections.
