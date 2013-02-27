@@ -401,36 +401,36 @@
                     <groupId>org.apache.marmotta</groupId>
                     <artifactId>repocheck-maven-plugin</artifactId>
                     <version>${project.version}</version>
-<!--
-                    <executions>
-                        <execution>
-                            <id>check</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>matrix</goal>
-                            </goals>
-                            <inherited>true</inherited>
-                            <configuration>
-                                <breakOnMissing>true</breakOnMissing>
-                                <repositories>
-                                    <param>central</param>
-                                    <param>apache.releases</param>
-                                    <param>apache.snapshots</param>
-                                </repositories>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>info</id>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>matrix</goal>
-                            </goals>
-                            <inherited>true</inherited>
-                            <configuration>
-                            </configuration>
-                        </execution>
-                    </executions>
--->
+                    <!--
+                                        <executions>
+                                            <execution>
+                                                <id>check</id>
+                                                <phase>deploy</phase>
+                                                <goals>
+                                                    <goal>matrix</goal>
+                                                </goals>
+                                                <inherited>true</inherited>
+                                                <configuration>
+                                                    <breakOnMissing>true</breakOnMissing>
+                                                    <repositories>
+                                                        <param>central</param>
+                                                        <param>apache.releases</param>
+                                                        <param>apache.snapshots</param>
+                                                    </repositories>
+                                                </configuration>
+                                            </execution>
+                                            <execution>
+                                                <id>info</id>
+                                                <phase>package</phase>
+                                                <goals>
+                                                    <goal>matrix</goal>
+                                                </goals>
+                                                <inherited>true</inherited>
+                                                <configuration>
+                                                </configuration>
+                                            </execution>
+                                        </executions>
+                    -->
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -502,7 +502,7 @@
                     </execution>
                 </executions>
             </plugin>
-             <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
             </plugin>
@@ -798,7 +798,7 @@
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
                 <version>1.1-PRD</version>
-             </dependency>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.weld</groupId>
                 <artifactId>weld-api</artifactId>
@@ -816,10 +816,10 @@
                 <artifactId>weld-core</artifactId>
                 <version>1.1.10.Final</version>
                 <scope>runtime</scope>
-                <exclusions>        
+                <exclusions>
                     <exclusion>
                         <groupId>org.javassist</groupId>
-                        <artifactId>javassist</artifactId>     
+                        <artifactId>javassist</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -843,7 +843,7 @@
                 <groupId>org.jboss.interceptor</groupId>
                 <artifactId>jboss-interceptor-core</artifactId>
                 <version>2.0.0.Final</version>
-                <scope>runtime</scope>            
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.jboss.interceptor</groupId>
@@ -1339,42 +1339,42 @@
 
             <!-- LDPath -->
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-backend-sesame</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-xml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-math</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-html</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-date</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.marmotta</groupId>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-text</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1419,4 +1419,35 @@
         </dependency>
     </dependencies>
 
+
+    <profiles>
+        <profile>
+            <!-- for signing artifacts with the GPG key on deploy -->
+            <id>sign</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
