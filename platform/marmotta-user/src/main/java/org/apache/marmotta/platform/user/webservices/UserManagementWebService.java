@@ -264,7 +264,7 @@ public class UserManagementWebService {
      *
      * @param login the user to modify
      * @param formParams the user profile (foaf, without prefix) in
-     *            {@value at.newmedialab.sesame.commons.model.Namespaces#MIME_TYPE_FORM_URLENC}
+     *            {@value Namespaces#MIME_TYPE_FORM_URLENC}
      * @return {@link org.apache.marmotta.platform.user.webservices.UserWebService.AccountPoJo} after the update in JSON
      * @see UserWebService#post(MultivaluedMap)
      * @HTTP 404 if no such user exists.

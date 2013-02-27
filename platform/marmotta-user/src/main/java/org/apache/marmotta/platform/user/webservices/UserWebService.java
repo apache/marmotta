@@ -135,8 +135,7 @@ public class UserWebService {
      * Post-Body should contain the property=value mapping (propterty without foaf-prefix) for the
      * profile.
      *
-     * @param formParams the user profile (foaf, without prefix) in
-     *            {@value at.newmedialab.sesame.commons.model.Namespaces#MIME_TYPE_FORM_URLENC}
+     * @param formParams the user profile (foaf, without prefix) in {@value Namespaces#MIME_TYPE_FORM_URLENC}
      * @return {@link AccountPoJo} after the update in JSON
      *
      * @HTTP 403 When the current user is <code>anonymous</code>.
