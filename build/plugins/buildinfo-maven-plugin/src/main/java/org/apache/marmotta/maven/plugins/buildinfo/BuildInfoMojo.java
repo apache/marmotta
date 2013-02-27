@@ -58,7 +58,7 @@ public class BuildInfoMojo extends AbstractMojo {
 
     private static Map<String,String> marmottaCommiters = new HashMap<String, String>();
     static {
-        marmottaCommiters.put("sschaffe", "Sebastian Schaffert <wastl@apache.org>");
+        marmottaCommiters.put("sschaffert", "Sebastian Schaffert <sschaffert@apache.org>");
         marmottaCommiters.put("tkurz", "Thomas Kurz <tkurz@apache.org>");
         marmottaCommiters.put("dglachs", "Dietmar Glachs <dglachs@apache.org>");
         marmottaCommiters.put("jfrank", "Jakob Frank <jakob@apache.org>");
