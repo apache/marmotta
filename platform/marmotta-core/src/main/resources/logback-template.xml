@@ -84,14 +84,6 @@
         </then>
     </if>
 
-    <!-- a logger for logging search requests, keep all messages forever -->
-    <appender name="search" class="ch.qos.logback.core.FileAppender">
-        <file>${MARMOTTA_HOME}/log/marmotta-search.log</file>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <!-- Separate Log File for Stanbol -->
     <appender name="stanbol" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${MARMOTTA_HOME}/log/marmotta-stanbol.log</file>
@@ -135,27 +127,8 @@
     </appender>
 
 
-    <!-- log all search messages only to the search log -->
-    <logger name="search" level="INFO" additivity="false">
-        <appender-ref ref="search" />
-    </logger>
-
 
     <logger name="org.apache.marmotta" level="INFO" />
-
-    <logger name="at.newmedialab" level="INFO" />
-
-    <logger name="org.hibernate.cache" level="ERROR" />
-    <logger name="org.hibernate" level="WARN" />
-
-    <!--
-    <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.pretty" level="DEBUG" />
-    -->
-
-    <logger name="org.apache.solr" level="WARN" />
-
-    <logger name="org.quartz" level="WARN" />
 
     <logger name="org.apache.stanbol" level="INFO" additivity="false">
         <appender-ref ref="stanbol" />

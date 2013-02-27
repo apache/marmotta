@@ -38,15 +38,6 @@
         </encoder>
     </appender>
 
-
-    <logger name="kiwi" level="INFO" />
-    <logger name="at.newmedialab" level="INFO" />
-    <logger name="org.hibernate.cache" level="ERROR" />
-    <logger name="org.hibernate" level="WARN" />
-    <logger name="org.apache.solr" level="WARN" />
-
-    <logger name="org.quartz" level="WARN" />
-
     <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
