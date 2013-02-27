@@ -41,7 +41,7 @@
             <modules>
                 <module>lmf-client-php</module>
                 <module>marmotta-client-js</module>
-                <module>lmf-client-js-sample-webapp</module>          
+                <module>marmotta-client-js-sample-webapp</module>          
             </modules>
         </profile>
     </profiles>
