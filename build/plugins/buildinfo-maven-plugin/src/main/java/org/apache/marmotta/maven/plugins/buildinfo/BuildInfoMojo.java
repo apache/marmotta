@@ -59,6 +59,7 @@ public class BuildInfoMojo extends AbstractMojo {
     private static Map<String,String> marmottaCommiters = new HashMap<String, String>();
     static {
         marmottaCommiters.put("sschaffert", "Sebastian Schaffert <sschaffert@apache.org>");
+        marmottaCommiters.put("sschaffe", "Sebastian Schaffert <sschaffert@apache.org>");
         marmottaCommiters.put("tkurz", "Thomas Kurz <tkurz@apache.org>");
         marmottaCommiters.put("dglachs", "Dietmar Glachs <dglachs@apache.org>");
         marmottaCommiters.put("jfrank", "Jakob Frank <jakob@apache.org>");
@@ -73,7 +74,7 @@ public class BuildInfoMojo extends AbstractMojo {
     private List<String> systemProperties;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Map<String, String> map = new LinkedHashMap<String, String>();
+        Map<String, String> map = new HashMap<String, String>();
 
         for (InfoProvider provider : ServiceLoader.load(InfoProvider.class)) {
             if (provider.isActive(project)) {
@@ -113,10 +114,12 @@ public class BuildInfoMojo extends AbstractMojo {
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename.toString()), "UTF-8"));
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                out.write(entry.getKey());
-                out.write(" = ");
-                out.write(entry.getValue());
-                out.write("\n");
+                if(entry.getValue() != null) {
+                    out.write(entry.getKey());
+                    out.write(" = ");
+                    out.write(entry.getValue());
+                    out.write("\n");
+                }
             }
             out.flush();
         } catch (IOException ioe) {
