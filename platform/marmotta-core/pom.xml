@@ -119,10 +119,6 @@
 
     <!-- dependencies for all modules -->
     <dependencies>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-commons</artifactId>
-        </dependency>
 
         <!-- Logging -->
         <dependency>
