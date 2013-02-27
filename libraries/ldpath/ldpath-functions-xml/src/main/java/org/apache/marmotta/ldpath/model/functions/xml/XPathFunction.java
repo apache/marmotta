@@ -44,6 +44,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Execute XPath functions over the content of the selected value.
+ *
+ * @param <Node>
+ */
 public class XPathFunction<Node> extends SelectorFunction<Node> {
 
     private static final Logger log = LoggerFactory.getLogger(XPathFunction.class);

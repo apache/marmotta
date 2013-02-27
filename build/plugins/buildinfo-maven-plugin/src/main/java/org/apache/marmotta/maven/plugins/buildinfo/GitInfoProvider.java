@@ -72,6 +72,9 @@ public class GitInfoProvider extends AbstractInfoProvider {
                 List<InfoItem> items = result.getInfoItems();
                 if ((items != null) && (items.size() == 1)) {
                     info.put("git.revision", items.get(0).getRevision());
+                    info.put("git.author", items.get(0).getLastChangedAuthor());
+                    info.put("git.repository", items.get(0).getRepositoryUUID());
+                    info.put("git.url", items.get(0).getURL());
                 } else {
                     info.put("git.error", "The command returned incorrect number of arguments");
                 }
