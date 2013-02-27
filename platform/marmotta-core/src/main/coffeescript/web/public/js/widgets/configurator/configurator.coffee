@@ -53,7 +53,6 @@ class Model
       else if value.type.match /java.lang.Integer.*/ then clazz = IntegerProperty
       else if value.type.match /java.lang.String.*/ then clazz = StringProperty
       else if value.type.match /java.net.URL.*/ then clazz = URIProperty
-      else if value.type.match /at.newmedialab.lmf.SolrProgram.*/ then clazz = SolrProgramProperty
       else if value.type.match /java.util.List.*/ then clazz = ListProperty
       else clazz = Property
 

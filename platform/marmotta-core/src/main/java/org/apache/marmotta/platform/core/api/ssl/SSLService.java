@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.ssl.api;
+package org.apache.marmotta.platform.core.api.ssl;
 
 import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
 
