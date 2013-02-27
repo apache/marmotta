@@ -54,7 +54,6 @@ public class MarmottaInitialContext extends MarmottaContext {
             Context ctx_env  = ctx_java.createSubcontext("env");
 
             registerBeanManager(ctx_env);
-            registerSolrHome(ctx_env);
 
         } catch (NamingException e) {
             log.error("error while initialising Apache Marmotta JNDI context",e);
@@ -71,13 +70,6 @@ public class MarmottaInitialContext extends MarmottaContext {
         return instance;
     }
 
-
-    private void registerSolrHome(Context ctx_java) throws NamingException {
-
-        Context ctx_solr = ctx_java.createSubcontext("solr");
-        ctx_solr.bind("home", new Reference("java.lang.String", "at.newmedialab.lmf.search.filters.SolrHomeFactory", null));
-
-    }
 
     private void registerBeanManager(Context ctx_java) throws NamingException {
         ctx_java.bind("BeanManager", new Reference("javax.enterprise.inject.spi.BeanManager", "org.jboss.weld.resources.ManagerObjectFactory", null));
