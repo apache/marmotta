@@ -39,7 +39,7 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>lmf-client-php</module>
+                <module>marmotta-client-php</module>
                 <module>marmotta-client-js</module>
                 <module>marmotta-client-js-sample-webapp</module>          
             </modules>
