@@ -258,7 +258,7 @@
                                 <configuration>
                                     <target>
                                         <taskdef name="IzPack" classname="com.izforge.izpack.ant.IzPackTask" classpathref="maven.plugin.classpath" />
-                                        <IzPack input="${stagingDir}/standalone.xml" output="${project.build.directory}/${artifactId}-${project.version}.jar" installerType="standard" basedir="${stagingDir}" IzPackDir="${stagingDir}/" />
+                                        <IzPack input="${stagingDir}/standalone.xml" output="${project.build.directory}/${project.artifactId}-${project.version}.jar" installerType="standard" basedir="${stagingDir}" IzPackDir="${stagingDir}/" />
                                     </target>
                                 </configuration>
                                 <goals>

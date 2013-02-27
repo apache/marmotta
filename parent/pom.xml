@@ -397,11 +397,11 @@
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>1.4</version>
                 </plugin>
-<!--
                 <plugin>
                     <groupId>org.apache.marmotta</groupId>
                     <artifactId>repocheck-maven-plugin</artifactId>
                     <version>${project.version}</version>
+<!--
                     <executions>
                         <execution>
                             <id>check</id>
@@ -430,8 +430,8 @@
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>
 -->
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -669,7 +669,6 @@
                 <version>1.4.01</version>
             </dependency>
 
-
             <!-- XML Processing -->
             <dependency>
                 <groupId>xom</groupId>
@@ -686,7 +685,6 @@
                 <artifactId>jaxen</artifactId>
                 <version>1.1.4</version>
             </dependency>
-
 
             <!-- Logging -->
             <dependency>
@@ -818,6 +816,12 @@
                 <artifactId>weld-core</artifactId>
                 <version>1.1.10.Final</version>
                 <scope>runtime</scope>
+                <exclusions>        
+                    <exclusion>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>     
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld.se</groupId>
@@ -833,13 +837,13 @@
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.14.0-GA</version>
+                <version>3.17.1-GA</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.interceptor</groupId>
                 <artifactId>jboss-interceptor-core</artifactId>
                 <version>2.0.0.Final</version>
-                <scope>runtime</scope>
+                <scope>runtime</scope>            
             </dependency>
             <dependency>
                 <groupId>org.jboss.interceptor</groupId>
@@ -874,6 +878,8 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.21</version>
+                <optional>true</optional>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>c3p0</groupId>
@@ -1111,7 +1117,6 @@
                 <artifactId>kiwi-contextaware</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
 
             <!-- LMF Sesame Tools -->
             <dependency>
