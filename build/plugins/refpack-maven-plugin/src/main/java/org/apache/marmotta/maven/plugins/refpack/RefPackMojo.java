@@ -191,8 +191,9 @@ public class RefPackMojo extends AbstractMojo {
      * @param currentModule
      */
     private void collectLibraryDependencies(DependencyNode node, Artifact currentModule) {
-
-        if(!node.getDependency().getArtifact().getGroupId().equals(moduleGroupId) || !node.getDependency().getArtifact().getArtifactId().startsWith("marmotta-")) {
+		String groupId = node.getDependency().getArtifact().getGroupId();
+        String artifactId = node.getDependency().getArtifact().getArtifactId();
+        if(!groupId.equals(moduleGroupId) || !artifactId.startsWith("marmotta-") || artifactId.equals("marmotta-commons")) {
             // first check if the current artifact is already covered by a module the current module depends on
             for(Artifact dependentArtifact : moduleDependencies.get(currentModule)) {
                 if(moduleLibraries.containsKey(dependentArtifact) &&
@@ -216,7 +217,9 @@ public class RefPackMojo extends AbstractMojo {
      * @param currentModule
      */
     private void collectModuleDependencies(DependencyNode node, Artifact currentModule) {
-        if(node.getDependency().getArtifact().getGroupId().equals(moduleGroupId) && node.getDependency().getArtifact().getArtifactId().startsWith("marmotta-")) {
+		String groupId = node.getDependency().getArtifact().getGroupId();
+        String artifactId = node.getDependency().getArtifact().getArtifactId();
+		if(groupId.equals(moduleGroupId) && artifactId.startsWith("marmotta-") && !artifactId.equals("marmotta-commons")) {
             moduleDependencies.get(currentModule).add(node.getDependency().getArtifact());
         }
     }
