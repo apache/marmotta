@@ -15,43 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.client.model.rdf;
+package org.apache.marmotta.platform.core.test.embedded;
+
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
- * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert
+ * Embedded Marmotta Test
+ * 
+ * @author Sebastian Schaffert
  */
-public class BNode extends RDFNode { 
+public class EmbeddedMarmottaTest {
+
+    @Test
+    public void testMarmottaStartup() {
+        EmbeddedMarmotta marmotta = new EmbeddedMarmotta();
+        ConfigurationService cs = marmotta.getService(ConfigurationService.class);
+        Assert.assertNotNull(cs);
+        marmotta.shutdown();
+    }
     
-    private String anonId;
-
-    public BNode(String anonId) {
-        this.anonId = anonId;
-    }
-
-    public String getAnonId() {
-        return anonId;
-    }
-
-    public void setAnonId(String anonId) {
-        this.anonId = anonId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BNode bNode = (BNode) o;
-
-        if (anonId != null ? !anonId.equals(bNode.anonId) : bNode.anonId != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return anonId != null ? anonId.hashCode() : 0;
-    }
 }

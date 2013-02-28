@@ -30,11 +30,11 @@
 
     <name>Apache Marmotta Platform: Core</name>
     <description>
-        Core functionalities of the Linked Media Framework: Persistence, Transaction Management, Triple Store,
-        Framework Setup.
+        Core functionalities of the Linked Media Framework: Persistence, 
+        Transaction Management, Triple Store, Framework Setup.
     </description>
 
-    <!-- build a test jar for lmf-core so other modules can use the EmbeddedLMF configuration -->
+    <!-- build a test jar for lmf-core so other modules can use the EmbeddedMarmotta configuration -->
     <!-- usage:
          <dependency>
            <groupId>org.apache.marmotta</groupId>

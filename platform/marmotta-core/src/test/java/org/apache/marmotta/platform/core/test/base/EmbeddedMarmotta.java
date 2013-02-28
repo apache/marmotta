@@ -1,9 +1,11 @@
 /**
- * Copyright (C) 2013 The Apache Software Foundation.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -32,12 +34,12 @@ public class EmbeddedMarmotta extends AbstractMarmotta {
         super();
 
         // initiate the first startup phase without a servlet context and with the override definition of the parent
-        startupService.startupConfiguration(home.getAbsolutePath(), override,null);
+        startupService.startupConfiguration(home.getAbsolutePath(), override, null);
 
         // initiate the second startup phase and pretend we are running at localhost
         startupService.startupHost("http://localhost/","http://localhost/");
 
-        log.info("EmbeddedLMF created");
+        log.info(EmbeddedMarmotta.class.getName() + " created");
     }
 
 }
