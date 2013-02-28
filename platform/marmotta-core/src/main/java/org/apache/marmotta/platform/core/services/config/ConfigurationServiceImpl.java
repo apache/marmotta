@@ -31,6 +31,7 @@ import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
 import org.apache.marmotta.platform.core.util.FallbackConfiguration;
 import org.apache.commons.configuration.*;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,8 +162,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-
-        // the save configuration will be in the LMF home directory
+        // the save configuration will be in the  home directory
         try {
             if (getLMFHome() != null) {
                 configFile = getLMFHome() + File.separator + "system-config.properties";
@@ -176,7 +176,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             } else {
                 log.error("error while initialising configuration: no marmotta.home property given; creating memory-only configuration");
                 saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
-
             }
         } catch (Exception e) {
             log.error("error while initialising configuration file {}: {}; creating memory-only configuration", configFile, e.getMessage());
@@ -876,14 +875,25 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * The work directory of the Sesame 2 native store. Sesame will create its own subdirectory
-     * beneath this directory called "triples" and store the native database there.
+     * The work directory for marmotta, where all applications will create their own subdirectories
      */
 
     @Override
     public String getWorkDir() {
-        final String value = getStringConfiguration("marmotta.home");
-        return value != null ? value : new File(System.getProperty("java.io.tmpdir", "/tmp"), "lmf").getAbsolutePath();
+        String value = getStringConfiguration("marmotta.home");
+        if (StringUtils.isBlank(value)) {
+        	log.warn("property 'marmotta.home' not given, trying with the old 'lmf.home'...");
+        	value = getStringConfiguration("lmf.home");
+        }
+        if (StringUtils.isBlank(value)) {
+        	log.warn("property 'lmf.home' not given neither, trying with the pretty old 'kiwi.home'...");
+        	value = getStringConfiguration("kiwi.home");
+        }
+        if (StringUtils.isBlank(value)) {
+        	value =  new File(System.getProperty("java.io.tmpdir", "/tmp"), "marmotta").getAbsolutePath();
+        	log.warn("no property found pointing a home, so creating it in the temporal one: " + value);
+        }
+        return value;
     }
 
     public void save() {
