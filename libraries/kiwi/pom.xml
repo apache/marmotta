@@ -28,7 +28,6 @@
 
     <name>KiWi Triplestore: Parent</name>
     <description>A Sesame Triple Store based on a relational database. Supports reasoning and versioning.</description>
-    <url>https://code.google.com/p/ldpath/</url>
 
     <inceptionYear>2008</inceptionYear>
     <licenses>

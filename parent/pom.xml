@@ -33,6 +33,7 @@
 
     <name>Apache Marmotta Parent</name>
     <description>Parent POM for the Apache Marmotta project</description>
+    <url>http://marmotta.incubator.apache.org</url>
 
     <properties>
         <sesame.version>2.7.0-beta2</sesame.version>
