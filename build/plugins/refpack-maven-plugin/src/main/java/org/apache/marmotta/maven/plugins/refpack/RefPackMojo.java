@@ -17,6 +17,15 @@
  */
 package org.apache.marmotta.maven.plugins.refpack;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
@@ -42,15 +51,6 @@ import org.sonatype.aether.resolution.DependencyRequest;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.resolution.DependencyResult;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Goal which touches a timestamp file.
@@ -192,7 +192,7 @@ public class RefPackMojo extends AbstractMojo {
      */
     private void collectLibraryDependencies(DependencyNode node, Artifact currentModule) {
 
-        if(!node.getDependency().getArtifact().getGroupId().equals(moduleGroupId) || !node.getDependency().getArtifact().getArtifactId().startsWith("lmf-")) {
+        if(!node.getDependency().getArtifact().getGroupId().equals(moduleGroupId) || !node.getDependency().getArtifact().getArtifactId().startsWith("marmotta-")) {
             // first check if the current artifact is already covered by a module the current module depends on
             for(Artifact dependentArtifact : moduleDependencies.get(currentModule)) {
                 if(moduleLibraries.containsKey(dependentArtifact) &&
@@ -216,7 +216,7 @@ public class RefPackMojo extends AbstractMojo {
      * @param currentModule
      */
     private void collectModuleDependencies(DependencyNode node, Artifact currentModule) {
-        if(node.getDependency().getArtifact().getGroupId().equals(moduleGroupId) && node.getDependency().getArtifact().getArtifactId().startsWith("lmf-")) {
+        if(node.getDependency().getArtifact().getGroupId().equals(moduleGroupId) && node.getDependency().getArtifact().getArtifactId().startsWith("marmotta-")) {
             moduleDependencies.get(currentModule).add(node.getDependency().getArtifact());
         }
     }
@@ -303,7 +303,7 @@ public class RefPackMojo extends AbstractMojo {
             Element mainFile = new Element("file");
             pack.addContent(mainFile);
             mainFile.setAttribute("src",module.getFile().getAbsolutePath());
-            mainFile.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/LMF/WEB-INF/lib");
+            mainFile.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/ROOT/WEB-INF/lib");
         }
 
         // add a file entry for each library of the artifact
@@ -311,7 +311,7 @@ public class RefPackMojo extends AbstractMojo {
             Element file = new Element("file");
             pack.addContent(file);
             file.setAttribute("src",library.getFile().getAbsolutePath());
-            file.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/LMF/WEB-INF/lib");
+            file.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/ROOT/WEB-INF/lib");
         }
 
         // add a depends name for each module the current one depends on  (in case the project is not the webapp)
@@ -342,7 +342,7 @@ public class RefPackMojo extends AbstractMojo {
             // add webapp directory from installer configuration
             Element appDir = new Element("fileset");
             appDir.setAttribute("dir",outputDirectory+"/../webapp/");
-            appDir.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/LMF/");
+            appDir.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/ROOT/");
             appDir.setAttribute("includes","**");
 
             pack.addContent(appDir);
