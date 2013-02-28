@@ -254,19 +254,25 @@ public class RefPackMojo extends AbstractMojo {
             }
             */
 
-            File destination = new File(outputDirectory,moduleNode.getDependency().getArtifact().getArtifactId()+".xml");
+            File destination = new File(outputDirectory, moduleNode.getDependency().getArtifact().getArtifactId() + ".xml");
+            if (!destination.getParentFile().exists()) { 
+            	destination.getParentFile().mkdirs();
+            }
+        	if (!destination.exists()) {
+        		destination.createNewFile();
+        	}
 
-            getLog().info("writing refpack to "+destination.getAbsolutePath());
+            getLog().info("writing refpack to " + destination.getAbsolutePath());
 
             // write to output directory
             writeModuleXML(moduleNode.getDependency().getArtifact(), new FileOutputStream(destination));
 
         } catch (DependencyCollectionException e) {
-            getLog().error("error while collecting dependencies for module "+moduleNode.getDependency().getArtifact(),e);
+            getLog().error("error while collecting dependencies for module " + moduleNode.getDependency().getArtifact(), e);
         } catch (DependencyResolutionException e) {
-            getLog().error("error while resolving dependencies for module "+moduleNode.getDependency().getArtifact(),e);
+            getLog().error("error while resolving dependencies for module " + moduleNode.getDependency().getArtifact(), e);
         } catch (IOException e) {
-            getLog().error("I/O error while writing refpack for module"+moduleNode.getDependency().getArtifact(),e);
+            getLog().error("I/O error while writing refpack for module " + moduleNode.getDependency().getArtifact(), e);
         }
 
     }
