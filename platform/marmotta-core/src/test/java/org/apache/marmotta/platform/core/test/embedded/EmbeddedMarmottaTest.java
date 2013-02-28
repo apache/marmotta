@@ -23,20 +23,18 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert
+ * Embedded Marmotta Test
+ * 
+ * @author Sebastian Schaffert
  */
-public class EmbeddedLMFTest {
+public class EmbeddedMarmottaTest {
 
     @Test
-    public void testLMFStartup() {
-        EmbeddedMarmotta lmf = new EmbeddedMarmotta();
-
-        ConfigurationService cs = lmf.getService(ConfigurationService.class);
-
+    public void testMarmottaStartup() {
+        EmbeddedMarmotta marmotta = new EmbeddedMarmotta();
+        ConfigurationService cs = marmotta.getService(ConfigurationService.class);
         Assert.assertNotNull(cs);
-
-        lmf.shutdown();
+        marmotta.shutdown();
     }
+    
 }

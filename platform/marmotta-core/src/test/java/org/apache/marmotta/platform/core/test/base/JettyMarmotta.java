@@ -17,6 +17,11 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
@@ -30,18 +35,13 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * An extended version of the EmbeddedLMF which also starts a jetty webcontainer. The context name and port
- * are passed in the constructor. The JettyLMF can optionally take a set of web service classes as argument.
+ * are passed in the constructor. The JettyMarmotta can optionally take a set of web service classes as argument.
  * If this argument is present, only the given web services will be instantiated; otherwise, all configured
- * web services will be instantiated (as in a normal LMF webapp installation).
- * <p/>
- * Author: Sebastian Schaffert
+ * web services will be instantiated (as in a normal webapp installation).
+ * 
+ * @author Sebastian Schaffert
  */
 public class JettyMarmotta extends AbstractMarmotta {
 
@@ -58,7 +58,6 @@ public class JettyMarmotta extends AbstractMarmotta {
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
         this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
     }
-
 
     public JettyMarmotta(String context, int port, Set<Class<?>> webservice) {
         super();

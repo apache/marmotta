@@ -74,7 +74,7 @@ are "on" and "off".  The default is "autodetect".
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
 
     -->
-    <diskStore path="java.io.tmpdir/lmf-cache"/>
+    <diskStore path="java.io.tmpdir/marmotta-cache"/>
 
    <!--
     Cachemanagereventlistener
@@ -408,6 +408,7 @@ are "on" and "off".  The default is "autodetect".
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
+    <!--
     <cache name="org.hibernate.cache.StandardQueryCache"
            statistics="true"
            maxElementsInMemory="10000"
@@ -420,6 +421,7 @@ are "on" and "off".  The default is "autodetect".
            maxElementsInMemory="10000"
            eternal="true"
            overflowToDisk="false"/>
+    -->
 
     <!-- the cache used for triple queries by KiWi -->
     <!-- the cache used for triple queries by KiWi -->

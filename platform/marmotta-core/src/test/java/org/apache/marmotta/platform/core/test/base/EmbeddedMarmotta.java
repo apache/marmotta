@@ -34,12 +34,12 @@ public class EmbeddedMarmotta extends AbstractMarmotta {
         super();
 
         // initiate the first startup phase without a servlet context and with the override definition of the parent
-        startupService.startupConfiguration(home.getAbsolutePath(), override,null);
+        startupService.startupConfiguration(home.getAbsolutePath(), override, null);
 
         // initiate the second startup phase and pretend we are running at localhost
         startupService.startupHost("http://localhost/","http://localhost/");
 
-        log.info("EmbeddedLMF created");
+        log.info(EmbeddedMarmotta.class.getName() + " created");
     }
 
 }
