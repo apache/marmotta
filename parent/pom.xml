@@ -343,6 +343,7 @@
                         <header>parent/src/etc/header.txt</header>
                         <strictCheck>true</strictCheck>
                         <excludes>
+                            <exclude>**/src/ext/**</exclude>
                             <exclude>COPYING.txt</exclude>
                             <exclude>NOTICE.txt</exclude>
                             <exclude>README.txt</exclude>
