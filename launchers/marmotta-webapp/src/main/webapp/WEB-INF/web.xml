@@ -23,7 +23,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 
-    <!-- enable LMF custom JNDI implementation -->
+    <!-- enable custom JNDI implementation -->
     <listener>
         <listener-class>org.apache.marmotta.platform.core.jndi.MarmottaJndiListener</listener-class>
     </listener>
@@ -43,10 +43,10 @@
       <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
     </listener>
 
-    <!-- specifies the LMF home directory; overridden by environment variable LMF_HOME or system property kiwi.home -->
+    <!-- specifies the home directory; overridden by environment variable MARMOTTA_HOME or system property marmotta.home -->
     <context-param>
-        <param-name>kiwi.home</param-name>
-        <param-value>/tmp/lmf</param-value>
+        <param-name>marmotta.home</param-name>
+        <param-value>/tmp/marmotta</param-value>
     </context-param>
 
     <!-- this filter performs startup configurations for first installation -->
