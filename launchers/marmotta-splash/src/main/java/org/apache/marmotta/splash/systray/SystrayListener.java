@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.systray;
+package org.apache.marmotta.splash.systray;
 
-import at.newmedialab.lmf.common.LMFContext;
-import at.newmedialab.lmf.startup.StartupListener;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.marmotta.splash.common.MarmottaContext;
+import org.apache.marmotta.splash.startup.StartupListener;
 import org.oxbow.swingbits.dialog.task.TaskDialogs;
 
 import javax.imageio.ImageIO;
@@ -41,8 +41,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static at.newmedialab.lmf.common.LMFStartupHelper.getServerName;
-import static at.newmedialab.lmf.common.LMFStartupHelper.getServerPort;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerName;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerPort;
 
 /**
  * Add file description here!
@@ -53,7 +53,7 @@ public class SystrayListener implements LifecycleListener {
 
     protected static Log log = LogFactory.getLog(SystrayListener.class);
 
-    private static Set<LMFContext>       contexts = new HashSet<LMFContext>();
+    private static Set<MarmottaContext>       contexts = new HashSet<MarmottaContext>();
 
     private TrayIcon                         icon;
 
@@ -63,7 +63,7 @@ public class SystrayListener implements LifecycleListener {
 
 
 
-    public static void addServletContext(LMFContext context) {
+    public static void addServletContext(MarmottaContext context) {
         contexts.add(context);
     }
 
@@ -95,7 +95,7 @@ public class SystrayListener implements LifecycleListener {
         demoLinks = new HashMap<String, String>();
         adminLinks = new HashMap<String, String>();
 
-        for(LMFContext ctx : contexts) {
+        for(MarmottaContext ctx : contexts) {
             if(ctx.getServletContext() != null) {
                 Object ctxAdminAttr = ctx.getServletContext().getAttribute("systray.admin");
                 if(ctxAdminAttr != null && ctxAdminAttr instanceof Map) {

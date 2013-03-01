@@ -36,14 +36,13 @@
     <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
 
     <!-- Check for initial host name and open up browser -->
-    <Listener className="at.newmedialab.lmf.startup.StartupListener" />
+    <Listener className="org.apache.marmotta.splash.startup.StartupListener" />
 
-    <!-- Display LMF Splash Screen -->
-    <Listener className="at.newmedialab.lmf.splash.SplashScreenListener" />
+    <!-- Display Splash Screen -->
+    <Listener className="org.apache.marmotta.splash.SplashScreenListener" />
 
-    <!-- Register LMF Systray menu -->
-    <Listener className="at.newmedialab.lmf.systray.SystrayListener" />
-
+    <!-- Register Systray menu -->
+    <Listener className="org.apache.marmotta.splash.systray.SystrayListener" />
 
     <!-- Global JNDI resources
          Documentation at /docs/jndi-resources-howto.html
@@ -136,7 +135,7 @@
             <Host name="localhost"  appBase="webapps"
                   unpackWARs="true" autoDeploy="true">
 
-                <Listener className="at.newmedialab.lmf.splash.ProgressListener" />
+                <Listener className="org.apache.marmotta.splash.ProgressListener" />
                 <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
                 <!--

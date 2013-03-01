@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.common;
+package org.apache.marmotta.splash.common;
 
 import org.apache.catalina.core.StandardContext;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.marmotta.splash.SplashContextListener;
+import org.apache.marmotta.splash.systray.SystrayListener;
 
-import at.newmedialab.lmf.splash.SplashContextListener;
-import at.newmedialab.lmf.systray.SystrayListener;
 
 /**
  * A customised context implementation that adds a message to the splash screen when it is starting by registering
@@ -30,11 +30,11 @@ import at.newmedialab.lmf.systray.SystrayListener;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFContext extends StandardContext {
+public class MarmottaContext extends StandardContext {
 
-    protected static Log log = LogFactory.getLog(LMFContext.class);
+    protected static Log log = LogFactory.getLog(MarmottaContext.class);
 
-    public LMFContext() {
+    public MarmottaContext() {
         super();
 
         // add the splash listener so the progress bar can be updated by this context

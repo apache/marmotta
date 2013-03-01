@@ -1,4 +1,4 @@
-@REM
+
 @REM Licensed to the Apache Software Foundation (ASF) under one
 @REM or more contributor license agreements. See the NOTICE file
 @REM distributed with this work for additional information
@@ -14,8 +14,8 @@
 @REM WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 @REM See the License for the specific language governing permissions and
 @REM limitations under the License.
-@REM
 
-set "JAVA_OPTS=-Xmx1024m -splash:%{INSTALL_PATH}\apache-tomcat-%{TOMCAT_VERSION}\icons\splashscreen.png  -Dehcache.disk.store.dir=%{INSTALL_PATH}\lmf-home\cache -Dfile.encoding=UTF-8 -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled"
-set "LMF_HOME=%{INSTALL_PATH}\lmf-home"
 set "JAVA_HOME=%{JAVA_HOME}"
+set "MARMOTTA_HOME=%{INSTALL_PATH}\marmotta-home"
+set "JAVA_OPTS=-Xmx1024m -splash:%{INSTALL_PATH}\apache-tomcat-%{TOMCAT_VERSION}\icons\splashscreen.png  -Dehcache.disk.store.dir=%{INSTALL_PATH}\marmotta-home\cache -Dfile.encoding=UTF-8 -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled"
+set "MARMOTTA_HOME=%{INSTALL_PATH}\marmotta-home"

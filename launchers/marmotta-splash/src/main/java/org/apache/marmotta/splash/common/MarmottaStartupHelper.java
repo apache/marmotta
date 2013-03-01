@@ -15,11 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.common;
+package org.apache.marmotta.splash.common;
 
-import at.newmedialab.lmf.startup.StartupListener;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
+import org.apache.marmotta.splash.startup.StartupListener;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
@@ -47,9 +47,9 @@ import java.util.Properties;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFStartupHelper {
+public class MarmottaStartupHelper {
 
-    protected static Log log = LogFactory.getLog(LMFStartupHelper.class);
+    protected static Log log = LogFactory.getLog(MarmottaStartupHelper.class);
 
 
 
