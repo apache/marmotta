@@ -75,7 +75,7 @@
     <packs>
         <pack name="Apache Tomcat ${TOMCAT_VERSION}" required="yes">
             <description>Apache Tomcat ${TOMCAT_VERSION}, the application server used to run Marmotta</description>
-            <file src="${MARMOTTA_ROOT}/launchers/marmotta-installer/target/apache-tomcat-${TOMCAT_VERSION}.zip" targetdir="\$INSTALL_PATH" unpack="true" />
+            <file src="lib/apache-tomcat-${TOMCAT_VERSION}.zip" targetdir="\$INSTALL_PATH" unpack="true" />
             <file src="tomcat/server.xml" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/conf" override="true" />
             <file src="tomcat/setenv.sh" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin" />
             <file src="tomcat/setenv.bat" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin" />

@@ -227,7 +227,7 @@
                                 <configuration>
                                     <url>http://www.eu.apache.org/dist/tomcat/tomcat-7/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.zip</url>
                                     <unpack>false</unpack>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <outputDirectory>${stagingDir}/lib</outputDirectory>
                                     <md5>796244156a8d932c8eb75fd05ac2b31e</md5>
                                 </configuration>
                             </execution>
