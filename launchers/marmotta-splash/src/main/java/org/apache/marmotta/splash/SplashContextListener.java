@@ -34,9 +34,7 @@ public class SplashContextListener extends SplashScreenUpdaterBase implements Li
 
     private static Map<String,String> appNames = new HashMap<String, String>();
     static {
-        appNames.put("/LMF","Apache Marmotta");
-        appNames.put("/refine", "Google Refine");
-        appNames.put("/stanbol", "Apache Stanbol");
+        appNames.put("/Marmotta", "Apache Marmotta");
     }
 
     /**

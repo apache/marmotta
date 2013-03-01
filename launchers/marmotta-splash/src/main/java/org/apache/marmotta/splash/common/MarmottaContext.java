@@ -40,10 +40,10 @@ public class MarmottaContext extends StandardContext {
         // add the splash listener so the progress bar can be updated by this context
         addLifecycleListener(new SplashContextListener());
 
-        // register LMF context in systray listener, the systray listener will check for menu entries stored
+        // register Marmotta context in systray listener, the systray listener will check for menu entries stored
         // in the context attributes "systray.admin" and "systray.demo"
         SystrayListener.addServletContext(this);
 
-        log.info("instantiated new LMF/Tomcat webapp context ("+getName()+")...");
+        log.info("instantiated new Marmotta/Tomcat webapp context ("+getName()+")...");
     }
 }

@@ -17,6 +17,23 @@
  */
 package org.apache.marmotta.splash.startup;
 
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.checkServerName;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerPort;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getStartupProperties;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.listHostAddresses;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.storeStartupProperties;
+
+import java.awt.Desktop;
+import java.awt.GraphicsEnvironment;
+import java.net.InetAddress;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
@@ -24,33 +41,6 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.oxbow.swingbits.dialog.task.CommandLink;
 import org.oxbow.swingbits.dialog.task.TaskDialogs;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-import java.awt.*;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.reflect.Array;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.apache.marmotta.splash.common.MarmottaStartupHelper.*;
 
 /**
  * Add file description here!
@@ -61,21 +51,18 @@ public class StartupListener implements LifecycleListener {
 
     protected static Log log = LogFactory.getLog(StartupListener.class);
 
-
     public StartupListener() {
         super();
-
-
     }
 
     /**
-     * React on the AFTER_START_EVENT of Tomcat and startup the browser to point to the LMF installation. Depending
-     * on the state of the LMF installation, the following actions are carried out:
+     * React on the AFTER_START_EVENT of Tomcat and startup the browser to point to the Marmotta installation. Depending
+     * on the state of the Marmotta installation, the following actions are carried out:
      * <ul>
-     *     <li>in case the LMF is started for the first time, show a dialog box with options to select which IP-address to use for
-     *     configuring the LMF; the IP address will be stored in a separate properties file in LMF_HOME</li>
-     *     <li>in case the LMF has already been configured but the IP address that was used is no longer existing on the server,
-     *     show a warning dialog (this can happen e.g. for Laptops with dynamically changing network configurations)</li>
+     *     <li>in case the Marmotta is started for the first time, show a dialog box with options to select which IP-address to use for
+     *     configuring the Marmotta; the IP address will be stored in a separate properties file in MARMOTTA_HOME</li>
+     *     <li>in case the Marmotta has already been configured but the IP address that was used is no longer existing on the server,
+     *     show a warning dialog (this can happen e.g. for laptops with dynamically changing network configurations)</li>
      *     <li>otherwise, open a browser using the network address that was used previously</li>
      * </ul>
      *
@@ -103,7 +90,7 @@ public class StartupListener implements LifecycleListener {
                             TaskDialogs.inform(null,
                                     "Configured server name not found",
                                     "The host name ("+serverName+") that has been used to configure this \n" +
-                                    "LMF installation is no longer available on this server. The system \n" +
+                                    "installation is no longer available on this server. The system \n" +
                                     "might behave unexpectedly. Please consider using a localhost configuration \n" +
                                     "for systems with dynamic IP addresses!");
                         }
@@ -142,7 +129,7 @@ public class StartupListener implements LifecycleListener {
                         }
 
                         int choice = TaskDialogs.choice(null,
-                                "Select host address to use for configuring the LMF.",
+                                "Select host address to use for configuring the Apache Marmotta.",
                                 "For demonstration purposes or laptop installations it is recommended to select \n\"localhost\" below. For server and workstation installations, please select a \npublic IP address.", 0, choices);
 
 

@@ -17,13 +17,6 @@
  */
 package org.apache.marmotta.splash.common;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-import org.apache.marmotta.splash.startup.StartupListener;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -41,6 +34,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
 
 /**
  * Static utility methods used by several listeners.
@@ -79,14 +79,14 @@ public class MarmottaStartupHelper {
     public static final Properties getStartupProperties() {
         Properties result = new Properties();
 
-        String lmf_home = System.getenv("LMF_HOME");
+        final String home = System.getenv("MARMOTTA_HOME");
 
-        if(lmf_home != null) {
+        if(home != null) {
 
-            File dir_lmf_home = new File(lmf_home);
-            dir_lmf_home.mkdirs();
+            File dir_home = new File(home);
+            dir_home.mkdirs();
 
-            File startup_properties = new File(lmf_home + File.separator + "startup.properties");
+            File startup_properties = new File(home + File.separator + "startup.properties");
             if(startup_properties.exists() && startup_properties.canRead()) {
                 try {
                     FileReader reader = new FileReader(startup_properties);
@@ -98,24 +98,24 @@ public class MarmottaStartupHelper {
             }
 
         } else {
-            log.error("LMF_HOME variable was not set; could not load/save properties");
+            log.error("MARMOTTA_HOME variable was not set; could not load/save properties");
         }
         return result;
     }
 
     public static final void storeStartupProperties(Properties properties) {
-        String lmf_home = System.getenv("LMF_HOME");
+        final String home = System.getenv("MARMOTTA_HOME");
 
-        if(lmf_home != null) {
+        if(home != null) {
 
-            File dir_lmf_home = new File(lmf_home);
-            dir_lmf_home.mkdirs();
+            File dir_home = new File(home);
+            dir_home.mkdirs();
 
-            File startup_properties = new File(lmf_home + File.separator + "startup.properties");
+            File startup_properties = new File(home + File.separator + "startup.properties");
             if(!startup_properties.exists() || startup_properties.canWrite()) {
                 try {
                     Writer fileWriter = new FileWriter(startup_properties);
-                    properties.store(fileWriter, "stored by LMF startup; do not modify manually");
+                    properties.store(fileWriter, "stored by marmotta startup; do not modify manually");
                     fileWriter.flush();
                     fileWriter.close();
                 } catch (IOException e) {
@@ -124,7 +124,7 @@ public class MarmottaStartupHelper {
             }
 
         } else {
-            log.error("LMF_HOME variable was not set; could not load/save properties");
+            log.error("MARMOTTA_HOME variable was not set; could not load/save properties");
         }
     }
 
@@ -157,8 +157,6 @@ public class MarmottaStartupHelper {
                     }
                 }
             }
-
-
             return result;
         } catch(SocketException ex) {
             log.warn("could not determine local IP addresses, will use localhost only");
@@ -166,7 +164,6 @@ public class MarmottaStartupHelper {
         }
 
     }
-
 
     /**
      * Check whether the servername represents a valid network interface of this sever.

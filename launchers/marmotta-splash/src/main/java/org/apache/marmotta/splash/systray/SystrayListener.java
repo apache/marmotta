@@ -17,20 +17,16 @@
  */
 package org.apache.marmotta.splash.systray;
 
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-import org.apache.marmotta.splash.common.MarmottaContext;
-import org.apache.marmotta.splash.startup.StartupListener;
-import org.oxbow.swingbits.dialog.task.TaskDialogs;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerName;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerPort;
 
-import javax.imageio.ImageIO;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.servlet.ServletContext;
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.Desktop;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -41,8 +37,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerName;
-import static org.apache.marmotta.splash.common.MarmottaStartupHelper.getServerPort;
+import javax.imageio.ImageIO;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.LifecycleListener;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
+import org.apache.marmotta.splash.common.MarmottaContext;
+import org.oxbow.swingbits.dialog.task.TaskDialogs;
 
 /**
  * Add file description here!
@@ -61,17 +66,12 @@ public class SystrayListener implements LifecycleListener {
 
     private Map<String, String>              adminLinks;
 
-
-
     public static void addServletContext(MarmottaContext context) {
         contexts.add(context);
     }
 
-
     public SystrayListener() {
         super();
-
-
     }
 
     /**
@@ -99,13 +99,15 @@ public class SystrayListener implements LifecycleListener {
             if(ctx.getServletContext() != null) {
                 Object ctxAdminAttr = ctx.getServletContext().getAttribute("systray.admin");
                 if(ctxAdminAttr != null && ctxAdminAttr instanceof Map) {
-                    Map<String,String> ctxAdminLinks = (Map<String,String>) ctxAdminAttr;
+                    @SuppressWarnings("unchecked")
+					Map<String,String> ctxAdminLinks = (Map<String,String>) ctxAdminAttr;
                     adminLinks.putAll(ctxAdminLinks);
                 }
 
                 Object ctxDemoAttr = ctx.getServletContext().getAttribute("systray.demo");
                 if(ctxDemoAttr != null && ctxDemoAttr instanceof Map) {
-                    Map<String,String> ctxDemoLinks = (Map<String,String>) ctxDemoAttr;
+                    @SuppressWarnings("unchecked")
+					Map<String,String> ctxDemoLinks = (Map<String,String>) ctxDemoAttr;
                     demoLinks.putAll(ctxDemoLinks);
                 }
             } else {
@@ -128,14 +130,14 @@ public class SystrayListener implements LifecycleListener {
             PopupMenu popup = new PopupMenu();
 
 
-            MenuItem mainPage = createMenuItem("LMF Start Page", "http://"+getServerName()+":"+getServerPort()+"/");
-            popup.add(mainPage);
+            //MenuItem mainPage = createMenuItem("Start Page", "http://"+getServerName()+":"+getServerPort()+"/");
+            //popup.add(mainPage);
 
             popup.addSeparator();
 
 
             // launch browser action
-            MenuItem admin = createMenuItem("LMF Administration","http://"+getServerName()+":"+getServerPort()+"/LMF");
+            MenuItem admin = createMenuItem("Administration","http://"+getServerName()+":"+getServerPort()+"/");
             popup.add(admin);
 
             // admin links
@@ -144,7 +146,6 @@ public class SystrayListener implements LifecycleListener {
                 MenuItem entry = createMenuItem(linkEntry.getKey(),linkEntry.getValue());
                 popup.add(entry);
             }
-
 
             // shutdown action
             MenuItem shutdown = new MenuItem("Shutdown");
@@ -164,7 +165,6 @@ public class SystrayListener implements LifecycleListener {
 
             popup.addSeparator();
 
-
             for(final Map.Entry<String,String> linkEntry : demoLinks.entrySet()) {
                 boolean containsEntry = false;
                 for(int i = 0; i < popup.getItemCount(); i++) {
@@ -181,7 +181,6 @@ public class SystrayListener implements LifecycleListener {
                 }
             }
 
-
             popup.addSeparator();
 
             MenuItem about = new MenuItem("About");
@@ -189,20 +188,17 @@ public class SystrayListener implements LifecycleListener {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     TaskDialogs.inform(null,
-                            "About Apache Marmotta",
-                            "LMF 2.3.1-SNAPSHOT, (c)2012 Salzburg NewMediaLab \n" +
-                            "Visit http://code.google.com/p/lmf/ for details");
+                            "About Apache Marmotta \n",
+                            "(c)2013 The Apache Software Foundation \n" +
+                            "Visit http://marmotta.incubator.apache.org for further details");
                 }
             });
             popup.add(about);
 
-            MenuItem documentation = createMenuItem("Documentation", "http://code.google.com/p/lmf/wiki/TableOfContents");
-            popup.add(documentation);
-
-            MenuItem issues = createMenuItem("Bug Reports", "http://code.google.com/p/lmf/issues/list");
+            MenuItem issues = createMenuItem("Issues Reports", "https://issues.apache.org/jira/browse/MARMOTTA");
             popup.add(issues);
 
-            MenuItem homepage = createMenuItem("Project Homepage", "http://code.google.com/p/lmf/");
+            MenuItem homepage = createMenuItem("Project Homepage", "http://marmotta.incubator.apache.org");
             popup.add(homepage);
 
 
@@ -214,7 +210,7 @@ public class SystrayListener implements LifecycleListener {
                 tray.add(icon);
 
             } catch (IOException e) {
-                log.error("SYSTRAY: could not load LMF logo for system tray",e);
+                log.error("SYSTRAY: could not load the logo for system tray",e);
             } catch (AWTException e) {
                 log.error("SYSTRAY: tray icon could not be added");
             }
