@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.startup;
+package org.apache.marmotta.splash.startup;
 
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static at.newmedialab.lmf.common.LMFStartupHelper.*;
+import static org.apache.marmotta.splash.common.MarmottaStartupHelper.*;
 
 /**
  * Add file description here!
