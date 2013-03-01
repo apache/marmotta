@@ -28,6 +28,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
@@ -63,6 +64,7 @@ public class TestLinkedDataProvider {
      * @todo find a better way to deal with errors actually in the services and not in the code
      */
     @Test 
+    @Ignore("dbpedia is not reliable")
     public void testDBPedia() throws Exception {
         Assume.assumeTrue(ldclient.ping(DBPEDIA));
         
@@ -113,8 +115,8 @@ public class TestLinkedDataProvider {
      * @throws Exception
      *
      */
-    /*
     @Test
+    @Ignore("rdfohloh provides wrong Content-Type")
     public void testRDFOhloh() throws Exception {
 
         String uriMarmotta = "http://rdfohloh.wikier.org/project/marmotta";
@@ -132,6 +134,5 @@ public class TestLinkedDataProvider {
         conMarmotta.commit();
         conMarmotta.close();
     }
-    */
 
 }
