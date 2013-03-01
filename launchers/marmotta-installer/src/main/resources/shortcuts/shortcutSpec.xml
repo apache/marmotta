@@ -19,14 +19,14 @@
 -->
 <shortcuts>
     <skipIfNotSupported/>
-    <programGroup defaultName="Salzburg NewMediaLab\\Linked Media Framework"
+    <programGroup defaultName="Apache Software Foundation\\Apache Marmotta"
                   location="applications"/>
     <shortcut
-            name="Start Linked Media Framework"
+            name="Start Apache Marmotta"
             target="$INSTALL_PATH\apache-tomcat-${TOMCAT_VERSION}\bin\startup.bat"
             commandLine=""
             workingDirectory="$INSTALL_PATH\apache-tomcat-${TOMCAT_VERSION}"
-            description="This will start the Linked Media Framework Server"
+            description="This will start Apache Marmotta"
             iconFile="$INSTALL_PATH\apache-tomcat-${TOMCAT_VERSION}\icons\icon_start.ico"
             iconIndex="0"
             initialState="noShow"
@@ -39,11 +39,11 @@
     </shortcut>
 
     <shortcut
-            name="Shutdown Linked Media Framework"
+            name="Shutdown Apache Marmotta"
             target="$INSTALL_PATH\apache-tomcat-${TOMCAT_VERSION}\bin\shutdown.bat"
             commandLine=""
             workingDirectory="$INSTALL_PATH\apache-tomcat-${TOMCAT_VERSION}"
-            description="This will shutdown the Linked Media Framework Server"
+            description="This will shutdown Apache Marmotta"
             iconFile="$INSTALL_PATH\apache-tomcat-${TOMCAT_VERSION}\icons\icon_stop.ico"
             iconIndex="0"
             initialState="noShow"
