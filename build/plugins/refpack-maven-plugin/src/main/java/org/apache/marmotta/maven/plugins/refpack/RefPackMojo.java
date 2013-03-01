@@ -312,7 +312,7 @@ public class RefPackMojo extends AbstractMojo {
             Element mainFile = new Element("file");
             pack.addContent(mainFile);
             mainFile.setAttribute("src",module.getFile().getAbsolutePath());
-            mainFile.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/ROOT/WEB-INF/lib");
+            mainFile.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/marmotta/WEB-INF/lib");
         }
 
         // add a file entry for each library of the artifact
@@ -320,7 +320,7 @@ public class RefPackMojo extends AbstractMojo {
             Element file = new Element("file");
             pack.addContent(file);
             file.setAttribute("src",library.getFile().getAbsolutePath());
-            file.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/ROOT/WEB-INF/lib");
+            file.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/marmotta/WEB-INF/lib");
         }
 
         // add a depends name for each module the current one depends on  (in case the project is not the webapp)
@@ -351,7 +351,7 @@ public class RefPackMojo extends AbstractMojo {
             // add webapp directory from installer configuration
             Element appDir = new Element("fileset");
             appDir.setAttribute("dir",outputDirectory+"/../webapp/");
-            appDir.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/ROOT/");
+            appDir.setAttribute("targetdir","$INSTALL_PATH/apache-tomcat-$TOMCAT_VERSION/webapps/marmotta/");
             appDir.setAttribute("includes","**");
 
             pack.addContent(appDir);
