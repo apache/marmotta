@@ -37,6 +37,7 @@ public class LogMatrixPrinter implements MatrixPrinter {
 	}
 
 	public void printHeader(List<ArtifactRepository> repositories) {
+		log.info("");
 		log.info("dependencies, and where they are available:");
 
 		final int repCount = repositories.size();
@@ -82,6 +83,7 @@ public class LogMatrixPrinter implements MatrixPrinter {
 			log.info(String.format("%s%s (%s)",
 					StringUtils.repeat("|" + sep, i), rep.getId(), rep.getUrl()));
 		}
+		log.info("");
 	}
 
 }

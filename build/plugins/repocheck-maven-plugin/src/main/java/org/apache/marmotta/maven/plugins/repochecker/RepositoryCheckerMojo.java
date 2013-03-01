@@ -20,8 +20,10 @@ package org.apache.marmotta.maven.plugins.repochecker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -147,9 +149,16 @@ public class RepositoryCheckerMojo extends AbstractMojo {
 
 			final DependencyNode rootNode = dependencyGraphBuilder
 					.buildDependencyGraph(project, null);
-			checkDepNode(rootNode, reps, 0, client, printer);
+			Set<Artifact> missingArtifacts = checkDepNode(rootNode, reps, 0, client, printer);
 
 			printer.printFooter(reps);
+			
+			if (missingArtifacts.size() > 0) {
+				log.warn("unresolved dependencies:");
+				for (Artifact missing : missingArtifacts) {
+					log.warn("  " + missing.getId());
+				}
+			}
 		} catch (DependencyGraphBuilderException e) {
 			throw new MojoExecutionException(
 					"Cannot build project dependency graph", e);
@@ -158,13 +167,14 @@ public class RepositoryCheckerMojo extends AbstractMojo {
 		}
 	}
 
-	private void checkDepNode(final DependencyNode rootNode,
+	private Set<Artifact> checkDepNode(final DependencyNode rootNode,
 			final List<ArtifactRepository> repositories, final int level,
 			DefaultHttpClient client, MatrixPrinter printer)
 			throws MojoFailureException {
 		if (!(level < depth))
-			return;
+			return Collections.emptySet();
 
+		HashSet<Artifact> missingArts = new HashSet<Artifact>();
 		for (DependencyNode dep : rootNode.getChildren()) {
 			Artifact artifact = dep.getArtifact();
 
@@ -177,16 +187,22 @@ public class RepositoryCheckerMojo extends AbstractMojo {
 					results.add(result);
 				}
 
-				if (breakOnMissing && !results.contains(Result.FOUND))
-					throw new MojoFailureException(
-							String.format(
-									"did not find artifact %s in any of the available repositories",
-									artifact.getId()));
+				if (!results.contains(Result.FOUND)) {
+					missingArts.add(artifact);
+					if (breakOnMissing) {
+						throw new MojoFailureException(
+								String.format(
+										"did not find artifact %s in any of the available repositories",
+										artifact.getId()));
+					}
+				}
 
 				printer.printResult(artifact, level, results);
+				missingArts.addAll(checkDepNode(dep, repositories, level + 1, client, printer));
 			}
-			checkDepNode(dep, repositories, level + 1, client, printer);
 		}
+		
+		return missingArts;
 	}
 
 	private Result lookupArtifact(Artifact artifact, ArtifactRepository rep,
