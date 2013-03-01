@@ -208,7 +208,7 @@ public class SystrayListener implements LifecycleListener {
 
             // load icon image
             try {
-                Image image = ImageIO.read(SystrayListener.class.getResource("lmf1.png"));
+                Image image = ImageIO.read(SystrayListener.class.getResource("systray.png"));
                 icon = new TrayIcon(image,"Apache Marmotta",popup);
                 icon.setImageAutoSize(true);
                 tray.add(icon);
