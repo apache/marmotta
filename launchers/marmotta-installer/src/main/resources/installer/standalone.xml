@@ -18,8 +18,7 @@
     limitations under the License.
 
 -->
-<!--<!DOCTYPE installation PUBLIC "" "izpack.dtd" >-->
-
+<!DOCTYPE installation PUBLIC "" "izpack.dtd" >
 <installation version="1.0">
 
     <variables>
@@ -31,12 +30,15 @@
         <appversion>${MARMOTTA_VERSION}</appversion>
         <url>http://marmotta.incubator.apache.org</url>
         <authors>
-            <author name="Sebastian Schaffert" email="sebastian.schaffert@salzburgresearch.at"/>
-            <author name="Thomas Kurz" email="thomas.kurz@salzburgresearch.at"/>
-            <author name="Jakob Frank" email="jakob.frank@salzburgresearch.at"/>
-            <author name="Sergio Fernández" email="sergio.fernandez@salzburgresearch.at"/>
-            <author name="Rupert Westenthaler" email="rupert.westenthaler@salzburgresearch.at"/>
-            <author name="Dietmar Glachs" email="dietmar.glachs@salzburgresearch.at"/>
+            <author name="Sebastian Schaffert" email="sschaffert@apache.org" />
+            <author name="Thomas Kurz" email="tkurz@apache.org" />
+            <author name="Jakob Frank" email="jfrank@salzburgresearch.at" />
+            <author name="Sergio Fernández" email="wikier@apache.org" />
+            <author name="Rupert Westenthaler" email="rwesten@apache.org" />
+            <author name="Dietmar Glachs" email="dglachs@apache.org" />
+            <author name="Andy Seaborne" email="andy@apache.org" />
+            <author name="Nandana Mihindukulasooriya" email="nandana@apache.org" />
+            <author name="Fabian Christ" email="fchrist@apache.org" />
         </authors>
         <javaversion>1.6</javaversion>
         <requiresjdk>no</requiresjdk>
@@ -56,7 +58,6 @@
         <res src="panels/COPYING" id="LicencePanel.licence" />
         <res src="shortcuts/shortcutSpec.xml" id="shortcutSpec.xml" />
         <res src="shortcuts/Unix_shortcutSpec.xml" id="Unix_shortcutSpec.xml" />
-        <res src="images/bck.png" id="bck" />
         <res src="${MARMOTTA_ROOT}/platform/marmotta-core/src/main/resources/web/public/img/logo/marmotta-logo.png" id="logo" />
         <res src="panels/installerInfo.html" id="HTMLHelloPanel.info" />
     </resources>
