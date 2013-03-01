@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.splash;
 
+import java.io.File;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerEvent;
 import org.apache.catalina.ContainerListener;
@@ -27,20 +29,17 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.startup.HostConfig;
-
-import java.io.File;
+import org.apache.marmotta.splash.common.MarmottaContext;
 
 /**
- * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert
+ * Splash screen progress listener
+ * 
+ * @author Sebastian Schaffert
  */
 public class ProgressListener extends SplashScreenUpdaterBase implements LifecycleListener, ContainerListener {
 
     int cur_progress = 0;
     int max_progress = 0;
-
-
 
     private StandardHost host;
 
@@ -58,10 +57,9 @@ public class ProgressListener extends SplashScreenUpdaterBase implements Lifecyc
 
             for(LifecycleListener listener : host.findLifecycleListeners()) {
                 if(listener instanceof HostConfig) {
-                    ((HostConfig)listener).setContextClass("at.newmedialab.lmf.common.LMFContext");
+                    ((HostConfig)listener).setContextClass(MarmottaContext.class.getCanonicalName());
                 }
             }
-
 
         } else if(event.getType().equals(Lifecycle.BEFORE_START_EVENT)) {
             if(event.getLifecycle() instanceof Host) {
@@ -87,10 +85,8 @@ public class ProgressListener extends SplashScreenUpdaterBase implements Lifecyc
     public void containerEvent(ContainerEvent event) {
         if(event.getType().equals(Container.ADD_CHILD_EVENT)) {
             if(event.getData() instanceof StandardContext) {
-                StandardContext context = (StandardContext)event.getData();
-
+                //StandardContext context = (StandardContext)event.getData();
                 cur_progress++;
-
                 if(max_progress > 0) {
                     showProgress(cur_progress * 100 / max_progress);
                 }
