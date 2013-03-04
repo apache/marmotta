@@ -348,14 +348,14 @@ are "on" and "off".  The default is "autodetect".
             memoryStoreEvictionPolicy="LRU"
             />
 
-    <cache name="kiwi.core.model.rdf.KiWiNode"
+    <cache name="org.apache.marmotta.platform.core.model.rdf.KiWiNode"
            statistics="true"
            maxElementsInMemory="100000"
            eternal="false"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="at.newmedialab.lmf.versioning.model.Version"
+    <cache name="org.apache.marmotta.platform.versioning.model.Version"
            statistics="true"
            maxElementsInMemory="10000"
            eternal="true"
@@ -363,21 +363,21 @@ are "on" and "off".  The default is "autodetect".
            memoryStoreEvictionPolicy="LRU"/>
 
 
-    <cache name="kiwi.core.model.rdf.KiWiNamespace"
+    <cache name="org.apache.marmotta.platform.core.model.rdf.KiWiNamespace"
            statistics="true"
            maxElementsInMemory="100"
            eternal="false"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.core.model.user.KiWiGroup"
+    <cache name="org.apache.marmotta.platform.core.model.user.KiWiGroup"
            statistics="true"
            maxElementsInMemory="100"
            eternal="false"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="at.newmedialab.lmf.user.model.UserAccount"
+    <cache name="org.apache.marmotta.platform.user.model.UserAccount"
            statistics="true"
            maxElementsInMemory="100"
            eternal="false"
@@ -385,42 +385,42 @@ are "on" and "off".  The default is "autodetect".
            memoryStoreEvictionPolicy="LRU"/>
 
 
-    <cache name="kiwi.core.model.rdf.KiWiTriple"
+    <cache name="org.apache.marmotta.platform.core.model.rdf.KiWiTriple"
            statistics="true"
            maxElementsInMemory="200000"
            eternal="false"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Pattern"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Pattern"
            statistics="true"
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Field"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Field"
            statistics="true"
            maxElementsInMemory="10000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Rule"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Rule"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Rule.body"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Rule.body"
            statistics="true"
            maxElementsInMemory="1000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
 
-    <cache name="kiwi.reasoner.model.Program"
+    <cache name="org.apache.marmotta.platform.reasoner.model.Program"
            statistics="true"
            maxElementsInMemory="100"
            eternal="true"

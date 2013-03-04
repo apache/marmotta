@@ -1,12 +1,14 @@
 <!--
 
-    Copyright (C) 2013 Salzburg Research.
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,22 +19,22 @@
 -->
 <configuration scan="true">
 
-    <define name="LMF_HOME" class="kiwi.core.services.logging.LMFLogbackPropertyDefiner">
-        <key>kiwi.home</key>
+    <define name="MARMOTTA_HOME" class="org.apache.marmotta.platform.core.services.logging.LMFLogbackPropertyDefiner">
+        <key>marmotta.home</key>
     </define>
 
-    <define name="DEBUG" class="kiwi.core.services.logging.LMFLogbackPropertyDefiner">
+    <define name="DEBUG" class="org.apache.marmotta.platform.core.services.logging.LMFLogbackPropertyDefiner">
         <key>debug.enabled</key>
     </define>
 
 
     <!-- the LMF main log, roll over every day and keep at most one month -->
     <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LMF_HOME}/log/lmf-main.log</file>
+        <file>${MARMOTTA_HOME}/log/marmotta-main.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>${LMF_HOME}/log/lmf-main.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${MARMOTTA_HOME}/log/marmotta-main.%d{yyyy-MM-dd}.log</fileNamePattern>
 
             <!-- keep 30 days' worth of history -->
             <maxHistory>30</maxHistory>
@@ -63,11 +65,11 @@
             <logger name="org.hibernate.pretty" level="DEBUG" />
 
             <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>${LMF_HOME}/log/lmf-debug.log</file>
+                <file>${MARMOTTA_HOME}/log/marmotta-debug.log</file>
 
                 <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                     <!-- daily rollover -->
-                    <fileNamePattern>${LMF_HOME}/log/lmf-debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+                    <fileNamePattern>${MARMOTTA_HOME}/log/marmotta-debug.%d{yyyy-MM-dd}.log</fileNamePattern>
 
                     <!-- keep 3 days' worth of history -->
                     <maxHistory>3</maxHistory>
@@ -84,21 +86,13 @@
         </then>
     </if>
 
-    <!-- a logger for logging search requests, keep all messages forever -->
-    <appender name="search" class="ch.qos.logback.core.FileAppender">
-        <file>${LMF_HOME}/log/lmf-search.log</file>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <!-- Separate Log File for Stanbol -->
     <appender name="stanbol" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LMF_HOME}/log/lmf-stanbol.log</file>
+        <file>${MARMOTTA_HOME}/log/marmotta-stanbol.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>${LMF_HOME}/log/lmf-stanbol.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${MARMOTTA_HOME}/log/marmotta-stanbol.%d{yyyy-MM-dd}.log</fileNamePattern>
 
             <!-- keep 30 days' worth of history -->
             <maxHistory>30</maxHistory>
@@ -135,27 +129,8 @@
     </appender>
 
 
-    <!-- log all search messages only to the search log -->
-    <logger name="search" level="INFO" additivity="false">
-        <appender-ref ref="search" />
-    </logger>
 
-
-    <logger name="kiwi" level="INFO" />
-
-    <logger name="at.newmedialab" level="INFO" />
-
-    <logger name="org.hibernate.cache" level="ERROR" />
-    <logger name="org.hibernate" level="WARN" />
-
-    <!--
-    <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.pretty" level="DEBUG" />
-    -->
-
-    <logger name="org.apache.solr" level="WARN" />
-
-    <logger name="org.quartz" level="WARN" />
+    <logger name="org.apache.marmotta" level="INFO" />
 
     <logger name="org.apache.stanbol" level="INFO" additivity="false">
         <appender-ref ref="stanbol" />

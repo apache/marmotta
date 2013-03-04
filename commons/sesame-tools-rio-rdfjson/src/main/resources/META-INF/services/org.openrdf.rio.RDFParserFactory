@@ -1,1 +1,1 @@
-at.newmedialab.sesame.rio.rdfjson.RDFJsonParserFactory
+org.apache.marmotta.commons.sesame.rio.rdfjson.RDFJsonParserFactory

@@ -1,11 +1,13 @@
 /**
- * Copyright (C) 2013 Salzburg Research.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.lmf.sparql.services.evaluation.sql;
+package org.apache.marmotta.platform.sparql.services.evaluation.sql;
 
 import at.newmedialab.sesame.commons.model.LiteralCommons;
 import info.aduna.iteration.CloseableIteration;
-import kiwi.core.api.config.ConfigurationService;
-import kiwi.core.api.persistence.PersistenceService;
-import kiwi.core.api.triplestore.SesameService;
-import kiwi.core.events.DBInitialisationEvent;
-import kiwi.core.model.rdf.KiWiNode;
-import kiwi.core.services.sail.LMFEvaluationStrategy;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.persistence.PersistenceService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.events.DBInitialisationEvent;
+import org.apache.marmotta.platform.core.model.rdf.KiWiNode;
+import org.apache.marmotta.platform.core.services.sail.LMFEvaluationStrategy;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jooq.Cursor;
 import org.jooq.Record;

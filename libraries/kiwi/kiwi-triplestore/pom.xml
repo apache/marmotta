@@ -110,7 +110,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-commons</artifactId>
+            <artifactId>marmotta-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -122,11 +122,6 @@
         <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
-            <scope>test</scope>
-        </dependency>
-        <dependency> <!-- see http://www.dbunit.org/howto.html -->
-            <artifactId>dbunit</artifactId>
-            <groupId>org.dbunit</groupId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -155,7 +150,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.jumpmind.symmetric.jdbc</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>

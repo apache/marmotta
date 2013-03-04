@@ -1,12 +1,14 @@
 <!--
 
-    Copyright (C) 2013 Salzburg Research.
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +20,11 @@
 <shortcuts>
 
     <skipIfNotSupported/>
-    <programGroup defaultName="Linked Media Framework"
+    <programGroup defaultName="Apache Marmotta"
                   location="applications"/>
 
     <shortcut
-            name="Start Linked Media Framework"
+            name="Start Apache Marmotta"
             programGroup="yes"
             desktop="yes"
             applications="no"
@@ -37,11 +39,11 @@
             url=""
             type="Application"
             encoding="UTF-8"
-            description="This will start the Linked Media Framework Server">
+            description="This will start the Apache Marmotta Server">
     </shortcut>
 
     <shortcut
-            name="Stop Linked Media Framework"
+            name="Stop Apache Marmotta"
             programGroup="yes"
             desktop="yes"
             applications="no"
@@ -56,7 +58,7 @@
             url=""
             type="Application"
             encoding="UTF-8"
-            description="This will shutdown the Linked Media Framework Server">
+            description="This will shutdown the Apache Marmotta Server">
     </shortcut>
 
 

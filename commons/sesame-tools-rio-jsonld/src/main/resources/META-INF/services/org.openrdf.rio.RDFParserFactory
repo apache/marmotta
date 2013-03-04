@@ -1,1 +1,1 @@
-at.newmedialab.sesame.rio.jsonld.JsonLdParserFactory
+org.apache.marmotta.commons.sesame.rio.jsonld.JsonLdParserFactory

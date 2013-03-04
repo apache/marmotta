@@ -1,11 +1,13 @@
 /**
- * Copyright (C) 2013 Salzburg Research.
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +17,8 @@
  */
 package org.apache.marmotta.kiwi.versioning.sail;
 
+import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
@@ -25,8 +29,6 @@ import org.apache.marmotta.kiwi.versioning.api.VersioningSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence;
-import org.apache.marmotta.sesame.filter.AlwaysTrueFilter;
-import org.apache.marmotta.sesame.filter.SesameFilter;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;

@@ -1,13 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!--
 
-    Copyright (C) 2013 Salzburg Research.
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,14 +36,13 @@
     <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
 
     <!-- Check for initial host name and open up browser -->
-    <Listener className="at.newmedialab.lmf.startup.StartupListener" />
+    <Listener className="org.apache.marmotta.splash.startup.StartupListener" />
 
-    <!-- Display LMF Splash Screen -->
-    <Listener className="at.newmedialab.lmf.splash.SplashScreenListener" />
+    <!-- Display Splash Screen -->
+    <Listener className="org.apache.marmotta.splash.SplashScreenListener" />
 
-    <!-- Register LMF Systray menu -->
-    <Listener className="at.newmedialab.lmf.systray.SystrayListener" />
-
+    <!-- Register Systray menu -->
+    <Listener className="org.apache.marmotta.splash.systray.SystrayListener" />
 
     <!-- Global JNDI resources
          Documentation at /docs/jndi-resources-howto.html
@@ -134,7 +135,7 @@
             <Host name="localhost"  appBase="webapps"
                   unpackWARs="true" autoDeploy="true">
 
-                <Listener className="at.newmedialab.lmf.splash.ProgressListener" />
+                <Listener className="org.apache.marmotta.splash.ProgressListener" />
                 <!-- SingleSignOn valve, share authentication between web applications
              Documentation at: /docs/config/valve.html -->
                 <!--

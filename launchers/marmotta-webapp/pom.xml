@@ -30,17 +30,17 @@
     <packaging>war</packaging>
 
     <name>Apache Marmotta Web Application</name>
-    <description>Web Application bundle (WAR file) containing the complete Linked Media Framework</description>
+    <description>Web Application bundle (WAR file) containing Apache Marmotta</description>
 
     <properties>
         <!-- these are used for the goals tomcat6/7:run or jetty:run -->
-        <lmf.home>/tmp/marmotta</lmf.home>
-        <lmf.context>/</lmf.context>
-        <lmf.port>8080</lmf.port>
+        <marmotta.home>/tmp/marmotta</marmotta.home>
+        <marmotta.context>/</marmotta.context>
+        <marmotta.port>8080</marmotta.port>
     </properties>
 
     <build>
-        <finalName>Marmotta</finalName>
+        <finalName>marmotta</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -76,10 +76,10 @@
                     <artifactId>tomcat6-maven-plugin</artifactId>
                     <version>2.0</version>
                     <configuration>
-                        <path>${lmf.context}</path>
-                        <port>${lmf.port}</port>
+                        <path>${marmotta.context}</path>
+                        <port>${marmotta.port}</port>
                         <systemProperties>
-                            <kiwi.home>${lmf.home}</kiwi.home>
+                            <marmotta.home>${marmotta.home}</marmotta.home>
                         </systemProperties>
                     </configuration>
                 </plugin>
@@ -88,13 +88,13 @@
                     <artifactId>tomcat7-maven-plugin</artifactId>
                     <version>2.0</version>
                     <configuration>
-                        <path>${lmf.context}</path>
-                        <port>${lmf.port}</port>
+                        <path>${marmotta.context}</path>
+                        <port>${marmotta.port}</port>
                         <systemProperties>
-                            <kiwi.home>${lmf.home}</kiwi.home>
+                            <marmotta.home>${marmotta.home}</marmotta.home>
                         </systemProperties>
-                        <!--                         <contextReloadable>true</contextReloadable> -->
-                        <!--                         <backgroundProcessorDelay>10</backgroundProcessorDelay> -->
+                        <!-- <contextReloadable>true</contextReloadable> -->
+                        <!-- <backgroundProcessorDelay>10</backgroundProcessorDelay> -->
                     </configuration>
                 </plugin>
                 <plugin>
@@ -102,19 +102,19 @@
                     <artifactId>maven-jetty-plugin</artifactId>
                     <version>6.1.10</version>
                     <configuration>
-                        <contextPath>${lmf.context}</contextPath>
+                        <contextPath>${marmotta.context}</contextPath>
                         <connectors>
                             <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                                <port>${lmf.port}</port>
+                                <port>${marmotta.port}</port>
                             </connector>
                         </connectors>
                         <systemProperties>
                             <systemProperty>
-                                <name>kiwi.home</name>
-                                <value>${lmf.home}</value>
+                                <name>marmotta.home</name>
+                                <value>${marmotta.home}</value>
                             </systemProperty>
                         </systemProperties>
-                        <stopKey>foo</stopKey>
+                        <stopKey>marmotta</stopKey>
                         <stopPort>9999</stopPort>
                     </configuration>
                 </plugin>
@@ -156,7 +156,7 @@
                         <configuration>
                             <filesets>
                                 <fileset>
-                                    <directory>${lmf.home}</directory>
+                                    <directory>${marmotta.home}</directory>
                                     <followSymlinks>true</followSymlinks>
                                 </fileset>
                             </filesets>
@@ -168,7 +168,7 @@
     </profiles>
 
     <dependencies>
-        <!-- LMF Modules, include the ones needed by the application -->
+        <!-- Marmotta Modules, include the ones needed by the application -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-core</artifactId>
@@ -236,7 +236,7 @@
             <artifactId>h2</artifactId>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.jumpmind.symmetric.jdbc</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>

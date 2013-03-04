@@ -66,66 +66,6 @@
         </plugins>
     </build>
 
-
-    <url>https://code.google.com/p/lmf</url>
-
-    <developers>
-        <developer>
-            <name>Sebastian Schaffert</name>
-            <email>sebastian.schaffert@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
-            <name>Thomas Kurz</name>
-            <email>thomas.kurz@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
-            <name>Jakob Frank</name>
-            <email>jakob.frank@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
-            <name>Sergio Fernández</name>
-            <email>sergio.fernandez@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-        <developer>
-            <name>Dietmar Glachs</name>
-            <email>dietmar.glachs@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:hg:https://code.google.com/p/lmf</connection>
-        <developerConnection>scm:hg:https://code.google.com/p/lmf</developerConnection>
-        <url>https://code.google.com/p/lmf</url>
-      <tag>HEAD</tag>
-  </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>snml.releases</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snml.snapshots</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <profiles>
         <profile>
             <id>sign</id>

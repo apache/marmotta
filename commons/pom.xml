@@ -31,7 +31,6 @@
 
     <modules>
         <module>marmotta-commons</module>
-        <module>sesame-commons</module>
         <module>sesame-filter</module>
         <module>sesame-tools-rio-api</module>
         <module>sesame-tools-rio-ical</module>

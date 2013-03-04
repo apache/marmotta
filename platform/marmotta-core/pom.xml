@@ -30,11 +30,11 @@
 
     <name>Apache Marmotta Platform: Core</name>
     <description>
-        Core functionalities of the Linked Media Framework: Persistence, Transaction Management, Triple Store,
-        Framework Setup.
+        Core functionalities of the Linked Media Framework: Persistence, 
+        Transaction Management, Triple Store, Framework Setup.
     </description>
 
-    <!-- build a test jar for lmf-core so other modules can use the EmbeddedLMF configuration -->
+    <!-- build a test jar for lmf-core so other modules can use the EmbeddedMarmotta configuration -->
     <!-- usage:
          <dependency>
            <groupId>org.apache.marmotta</groupId>
@@ -119,10 +119,6 @@
 
     <!-- dependencies for all modules -->
     <dependencies>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-commons</artifactId>
-        </dependency>
 
         <!-- Logging -->
         <dependency>
@@ -247,7 +243,6 @@
             <version>1.0.0.GA</version>
         </dependency>
 
-
         <!-- XML Processing -->
         <dependency>
             <groupId>xml-apis</groupId>
@@ -331,10 +326,6 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jboss.interceptor</groupId>
             <artifactId>jboss-interceptor-core</artifactId>
             <scope>runtime</scope>
@@ -409,7 +400,7 @@
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-commons</artifactId>
+            <artifactId>marmotta-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -456,7 +447,6 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>

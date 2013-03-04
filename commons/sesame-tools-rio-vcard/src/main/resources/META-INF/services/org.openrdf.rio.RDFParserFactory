@@ -1,1 +1,1 @@
-at.newmedialab.sesame.rio.vcard.VCardParserFactory
+org.apache.marmotta.commons.sesame.rio.vcard.VCardParserFactory

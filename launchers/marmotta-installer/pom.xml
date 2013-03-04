@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2013 Salzburg Research.
-  ~  
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
   ~  You may obtain a copy of the License at
@@ -36,18 +34,12 @@
         <stagingDir>${project.build.directory}/installer</stagingDir>
 
         <!-- these are replaced in installer files -->
-        <TOMCAT_VERSION>7.0.35</TOMCAT_VERSION>
-        <LMF_VERSION>${project.version}</LMF_VERSION>
-        <LMF_ROOT>${project.basedir}/../</LMF_ROOT>
+        <TOMCAT_VERSION>7.0.37</TOMCAT_VERSION>
+        <MARMOTTA_VERSION>${project.version}</MARMOTTA_VERSION>
+        <MARMOTTA_ROOT>${project.basedir}/../../</MARMOTTA_ROOT>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
+    <!-- custom repor for the maven-download-plugin that would need to be removed -->
     <pluginRepositories>
         <pluginRepository>
             <id>snml</id>
@@ -63,7 +55,6 @@
         -->
         <finalName>${project.artifactId}</finalName>
         <plugins>
-
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
@@ -80,20 +71,23 @@
     </build>
 
     <dependencies>
-
         <dependency>
             <groupId>org.codehaus.izpack</groupId>
             <artifactId>izpack-standalone-compiler</artifactId>
             <version>${izpackVersion}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-webapp</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-splash</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -134,10 +128,6 @@
                                             <targetPath>tomcat</targetPath>
                                         </resource>
                                         <resource>
-                                            <directory>src/main/resources/refine</directory>
-                                            <targetPath>refine</targetPath>
-                                        </resource>
-                                        <resource>
                                             <directory>src/main/resources/images</directory>
                                             <targetPath>images</targetPath>
                                         </resource>
@@ -149,16 +139,17 @@
                                             <directory>src/main/resources/log</directory>
                                             <targetPath>log</targetPath>
                                         </resource>
+                                        <!--
                                         <resource>
                                             <directory>src/main/resources/refpacks</directory>
                                             <targetPath>refpacks</targetPath>
                                         </resource>
+                                        -->
                                     </resources>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.marmotta</groupId>
                         <artifactId>refpack-maven-plugin</artifactId>
@@ -179,12 +170,23 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>2.6</version>
                         <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeTransitive>true</excludeTransitive>
+                                    <excludeArtifactIds>izpack-standalone-compiler,marmotta-webapp</excludeArtifactIds>
+                                    <includeArtifactIds>marmotta-splash</includeArtifactIds>
+                                    <outputDirectory>${stagingDir}/lib</outputDirectory>
+                                </configuration>
+                            </execution>
                             <execution>
                                 <id>unpack</id>
                                 <phase>package</phase>
@@ -211,11 +213,10 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>com.googlecode.maven-download-plugin</groupId>
                         <artifactId>maven-download-plugin</artifactId>
-                        <version>1.0.0</version>
+                        <version>1.1.0-SNAPSHOT</version>
                         <executions>
                             <execution>
                                 <id>download-tomcat</id>
@@ -226,53 +227,36 @@
                                 <configuration>
                                     <url>http://www.eu.apache.org/dist/tomcat/tomcat-7/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.zip</url>
                                     <unpack>false</unpack>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <md5>1c7a7869d86b74dddb0a22d15f020922</md5>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>download-refine</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>wget</goal>
-                                </goals>
-                                <configuration>
-                                    <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/com/google/refine/2.6.LMF-SNAPSHOT/refine-2.6.LMF-20121029.114459-1.war</url>
-                                    <unpack>false</unpack>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <outputFileName>refine.war</outputFileName>
-                                    <md5>08e913ae01c7ecca1682f8175d9a1956</md5>
+                                    <outputDirectory>${stagingDir}/lib</outputDirectory>
+                                    <md5>796244156a8d932c8eb75fd05ac2b31e</md5>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>1.7</version>
                         <executions>
                             <execution>
+                                <id>create-empty-directories</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <mkdir dir="${stagingDir}/refpacks" />
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>izpack</id>
                                 <phase>package</phase>
                                 <configuration>
                                     <target>
                                         <taskdef name="IzPack" classname="com.izforge.izpack.ant.IzPackTask" classpathref="maven.plugin.classpath" />
-                                        <IzPack input="${stagingDir}/standalone.xml" output="${project.build.directory}/${artifactId}-${project.version}.jar" installerType="standard" basedir="${stagingDir}" IzPackDir="${stagingDir}/" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>googlecode</id>
-                                <phase>deploy</phase>
-                                <configuration>
-                                    <target>
-                                        <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpathref="maven.plugin.classpath" />
-                                        <!--suppress MavenModelInspection -->
-                                        <gcupload projectname="lmf" username="${google.username}" password="${google.password}" filename="${project.build.directory}/lmf-installer-${project.version}.jar" targetfilename="lmf-installer-${project.version}.jar" summary="LMF ${project.version} Standalone Installer (includes Apache Tomcat, LMF, Google Refine, and Apache Stanbol)" labels="Featured, Type-Installer, OpSys-All" />
+                                        <IzPack input="${stagingDir}/standalone.xml" output="${project.build.directory}/${project.artifactId}-${project.version}.jar" installerType="standard" basedir="${stagingDir}" IzPackDir="${stagingDir}/" />
                                     </target>
                                 </configuration>
                                 <goals>
@@ -298,7 +282,6 @@
                             </dependency>
                         </dependencies>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
