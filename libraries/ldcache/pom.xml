@@ -40,9 +40,6 @@
         <module>ldcache-sail-generic</module>
         <module>ldcache-backend-ehcache</module>
         <module>ldcache-backend-kiwi</module>
-        <!--
-        <module>ldcache-backend-ehcache</module>
-        <module>ldcache-backend-kiwi</module>
-        -->
+        <module>ldcache-backend-file</module>
     </modules>
 </project>
