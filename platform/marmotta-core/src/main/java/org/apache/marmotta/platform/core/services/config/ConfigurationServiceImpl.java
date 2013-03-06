@@ -63,7 +63,7 @@ import java.util.*;
 @ApplicationScoped
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-    private String lmfHome;
+    private String home;
 
     private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
 
@@ -933,23 +933,47 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Set the LMF_HOME value to the correct path. Used during the initialisation process.
+     * Set the LMF_HOME value to the correct path. Used during the initialization process.
      * 
      * @param home
      */
     @Override
+    @Deprecated
     public void setLMFHome(String home) {
-        this.lmfHome = home;
+    	log.warn("ConfigurationService.setLMFHome() is deprecated, consider you call directly ConfigurationService.setHome()");
+        this.setHome(home);
     }
 
     /**
-     * Return the value of the LMF_HOME setting. Used during the initialisation process.
+     * Set the home value to the correct path. Used during the initialization process.
+     * 
+     * @param home
+     */
+    @Override
+    public void setHome(String home) {
+        this.home = home;
+    }
+    
+    /**
+     * Return the value of the LMF_HOME setting. Used during the initialization process.
      * 
      * @return
      */
     @Override
+    @Deprecated
     public String getLMFHome() {
-        return lmfHome;
+    	log.warn("ConfigurationService.getLMFHome() is deprecated, consider you call directly ConfigurationService.getHome()");
+        return getHome();
+    }
+    
+    /**
+     * Return the value of the home setting. Used during the initialization process.
+     * 
+     * @return
+     */
+    @Override
+    public String getHome() {
+        return home;
     }
 
     /**
