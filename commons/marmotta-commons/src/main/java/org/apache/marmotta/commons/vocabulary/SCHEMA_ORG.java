@@ -11,7 +11,7 @@ public class SCHEMA_ORG {
 
     public static final String NAMESPACE = "http://schema.org/";
 
-    public static final String PREFIX = "schema_org";
+    public static final String PREFIX = "schema";
 
     /**
      * Web page type: About page. 
