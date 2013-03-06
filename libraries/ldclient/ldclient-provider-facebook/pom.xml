@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>ldclient-provider-facebook</artifactId>
-    <name>LDClient Provider: YouTube Resources</name>
+    <name>LDClient Provider: Facebook Graph</name>
 
     <description>
         This package enables the Linked Data Client to access the metadata of Facebook objects using the
