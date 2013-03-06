@@ -348,10 +348,10 @@ public interface ConfigurationService {
 
     /**
      * Initialise the configuration service using the given home directory, and optionally a configuration override
-     * @param lmfHome
+     * @param home
      * @param override
      */
-    void initialize(String lmfHome, Configuration override);
+    void initialize(String home, Configuration override);
 
 
     /**
@@ -359,7 +359,7 @@ public interface ConfigurationService {
      * processes have already been carried out.
      * @param value
      */
-    void setRuntimeFlag(String flag,boolean value);
+    void setRuntimeFlag(String flag, boolean value);
 
     /**
      * Return the value of the runtime flag passed as argument.
@@ -373,13 +373,29 @@ public interface ConfigurationService {
      *
      * @param home
      */
+    @Deprecated
     void setLMFHome(String home);
+    
+    /**
+     * Set the home value to the correct path. Used during the initialization process.
+     * 
+     * @param home
+     */
+    public void setHome(String home);
 
     /**
      * Return the value of the LMF_HOME setting. Used during the initialisation process.
      * @return
      */
+    @Deprecated
     String getLMFHome();
+    
+    /**
+     * Return the value of the home setting. Used during the initialization process.
+     * 
+     * @return
+     */
+    public String getHome();
 
     /**
      * Get the base URI for contexts

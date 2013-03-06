@@ -63,7 +63,7 @@ import java.util.*;
 @ApplicationScoped
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-    private String lmfHome;
+    private String home;
 
     private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
 
@@ -124,7 +124,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * @param override
      */
     @Override
-    public void initialize(String lmfHome, Configuration override) {
+    public void initialize(String home, Configuration override) {
         initialising = true;
 
         log.info("Apache Marmotta Configuration Service starting up ...");
@@ -141,22 +141,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.info("Apache Marmotta running on an unknown servlet container");
         }
 
+        setHome(home);
 
-        setLMFHome(lmfHome);
-
-        if (getLMFHome() != null) {
-            File f1 = new File(getLMFHome());
+        if (getHome() != null) {
+            File f1 = new File(getHome());
             if (!f1.exists()) {
                 f1.mkdirs();
             }
             // ensure directory for user configuration files
-            File f2 = new File(getLMFHome() + File.separator + "config");
+            File f2 = new File(getHome() + File.separator + "config");
             if(!f2.exists()) {
                 f2.mkdirs();
             }
 
             // ensure directory for logging messages
-            File f3 = new File(getLMFHome() + File.separator + "log");
+            File f3 = new File(getHome() + File.separator + "log");
             if(!f3.exists()) {
                 f3.mkdirs();
             }
@@ -164,8 +163,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         // the save configuration will be in the  home directory
         try {
-            if (getLMFHome() != null) {
-                configFile = getLMFHome() + File.separator + "system-config.properties";
+            if (getHome() != null) {
+                configFile = getHome() + File.separator + "system-config.properties";
                 File f = new File(configFile);
                 if (!f.exists()) {
                     log.info("creating system configuration in configuration file {}", f.getAbsolutePath());
@@ -228,14 +227,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.error("configuration error while loading configuration descriptions",e);
         }
 
-
-        // setup KiWi home - if it is given as system property, the bootstrap configuration is
-        // overwritten
-        if (getLMFHome() != null) {
-            config.setProperty("marmotta.home", getLMFHome());
-            config.setProperty("solr.home", getLMFHome() + File.separator + "solr");
+        // setup home if it is given as system property, 
+        // the bootstrap configuration is overwritten
+        if (getHome() != null) {
+            config.setProperty("marmotta.home", getHome());
+            config.setProperty("solr.home", getHome() + File.separator + "solr");
         }
-
 
         // in case override configuration is given, change all settings in the configuration accordingly
         if(override != null) {
@@ -933,23 +930,47 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Set the LMF_HOME value to the correct path. Used during the initialisation process.
+     * Set the LMF_HOME value to the correct path. Used during the initialization process.
      * 
      * @param home
      */
     @Override
+    @Deprecated
     public void setLMFHome(String home) {
-        this.lmfHome = home;
+    	log.warn("ConfigurationService.setLMFHome() is deprecated, consider call directly ConfigurationService.setHome()");
+        this.setHome(home);
     }
 
     /**
-     * Return the value of the LMF_HOME setting. Used during the initialisation process.
+     * Set the home value to the correct path. Used during the initialization process.
+     * 
+     * @param home
+     */
+    @Override
+    public void setHome(String home) {
+        this.home = home;
+    }
+    
+    /**
+     * Return the value of the LMF_HOME setting. Used during the initialization process.
      * 
      * @return
      */
     @Override
+    @Deprecated
     public String getLMFHome() {
-        return lmfHome;
+    	log.warn("ConfigurationService.getLMFHome() is deprecated, consider call directly ConfigurationService.getHome()");
+        return getHome();
+    }
+    
+    /**
+     * Return the value of the home setting. Used during the initialization process.
+     * 
+     * @return
+     */
+    @Override
+    public String getHome() {
+        return home;
     }
 
     /**
