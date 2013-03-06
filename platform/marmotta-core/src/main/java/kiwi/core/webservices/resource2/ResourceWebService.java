@@ -1,10 +1,10 @@
 package kiwi.core.webservices.resource2;
 
 import com.google.common.base.Preconditions;
-import kiwi.core.api.config.ConfigurationService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
