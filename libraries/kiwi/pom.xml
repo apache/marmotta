@@ -47,11 +47,6 @@
         </developer>
     </developers>
 
-    <organization>
-        <name>Salzburg Research</name>
-        <url>http://www.salzburgresearch.at</url>
-    </organization>
-
     <properties>
         <sesameVersion>2.6.10</sesameVersion>
         <sl4jVersion>1.7.2</sl4jVersion>
