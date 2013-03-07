@@ -239,10 +239,6 @@
             <groupId>org.jumpmind.symmetric.jdbc</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
 
     </dependencies>
 
