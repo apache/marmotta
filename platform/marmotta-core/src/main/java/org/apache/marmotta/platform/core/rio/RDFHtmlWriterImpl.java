@@ -17,25 +17,6 @@
  */
 package org.apache.marmotta.platform.core.rio;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.io.RDFHtmlWriter;
-import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
-import org.apache.marmotta.platform.core.api.prefix.PrefixService;
-import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
-import org.apache.marmotta.platform.core.util.CDIContext;
-import org.apache.commons.lang.StringUtils;
-import org.apache.marmotta.commons.http.UriUtil;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -49,6 +30,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.io.RDFHtmlWriter;
+import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
+import org.apache.marmotta.platform.core.api.prefix.PrefixService;
+import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
+import org.apache.marmotta.platform.core.util.CDIContext;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * RDF to HTML Writer
@@ -159,9 +158,6 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                             StringUtils.isNotBlank(objectCurie) ? objectCurie
                                     : objectValue);
                     object.put("cache", "true");
-                } else if (UriUtil.validate(objectValue)) {
-                    object.put("uri", objectValue);
-                    object.put("curie", objectValue);
                 } else if (value instanceof Literal) {
                     Literal literal = (Literal) t.getObject();
                     String lang = literal.getLanguage();
