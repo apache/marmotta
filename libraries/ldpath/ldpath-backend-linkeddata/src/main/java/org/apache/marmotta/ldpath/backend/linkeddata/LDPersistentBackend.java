@@ -17,9 +17,10 @@
  */
 package org.apache.marmotta.ldpath.backend.linkeddata;
 
-import at.newmedialab.ldclient.model.CacheEntry;
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
+
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.CacheEntry;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
