@@ -148,7 +148,7 @@
                         <forkMode>always</forkMode>
                     </configuration>
                 </plugin>
-                <plugin>
+ <!--               <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-remote-resources-plugin</artifactId>
                     <configuration>
@@ -160,7 +160,7 @@
                         </supplementalModels>
                     </configuration>
                 </plugin>
-                <plugin>
+-->                <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
                     <version>1.0.0</version>
@@ -906,11 +906,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>c3p0</groupId>
-                <artifactId>c3p0</artifactId>
-                <version>0.9.1.2</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq</artifactId>
                 <version>2.6.0</version>
@@ -1254,7 +1249,7 @@
             </dependency>
 
             <!-- Social Media -->
-            <dependency>
+<!--            <dependency>
                 <groupId>org.rometools</groupId>
                 <artifactId>rome</artifactId>
                 <version>1.1.1-LMF</version>
@@ -1263,7 +1258,7 @@
                 <groupId>org.rometools</groupId>
                 <artifactId>rome-modules</artifactId>
                 <version>1.5.1-LMF</version>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>
                 <artifactId>json-path</artifactId>
