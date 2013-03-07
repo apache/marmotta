@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.ldclient.exception;
+package org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.exception;
 
 /**
  * Add file description here!

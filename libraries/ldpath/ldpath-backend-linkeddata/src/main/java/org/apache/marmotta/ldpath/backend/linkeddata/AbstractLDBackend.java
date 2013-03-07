@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.ldpath.backend.linkeddata;
 
-import at.newmedialab.ldclient.api.LDCacheProvider;
-import at.newmedialab.ldclient.model.Endpoint;
-import at.newmedialab.ldclient.service.LDCache;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.api.LDCacheProvider;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.Endpoint;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.service.LDCache;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;

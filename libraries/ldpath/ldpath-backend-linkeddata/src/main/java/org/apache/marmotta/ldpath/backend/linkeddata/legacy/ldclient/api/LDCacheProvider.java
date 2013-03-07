@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.ldclient.api;
+package org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.api;
 
-import at.newmedialab.ldclient.model.CacheEntry;
-import at.newmedialab.ldclient.model.Endpoint;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.CacheEntry;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.Endpoint;
 import org.openrdf.repository.Repository;
 
 import java.util.Collection;

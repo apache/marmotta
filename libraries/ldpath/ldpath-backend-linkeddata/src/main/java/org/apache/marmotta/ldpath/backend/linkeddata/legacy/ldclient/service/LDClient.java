@@ -15,11 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.ldclient.service;
+package org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.service;
 
-import at.newmedialab.ldclient.exception.LDClientException;
-import at.newmedialab.ldclient.model.ClientResponse;
-import at.newmedialab.ldclient.model.Endpoint;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -43,6 +40,9 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.exception.LDClientException;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.ClientResponse;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.Endpoint;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;

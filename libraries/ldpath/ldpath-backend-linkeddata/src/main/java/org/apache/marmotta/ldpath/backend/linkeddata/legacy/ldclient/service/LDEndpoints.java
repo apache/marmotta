@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.newmedialab.ldclient.service;
+package org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.service;
 
-import at.newmedialab.ldclient.model.Endpoint;
+import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.Endpoint;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 
