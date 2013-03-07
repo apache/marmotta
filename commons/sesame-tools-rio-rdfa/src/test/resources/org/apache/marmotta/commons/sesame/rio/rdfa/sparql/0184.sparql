@@ -1,4 +1,0 @@
-ASK WHERE {
-  <http://example.org/#me> <http://xmlns.com/foaf/0.1/name> "Ivan Herman" .
-  <http://example.org/#me> <http://xmlns.com/foaf/0.1/weblog> <http://www.ivan-herman.name> .
-}

@@ -1,4 +1,0 @@
-ASK WHERE {
-  _:agent <http://purl.org/NET/c4dm/event.owl#agent> <http://www.w3.org/2010/02/rdfa/> .
-  <http://www.w3.org/2010/02/rdfa/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Agent> .
-}

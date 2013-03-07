@@ -416,10 +416,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-rdfa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-rdfjson</artifactId>
         </dependency>
         <dependency>
@@ -433,6 +429,14 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-facading</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-sesame</artifactId>
         </dependency>
 
         <dependency>
