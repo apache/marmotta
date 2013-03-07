@@ -158,6 +158,7 @@ public class RepositoryTest {
 
     @After
     public void dropDatabase() throws RepositoryException, SQLException {
+        store.closeValueFactory(); // release all connections before dropping the database
         store.getPersistence().dropDatabase();
         repository.shutDown();
     }

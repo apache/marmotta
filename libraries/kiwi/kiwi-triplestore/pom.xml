@@ -69,9 +69,16 @@
 
         <!-- JDBC connection pooling -->
         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-jdbc</artifactId>
+        </dependency>
+<!--
+        <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
+-->
+
 
         <!-- Sesame dependencies -->
         <dependency>
