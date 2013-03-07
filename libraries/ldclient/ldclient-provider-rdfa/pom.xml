@@ -51,9 +51,14 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-commons</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-rdfa</artifactId>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-rdfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.semarglproject</groupId>
+            <artifactId>semargl-sesame</artifactId>
         </dependency>
 
         <dependency>
