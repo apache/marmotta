@@ -19,6 +19,7 @@
     <modules>
         <module>archetypes</module>
         <module>plugins</module>
+        <module>dependency-resource-supplement</module>
     </modules>
     
 </project>

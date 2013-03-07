@@ -149,6 +149,18 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-remote-resources-plugin</artifactId>
+                    <configuration>
+                        <supplementalModelArtifacts>
+                            <supplementalModelArtifact>${project.groupId}:dependency-resource-supplement:${project.version}</supplementalModelArtifact>
+                        </supplementalModelArtifacts>
+                        <supplementalModels>
+                            <supplementalModel>supplemental-models.xml</supplementalModel>
+                        </supplementalModels>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
                     <version>1.0.0</version>
