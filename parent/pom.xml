@@ -916,6 +916,15 @@
                 <version>2.6.0</version>
             </dependency>
 
+
+            <!-- Tomcat JDBC Connection Pool (replacement for c3p0, MARMOTTA-111 -->
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-jdbc</artifactId>
+                <version>7.0.37</version>
+            </dependency>
+
+
             <!-- SOLR (Semantic Search) -->
             <dependency>
                 <groupId>org.apache.solr</groupId>
@@ -1115,6 +1124,18 @@
                 <version>${sesame.version}</version>
             </dependency>
 
+            <!-- RDFa Parser -->
+            <dependency>
+                <groupId>org.semarglproject</groupId>
+                <artifactId>semargl-rdfa</artifactId>
+                <version>0.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.semarglproject</groupId>
+                <artifactId>semargl-sesame</artifactId>
+                <version>0.4</version>
+            </dependency>
+
             <!-- KiWi Triple Store -->
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
@@ -1167,11 +1188,6 @@
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-rdfa</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

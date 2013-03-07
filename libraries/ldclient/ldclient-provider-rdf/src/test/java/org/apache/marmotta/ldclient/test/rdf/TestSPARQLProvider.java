@@ -27,6 +27,7 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
@@ -45,6 +46,7 @@ public class TestSPARQLProvider {
      *
      * @throws Exception
      */
+    @Ignore
     @Test
     public void testDBPedia() throws Exception {
 

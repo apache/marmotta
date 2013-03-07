@@ -33,4 +33,27 @@
         on demand when needed. Can be wrapped around other Sesame SAILs.
     </description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>sesame-filter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+        </dependency>
+
+    </dependencies>
 </project>

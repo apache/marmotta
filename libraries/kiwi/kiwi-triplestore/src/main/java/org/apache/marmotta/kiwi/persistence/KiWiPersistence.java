@@ -17,19 +17,19 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.openrdf.model.Statement;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
@@ -47,6 +47,9 @@ public class KiWiPersistence {
 
     private static Logger log = LoggerFactory.getLogger(KiWiPersistence.class);
 
+    // internal KiWi persistence ID (used for pool name)
+    private static int KIWI_ID = 0;
+
     /**
      * A unique name for identifying this instance of KiWiPersistence. Can be used in case there are several
      * instances running in the same environment.
@@ -57,23 +60,22 @@ public class KiWiPersistence {
     /**
      * The connection pool for managing JDBC connections
      */
-    private ComboPooledDataSource connectionPool;
+    private DataSource connectionPool;
 
     /**
      * The SQL dialect to use
      */
     private KiWiDialect           dialect;
 
+    private PoolProperties        poolConfig;
 
     private KiWiCacheManager      cacheManager;
-
-    private Set<Connection>       managedConnections;
 
     private KiWiGarbageCollector  garbageCollector;
 
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
-        this.name    = name;
-        this.dialect = dialect;
+        this.name       = name;
+        this.dialect    = dialect;
 
         // init JDBC connection pool
         initConnectionPool(jdbcUrl, db_user, db_password);
@@ -107,30 +109,34 @@ public class KiWiPersistence {
 
 
     private void initConnectionPool(String jdbcUrl, String db_user, String db_password) {
-        managedConnections = Collections.newSetFromMap(new WeakHashMap<Connection, Boolean>());
+        poolConfig = new PoolProperties();
+        poolConfig.setName("kiwi-" + (++KIWI_ID));
+        poolConfig.setUrl(jdbcUrl);
+        poolConfig.setDriverClassName(dialect.getDriverClass());
+        poolConfig.setUsername(db_user);
+        poolConfig.setPassword(db_password);
+        poolConfig.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        poolConfig.setCommitOnReturn(true);
+        /*
+        poolConfig.setLogAbandoned(true);
+        poolConfig.setRemoveAbandoned(true);
+        */
 
-        connectionPool = new ComboPooledDataSource();
-        try {
-            connectionPool.setDriverClass(dialect.getDriverClass());
-            connectionPool.setJdbcUrl(jdbcUrl);
-            connectionPool.setUser(db_user);
-            connectionPool.setPassword(db_password);
+        // interceptors
+        poolConfig.setJdbcInterceptors(
+                "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
+                "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
+                "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
+        );
 
-            connectionPool.setMinPoolSize(5);
-            connectionPool.setMaxPoolSize(20);
-            connectionPool.setAcquireIncrement(5);
-            connectionPool.setIdleConnectionTestPeriod(300);
-            connectionPool.setMaxStatements(100);
-            connectionPool.setMaxIdleTime(600);
-
-            // debug
-            if("true".equals(System.getProperty("debug.database"))) {
-                connectionPool.setUnreturnedConnectionTimeout(60);
-                connectionPool.setDebugUnreturnedConnectionStackTraces(true);
-            }
-        } catch (PropertyVetoException e) {
-            log.error("could not initialise JDBC connection pool",e);
+        if(log.isDebugEnabled()) {
+            poolConfig.setSuspectTimeout(30);
+            poolConfig.setLogAbandoned(true);
         }
+
+
+        connectionPool = new DataSource(poolConfig);
+
     }
 
     private void initGarbageCollector() {
@@ -146,9 +152,8 @@ public class KiWiPersistence {
     }
 
     public void logPoolInfo() throws SQLException {
-        log.info("num_connections: {}", connectionPool.getNumConnectionsDefaultUser());
-        log.info("num_busy_connections: {}", connectionPool.getNumBusyConnectionsDefaultUser());
-        log.info("num_idle_connections: {}", connectionPool.getNumIdleConnectionsDefaultUser());
+        log.info("num_busy_connections:    {}", connectionPool.getNumActive());
+        log.info("num_idle_connections:    {}", connectionPool.getNumIdle());
 
     }
 
@@ -233,6 +238,9 @@ public class KiWiPersistence {
      * @throws SQLException
      */
     public void dropDatabase(final String scriptName) throws SQLException {
+        // log connection pool information
+        logPoolInfo();
+
         // we start this in a separate thread because there might still be a lock on the database tables
         forceCloseConnections();
 
@@ -285,9 +293,9 @@ public class KiWiPersistence {
     public KiWiConnection getConnection() throws SQLException {
         Connection conn = connectionPool.getConnection();
         conn.setAutoCommit(false);
-        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        //conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-        managedConnections.add(conn);
+        //managedConnections.add(conn);
 
         return new KiWiConnection(conn,dialect,cacheManager);
     }
@@ -300,28 +308,18 @@ public class KiWiPersistence {
     public Connection getJDBCConnection() throws SQLException {
         Connection conn = connectionPool.getConnection();
         conn.setAutoCommit(false);
-        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        //conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-        managedConnections.add(conn);
+        //managedConnections.add(conn);
 
         return conn;
     }
 
 
     private void forceCloseConnections() {
-        for(Connection conn : managedConnections) {
-            try {
-                if(!conn.isClosed()) {
-                    log.warn("enforce closing of open connection!");
-                    if(!conn.getAutoCommit()) {
-                        conn.rollback();
-                    }
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                log.error("error while enforcing closing of open connection",e);
-            }
-        }
+        connectionPool.close(true);
+
+        connectionPool = new DataSource(poolConfig);
     }
 
     /**

@@ -1,4 +1,0 @@
-# This is a negative test
-ASK WHERE {
-  <http://example.org/#me> <http://xmlns.com/foaf/0.1/name> "Gregg Kellogg" .
-}

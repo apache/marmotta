@@ -154,21 +154,22 @@ public class KiWiGarbageCollector extends Thread {
     @Override
     public void run() {
         synchronized (this) {
-            // wait a bit for the rest of the initialisation to complete
-            try {
-                this.wait(10000);
-            } catch (InterruptedException e) {
-            }
+
+            boolean started = false;
 
             while(!shutdown) {
-                long start = System.currentTimeMillis();
-                log.info("running garbage collection ...");
-                try {
-                    int count = garbageCollect();
-                    log.info("... cleaned up {} entries (duration: {} ms)", count, (System.currentTimeMillis()-start));
-                } catch (SQLException e) {
-                    log.error("error while executing garbage collection: {}",e.getMessage());
+                // don't run immediately on startup
+                if(started) {
+                    long start = System.currentTimeMillis();
+                    log.info("running garbage collection ...");
+                    try {
+                        int count = garbageCollect();
+                        log.info("... cleaned up {} entries (duration: {} ms)", count, (System.currentTimeMillis()-start));
+                    } catch (SQLException e) {
+                        log.error("error while executing garbage collection: {}",e.getMessage());
+                    }
                 }
+                started = true;
                 try {
                     this.wait(interval);
                 } catch (InterruptedException e) {

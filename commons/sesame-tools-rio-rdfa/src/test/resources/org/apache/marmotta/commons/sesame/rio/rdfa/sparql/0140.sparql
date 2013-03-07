@@ -1,4 +1,0 @@
-# This is a negative test, the triple shown below should not be generated.
-ASK WHERE {
-  <http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/0140.xhtml> <http://example.org/test> "Test".
-}
