@@ -1787,6 +1787,353 @@ public class Namespace {
         }
     }
 
+    /**
+     * Namespace MA
+     */
+    public static class MA {
+        /**
+         * A person or organisation contributing to the media resource.
+         */
+        public static final String Agent = "http://www.w3.org/ns/ma-ont#Agent";
+        /**
+         * A specialisation of Track for Audio to provide a link to specific data properties such as sampleRate, etc. Specialisation is defined through object properties.
+         */
+        public static final String AudioTrack = "http://www.w3.org/ns/ma-ont#AudioTrack";
+        /**
+         * Any group of media resource e.g. a series.
+         */
+        public static final String Collection = "http://www.w3.org/ns/ma-ont#Collection";
+        /**
+         * Ancillary data track e.g. ¨captioning"  in addition to video and audio tracks. Specialisation is made through the use of appropriate object properties.
+         */
+        public static final String DataTrack = "http://www.w3.org/ns/ma-ont#DataTrack";
+        /**
+         * A still image / thumbnail / key frame related to the media resource or being the media resource itself.
+         */
+        public static final String Image = "http://www.w3.org/ns/ma-ont#Image";
+        public static final String IsRatingOf = "http://www.w3.org/ns/ma-ont#IsRatingOf";
+        /**
+         * A location related to the media resource, e.g. depicted in the resource (possibly fictional) or where the resource was created (shooting location), etc.
+         */
+        public static final String Location = "http://www.w3.org/ns/ma-ont#Location";
+        /**
+         * A media fragment (spatial, temporal, track...) composing a media resource. In other ontologies fragment is sometimes referred to as a 'part' or 'segment'.
+         */
+        public static final String MediaFragment = "http://www.w3.org/ns/ma-ont#MediaFragment";
+        /**
+         * An image or an audiovisual media resource, which can be composed of one or more fragment / track.
+         */
+        public static final String MediaResource = "http://www.w3.org/ns/ma-ont#MediaResource";
+        /**
+         * An organisation or moral agent.
+         */
+        public static final String Organisation = "http://www.w3.org/ns/ma-ont#Organisation";
+        /**
+         * A physical person.
+         */
+        public static final String Person = "http://www.w3.org/ns/ma-ont#Person";
+        /**
+         * Information about the rating given to a media resource.
+         */
+        public static final String Rating = "http://www.w3.org/ns/ma-ont#Rating";
+        /**
+         * Information about The target audience (target region, target audience category but also parental guidance recommendation) for which a media resource is intended.
+         */
+        public static final String TargetAudience = "http://www.w3.org/ns/ma-ont#TargetAudience";
+        /**
+         * A specialisation of MediaFragment for audiovisual content.
+         */
+        public static final String Track = "http://www.w3.org/ns/ma-ont#Track";
+        /**
+         * A specialisation of Track for Video to provide a link to specific data properties such as frameRate, etc. Signing is another possible example of video track. Specialisation is defined through object properties.
+         */
+        public static final String VideoTrack = "http://www.w3.org/ns/ma-ont#VideoTrack";
+        /**
+         * Corresponds to 'title.title' in the Ontology for Media Resources with a 'title.type' meaning "alternative".
+         */
+        public static final String alternativeTitle = "http://www.w3.org/ns/ma-ont#alternativeTitle";
+        /**
+         * Corresponds to 'averageBitRate' in the Ontology for Media Resources, expressed in kilobits/second.
+         */
+        public static final String averageBitRate = "http://www.w3.org/ns/ma-ont#averageBitRate";
+        /**
+         * The name by which a collection (e.g. series) is known.
+         */
+        public static final String collectionName = "http://www.w3.org/ns/ma-ont#collectionName";
+        /**
+         * Corresponds to 'copyright.copyright' in the Ontology for Media Resources.
+         */
+        public static final String copyright = "http://www.w3.org/ns/ma-ont#copyright";
+        /**
+         * A subproperty of 'hasRelatedLocation" used to specify where material shooting took place.
+         */
+        public static final String createdIn = "http://www.w3.org/ns/ma-ont#createdIn";
+        /**
+         * Corresponds to 'date.date' in the Ontology for Media Resources with a 'date.type' meaning "creationDate".
+         */
+        public static final String creationDate = "http://www.w3.org/ns/ma-ont#creationDate";
+        /**
+         * Corresponds to date.date in the ontology for Media Resources. Subproperties can be used to distinguish different values of 'date.type'. The recommended range is 'xsd:dateTime' (for compliance with OWL2-QL and OWL2-RL) but other time-related datatypes may be used (e.g. 'xsd:gYear', 'xsd:date'...).
+         */
+        public static final String date = "http://www.w3.org/ns/ma-ont#date";
+        /**
+         * A subproperty of 'hasRelatedLocation' used to specify where the action depicted in the media is supposed to take place, as opposed to the location where shooting actually took place (see 'createdIn').
+         */
+        public static final String depictsFictionalLocation = "http://www.w3.org/ns/ma-ont#depictsFictionalLocation";
+        /**
+         * Corresponds to 'description' in the Ontology for Media Resources. This can be specialised by using sub-properties e.g. 'summary' or 'script'.
+         */
+        public static final String description = "http://www.w3.org/ns/ma-ont#description";
+        /**
+         * Corresponds to 'duration' in the Ontology for Media Resources.
+         */
+        public static final String duration = "http://www.w3.org/ns/ma-ont#duration";
+        /**
+         * Corresponds to 'date.date' in the Ontology for Media Resources with a 'date.type' meaning "editDate".
+         */
+        public static final String editDate = "http://www.w3.org/ns/ma-ont#editDate";
+        /**
+         * Corresponds to 'contributor.contributor' in the Ontology for Media Resources with a 'contributor.role' meaning "actor".
+         */
+        public static final String features = "http://www.w3.org/ns/ma-ont#features";
+        /**
+         * Corresponds to 'namedFragment.label' in the Ontology for Media Resources.
+         */
+        public static final String fragmentName = "http://www.w3.org/ns/ma-ont#fragmentName";
+        /**
+         * Corresponds to 'frameSize.height' in the Ontology for Media Resources, measured in frameSizeUnit.
+         */
+        public static final String frameHeight = "http://www.w3.org/ns/ma-ont#frameHeight";
+        /**
+         * Corresponds to 'frameRate' in the Ontology for Media Resources, in frame per second.
+         */
+        public static final String frameRate = "http://www.w3.org/ns/ma-ont#frameRate";
+        /**
+         * Corresponds to 'frameSize.unit' in the Ontology for Media Resources.
+         */
+        public static final String frameSizeUnit = "http://www.w3.org/ns/ma-ont#frameSizeUnit";
+        /**
+         * Corresponds to 'frameSize.width' in the Ontology for Media Resources measured in frameSizeUnit.
+         */
+        public static final String frameWidth = "http://www.w3.org/ns/ma-ont#frameWidth";
+        /**
+         * Corresponds to 'policy' in the Ontology for Media Resources with a 'policy.type' "access conditions".
+         */
+        public static final String hasAccessConditions = "http://www.w3.org/ns/ma-ont#hasAccessConditions";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources with a 'fragment.role' meaning "audio-description".
+         */
+        public static final String hasAudioDescription = "http://www.w3.org/ns/ma-ont#hasAudioDescription";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources with a 'fragment.role' meaning "captioning". This property can for example point to a spatial fragment, a VideoTrack or a DataTrack. The language of the captioning track can be expressed by attaching a 'hasLanguage' property to the specific track.
+         */
+        public static final String hasCaptioning = "http://www.w3.org/ns/ma-ont#hasCaptioning";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources with a 'fragment.role' meaning "actor".
+         */
+        public static final String hasChapter = "http://www.w3.org/ns/ma-ont#hasChapter";
+        /**
+         * Corresponds to 'targetAudience.classification' in the Ontology for Media Resources. This property is used to provide a value characterising the target audience.
+         */
+        public static final String hasClassification = "http://www.w3.org/ns/ma-ont#hasClassification";
+        /**
+         * Corresponds to 'targetAudience.identifier' in the Ontology for Media Resources. This is used to identify the reference sheme against which the target audience has been characterised.
+         */
+        public static final String hasClassificationSystem = "http://www.w3.org/ns/ma-ont#hasClassificationSystem";
+        /**
+         * Corresponds to 'compression' in the Ontology for Media Resources.
+         */
+        public static final String hasCompression = "http://www.w3.org/ns/ma-ont#hasCompression";
+        public static final String hasContributedTo = "http://www.w3.org/ns/ma-ont#hasContributedTo";
+        /**
+         * Corresponds to 'contributor.contributor' in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'contributor.role'.
+         */
+        public static final String hasContributor = "http://www.w3.org/ns/ma-ont#hasContributor";
+        public static final String hasCopyrightOver = "http://www.w3.org/ns/ma-ont#hasCopyrightOver";
+        public static final String hasCreated = "http://www.w3.org/ns/ma-ont#hasCreated";
+        /**
+         * Corresponds to 'creator.creator' in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'creator.role'. Note that this property is semantically a subproperty of 'hasContributor'.
+         */
+        public static final String hasCreator = "http://www.w3.org/ns/ma-ont#hasCreator";
+        /**
+         * Corresponds to 'format' in the Ontology for Media Resources.
+         */
+        public static final String hasFormat = "http://www.w3.org/ns/ma-ont#hasFormat";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'fragment.role'.
+         */
+        public static final String hasFragment = "http://www.w3.org/ns/ma-ont#hasFragment";
+        /**
+         * Corresponds to 'genre' in the Ontology for Media Resources.
+         */
+        public static final String hasGenre = "http://www.w3.org/ns/ma-ont#hasGenre";
+        /**
+         * Corresponds to 'keyword' in the Ontology for Media Resources.
+         */
+        public static final String hasKeyword = "http://www.w3.org/ns/ma-ont#hasKeyword";
+        /**
+         * Corresponds to 'language' in the Ontology for Media Resources. The language used in the resource. A controlled vocabulary such as defined in BCP 47 SHOULD be used. This property can also be used to identify the presence of sign language (RFC 5646). By inheritance, the hasLanguage property applies indifferently at the media resource / fragment / track levels.  Best practice recommends to use to best possible level of granularity fo describe the usage of language within a media resource including at fragment and track levels.
+         */
+        public static final String hasLanguage = "http://www.w3.org/ns/ma-ont#hasLanguage";
+        /**
+         * Corresponds to 'location.coordinateSystem' in the Ontology for Media Resources.
+         */
+        public static final String hasLocationCoordinateSystem = "http://www.w3.org/ns/ma-ont#hasLocationCoordinateSystem";
+        public static final String hasMember = "http://www.w3.org/ns/ma-ont#hasMember";
+        /**
+         * Corresponds to 'namedFragment' in the Ontology for Media Resources.
+         */
+        public static final String hasNamedFragment = "http://www.w3.org/ns/ma-ont#hasNamedFragment";
+        /**
+         * Corresponds to 'policy' in the Ontology for Media Resources with a  'policy.type' meaning "permissions".
+         */
+        public static final String hasPermissions = "http://www.w3.org/ns/ma-ont#hasPermissions";
+        /**
+         * Corresponds to 'policy' in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'policy.type'.
+         */
+        public static final String hasPolicy = "http://www.w3.org/ns/ma-ont#hasPolicy";
+        public static final String hasPublished = "http://www.w3.org/ns/ma-ont#hasPublished";
+        /**
+         * Corresponds to 'publisher' in the Ontology for Media Resources.
+         */
+        public static final String hasPublisher = "http://www.w3.org/ns/ma-ont#hasPublisher";
+        /**
+         * Corresponds to 'rating' in the Ontology for Media Resources.
+         */
+        public static final String hasRating = "http://www.w3.org/ns/ma-ont#hasRating";
+        /**
+         * Corresponds to 'rating.type' in the Ontology for Media Resources.
+         */
+        public static final String hasRatingSystem = "http://www.w3.org/ns/ma-ont#hasRatingSystem";
+        /**
+         * Corresponds to 'relation' and in the Ontology for Media Resources with a 'relation.type' meaning "related image".
+         */
+        public static final String hasRelatedImage = "http://www.w3.org/ns/ma-ont#hasRelatedImage";
+        /**
+         * Corresponds to 'location' in the Ontology for Media Resources. Subproperties are provided to specify, when possible, the relation between the media resource and the location.
+         */
+        public static final String hasRelatedLocation = "http://www.w3.org/ns/ma-ont#hasRelatedLocation";
+        /**
+         * Corresponds to 'relation' and in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'relation.type'.
+         */
+        public static final String hasRelatedResource = "http://www.w3.org/ns/ma-ont#hasRelatedResource";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources with a 'fragment.role' meaning "signing". This property can for example point to a spatial fragment or a VideoTrack. The sign language of the captioning track can be expressed by attaching a 'hasLanguage' property to the specific track.
+         */
+        public static final String hasSigning = "http://www.w3.org/ns/ma-ont#hasSigning";
+        /**
+         * Corresponds to 'relation' and in the Ontology for Media Resources with a 'relation.type' meaning "source".
+         */
+        public static final String hasSource = "http://www.w3.org/ns/ma-ont#hasSource";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources with a 'fragment.role' meaning "subtitling".
+         */
+        public static final String hasSubtitling = "http://www.w3.org/ns/ma-ont#hasSubtitling";
+        /**
+         * Corresponds to 'targetAudience' in the Ontology for Media Resources.
+         */
+        public static final String hasTargetAudience = "http://www.w3.org/ns/ma-ont#hasTargetAudience";
+        /**
+         * Corresponds to 'fragment' in the Ontology for Media Resources with a 'fragment.role' meaning "track".
+         */
+        public static final String hasTrack = "http://www.w3.org/ns/ma-ont#hasTrack";
+        public static final String isCaptioningOf = "http://www.w3.org/ns/ma-ont#isCaptioningOf";
+        public static final String isChapterOf = "http://www.w3.org/ns/ma-ont#isChapterOf";
+        /**
+         * Corresponds to 'copyright.identifier' in the Ontology for Media Resources.
+         */
+        public static final String isCopyrightedBy = "http://www.w3.org/ns/ma-ont#isCopyrightedBy";
+        public static final String isCreationLocationOf = "http://www.w3.org/ns/ma-ont#isCreationLocationOf";
+        public static final String isFictionalLocationDepictedIn = "http://www.w3.org/ns/ma-ont#isFictionalLocationDepictedIn";
+        public static final String isFragmentOf = "http://www.w3.org/ns/ma-ont#isFragmentOf";
+        public static final String isImageRelatedTo = "http://www.w3.org/ns/ma-ont#isImageRelatedTo";
+        public static final String isLocationRelatedTo = "http://www.w3.org/ns/ma-ont#isLocationRelatedTo";
+        /**
+         * Corresponds to 'collection' in the Ontology for Media Resources.
+         */
+        public static final String isMemberOf = "http://www.w3.org/ns/ma-ont#isMemberOf";
+        public static final String isNamedFragmentOf = "http://www.w3.org/ns/ma-ont#isNamedFragmentOf";
+        /**
+         * Corresponds to 'rating.identifier' in the Ontology for Media Resources.
+         */
+        public static final String isProvidedBy = "http://www.w3.org/ns/ma-ont#isProvidedBy";
+        public static final String isRelatedTo = "http://www.w3.org/ns/ma-ont#isRelatedTo";
+        public static final String isSigningOf = "http://www.w3.org/ns/ma-ont#isSigningOf";
+        public static final String isSourceOf = "http://www.w3.org/ns/ma-ont#isSourceOf";
+        public static final String isTargetAudienceOf = "http://www.w3.org/ns/ma-ont#isTargetAudienceOf";
+        public static final String isTrackOf = "http://www.w3.org/ns/ma-ont#isTrackOf";
+        /**
+         * Corresponds to 'location.altitude' in the Ontology for Media Resources.
+         */
+        public static final String locationAltitude = "http://www.w3.org/ns/ma-ont#locationAltitude";
+        /**
+         * Corresponds to 'location.latitude' in the Ontology for Media Resources.
+         */
+        public static final String locationLatitude = "http://www.w3.org/ns/ma-ont#locationLatitude";
+        /**
+         * Corresponds to 'location.longitude' in the Ontology for Media Resources.
+         */
+        public static final String locationLongitude = "http://www.w3.org/ns/ma-ont#locationLongitude";
+        /**
+         * Corresponds to 'location.name' in the Ontology for Media Resources.
+         */
+        public static final String locationName = "http://www.w3.org/ns/ma-ont#locationName";
+        /**
+         * Corresponds to 'locator' in the Ontology for Media Resources.
+         */
+        public static final String locator = "http://www.w3.org/ns/ma-ont#locator";
+        /**
+         * Corresponds to 'title.title' in the Ontology for Media Resources with a 'title.type' meaning "original".
+         */
+        public static final String mainOriginalTitle = "http://www.w3.org/ns/ma-ont#mainOriginalTitle";
+        /**
+         * Corresponds to 'numTracks.number' in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'numTracks.type'.
+         */
+        public static final String numberOfTracks = "http://www.w3.org/ns/ma-ont#numberOfTracks";
+        public static final String playsIn = "http://www.w3.org/ns/ma-ont#playsIn";
+        public static final String provides = "http://www.w3.org/ns/ma-ont#provides";
+        /**
+         * Corresponds to 'rating.max' in the Ontology for Media Resources.
+         */
+        public static final String ratingScaleMax = "http://www.w3.org/ns/ma-ont#ratingScaleMax";
+        /**
+         * Corresponds to 'rating.min' in the Ontology for Media Resources.
+         */
+        public static final String ratingScaleMin = "http://www.w3.org/ns/ma-ont#ratingScaleMin";
+        /**
+         * Corresponds to 'rating.value' in the Ontology for Media Resources.
+         */
+        public static final String ratingValue = "http://www.w3.org/ns/ma-ont#ratingValue";
+        /**
+         * Corresponds to 'date.date' in the Ontology for Media Resources with a 'date.type' meaning "recordDate".
+         */
+        public static final String recordDate = "http://www.w3.org/ns/ma-ont#recordDate";
+        /**
+         * Corresponds to 'date.date' in the Ontology for Media Resources with a 'date.type' meaning "releaseDate".
+         */
+        public static final String releaseDate = "http://www.w3.org/ns/ma-ont#releaseDate";
+        /**
+         * Corresponds to 'samplingRate' in the Ontology for Media Resources, in samples per second.
+         */
+        public static final String samplingRate = "http://www.w3.org/ns/ma-ont#samplingRate";
+        /**
+         * Corresponds to 'title.title' in the Ontology for Media Resources. Subproperties can be used to distinguish different values of 'title.type'.
+         */
+        public static final String title = "http://www.w3.org/ns/ma-ont#title";
+        /**
+         * Corresponds to 'fragment.name' in the Ontology for Media Resources, for Track fragments.
+         */
+        public static final String trackName = "http://www.w3.org/ns/ma-ont#trackName";
+
+        /**
+         * Returns baseURI for namespace MA
+         * @return baseUri
+         */
+        public static String baseURI(){
+            return "http://www.w3.org/ns/ma-ont#";
+        }
+    }
+
     public static final String XSD                      = "http://www.w3.org/2001/XMLSchema#";
     public static final String XML                      = "http://www.w3.org/TR/2006/REC-xml11-20060816/#";
     public static final String XHTML                    = "http://www.w3.org/1999/xhtml";

@@ -45,6 +45,7 @@
         <module>ldclient-provider-ldap</module>
         <module>ldclient-provider-mediawiki</module>
         <module>ldclient-provider-phpbb</module>
+        <module>ldclient-provider-facebook</module>
     </modules>
     
 </project>
