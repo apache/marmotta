@@ -1,3 +1,0 @@
-ASK WHERE {
-	<http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/photo1.jpg> <http://purl.org/dc/elements/1.1/creator> <http://www.blogger.com/profile/1109404> .
-}
