@@ -18,61 +18,57 @@
 package org.apache.marmotta.client.test.sparql;
 
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasValue;
+
+import java.io.InputStream;
+
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.clients.SPARQLClient;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.apache.marmotta.client.test.AbstractClientIT;
-import org.apache.marmotta.client.test.ldpath.LDPathIT;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-
-import static org.hamcrest.Matchers.*;
-
 /**
- * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert
+ * SPARQL Client Integration tests
+ * 
+ * @author Sebastian Schaffert
  */
 public class SPARQLIT extends AbstractClientIT {
+	
     private final static Logger log = LoggerFactory.getLogger(SPARQLIT.class);
 
     private static JettyMarmotta marmotta;
 
     private static ClientConfiguration config;
 
-    // the tests require the demo-data.foaf to be loaded; we do so by first calling the import service before we start with tests
-    private static ImportService importService;
-
-
     @BeforeClass
     public static void init() throws MarmottaImportException {
-        marmotta = new JettyMarmotta("/Marmotta",8080);
-        config = new ClientConfiguration("http://localhost:8080/Marmotta");
+        marmotta = new JettyMarmotta("/marmotta",8080);
+        config = new ClientConfiguration("http://localhost:8080/marmotta");
 
-        importService = marmotta.getService(ImportService.class);
-
-        // load initial data
-        InputStream data =  getTestData("demo-data.foaf");
-
-        importService.importData(data,"application/rdf+xml",null,null);
+        ImportService importService = marmotta.getService(ImportService.class);
+        InputStream data = getTestData("demo-data.foaf"); // load initial data
+        importService.importData(data, "application/rdf+xml", null, null);
     }
 
     @AfterClass
     public static void tearDown() {
         marmotta.shutdown();
     }
-
 
     @Test
     public void testSparqlSelect() throws Exception {
@@ -84,7 +80,6 @@ public class SPARQLIT extends AbstractClientIT {
         Assert.assertThat(result,(Matcher)hasItem(hasValue(hasProperty("content", equalTo("Sepp Huber")))));
     }
 
-
     @Test
     public void testSparqlAsk() throws Exception {
         SPARQLClient client = new SPARQLClient(config);
@@ -92,6 +87,40 @@ public class SPARQLIT extends AbstractClientIT {
         boolean result = client.ask("ASK { ?r <http://xmlns.com/foaf/0.1/name> ?n }");
         Assert.assertTrue(result);
 
+    }
+    
+    @Test
+    public void testSparqlUpdate() throws Exception {
+        SPARQLClient client = new SPARQLClient(config);
+
+        try {
+        	client.update(
+        			"INSERT DATA { \n" +
+        			"    <http://www.dajobe.org/foaf.rdf#i> <http://purl.org/dc/elements/1.1/date> \"1999-04-01T00:00:00\" . \n" +
+        			"    <http://www.w3.org/People/Berners-Lee/card#i> <http://purl.org/dc/elements/1.1/date> \"1998-05-03T00:00:00\" .  \n" +
+        			"    <http://www.w3.org/People/Connolly/#me> <http://purl.org/dc/elements/1.1/date> \"2001-02-08T00:00:00\"  \n" +
+        			"}");
+        } catch (Exception e) {
+        	Assert.fail("Update query failed: " + e.getMessage());
+        }
+    }
+    
+    @Test
+    public void testSparqlUpdateGraph() throws Exception {
+        SPARQLClient client = new SPARQLClient(config);
+
+        try {
+        	client.update(
+        			"INSERT DATA { \n" +
+        			"  GRAPH <http://BookStore.com> {  \n" +
+        			"    <http://www.dajobe.org/foaf.rdf#i> <http://purl.org/dc/elements/1.1/date> \"1999-04-01T00:00:00\" . \n" +
+        			"    <http://www.w3.org/People/Berners-Lee/card#i> <http://purl.org/dc/elements/1.1/date> \"1998-05-03T00:00:00\" .  \n" +
+        			"    <http://www.w3.org/People/Connolly/#me> <http://purl.org/dc/elements/1.1/date> \"2001-02-08T00:00:00\"  \n" +
+        			"  } \n" +
+        			"}");
+        } catch (Exception e) {
+        	Assert.fail("Update query failed: " + e.getMessage());
+        }
     }
 
 }
