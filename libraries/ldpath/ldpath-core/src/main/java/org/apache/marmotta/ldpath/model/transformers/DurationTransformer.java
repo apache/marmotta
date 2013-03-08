@@ -24,6 +24,8 @@ import javax.xml.datatype.Duration;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
+import java.util.Map;
+
 
 /**
  * Transforms (and validates) the lexical value of a node to
@@ -56,7 +58,7 @@ public class DurationTransformer<Node> implements NodeTransformer<Duration,Node>
         return xmlDatatypeFactory;
     }
     @Override
-    public Duration transform(RDFBackend<Node> backend, Node node) throws IllegalArgumentException {
+    public Duration transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(backend.isLiteral(node)) {
             return toDuration(backend.stringValue(node), false);
         } else {

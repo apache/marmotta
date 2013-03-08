@@ -71,10 +71,10 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
 
         // parse arguments
         if(args.length > 1) {
-            order     = transformer.transform(nodeRDFBackend,args[1].iterator().next());
+            order     = transformer.transform(nodeRDFBackend,args[1].iterator().next(), null);
         }
         if(args.length > 2) {
-            direction = transformer.transform(nodeRDFBackend,args[2].iterator().next());
+            direction = transformer.transform(nodeRDFBackend,args[2].iterator().next(), null);
         }
 
         Comparator<Node> comparator = null;
@@ -87,8 +87,8 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
 
                 @Override
                 public int compare(Node o1, Node o2) {
-                    return stringCollator.compare(transformer.transform(nodeRDFBackend,o1),
-                            transformer.transform(nodeRDFBackend,o2));
+                    return stringCollator.compare(transformer.transform(nodeRDFBackend,o1, null),
+                            transformer.transform(nodeRDFBackend,o2, null));
                 }
             };
         } else if("number".equalsIgnoreCase(order)) {
@@ -102,8 +102,8 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
             comparator = new Comparator<Node>() {
                 @Override
                 public int compare(Node o1, Node o2) {
-                    return  (int) (dateTransformer.transform(nodeRDFBackend,o2).getTime() -
-                            dateTransformer.transform(nodeRDFBackend,o1).getTime());
+                    return  (int) (dateTransformer.transform(nodeRDFBackend,o2, null).getTime() -
+                            dateTransformer.transform(nodeRDFBackend,o1, null).getTime());
                 }
             };
         }
@@ -130,7 +130,6 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
     /**
      * Return the representation of the NodeFunction or NodeSelector in the RDF Path Language
      *
-     * @param nodeRDFBackend
      * @return
      */
     @Override

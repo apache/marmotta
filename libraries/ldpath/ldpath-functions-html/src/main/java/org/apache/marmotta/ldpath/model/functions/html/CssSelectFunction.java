@@ -62,7 +62,7 @@ public class CssSelectFunction<KiWiNode> extends SelectorFunction<KiWiNode> {
         Set<String> jsoupSelectors = new HashSet<String>();
         for (KiWiNode xpath : args[0]) {
             try {
-                jsoupSelectors.add(transformer.transform(rdfBackend, xpath));
+                jsoupSelectors.add(transformer.transform(rdfBackend, xpath, null));
             } catch (IllegalArgumentException iae) {
                 throw new IllegalArgumentException("First argument must not contain anything else than String-Literals!");
             }
@@ -79,7 +79,7 @@ public class CssSelectFunction<KiWiNode> extends SelectorFunction<KiWiNode> {
         while (it.hasNext()) {
             KiWiNode n = it.next();
             try {
-                final String string = transformer.transform(rdfBackend, n);
+                final String string = transformer.transform(rdfBackend, n, null);
                 final Document jsoup = Jsoup.parse(string);
                 if (rdfBackend.isURI(context)) {
                     jsoup.setBaseUri(rdfBackend.stringValue(context));
@@ -113,7 +113,6 @@ public class CssSelectFunction<KiWiNode> extends SelectorFunction<KiWiNode> {
      * Return the name of the NodeFunction for registration in the function registry
      *
      * @return
-     * @param backend
      */
     @Override
     public String getLocalName() {

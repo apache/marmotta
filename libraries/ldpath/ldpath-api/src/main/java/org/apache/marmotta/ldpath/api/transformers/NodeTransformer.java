@@ -19,6 +19,8 @@ package org.apache.marmotta.ldpath.api.transformers;
 
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 
+import java.util.Map;
+
 /**
  * Implementations of this interface allow to transform KiWiNode objects into the type T. This is
  * currently required by the indexer to map KiWiNodes to the Java types corresponding to the
@@ -34,9 +36,11 @@ public interface NodeTransformer<T,Node> {
      * the respective datatype, throws an IllegalArgumentException that needs to be caught by the class
      * carrying out the transformation.
      *
+     *
      * @param node
+     * @param configuration the field configuration used when defining the LDPath rule
      * @return
      */
-    public T transform(RDFBackend<Node> backend, Node node) throws IllegalArgumentException;
+    public T transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException;
 
 }

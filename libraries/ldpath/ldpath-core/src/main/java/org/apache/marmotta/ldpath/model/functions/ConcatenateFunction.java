@@ -48,7 +48,7 @@ public class ConcatenateFunction<Node> extends SelectorFunction<Node> {
         Iterator<Node> it = org.apache.marmotta.ldpath.util.Collections.iterator(args);
         StringBuilder result = new StringBuilder();
         while (it.hasNext()) {
-            result.append(transformer.transform(rdfBackend,it.next()));
+            result.append(transformer.transform(rdfBackend,it.next(), null));
         }
 
         return Collections.singleton(rdfBackend.createLiteral(result.toString()));
@@ -58,7 +58,6 @@ public class ConcatenateFunction<Node> extends SelectorFunction<Node> {
      * Return the name of the NodeFunction for registration in the function registry
      *
      * @return
-     * @param backend
      */
     @Override
     public String getLocalName() {

@@ -41,7 +41,7 @@ public class LatestDateFunction<Node> extends DateFunction<Node> {
 
         for (Node node : args[0]) {
             try {
-                Date d = transformer.transform(backend, node);
+                Date d = transformer.transform(backend, node, null);
                 if (latest == null || d.after(latest)) {
                     latest = d;
                     result = node;

@@ -20,6 +20,8 @@ package org.apache.marmotta.ldpath.model.transformers;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
+import java.util.Map;
+
 /**
  * A very simple transformer that only returns the node itself. Used in case no transformer is given in a
  * field mapping.
@@ -37,7 +39,7 @@ public class IdentityTransformer<Node> implements NodeTransformer<Node,Node> {
      * @return
      */
     @Override
-    public Node transform(RDFBackend<Node> nodeRDFBackend, Node node) throws IllegalArgumentException {
+    public Node transform(RDFBackend<Node> nodeRDFBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         return node;
     }
 }

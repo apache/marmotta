@@ -67,7 +67,7 @@ public class CleanHtmlFunction<Node> extends SelectorFunction<Node> {
         List<Node> result = new ArrayList<Node>();
         while(it.hasNext()) {
             Node node = it.next();
-            String cleaned = Jsoup.clean(transformer.transform(backend, node), Whitelist.basic());
+            String cleaned = Jsoup.clean(transformer.transform(backend, node, null), Whitelist.basic());
             result.add(backend.createLiteral(cleaned));
         }
         return result;
@@ -77,7 +77,6 @@ public class CleanHtmlFunction<Node> extends SelectorFunction<Node> {
      * Return the name of the NodeFunction for registration in the function registry
      *
      * @return
-     * @param backend
      */
     @Override
     public String getLocalName() {

@@ -52,13 +52,13 @@ public class RemoveXmlTagsFunction<Node> extends SelectorFunction<Node> {
         if(args.length < 1){
             log.debug("remove XML tags from context {}",context);
             return java.util.Collections.singleton(
-                    rdfBackend.createLiteral(doFilter(transformer.transform(rdfBackend, context))));
+                    rdfBackend.createLiteral(doFilter(transformer.transform(rdfBackend, context, null))));
         } else {
             log.debug("remove XML tags from parameters");
             Iterator<Node> it = Collections.iterator(args);
             List<Node> result = new ArrayList<Node>();
             while (it.hasNext()) {
-                result.add(rdfBackend.createLiteral(doFilter(transformer.transform(rdfBackend, it.next()))));
+                result.add(rdfBackend.createLiteral(doFilter(transformer.transform(rdfBackend, it.next(), null))));
             }
             return result;
         }

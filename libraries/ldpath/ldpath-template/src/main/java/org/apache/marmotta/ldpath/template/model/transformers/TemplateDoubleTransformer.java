@@ -24,6 +24,8 @@ import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;
 import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateNumberModel;
 
+import java.util.Map;
+
 /**
  * Transform a node into the freemarker double type (TemplateDoubleModel).
  * <p/>
@@ -42,15 +44,17 @@ public class TemplateDoubleTransformer<Node> implements NodeTransformer<Template
      * the respective datatype, throws an IllegalArgumentException that needs to be caught by the class
      * carrying out the transformation.
      *
+     *
      * @param node
+     * @param configuration
      * @return
      */
     @Override
-    public TemplateNumberModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node) throws IllegalArgumentException {
+    public TemplateNumberModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
         return new TemplateNumberModel() {
             @Override
             public Number getAsNumber() throws TemplateModelException {
-                return delegate.transform(nodeRDFBackend,node);
+                return delegate.transform(nodeRDFBackend,node, configuration);
             }
         };
     }

@@ -119,7 +119,7 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
         Function<Node,T> function = new Function<Node, T>() {
             @Override
             public T apply(Node input) {
-                return transformer.transform(backend,input);
+                return transformer.transform(backend,input, getFieldConfig());
             }
         };
 
@@ -138,7 +138,7 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
         Function<Node,T> function = new Function<Node, T>() {
             @Override
             public T apply(Node input) {
-                return transformer.transform(backend,input);
+                return transformer.transform(backend,input, getFieldConfig());
             }
         };
 

@@ -48,8 +48,8 @@ public class ReplaceFunction<Node> extends SelectorFunction<Node> {
         }
 
         Collection<Node> nodes = args[0];
-        String regex = transformer.transform(backend, args[1].iterator().next());
-        String replace = transformer.transform(backend, args[2].iterator().next());
+        String regex = transformer.transform(backend, args[1].iterator().next(), null);
+        String replace = transformer.transform(backend, args[2].iterator().next(), null);
 
         try {
             final Pattern pattern = Pattern.compile(regex);

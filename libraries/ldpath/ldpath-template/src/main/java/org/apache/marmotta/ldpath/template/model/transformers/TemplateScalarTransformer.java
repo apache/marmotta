@@ -24,6 +24,8 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 import freemarker.template.TemplateModelException;
 import freemarker.template.TemplateScalarModel;
 
+import java.util.Map;
+
 /**
  * Transform a node into the freemarker string (scalar) type (TemplateScalarModel).
  * <p/>
@@ -43,15 +45,17 @@ public class TemplateScalarTransformer<Node> implements NodeTransformer<Template
      * the respective datatype, throws an IllegalArgumentException that needs to be caught by the class
      * carrying out the transformation.
      *
+     *
      * @param node
+     * @param configuration
      * @return
      */
     @Override
-    public TemplateScalarModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node) throws IllegalArgumentException {
+    public TemplateScalarModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
         return new TemplateScalarModel() {
             @Override
             public String getAsString() throws TemplateModelException {
-                return delegate.transform(nodeRDFBackend,node);
+                return delegate.transform(nodeRDFBackend,node, configuration);
             }
         };
     }

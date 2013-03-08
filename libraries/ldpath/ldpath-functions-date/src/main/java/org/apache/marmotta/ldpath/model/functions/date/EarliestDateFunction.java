@@ -41,7 +41,7 @@ public class EarliestDateFunction<Node> extends DateFunction<Node> {
 
         for (Node node : args[0]) {
             try {
-                Date d = transformer.transform(backend, node);
+                Date d = transformer.transform(backend, node, null);
                 if (earliest == null || d.before(earliest)) {
                     earliest = d;
                     result = node;

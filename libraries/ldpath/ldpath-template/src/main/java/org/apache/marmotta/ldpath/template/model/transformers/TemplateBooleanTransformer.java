@@ -24,6 +24,8 @@ import org.apache.marmotta.ldpath.model.transformers.BooleanTransformer;
 import freemarker.template.TemplateBooleanModel;
 import freemarker.template.TemplateModelException;
 
+import java.util.Map;
+
 /**
  * Transform a node into the freemarker boolean type (TemplateBooleanModel).
  * <p/>
@@ -42,15 +44,17 @@ public class TemplateBooleanTransformer<Node> implements NodeTransformer<Templat
      * the respective datatype, throws an IllegalArgumentException that needs to be caught by the class
      * carrying out the transformation.
      *
+     *
      * @param node
+     * @param configuration
      * @return
      */
     @Override
-    public TemplateBooleanModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node) throws IllegalArgumentException {
+    public TemplateBooleanModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
         return new TemplateBooleanModel() {
             @Override
             public boolean getAsBoolean() throws TemplateModelException {
-                return delegate.transform(nodeRDFBackend,node);
+                return delegate.transform(nodeRDFBackend,node, configuration);
             }
         };
     }

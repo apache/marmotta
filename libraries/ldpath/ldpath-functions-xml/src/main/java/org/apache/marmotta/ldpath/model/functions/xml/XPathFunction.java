@@ -72,7 +72,7 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
         Set<String> xpaths = new HashSet<String>();
         for (Node xpath : args[0]) {
             try {
-                xpaths.add(transformer.transform(rdfBackend,xpath));
+                xpaths.add(transformer.transform(rdfBackend,xpath, null));
             } catch (IllegalArgumentException iae) {
                 throw new IllegalArgumentException("First argument must not contain anything else than String-Literals!");
             }
@@ -89,7 +89,7 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
         while (it.hasNext()) {
             Node n = it.next();
             try {
-                for (String r : doFilter(transformer.transform(rdfBackend,n), xpaths)) {
+                for (String r : doFilter(transformer.transform(rdfBackend,n, null), xpaths)) {
                     result.add(rdfBackend.createLiteral(r));
                 }
             } catch (IOException e) {
@@ -127,7 +127,6 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
      * Return the name of the NodeFunction for registration in the function registry
      *
      * @return
-     * @param backend
      */
     @Override
     public String getLocalName() {

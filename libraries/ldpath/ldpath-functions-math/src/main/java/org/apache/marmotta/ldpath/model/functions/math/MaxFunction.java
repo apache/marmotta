@@ -51,7 +51,7 @@ public class MaxFunction<Node> extends MathFunction<Node> {
         Node max = null;
         for (Node n : arg) {
             try {
-                Double val = doubleTransformer.transform(backend, n);
+                Double val = doubleTransformer.transform(backend, n, null);
                 if (val > d) {
                     d = val;
                     max = n;

@@ -19,6 +19,7 @@ package org.apache.marmotta.ldpath.model.transformers;
 
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
@@ -26,7 +27,7 @@ import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 public class BigDecimalTransformer<Node> implements NodeTransformer<BigDecimal,Node> {
 
     @Override
-    public BigDecimal transform(RDFBackend<Node> backend, Node node) throws IllegalArgumentException {
+    public BigDecimal transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(backend.isLiteral(node)) {
             return backend.decimalValue(node);
         } else {

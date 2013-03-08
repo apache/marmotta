@@ -113,7 +113,7 @@ public class ParserTest {
         RdfPathParser<String> rdfPathParser = new RdfPathParser<String>(backend,new StringReader(IOUtils.toString(resource)));
         rdfPathParser.registerTransformer(NS_TEST + "type", new NodeTransformer<String, String>() {
             @Override
-            public String transform(RDFBackend<String> backend, String node)
+            public String transform(RDFBackend<String> backend, String node, Map<String,String> configuration)
                     throws IllegalArgumentException {
                 return node;
             }

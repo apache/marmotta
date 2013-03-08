@@ -51,7 +51,7 @@ public class RoundFunction<Node> extends MathFunction<Node> {
     protected Node calc(RDFBackend<Node> backend, Node node) {
         /* SUM */
         try {
-            Double val = doubleTransformer.transform(backend, node);
+            Double val = doubleTransformer.transform(backend, node, null);
             return backend.createLiteral(String.valueOf(Math.round(val)), null,
                     intType);
         } catch (IllegalArgumentException e) {

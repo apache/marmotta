@@ -50,7 +50,7 @@ public abstract  class BinaryNumericTest<Node> extends TestFunction<Node> {
 
     protected boolean test(RDFBackend<Node> backend, Node leftNode, Node rightNode) {
         try {
-            return test(transformer.transform(backend, leftNode), transformer.transform(backend, rightNode));
+            return test(transformer.transform(backend, leftNode, null), transformer.transform(backend, rightNode, null));
         } catch (IllegalArgumentException e) {
             return false;
         }

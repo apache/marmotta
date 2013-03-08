@@ -50,7 +50,7 @@ public class SumFunction<Node> extends MathFunction<Node> {
         Double d = 0d;
         for (Node n : arg) {
             try {
-                Double val = doubleTransformer.transform(backend, n);
+                Double val = doubleTransformer.transform(backend, n, null);
                 d += val.doubleValue();
             } catch (IllegalArgumentException e) {
                 // we just ignore non-numeric nodes
