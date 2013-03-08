@@ -226,6 +226,9 @@ public class Endpoint implements Comparable<Endpoint> {
         this.priority = priority;
     }
 
+    public boolean hasProperty(String key) {
+        return properties.containsKey(key);
+    }
 
     public String getProperty(String key) {
         return properties.get(key);
@@ -234,7 +237,6 @@ public class Endpoint implements Comparable<Endpoint> {
     public void setProperty(String key, String value) {
         properties.put(key,value);
     }
-
 
     public Pattern getUriPatternCompiled() {
         if (uriPatternCompiled == null) {
