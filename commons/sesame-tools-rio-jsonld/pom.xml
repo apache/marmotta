@@ -29,6 +29,52 @@
     <artifactId>sesame-tools-rio-jsonld</artifactId>
     <packaging>jar</packaging>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>add-ext</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/ext/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-ext-test</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <sources>
+                                <source>src/ext-test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/ext/resources</directory>
+            </resource>
+        </resources>
+    </build>
+
+
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -40,10 +86,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>dfki.km.json</groupId>
-            <artifactId>jsonld-java</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
