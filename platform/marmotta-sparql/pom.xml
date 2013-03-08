@@ -63,6 +63,61 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <!--
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <phase>site</phase>
+                    </execution>
+                    -->
+                    <execution>
+                        <!-- configure how the REST API documentation will be produced -->
+                        <id>restapi</id>
+                        <configuration>
+                            <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
+
+                            <name>REST API</name>
+                            <description>REST API for LMF Webservices</description>
+
+                            <outputDirectory>${project.build.outputDirectory}/doc</outputDirectory>
+                            <reportOutputDirectory>${project.build.outputDirectory}/web/doc</reportOutputDirectory>
+                            <destDir>rest</destDir>
+
+                            <docletArtifact>
+                                <groupId>com.lunatech.jax-doclets</groupId>
+                                <artifactId>doclets</artifactId>
+                                <version>0.10.0</version>
+                            </docletArtifact>
+                            <additionalparam>
+                                -jaxrscontext {BASE}
+                                -charset UTF-8
+                            </additionalparam>
+
+                            <!--
+                                                        <stylesheetfile>${project.parent.basedir}/config/doc/doclet.css</stylesheetfile>
+                            -->
+
+                            <header><![CDATA[<!--###BEGIN_CONTENT###--><div class="javadoc">]]></header>
+                            <footer><![CDATA[</div><!--###END_CONTENT###-->]]></footer>
+                            <encoding>UTF-8</encoding>
+                            <detectOfflineLinks>false</detectOfflineLinks>
+
+                            <!-- For the project-reports page -->
+                        </configuration>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
