@@ -145,8 +145,6 @@ public class SesameServiceImpl implements SesameService {
         store = new KiWiStore("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
 
         tsail = new KiWiTransactionalSail(store);
-        tsail.addTransactionListener(new LMFTransactionEventProxy());
-
 
         log.info("initialising repository plugins ...");
 
@@ -182,6 +180,9 @@ public class SesameServiceImpl implements SesameService {
                 log.info("- standard plugin: {} (DISABLED)", provider.getName());
             }
         }
+
+        // the CDI events should be triggered once all internal events have been handled, so register the transaction listener last
+        tsail.addTransactionListener(new LMFTransactionEventProxy());
 
         repository = new SailRepository(standardSail);
 
