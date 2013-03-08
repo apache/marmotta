@@ -35,6 +35,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.marmotta.commons.constants.Namespace;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
@@ -120,16 +121,22 @@ public class LdapFoafProvider implements DataProvider {
      * @throws DataRetrievalException
      */
     private LdapConnection openLdapConnection(Endpoint endpoint) throws DataRetrievalException {
-    	//TODO
-        String loginDN = endpoint.getProperty("loginDN");
-        String loginPW = endpoint.getProperty("loginPW");
         java.net.URI u;
 		try {
 			u = new java.net.URI(endpoint.getEndpointUrl());
 		} catch (URISyntaxException e) {
 			throw new DataRetrievalException("Invalid enpooint URI", e);
 		}
-        LdapNetworkConnection connection = new LdapNetworkConnection(u.getHost(), u.getPort() > 0 ? u.getPort() : 389);
+		LdapConnectionConfig config = new LdapConnectionConfig();
+		config.setLdapHost(u.getHost());
+		config.setLdapPort(u.getPort() > 0 ? u.getPort() : 389);
+		if (endpoint.hasProperty("loginDN")) {
+			config.setName(endpoint.getProperty("loginDN"));
+		}
+		if (endpoint.hasProperty("loginPW")) {
+			config.setName(endpoint.getProperty("loginPW"));
+		}
+        LdapNetworkConnection connection = new LdapNetworkConnection(config);
         try {
 			connection.bind();
 		} catch (Exception e) {
