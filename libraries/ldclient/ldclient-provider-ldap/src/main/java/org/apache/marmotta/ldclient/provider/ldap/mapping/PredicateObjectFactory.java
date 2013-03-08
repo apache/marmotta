@@ -17,11 +17,11 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap.mapping;
 
+import java.util.Set;
+
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
-
-import java.util.Set;
 
 public abstract class PredicateObjectFactory {
 

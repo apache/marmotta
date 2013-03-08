@@ -29,7 +29,7 @@
     <name>LDClient Provider: LDAP Resource Access</name>
 
     <description>
-        This package allows the Linked Data Client to access LDAP resources by mapping them to the FOAF ontology.
+        This package allows the Linked Data Client to access LDAP resources by mapped to FOAF
     </description>
 
     <dependencies>
@@ -41,24 +41,21 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>ldclient-core</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>ldclient-core</artifactId>
-            <version>${project.version}</version>
+             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>com.unboundid</groupId>
-            <artifactId>unboundid-ldapsdk</artifactId>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-commons</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

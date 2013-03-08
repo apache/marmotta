@@ -17,8 +17,25 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap;
 
-import com.unboundid.ldap.sdk.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.directory.api.ldap.model.cursor.CursorException;
+import org.apache.directory.api.ldap.model.cursor.EntryCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.exception.LdapException;
+import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.ldap.client.api.LdapConnection;
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.apache.marmotta.commons.constants.Namespace;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
@@ -39,23 +56,17 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
- * LdapFoafProvider mapps LDAP accounts to foaf:Person
+ * LdapFoafProvider maps LDAP accounts to foaf:Person instances
  * 
  * @author Daniel Trabe <daniel.trabe@salzburgresearch.at>
  * @author Jakob Frank <jakob.frank@salzburgresearch.at>
+ * @author Sergio  Fernández <wikier@apache.org>
  * 
  */
 public class LdapFoafProvider implements DataProvider {
+	
+    public static final String PROVIDER_NAME = "LDAP";
 
     private static Logger log = LoggerFactory.getLogger(LdapFoafProvider.class);
 
@@ -108,18 +119,26 @@ public class LdapFoafProvider implements DataProvider {
      * @throws LDAPException if connecting failed.
      * @throws DataRetrievalException
      */
-    private LDAPConnection openLdapConnection(Endpoint endpoint) throws LDAPException, DataRetrievalException {
+    private LdapConnection openLdapConnection(Endpoint endpoint) throws DataRetrievalException {
+    	//TODO
+        String loginDN = endpoint.getProperty("loginDN");
+        String loginPW = endpoint.getProperty("loginPW");
+        java.net.URI u;
+		try {
+			u = new java.net.URI(endpoint.getEndpointUrl());
+		} catch (URISyntaxException e) {
+			throw new DataRetrievalException("Invalid enpooint URI", e);
+		}
+        LdapNetworkConnection connection = new LdapNetworkConnection(u.getHost(), u.getPort() > 0 ? u.getPort() : 389);
         try {
-            String loginDN, loginPW;
-
-            loginDN = endpoint.getProperty("loginDN");
-            loginPW = endpoint.getProperty("loginPW");
-
-            java.net.URI u = new java.net.URI(endpoint.getEndpointUrl());
-            LDAPConnection ldapCTX = new LDAPConnection(u.getHost(), u.getPort() > 0 ? u.getPort() : 389, loginDN, loginPW);
-            return ldapCTX;
-        } catch (URISyntaxException e) {
-            throw new DataRetrievalException("Invalid LDAP-URL in config for endpoint '" + endpoint.getName() + "'!");
+			connection.bind();
+		} catch (Exception e) {
+			throw new DataRetrievalException("LDAP connnection could not be bind", e);
+		}
+        if (connection.isAuthenticated()) { 
+        	return connection;
+        } else {
+        	throw new DataRetrievalException("LDAP connnection could not be stablished");
         }
 
     }
@@ -129,7 +148,7 @@ public class LdapFoafProvider implements DataProvider {
         String account = java.net.URI.create(resource.replaceAll(" ", "%20")).getPath().substring(1);
         String prefix = getEndpointSuffix(endpoint);
         try {
-            final LDAPConnection ldapCTX = openLdapConnection(endpoint);
+            final LdapConnection ldap = openLdapConnection(endpoint);
 
             Repository rep = new SailRepository(new MemoryStore());
             rep.initialize();
@@ -137,9 +156,9 @@ public class LdapFoafProvider implements DataProvider {
             RepositoryConnection conn = rep.getConnection();
             try {
                 ValueFactory vf = conn.getValueFactory();
-                String userDN = buildDN(prefix, account, ldapCTX);
+                String userDN = buildDN(prefix, account, ldap);
 
-                Map<String, java.util.List<String>> accountData = getAccountData(userDN, ldapCTX);
+                Map<String, java.util.List<String>> accountData = getAccountData(userDN, ldap);
 
                 final URI subject = vf.createURI(resource);
                 for (String attr : MAPPING.keySet()) {
@@ -162,15 +181,14 @@ public class LdapFoafProvider implements DataProvider {
                 resp.setExpires(new Date());
                 return resp;
 
-            } finally {
+            } catch (Exception e) {
+				throw new DataRetrievalException(e);
+			} finally {
                 conn.close();
             }
         } catch (RepositoryException e1) {
             log.warn("Could not create SailRep: {}", e1.getMessage());
             throw new DataRetrievalException(e1);
-        } catch (LDAPException e) {
-            log.warn("Could not connect to LDAP Server: {}", e.getMessage());
-            throw new DataRetrievalException("Connection to LADP failed", e);
         }
     }
 
@@ -206,12 +224,18 @@ public class LdapFoafProvider implements DataProvider {
      * @throws LDAPException if there is a problem with the LDAP connection
      * @throws DataRetrievalException when the Entry cannot be found
      */
-    private String buildDN(String suffix, String path, LDAPConnection con) throws LDAPException, DataRetrievalException {
+    private String buildDN(String suffix, String path, LdapConnection con) throws DataRetrievalException {
         if (path.length() == 0) return suffix;
 
         String current = path.split("/")[0];
 
-        final List<String> data = getChildList(suffix, con);
+        List<String> data;
+		try {
+			data = getChildList(suffix, con);
+		} catch (Exception e) {
+			log.error("Error getting childs: {}", e.getMessage(), e);
+			throw new DataRetrievalException(e);
+		}
         String next = null;
         for (String dn : data) {
             if (dn.toLowerCase().endsWith((current + "," + suffix).toLowerCase())) {
@@ -226,46 +250,65 @@ public class LdapFoafProvider implements DataProvider {
     }
 
     /**
+     * Get child list
      * 
      * @param entryDN The distinguished name of an Entry in the LDAP
      * @param con An initialized LDAP-Context
      * @return All child's of an Entry
+     * @throws IOException 
+     * @throws CursorException 
+     * @throws LdapException 
      * @throws LDAPSearchException
      */
-    private List<String> getChildList(String entryDN, LDAPConnection con) throws LDAPSearchException {
-        java.util.List<String> res = new ArrayList<String>();
+    private List<String> getChildList(String entryDN, LdapConnection connection) throws CursorException, IOException, LdapException {
+        List<String> childs = new ArrayList<String>();
 
-        Filter filter = Filter.createPresenceFilter("distinguishedName");
-        SearchRequest req = new SearchRequest(entryDN, SearchScope.ONE, filter);
-        SearchResult result = con.search(req);
-
-        for (Entry entry : result.getSearchEntries()) {
-            res.add(entry.getDN());
+        EntryCursor cursor = connection.search("ou=system", "(objectclass=*)", SearchScope.ONELEVEL);
+        while (cursor.next()) {
+            Entry entry = cursor.get();
+            childs.add(entry.get("distinguishedName").getString());
         }
-        return res;
+
+        //SearchResultDone done = cursor.getSearchResultDone();
+        //ResultCodeEnum resultCode = done.getLdapResult().getResultCode();
+        cursor.close();
+        // ResultCodeEnum.SUCCESS == resultCode
+        return childs;
     }
 
     /**
+     * Get account data
      * 
      * @param accountDN The distinguished Name of the Account (e.g
      *            "cn=Daniel  Trabe,ou=USERS,ou=SRFG,dc=salzburgresearch,dc=at")
-     * @param con An initialized LDAP-Context
+     * @param connection An initialized LDAP-Context
      * @return a Map of Attributes and Values of an Account
      * @throws DataRetrievalException
+     * @throws IOException 
+     * @throws CursorException 
+     * @throws LdapException 
      * @throws LDAPException
      */
-    private Map<String, java.util.List<String>> getAccountData(String accountDN, LDAPConnection con) throws DataRetrievalException, LDAPException {
-        Map<String, java.util.List<String>> res = new HashMap<String, java.util.List<String>>();
-
-        SearchResultEntry entry = con.getEntry(accountDN);
-        for (Attribute attr : entry.getAttributes()) {
-            ArrayList<String> vals = new ArrayList<String>();
-            for (String val : entry.getAttributeValues(attr.getName())) {
-                vals.add(val);
+    private Map<String, List<String>> getAccountData(String accountDN, LdapConnection connection) throws DataRetrievalException, LdapException, CursorException, IOException {
+        Map<String, List<String>> account = new HashMap<String, List<String>>();
+        Dn dn = new Dn(accountDN);
+        EntryCursor cursor = connection.search(dn, accountDN, SearchScope.ONELEVEL, (String[])null);
+        if (cursor.next()) {
+        	//FIXME: only the first entry?
+            Entry entry = cursor.get();
+            for (Attribute attr : entry.getAttributes()) {
+                String id = attr.getId();
+            	List<String> values;
+                if (account.containsKey(id)) {
+                	values = account.get(id);  
+                } else {
+                	values = new ArrayList<String>();
+                }
+                values.add(attr.get().getValue().toString());
+                account.put(id, values);
             }
-            res.put(attr.getBaseName(), vals);
         }
-        return res;
+        return account;
     }
 
 }
