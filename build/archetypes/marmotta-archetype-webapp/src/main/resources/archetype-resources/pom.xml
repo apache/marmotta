@@ -280,10 +280,13 @@
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+        <!-- enable for MySQL support; note that the MySQL driver is GPL licensed -->
+        <!--
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
+        -->
     </dependencies>
     
 </project>

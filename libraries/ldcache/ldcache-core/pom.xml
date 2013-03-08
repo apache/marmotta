@@ -160,6 +160,7 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
+            <optional>true</optional> <!-- GPL licensed, no dependency -->
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>

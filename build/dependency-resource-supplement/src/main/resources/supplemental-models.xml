@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<supplementalDataModels
+    xmlns="http://maven.apache.org/supplemental-model/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/supplemental-model/1.0.0 http://maven.apache.org/xsd/supplemental-model-1.0.0.xsd">
+
+    <supplement>
+        <project>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <organization>
+                <name>Google Inc.</name>
+                <url>http://www.google.com/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <!-- http://xml.apache.org/commons/components/external/ -->
+        <project>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+
+            <organization>
+                <url>http://www.apache.org/</url>
+            </organization>
+        </project>
+    </supplement>
+    <supplement>
+        <project>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+
+            <organization>
+                <name>The Apache Software Foundation</name>
+                <url>http://www.apache.org/</url>
+            </organization>
+        </project>
+    </supplement>
+</supplementalDataModels>
