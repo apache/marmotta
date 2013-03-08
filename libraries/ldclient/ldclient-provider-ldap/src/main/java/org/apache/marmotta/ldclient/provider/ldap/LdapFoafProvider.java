@@ -65,6 +65,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class LdapFoafProvider implements DataProvider {
+	
+    public static final String PROVIDER_NAME = "LDAP";
 
     private static Logger log = LoggerFactory.getLogger(LdapFoafProvider.class);
 
