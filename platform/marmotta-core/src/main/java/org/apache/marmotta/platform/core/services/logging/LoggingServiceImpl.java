@@ -87,7 +87,7 @@ public class LoggingServiceImpl implements LoggingService {
         // set root logger level
         ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
         if(configurationService.getBooleanConfiguration("debug.enabled",false)) {
-            rootLogger.setLevel(Level.DEBUG);
+            rootLogger.setLevel(Level.TRACE);
         } else {
             rootLogger.setLevel(Level.INFO);
         }

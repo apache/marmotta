@@ -25,6 +25,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
+import org.openrdf.sail.UpdateContext;
 import org.openrdf.sail.helpers.SailConnectionWrapper;
 
 /**
@@ -52,8 +53,23 @@ public class ContextAwareSailConnection extends SailConnectionWrapper {
     }
 
     @Override
+    public void addStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+        super.addStatement(modify, subj, pred, obj, context);
+    }
+
+    @Override
     public CloseableIteration<? extends Resource, SailException> getContextIDs() throws SailException {
         return new SingletonIteration<Resource, SailException>(context);
+    }
+
+    @Override
+    public void removeStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+        super.removeStatements(subj, pred, obj, context);
+    }
+
+    @Override
+    public void removeStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+        super.removeStatement(modify, subj, pred, obj, context);
     }
 
     @Override
