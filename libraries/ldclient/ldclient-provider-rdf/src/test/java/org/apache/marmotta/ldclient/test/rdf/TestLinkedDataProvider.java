@@ -43,6 +43,7 @@ public class TestLinkedDataProvider {
 
     private static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
+    private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
     
     private LDClientService ldclient;
 
@@ -109,30 +110,27 @@ public class TestLinkedDataProvider {
     }
 
     /**
-     * This method tests accessing the RDFohloh Linked Data service, which uses HTTP negotiation with redirection to
-     * plan RDF files.
+     * This method tests accessing the RDFohloh Linked Data service, 
+     * which uses HTTP negotiation with redirection to provide RDF.
      *
      * @throws Exception
      *
      */
     @Test
-    @Ignore("rdfohloh provides wrong Content-Type")
     public void testRDFOhloh() throws Exception {
+        ClientResponse response = ldclient.retrieveResource(MARMOTTA);
 
-        String uriMarmotta = "http://rdfohloh.wikier.org/project/marmotta";
-        ClientResponse respMarmotta = ldclient.retrieveResource(uriMarmotta);
-
-        RepositoryConnection conMarmotta = respMarmotta.getTriples().getConnection();
-        conMarmotta.begin();
-        Assert.assertTrue(conMarmotta.size() > 0);
+        RepositoryConnection conn = response.getTriples().getConnection();
+        conn.begin();
+        Assert.assertTrue(conn.size() > 0);
 
         // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("geonames-embrun.sparql");
-        BooleanQuery testLabel = conMarmotta.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        InputStream sparql = this.getClass().getResourceAsStream("ohloh-marmotta.sparql");
+        BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
-        conMarmotta.commit();
-        conMarmotta.close();
+        conn.commit();
+        conn.close();
     }
 
 }

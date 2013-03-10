@@ -25,8 +25,8 @@ import java.util.List;
 
 /**
  * Linked Data implementation of a data provider. Allows retrieval of resources using Linked Data standards.
- * <p/>
- * Author: Sebastian Schaffert
+ * 
+ * @author Sebastian Schaffert
  */
 public class LinkedDataProvider extends AbstractRDFProvider {
 
@@ -47,8 +47,6 @@ public class LinkedDataProvider extends AbstractRDFProvider {
      * In many cases, this will just return the URI of the resource (e.g. Linked Data), but there might be data providers
      * that use different means for accessing the data for a resource, e.g. SPARQL or a Cache.
      *
-     *
-     *
      * @param resourceUri
      * @return
      */
@@ -57,4 +55,5 @@ public class LinkedDataProvider extends AbstractRDFProvider {
         Preconditions.checkNotNull(resourceUri);
         return Collections.singletonList(resourceUri);
     }
+    
 }

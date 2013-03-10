@@ -62,11 +62,8 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
      * repository. The content type returned by the web service is passed as argument to help the implementation
      * decide how to parse the data.
      *
-     *
-     *
-     *
      * @param resourceUri
-     * @param in          input stream as returned by the remote webservice
+     * @param in input stream as returned by the remote webservice
      * @param contentType content type as returned in the HTTP headers of the remote webservice
      * @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
      * @throws java.io.IOException in case an error occurs while reading the input stream
@@ -103,8 +100,6 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
                 }
             });
 
-
-
             con.add(in, resourceUri,format);
             con.commit();
             con.close();
@@ -118,4 +113,5 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
             throw new DataRetrievalException("I/O error while trying to read remote RDF content",e);
         }
     }
+
 }

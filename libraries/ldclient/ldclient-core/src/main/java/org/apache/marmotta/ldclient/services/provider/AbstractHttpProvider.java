@@ -194,8 +194,6 @@ public abstract class AbstractHttpProvider implements DataProvider {
 
     }
 
-
-
     /**
      * Check whether the content type returned by the server is acceptable to the endpoint and data provider
      */
@@ -246,13 +244,12 @@ public abstract class AbstractHttpProvider implements DataProvider {
             	final HttpEntity entity = response.getEntity();
             	if (entity == null)
             		throw new IOException("no content returned by Linked Data resource " + resource);
-
+            	
 	            if (!isValidContentType(entity.getContentType().getValue().split(";")[0], endpoint)) {
 	                // FIXME: here was get.abort()
 	            	throw new IOException("invalid content returned by Linked Data resource " + resource + ": "
 	            			+ entity.getContentType().getValue());
 	            }
-
 
                 if (entity != null) {
                     String parseContentType = "application/rdf+xml";

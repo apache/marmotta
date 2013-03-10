@@ -128,7 +128,6 @@ public final class LDClient implements LDClientService {
             httpParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS,true);
             httpParams.setIntParameter(ClientPNames.MAX_REDIRECTS,3);
 
-
             SchemeRegistry schemeRegistry = new SchemeRegistry();
             schemeRegistry.register(
                     new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
