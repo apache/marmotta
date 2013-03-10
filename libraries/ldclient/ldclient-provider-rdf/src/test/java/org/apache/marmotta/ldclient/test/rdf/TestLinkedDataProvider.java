@@ -36,8 +36,9 @@ import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Test if the LinkedDataProvider is working properly.
- * <p/>
- * Author: Sebastian Schaffert
+ * 
+ * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 public class TestLinkedDataProvider {
 
@@ -45,6 +46,7 @@ public class TestLinkedDataProvider {
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
     private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
     private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
+    private static final String EXAMPLE = "http://example.orf/foo";
     
     private LDClientService ldclient;
 
@@ -119,6 +121,7 @@ public class TestLinkedDataProvider {
      */
     @Test
     public void testRDFOhloh() throws Exception {
+    	Assume.assumeTrue(ldclient.ping(MARMOTTA));
         ClientResponse response = ldclient.retrieveResource(MARMOTTA);
 
         RepositoryConnection conn = response.getTriples().getConnection();
@@ -154,6 +157,23 @@ public class TestLinkedDataProvider {
         BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
+        conn.commit();
+        conn.close();
+    }
+    
+    /**
+     * This method tests accessing a non-RDF resource
+     *
+     * @throws Exception
+     *
+     */
+    @Test
+    public void testNotRDF() throws Exception {
+        ClientResponse response = ldclient.retrieveResource(EXAMPLE);
+        RepositoryConnection conn = response.getTriples().getConnection(); 
+        //should we expect also an exception here?
+        conn.begin();
+        Assert.assertTrue(conn.size() == 0);
         conn.commit();
         conn.close();
     }
