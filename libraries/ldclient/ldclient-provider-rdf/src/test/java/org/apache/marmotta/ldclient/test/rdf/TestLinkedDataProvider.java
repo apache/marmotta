@@ -44,6 +44,7 @@ public class TestLinkedDataProvider {
     private static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
     private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
+    private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
     
     private LDClientService ldclient;
 
@@ -126,6 +127,30 @@ public class TestLinkedDataProvider {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = this.getClass().getResourceAsStream("ohloh-marmotta.sparql");
+        BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
+
+        conn.commit();
+        conn.close();
+    }
+    
+    /**
+     * This method tests accessing Sergio's FOAF profile, which is
+     * directly server by Apache HTTPd without content negotiation
+     *
+     * @throws Exception
+     *
+     */
+    @Test
+    public void testFoafWikier() throws Exception {
+        ClientResponse response = ldclient.retrieveResource(WIKIER);
+
+        RepositoryConnection conn = response.getTriples().getConnection();
+        conn.begin();
+        Assert.assertTrue(conn.size() > 0);
+
+        // run a SPARQL test to see if the returned data is correct
+        InputStream sparql = this.getClass().getResourceAsStream("foaf-wikier.sparql");
         BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
