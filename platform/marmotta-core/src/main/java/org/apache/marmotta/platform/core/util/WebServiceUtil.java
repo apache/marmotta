@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.util;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
@@ -42,19 +43,19 @@ public class WebServiceUtil {
      * }
      * </code>
      */
-    public static String jsonErrorResponse(Exception ex) {
+    public static String jsonErrorResponse(Exception e) {
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("type",ex.getClass().getSimpleName());
-        result.put("message",ex.getMessage());
+        result.put("type", e.getClass().getSimpleName());
+        result.put("message", e.getMessage());
+        result.put("message",  ExceptionUtils.getStackTrace(e));
 
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.writeValueAsString(result);
-        } catch (IOException e) {
+        } catch (IOException ex) {
             // cannot occur, we write to a string
             return null;
         }
-
     }
 
     /**
