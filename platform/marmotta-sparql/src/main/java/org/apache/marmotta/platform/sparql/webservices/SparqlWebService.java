@@ -51,6 +51,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -69,12 +70,18 @@ import java.util.regex.Pattern;
  * according the SPARQL 1.1 Protocol
  * 
  * @link http://www.w3.org/TR/sparql11-protocol/
+ * 
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
 @ApplicationScoped
-@Path("/sparql")
+@Path("/" + SparqlWebService.PATH)
 public class SparqlWebService {
+	
+    public final static String PATH = "sparql";
+    public static final String SELECT = "/select";
+    public static final String UPDATE = "/update";
+    public static final String SNORQL = "/snorql";
 
     @Inject
     private Logger log;
@@ -84,6 +91,48 @@ public class SparqlWebService {
 
     @Inject
     private ConfigurationService configurationService;
+    
+    /**
+     * Single SPARQL endpoint, redirecting to the actual select endpoint 
+     * when possible
+     * 
+     * @param query
+     * @param update
+     * @param request
+     * @return
+     * @throws URISyntaxException
+     */
+    @GET
+    public Response get(@QueryParam("query") String query, @QueryParam("update") String update, @Context HttpServletRequest request) throws URISyntaxException {
+    	if (StringUtils.isNotBlank(update)) {
+    		String msg = "update operations are not supported through get"; //or yes?
+    		log.error(msg);
+			return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
+    	} else if (StringUtils.isNotBlank(query)) {
+    		UriBuilder builder = UriBuilder.fromPath(PATH + SELECT);
+    		builder.replaceQuery(request.getQueryString());
+			return Response.seeOther(builder.build()).build();
+		} else {
+			String msg = "query not found";
+			log.error(msg);
+			return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
+		}
+    }
+    
+    /** 
+     * Single endpoint for direct post queries (not yet implemented)
+     * 
+     * @param request
+     * @return
+     */
+    @POST
+    public Response post(@Context HttpServletRequest request) {
+    	//String query = CharStreams.toString(request.getReader());        
+    	//TODO: introspect the query to determine the operation type
+    	String msg = "impossible to determine which type of operation (query/update) the request contains";
+    	log.error(msg);
+		return Response.status(Response.Status.CONFLICT).entity(msg).build();
+    }
 
     /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as query parameter to the
@@ -98,8 +147,8 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @GET
-    @Path("/select")
-    public Response select(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    @Path(SELECT)
+    public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
         if(resultType == null) {
             List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
             List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
@@ -140,7 +189,7 @@ public class SparqlWebService {
      * @return responde
      */
     @OPTIONS
-    @Path("/update")
+    @Path(UPDATE)
     public Response optionsResourceRemote(@HeaderParam("Access-Control-Request-Headers") String reqHeaders) {
         if(reqHeaders == null) {
             reqHeaders = "Accept, Content-Type";
@@ -167,9 +216,9 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
-    @Consumes("application/x-www-form-urlencoded")
-    @Path("/select")
-    public Response queryPostForm(@QueryParam("output") String resultType, @FormParam("query") String query, @Context HttpServletRequest request) {
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    @Path(SELECT)
+    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
         try {
             if(resultType == null) {
                 List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
@@ -210,8 +259,8 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
-    @Path("/select")
-    public Response queryPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    @Path(SELECT)
+    public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
         try {
             if(resultType == null) {
                 List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
@@ -254,7 +303,7 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
-    @Path("/snorql")
+    @Path(SNORQL)
     public Response snorqlPost(@FormParam("output") String resultType, @FormParam("query") String query) {
         try {
             return buildQueryResponse(resultType, query);
@@ -279,7 +328,7 @@ public class SparqlWebService {
      * @return empty content in case the update was successful, the error message in case an error occurred
      */
     @GET
-    @Path("/update")
+    @Path(UPDATE)
     public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType,
             @Context HttpServletRequest request) {
         try {
@@ -344,7 +393,7 @@ public class SparqlWebService {
      *         occurred
      */
     @POST
-    @Path("/update")
+    @Path(UPDATE)
     @Consumes("application/sparql-update")
     public Response updatePostDirectly(@Context HttpServletRequest request) {
         try {
@@ -379,7 +428,7 @@ public class SparqlWebService {
      *         occurred
      */
     @POST
-    @Path("/update")
+    @Path(UPDATE)
     @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
     public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
         try {
