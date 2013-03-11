@@ -38,10 +38,10 @@ import java.util.Map;
  */
 public interface SparqlService {
 
-
     /**
-     * Evaluate a SPARQL query on the LMF TripleStore. Writes the query results to the output stream passed as argument os
-     * in the output format specified as argument outputFormat.
+     * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
+     * to the output stream passed as argument os in the output format specified 
+     * as argument outputFormat.
      *
      * see http://www.w3.org/TR/sparql11-query/
      *
@@ -56,7 +56,17 @@ public interface SparqlService {
      */
 	public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, MarmottaException, MalformedQueryException, QueryEvaluationException;
 
-
+    /**
+     * Evaluate a SPARQL ASK query on the KiWi TripleStore
+     *
+     * see http://www.w3.org/TR/sparql11-query/
+     *
+     *
+     * @param queryLanguage the query language to use
+     * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
+     * @throws org.apache.marmotta.platform.core.exception.MarmottaException if the query evaluation fails
+     */
+	public boolean ask(QueryLanguage queryLanguage, String query) throws MarmottaException;
 
     /**
      * Evaluate a SPARQL query on the LMF TripleStore. Returns the results as a list of result maps, each element
@@ -69,7 +79,6 @@ public interface SparqlService {
      */
     public List<Map<String,Value>> query(QueryLanguage queryLanguage, String query) throws MarmottaException;
 
-
     /**
      * Execute a SPARQL update on the LMF TripleStore. Throws a KiWiException in case the update execution fails.
      *
@@ -80,6 +89,5 @@ public interface SparqlService {
      * @throws Exception
      */
     public void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
-
 
 }

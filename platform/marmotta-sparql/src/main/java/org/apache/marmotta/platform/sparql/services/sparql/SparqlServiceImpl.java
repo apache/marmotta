@@ -220,6 +220,35 @@ public class SparqlServiceImpl implements SparqlService {
 
     }
 
+	@Override
+	public boolean ask(QueryLanguage queryLanguage, String query)
+			throws MarmottaException {
+        long start = System.currentTimeMillis();
+
+        log.debug("executing SPARQL ask:\n{}", query);
+       
+        boolean result = false;
+        try {
+            RepositoryConnection connection = sesameService.getConnection();
+            try {
+                connection.begin();
+                BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query);
+                result = ask.evaluate();
+            } catch (MalformedQueryException e) {
+                throw new MarmottaException("malformed query, update failed",e);
+            } catch (QueryEvaluationException e) {
+            	throw new MarmottaException("error evaluating querry",e);
+			} finally {
+                connection.close();
+            }
+        } catch(RepositoryException ex) {
+            log.error("error while getting repository connection", ex);
+            throw new MarmottaException("error while getting repository connection",ex);
+        }
+        log.debug("SPARQL update execution took {}ms",System.currentTimeMillis()-start);
+        return result;
+	}
+
 
 
 }
