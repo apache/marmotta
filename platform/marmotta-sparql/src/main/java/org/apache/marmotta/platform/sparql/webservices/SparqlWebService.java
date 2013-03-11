@@ -54,9 +54,13 @@ import javax.ws.rs.core.StreamingOutput;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -328,22 +332,21 @@ public class SparqlWebService {
     }
 
     /**
-     * Execute a SPARQL 1.1 Update request passed in the request body of the POST. The update will
-     * be carried out
-     * on the LMF triple store.
-     * <p/>
-     * see SPARQL 1.1 Update syntax at http://www.w3.org/TR/sparql11-update/
+     * Execute a SPARQL 1.1 Update request using update via POST directly; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
      * 
      * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
      *            body of the POST request)
      * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
      * @HTTP 500 in case the update was not successful
      * @return empty content in case the update was successful, the error message in case an error
      *         occurred
      */
     @POST
     @Path("/update")
-    public Response updatePost(@Context HttpServletRequest request) {
+    @Consumes("application/sparql-update")
+    public Response updatePostDirectly(@Context HttpServletRequest request) {
         try {
             String query = CharStreams.toString(request.getReader());
             if (StringUtils.isNotBlank(query)) {
@@ -351,10 +354,10 @@ public class SparqlWebService {
                 return Response.ok().build();
             } else
                 return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
-        } catch (MalformedQueryException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build();
+        } catch (MalformedQueryException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
         } catch(UpdateExecutionException e) {
-            log.error("update execution threw an exception",e);
+            log.error("update execution threw an exception", e);
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         } catch (MarmottaException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
@@ -362,8 +365,71 @@ public class SparqlWebService {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         }
     }
+    
+    /**
+     * Execute a SPARQL 1.1 Update request using update via URL-encoded POST; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
+     * 
+     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
+     *            body of the POST request)
+     * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
+     * @HTTP 500 in case the update was not successful
+     * @return empty content in case the update was successful, the error message in case an error
+     *         occurred
+     */
+    @POST
+    @Path("/update")
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
+        try {
+            Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));           
+            if (params.containsKey("update") && StringUtils.isNotBlank(params.get("update"))) {
+                sparqlService.update(QueryLanguage.SPARQL, params.get("update"));
+                return Response.ok().build();
+            } else
+                return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
+        } catch (MalformedQueryException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        } catch(UpdateExecutionException e) {
+            log.error("update execution threw an exception", e);
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        } catch (MarmottaException e) {
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        } catch (IOException e) {
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        }
+    }    
 
-    private Response buildQueryResponse(final String resultType, final String query) throws Exception {
+    /**
+     * Parse the encoded query parameters
+     * 
+     * @todo this should be somewhere already implemented
+     * @param string
+     * @return parameters
+     */
+    private Map<String,String> parseEncodedQueryParameters(String body) {
+    	Map<String,String> params = new HashMap<String,String>();
+        for (String pair : body.split("&")) {
+            int eq = pair.indexOf("=");
+            try {
+	            if (eq < 0) {
+	                // key with no value
+	                params.put(URLDecoder.decode(pair, "UTF-8"), "");
+	            } else {
+	                // key=value
+	                String key = URLDecoder.decode(pair.substring(0, eq), "UTF-8");
+	                String value = URLDecoder.decode(pair.substring(eq + 1), "UTF-8");
+	                params.put(key, value);
+	            }
+            } catch (UnsupportedEncodingException e) {
+            	log.error("Query parameter cannot be decoded: {}", e.getMessage(), e);
+            }
+        }
+		return params;
+	}
+
+	private Response buildQueryResponse(final String resultType, final String query) throws Exception {
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {

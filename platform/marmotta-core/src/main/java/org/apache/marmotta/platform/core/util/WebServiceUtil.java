@@ -47,7 +47,7 @@ public class WebServiceUtil {
         Map<String,Object> result = new HashMap<String, Object>();
         result.put("type", e.getClass().getSimpleName());
         result.put("message", e.getMessage());
-        result.put("trace",  ExceptionUtils.getStackTrace(e));
+        result.put("trace", ExceptionUtils.getStackTrace(e));
 
         ObjectMapper mapper = new ObjectMapper();
         try {
