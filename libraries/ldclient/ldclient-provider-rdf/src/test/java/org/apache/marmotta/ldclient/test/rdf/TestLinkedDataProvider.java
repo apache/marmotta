@@ -155,7 +155,7 @@ public class TestLinkedDataProvider {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = this.getClass().getResourceAsStream("foaf-wikier.sparql");
-        BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql, "UTF-8"));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
         conn.commit();
