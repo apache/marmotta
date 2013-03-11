@@ -234,6 +234,7 @@ public class SparqlServiceImpl implements SparqlService {
                 connection.begin();
                 BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query);
                 result = ask.evaluate();
+                connection.commit();
             } catch (MalformedQueryException e) {
                 throw new MarmottaException("malformed query, update failed",e);
             } catch (QueryEvaluationException e) {
