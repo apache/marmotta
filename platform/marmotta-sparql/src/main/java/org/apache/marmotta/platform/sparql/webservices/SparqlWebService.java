@@ -108,14 +108,12 @@ public class SparqlWebService {
     		String msg = "update operations are not supported through get"; //or yes?
     		log.error(msg);
 			return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
-    	} else if (StringUtils.isNotBlank(query)) {
+    	} else {
     		UriBuilder builder = UriBuilder.fromPath(PATH + SELECT);
-    		builder.replaceQuery(request.getQueryString());
+    		if (StringUtils.isNotBlank(query)) {    		
+    			builder.replaceQuery(request.getQueryString());
+    		}
 			return Response.seeOther(builder.build()).build();
-		} else {
-			String msg = "query not found";
-			log.error(msg);
-			return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
 		}
     }
     
