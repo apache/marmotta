@@ -74,7 +74,6 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
         }
     }
 
-
     /**
      * Gets the query result format that this writer uses.
      */
@@ -116,7 +115,7 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
             transformer.setParameter("serverurl", server_uri);
 
             JDOMResult result = new JDOMResult();
-            transformer.transform(input,result);
+            transformer.transform(input, result);
             Document output = result.getDocument();
 
             XMLOutputter printer = new XMLOutputter(Format.getPrettyFormat());
@@ -124,7 +123,7 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
             writer.flush();
 
         } catch (Exception ex) {
-            throw new TupleQueryResultHandlerException("error while transforming XML results to HTML",ex);
+            throw new TupleQueryResultHandlerException("error while transforming XML results to HTML", ex);
         } finally {
             try {
                 writer.close();
