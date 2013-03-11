@@ -86,28 +86,6 @@ public class SparqlWebService {
     private ConfigurationService configurationService;
 
     /**
-     * For CORS operations TODO: make it more fine grained (maybe user dependent)
-     * + TODO filter chain do not work properly
-     * 
-     * @param reqHeaders
-     * @return responde
-     */
-    @OPTIONS
-    @Path("/update")
-    public Response optionsResourceRemote(@HeaderParam("Access-Control-Request-Headers") String reqHeaders) {
-        if(reqHeaders == null) {
-            reqHeaders = "Accept, Content-Type";
-        }
-        return Response.ok()
-                .header("Allow", "POST")
-                .header("Access-Control-Allow-Methods","POST")
-                .header("Access-Control-Allow-Headers", reqHeaders)
-                .header("Access-Control-Allow-Origin",configurationService.getStringConfiguration("sparql.allow_origin","*"))
-                .build();
-
-    }
-
-    /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as query parameter to the
      * GET request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
      * <p/>
@@ -121,7 +99,7 @@ public class SparqlWebService {
      */
     @GET
     @Path("/select")
-    public Response query(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    public Response select(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
         if(resultType == null) {
             List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
             List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
@@ -154,6 +132,28 @@ public class SparqlWebService {
         }
     }
 
+    /**
+     * For CORS operations TODO: make it more fine grained (maybe user dependent)
+     * + TODO filter chain do not work properly
+     * 
+     * @param reqHeaders
+     * @return responde
+     */
+    @OPTIONS
+    @Path("/update")
+    public Response optionsResourceRemote(@HeaderParam("Access-Control-Request-Headers") String reqHeaders) {
+        if(reqHeaders == null) {
+            reqHeaders = "Accept, Content-Type";
+        }
+        return Response.ok()
+                .header("Allow", "POST")
+                .header("Access-Control-Allow-Methods", "POST")
+                .header("Access-Control-Allow-Headers", reqHeaders)
+                .header("Access-Control-Allow-Origin", configurationService.getStringConfiguration("sparql.allow_origin","*"))
+                .build();
+
+    }
+    
     /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
      * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
