@@ -21,6 +21,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
+import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
@@ -46,7 +47,7 @@ public class TestLinkedDataProvider {
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
     private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
     private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
-    private static final String EXAMPLE = "http://example.orf/foo";
+    private static final String EXAMPLE = "http://example.org/foo";
     
     private LDClientService ldclient;
 
@@ -167,11 +168,10 @@ public class TestLinkedDataProvider {
      * @throws Exception
      *
      */
-    @Test
+    @Test(expected=DataRetrievalException.class)
     public void testNotRDF() throws Exception {
         ClientResponse response = ldclient.retrieveResource(EXAMPLE);
         RepositoryConnection conn = response.getTriples().getConnection(); 
-        //should we expect also an exception here?
         conn.begin();
         Assert.assertTrue(conn.size() == 0);
         conn.commit();
