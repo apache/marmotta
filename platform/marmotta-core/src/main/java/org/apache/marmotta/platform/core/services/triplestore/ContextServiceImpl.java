@@ -19,6 +19,18 @@ package org.apache.marmotta.platform.core.services.triplestore;
 
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
@@ -26,8 +38,11 @@ import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.apache.marmotta.platform.core.qualifiers.kspace.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.platform.core.qualifiers.kspace.ActiveKnowledgeSpaces;
+import org.apache.marmotta.platform.core.qualifiers.kspace.CurrentKnowledgeSpace;
+import org.apache.marmotta.platform.core.qualifiers.kspace.DefaultKnowledgeSpace;
+import org.apache.marmotta.platform.core.qualifiers.kspace.InferredKnowledgeSpace;
+import org.apache.marmotta.platform.core.qualifiers.kspace.SystemKnowledgeSpace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDFS;
@@ -35,18 +50,6 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * The context (named graphs in Apache Marmotta, formerly "knowledge space" in KiWi) service offers convenience
@@ -87,13 +90,14 @@ public class ContextServiceImpl implements ContextService {
 
     @Inject
     private UserService userService;
-    @PostConstruct
-    public void initialize() {
-        log.debug("Creating default contexts...");
-        createContext(configurationService.getDefaultContext(), "default");
-        createContext(configurationService.getCacheContext(), "cache");
-        createContext(configurationService.getInferredContext(), "inferred");
-    }
+    
+//    @PostConstruct
+//    public void initialize() {
+//        log.debug("Creating default contexts...");
+//        createContext(configurationService.getDefaultContext(), "default");
+//        createContext(configurationService.getCacheContext(), "cache");
+//        createContext(configurationService.getInferredContext(), "inferred");
+//    }
 
     @Override
     public List<URI> listContexts() {
