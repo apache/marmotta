@@ -72,8 +72,8 @@
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <site>
-            <id>lmf.googlecode.com</id>
-            <url>http://lmf.googlecode.com</url>
+            <id>marmotta</id>
+            <url>http://marmotta.incubator.apache.org</url>
         </site>
     </distributionManagement>
 
@@ -1418,6 +1418,24 @@
 
                 </plugins>
             </build>
+        </profile>
+
+        <profile>
+            <id>dist-local</id>
+
+            <distributionManagement>
+                <repository>
+                    <id>apache.releases</id>
+                    <name>Apache Relesases Repository</name>
+                    <url>file:///tmp/repo</url>
+                </repository>
+                <snapshotRepository>
+                    <id>apache.snapshots</id>
+                    <name>Apache Snapshots Repository</name>
+                    <url>file:///tmp/repo</url>
+                </snapshotRepository>
+            </distributionManagement>
+
         </profile>
     </profiles>
 </project>
