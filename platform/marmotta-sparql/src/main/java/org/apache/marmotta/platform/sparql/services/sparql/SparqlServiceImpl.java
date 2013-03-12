@@ -17,43 +17,50 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparql;
 
-import org.apache.marmotta.platform.core.exception.MarmottaException;
-import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
-import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
+import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
+import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.openrdf.model.Value;
-import org.openrdf.query.*;
+import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.BooleanQuery;
+import org.openrdf.query.GraphQuery;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.Query;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 /**
- * Add file description here!
- * <p/>
- * User: sschaffe
+ * Sparql Service implementation
+ * 
+ * @author sschaffe
  */
-@Named("kiwi.core.query.sparqlService")
 @ApplicationScoped
 public class SparqlServiceImpl implements SparqlService {
-
 
     /**
      * Get the seam logger for issuing logging statements.
@@ -66,7 +73,6 @@ public class SparqlServiceImpl implements SparqlService {
 
     @Inject
     private SesameService sesameService;
-
 
     @Override
     public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
@@ -110,17 +116,13 @@ public class SparqlServiceImpl implements SparqlService {
         log.debug("SPARQL execution took {}ms",System.currentTimeMillis()-start);
     }
 
-
-
-    private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
-    private String parseSubType(String mimeType) {
-        Matcher matcher = subTypePattern.matcher(mimeType);
-        if(matcher.matches()) return matcher.group(2);
-        else
-            return mimeType;
-    }
-
-
+//    private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
+//    private String parseSubType(String mimeType) {
+//        Matcher matcher = subTypePattern.matcher(mimeType);
+//        if(matcher.matches()) return matcher.group(2);
+//        else
+//            return mimeType;
+//    }
 
     /**
      * Evaluate a SPARQL query on the LMF TripleStore. Returns the results as a list of result maps, each element
@@ -217,6 +219,36 @@ public class SparqlServiceImpl implements SparqlService {
         log.debug("SPARQL update execution took {}ms",System.currentTimeMillis()-start);
 
     }
+
+	@Override
+	public boolean ask(QueryLanguage queryLanguage, String query)
+			throws MarmottaException {
+        long start = System.currentTimeMillis();
+
+        log.debug("executing SPARQL ask:\n{}", query);
+       
+        boolean result = false;
+        try {
+            RepositoryConnection connection = sesameService.getConnection();
+            try {
+                connection.begin();
+                BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query);
+                result = ask.evaluate();
+                connection.commit();
+            } catch (MalformedQueryException e) {
+                throw new MarmottaException("malformed query, update failed",e);
+            } catch (QueryEvaluationException e) {
+            	throw new MarmottaException("error evaluating querry",e);
+			} finally {
+                connection.close();
+            }
+        } catch(RepositoryException ex) {
+            log.error("error while getting repository connection", ex);
+            throw new MarmottaException("error while getting repository connection",ex);
+        }
+        log.debug("SPARQL update execution took {}ms",System.currentTimeMillis()-start);
+        return result;
+	}
 
 
 

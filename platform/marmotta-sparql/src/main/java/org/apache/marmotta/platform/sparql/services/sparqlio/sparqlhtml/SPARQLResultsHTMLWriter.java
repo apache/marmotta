@@ -17,127 +17,92 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.util.CDIContext;
-import org.jdom2.Document;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-import org.jdom2.transform.JDOMResult;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.util.List;
-
 /**
- * Add file description here!
- * <p/>
- * User: sschaffe
+ * SPARQL results to HTML writer usong Freemarker
+ * 
+ * @author Sergio Fernández
  */
 public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
 
-    private static final Logger log = LoggerFactory.getLogger(SPARQLResultsHTMLWriter.class);
+	private static final Logger log = LoggerFactory.getLogger(SPARQLResultsHTMLWriter.class);
+    
+    private static final String START_TEMPLATE = "sparql_select_start.ftl";
 
+	private static final String RESULT_TEMPLATE = "sparql_select_result.ftl";
+
+	private static final String END_TEMPLATE = "sparql_select_end.ftl";
+	
     private OutputStream out;
-    private ByteArrayOutputStream xmlOut;
-
-    private SPARQLResultsXMLWriter xmlWriter;
-
-    private Templates stylesheet;
-
+    
+    private List<String> vars;
+    
     public SPARQLResultsHTMLWriter(OutputStream out) {
         this.out = out;
-        this.xmlOut = new ByteArrayOutputStream();
-        this.xmlWriter = new SPARQLResultsXMLWriter(xmlOut);
-        Source s_stylesheet = new StreamSource(SPARQLResultsHTMLWriter.class.getResourceAsStream("style.xsl"));
+    }
+
+	@Override
+	public TupleQueryResultFormat getTupleQueryResultFormat() {
+		return new TupleQueryResultFormat("SPARQL/HTML", "text/html", Charset.forName("UTF-8"), "html");
+	}
+
+	@Override
+	public void startQueryResult(List<String> vars) throws TupleQueryResultHandlerException {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("vars", vars);
+        this.vars = vars;
         try {
-            stylesheet = TransformerFactory.newInstance().newTemplates(s_stylesheet);
-        } catch (TransformerConfigurationException e) {
-            log.error("could not compile stylesheet for rendering SPARQL results; result display not available!");
+            TemplatingHelper.processTemplate(SPARQLResultsHTMLWriter.class, START_TEMPLATE, data, new OutputStreamWriter(out));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new TupleQueryResultHandlerException(e);
         }
-    }
-
-
-    /**
-     * Gets the query result format that this writer uses.
-     */
-    @Override
-    public TupleQueryResultFormat getTupleQueryResultFormat() {
-        return new TupleQueryResultFormat("SPARQL/HTML","text/html", Charset.forName("UTF-8"), "html");
-    }
-
-    /**
-     * Indicates the start of a sequence of Solutions. The supplied bindingNames
-     * are an indication of the values that are in the Solutions. For example, a
-     * SeRQL query like <tt>select X, Y from {X} P {Y} </tt> will have binding
-     * names <tt>X</tt> and <tt>Y</tt>.
-     *
-     * @param bindingNames An ordered set of binding names.
-     */
-    @Override
-    public void startQueryResult(List<String> bindingNames) throws TupleQueryResultHandlerException {
-        xmlWriter.startQueryResult(bindingNames);
-    }
-
-    /**
-     * Indicates the end of a sequence of solutions.
-     */
-    @Override
-    public void endQueryResult() throws TupleQueryResultHandlerException {
-        xmlWriter.endQueryResult();
-
-        // get server uri
-        String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
-
-        byte[] queryResult = xmlOut.toByteArray();
-
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+	}
+	
+	@Override
+	public void handleSolution(BindingSet binding) throws TupleQueryResultHandlerException {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("vars", vars);
+        Map<String, String> result = new HashMap<String, String>();
+        for (String var: vars) {
+        	if (binding.hasBinding(var)) {
+        		result.put(var, binding.getBinding(var).getValue().stringValue());
+        	} else {
+        		result.put(var, "");
+        	}
+        }
+        data.put("result", result);
         try {
-            Source input      = new StreamSource(new ByteArrayInputStream(queryResult));
-
-            Transformer transformer = stylesheet.newTransformer();
-            transformer.setParameter("serverurl", server_uri);
-
-            JDOMResult result = new JDOMResult();
-            transformer.transform(input,result);
-            Document output = result.getDocument();
-
-            XMLOutputter printer = new XMLOutputter(Format.getPrettyFormat());
-            printer.output(output, writer);
-            writer.flush();
-
-        } catch (Exception ex) {
-            throw new TupleQueryResultHandlerException("error while transforming XML results to HTML",ex);
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {}
+            TemplatingHelper.processTemplate(SPARQLResultsHTMLWriter.class, RESULT_TEMPLATE, data, new OutputStreamWriter(out));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new TupleQueryResultHandlerException(e);
         }
+	}	
+	
+	@Override
+	public void endQueryResult() throws TupleQueryResultHandlerException {
+		Map<String, Object> data = new HashMap<String, Object>();
+        try {            
+            TemplatingHelper.processTemplate(SPARQLResultsHTMLWriter.class, END_TEMPLATE, data, new OutputStreamWriter(out));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new TupleQueryResultHandlerException(e);
+        }
+	}	
 
-    }
-
-    /**
-     * Handles a solution.
-     */
-    @Override
-    public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
-        xmlWriter.handleSolution(bindingSet);
-    }
 }

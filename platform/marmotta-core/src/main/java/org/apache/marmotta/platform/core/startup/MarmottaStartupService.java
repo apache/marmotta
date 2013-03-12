@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.startup;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -160,6 +161,9 @@ public class MarmottaStartupService {
             }
 
             if(StringUtils.isNotBlank(home)) {
+            	if (home.startsWith("~" + File.separator)) {
+            	    home = System.getProperty("user.home") + home.substring(1);
+            	}
                 configurationService.setHome(home);
             } else {
             	log.error("home directory not properly initialized!!!");
@@ -198,7 +202,6 @@ public class MarmottaStartupService {
         }
 
     }
-
 
     /**
      * Start up the Apache Marmotta server environment. This method ensures that the base URL for the host (used by the

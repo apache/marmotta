@@ -17,23 +17,21 @@
  */
 package org.apache.marmotta.platform.core.services.config;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
-import org.apache.marmotta.platform.core.util.FallbackConfiguration;
-import org.apache.commons.configuration.*;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -45,12 +43,29 @@ import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.*;
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.util.FallbackConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
 
 /**
  * This service offers access to the system configuration of the LMF and takes care of initialising the system
@@ -58,7 +73,7 @@ import java.util.*;
  *
  * @author Sebastian Schaffert
  * @author Sergio Fernández
- * 
+ *
  */
 @ApplicationScoped
 public class ConfigurationServiceImpl implements ConfigurationService {
@@ -103,8 +118,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private ServletContext                   servletContext;
 
+
+    /**
+     * A lock to ensure proper concurrent access to the configuration. The system requests a write lock in case a
+     * setXXX() method is called and a read lock in case a getXXX() method is called.
+     */
+    private ReadWriteLock lock;
+
+
     public ConfigurationServiceImpl() {
         runtimeFlags = new HashMap<String, Boolean>();
+        lock = new ReentrantReadWriteLock();
     }
 
     /**
@@ -125,141 +149,150 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public void initialize(String home, Configuration override) {
-        initialising = true;
-
-        log.info("Apache Marmotta Configuration Service starting up ...");
-
-        if(isTomcat7()) {
-            log.info("Apache Marmotta running on Apache Tomcat 7.x");
-        } else if(isTomcat6()) {
-            log.info("Apache Marmotta running on Apache Tomcat <= 6.x");
-        } else if(isJetty7()) {
-            log.info("Apache Marmotta running on Jetty 7.x");
-        } else if(isJetty6()) {
-            log.info("Apache Marmotta running on Jetty <= 6.x");
-        } else {
-            log.info("Apache Marmotta running on an unknown servlet container");
-        }
-
-        setHome(home);
-
-        if (getHome() != null) {
-            File f1 = new File(getHome());
-            if (!f1.exists()) {
-                f1.mkdirs();
-            }
-            // ensure directory for user configuration files
-            File f2 = new File(getHome() + File.separator + "config");
-            if(!f2.exists()) {
-                f2.mkdirs();
-            }
-
-            // ensure directory for logging messages
-            File f3 = new File(getHome() + File.separator + "log");
-            if(!f3.exists()) {
-                f3.mkdirs();
-            }
-        }
-
-        // the save configuration will be in the  home directory
+        lock.writeLock().lock();
         try {
-            if (getHome() != null) {
-                configFile = getHome() + File.separator + "system-config.properties";
-                File f = new File(configFile);
-                if (!f.exists()) {
-                    log.info("creating system configuration in configuration file {}", f.getAbsolutePath());
-                } else {
-                    log.info("reading system configuration from existing configuration file {}", f.getAbsolutePath());
-                }
-                saveConfiguration = new PropertiesConfiguration(f);
+            initialising = true;
+
+            log.info("Apache Marmotta Configuration Service starting up ...");
+
+            if(isTomcat7()) {
+                log.info("Apache Marmotta running on Apache Tomcat 7.x");
+            } else if(isTomcat6()) {
+                log.info("Apache Marmotta running on Apache Tomcat <= 6.x");
+            } else if(isJetty7()) {
+                log.info("Apache Marmotta running on Jetty 7.x");
+            } else if(isJetty6()) {
+                log.info("Apache Marmotta running on Jetty <= 6.x");
             } else {
-                log.error("error while initialising configuration: no marmotta.home property given; creating memory-only configuration");
+                log.info("Apache Marmotta running on an unknown servlet container");
+            }
+
+            setHome(home);
+
+            if (getHome() != null) {
+                File f1 = new File(getHome());
+                if (!f1.exists()) {
+                    f1.mkdirs();
+                }
+                // ensure directory for user configuration files
+                File f2 = new File(getHome() + File.separator + "config");
+                if(!f2.exists()) {
+                    f2.mkdirs();
+                }
+
+                // ensure directory for logging messages
+                File f3 = new File(getHome() + File.separator + "log");
+                if(!f3.exists()) {
+                    f3.mkdirs();
+                }
+            }
+
+            // the save configuration will be in the  home directory
+            try {
+                if (getHome() != null) {
+                    configFile = getHome() + File.separator + "system-config.properties";
+                    File f = new File(configFile);
+                    if (!f.exists()) {
+                        log.info("creating system configuration in configuration file {}", f.getAbsolutePath());
+                    } else {
+                        log.info("reading system configuration from existing configuration file {}", f.getAbsolutePath());
+                    }
+                    saveConfiguration = new PropertiesConfiguration(f);
+                } else {
+                    log.error("error while initialising configuration: no marmotta.home property given; creating memory-only configuration");
+                    saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
+                }
+            } catch (Exception e) {
+                log.error("error while initialising configuration file {}: {}; creating memory-only configuration", configFile, e.getMessage());
                 saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
             }
-        } catch (Exception e) {
-            log.error("error while initialising configuration file {}: {}; creating memory-only configuration", configFile, e.getMessage());
-            saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
-        }
-        config = new FallbackConfiguration();
-        config.addConfiguration(saveConfiguration,true);
+            config = new FallbackConfiguration();
+            config.addConfiguration(saveConfiguration,true);
 
-        // load all default-config.properties
+            // load all default-config.properties
 
-        try {
-            Enumeration<URL> configs = this.getClass().getClassLoader().getResources("config-defaults.properties");
-            while(configs.hasMoreElements()) {
-                URL url = configs.nextElement();
-                config.addConfiguration(new PropertiesConfiguration(url));
+            try {
+                Enumeration<URL> configs = this.getClass().getClassLoader().getResources("config-defaults.properties");
+                while(configs.hasMoreElements()) {
+                    URL url = configs.nextElement();
+                    config.addConfiguration(new PropertiesConfiguration(url));
+                }
+
+            } catch (IOException e) {
+                log.error("I/O error while loading default configurations",e);
+            } catch (ConfigurationException e) {
+                log.error("configuration error while loading default configurations",e);
             }
 
-        } catch (IOException e) {
-            log.error("I/O error while loading default configurations",e);
-        } catch (ConfigurationException e) {
-            log.error("configuration error while loading default configurations",e);
-        }
+            // legacy support (to be removed)
+            try {
+                Enumeration<URL> configs = this.getClass().getClassLoader().getResources("default-config.properties");
+                while(configs.hasMoreElements()) {
+                    URL url = configs.nextElement();
+                    config.addConfiguration(new PropertiesConfiguration(url));
+                    log.warn("found legacy configuration file {}; should be replaced with per-module configuration!",url);
+                }
 
-        // legacy support (to be removed)
-        try {
-            Enumeration<URL> configs = this.getClass().getClassLoader().getResources("default-config.properties");
-            while(configs.hasMoreElements()) {
-                URL url = configs.nextElement();
-                config.addConfiguration(new PropertiesConfiguration(url));
-                log.warn("found legacy configuration file {}; should be replaced with per-module configuration!",url);
+            } catch (IOException e) {
+                log.error("I/O error while loading default configurations",e);
+            } catch (ConfigurationException e) {
+                log.error("configuration error while loading default configurations",e);
             }
 
-        } catch (IOException e) {
-            log.error("I/O error while loading default configurations",e);
-        } catch (ConfigurationException e) {
-            log.error("configuration error while loading default configurations",e);
-        }
 
-        configDescriptions = new CompositeConfiguration();
-        try {
-            Enumeration<URL> configs = this.getClass().getClassLoader().getResources("config-descriptions.properties");
-            while(configs.hasMoreElements()) {
-                URL url = configs.nextElement();
-                configDescriptions.addConfiguration(new PropertiesConfiguration(url));
+            // create the configuration that is responsible for getting metadata about configuration keys in the main
+            // configuration; since the keys will be different, we store changes also to the main save configuration
+            configDescriptions = new FallbackConfiguration();
+            configDescriptions.addConfiguration(saveConfiguration,true);
+            try {
+                Enumeration<URL> configs = this.getClass().getClassLoader().getResources("config-descriptions.properties");
+                while(configs.hasMoreElements()) {
+                    URL url = configs.nextElement();
+                    configDescriptions.addConfiguration(new PropertiesConfiguration(url));
+                }
+
+            } catch (IOException e) {
+                log.error("I/O error while loading configuration descriptions",e);
+            } catch (ConfigurationException e) {
+                log.error("configuration error while loading configuration descriptions",e);
             }
 
-        } catch (IOException e) {
-            log.error("I/O error while loading configuration descriptions",e);
-        } catch (ConfigurationException e) {
-            log.error("configuration error while loading configuration descriptions",e);
-        }
-
-        // setup home if it is given as system property, 
-        // the bootstrap configuration is overwritten
-        if (getHome() != null) {
-            config.setProperty("marmotta.home", getHome());
-            config.setProperty("solr.home", getHome() + File.separator + "solr");
-        }
-
-        // in case override configuration is given, change all settings in the configuration accordingly
-        if(override != null) {
-            for (Iterator<String> it = override.getKeys(); it.hasNext();) {
-                String key = it.next();
-
-                config.setProperty(key, override.getProperty(key));
+            // setup home if it is given as system property,
+            // the bootstrap configuration is overwritten
+            if (getHome() != null) {
+                config.setProperty("marmotta.home", getHome());
+                config.setProperty("solr.home", getHome() + File.separator + "solr");
             }
+
+            // in case override configuration is given, change all settings in the configuration accordingly
+            if(override != null) {
+                for (Iterator<String> it = override.getKeys(); it.hasNext();) {
+                    String key = it.next();
+
+                    config.setProperty(key, override.getProperty(key));
+                }
+            }
+
+            save();
+
+            // configuration service is now ready to use
+            initialised = true;
+
+
+            // this should maybe move to the KiWiPreStartupFilter ...
+            initLoggingConfiguration();
+            initDatabaseConfiguration();
+
+            save();
+
+            log.info("Apache Marmotta Configuration Service: initialisation completed");
+
+            configurationInitEvent.fire(new ConfigurationServiceInitEvent());
+
+            initialising = false;
+        } finally {
+            lock.writeLock().unlock();
         }
-
-        save();
-
-        // configuration service is now ready to use
-        initialised = true;
-
-
-        // this should maybe move to the KiWiPreStartupFilter ...
-        initLoggingConfiguration();
-        initDatabaseConfiguration();
-
-        save();
-
-        log.info("Apache Marmotta Configuration Service: initialisation completed");
-
-        configurationInitEvent.fire(new ConfigurationServiceInitEvent());
-
-        initialising = false;
 
     }
 
@@ -328,12 +361,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @PreDestroy
     public void shutdown() {
         log.info("shutting down configuration service");
-
-        //        if (SystemTray.isSupported() && icon != null) {
-        //
-        //            SystemTray tray = SystemTray.getSystemTray();
-        //            tray.remove(icon);
-        //        }
     }
 
     /**
@@ -361,7 +388,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     /**
      * Get the base URI out of the current request. The base URI
      * is used e.g. to generate URIs of internal content items
-     * 
+     *
      * @see org.apache.marmotta.platform.core.api.config.ConfigurationService#getBaseUri()
      */
 
@@ -373,7 +400,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     /**
      * Get the base path of the system, which is the relative path from the server host.
      * For example, in the case of http://localhost:8080/LMF, /LMF would be returned as the path.
-     * 
+     *
      * @return a String representing the path
      */
     @Override
@@ -385,7 +412,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * Get the server uri of the system, i.e. a uri that when entered in the browser accesses the
      * server that runs the KiWi (and SOLR) applications. Can be used to compute the paths of
      * other applications relative to the current application. Computed like the base uri.
-     * 
+     *
      * @see ConfigurationService#getServerUri()
      */
     @Override
@@ -400,31 +427,41 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * List all configuration keys defined for the system configuration of KiWi.
-     * 
+     *
      * @return
      */
     @Override
     public List<String> listConfigurationKeys() {
-        List<String> keys = new LinkedList<String>();
-        for (Iterator<String> it = config.getKeys(); it.hasNext();) {
-            keys.add(it.next());
+        lock.readLock().lock();
+        try {
+            List<String> keys = new LinkedList<String>();
+            for (Iterator<String> it = config.getKeys(); it.hasNext();) {
+                keys.add(it.next());
+            }
+            return keys;
+        } finally {
+            lock.readLock().unlock();
         }
-        return keys;
     }
 
     /**
      * List all configuration keys defined for the system configuration of KiWi having prefix.
-     * 
+     *
      * @param prefix the prefix of keys that should be returned
      * @return
      */
     @Override
     public List<String> listConfigurationKeys(String prefix) {
-        List<String> keys = new LinkedList<String>();
-        for (Iterator<String> it = config.getKeys(prefix); it.hasNext();) {
-            keys.add(it.next());
+        lock.readLock().lock();
+        try {
+            List<String> keys = new LinkedList<String>();
+            for (Iterator<String> it = config.getKeys(prefix); it.hasNext();) {
+                keys.add(it.next());
+            }
+            return keys;
+        } finally {
+            lock.readLock().unlock();
         }
-        return keys;
     }
 
     /*
@@ -434,13 +471,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public boolean isConfigurationSet(String key) {
-        return config.containsKey(key);
+        lock.readLock().lock();
+        try {
+            return config.containsKey(key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
      * Get the configuration for the given key. If there is no such configuration, a new one is
      * created with empty value (returns null).
-     * 
+     *
      * @param key unique configuration key for lookup
      * @return a configuration object with either the configured value or null as value
      */
@@ -449,13 +491,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getProperty(key);
+        lock.readLock().lock();
+        try {
+            return config.getProperty(key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
      * Return the comment for the configuration with the given key as string. If there is no such
      * configuration, null is returned
-     * 
+     *
      * @param key unique configuration key for lookup
      * @return a string describing the configuration option or null if no comment was given
      */
@@ -464,7 +511,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return configDescriptions.getString(key + ".description");
+        lock.readLock().lock();
+        try {
+            return configDescriptions.getString(key + ".description");
+        } finally {
+            lock.readLock().unlock();
+        }
 
     }
 
@@ -479,13 +531,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        String s = configDescriptions.getString(key+".type");
-        return s!=null?s: String.class.getName();
+        lock.readLock().lock();
+        try {
+            String s = configDescriptions.getString(key+".type");
+            return s!=null?s: String.class.getName();
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
      * Set the configuration "key" to the string value "value".
-     * 
+     *
      * @param key
      * @param value
      */
@@ -494,8 +551,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, value);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, value);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -513,8 +575,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        configDescriptions.setProperty(key+".type",type);
-        save();
+        lock.writeLock().lock();
+        try {
+            configDescriptions.setProperty(key+".type",type);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -528,8 +595,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        configDescriptions.setProperty(key+".description",description);
-        save();
+        lock.writeLock().lock();
+        try {
+            configDescriptions.setProperty(key+".description",description);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -541,14 +613,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+        lock.readLock().lock();
+        try {
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+            }
+            String result = config.getString(key);
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
+            }
+            return result;
+        } finally {
+            lock.readLock().unlock();
         }
-        String result = config.getString(key);
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-        }
-        return result;
     }
 
     @Override
@@ -556,14 +633,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+        lock.readLock().lock();
+        try {
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+            }
+            String result = config.getString(key, defaultValue);
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
+            }
+            return result;
+        } finally {
+            lock.readLock().unlock();
         }
-        String result = config.getString(key, defaultValue);
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-        }
-        return result;
     }
 
     @Override
@@ -571,7 +653,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getDouble(key, 0.0);
+        lock.readLock().lock();
+        try {
+            return config.getDouble(key, 0.0);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -579,7 +666,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getDouble(key, defaultValue);
+        lock.readLock().lock();
+        try {
+            return config.getDouble(key, defaultValue);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /*
@@ -592,8 +684,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, value);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, value);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -605,7 +702,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised, "ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getInt(key, 0);
+        lock.readLock().lock();
+        try {
+            return config.getInt(key, 0);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -613,7 +715,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getInt(key, defaultValue);
+        lock.readLock().lock();
+        try {
+            return config.getInt(key, defaultValue);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /*
@@ -626,8 +733,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, value);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, value);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -646,7 +758,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised, "ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getLong(key, 0);
+        lock.readLock().lock();
+        try {
+            return config.getLong(key, 0);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
@@ -662,7 +779,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getLong(key, defaultValue);
+        lock.readLock().lock();
+        try {
+            return config.getLong(key, defaultValue);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
@@ -676,8 +798,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, value);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, value);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -689,7 +816,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getBoolean(key, false);
+        lock.readLock().lock();
+        try {
+            return config.getBoolean(key, false);
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     @Override
@@ -697,7 +830,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getBoolean(key, defaultValue);
+        lock.readLock().lock();
+        try {
+            return config.getBoolean(key, defaultValue);
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     /*
@@ -710,8 +849,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, value);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, value);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
+
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -728,7 +873,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        return config.getProperties(key);
+        lock.readLock().lock();
+        try {
+            return config.getProperties(key);
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     /*
@@ -741,11 +892,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        String[] result = config.getStringArray(key);
+        lock.readLock().lock();
+        try {
+            String[] result = config.getStringArray(key);
 
-        if(result.length == 1 && "".equals(result[0].trim())) return Collections.emptyList();
+            if (result.length == 1 && "".equals(result[0].trim())) return Collections.emptyList();
 
-        return Lists.newArrayList(result);
+            return Lists.newArrayList(result);
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     /*
@@ -759,13 +916,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        if (config.containsKey(key)) {
-            String[] values = config.getStringArray(key);
-            if(values.length > 0) return Lists.newArrayList(values);
-            else
-                return Lists.newArrayList();
-        } else
-            return defaultValue;
+        lock.readLock().lock();
+        try {
+            if (config.containsKey(key)) {
+                String[] values = config.getStringArray(key);
+                if (values.length > 0) return Lists.newArrayList(values);
+                else
+                    return Lists.newArrayList();
+            } else
+                return defaultValue;
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     /*
@@ -779,8 +942,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, value);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, value);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
+
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -792,7 +961,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.clearProperty(key);
+        lock.writeLock().lock();
+        try {
+            config.clearProperty(key);
+        } finally {
+            lock.writeLock().unlock();
+        }
+
     }
 
     @Override
@@ -800,14 +975,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+        lock.writeLock().lock();
+        try {
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+            }
+            config.setProperty(key, value);
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
+            }
+            save();
+        } finally {
+            lock.writeLock().unlock();
         }
-        config.setProperty(key, value);
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-        }
-        save();
+
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -826,14 +1007,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+        lock.writeLock().lock();
+        try {
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+            }
+            config.setProperty(key, value);
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
+            }
+            save();
+        } finally {
+            lock.writeLock().unlock();
         }
-        config.setProperty(key, value);
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-        }
-        save();
+
     }
 
 
@@ -842,16 +1029,22 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(values);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+        lock.writeLock().lock();
+        try {
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+            }
+            for (Map.Entry<String, ?> entry : values.entrySet()) {
+                config.setProperty(entry.getKey(), entry.getValue());
+            }
+            if (config instanceof AbstractConfiguration) {
+                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
+            }
+            save();
+        } finally {
+            lock.writeLock().unlock();
         }
-        for (Map.Entry<String,?> entry : values.entrySet()) {
-            config.setProperty(entry.getKey(), entry.getValue());
-        }
-        if (config instanceof AbstractConfiguration) {
-            ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-        }
-        save();
+
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(values.keySet()));
@@ -863,8 +1056,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        config.setProperty(key, values);
-        save();
+        lock.writeLock().lock();
+        try {
+            config.setProperty(key, values);
+            save();
+        } finally {
+            lock.writeLock().unlock();
+        }
+
 
         if (!initialising) {
             configurationEvent.fire(new ConfigurationChangedEvent(key));
@@ -876,24 +1075,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
 
     @Override
+    @Deprecated
     public String getWorkDir() {
-        String value = getStringConfiguration("marmotta.home");
-        if (StringUtils.isBlank(value)) {
-        	log.warn("property 'marmotta.home' not given, trying with the old 'lmf.home'...");
-        	value = getStringConfiguration("lmf.home");
-        }
-        if (StringUtils.isBlank(value)) {
-        	log.warn("property 'lmf.home' not given neither, trying with the pretty old 'kiwi.home'...");
-        	value = getStringConfiguration("kiwi.home");
-        }
-        if (StringUtils.isBlank(value)) {
-        	value =  new File(System.getProperty("java.io.tmpdir", "/tmp"), "marmotta").getAbsolutePath();
-        	log.warn("no property found pointing a home, so creating it in the temporal one: " + value);
-        }
-        return value;
+        return getHome();
     }
 
-    public void save() {
+    protected void save() {
         if(saveConfiguration instanceof PropertiesConfiguration) {
             try {
                 ((PropertiesConfiguration)saveConfiguration).save();
@@ -905,7 +1092,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * Return the value of the runtime flag passed as argument.
-     * 
+     *
      * @param flag
      * @return
      */
@@ -921,7 +1108,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * Set a flag at runtime that is discarded on system shutdown; used e.g. to indicate that
      * certain
      * processes have already been carried out.
-     * 
+     *
      * @param value
      */
     @Override
@@ -931,41 +1118,41 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * Set the LMF_HOME value to the correct path. Used during the initialization process.
-     * 
+     *
      * @param home
      */
     @Override
     @Deprecated
     public void setLMFHome(String home) {
-    	log.warn("ConfigurationService.setLMFHome() is deprecated, consider call directly ConfigurationService.setHome()");
+        log.warn("ConfigurationService.setLMFHome() is deprecated, consider call directly ConfigurationService.setHome()");
         this.setHome(home);
     }
 
     /**
      * Set the home value to the correct path. Used during the initialization process.
-     * 
+     *
      * @param home
      */
     @Override
     public void setHome(String home) {
         this.home = home;
     }
-    
+
     /**
      * Return the value of the LMF_HOME setting. Used during the initialization process.
-     * 
+     *
      * @return
      */
     @Override
     @Deprecated
     public String getLMFHome() {
-    	log.warn("ConfigurationService.getLMFHome() is deprecated, consider call directly ConfigurationService.getHome()");
+        log.warn("ConfigurationService.getLMFHome() is deprecated, consider call directly ConfigurationService.getHome()");
         return getHome();
     }
-    
+
     /**
      * Return the value of the home setting. Used during the initialization process.
-     * 
+     *
      * @return
      */
     @Override
@@ -975,7 +1162,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * Get the base context URI
-     * 
+     *
      * @return base context
      */
     @Override
