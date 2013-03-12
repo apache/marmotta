@@ -51,11 +51,6 @@
             <name>Apache Snapshots Repository</name>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </repository>
-        <repository>
-            <id>lmf</id>
-            <name>Legacy LMF Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -1405,12 +1400,6 @@
         <profile>
             <!-- for signing artifacts with the GPG key on deploy -->
             <id>sign</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
             <build>
                 <plugins>
                     <plugin>

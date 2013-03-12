@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2013 The Apache Software Foundation
-  ~
-  ~  Licensed under the Apache License, Version 2.0 (the "License");
-  ~  you may not use this file except in compliance with the License.
-  ~  You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~  Unless required by applicable law or agreed to in writing, software
-  ~  distributed under the License is distributed on an "AS IS" BASIS,
-  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~  See the License for the specific language governing permissions and
-  ~  limitations under the License.
-  -->
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -151,18 +152,34 @@
         </mailingList>
     </mailingLists>
 
+    <!-- release management -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <goals>deploy</goals>
+                    <arguments>-Pinstaller,apache-release ${arguments}</arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <profiles>
+        <!-- modified Apache Release profile (copied and modified from Apache Jackrabbit) -->
         <profile>
-            <!-- for signing artifacts with the GPG key on deploy -->
-            <id>sign</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
+            <id>apache-release</id>
+            <properties>
+                <username>${user.name}</username>
+                <keyfile>${user.home}/.ssh/id_rsa</keyfile>
+                <passphrase />
+            </properties>
             <build>
                 <plugins>
+                    <!-- sign artifacts on release -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -173,24 +190,19 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>**/*.asc</exclude>
+                                        <exclude>**/*.md5</exclude>
+                                        <exclude>**/*.sha1</exclude>
+                                    </excludes>
+                                </configuration>
+
                             </execution>
                         </executions>
                     </plugin>
 
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- Attach sources and javadoc -->
-            <id>attach-doc</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
+                    <!-- attach sources and javadocs to deploy on release -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -215,20 +227,9 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
 
-        <!-- modified Apache Release profile (copied and modified from Apache Jackrabbit) -->
-        <profile>
-            <id>apache-release</id>
-            <properties>
-                <username>${user.name}</username>
-                <keyfile>${user.home}/.ssh/id_rsa</keyfile>
-                <passphrase />
-            </properties>
-            <build>
-                <plugins>
+
+                    <!-- assemble the project source artifacts -->
                     <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
@@ -241,6 +242,7 @@
                                     <descriptors>
                                         <descriptor>assembly.xml</descriptor>
                                     </descriptors>
+                                    <finalName>apache-marmotta-${project.version}</finalName>
                                 </configuration>
                             </execution>
                             <execution>
@@ -257,6 +259,7 @@
                         <artifactId>maven-antrun-plugin</artifactId>
                         <executions>
                             <execution>
+                                <id>default-cli</id>
                                 <goals>
                                     <goal>run</goal>
                                 </goals>
@@ -266,25 +269,29 @@
                                         <mkdir dir="${basedir}/target/${project.version}" />
                                         <copy todir="${basedir}/target/${project.version}" flatten="true">
                                             <fileset dir="${basedir}">
-                                                <include name="RELEASE-NOTES.txt" />
+                                                <include name="KEYS" />
                                                 <include name="target/*-src.zip*" />
-                                                <include name="launchers/marmotta-webapp/target/*-${project.version}.war*" />
-                                                <include name="launchers/marmotta-installer/target/*-${project.version}.jar*" />
+                                                <include name="launchers/marmotta-webapp/target/*-webapp.zip*" />
+                                                <include name="launchers/marmotta-installer/target/*-installer.zip*" />
+
+                                                <include name="target/*-src.tar.gz*" />
+                                                <include name="launchers/marmotta-webapp/target/*-webapp.tar.gz*" />
+                                                <include name="launchers/marmotta-installer/target/*-installer.zip*" />
                                             </fileset>
                                         </copy>
                                         <checksum algorithm="MD5" fileext=".md5">
                                             <fileset dir="${basedir}/target/${project.version}">
                                                 <include name="*.zip" />
-                                                <include name="*.?ar" />
+                                                <include name="*.tar.gz" />
                                             </fileset>
                                         </checksum>
-                                        <checksum algorithm="SHA1" fileext=".sha">
+                                        <checksum algorithm="SHA1" fileext=".sha1">
                                             <fileset dir="${basedir}/target/${project.version}">
                                                 <include name="*.zip" />
-                                                <include name="*.?ar" />
+                                                <include name="*.tar.gz" />
                                             </fileset>
                                         </checksum>
-                                        <checksum file="${basedir}/target/${project.version}/jackrabbit-${project.version}-src.zip" algorithm="SHA1" property="checksum" />
+                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-src.zip" algorithm="SHA1" property="checksum" />
                                         <echo file="${basedir}/target/vote.txt">
 From: ${username}@apache.org
 To: dev@marmotta.incubator.apache.org
@@ -313,20 +320,20 @@ least three +1 Marmotta PMC votes are cast.
                                         </echo>
                                         <echo />
                                         <echo>
-                                            The release candidate has been prepared in:
+The release candidate has been prepared in:
 
-                                            ${basedir}/target/${project.version}
+${basedir}/target/${project.version}
 
-                                            Please deploy it to https://dist.apache.org/repos/dist/dev/incubator/marmotta/:
+Please deploy it to https://dist.apache.org/repos/dist/dev/incubator/marmotta/:
 
-                                            cd /path/to/marmotta-dev
-                                            mv ${basedir}/target/${project.version} ${project.version}
-                                            svn add ${project.version}
-                                            svn commit -m 'Apache Marmotta ${project.version} release candidate' ${project.version}
+cd /path/to/marmotta-dev
+mv ${basedir}/target/${project.version} ${project.version}
+svn add ${project.version}
+svn commit -m 'Apache Marmotta ${project.version} release candidate' ${project.version}
 
-                                            A release vote template has been generated for you:
+A release vote template has been generated for you:
 
-                                            file://${basedir}/target/vote.txt
+file://${basedir}/target/vote.txt
                                         </echo>
                                         <echo />
                                     </tasks>

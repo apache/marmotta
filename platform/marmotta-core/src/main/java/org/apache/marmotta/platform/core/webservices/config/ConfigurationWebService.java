@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.webservices.config;
 
+import org.apache.commons.configuration.ConversionException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -87,22 +88,26 @@ public class ConfigurationWebService {
         Map<String,Object> config = new HashMap<String, Object>();
         config.put("comment",configurationService.getComment(key));
         config.put("type",configurationService.getType(key));
-        config.put("value",configurationService.getConfiguration(key));
-        /*if(config.get("type") != null) {
+        try {
+            config.put("value",configurationService.getStringConfiguration(key));
+        } catch (ConversionException ex) {
+            config.put("value",configurationService.getConfiguration(key));
+        }
+        if(config.get("type") != null) {
             String s = (String)config.get("type");
             int i = s.indexOf("(");
             if(i > -1)  s = s.substring(i);
 
             //try cast
             try {
-                log.info(Class.forName(s).toString());
                 config.put("value",(Class.forName(s).cast(configurationService.getConfiguration(key))));
-            } catch (ClassNotFoundException e) {
-                //value is already set as String
             } catch (ClassCastException e) {
                 //value is already set as String
+            } catch (ClassNotFoundException e) {
+                //type class does not exist
+                log.warn("the Java type {} does not exist",s);
             }
-        }    */
+        }
         return config;
     }
 
