@@ -344,6 +344,7 @@ public interface ConfigurationService {
     /**
      * @return a string representation of work direction
      */
+    @Deprecated
     String getWorkDir();
 
     /**

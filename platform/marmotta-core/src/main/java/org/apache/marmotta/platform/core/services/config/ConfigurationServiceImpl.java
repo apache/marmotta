@@ -17,23 +17,21 @@
  */
 package org.apache.marmotta.platform.core.services.config;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
-import org.apache.marmotta.platform.core.util.FallbackConfiguration;
-import org.apache.commons.configuration.*;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -45,14 +43,29 @@ import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.util.FallbackConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
 
 /**
  * This service offers access to the system configuration of the LMF and takes care of initialising the system
@@ -1062,21 +1075,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
 
     @Override
+    @Deprecated
     public String getWorkDir() {
-        String value = getStringConfiguration("marmotta.home");
-        if (StringUtils.isBlank(value)) {
-            log.warn("property 'marmotta.home' not given, trying with the old 'lmf.home'...");
-            value = getStringConfiguration("lmf.home");
-        }
-        if (StringUtils.isBlank(value)) {
-            log.warn("property 'lmf.home' not given neither, trying with the pretty old 'kiwi.home'...");
-            value = getStringConfiguration("kiwi.home");
-        }
-        if (StringUtils.isBlank(value)) {
-            value =  new File(System.getProperty("java.io.tmpdir", "/tmp"), "marmotta").getAbsolutePath();
-            log.warn("no property found pointing a home, so creating it in the temporal one: " + value);
-        }
-        return value;
+        return getHome();
     }
 
     protected void save() {
