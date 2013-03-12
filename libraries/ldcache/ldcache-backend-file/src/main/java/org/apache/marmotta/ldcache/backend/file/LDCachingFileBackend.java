@@ -18,7 +18,10 @@ import org.apache.marmotta.ldcache.backend.file.repository.LDCachingFileReposito
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,22 +34,26 @@ public class LDCachingFileBackend implements LDCachingBackend {
 	private static Logger log = LoggerFactory.getLogger(LDCachingFileBackend.class);
 	
 	private final File storageDir;
-	private ValueFactory valueFactory;
 
-	public LDCachingFileBackend(File storageDir) {
+    private Repository cacheRepository;
+
+	public LDCachingFileBackend(File storageDir) throws RepositoryException {
 		if (storageDir == null) throw new NullPointerException(); 
 		this.storageDir = storageDir;
+
+        File tripleDir = new File(storageDir,"triples");
+
+        cacheRepository = new SailRepository(new NativeStore(tripleDir, "spoc"));
+        cacheRepository.initialize();
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.apache.marmotta.ldcache.api.LDCachingBackend#getCacheConnection(java.lang.String)
 	 */
 	@Override
-	public LDCachingConnection getCacheConnection(String resource)
-			throws RepositoryException {
+	public LDCachingConnection getCacheConnection(String resource) throws RepositoryException {
 		
-		// TODO Auto-generated method stub
-		return new LDCachingFileRepositoryConnection(null, null, storageDir);
+		return new LDCachingFileRepositoryConnection(cacheRepository, cacheRepository.getConnection(), storageDir);
 	}
 
 	/* (non-Javadoc)
@@ -80,7 +87,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
 			protected CacheEntry convert(File sourceObject)
 					throws RepositoryException {
 				try {
-					return FileBackendUtils.readCacheEntry(sourceObject, valueFactory);
+					return FileBackendUtils.readCacheEntry(sourceObject, cacheRepository.getValueFactory());
 				} catch (IOException e) {
 					log.warn("Could not read caching properties from '{}'", sourceObject.getPath());
 					throw new RepositoryException(e);
@@ -107,8 +114,12 @@ public class LDCachingFileBackend implements LDCachingBackend {
 	 */
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
+        try {
+            cacheRepository.shutDown();
+        } catch (RepositoryException e) {
+            log.error("error while shutting down cache repository", e);
+        }
 
-	}
+    }
 
 }
