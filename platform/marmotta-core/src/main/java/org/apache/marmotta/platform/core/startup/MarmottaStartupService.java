@@ -199,7 +199,6 @@ public class MarmottaStartupService {
 
     }
 
-
     /**
      * Start up the Apache Marmotta server environment. This method ensures that the base URL for the host (used by the
      * web interface) and the context (used for creating local Linked Data URIs) is properly set and thus

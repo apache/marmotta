@@ -40,13 +40,21 @@ import java.util.Map;
 public class TemplatingHelper {
     
     public static Configuration getConfiguration() {
+        return getConfiguration(TemplatingHelper.class);
+    }
+    
+    public static Configuration getConfiguration(Class<?> cls) {
         Configuration cfg = new Configuration();
-        cfg.setClassForTemplateLoading(TemplatingHelper.class, TemplatingService.PATH);
+        cfg.setClassForTemplateLoading(cls, TemplatingService.PATH);
         return cfg;
     }
     
     public static Template getTemplate(String name) throws IOException {
         return getConfiguration().getTemplate(name);
+    }
+    
+    public static Template getTemplate(Class<?> cls, String name) throws IOException {
+        return getConfiguration(cls).getTemplate(name);
     }
     
     public static Template getTemplate(Configuration conf, String name) throws IOException {
@@ -70,6 +78,12 @@ public class TemplatingHelper {
         processTemplate(name, new HashMap<String, Object>(), writer);
     }
 
+    public static void processTemplate(Class<?> cls, String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException {
+        Template tpl = getTemplate(cls, name);
+        tpl.process(data, writer);
+        writer.flush();
+    }
+    
     public static void processTemplate(String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException {
         Template tpl = getTemplate(name);
         tpl.process(data, writer);

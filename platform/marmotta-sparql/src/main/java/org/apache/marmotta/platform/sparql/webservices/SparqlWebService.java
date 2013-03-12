@@ -51,12 +51,17 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,12 +70,18 @@ import java.util.regex.Pattern;
  * according the SPARQL 1.1 Protocol
  * 
  * @link http://www.w3.org/TR/sparql11-protocol/
+ * 
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
 @ApplicationScoped
-@Path("/sparql")
+@Path("/" + SparqlWebService.PATH)
 public class SparqlWebService {
+	
+    public final static String PATH = "sparql";
+    public static final String SELECT = "/select";
+    public static final String UPDATE = "/update";
+    public static final String SNORQL = "/snorql";
 
     @Inject
     private Logger log;
@@ -80,27 +91,45 @@ public class SparqlWebService {
 
     @Inject
     private ConfigurationService configurationService;
-
+    
     /**
-     * For CORS operations TODO: make it more fine grained (maybe user dependent)
-     * + TODO filter chain do not work properly
+     * Single SPARQL endpoint, redirecting to the actual select endpoint 
+     * when possible
      * 
-     * @param reqHeaders
-     * @return responde
+     * @param query
+     * @param update
+     * @param request
+     * @return
+     * @throws URISyntaxException
      */
-    @OPTIONS
-    @Path("/update")
-    public Response optionsResourceRemote(@HeaderParam("Access-Control-Request-Headers") String reqHeaders) {
-        if(reqHeaders == null) {
-            reqHeaders = "Accept, Content-Type";
-        }
-        return Response.ok()
-                .header("Allow", "POST")
-                .header("Access-Control-Allow-Methods","POST")
-                .header("Access-Control-Allow-Headers", reqHeaders)
-                .header("Access-Control-Allow-Origin",configurationService.getStringConfiguration("sparql.allow_origin","*"))
-                .build();
-
+    @GET
+    public Response get(@QueryParam("query") String query, @QueryParam("update") String update, @Context HttpServletRequest request) throws URISyntaxException {
+    	if (StringUtils.isNotBlank(update)) {
+    		String msg = "update operations are not supported through get"; //or yes?
+    		log.error(msg);
+			return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
+    	} else {
+    		UriBuilder builder = UriBuilder.fromPath(PATH + SELECT);
+    		if (StringUtils.isNotBlank(query)) {    		
+    			builder.replaceQuery(request.getQueryString());
+    		}
+			return Response.seeOther(builder.build()).build();
+		}
+    }
+    
+    /** 
+     * Single endpoint for direct post queries (not yet implemented)
+     * 
+     * @param request
+     * @return
+     */
+    @POST
+    public Response post(@Context HttpServletRequest request) {
+    	//String query = CharStreams.toString(request.getReader());        
+    	//TODO: introspect the query to determine the operation type
+    	String msg = "impossible to determine which type of operation (query/update) the request contains";
+    	log.error(msg);
+		return Response.status(Response.Status.CONFLICT).entity(msg).build();
     }
 
     /**
@@ -116,8 +145,8 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @GET
-    @Path("/select")
-    public Response query(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    @Path(SELECT)
+    public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
         if(resultType == null) {
             List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
             List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
@@ -151,6 +180,28 @@ public class SparqlWebService {
     }
 
     /**
+     * For CORS operations TODO: make it more fine grained (maybe user dependent)
+     * + TODO filter chain do not work properly
+     * 
+     * @param reqHeaders
+     * @return responde
+     */
+    @OPTIONS
+    @Path(UPDATE)
+    public Response optionsResourceRemote(@HeaderParam("Access-Control-Request-Headers") String reqHeaders) {
+        if(reqHeaders == null) {
+            reqHeaders = "Accept, Content-Type";
+        }
+        return Response.ok()
+                .header("Allow", "POST")
+                .header("Access-Control-Allow-Methods", "POST")
+                .header("Access-Control-Allow-Headers", reqHeaders)
+                .header("Access-Control-Allow-Origin", configurationService.getStringConfiguration("sparql.allow_origin","*"))
+                .build();
+
+    }
+    
+    /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
      * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
      * <p/>
@@ -163,9 +214,9 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
-    @Consumes("application/x-www-form-urlencoded")
-    @Path("/select")
-    public Response queryPostForm(@QueryParam("output") String resultType, @FormParam("query") String query, @Context HttpServletRequest request) {
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    @Path(SELECT)
+    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
         try {
             if(resultType == null) {
                 List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
@@ -206,8 +257,8 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
-    @Path("/select")
-    public Response queryPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    @Path(SELECT)
+    public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
         try {
             if(resultType == null) {
                 List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
@@ -250,7 +301,7 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
-    @Path("/snorql")
+    @Path(SNORQL)
     public Response snorqlPost(@FormParam("output") String resultType, @FormParam("query") String query) {
         try {
             return buildQueryResponse(resultType, query);
@@ -275,7 +326,7 @@ public class SparqlWebService {
      * @return empty content in case the update was successful, the error message in case an error occurred
      */
     @GET
-    @Path("/update")
+    @Path(UPDATE)
     public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType,
             @Context HttpServletRequest request) {
         try {
@@ -328,22 +379,21 @@ public class SparqlWebService {
     }
 
     /**
-     * Execute a SPARQL 1.1 Update request passed in the request body of the POST. The update will
-     * be carried out
-     * on the LMF triple store.
-     * <p/>
-     * see SPARQL 1.1 Update syntax at http://www.w3.org/TR/sparql11-update/
+     * Execute a SPARQL 1.1 Update request using update via POST directly; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
      * 
      * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
      *            body of the POST request)
      * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
      * @HTTP 500 in case the update was not successful
      * @return empty content in case the update was successful, the error message in case an error
      *         occurred
      */
     @POST
-    @Path("/update")
-    public Response updatePost(@Context HttpServletRequest request) {
+    @Path(UPDATE)
+    @Consumes("application/sparql-update")
+    public Response updatePostDirectly(@Context HttpServletRequest request) {
         try {
             String query = CharStreams.toString(request.getReader());
             if (StringUtils.isNotBlank(query)) {
@@ -351,10 +401,10 @@ public class SparqlWebService {
                 return Response.ok().build();
             } else
                 return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
-        } catch (MalformedQueryException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build();
+        } catch (MalformedQueryException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
         } catch(UpdateExecutionException e) {
-            log.error("update execution threw an exception",e);
+            log.error("update execution threw an exception", e);
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         } catch (MarmottaException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
@@ -362,8 +412,71 @@ public class SparqlWebService {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         }
     }
+    
+    /**
+     * Execute a SPARQL 1.1 Update request using update via URL-encoded POST; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
+     * 
+     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
+     *            body of the POST request)
+     * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
+     * @HTTP 500 in case the update was not successful
+     * @return empty content in case the update was successful, the error message in case an error
+     *         occurred
+     */
+    @POST
+    @Path(UPDATE)
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
+        try {
+            Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));           
+            if (params.containsKey("update") && StringUtils.isNotBlank(params.get("update"))) {
+                sparqlService.update(QueryLanguage.SPARQL, params.get("update"));
+                return Response.ok().build();
+            } else
+                return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
+        } catch (MalformedQueryException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        } catch(UpdateExecutionException e) {
+            log.error("update execution threw an exception", e);
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        } catch (MarmottaException e) {
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        } catch (IOException e) {
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        }
+    }    
 
-    private Response buildQueryResponse(final String resultType, final String query) throws Exception {
+    /**
+     * Parse the encoded query parameters
+     * 
+     * @todo this should be somewhere already implemented
+     * @param string
+     * @return parameters
+     */
+    private Map<String,String> parseEncodedQueryParameters(String body) {
+    	Map<String,String> params = new HashMap<String,String>();
+        for (String pair : body.split("&")) {
+            int eq = pair.indexOf("=");
+            try {
+	            if (eq < 0) {
+	                // key with no value
+	                params.put(URLDecoder.decode(pair, "UTF-8"), "");
+	            } else {
+	                // key=value
+	                String key = URLDecoder.decode(pair.substring(0, eq), "UTF-8");
+	                String value = URLDecoder.decode(pair.substring(eq + 1), "UTF-8");
+	                params.put(key, value);
+	            }
+            } catch (UnsupportedEncodingException e) {
+            	log.error("Query parameter cannot be decoded: {}", e.getMessage(), e);
+            }
+        }
+		return params;
+	}
+
+	private Response buildQueryResponse(final String resultType, final String query) throws Exception {
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
