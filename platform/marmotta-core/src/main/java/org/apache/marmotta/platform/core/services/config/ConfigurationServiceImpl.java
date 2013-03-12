@@ -226,7 +226,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 log.error("configuration error while loading default configurations",e);
             }
 
-            configDescriptions = new CompositeConfiguration();
+
+            // create the configuration that is responsible for getting metadata about configuration keys in the main
+            // configuration; since the keys will be different, we store changes also to the main save configuration
+            configDescriptions = new FallbackConfiguration();
+            configDescriptions.addConfiguration(saveConfiguration,true);
             try {
                 Enumeration<URL> configs = this.getClass().getClassLoader().getResources("config-descriptions.properties");
                 while(configs.hasMoreElements()) {
