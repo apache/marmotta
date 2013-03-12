@@ -22,6 +22,12 @@ In addition, the source distribution of this product includes the following soft
     License. For copyright details please refer to the individual files under 
     commons/sesame-tools-rio-jsonld/src/ext/ directory.
 
+    The module sesame-tools-rio-jsonld contains data based on JSON-LD Test Suite 
+    (http://github.com/json-ld/json-ld.org/tree/master/test-suite), which is 
+    licensed under the BSD-like license. For copyright details please refer to 
+    the individual files under commons/sesame-tools-rio-jsonld/src/test/resources/
+    directory.
+
     The module marmotta-core contains software based on D3.js  
     (http://d3js.org), which is licensed under the New BSD License.
     For copyright details please refer to the individual file under 
