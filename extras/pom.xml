@@ -31,5 +31,23 @@
     <name>Apache Marmotta Extras: Reactor</name>
     <description>Extra modules for Apache Marmotta, including 3rd party dependencies with incompatible licenses</description>
 
-    
+    <!-- release management -->
+    <build>
+        <plugins>
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

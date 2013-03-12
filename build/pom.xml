@@ -32,6 +32,25 @@
     <name>Marmotta Build Support</name>
     <description>This module contains build support artifacts for building Apache Marmotta and projects building on it.</description>
 
+    <!-- release management -->
+    <build>
+        <plugins>
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <modules>
         <module>archetypes</module>
         <module>plugins</module>
