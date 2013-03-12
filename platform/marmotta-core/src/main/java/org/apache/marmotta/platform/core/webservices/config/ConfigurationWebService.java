@@ -73,22 +73,34 @@ public class ConfigurationWebService {
         HashMap<String,Map<String,Object>> result = new HashMap<String,Map<String,Object>>();
         if(prefix==null) {
             for(String key : configurationService.listConfigurationKeys()) {
-                Map<String,Object> config = new HashMap<String, Object>();
-                config.put("value",configurationService.getConfiguration(key));
-                config.put("comment",configurationService.getComment(key));
-                config.put("type",configurationService.getType(key));
-                result.put(key, config);
+                result.put(key, buildConfigurationMap(key));
             }
         } else {
             for(String key : configurationService.listConfigurationKeys(prefix)) {
-                Map<String,Object> config = new HashMap<String, Object>();
-                config.put("value",configurationService.getConfiguration(key));
-                config.put("comment",configurationService.getComment(key));
-                config.put("type",configurationService.getType(key));
-                result.put(key, config);
+                result.put(key, buildConfigurationMap(key));
             }
         }
         return result;
+    }
+
+    public Map<String,Object> buildConfigurationMap(String key) {
+        Map<String,Object> config = new HashMap<String, Object>();
+        config.put("comment",configurationService.getComment(key));
+        config.put("type",configurationService.getType(key));
+        config.put("value",configurationService.getStringConfiguration(key));
+        if(config.get("type") != null) {
+            String s = (String)config.get("type");
+            int i = s.indexOf("(");
+            if(i > -1)  s = s.substring(i);
+
+            //try cast
+            try {
+                config.put("value",(Class.forName(s).cast(configurationService.getConfiguration(key))));
+            } catch (ClassNotFoundException e) {
+                //value is already set as String
+            }
+        }
+        return config;
     }
 
     /**
