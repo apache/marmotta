@@ -1,5 +1,5 @@
 ### TODO:
-  - add new line
+  - make it extendable
 ###
 ### Configurator for LMF properties ###
 class window.Configurator
@@ -23,7 +23,6 @@ class window.Configurator
       @datatTable.draw @model,@client
       @addValue = new AddValue @options.container, @options.prefix, @options.blacklist, @options.url
       @addValue.onAdd = ->
-        console.log 213
         window.location.reload()
 
     onfailure = ->
@@ -54,6 +53,8 @@ class Model
       else if value.type.match /java.lang.String.*/ then clazz = StringProperty
       else if value.type.match /java.net.URL.*/ then clazz = URIProperty
       else if value.type.match /java.util.List.*/ then clazz = ListProperty
+      else if value.type.match /org.marmotta.†ype.Program/ then clazz = ProgramProperty
+      else if value.type.match /org.marmotta.†ype.Text/ then clazz = TextProperty
       else clazz = Property
 
       @properties.push new clazz property,value
@@ -103,7 +104,7 @@ class Property
 class BooleanProperty extends Property
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
-    @value = @value == "true"
+    @value = if @value instanceof String then @value == "true" else @value
     @checkbox = $('<input type="checkbox">')
     @checkbox.change =>
       @onchange @
@@ -297,15 +298,15 @@ class TextProperty extends Property
     @input.val(@value)
     @view.append(@tdtitle).append $("<td></td>").append @input
 
-### a textarea for Solr Programs (not editable) ###
-class SolrProgramProperty extends TextProperty
+### a textarea for Programs (not editable) ###
+class ProgramProperty extends TextProperty
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
     @input.addClass "config_solrprorgamfield"
     @input.attr "readonly","readonly"
     @input.unbind "keydown"
     @input.keydown ->
-      alert "not editable here, try configuration interface in search module"
+      alert "not editable here, try configuration interface for program!"
 
   hasChanged:->
     false
@@ -515,7 +516,6 @@ class Client
       str = ""
       data = []
       for value,index in model.properties
-        console.log model.properties.length,index
         if value.hasChanged()
           data.push(value)
           str += value.key + ":" + value.getValue()
