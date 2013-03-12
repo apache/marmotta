@@ -87,19 +87,22 @@ public class ConfigurationWebService {
         Map<String,Object> config = new HashMap<String, Object>();
         config.put("comment",configurationService.getComment(key));
         config.put("type",configurationService.getType(key));
-        config.put("value",configurationService.getStringConfiguration(key));
-        if(config.get("type") != null) {
+        config.put("value",configurationService.getConfiguration(key));
+        /*if(config.get("type") != null) {
             String s = (String)config.get("type");
             int i = s.indexOf("(");
             if(i > -1)  s = s.substring(i);
 
             //try cast
             try {
+                log.info(Class.forName(s).toString());
                 config.put("value",(Class.forName(s).cast(configurationService.getConfiguration(key))));
             } catch (ClassNotFoundException e) {
                 //value is already set as String
+            } catch (ClassCastException e) {
+                //value is already set as String
             }
-        }
+        }    */
         return config;
     }
 
