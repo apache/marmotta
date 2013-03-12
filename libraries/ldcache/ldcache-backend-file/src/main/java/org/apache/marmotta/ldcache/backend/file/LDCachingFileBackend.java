@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.apache.marmotta.ldcache.backend.file;
 
@@ -31,89 +31,94 @@ import org.slf4j.LoggerFactory;
  */
 public class LDCachingFileBackend implements LDCachingBackend {
 
-	private static Logger log = LoggerFactory.getLogger(LDCachingFileBackend.class);
-	
-	private final File storageDir;
+    private static Logger log = LoggerFactory.getLogger(LDCachingFileBackend.class);
+
+    private final File storageDir;
 
     private Repository cacheRepository;
 
-	public LDCachingFileBackend(File storageDir) throws RepositoryException {
-		if (storageDir == null) throw new NullPointerException(); 
-		this.storageDir = storageDir;
+    public LDCachingFileBackend(File storageDir) throws RepositoryException {
+        if (storageDir == null) throw new NullPointerException();
+        this.storageDir = storageDir;
+
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#getCacheConnection(java.lang.String)
+     */
+    @Override
+    public LDCachingConnection getCacheConnection(String resource) throws RepositoryException {
+
+        return new LDCachingFileRepositoryConnection(cacheRepository, cacheRepository.getConnection(), storageDir);
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listExpiredEntries()
+     */
+    @Override
+    public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries()
+            throws RepositoryException {
+        final Date now = new Date();
+        return new FilterIteration<CacheEntry, RepositoryException>(listCacheEntries()) {
+
+            @Override
+            protected boolean accept(CacheEntry object)
+                    throws RepositoryException {
+                return object.getExpiryDate().after(now);
+            }
+        };
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listCacheEntries()
+     */
+    @Override
+    public CloseableIteration<CacheEntry, RepositoryException> listCacheEntries()
+            throws RepositoryException {
+
+        final IteratorIteration<File, RepositoryException> ii = new IteratorIteration<File, RepositoryException>(FileBackendUtils.listMetaFiles(storageDir).iterator());
+        return new ConvertingIteration<File, CacheEntry, RepositoryException>(ii) {
+
+            @Override
+            protected CacheEntry convert(File sourceObject)
+                    throws RepositoryException {
+                try {
+                    return FileBackendUtils.readCacheEntry(sourceObject, cacheRepository.getValueFactory());
+                } catch (IOException e) {
+                    log.warn("Could not read caching properties from '{}'", sourceObject.getPath());
+                    throw new RepositoryException(e);
+                }
+            }
+
+        };
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#initialize()
+     */
+    @Override
+    public void initialize() {
+        if (!storageDir.exists() && !storageDir.mkdirs()){
+            log.error("Could not create storage directory: " + storageDir.getPath());
+        } else if (!storageDir.isDirectory()) {
+            log.error(storageDir.getPath() + " is not a directory");
+        }
 
         File tripleDir = new File(storageDir,"triples");
 
-        cacheRepository = new SailRepository(new NativeStore(tripleDir, "spoc"));
-        cacheRepository.initialize();
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.apache.marmotta.ldcache.api.LDCachingBackend#getCacheConnection(java.lang.String)
-	 */
-	@Override
-	public LDCachingConnection getCacheConnection(String resource) throws RepositoryException {
-		
-		return new LDCachingFileRepositoryConnection(cacheRepository, cacheRepository.getConnection(), storageDir);
-	}
+        try {
+            cacheRepository = new SailRepository(new NativeStore(tripleDir, "spoc"));
+            cacheRepository.initialize();
+        } catch (RepositoryException ex) {
+            log.error("could not initialize cache directory",ex);
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listExpiredEntries()
-	 */
-	@Override
-	public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries()
-			throws RepositoryException {
-		final Date now = new Date();
-		return new FilterIteration<CacheEntry, RepositoryException>(listCacheEntries()) {
-
-			@Override
-			protected boolean accept(CacheEntry object)
-					throws RepositoryException {
-				return object.getExpiryDate().after(now);
-			}
-		};
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listCacheEntries()
-	 */
-	@Override
-	public CloseableIteration<CacheEntry, RepositoryException> listCacheEntries()
-			throws RepositoryException {
-		
-		final IteratorIteration<File, RepositoryException> ii = new IteratorIteration<File, RepositoryException>(FileBackendUtils.listMetaFiles(storageDir).iterator());
-		return new ConvertingIteration<File, CacheEntry, RepositoryException>(ii) {
-
-			@Override
-			protected CacheEntry convert(File sourceObject)
-					throws RepositoryException {
-				try {
-					return FileBackendUtils.readCacheEntry(sourceObject, cacheRepository.getValueFactory());
-				} catch (IOException e) {
-					log.warn("Could not read caching properties from '{}'", sourceObject.getPath());
-					throw new RepositoryException(e);
-				}
-			}
-			
-		};
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.marmotta.ldcache.api.LDCachingBackend#initialize()
-	 */
-	@Override
-	public void initialize() {
-		if (!storageDir.exists() && !storageDir.mkdirs()){
-			log.error("Could not create storage directory: " + storageDir.getPath());
-		} else if (!storageDir.isDirectory()) {
-			log.error(storageDir.getPath() + " is not a directory");
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.apache.marmotta.ldcache.api.LDCachingBackend#shutdown()
-	 */
-	@Override
-	public void shutdown() {
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#shutdown()
+     */
+    @Override
+    public void shutdown() {
         try {
             cacheRepository.shutDown();
         } catch (RepositoryException e) {
