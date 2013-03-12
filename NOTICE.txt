@@ -84,10 +84,11 @@ In addition, the source distribution of this product includes the following soft
 
 In addition, the binary distribution of this product includes the following software:
 
-    The module marmotta-installer bundles Apache Tomcat (http://tomcat.apache.org), 
-    which is licensed under the Apache License 2.0.
+    The module marmotta-installer bundles IzPack (http://izpack.org) and Apache 
+    Tomcat (http://tomcat.apache.org), which both are licensed under the Apache 
+    License 2.0.
 
-    The module marmotta-webapp pachages together all dependencies, including
+    The module marmotta-webapp packages together all dependencies, including
     transitive ones. For copyright details please refer to the dependencies 
-    declared at the pom.xml files.
+    declared at build configuration files.
 
