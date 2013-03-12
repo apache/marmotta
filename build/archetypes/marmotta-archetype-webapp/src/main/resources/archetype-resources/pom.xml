@@ -28,24 +28,9 @@
     <artifactId>${artifactId}</artifactId>
     <packaging>war</packaging>
 
-    <name>LMF Web Application</name>
-    <description>Web Application bundle (WAR file) containing the complete Linked Media Framework</description>
+    <name>Marmotta Web Application</name>
+    <description>Web Application bundle (WAR file) containing Marmotta</description>
     <version>${version}</version>
-
-    <repositories>
-        <repository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <properties>
         <!-- these are used for the goals tomcat6/7:run or jetty:run -->

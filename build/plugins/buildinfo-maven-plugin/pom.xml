@@ -115,18 +115,4 @@
          </resources>
     </build>
 
-
-    <distributionManagement>
-        <repository>
-            <id>snml.releases</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snml.snapshots</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
 </project>

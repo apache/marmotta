@@ -27,24 +27,9 @@
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
 
-    <name>LMF Module: ${moduleName}</name>
+    <name>Marmotta Module: ${moduleName}</name>
     <description></description>
     <version>${version}</version>
-
-    <repositories>
-        <repository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>snml</id>
-            <name>Salzburg NewMediaLab Repository</name>
-            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -108,7 +93,6 @@
             <artifactId>jatl</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 
