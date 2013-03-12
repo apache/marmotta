@@ -14,11 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
-    <id>webapp</id>
+    <id>installer</id>
 
     <formats>
         <format>zip</format>
@@ -36,9 +37,10 @@
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../../README.txt</source>
+            <source>${project.basedir}/src/main/resources/installer/README.txt</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
+            <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/../../NOTICE.txt</source>
@@ -46,7 +48,7 @@
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.build.directory}/marmotta.war</source>
+            <source>${project.build.directory}/marmotta-installer-${project.version}.jar</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

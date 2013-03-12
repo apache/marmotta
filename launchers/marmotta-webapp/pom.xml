@@ -166,7 +166,7 @@
             </build>
         </profile>
         <profile>
-            <id>dist</id>
+            <id>apache-release</id>
             <build>
                 <plugins>
                     <plugin>
@@ -181,6 +181,7 @@
                                     <descriptors>
                                         <descriptor>assembly.xml</descriptor>
                                     </descriptors>
+                                    <finalName>apache-marmotta-${project.version}</finalName>
                                 </configuration>
                             </execution>
                         </executions>
