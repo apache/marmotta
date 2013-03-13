@@ -19,8 +19,7 @@ package org.apache.marmotta.platform.core.test.config;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 
 import java.io.IOException;
 
@@ -108,5 +107,29 @@ public class ConfigurationWebServiceTest {
         when().
         get("/config/data/mykey");
     }
+
+    /*@Test
+    TODO fix bug in congigurationService (MARMOTTA-147)
+    public void testSetConfigurationTypesAndComments() throws IOException {
+        given().
+        header("Content-Type","application/json").
+        queryParam("type","java.lang.Boolean").
+        queryParam("comment","This is a comment").
+        content(mapper.writeValueAsString(Lists.newArrayList(true))).
+        expect().
+        statusCode(200).
+        when().
+        post("/config/data/mykey2");
+
+        given().
+        queryParam("prefix","mykey2").
+        expect().
+        statusCode(200).
+        body("mykey2.value", hasValue(true)).
+        body("mykey2.type", hasValue("java.lang.Boolean")).
+        body("mykey2.description", hasValue("This is a comment")).
+        when().
+        get("/config/list");
+    }*/
 
 }

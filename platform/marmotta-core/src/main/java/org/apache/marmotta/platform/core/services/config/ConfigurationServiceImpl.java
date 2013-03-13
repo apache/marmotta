@@ -964,6 +964,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         lock.writeLock().lock();
         try {
             config.clearProperty(key);
+            configDescriptions.clearProperty(key+".type");
+            configDescriptions.clearProperty(key+".description");
         } finally {
             lock.writeLock().unlock();
         }

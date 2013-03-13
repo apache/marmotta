@@ -88,24 +88,20 @@ public class ConfigurationWebService {
         Map<String,Object> config = new HashMap<String, Object>();
         config.put("comment",configurationService.getComment(key));
         config.put("type",configurationService.getType(key));
-        try {
-            config.put("value",configurationService.getStringConfiguration(key));
-        } catch (ConversionException ex) {
-            config.put("value",configurationService.getConfiguration(key));
-        }
-        if(config.get("type") != null) {
-            String s = (String)config.get("type");
-            int i = s.indexOf("(");
-            if(i > -1)  s = s.substring(i);
-
-            //try cast
+        config.put("value",configurationService.getConfiguration(key));
+        if (config.get("type") != null) {
             try {
-                config.put("value",(Class.forName(s).cast(configurationService.getConfiguration(key))));
-            } catch (ClassCastException e) {
-                //value is already set as String
-            } catch (ClassNotFoundException e) {
-                //type class does not exist
-                log.warn("the Java type {} does not exist",s);
+                if (((String) config.get("type")).startsWith("java.lang.Integer")) {
+                    config.put("value", configurationService.getIntConfiguration(key));
+                } else if (((String) config.get("type")).startsWith("java.lang.Boolean")) {
+                    config.put("value", configurationService.getBooleanConfiguration(key));
+                } else if (((String) config.get("type")).startsWith("java.lang.Double")) {
+                    config.put("value", configurationService.getDoubleConfiguration(key));
+                } else if (((String) config.get("type")).startsWith("java.lang.Long")) {
+                    config.put("value", configurationService.getLongConfiguration(key));
+                }
+            } catch (ConversionException e) {
+                log.warn("key {} cannot be converted to given type {}", key, config.get("type"));
             }
         }
         return config;
