@@ -28,9 +28,9 @@
 <!--###BEGIN_CONTENT###-->
 <h1><a name="Introduction"></a>Introduction<a class="section_anchor" href="#Introduction"></a></h1>
 
-<p>The Linked Media Framework offers versioning services that keep track of any resource updates in the triple store.
+<p>TApache Marmotta offers versioning services that keep track of any resource updates in the triple store.
     Versioning is transaction based, i.e. every time a transaction is committed successfully, a new version entry is
-    created by the versioning services. The LMF currently supports listing versions (system-wide and for a single resource)
+    created by the versioning services. Marmotta currently supports listing versions (system-wide and for a single resource)
     as well as inspecting "snapshots" (i.e. going back in time).
 </p>
 
@@ -38,7 +38,7 @@
 <h1><a name="Versions"></a>Version Access<a class="section_anchor" href="#Versions"></a></h1>
 
 <p>
-    The LMF provides basic access to versioning information through the /versions web service:    
+    Marmotta provides basic access to versioning information through the /versions web service:    
 </p>
 <ul>
     <li>/versions/list (optionally with parameters resource, offset, limit) will list all versions of the system or all versions of the specified resource</li>
@@ -66,22 +66,22 @@
 </p>
 <h3>Examples</h3>
 <p>
-    Retrieve version 6 of resource http://localhost:8080/LMF/resource/1234:
+    Retrieve version 6 of resource http://localhost:8080/marmotta/resource/1234:
 </p>
 <pre>
-    http://localhost:8080/LMF/snapshot?resource=http%253A%252F%252Flocalhost%253A8080%252FLMF%252Fresource%252F1234&version=6
+    http://localhost:8080/marmotta/snapshot?resource=http%253A%252F%252Flocalhost%253A8080%252Fmarmotta%252Fresource%252F1234&version=6
 </pre>
 
 
 <h1><a name="Memento"></a>Memento Support<a class="section_anchor" href="#Memento"></a></h1>
 
 <p>
-    In case the versioning.memento configuration property is enabled, the LMF also provides support for the
+    In case the versioning.memento configuration property is enabled, Marmotta also provides support for the
     <a href="http://www.mementoweb.org/guide/rfc/ID/">Memento specification</a>, which allows access to earlier
     versions of a resource through an extension of the HTTP protocol. 
 </p>
 <p>
-    In case memento support is enabled, the LMF resource web service will produce additional "Link:" headers for
+    In case memento support is enabled, the Marmotta resource web service will produce additional "Link:" headers for
     each resource request pointing back to the Memento timegate service (located at /timegate?resource=...) provided
     by the versioning module. Depending on the Accept-Datetime header, the timegate service will redirect to the
     appropriate snapshot of the resource.
