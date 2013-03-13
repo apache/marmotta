@@ -86,27 +86,12 @@ BBgRAgAGBQI1sgJhAAoJEIqASE316ZfsaB4AnR16p3ywm9d67dViWW/9cbSSIbFs
 AJsE8XyNlHoLOqcpGPs2VnJYzfCLTw==
 =cHk+
 -----END PGP PUBLIC KEY BLOCK-----
+
 pub   4096R/F5CFD915 2011-04-27
+      Key fingerprint = 0C32 51F8 1B9E 6AAE 51C1  6A36 3625 90A7 F5CF D915
 uid                  Jakob Frank <jakob@apache.org>
-sig 3        F5CFD915 2013-03-13  Jakob Frank <jakob@apache.org>
 uid                  Jakob Frank <jakob.frank@salzburgresearch.at>
-sig 3        F5CFD915 2013-03-13  Jakob Frank <jakob@apache.org>
-sig          65422A3D 2012-11-10  Juan Pablo Santos Rodríguez <juanpablo.santos@gmail.com>
-sig          30B94B5C 2012-11-12  依瑪貓 (imacat) <imacat@mail.imacat.idv.tw>
-sig 3        88817402 2012-11-08  Thomas Vandahl <thomas@vandahl.org>
-sig          EEED47DA 2012-11-07  Ioan Eugen Stan (ieugen) <stan.ieugen@gmail.com>
-sig          6428BDBA 2012-11-10  Christian Schneider <chris@die-schneider.net>
-sig          F5CBAE6B 2012-11-07  Akitoshi Yoshida (CODE SIGNING KEY) <ay@apache.org>
-sig          3E3CB8C9 2012-11-09  Herbert Dürr (CODE SIGNING KEY) <hdu@apache.org>
-sig          02E9F65B 2012-11-07  Luc Maisonobe (CODE SIGNING KEY) <luc@apache.org>
-sig          51B5FDE8 2012-11-09  Juergen Schmidt <jogischmidt@googlemail.com>
-sig 3        0D8D0B93 2012-11-07  Jan Høydahl (CODE SIGNING KEY) <janhoy@apache.org>
-sig        1 16A0DE01 2012-11-12  Ben Reser <ben@reser.org>
-sig 3        47E4610C 2012-11-18  Martin Goldhahn <mgoldhahn@gmail.com>
-sig          0BD936F1 2012-11-13  Ivan Habunek (Apache Codesigning) <ihabunek@apache.org>
-sig 3        F5CFD915 2011-04-27  Jakob Frank <jakob@apache.org>
 sub   4096R/9E27658E 2011-04-27
-sig          F5CFD915 2011-04-27  Jakob Frank <jakob@apache.org>
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.11 (GNU/Linux)
