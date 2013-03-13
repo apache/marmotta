@@ -72,6 +72,16 @@ In addition, the source distribution of this product includes the following soft
     For copyright details please refer to the individual files under 
     platform/marmotta-ldpath/src/main/resources/web/cm/ directory.
 
+    The module marmotta-splash contains software based on MigLayout 
+    (http://www.miglayout.com), which is licensed under the New BSD License. 
+    For copyright details please refer to the individual files under 
+    launchers/marmotta-splash/src/ext/ directory.
+
+    The module marmotta-splash contains software based on SwingBits 
+    (http://github.com/eugener/oxbow), which is licensed under the New BSD 
+    License. For copyright details please refer to the individual files under 
+    launchers/marmotta-splash/src/ext/ directory.   
+
     The module sesame-tools-rio-rss contains software based on rometools 
     (http://www.rometools.org), which is licensed under the Apache License 2.0. 
     For copyright details please refer to the individual files under 
