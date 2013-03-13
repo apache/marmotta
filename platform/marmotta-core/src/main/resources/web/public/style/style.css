@@ -111,6 +111,10 @@ a#logo img {
 	font-family: monospace;
 }
 
+#content li {
+    line-height: 1.5;
+}
+
 #footer {
     width:100%;
 }
