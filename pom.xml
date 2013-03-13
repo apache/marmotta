@@ -193,6 +193,7 @@
             </properties>
             <build>
                 <plugins>
+
                     <!-- sign artifacts on release -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -211,7 +212,6 @@
                                         <exclude>**/*.sha1</exclude>
                                     </excludes>
                                 </configuration>
-
                             </execution>
                         </executions>
                     </plugin>
@@ -241,7 +241,6 @@
                             </execution>
                         </executions>
                     </plugin>
-
 
                     <!-- assemble the project source artifacts -->
                     <plugin>
