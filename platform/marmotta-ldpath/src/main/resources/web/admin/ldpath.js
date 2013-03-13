@@ -17,7 +17,7 @@
  */
 /* CORE MANAGEMENT */
 $(function() {
-    var cService = _SERVER_URL + 'solr/cores/';
+    var cService = _SERVER_URL + 'ldpath/';
     
     var editor = null;
 	var editorContainer = $("#editor");
@@ -42,6 +42,7 @@ $(function() {
 	    }
 
 	
+/*
 	function loadTemplateNames() {
 		$('#chooserStatus').addClass('loading').text('Loading...').show();
 		templateChooser.empty().append($('<option />').text('--').val(''));
@@ -54,7 +55,9 @@ $(function() {
 			});
 		});
 	}
+*/
 
+/*
 	function loadTemplate(template) {
 		var body = $("textarea", editorContainer);
 		if (template !== "") {
@@ -69,20 +72,7 @@ $(function() {
 		}
 		if (editor) editor.refresh();
 	}
-
-	function checkProgram(program, handler) {
-		$.ajax(cService, {
-			type: 'POST',
-			data: program,
-			contentType: "text/plain",
-			success: function(data) {
-				if (handler) handler(true, data)
-			},
-			error: function(xhr) {
-				if (handler) handler(false, xhr.responseText);
-			}
-		});
-	}
+*/
 
 	function runTest() {
 		if (editor) editor.save();
@@ -112,7 +102,7 @@ $(function() {
                         var v = $("<td>").appendTo(row);
                         if ($.isArray(data[ctx][field])) {
                             for (var i in data[ctx][field]) {
-                                v.append($('<div class="fieldValue">').text(data[ctx][field][i]));
+                                v.append($('<div class="fieldValue">').text(data[ctx][field][i].value));
                             }
                         } else {
                             v.text(result[key]);
@@ -128,12 +118,14 @@ $(function() {
 		});
 	}
 	
+/*
 	templateChooser.change(function() {
 		var opt = $(':selected', $(this));
 		var template = opt.val();
 		loadTemplate(template);
 	});
-	
+*/
+
 	function addTestContext(uri) {
 	    (function() {
 	        var c = $("#test_context");
@@ -162,13 +154,13 @@ $(function() {
         $.getJSON(_SERVER_URL + "ldpath/util/namespaces", function(data) {
             defaultNamespaces = data;
         }).complete(function() {
-          editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+          editor = CodeMirror.fromTextArea(document.getElementById("ldpath"), {
               lineNumbers : true,
               matchBrackets : true,
               extraKeys: {"Ctrl-Space": "ldpathAutocomplete"},
               mode : {
                 name: "ldpath",
-                baseURL: _BASE_URL,
+                baseURL: _SERVER_URL,
                 namespaces: defaultNamespaces
               }
           });
@@ -192,5 +184,5 @@ $(function() {
     $("button#runTest").click(runTest);
     
     createCodeMirror();
-	loadTemplateNames();
+//	loadTemplateNames();
 });

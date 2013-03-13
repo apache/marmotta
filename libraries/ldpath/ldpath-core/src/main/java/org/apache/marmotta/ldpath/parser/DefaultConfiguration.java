@@ -60,6 +60,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
         defNS.put("skos", "http://www.w3.org/2004/02/skos/core#");
         defNS.put("foaf", "http://xmlns.com/foaf/0.1/");
         defNS.put("dc", "http://purl.org/dc/elements/1.1/");
+        defNS.put("dct", "http://purl.org/dc/terms/");
         defNS.put("xsd", "http://www.w3.org/2001/XMLSchema#");
         defNS.put("lmf", "http://www.newmedialab.at/lmf/types/1.0/");
         defNS.put("fn", Constants.NS_LMF_FUNCS);

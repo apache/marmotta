@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.ldpath.webservices;
 import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
@@ -39,10 +40,13 @@ import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import java.io.IOException;
 import java.text.Collator;
 import java.util.*;
 
@@ -198,7 +202,10 @@ public class LDPathWebService {
     /**
      * Return a list of all LDPath functions that have been registered in the LDPath installation.
      *
-     * @return
+     * @HTTP 200 in case the functions exist; will return the function descriptions
+     * @HTTP 500 in case there was an error accessing the triple store
+     *
+     * @return a list of JSON maps with the fields "name", "signature" and "description"
      */
     @GET
     @Path("/functions")
@@ -236,9 +243,13 @@ public class LDPathWebService {
     }
 
     /**
-     * Return a list of all LDPath functions that have been registered in the LDPath installation.
+     * Return a description of the function whose name is passed as path argument.
      *
-     * @return
+     * @HTTP 200 in case the function exists; will return the function description
+     * @HTTP 404 in case the function does not exist
+     * @HTTP 500 in case there was an error accessing the triple store
+     *
+     * @return a JSON map with the fields "name", "signature" and "description"
      */
     @GET
     @Path("/functions/{name}")
@@ -270,14 +281,90 @@ public class LDPathWebService {
         }
     }
 
-    @GET
-    @Path("/play/test/program")
-    @Produces("application/json")
-    public Response testProgram(@QueryParam("program") String program, @QueryParam("uri") String[] resourceUri) {
-        if (resourceUri != null && resourceUri.length > 0)
-            return evaluateProgramQuery(program, resourceUri[0]);
-        return Response.status(Status.BAD_REQUEST).build();
-    }
+    /**
+     * Evaluate the LDPath program send as byte stream in the POST body of the request starting at the contexts (array)
+     * given as URL query arguments. Will return a JSON map with an entry for each context and its evaluation result.
+     * The value of each entry will have the following format:
+     * <ul>
+     * <li><code>{ "type": "uri", "value": "..." }</code> for resources</li>
+     * <li><code>{ "type": "literal", "value": "...", "language": "...", "datatype": "..."}</code> for literals (datatype and language optional)</li>
+     * </ul>
 
+     *
+     * @HTTP 200 in case the evaluation was successful for all contexts
+     * @HTTP 400 in case the LDPath program was invalid
+     * @HTTP 404 in case one of the contexts passed as argument does not exist
+     * @HTTP 500 in case there was an error accessing the repository or reading the POST body
+     *
+     * @param contextURI     the URI of a single context to evaluate the program against
+     * @param contextURIarr  an array of URIs to use as contexts to evaluate the program against
+     * @param request        a POST request containing the LDPath program in the POST body
+     * @return a JSON map with an entry for each context pointing to its evaluation result (another map with field/value pairs)
+     */
+    @POST
+    @Path("/debug")
+    @Produces("application/json")
+    public Response testProgram(@QueryParam("context") String[] contextURI, @QueryParam("context[]") String[] contextURIarr,  @Context HttpServletRequest request) {
+        final String[] cs = contextURI != null ? contextURI : contextURIarr;
+
+        try {
+            // 1. read in the program from the post stream
+            String program = IOUtils.toString(request.getReader());
+
+            // 2. auto-register all namespaces that are defined in the triple store
+            Map<String,String> namespaces = new HashMap<String, String>();
+            RepositoryConnection con = sesameService.getConnection();
+            try {
+                con.begin();
+                for(Namespace ns : iterable(con.getNamespaces())) {
+                    namespaces.put(ns.getPrefix(),ns.getName());
+                }
+
+                // 3. iterate over all context uris passed as argument and run the path query, storing the results
+                //    in a hashmap where the context uris are the keys and a result map is the value
+                HashMap<String, Object> combined = new HashMap<String, Object>();
+                for(String context : cs) {
+                    if (ResourceUtils.isSubject(con, context)) {
+                        URI resource = con.getValueFactory().createURI(context);
+
+                        Map<String,List<Map<String,String>>> result = new HashMap<String, List<Map<String, String>>>();
+
+                        try {
+                            for(Map.Entry<String,Collection<?>> row : ldPathService.programQuery(resource,program).entrySet()) {
+                                List<Map<String,String>> rowList = new ArrayList<Map<String, String>>();
+                                for(Object o : row.getValue()) {
+                                    if(o instanceof KiWiNode) {
+                                        rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
+                                    } else {
+                                        // we convert always to a literal
+                                        rowList.add(JSONUtils.serializeNodeAsJson(new KiWiStringLiteral(o.toString())));
+                                    }
+                                }
+                                result.put(row.getKey(),rowList);
+                            }
+
+                            combined.put(context,result);
+                        } catch (LDPathParseException e) {
+                            log.warn("parse error while evaluating program {}: {}", program, e.getMessage());
+                            return Response.status(Response.Status.BAD_REQUEST).entity("parse error while evaluating program: "+e.getMessage()).build();
+                        }
+                    }  else {
+                        return Response.status(Response.Status.NOT_FOUND).entity("resource "+context+" does not exist").build();
+                    }
+                }
+
+
+                return Response.ok(combined).build();
+            } finally {
+                con.commit();
+                con.close();
+            }
+        } catch (RepositoryException ex) {
+            handleRepositoryException(ex,LDPathWebService.class);
+            return Response.serverError().entity("error accessing RDF repository: "+ex.getMessage()).build();
+        } catch(IOException ex) {
+            return Response.serverError().entity("error reading program from stream: "+ex.getMessage()).build();
+        }
+    }
 
 }

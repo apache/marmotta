@@ -20,11 +20,11 @@
 <html>
 <head>
 <script type="text/javascript">
-	var _SERVER_URL = "http://localhost:8080/LMF/";
+	var _SERVER_URL = "http://localhost:8080/";
 </script>
 <!--###BEGIN_HEAD###-->
 <title>LDPath Test Suite</title>
-<script type="text/javascript" src="../../core/public/js/lib/jquery-1.6.4.js"></script>
+<script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript" src="../../core/public/js/lib/lmf-0.0.1.js"></script>
 <script type="text/javascript" src="../cm/codemirror.js"></script>
 <script type="text/javascript" src="../cm/simple-hint.js"></script>
@@ -52,7 +52,9 @@
       <h2>LDPath</h2>
       <div>
         <div class="chooseEditor"><a href="#" title="use smart editor" class="editor_cm">rich</a> | <a href="#" title="use plain text editor" class="editor_plain">plain</a></div>
+<!--
         <label for="templates">Select Template:</label><select id="templates"></select>&nbsp;<span id="chooserStatus" class="icon loading">Loading...</span>
+-->
       </div>
       <div>
         <div class="editor_wrap"><textarea id="ldpath"></textarea></div>

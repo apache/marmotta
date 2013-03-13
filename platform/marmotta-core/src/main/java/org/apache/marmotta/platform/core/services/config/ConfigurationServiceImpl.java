@@ -82,7 +82,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
 
-    private String  configFile;
+    private String configFileName, metaFileName;
 
     /**
      * The configuration wrapper, loads first the stored configuration and then all stored configuration options
@@ -93,6 +93,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * The backend for storing configuration values, usually ${marmotta.home}/system-config.properties
      */
     private Configuration saveConfiguration;
+
+    /**
+     * The backend for storing metadata about configuration values, usually ${marmotta.home}/system-meta.properties
+     */
+    private Configuration saveMetadata;
 
     /**
      * The metadata about the configuration options
@@ -190,21 +195,35 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // the save configuration will be in the  home directory
             try {
                 if (getHome() != null) {
-                    configFile = getHome() + File.separator + "system-config.properties";
-                    File f = new File(configFile);
-                    if (!f.exists()) {
-                        log.info("creating system configuration in configuration file {}", f.getAbsolutePath());
+                    configFileName = getHome() + File.separator + "system-config.properties";
+                    metaFileName = getHome() + File.separator + "system-meta.properties";
+
+                    File configFile = new File(configFileName);
+                    if (!configFile.exists()) {
+                        log.info("creating system configuration in configuration file {}", configFile.getAbsolutePath());
                     } else {
-                        log.info("reading system configuration from existing configuration file {}", f.getAbsolutePath());
+                        log.info("reading system configuration from existing configuration file {}", configFile.getAbsolutePath());
                     }
-                    saveConfiguration = new PropertiesConfiguration(f);
+                    saveConfiguration = new PropertiesConfiguration(configFile);
+
+
+                    File metaFile = new File(metaFileName);
+                    if (!metaFile.exists()) {
+                        log.info("creating system configuration metadata in configuration file {}", metaFile.getAbsolutePath());
+                    } else {
+                        log.info("reading system configuration metadata from existing configuration file {}", metaFile.getAbsolutePath());
+                    }
+                    saveMetadata = new PropertiesConfiguration(metaFile);
+
                 } else {
                     log.error("error while initialising configuration: no marmotta.home property given; creating memory-only configuration");
                     saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
+                    saveMetadata      = new MapConfiguration(new HashMap<String, Object>());
                 }
             } catch (Exception e) {
-                log.error("error while initialising configuration file {}: {}; creating memory-only configuration", configFile, e.getMessage());
+                log.error("error while initialising configuration file {}: {}; creating memory-only configuration", configFileName, e.getMessage());
                 saveConfiguration = new MapConfiguration(new HashMap<String, Object>());
+                saveMetadata      = new MapConfiguration(new HashMap<String, Object>());
             }
             config = new FallbackConfiguration();
             config.addConfiguration(saveConfiguration,true);
@@ -243,7 +262,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // create the configuration that is responsible for getting metadata about configuration keys in the main
             // configuration; since the keys will be different, we store changes also to the main save configuration
             configDescriptions = new FallbackConfiguration();
-            configDescriptions.addConfiguration(saveConfiguration,true);
+            configDescriptions.addConfiguration(saveMetadata,true);
             try {
                 Enumeration<URL> configs = this.getClass().getClassLoader().getResources("config-descriptions.properties");
                 while(configs.hasMoreElements()) {
@@ -1088,6 +1107,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 ((PropertiesConfiguration)saveConfiguration).save();
             } catch (ConfigurationException e) {
                 log.error("could not save system configuration: #0", e.getMessage());
+            }
+        }
+
+        if(saveMetadata instanceof PropertiesConfiguration) {
+            try {
+                ((PropertiesConfiguration)saveMetadata).save();
+            } catch (ConfigurationException e) {
+                log.error("could not save system metadata: #0", e.getMessage());
             }
         }
     }

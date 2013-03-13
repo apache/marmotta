@@ -1,8 +1,6 @@
-Apache Marmotta
-Copyright 2012-2013 The Apache Software Foundation
+Apache Marmotta, Copyright 2012-2013 The Apache Software Foundation
 
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
+This product includes software developed at The Apache Software Foundation (http://www.apache.org/).
 
 Portions of this software were originally based on the following:
 
@@ -10,91 +8,39 @@ Portions of this software were originally based on the following:
 
 These have been licensed to the Apache Software Foundation under a software grant.
 
-In addition, the source distribution of this product includes the following software:
+In addition, the distribution of this product contains:
 
-    The module marmotta-core contains software based on D3.js  
-    (http://d3js.org), which is licensed under the New BSD License.
-    For copyright details please refer to the individual file under 
-    platform/marmotta-core/src/main/resources/web/admin/js/lib/d3.v2.min.js
+  - software based on Apache Tomcat licensed under Apache License 2.0
 
-    The module marmotta-core contains software based on Dracula Graph Library 
-    (http://www.graphdracula.net/tag/raphael/), which is licensed under the MIT 
-    License. For copyright details please refer to the individual file under 
-    platform/marmotta-core/src/main/resources/web/admin/js/lib/raphael-dracula.pack.min.js
+  - software based on IzPack licensed under Apache License 2.0
 
-    The module marmotta-core contains software based on strftime for Javascript 
-    (http://www.graphdracula.net/tag/raphael/), which is licensed under the New BSD
-    License. For copyright details please refer to the individual file under 
-    platform/marmotta-core/src/main/resources/web/public/js/lib/strftime.js
+  - software based on D3.js licensed under New BSD License
 
-    The module marmotta-core contains software based on JQuery  
-    (http://jquery.com), which is distributable under the terms of the MIT 
-    License. For copyright details please refer to the individual 
-    files under platform/marmotta-core/src/main/resources/web/public/js/lib/
-    directory.
+  - software based on Dracula Graph Library licensed under MIT License
 
-    The module marmotta-sparql contains software based on CodeMirror  
-    (http://codemirror.net), which is licensed under the Apache License 2.0. 
-    For copyright details please refer to the individual files under 
-    platform/marmotta-sparql/src/main/resources/web/cm/ directory.
+  - software based on strftime licensed under New BSD License
 
-    The module marmotta-sparql contains software based on Snorql 
-    (http://www4.wiwiss.fu-berlin.de/bizer/d2r-server), which is licensed under 
-    the Apache License 2.0. For copyright details please refer to the individual 
-    files under platform/marmotta-sparql/src/main/resources/web/admin/snorql/ 
-    directory.
+  - software based on JQuery licensed under MIT License
 
-    The module marmotta-sparql contains software based on script.aculo.us  
-    (http://script.aculo.us), which is licensed under the Apache License 2.0. 
-    For copyright details please refer to the individual files under 
-    platform/marmotta-sparql/src/main/resources/web/admin/snorql/scriptaculous/ 
-    directory.
+  - software based on CodeMirror licensed under Apache License 2.0
 
-    The module marmotta-sparql contains software based on Prototype  
-    (http://prototypejs.org), which is licensed under the Apache License 2.0. 
-    For copyright details please refer to the individual file under 
-    platform/marmotta-sparql/src/main/resources/web/admin/snorql/prototype.js
+  - software based on D2R Snorql licensed under Apache License 2.0
+
+  - software based on script.aculo.us licensed under Apache License 2.0
+
+  - software based onPrototype licensed under Apache License 2.0
     
-    The module marmotta-sparql contains software based on SPARQL Flint Editor  
-    (http://github.com/TSO-Openup/FlintSparqlEditor), which is licensed under 
-    the Apache License 2.0.  For copyright details please refer to the individual 
-    files under platform/marmotta-sparql/src/main/resources/web/admin/editor/sparql/ 
-    directory.
+  - software based on SPARQL Flint Editor licensed under Apache License 2.0
 
-    The module marmotta-sparql contains software based on Sgvizler  
-    (http://sgvizler.googlecode.com), which is distributable under the terms of 
-    a MIT-style license. For copyright details please refer to the individual 
-    files under platform/marmotta-sparql/src/main/resources/web/admin/sgvizler/ 
-    directory.
+  - software based on Sgvizler license under a MIT-style license
 
-    The module marmotta-ldpath contains software based on CodeMirror  
-    (http://codemirror.net), which is licensed under the Apache License 2.0. 
-    For copyright details please refer to the individual files under 
-    platform/marmotta-ldpath/src/main/resources/web/cm/ directory.
+  - software based on MigLayout licensed under New BSD License
 
-    The module sesame-tools-rio-rss contains software based on rometools 
-    (http://www.rometools.org), which is licensed under the Apache License 2.0. 
-    For copyright details please refer to the individual files under 
-    commons/sesame-tools-rio-rss/src/ext/ directory.
+  - software based on SwingBits licensed under New BSD License
 
-    The module sesame-tools-rio-jsonld contains software based on jsonld-java 
-    (http://github.com/tristan/jsonld-java), which is licensed under the New BSD 
-    License. For copyright details please refer to the individual files under 
-    commons/sesame-tools-rio-jsonld/src/ext/ directory.
+  - software based on rometools licensed under the Apache License 2.0
 
-    The module sesame-tools-rio-jsonld contains data based on JSON-LD Test Suite 
-    (http://github.com/json-ld/json-ld.org/tree/master/test-suite), which is 
-    licensed under CC0 (CreativeCommons No Rights Reserved) license. For copyright 
-    details please refer to the individual files under 
-    commons/sesame-tools-rio-jsonld/src/test/resources/ directory.
+  - software based on jsonld-java licensed under the New BSD License
 
-In addition, the binary distribution of this product includes the following software:
-
-    The module marmotta-installer bundles IzPack (http://izpack.org) and Apache 
-    Tomcat (http://tomcat.apache.org), which both are licensed under the Apache 
-    License 2.0.
-
-    The module marmotta-webapp packages together all dependencies, including
-    transitive ones. For copyright details please refer to the dependencies 
-    declared at build configuration files.
+  - data based on JSON-LD Test Suite licensed under CC0 License
 

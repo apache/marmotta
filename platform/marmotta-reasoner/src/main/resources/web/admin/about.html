@@ -32,17 +32,17 @@
 		<a id="Introduction"></a>Introduction<a class="section_anchor"
 			href="#Introduction"></a>
 	</h1>
-	<p>The Linked Media Framework includes an (optional) rule-based
+	<p>Apache Marmotta includes an (optional) rule-based
 		reasoner that is highly customizable and allows to evaluate
-		user-defined rules over triples in the LMF Triple Store. Rules can be
-		uploaded and stored in the LMF via an easy-to-use web service. The
+		user-defined rules over triples in the KiWi Triple Store. Rules can be
+		uploaded and stored in the Marmotta via an easy-to-use web service. The
 		evaluation strategy is an incremental forward chaining reasoning with
 		truth maintenance and is reasonably efficient even for big data sets.
 		The truth maintenance can be used to provide explanations for inferred
 		triples as well as for efficient updating of the reasoning
 		information.</p>
 	<p>The sKWRL reasoner has originally been developed for the KiWi
-		project, but has been re-implemented in context of the LMF using more
+		project, but has been re-implemented in context of the Marmotta using more
 		efficient evaluation strategies but also a simplified language with no
 		negation.</p>
 	<h1>
@@ -50,7 +50,7 @@
 			class="section_anchor" href="#Rules_and_Programs"></a>
 	</h1>
 	<p>
-		The LMF Reasoner can load one or more <i>programs</i>, which are
+		The Marmotta Reasoner can load one or more <i>programs</i>, which are
 		themselves a collection of <i>rules</i>. Each rule consists of a rule
 		body ("condition") and a rule head ("consequence"). For example, the
 		following rule is part of the RDFS reasoning typically found in triple
@@ -115,7 +115,7 @@
 			class="pun">-</span><span class="pln">X POST </span><span class="pun">--</span><span
 			class="pln">data</span><span class="pun">-</span><span class="pln">binary </span><span
 			class="lit">@rdfs</span><span class="pun">.</span><span class="pln">kwrl http</span><span
-			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/program/rdfs.kwrl</span>
+			class="pun">:</span><span class="com">//localhost:8080/marmotta/reasoner/program/rdfs.kwrl</span>
 	</pre>
 	<p>When the program is uploaded, the web service will return 200 OK
 		and the parsed program for checking. It will also immediately trigger
@@ -133,7 +133,7 @@
 		<span class="pln">curl </span><span class="pun">-</span><span
 			class="pln">i &nbsp;</span><span class="pun">-</span><span
 			class="pln">X GET http</span><span class="pun">:</span><span
-			class="com">//localhost:8080/LMF/reasoner/program/list</span>
+			class="com">//localhost:8080/marmotta/reasoner/program/list</span>
 	</pre>
 	<h2>
 		<a id="Deleting_a_Program"></a>Deleting a Program<a
@@ -144,7 +144,7 @@
 	<pre class="prettyprint">
 		<span class="pln">curl </span><span class="pun">-</span><span
 			class="pln">i </span><span class="pun">-</span><span class="pln">X DELETE http</span><span
-			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/program/rdfs.kwrl</span>
+			class="pun">:</span><span class="com">//localhost:8080/marmotta/reasoner/program/rdfs.kwrl</span>
 	</pre>
 	<h1>
 		<a id="Reasoning_Web_Service"></a>Reasoning Web Service<a
@@ -158,7 +158,7 @@
 		<a id="Listing_Justifications"></a>Listing Justifications<a
 			class="section_anchor" href="#Listing_Justifications"></a>
 	</h2>
-	<p>The reason maintenance component of the LMF Reasoner offers
+	<p>The reason maintenance component of the Marmotta Reasoner offers
 		explanations to why a triple has been inferred. Each explanation
 		consists of a set of base triples and rules that have been used in the
 		reasoning process for inferring the triple. Each inferred triple might
@@ -177,7 +177,7 @@
 	<pre class="prettyprint">
 		<span class="pln">curl </span><span class="pun">-</span><span
 			class="pln">i </span><span class="pun">-</span><span class="pln">X GET http</span><span
-			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/engine/justify?id=27</span>
+			class="pun">:</span><span class="com">//localhost:8080/marmotta/reasoner/engine/justify?id=27</span>
 	</pre>
 	<p>The justifications are returned in JSON format so they can be
 		displayed to the user. The justifications might look as follows:</p>
@@ -273,7 +273,7 @@
 	<pre class="prettyprint">
 		<span class="pln">curl </span><span class="pun">-</span><span
 			class="pln">i </span><span class="pun">-</span><span class="pln">X POST http</span><span
-			class="pun">:</span><span class="com">//localhost:8080/LMF/reasoner/engine/run</span>
+			class="pun">:</span><span class="com">//localhost:8080/marmotta/reasoner/engine/run</span>
 	</pre>
 	<h1>
 		<a id="Example_Programs"></a>Example Programs<a

@@ -29,26 +29,150 @@
     <artifactId>ldpath-backend-linkeddata</artifactId>
     <packaging>jar</packaging>
 
+    <profiles>
+        <profile>
+            <id>marmotta-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.apache.marmotta.ldpath.backend.linkeddata.LDQuery</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.jolira</groupId>
+                        <artifactId>onejar-maven-plugin</artifactId>
+                        <version>1.4.4</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>one-jar</goal>
+                                </goals>
+                                <configuration>
+                                    <filename>ldpath-${project.version}.jar</filename>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>assembly.xml</descriptor>
+                                    </descriptors>
+                                    <finalName>apache-marmotta-${project.version}</finalName>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencies>
 
         <dependency>
-           <groupId>org.apache.marmotta</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-api</artifactId>
         </dependency>
         <dependency>
-           <groupId>org.apache.marmotta</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>
         </dependency>
         <dependency>
-           <groupId>org.apache.marmotta</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-backend-sesame</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldpath-functions-text</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldpath-functions-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldpath-functions-math</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldpath-functions-html</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldpath-functions-date</artifactId>
         </dependency>
 
+        <!-- LDClient and some of the more interesting providers -->
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-provider-rdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-provider-rdfa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-provider-facebook</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-provider-mediawiki</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-provider-youtube</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldclient-provider-vimeo</artifactId>
+        </dependency>
+
+
+        <!-- LDCache Generic Sail and File Backend -->
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-sail-generic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-backend-file</artifactId>
+        </dependency>
+
+
+        <!-- Sesame Model and Parsers -->
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-model</artifactId>
@@ -115,18 +239,15 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-       </dependency>
+        </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
-
         <dependency>
-            <groupId>org.fusesource.jdbm</groupId>
-            <artifactId>jdbm</artifactId>
-            <version>2.0.1</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
 
