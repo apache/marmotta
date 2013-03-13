@@ -38,15 +38,6 @@
                 var writeValues = function(databases, values) {
                     table.html("");
                     this.input_fields={};
-                    //DBMode
-                    var tr0 = $("<tr/>");
-                    var td01 = $("<td/>").css({"font-weight":"bold"}).text("Mode: ");
-                    var td02 = $("<td/>");
-                    this.input_fields.mode_select = $("<select/>").css({'width':'200px'}).html("<option>create</option><option>validate</option>");
-                    td02.append(this.input_fields.mode_select);
-                    td01.appendTo(tr0);
-                    td02.appendTo(tr0);
-                    tr0.appendTo(table);
 
                     //DB Type
                     var tr1 = $("<tr/>");
@@ -193,24 +184,8 @@
             },
 
             saveValues: function(callback) {
-                var saveMode= function() {
-                    input_fields.l_div.html("<span>Save Values </span><img src='" + settings.loading_img+ "'/>");
-                    $.ajax({
-                        type:"POST",
-                        contentType: "application/json",
-                        url: settings.host + "config/data/database.mode",
-                        data: '["' + input_fields.mode_select.val() + '"]',
-                        success: function() {
-                            saveDatabase();
-                        },
-                        error: function(jqXHR, statusText, errorThrown) {
-                            that.input_fields.l_div.html("");
-                            alert("Error: " + errorThrown + "(" + jqXHR.status + ")" + jqXHR.responseText);
-                        }
-                    });
-                }
 
-                function saveDatabase() {
+                var saveDatabase = function() {
                     $.ajax({
                         type:"POST",
                         contentType: "application/json",
@@ -290,7 +265,7 @@
                         }
                     });
                 }
-                saveMode();
+                saveDatabase();
             }
         }
 
