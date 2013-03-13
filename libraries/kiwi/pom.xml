@@ -85,53 +85,6 @@
                     <artifactId>surefire-booter</artifactId>
                     <version>2.13</version>
                 </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.4</version>
-                    <!-- uncomment for release deployment -->
-                                        <executions>
-                                            <execution>
-                                                <id>sign-artifacts</id>
-                                                <phase>verify</phase>
-                                                <goals>
-                                                    <goal>sign</goal>
-                                                </goals>
-                                            </execution>
-                                        </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.7</version>
-                    <inherited>true</inherited>
-                    <configuration>
-                        <instructions>
-                            <Bundle-DocURL>http://code.google.com/p/ldpath/</Bundle-DocURL>
-                            <Bundle-Vendor>Salzburg Research</Bundle-Vendor>
-                            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                            <_versionpolicy>$${version;===;${@}}</_versionpolicy>
-                        </instructions>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-scr-plugin</artifactId>
-                    <version>1.7.4</version>
-                    <executions>
-                        <execution>
-                            <id>generate-scr-scrdescriptor</id>
-                            <goals>
-                                <goal>scr</goal>
-                            </goals>
-                            <configuration>
-                                <properties>
-                                    <service.vendor>Salzburg Research</service.vendor>
-                                </properties>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin> <!-- generate JRebel Configuration -->
                     <groupId>org.zeroturnaround</groupId>
                     <artifactId>jrebel-maven-plugin</artifactId>
@@ -145,6 +98,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -12,16 +12,6 @@ These have been licensed to the Apache Software Foundation under a software gran
 
 In addition, the source distribution of this product includes the following software:
 
-    The module sesame-tools-rio-rss contains software based on rometools 
-    (http://www.rometools.org), which is licensed under the Apache License 2.0. 
-    For copyright details please refer to the individual files under 
-    commons/sesame-tools-rio-rss/src/ext/ directory.
-
-    The module sesame-tools-rio-jsonld contains software based on jsonld-java 
-    (http://github.com/tristan/jsonld-java), which is licensed under the New BSD 
-    License. For copyright details please refer to the individual files under 
-    commons/sesame-tools-rio-jsonld/src/ext/ directory.
-
     The module marmotta-core contains software based on D3.js  
     (http://d3js.org), which is licensed under the New BSD License.
     For copyright details please refer to the individual file under 
@@ -81,6 +71,22 @@ In addition, the source distribution of this product includes the following soft
     (http://codemirror.net), which is licensed under the Apache License 2.0. 
     For copyright details please refer to the individual files under 
     platform/marmotta-ldpath/src/main/resources/web/cm/ directory.
+
+    The module sesame-tools-rio-rss contains software based on rometools 
+    (http://www.rometools.org), which is licensed under the Apache License 2.0. 
+    For copyright details please refer to the individual files under 
+    commons/sesame-tools-rio-rss/src/ext/ directory.
+
+    The module sesame-tools-rio-jsonld contains software based on jsonld-java 
+    (http://github.com/tristan/jsonld-java), which is licensed under the New BSD 
+    License. For copyright details please refer to the individual files under 
+    commons/sesame-tools-rio-jsonld/src/ext/ directory.
+
+    The module sesame-tools-rio-jsonld contains data based on JSON-LD Test Suite 
+    (http://github.com/json-ld/json-ld.org/tree/master/test-suite), which is 
+    licensed under CC0 (CreativeCommons No Rights Reserved) license. For copyright 
+    details please refer to the individual files under 
+    commons/sesame-tools-rio-jsonld/src/test/resources/ directory.
 
 In addition, the binary distribution of this product includes the following software:
 

@@ -31,6 +31,26 @@
     <name>Apache Marmotta Commons: Reactor</name>
     <description>A collection of support modules for Marmotta, adding additional functionality like parsers or writers.</description>
 
+    <!-- release management -->
+    <build>
+        <plugins>
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
     <modules>
         <module>marmotta-commons</module>
         <module>sesame-filter</module>

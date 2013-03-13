@@ -41,6 +41,14 @@
         <MARMOTTA_ROOT>${project.basedir}/../../</MARMOTTA_ROOT>
     </properties>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snml</id>
+            <name>Salzburg NewMediaLab Repository</name>
+            <url>http://devel.kiwi-project.eu:8080/nexus/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <!-- this makes maven to compile and package your related izpack sources into a predictable name and location
                  ie your target directory's ${project.artifactId}.jar, to that you can configure your izpack descriptor
@@ -279,7 +287,7 @@
             </build>
         </profile>
         <profile>
-            <id>apache-release</id>
+            <id>marmotta-release</id>
             <build>
                 <plugins>
                     <plugin>

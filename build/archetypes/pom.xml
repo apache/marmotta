@@ -26,6 +26,27 @@
     <artifactId>archetypes-reactor</artifactId>
     <packaging>pom</packaging>
     <name>Apache Marmotta: Archetypes</name>
+
+    <!-- release management -->
+    <build>
+        <plugins>
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
     <modules>
         <module>marmotta-archetype-module</module>
         <module>marmotta-archetype-webapp</module>

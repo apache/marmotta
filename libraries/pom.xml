@@ -31,6 +31,25 @@
     <name>Apache Marmotta Libraries: Reactor</name>
     <description>Apache Marmotta libraries that can also be used independently to build Linked Data applications.</description>
 
+    <!-- release management -->
+    <build>
+        <plugins>
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <modules>
         <module>kiwi</module>
         <module>ldcache</module>

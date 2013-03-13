@@ -155,6 +155,20 @@
     <!-- release management -->
     <build>
         <plugins>
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -162,7 +176,7 @@
                 <configuration>
                     <useReleaseProfile>false</useReleaseProfile>
                     <goals>deploy</goals>
-                    <arguments>-Pinstaller,apache-release ${arguments}</arguments>
+                    <arguments>-Pinstaller,marmotta-release ${arguments}</arguments>
                 </configuration>
             </plugin>
         </plugins>
@@ -171,7 +185,7 @@
     <profiles>
         <!-- modified Apache Release profile (copied and modified from Apache Jackrabbit) -->
         <profile>
-            <id>apache-release</id>
+            <id>marmotta-release</id>
             <properties>
                 <username>${user.name}</username>
                 <keyfile>${user.home}/.ssh/id_rsa</keyfile>
@@ -243,12 +257,7 @@
                                         <descriptor>assembly.xml</descriptor>
                                     </descriptors>
                                     <finalName>apache-marmotta-${project.version}</finalName>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>source-release-assembly</id>
-                                <configuration>
-                                    <skipAssembly>true</skipAssembly>
+                                    <tarLongFileMode>gnu</tarLongFileMode>
                                 </configuration>
                             </execution>
                         </executions>
@@ -276,7 +285,8 @@
 
                                                 <include name="target/*-src.tar.gz*" />
                                                 <include name="launchers/marmotta-webapp/target/*-webapp.tar.gz*" />
-                                                <include name="launchers/marmotta-installer/target/*-installer.zip*" />
+                                                <include name="launchers/marmotta-installer/target/*-installer.tar.gz*" />
+                                                <exclude name="*.asc.asc" />
                                             </fileset>
                                         </copy>
                                         <checksum algorithm="MD5" fileext=".md5">
@@ -316,6 +326,7 @@ The vote is open for the next 72 hours and passes if a majority of at
 least three +1 Marmotta PMC votes are cast.
 
 [ ] +1 Release this package as Apache Marmotta ${project.version}
+[ ]  0 I don't feel strongly about it, but I'm okay with the release
 [ ] -1 Do not release this package because...${line.separator}
                                         </echo>
                                         <echo />
