@@ -1299,6 +1299,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
+                <artifactId>ldcache-backend-file</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-backend-ehcache</artifactId>
                 <version>${project.version}</version>
             </dependency>

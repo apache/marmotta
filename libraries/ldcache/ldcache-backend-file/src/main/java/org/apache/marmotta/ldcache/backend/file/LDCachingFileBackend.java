@@ -56,15 +56,14 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listExpiredEntries()
      */
     @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries()
-            throws RepositoryException {
+    public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries() throws RepositoryException {
         final Date now = new Date();
         return new FilterIteration<CacheEntry, RepositoryException>(listCacheEntries()) {
 
             @Override
             protected boolean accept(CacheEntry object)
                     throws RepositoryException {
-                return object.getExpiryDate().after(now);
+                return object.getExpiryDate().before(now);
             }
         };
     }

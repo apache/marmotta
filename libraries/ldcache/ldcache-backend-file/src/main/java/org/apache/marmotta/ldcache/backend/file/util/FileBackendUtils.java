@@ -93,6 +93,9 @@ public class FileBackendUtils {
 	
 	public static void writeCacheEntry(CacheEntry ce, File baseDir) throws IOException {
 		File metaFile = getMetaFile(ce.getResource(), baseDir);
+
+        // ensure that the directory where we write the file exists
+        metaFile.getParentFile().mkdirs();
 		try {
 			PrintStream ps = new PrintStream(metaFile);
 			try {
