@@ -1280,6 +1280,11 @@
                 <artifactId>ldclient-provider-vimeo</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>ldclient-provider-facebook</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- LDClient -->
             <dependency>

@@ -17,20 +17,22 @@
  */
 package org.apache.marmotta.ldpath.backend.linkeddata;
 
-import jdbm.RecordManager;
-import jdbm.RecordManagerFactory;
-
-import org.apache.marmotta.ldpath.backend.linkeddata.legacy.ldclient.model.CacheEntry;
+import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
+import org.apache.marmotta.commons.sesame.filter.SesameFilter;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
+import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
+import org.apache.marmotta.ldclient.model.ClientConfiguration;
+import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
+import org.openrdf.model.Resource;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.nativerdf.NativeStore;
+import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * A Linked Data backend with persistent caching of the retrieved data. All data is read and stored in the directory
@@ -38,13 +40,15 @@ import java.util.Map;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LDPersistentBackend extends AbstractLDBackend {
-    private static final Logger log = LoggerFactory.getLogger(LDMemoryBackend.class);
+public class LDPersistentBackend extends SesameRepositoryBackend {
+    private static final Logger log = LoggerFactory.getLogger(LDPersistentBackend.class);
 
-    private Map<String,CacheEntry> cacheEntries;
+    private LDCachingFileBackend backend;
 
+    private GenericLinkedDataSail sail;
 
-    private RecordManager recordManager;
+    private SesameFilter<Resource> cacheFilter;
+
 
     /**
      * Create a persistent linked data backend storing the cache data in the directory passed as argument.
@@ -63,13 +67,14 @@ public class LDPersistentBackend extends AbstractLDBackend {
             tripleStore.mkdirs();
         }
 
-
-        recordManager = RecordManagerFactory.createRecordManager(dataDirectory.getAbsolutePath()+File.separator+"resource_cache.cache");
-
-        cacheEntries = recordManager.treeMap("resources");
+        cacheFilter = new AlwaysTrueFilter<Resource>();
 
         try {
-            Repository repository = new SailRepository(new NativeStore(tripleStore));
+            ClientConfiguration config = new ClientConfiguration();
+
+            backend = new LDCachingFileBackend(dataDirectory);
+            sail = new GenericLinkedDataSail(new MemoryStore(),backend, cacheFilter, config);
+            Repository repository = new SailRepository(sail);
             repository.initialize();
             setRepository(repository);
 
@@ -81,26 +86,12 @@ public class LDPersistentBackend extends AbstractLDBackend {
 
     public void shutdown() {
         try {
-            recordManager.close();
             getRepository().shutDown();
-        } catch (IOException e) {
-            log.error("error shutting down record manager for resource cache");
         } catch (RepositoryException e) {
             log.error("error shutting down repository for resource cache");
         }
     }
 
 
-    /**
-    /**
-     * Return a map that can be used to store caching metadata about resources. The LDCacheProvider should take care
-     * of persisting the metadata if desired.
-     *
-     * @return a map for storing caching metadata
-     */
-    @Override
-    public Map<String,CacheEntry> getMetadataRepository() {
-        return cacheEntries;
-    }
 
 }

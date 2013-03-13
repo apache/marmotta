@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldpath.backend.linkeddata;
 
 import ch.qos.logback.classic.Level;
+import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -27,6 +28,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
@@ -86,16 +88,14 @@ public class LDQuery {
             }
 
 
-            String format = null;
-            if(cmd.hasOption("format")) {
-                format = cmd.getOptionValue("format");
-            }
-
+            File tmpDir = null;
             SesameRepositoryBackend backend;
             if(cmd.hasOption("store")) {
                 backend = new LDPersistentBackend(new File(cmd.getOptionValue("store")));
             } else {
-                backend = new LDMemoryBackend();
+                tmpDir = Files.createTempDir();
+
+                backend = new LDPersistentBackend(tmpDir);
             }
 
             Resource context = null;
@@ -137,6 +137,10 @@ public class LDQuery {
 
             if(backend instanceof LDPersistentBackend) {
                 ((LDPersistentBackend) backend).shutdown();
+            }
+
+            if(tmpDir != null) {
+                FileUtils.deleteDirectory(tmpDir);
             }
 
 
