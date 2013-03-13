@@ -38,11 +38,11 @@
 </p>
 <h1><a id="Services"></a>LDPath Web Services<a class="section_anchor" href="#Services"></a></h1>
 <p>
-    Inside the LMF, the LDPath language is available to other components through the LDPathService as well as through an
+    Inside Marmotta, the LDPath language is available to other components through the LDPathService as well as through an
     easy-to-use webservice. Using the web service you can either evaluate a single LDPath selection as in:
 </p>
 <pre>
-    GET /LMF/ldpath/path?uri=&lt;context-resource&gt;&amp;path=/path/selection
+    GET /ldpath/path?uri=&lt;context-resource&gt;&amp;path=/path/selection
 </pre>
 <p>
     where &lt;context-resource&gt; is the URI of the resource where the path selection starts, and /path/selection is a path selector as described in
@@ -51,7 +51,7 @@
     calling the following webservice:
 </p>
 <pre>
-    GET /LMF/ldpath/program?uri=&lt;context-resource&gt;&amp;program=&lt;program&gt;
+    GET /ldpath/program?uri=&lt;context-resource&gt;&amp;program=&lt;program&gt;
 </pre>
 <p>
     where &lt;context-resource&gt; is the URI of the resource where the path selection starts, and &lt;program&gt; is the complete LDPath program. Note that

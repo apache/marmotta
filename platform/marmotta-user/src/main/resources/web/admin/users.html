@@ -23,8 +23,8 @@
 	_SERVER_URL = "http://localhost:8080/LMF/";
 </script>
 <!--###BEGIN_HEAD###-->
-<title>LMF User Management</title>
-<script type="text/javascript" src="../../core/public/js/lib/jquery-1.7.2.js"></script>
+<title>Marmotta User Management</title>
+<script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
 <style type="text/css">
     .label_values label {
         position: absolute;
@@ -48,11 +48,11 @@
 <body>
 <div id="center">
   <!--###BEGIN_CONTENT###-->
-  <h1>LMF User Accounts</h1>
+  <h1>Marmotta User Accounts</h1>
   <div>
   <table class="simple_table" id="account-table">
   <thead>
-  <tr><th>&nbsp;</th><th>login</th><th>roles</th><th>webId</th><th style="width:100px">actions</th></tr>
+  <tr><th>&nbsp;</th><th>Login</th><th>Roles</th><th>WebId</th><th style="width:100px">Actions</th></tr>
   <tbody>
   </table>
   <div style="text-align:center;margin-top:10px"><button id="createAccount">New Account</button>&nbsp;<span class="icon"></span></div>
@@ -103,9 +103,9 @@
   	    function loadAccounts(current) {
   		   var tbl = $("table#account-table tbody");
 		   current = current || $("tr.selected").attr("data-login");
-  		$.getJSON(_SERVER_URL + "users", function(data) {
+		   $.getJSON(_SERVER_URL + "users", function(data) {
   		   tbl.empty();
-  		   for (var i in data) {
+  		     for (var i in data) {
   		       var u = data[i];
   		       
   		       var tr = $("<tr>", {id: "account_" + u.login, "data-login": u.login});
@@ -132,7 +132,7 @@
   		       });
   		       
   		       tbl.append(tr);
-  		   }
+  		     }
   		   if (current) selectRow(current, true);
   		});
   	    }

@@ -188,7 +188,7 @@ public class ContentWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource resource = ResourceUtils.getUriResource(conn,URLDecoder.decode(uri, "utf-8"));
+                Resource resource = conn.getValueFactory().createURI(uri);
                 if (resource != null) {
                     if (contentService.deleteContent(resource)) return Response.ok().build();
                     else
@@ -230,7 +230,7 @@ public class ContentWebService {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI resource = ResourceUtils.getUriResource(conn, uri);
+                URI resource = conn.getValueFactory().createURI(uri);
                 conn.commit();
                 if (contentService.hasContent(resource, mimetype)) {
 
@@ -300,7 +300,7 @@ public class ContentWebService {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI resource = ResourceUtils.getUriResource(conn, uri);
+                URI resource = conn.getValueFactory().createURI(uri);
                 conn.commit();
                 return putContent(resource, mimetype, request);
             } finally {
