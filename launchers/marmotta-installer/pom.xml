@@ -268,11 +268,6 @@
                                 <artifactId>izpack-standalone-compiler</artifactId>
                                 <version>${izpackVersion}</version>
                             </dependency>
-                            <dependency>
-                                <groupId>net.bluecow.googlecode.ant</groupId>
-                                <artifactId>ant-googlecode</artifactId>
-                                <version>0.0.3</version>
-                            </dependency>
                         </dependencies>
                     </plugin>
                 </plugins>
