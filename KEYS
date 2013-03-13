@@ -5,29 +5,22 @@ Users: pgp < KEYS
        gpg --import KEYS
 Developers:
        (pgpk -ll <your name> && pgpk -xa <your name>) >> this file.
-       (gpg --list-sigs <your name>
+       (gpg --fingerprint <your name>
             && gpg --armor --export <your name>) >> this file.
 
+### List of Keys follows here ###
 
 pub   1024D/F5E997EC 1998-07-19
-uid                  Sebastian Schaffert <sschaffert@apache.org>
-sig 3        F5E997EC 2013-02-25  Sebastian Schaffert <sschaffert@apache.org>
+      Key fingerprint = 131D 2E4F 203E C91F 4C57  5287 8A80 484D F5E9 97EC
 uid                  Sebastian Schaffert <Sebastian.Schaffert@gmail.com>
-sig 3        F5E997EC 2012-03-07  Sebastian Schaffert <sschaffert@apache.org>
-uid                  Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
-sig 3        F5E997EC 2005-08-02  Sebastian Schaffert <sschaffert@apache.org>
-uid                  Sebastian Schaffert <Sebastian.Schaffert@ifi.lmu.de>
-sig 3        F5E997EC 2004-08-22  Sebastian Schaffert <sschaffert@apache.org>
-uid                  Sebastian Schaffert <schaffert@informatik.uni-muenchen.de>
-sig 3        F5E997EC 2004-02-20  Sebastian Schaffert <sschaffert@apache.org>
-uid                  Sebastian Schaffert <schaffer@informatik.uni-muenchen.de>
-sig          F5E997EC 1999-04-29  Sebastian Schaffert <sschaffert@apache.org>
-sig          B3B2A12C 1999-11-19  ct magazine CERTIFICATE <pgpCA@ct.heise.de>
 uid                  Sebastian Schaffert <wastl@wastl.net>
-sig          F5E997EC 1999-04-29  Sebastian Schaffert <sschaffert@apache.org>
-sig          B3B2A12C 1999-11-19  ct magazine CERTIFICATE <pgpCA@ct.heise.de>
+uid                  Sebastian Schaffert <wastl@woanders.de>
+uid                  Sebastian Schaffert <sebastian@schaffert.eu>
+uid                  Sebastian Schaffert <Sebastian.Schaffert@ifi.lmu.de>
+uid                  Sebastian Schaffert <schaffer@informatik.uni-muenchen.de>
+uid                  Sebastian Schaffert <schaffert@informatik.uni-muenchen.de>
+uid                  Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
 sub   3072g/5D31718B 1998-07-19
-sig          F5E997EC 1998-07-19  Sebastian Schaffert <sschaffert@apache.org>
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1.4.10 (Darwin)
