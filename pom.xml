@@ -282,10 +282,12 @@
                                                 <include name="target/*-src.zip*" />
                                                 <include name="launchers/marmotta-webapp/target/*-webapp.zip*" />
                                                 <include name="launchers/marmotta-installer/target/*-installer.zip*" />
+                                                <include name="libraries/ldpath/ldpath-backend-linkeddata/target/*-ldpath.zip*" />
 
                                                 <include name="target/*-src.tar.gz*" />
                                                 <include name="launchers/marmotta-webapp/target/*-webapp.tar.gz*" />
                                                 <include name="launchers/marmotta-installer/target/*-installer.tar.gz*" />
+                                                <include name="libraries/ldpath/ldpath-backend-linkeddata/target/*-ldpath.tar.gz*" />
                                                 <exclude name="*.asc.asc" />
                                             </fileset>
                                         </copy>
