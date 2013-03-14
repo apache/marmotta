@@ -10,8 +10,6 @@ These have been licensed to the Apache Software Foundation under a software gran
 
 In addition, the distribution of this product contains:
 
-  - software based on Apache Tomcat licensed under Apache License 2.0
-
   - software based on IzPack licensed under Apache License 2.0
 
   - software based on D3.js licensed under New BSD License
@@ -28,7 +26,7 @@ In addition, the distribution of this product contains:
 
   - software based on script.aculo.us licensed under Apache License 2.0
 
-  - software based onPrototype licensed under Apache License 2.0
+  - software based on Prototype licensed under Apache License 2.0
     
   - software based on SPARQL Flint Editor licensed under Apache License 2.0
 

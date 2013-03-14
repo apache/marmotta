@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<license-lookup xmlns="https://source.jasig.org/schemas/maven-notice-plugin/license-lookup" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://source.jasig.org/schemas/maven-notice-plugin/license-lookup https://source.jasig.org/schemas/maven-notice-plugin/license-lookup/license-lookup-v1.0.xsd">
+    <!-- see also https://source.jasig.org/licenses/license-mappings.xml -->
+    <artifact>
+        <groupId>javax.el</groupId>
+        <artifactId>el-api</artifactId>
+        <license>Apache License, Version 2.0</license>
+    </artifact>
+    <artifact>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <license>
+            Commons Development and Distribution License, Version 1.0
+        </license>
+    </artifact>
+    <artifact>
+        <groupId>jaxen</groupId>
+        <artifactId>jaxen</artifactId>
+        <license>Apache style license</license>
+    </artifact>
+    <artifact>
+        <groupId>net.jcip</groupId>
+        <artifactId>jcip-annotations</artifactId>
+        <license>Creative Commons Attribution License</license>
+    </artifact>
+    <artifact>
+        <groupId>org.jumpmind.symmetric.jdbc</groupId>
+        <artifactId>postgresql</artifactId>
+        <license>BSD License</license>
+    </artifact>
+    <artifact>
+        <groupId>org.scannotation</groupId>
+        <artifactId>scannotation</artifactId>
+        <license>Apache License, Version 2.0</license>
+    </artifact>
+</license-lookup>
