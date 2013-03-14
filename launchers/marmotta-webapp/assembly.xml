@@ -31,7 +31,8 @@
 
     <files>
         <file>
-            <source>${project.basedir}/../../LICENSE.txt</source>
+            <source>${project.basedir}/src/main/webapp/META-INF/LICENSE</source>
+            <destName>LICENSE.txt</destName>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
@@ -42,7 +43,8 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>${project.basedir}/NOTICE.txt</source>
+            <source>${project.basedir}/src/main/webapp/META-INF/NOTICE</source>
+            <destName>NOTICE.txt</destName>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

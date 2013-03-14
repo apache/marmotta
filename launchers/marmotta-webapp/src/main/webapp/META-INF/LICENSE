@@ -175,3 +175,103 @@
 
    END OF TERMS AND CONDITIONS
 
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+This software contains the D3.js Javascript library, which is available under a
+"New BSD" license.  Copyright (c) 2012, Michael Bostock.
+For details, see http://d3js.org/.
+
+This software contains the Dracula Javascript library, which is available under a
+"MIT" license. (c) 2010 by Johann Philipp Strathausen <strathausen@gmail.com>.
+For details, see http://jquery.com/.
+
+This software contains the jQuery Javascript library, which is available under a
+"MIT" license.  Copyright 2013 jQuery Foundation and other contributors.
+For details, see http://jquery.com/.
+
+This software contains the Sgvizler Javascript library, which is available under a
+"MIT" license.  Copyright (c) 2011 Martin G. Skjæveland.
+For details, see https://code.google.com/p/sgvizler/.
+
+This software contains the strftime Javascript library, which is available under a
+"New BSD" license.  Copyright (c) 2008, Philip S Tellis <philip@bluesmoon.info>
+For details, see http://hacks.bluesmoon.info/strftime/.
+
+This software contains the Compiler assisted localization library (CAL10N) API,
+which is available under a under MIT License. Copyright (c) 2013 QOS.ch.
+For details, see http://cal10n.qos.ch/
+
+This software contains the FreeMarker Java library, which is available under a
+"New BSD" license.  Copyright (c) 2003 The Visigoth Software Society.
+For details, see http://freemarker.org/.
+
+This software contains unmodified binary redistributions for H2 database
+engine (http://www.h2database.com/), which is dual licensed and available
+under a modified version of the MPL 1.1 (Mozilla Public License) or under
+the (unmodified) EPL 1.0 (Eclipse Public License). An original copy of the
+license agreement can be found at: http://www.h2database.com/html/license.html
+
+This software contains the iCal4j and iCal4j VCard Java libraries, which are
+available under a "New BSD" license.  Copyright (c) 2012, Ben Fortuna
+For details, see http://build.mnode.org/projects/ical4j/.
+
+This software contains the Janino Java library, which is available under a
+"New BSD" license.  Copyright (c) 2001-2010, Arno Unkrig.
+For details, see http://docs.codehaus.org/display/JANINO/Home.
+
+This software contains unmodified binary redistributions of the JavaBeans
+Activation Framework (JAF), the Java Servlet API, and the JSR-250 Common
+Annotations for the JavaTM Platform, which are available under Common
+Development and Distribution License (CDDL) v1.0.
+
+This software contains unmodified binary redistributions of the Logback
+Core and Classic Module, which are available under Eclipse Public License
+(EPL 1.0). Copyright (c) 1999-2012 QOS.ch
+For details, see http://logback.qos.ch/
+
+This software bundles the JSON-LD java library, which is available under a
+"New BSD" license. Copyright (c) 2012, Deutsche Forschungszentrum für
+Künstliche Intelligenz GmbH.
+For details, see https://github.com/tristan/jsonld-java.
+
+This software contains the JSoup Java library, which is available under a
+"MIT" license.  Copyright (c) 2009-2013 Jonathan Hedley <jonathan@hedley.net>
+For details, see http://jsoup.org/.
+
+This software contains OpenRDF Sesame, which is available under a "Aduna BSD"
+license. Copyright Aduna (http://www.aduna-software.com/) 2001-2013.
+For details, see http://www.openrdf.org
+
+This software contains the PostgreSQL JDBC drivers, which are available under
+a "New BSD" License. Copyright (c) 1997-2011, PostgreSQL Global Development
+Group. For details, see http://jdbc.postgresql.org/
+
+This software contains the SLF4J API, Extension Module, and bridges for JUL,
+Log4j, JCL, which are available under MIT License. Copyright (c) 2004-2012
+QOS.ch. For details, see http://www.slf4j.org/
+
+

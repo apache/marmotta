@@ -32,7 +32,7 @@
 
     <files>
         <file>
-            <source>${project.basedir}/../../LICENSE.txt</source>
+            <source>${project.basedir}/src/main/resources/installer/LICENSE.txt</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
@@ -43,7 +43,7 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>${project.basedir}/NOTICE.txt</source>
+            <source>${project.basedir}/src/main/resources/installer/NOTICE.txt</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
