@@ -695,7 +695,7 @@
             <dependency>
                 <groupId>ch.qos.cal10n</groupId>
                 <artifactId>cal10n-api</artifactId>
-                <version>0.7.4</version>
+                <version>0.7.2</version>         <!-- force-downgrade because of http://jira.qos.ch/browse/CAL-29 -->
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
@@ -779,7 +779,7 @@
             <dependency>
                 <groupId>org.jboss.weld</groupId>
                 <artifactId>weld-core</artifactId>
-                <version>1.1.10.Final</version>
+                <version>1.1.11.Final</version>
                 <scope>runtime</scope>
                 <exclusions>
                     <exclusion>
@@ -791,12 +791,12 @@
             <dependency>
                 <groupId>org.jboss.weld.se</groupId>
                 <artifactId>weld-se-core</artifactId>
-                <version>1.1.10.Final</version>
+                <version>1.1.11.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld.servlet</groupId>
                 <artifactId>weld-servlet-core</artifactId>
-                <version>1.1.10.Final</version>
+                <version>1.1.11.Final</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>

@@ -56,7 +56,7 @@
         <langpack iso3="eng" />
     </locale>
     <resources>
-        <res src="installer/LICENSE.txt" id="LicencePanel.licence" />
+        <res src="LICENSE.txt" id="LicencePanel.licence" />
         <res src="shortcuts/shortcutSpec.xml" id="shortcutSpec.xml" />
         <res src="shortcuts/Unix_shortcutSpec.xml" id="Unix_shortcutSpec.xml" />
         <res src="${MARMOTTA_ROOT}/platform/marmotta-core/src/main/resources/web/public/img/logo/marmotta-logo.png" id="logo" />

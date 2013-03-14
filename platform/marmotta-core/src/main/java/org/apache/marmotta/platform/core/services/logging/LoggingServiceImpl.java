@@ -71,7 +71,7 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
 
-    private void reloadLoggingConfiguration() {
+    private synchronized void reloadLoggingConfiguration() {
         log.info("reloading logging configuration");
         File log_configuration = new File(configurationService.getWorkDir() + File.separator + "logback.xml");
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -90,6 +90,12 @@ public class LoggingServiceImpl implements LoggingService {
             rootLogger.setLevel(Level.TRACE);
         } else {
             rootLogger.setLevel(Level.INFO);
+        }
+
+        // set child logger levels from configuration file
+        for(String key : configurationService.listConfigurationKeys("logging.")) {
+            String loggerName   = key.substring("logging.".length());
+            setConfiguredLevel(loggerName);
         }
     }
 
