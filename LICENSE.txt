@@ -199,3 +199,38 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+
+This source distribution bundles the JSON-LD java library, which is available
+under a "New BSD" license. Copyright (c) 2012, Deutsche Forschungszentrum für
+Künstliche Intelligenz GmbH.
+For details, see https://github.com/tristan/jsonld-java.
+
+This source distribution bundles the MigLayout java library, which is
+available under a "New BSD" license. Copyright (c) 2011 MiG InfoCom AB
+For details, see http://www.miglayout.com/.
+
+This source distribution bundles the SwingBits java library, which is
+available under a "New BSD" license. Copyright (C) 2006 Michael Hjembaek
+For details, see http://swingbits.sourceforge.net/.
+
+This source distribution bundles the D3.js Javascript library, which is
+available under a "New BSD" license.  Copyright (c) 2012, Michael Bostock.
+For details, see http://d3js.org/.
+
+This source distribution bundles the Dracula Javascript library, which is
+available under a "MIT" license. (c) 2010 by Johann Philipp Strathausen
+<strathausen@gmail.com>. For details, see http://jquery.com/.
+
+This source distribution bundles the jQuery Javascript library, which is
+available under a "MIT" license.  Copyright 2013 jQuery Foundation and other
+contributors. For details, see http://jquery.com/.
+
+This source distribution bundles the Sgvizler Javascript library, which is
+available under a "MIT" license.  Copyright (c) 2011 Martin G. Skjæveland.
+For details, see https://code.google.com/p/sgvizler/.
+
+This source distribution bundles the strftime Javascript library, which is
+available under a "New BSD" license.  Copyright (c) 2008, Philip S Tellis
+<philip@bluesmoon.info> For details, http://hacks.bluesmoon.info/strftime/.
+

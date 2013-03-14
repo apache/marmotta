@@ -8,7 +8,7 @@ Portions of this software were originally based on the following:
 
 These have been licensed to the Apache Software Foundation under a software grant.
 
-In addition, the distribution of this product contains:
+In addition, the source distribution of this product contains:
 
   - software based on IzPack licensed under Apache License 2.0
 
