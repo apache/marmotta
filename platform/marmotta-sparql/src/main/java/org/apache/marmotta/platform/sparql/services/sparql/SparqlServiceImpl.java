@@ -56,7 +56,7 @@ import org.slf4j.Logger;
 
 /**
  * Sparql Service implementation
- * 
+ *
  * @author sschaffe
  */
 @ApplicationScoped
@@ -152,11 +152,7 @@ public class SparqlServiceImpl implements SparqlService {
                         BindingSet s = r.next();
                         Map<String, Value> map = new HashMap<String, Value>();
                         for (Binding binding : s) {
-                            if (binding.getValue() instanceof KiWiNode) {
-                                map.put(binding.getName(), binding.getValue());
-                            } else {
-                                log.error("binding value {} is not a KiWiNode!", binding.getValue());
-                            }
+                            map.put(binding.getName(), binding.getValue());
                         }
                         result.add(map);
                     }
@@ -220,13 +216,13 @@ public class SparqlServiceImpl implements SparqlService {
 
     }
 
-	@Override
-	public boolean ask(QueryLanguage queryLanguage, String query)
-			throws MarmottaException {
+    @Override
+    public boolean ask(QueryLanguage queryLanguage, String query)
+            throws MarmottaException {
         long start = System.currentTimeMillis();
 
         log.debug("executing SPARQL ask:\n{}", query);
-       
+
         boolean result = false;
         try {
             RepositoryConnection connection = sesameService.getConnection();
@@ -238,8 +234,8 @@ public class SparqlServiceImpl implements SparqlService {
             } catch (MalformedQueryException e) {
                 throw new MarmottaException("malformed query, update failed",e);
             } catch (QueryEvaluationException e) {
-            	throw new MarmottaException("error evaluating querry",e);
-			} finally {
+                throw new MarmottaException("error evaluating querry",e);
+            } finally {
                 connection.close();
             }
         } catch(RepositoryException ex) {
@@ -248,7 +244,7 @@ public class SparqlServiceImpl implements SparqlService {
         }
         log.debug("SPARQL update execution took {}ms",System.currentTimeMillis()-start);
         return result;
-	}
+    }
 
 
 
