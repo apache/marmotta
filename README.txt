@@ -119,3 +119,7 @@ created a profile that will deploy to the local file system. You can
 simulate the release by running
 
 mvn clean deploy -Pdist-local,marmotta-release,installer
+
+Please keep in mind that building a release involves creating digital
+signatures, so you will need a GPG key and a proper GPG configuration to run
+this task.
