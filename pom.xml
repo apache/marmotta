@@ -193,6 +193,19 @@
             </properties>
             <build>
                 <plugins>
+                    <!-- ensure that all license headers are present -->
+                    <plugin>
+                        <groupId>org.apache.rat</groupId>
+                        <artifactId>apache-rat-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
 
                     <!-- sign artifacts on release -->
                     <plugin>
