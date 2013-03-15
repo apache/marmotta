@@ -23,6 +23,16 @@ it in your local Maven repository. In case you want to build your own
 projects based on some of the libraries provided by Apache Marmotta, this
 usually suffices.
 
+The default loglevel for most unit and integration tests executed during the
+build is INFO. To change the loglevel for either more or less output, you
+can pass the loglevel as system property:
+
+mvn clean install -Droot-level=TRACE|DEBUG|INFO|WARN|ERROR
+
+Note that some of the integration tests start up parts of the Marmotta
+platform during execution. The log level for these tests cannot be
+changed, as Marmotta is taking over the log configuration in these
+cases.
 
 2. Building, Running and Deploying the Wep Application
 ------------------------------------------------------
