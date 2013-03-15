@@ -3,7 +3,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX schema: <http://schema.org/>
 ASK {
-    <http://graph.facebook.com/160617097307237> dct:title "The Hobbit" ;
+    <http://graph.facebook.com/160617097307237> dct:title "The Hobbit"@en ;
                                           rdf:type schema:Movie ;
                                           schema:genre "Fantasy Adventure" .
 }

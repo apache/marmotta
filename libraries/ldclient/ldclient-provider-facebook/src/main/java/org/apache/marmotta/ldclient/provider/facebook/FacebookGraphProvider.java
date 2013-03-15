@@ -1,12 +1,25 @@
 package org.apache.marmotta.ldclient.provider.facebook;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIUtils;
+import org.apache.http.impl.cookie.DateParseException;
+import org.apache.http.impl.cookie.DateUtils;
+import org.apache.http.util.EntityUtils;
+import org.apache.marmotta.commons.collections.CollectionUtils;
+import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.FOAF;
 import org.apache.marmotta.commons.vocabulary.SCHEMA;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
+import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -19,17 +32,18 @@ import org.openrdf.model.vocabulary.SKOS;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.marmotta.commons.http.LMFHttpUtils.parseContentType;
 
 /**
  * A provider that accesses objects exposed by the Facebook Graph API (in JSON format). The provider will map the
@@ -39,7 +53,7 @@ import java.util.regex.Pattern;
  * @see    <a href="http://developers.facebook.com/docs/reference/api/">Facebook Graph API</a>
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class FacebookGraphProvider extends AbstractHttpProvider {
+public class FacebookGraphProvider implements DataProvider {
 
     public static final String PROVIDER_NAME = "Facebook Graph API";
 
@@ -48,6 +62,7 @@ public class FacebookGraphProvider extends AbstractHttpProvider {
 
     private static Logger log = LoggerFactory.getLogger(FacebookGraphProvider.class);
 
+    private static String[] defaultLanguages = new String[] {"en", "de", "fr", "es", "it"};
 
     private static Map<String,URI> facebookCategories = new HashMap<String, URI>();
     static {
@@ -149,33 +164,6 @@ public class FacebookGraphProvider extends AbstractHttpProvider {
     }
 
     /**
-     * Build the URL to use to call the webservice in order to retrieve the data for the resource passed as argument.
-     * In many cases, this will just return the URI of the resource (e.g. Linked Data), but there might be data providers
-     * that use different means for accessing the data for a resource, e.g. SPARQL or a Cache.
-     *
-     * @param resourceUri
-     * @param endpoint    endpoint configuration for the data provider (optional)
-     * @return
-     */
-    @Override
-    protected List<String> buildRequestUrl(String resourceUri, Endpoint endpoint) throws DataRetrievalException {
-        log.info("retrieving Facebook Graph object {}",resourceUri);
-
-        // if a URI starts with http://www.facebook.com we redirect to the object in the Graph API at http://graph.facebook.com
-        Matcher matcher = pattern.matcher(resourceUri);
-        if(matcher.matches()) {
-            String requestUri = "http://graph.facebook.com/"+matcher.group(2);
-
-            log.info("... redirecting to {}",resourceUri);
-
-            return Collections.singletonList(requestUri);
-        } else {
-            return Collections.singletonList(resourceUri);
-        }
-
-    }
-
-    /**
      * Parse the HTTP response entity returned by the web service call and return its contents in a Sesame RDF
      * repository also passed as argument. The content type returned by the web service is passed as argument to help
      * the implementation decide how to parse the data. The implementation can return a list of additional pages to
@@ -184,12 +172,11 @@ public class FacebookGraphProvider extends AbstractHttpProvider {
      * @param resourceUri
      * @param repository  an RDF repository for storing an RDF representation of the dataset located at the remote resource.
      * @param in          input stream as returned by the remote webservice
-     * @param contentType content type as returned in the HTTP headers of the remote webservice
+     * @param language    content language as returned in the HTTP headers of the remote webservice
      * @return a possibly empty list of URLs of additional resources to retrieve to complete the content
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
-    @Override
-    protected List<String> parseResponse(String resourceUri, String requestUrl, Repository repository, InputStream in, String contentType) throws DataRetrievalException {
+    protected List<String> parseResponse(String resourceUri, String requestUrl, Repository repository, InputStream in, String language) throws DataRetrievalException {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
@@ -210,18 +197,18 @@ public class FacebookGraphProvider extends AbstractHttpProvider {
 
                 con.add(subject,DCTERMS.identifier,vf.createLiteral(data.get("id").toString()));
 
-                // schema:name is the facebook name
-                con.add(subject, SCHEMA.name, vf.createLiteral(data.get("name").toString()));
-                con.add(subject, DCTERMS.title, vf.createLiteral(data.get("name").toString()));
+                // schema:name is the facebook name (can have multiple languages)
+                con.add(subject, SCHEMA.name, vf.createLiteral(data.get("name").toString(), language));
+                con.add(subject, DCTERMS.title, vf.createLiteral(data.get("name").toString(), language));
 
-                // dct:description in case a description or about is present
+                // dct:description in case a description or about is present (all content in English)
                 if(data.get("description") != null) {
-                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("description").toString()));
-                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("description").toString()));
+                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("description").toString(), "en"));
+                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("description").toString(), "en"));
                 }
                 if(data.get("about") != null) {
-                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("about").toString()));
-                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("about").toString()));
+                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("about").toString(), "en"));
+                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("about").toString(), "en"));
                 }
 
                 // if there is genre information, add it using schema:genre and dct:subject
@@ -319,4 +306,177 @@ public class FacebookGraphProvider extends AbstractHttpProvider {
     public String[] listMimeTypes() {
         return new String[] { "application/json"};
     }
+
+
+
+
+    /**
+     * Retrieve the data for a Facebook resource using the given http client and endpoint definition. Since Facebook
+     * returns multiple language versions for an object depending on the Accept-Language header, we will issue several
+     * requests to the same URL to get all the data. If the endpoint definition contains a property "languages"
+     * whose value is an array of language strings, this property is used. Otherwise it reverts to defaultLanguages.
+     *
+     *
+     *
+     * @param resourceUri the resource to be retrieved
+     * @param endpoint the endpoint definition
+     * @return a completely specified client response, including expiry information and the set of triples
+     */
+    @Override
+    public ClientResponse retrieveResource(String resourceUri, LDClientService client, Endpoint endpoint) throws DataRetrievalException {
+
+        try {
+
+            String contentType = "application/json";
+
+            long defaultExpires = client.getClientConfiguration().getDefaultExpiry();
+            if(endpoint != null && endpoint.getDefaultExpiry() != null) {
+                defaultExpires = endpoint.getDefaultExpiry();
+            }
+
+            final ResponseHandler handler = new ResponseHandler(resourceUri, endpoint);
+
+
+            String requestUri;
+            log.info("retrieving Facebook Graph object {}",resourceUri);
+
+            // if a URI starts with http://www.facebook.com we redirect to the object in the Graph API at http://graph.facebook.com
+            Matcher matcher = pattern.matcher(resourceUri);
+            if(matcher.matches()) {
+                log.info("... redirecting to {}",resourceUri);
+                requestUri = "http://graph.facebook.com/"+matcher.group(2);
+            } else {
+                requestUri = resourceUri;
+            }
+
+            String[] languages;
+            if(endpoint.getProperty("languages") != null) {
+                languages = endpoint.getProperty("languages").split(",");
+            } else {
+                languages = defaultLanguages;
+            }
+
+            for(String lang : languages) {
+                HttpGet get = new HttpGet(requestUri);
+                try {
+                    get.setHeader("Accept",contentType);
+                    get.setHeader("Accept-Language", lang);
+
+                    log.info("retrieving resource data for {} from '{}' endpoint, request URI is <{}>", new Object[]  {resourceUri, getName(), get.getURI().toASCIIString()});
+
+                    handler.requestUrl = requestUri;
+                    handler.language   = lang;
+                    client.getClient().execute(get, handler);
+                } finally {
+                    get.releaseConnection();
+                }
+            }
+
+            Date expiresDate = handler.expiresDate;
+            if (expiresDate == null) {
+                expiresDate = new Date(System.currentTimeMillis() + defaultExpires * 1000);
+            }
+
+            long min_expires = System.currentTimeMillis() + client.getClientConfiguration().getMinimumExpiry() * 1000;
+            if (expiresDate.getTime() < min_expires) {
+                log.info("expiry time returned by request lower than minimum expiration time; using minimum time instead");
+                expiresDate = new Date(min_expires);
+            }
+
+            if(log.isInfoEnabled()) {
+                RepositoryConnection con = handler.triples.getConnection();
+                log.info("retrieved {} triples for resource {}; expiry date: {}",new Object[] {con.size(),resourceUri,expiresDate});
+                con.close();
+            }
+
+            ClientResponse result = new ClientResponse(handler.triples);
+            result.setExpires(expiresDate);
+            return result;
+        } catch (RepositoryException e) {
+            log.error("error while initialising Sesame repository; classpath problem?",e);
+            throw new DataRetrievalException("error while initialising Sesame repository; classpath problem?",e);
+        } catch (ClientProtocolException e) {
+            log.error("HTTP client error while trying to retrieve resource {}: {}", resourceUri, e.getMessage());
+            throw new DataRetrievalException("I/O error while trying to retrieve resource "+resourceUri,e);
+        } catch (IOException e) {
+            log.error("I/O error while trying to retrieve resource {}: {}", resourceUri, e.getMessage());
+            throw new DataRetrievalException("I/O error while trying to retrieve resource "+resourceUri,e);
+        } catch(RuntimeException ex) {
+            log.error("Unknown error while trying to retrieve resource {}: {}", resourceUri, ex.getMessage());
+            throw new DataRetrievalException("Unknown error while trying to retrieve resource "+resourceUri,ex);
+        }
+
+    }
+
+
+    private class ResponseHandler implements org.apache.http.client.ResponseHandler<List<String>> {
+
+        private Date             expiresDate;
+
+        private String                requestUrl;
+
+        // the repository where the triples will be stored in case the data providers return them
+        private final Repository triples;
+
+        private final Endpoint   endpoint;
+
+        private final String resource;
+
+        // language tag to use for literals
+        public String language;
+
+        public ResponseHandler(String resource, Endpoint endpoint) throws RepositoryException {
+            this.resource = resource;
+            this.endpoint = endpoint;
+
+            triples = new SailRepository(new MemoryStore());
+            triples.initialize();
+        }
+
+        @Override
+        public List<String> handleResponse(HttpResponse response) throws IOException {
+            ArrayList<String> requestUrls = new ArrayList<String>();
+
+            if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 400) {
+                final HttpEntity entity = response.getEntity();
+                if (entity == null)
+                    throw new IOException("no content returned by Linked Data resource " + resource);
+
+
+                if (entity != null) {
+                    InputStream in = entity.getContent();
+                    try {
+
+                        List<String> urls = parseResponse(resource, requestUrl, triples, in, language);
+                        requestUrls.addAll(urls);
+
+                        if (expiresDate == null) {
+                            Header expires = response.getFirstHeader("Expires");
+                            if (expires != null) {
+                                try {
+                                    expiresDate = DateUtils.parseDate(expires.getValue());
+                                } catch (DateParseException e) {
+                                    log.debug("error parsing Expires: header");
+                                }
+                            }
+                        }
+
+                    } catch (DataRetrievalException e) {
+                        // FIXME: get.abort();
+                        throw new IOException(e);
+                    } finally {
+                        in.close();
+                    }
+                }
+                EntityUtils.consume(entity);
+            } else {
+                log.error("the HTTP request failed (status: {})", response.getStatusLine());
+                throw new ClientProtocolException("the HTTP request failed (status: " + response.getStatusLine() + ")");
+            }
+
+            return requestUrls;
+        }
+
+    }
+
 }

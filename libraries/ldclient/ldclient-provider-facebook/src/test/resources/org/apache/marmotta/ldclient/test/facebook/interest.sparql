@@ -4,6 +4,6 @@ PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX schema: <http://schema.org/>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 ASK {
-    <http://graph.facebook.com/106515832719603> dct:title "Berg" ;
+    <http://graph.facebook.com/106515832719603> dct:title "Berg"@de ;
                                           rdf:type skos:Concept .
 }
