@@ -152,8 +152,8 @@ public class KiWiPersistence {
     }
 
     public void logPoolInfo() throws SQLException {
-        log.info("num_busy_connections:    {}", connectionPool.getNumActive());
-        log.info("num_idle_connections:    {}", connectionPool.getNumIdle());
+        log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
+        log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
 
     }
 
