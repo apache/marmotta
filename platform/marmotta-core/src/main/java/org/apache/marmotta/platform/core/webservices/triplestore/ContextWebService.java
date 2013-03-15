@@ -73,7 +73,7 @@ public class ContextWebService {
      * @param context uri
      * @return
      * @throws URISyntaxException
-     * @see http://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification
+     * @see http://www.w3.org/TR/sparql11-http-rdf-update/\#indirect-graph-identification
      */
     @GET
     public Response get(@HeaderParam("Accept") String types, @QueryParam("graph") String context) throws URISyntaxException {
