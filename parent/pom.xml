@@ -393,8 +393,10 @@
                     <configuration>
                         <excludeSubProjects>false</excludeSubProjects>
                         <excludes>
+                            <exclude>**/*.txt</exclude>
                             <exclude>**/atlassian-ide-plugin.xml</exclude>
                             <exclude>**/README.*</exclude>
+                            <exclude>**/NOTICE.*</exclude>
                             <exclude>**/.*</exclude>
                             <exclude>**/.*/*</exclude>
                             <exclude>**/.*/**/*</exclude>
@@ -409,6 +411,9 @@
                             <exclude>**/*.iml</exclude>
                             <exclude>**/*.ipr</exclude>
                             <exclude>**/*.iws</exclude>
+                            <exclude>**/*.psd</exclude>
+                            <exclude>**/*.out</exclude>
+                            <exclude>**/*.log</exclude>
 
                             <!-- known 3rd-party source code -->
                             <exclude>**/jquery*.js</exclude>
@@ -422,15 +427,19 @@
                             <exclude>**/sgvizler/**</exclude>
                             <exclude>**/js/lib/**</exclude>
                             <exclude>**/src/ext/**</exclude>
+                            <exclude>**/src/main/resources/task-dialog*.properties</exclude>
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/jsonld/**</exclude>
+                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
 
                             <!-- META-INF files don't take a license header -->
                             <exclude>**/META-INF/**</exclude>
 
-                            <!-- our parsers don't support comments ... -->
+                            <!-- some parsers don't support comments ... -->
                             <exclude>**/*.kwrl</exclude>
                             <exclude>**/*.ldpath</exclude>
                             <exclude>**/*.search</exclude>
+                            <exclude>**/*.ics</exclude>
+                            <exclude>**/*.json</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
