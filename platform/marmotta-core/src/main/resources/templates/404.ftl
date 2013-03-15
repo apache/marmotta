@@ -21,13 +21,14 @@
 <html lang="en">
 
 <head>
-  <title>404 Not Found - LMF Linked Data Explorer</title>
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />  
-  <script src="${baseUri}core/public/js/lib/jquery-1.7.2.js" type="text/javascript" ></script>
-  <link href="${baseUri}core/public/style/style.css" title="screen" rel="stylesheet" type="text/css" />
-  <link href="${baseUri}core/public/style/scheme/blue.css" title="screen" rel="stylesheet" type="text/css" />  
-  <link href="${baseUri}core/public/style/scheme/dark.css" title="screen" rel="stylesheet" type="text/css" />  
-  <link href="${baseUri}core/public/style/rdfhtml.css" title="screen" rel="stylesheet" type="text/css" />  
+  <title>404 Not Found - Marmotta Linked Data Explorer</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
+  <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}"> 
+  <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js" type="text/javascript" ></script>
+  <link href="${SERVER_URL}core/public/style/style.css" title="screen" rel="stylesheet" type="text/css" />
+  <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="screen" rel="stylesheet" type="text/css" />  
+  <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="screen" rel="alternate stylesheet" type="text/css" />  
+  <link href="${SERVER_URL}core/public/style/rdfhtml.css" title="screen" rel="stylesheet" type="text/css" />  
   <style type="text/css">
     div#center {
       float: none; 
@@ -53,9 +54,9 @@
 <div id="wrapper">
 
     <div id="header">
-        <a id="logo" href="${baseUri}">
-            <img src="${baseUri}core/public/img/logo/lmf-logo.png" alt="LMF" />
-        </a>    
+        <a id="logo" href="${SERVER_URL}" title="${PROJECT}">
+            <img src="${SERVER_URL}${LOGO}" alt="${PROJECT} logo" />
+        </a>
         <h1>LMF Linked Data Explorer</h1>
     </div>
 
@@ -65,7 +66,7 @@
           <h2>404 Not Found</h2>
         
           <p>
-            <strong><a href="${baseUri}resource?uri=${encoded_uri}">${uri}</a></strong><a href="${uri}"><img src="${baseUri}core/public/img/icon/link.png" alt="${uri}" title="go to ${uri} directly" /></a>
+            <strong><a href="${SERVER_URL}resource?uri=${encoded_uri}">${uri}</a></strong><a href="${uri}"><img src="${SERVER_URL}core/public/img/icon/link.png" alt="${uri}" title="go to ${uri} directly" /></a>
           </p>
           
           <p>

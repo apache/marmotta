@@ -23,11 +23,12 @@
 <head>
   <title>Resource/s in HTML</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-  <script type="text/javascript" src="${baseUri}core/public/js/lib/jquery-1.7.2.js"></script>
-    <link href="${baseUri}core/public/style/style.css" rel="stylesheet" type="text/css" />
-    <link href="${baseUri}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
-    <link href="${baseUri}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
-    <link href="${baseUri}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css" />
+  <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}">
+  <script type="text/javascript" src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
+  <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
+  <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
+  <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
+  <link href="${SERVER_URL}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css" />
 
   <script>
       $(document).ready(function(){
@@ -44,7 +45,7 @@
 
           $("a.ldcache").each(function(index) {
               $(this).click(function() {
-                  window.location.href = "${baseUri}resource?uri=" + encodeURIComponent($(this).attr("href"));
+                  window.location.href = "${SERVER_URL}resource?uri=" + encodeURIComponent($(this).attr("href"));
                   return false;
               });
           });
@@ -75,7 +76,7 @@
                   limit: 10,
                   fetch: function() {
                       var self = this;
-                      $.getJSON("${baseUri}inspect/" + type, {uri: self.resource, start: self.offset, limit: self.limit}, function(data) {
+                      $.getJSON("${SERVER_URL}inspect/" + type, {uri: self.resource, start: self.offset, limit: self.limit}, function(data) {
                           if(data.length == 0) {
                               console.log(table);
                               table.replaceWith("<p class='no_triples'>No triples to display</p>");
@@ -170,17 +171,17 @@
 
 <div id="wrapper">
     <div id="header">
-        <a id="logo" href="${SERVER_URL}">
-            <img src="${SERVER_URL}${LOGO}">
+        <a id="logo" href="${SERVER_URL}" title="${PROJECT}">
+            <img src="${SERVER_URL}${LOGO}" alt="${PROJECT} logo" />
         </a>
         <h1>RDF/HTML</h1>
         <#if resources?size = 1>
         <div id="top_serialisation_links">
-            <a href="${baseUri}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bxml">RDF/XML</a>&nbsp;|&nbsp;
-            <a href="${baseUri}resource?uri=${resources[0].encoded_uri}&amp;format=text/rdf%2Bn3">N3</a>&nbsp;|&nbsp;
-            <a href="${baseUri}resource?uri=${resources[0].encoded_uri}&amp;format=text/turtle">Turtle</a>&nbsp;|&nbsp;
-            <a href="${baseUri}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bjson">RDF/JSON</a>&nbsp;|&nbsp;
-            <a href="${baseUri}resource?uri=${resources[0].encoded_uri}&amp;format=application/ld%2Bjson">JSON-LD</a>
+            <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bxml">RDF/XML</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/rdf%2Bn3">N3</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/turtle">Turtle</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bjson">RDF/JSON</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/ld%2Bjson">JSON-LD</a>
         </div>
         <div class="clean"></div>
         </#if>
@@ -208,8 +209,8 @@
                 <#list resources as resource>
                     <h2><a href="${resource.uri}" class="ldcache">${resource.uri}</a>
                         <#if timemaplink??>
-                            <a style="float:right" id="timemap_link" href="${baseUri}${timemaplink}${resource.uri}">
-                                <img style="width: 24px" title="browser versions" alt="memento" src="${baseUri}core/public/img/icon/memento_logo_128.png">
+                            <a style="float:right" id="timemap_link" href="${SERVER_URL}${timemaplink}${resource.uri}">
+                                <img style="width: 24px" title="browser versions" alt="memento" src="${SERVER_URL}core/public/img/icon/memento_logo_128.png">
                             </a>
                         </#if>
                     </h2>
@@ -238,11 +239,11 @@
                     <#if resources?size != 1>
                     <p id="rawrdf">
                         Get this resource in raw RDF:
-                        <a href="${baseUri}resource?uri=${resource.encoded_uri}&amp;format=application/rdf%2Bxml">RDF/XML</a>,
-                        <a href="${baseUri}resource?uri=${resource.encoded_uri}&amp;format=text/rdf%2Bn3">N3</a>,
-                        <a href="${baseUri}resource?uri=${resource.encoded_uri}&amp;format=text/turtle">Turtle</a>,
-                        <a href="${baseUri}resource?uri=${resource.encoded_uri}&amp;format=application/rdf%2Bjson">RDF/JSON</a>,
-                        <a href="${baseUri}resource?uri=${resource.encoded_uri}&amp;format=application/ld%2Bjson">JSON-LD</a>
+                        <a href="${SERVER_URL}resource?uri=${resource.encoded_uri}&amp;format=application/rdf%2Bxml">RDF/XML</a>,
+                        <a href="${SERVER_URL}resource?uri=${resource.encoded_uri}&amp;format=text/rdf%2Bn3">N3</a>,
+                        <a href="${SERVER_URL}resource?uri=${resource.encoded_uri}&amp;format=text/turtle">Turtle</a>,
+                        <a href="${SERVER_URL}resource?uri=${resource.encoded_uri}&amp;format=application/rdf%2Bjson">RDF/JSON</a>,
+                        <a href="${SERVER_URL}resource?uri=${resource.encoded_uri}&amp;format=application/ld%2Bjson">JSON-LD</a>
                     </p>
                     </#if>
                 </#list>

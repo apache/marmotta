@@ -354,7 +354,7 @@ public class ResourceWebService {
                 	log.debug("So redirecting directly to it...");
                 	return Response.seeOther(new java.net.URI(uri)).build();
                 }
-                if (resource == null) return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future");
+                if (resource == null) return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService);
                 // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
                 // "/" + uuid;
 

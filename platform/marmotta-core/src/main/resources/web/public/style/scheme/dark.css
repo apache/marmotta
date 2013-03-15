@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /* main */
 html,body {
     background-color: #4d4d4d;
@@ -46,7 +47,7 @@ a:visited {
 }
 
 #content h2 a {
-    color: #b5b5b5;
+    color: #6dcff5;
 }
 
 #content h2 {
@@ -126,5 +127,5 @@ table.simple_table tr {
 }
 
 table.simple_table tr.even {
-    background-color: #6dcff5;
+    background-color: #8d8d8d;
 }
