@@ -52,14 +52,14 @@
 <body>
 
 <div id="wrapper">
-
     <div id="header">
         <a id="logo" href="${SERVER_URL}" title="${PROJECT}">
             <img src="${SERVER_URL}${LOGO}" alt="${PROJECT} logo" />
         </a>
-        <h1>LMF Linked Data Explorer</h1>
+        <h1>Marmotta Linked Data Explorer</h1>
+        <div class="clean"></div>
     </div>
-
+    <div class="clear"></div>
     <div id="center">
         <div id="content">
 
@@ -81,10 +81,10 @@
     <div id="footer">
         <div id="footer_line">
             <span>
-                <abbr title="Linked Media Framework">LMF</abbr> is a project of <a href="http://www.newmedialab.at/">SNML-TNG</a></span>
+                ${FOOTER}
             </span>
         </div>
-    </div>    
+    </div> 
 
 </div>
 
