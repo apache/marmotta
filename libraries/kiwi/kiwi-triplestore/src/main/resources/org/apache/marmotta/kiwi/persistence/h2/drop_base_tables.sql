@@ -14,7 +14,7 @@
 -- limitations under the License.
 
 DROP INDEX IF EXISTS idx_node_content;
-DROP INDEX idx_literal_lang;
+DROP INDEX IF EXISTS idx_literal_lang;
 
 DROP INDEX IF EXISTS idx_triples_s;
 DROP INDEX IF EXISTS idx_triples_o;
