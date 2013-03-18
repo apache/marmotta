@@ -25,7 +25,7 @@
 <head>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}">
+    <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}" />
     <link href="${SERVER_URL}core/public/style/javadoc.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
@@ -45,8 +45,10 @@
             }
         </script>
     </#if>
+
     ${HEAD}
-    <title>Apache Marmotta</title>
+
+</head>
 
 <body>
 

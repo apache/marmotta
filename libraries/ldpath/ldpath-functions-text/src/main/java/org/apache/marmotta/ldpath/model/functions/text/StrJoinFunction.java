@@ -63,7 +63,7 @@ public class StrJoinFunction<Node> extends SelectorFunction<Node> {
 
     @Override
     public String getSignature() {
-        return "fn:replace(nodes: NodeList, separator: String [, prefix: String [, suffix: String ]]) :: LiteralList";
+        return "fn:strJoin(nodes: NodeList, separator: String [, prefix: String [, suffix: String ]]) :: LiteralList";
     }
 
     @Override
