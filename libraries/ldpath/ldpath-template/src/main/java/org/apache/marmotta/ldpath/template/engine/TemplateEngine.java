@@ -35,7 +35,9 @@ import org.apache.marmotta.ldpath.template.model.freemarker.TemplateNodeModel;
 import org.apache.marmotta.ldpath.template.model.freemarker.TemplateStackModel;
 
 /**
- * Add file description here!
+ * A FreeMarker based
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert
  */

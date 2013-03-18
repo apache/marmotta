@@ -34,6 +34,8 @@ import java.util.List;
 
 /**
  * Function to clean up HTML and remove all script and style elements from the content.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert
  */

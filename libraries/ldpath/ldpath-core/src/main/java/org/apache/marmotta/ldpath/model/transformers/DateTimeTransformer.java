@@ -25,7 +25,9 @@ import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 /**
- * Add file description here!
+ * Transform literals to datetime objects (i.e. dates with both a date component and a time component) if possible.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  */

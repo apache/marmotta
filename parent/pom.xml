@@ -302,13 +302,28 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>2.10</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.marmotta</groupId>
+                            <artifactId>checkstyle-resources</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
-                        <skip>false</skip>
-                        <failsOnError>false</failsOnError>
                         <enableRulesSummary>true</enableRulesSummary>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <failsOnError>false</failsOnError>
+                        <configLocation>org/apache/marmotta/checkstyle/checkstyle.xml</configLocation>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>check-compile</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin> <!-- generate JRebel Configuration -->
                     <groupId>org.zeroturnaround</groupId>
@@ -498,24 +513,11 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-reactor-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.zeroturnaround</groupId>
@@ -533,20 +535,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.rat</groupId>
-                <artifactId>apache-rat-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <!--
-                      During release:perform, enable the "sign" profile
-                     -->
-                    <releaseProfiles>sign</releaseProfiles>
-                </configuration>
             </plugin>
         </plugins>
     </build>

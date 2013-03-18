@@ -26,7 +26,9 @@ import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 
 /**
  * Selects the <code>first</code> node in the argument list.
- * 
+ *
+ *
+ * @param <Node> the node type used by the backend
  * @author jakob
  * 
  */

@@ -21,6 +21,8 @@ package org.apache.marmotta.commons.sesame.filter;
  * A filter that always returns false.
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
+ *
+ * @param <T> the type of object to filter
  */
 public class AlwaysFalseFilter<T> implements SesameFilter<T> {
 

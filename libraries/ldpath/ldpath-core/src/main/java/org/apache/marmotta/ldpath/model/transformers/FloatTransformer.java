@@ -23,7 +23,9 @@ import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import java.util.Map;
 
 /**
- * Add file description here!
+ * Transform literal nodes into their float value representation.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  */
