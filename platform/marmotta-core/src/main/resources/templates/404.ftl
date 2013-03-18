@@ -17,41 +17,26 @@
     limitations under the License.
 
 -->
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<head>
-  <title>404 Not Found - Marmotta Linked Data Explorer</title>
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
-  <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}"> 
-  <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js" type="text/javascript" ></script>
-  <link href="${SERVER_URL}core/public/style/style.css" title="screen" rel="stylesheet" type="text/css" />
-  <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="screen" rel="stylesheet" type="text/css" />  
-  <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="screen" rel="alternate stylesheet" type="text/css" />  
-  <link href="${SERVER_URL}core/public/style/rdfhtml.css" title="screen" rel="stylesheet" type="text/css" />  
-  <style type="text/css">
-    div#center {
-      float: none; 
-      width: auto; 
-      vertical-align: middle; 
-      min-height: 400px; 
-      margin: 0; 
-      padding: 2em 30% 5em 30%;
-    }
-    div#center > * {
-      margin-top: 2em;
-      font-size: 1.6em;
-    }
-    div#center > p > a > img {
-      vertical-align: text-top;
-      margin-left: 0.15em;
-    }
-  </style>  
-</head>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 
-<body>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
+    <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}" /> 
+    <title>404 Not Found - Marmotta Linked Data Explorer</title>
+    <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js" type="text/javascript" ></script>
+    <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />  
+    <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />  
+    <link href="${SERVER_URL}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css" />  
+    <link href="${SERVER_URL}core/public/style/404.css" rel="stylesheet" type="text/css" />  
+  </head>
 
-<div id="wrapper">
+  <body>
+
+    <div id="wrapper">
     <div id="header">
         <a id="logo" href="${SERVER_URL}" title="${PROJECT}">
             <img src="${SERVER_URL}${LOGO}" alt="${PROJECT} logo" />
@@ -76,7 +61,7 @@
         </div>
         
     </div>
-    
+
     <div class="clear"></div>
     <div id="footer">
         <div id="footer_line">
@@ -86,16 +71,16 @@
         </div>
     </div> 
 
-</div>
+    </div>
 
-<script type="text/javascript"> 
+    <script type="text/javascript"> 
 
-  $(document).ready(function() {
+    $(document).ready(function() {
 
-  });
+    });
 
-</script> 
+    </script> 
 
-</body>
+  </body>
 
 </html>
