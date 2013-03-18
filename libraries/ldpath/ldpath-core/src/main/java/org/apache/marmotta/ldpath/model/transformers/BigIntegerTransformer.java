@@ -24,6 +24,11 @@ import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 
+/**
+ * A node transformer transforming the node to its big integer value, if possible.
+ *
+ * @param <Node> the node type used by the backend
+ */
 public class BigIntegerTransformer<Node> implements NodeTransformer<BigInteger,Node> {
 
     @Override

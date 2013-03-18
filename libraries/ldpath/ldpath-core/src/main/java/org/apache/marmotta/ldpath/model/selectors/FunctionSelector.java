@@ -29,7 +29,9 @@ import org.apache.marmotta.ldpath.api.functions.NodeFunction;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
- * Add file description here!
+ * Apply a function to the collection of nodes passed as argument of the selector.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  */

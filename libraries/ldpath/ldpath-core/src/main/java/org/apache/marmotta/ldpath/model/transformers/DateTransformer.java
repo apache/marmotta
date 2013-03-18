@@ -24,7 +24,9 @@ import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 /**
- * TODO: is this a duplicate of DateTimeTransformer?
+ * Transform literal nodes into a date representation without time component if possible.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  */

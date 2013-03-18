@@ -55,6 +55,7 @@
         <module>archetypes</module>
         <module>plugins</module>
         <module>dependency-resource-supplement</module>
+        <module>checkstyle-resources</module>
     </modules>
     
 </project>

@@ -21,6 +21,8 @@ package org.apache.marmotta.commons.sesame.filter;
  * A filter that accepts everything.
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
+ *
+ * @param <T> the type of object to filter
  */
 public class AlwaysTrueFilter<T> implements SesameFilter<T> {
 

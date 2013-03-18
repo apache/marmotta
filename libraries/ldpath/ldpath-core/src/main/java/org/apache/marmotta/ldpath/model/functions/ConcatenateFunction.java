@@ -28,6 +28,8 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 
 /**
  * A node function concatenating a list of nodes interpreted as strings.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  */
