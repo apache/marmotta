@@ -31,7 +31,28 @@
     <name>Apache Marmotta Archetype: Web Application</name>
     <description>Web Application bundle (WAR file) containing Apache Marmotta</description>
 
+    <properties>
+        <marmottaVersion>${project.version}</marmottaVersion>
+    </properties>
+
     <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
 
         <extensions>
             <extension>

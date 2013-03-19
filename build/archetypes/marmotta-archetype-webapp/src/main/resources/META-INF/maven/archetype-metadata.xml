@@ -23,12 +23,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     name="marmotta-webapp">
 
-  <requiredProperties>
-    <requiredProperty key="marmottaVersion">
-      <defaultValue>3.0.0-incubating-SNAPSHOT</defaultValue>
-    </requiredProperty>
-  </requiredProperties>
-
   <fileSets>
     <fileSet filtered="true" encoding="UTF-8">
       <directory>src/main/webapp</directory>
