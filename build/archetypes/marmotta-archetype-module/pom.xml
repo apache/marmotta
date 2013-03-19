@@ -34,7 +34,7 @@
     <properties>
         <marmottaVersion>${project.version}</marmottaVersion>
         <junitVersion>${junit.version}</junitVersion>
-        <weldSeCoreVersion>${weld.se.core.version}</weldSeCoreVersion>
+        <weldCoreVersion>${weld.core.version}</weldCoreVersion>
         <h2Version>${h2.version}</h2Version>
         <restAssuredVersion>${rest.assured.version}</restAssuredVersion>
         <hamcrestVersion>${hamcrest.version}</hamcrestVersion>
