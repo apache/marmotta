@@ -713,47 +713,47 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.2</version>
+                <version>1.7.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-ext</artifactId>
-                <version>1.7.2</version>
+                <version>1.7.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.2</version>
+                <version>1.7.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.7.2</version>
+                <version>1.7.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.2</version>
+                <version>1.7.4</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.2</version>
+                <version>1.7.4</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.0.9</version>
+                <version>1.0.10</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.9</version>
+                <version>1.0.10</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.cal10n</groupId>
                 <artifactId>cal10n-api</artifactId>
-                <version>0.7.2</version>         <!-- force-downgrade because of http://jira.qos.ch/browse/CAL-29 -->
+                <version>0.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
@@ -793,22 +793,22 @@
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
-                <version>1.9.11</version>
+                <version>1.9.12</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.11</version>
+                <version>1.9.12</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-jaxrs</artifactId>
-                <version>1.9.11</version>
+                <version>1.9.12</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-xc</artifactId>
-                <version>1.9.11</version>
+                <version>1.9.12</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
