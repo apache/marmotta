@@ -48,4 +48,6 @@ public class LinkedHashSetBlockingQueueTest {
         Assert.assertEquals(0,queue.size());
 
     }
+
+
 }
