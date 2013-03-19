@@ -7,7 +7,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0  
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,11 +33,10 @@
     <version>${version}</version>
 
     <properties>
-        <!-- these are used for the goals tomcat6/7:run or jetty:run -->
         <marmotta.home>/tmp/marmotta</marmotta.home>
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
-        <marmotta.version>3.0.0-incubating-SNAPSHOT</marmotta.version> <!-- TODO: http://stackoverflow.com/questions/7223031/how-to-embed-archetype-project-version-in-maven-archetype -->
+        <marmotta.version>${marmottaVersion}</marmotta.version>
     </properties>
 
     <build>
@@ -105,8 +104,7 @@
                     <configuration>
                         <contextPath>${marmotta.context}</contextPath>
                         <connectors>
-                            <connector
-                                    implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                            <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
                                 <port>${marmotta.port}</port>
                             </connector>
                         </connectors>
@@ -116,7 +114,7 @@
                                 <value>${marmotta.home}</value>
                             </systemProperty>
                         </systemProperties>
-                        <stopKey>foo</stopKey>
+                        <stopKey>marmotta</stopKey>
                         <stopPort>9999</stopPort>
                     </configuration>
                 </plugin>
@@ -221,6 +219,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
