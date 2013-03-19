@@ -184,7 +184,7 @@
                     <localCheckout>true</localCheckout>
 
                     <!-- the name of the tag of a release in GIT -->
-                    <tagNameFormat>Apache Marmotta ${project.version}}</tagNameFormat>
+                    <tagNameFormat>$${version}</tagNameFormat>
 
                     <!-- the profiles to run for the release -->
                     <arguments>-Pinstaller,marmotta-release ${arguments}</arguments>
