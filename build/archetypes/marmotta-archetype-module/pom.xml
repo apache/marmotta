@@ -29,9 +29,29 @@
     <packaging>maven-archetype</packaging>
 
     <name>Apache Marmotta Archetype: Module</name>
-    <description>This Maven Archetype allows creating the basic structure for an LMF Module</description>
+    <description>This Maven Archetype allows creating the basic structure for an Marmotta Module</description>
+
+    <properties>
+        <marmottaVersion>${project.version}</marmottaVersion>
+    </properties>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
