@@ -23,13 +23,13 @@
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
         <version>13</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0-incubating-SNAPSHOT</version>
+    <version>3.0.0-incubating</version>
 
     <name>Apache Marmotta Parent</name>
     <description>Parent POM for the Apache Marmotta project</description>
@@ -285,7 +285,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore></ignore>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                                 <pluginExecution>
@@ -1506,4 +1506,8 @@
 
         </profile>
     </profiles>
+
+  <scm>
+    <tag>3.0.0-incubating</tag>
+  </scm>
 </project>
