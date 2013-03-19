@@ -76,16 +76,6 @@
     </pluginRepositories>
 
     <distributionManagement>
-        <repository>
-            <id>apache.releases</id>
-            <name>Apache Relesases Repository</name>
-            <url>https://repository.apache.org/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshots Repository</name>
-            <url>https://repository.apache.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
         <site>
             <id>marmotta</id>
             <url>http://marmotta.incubator.apache.org</url>

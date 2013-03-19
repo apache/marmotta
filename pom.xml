@@ -188,6 +188,8 @@
 
                     <!-- the profiles to run for the release -->
                     <arguments>-Pinstaller,marmotta-release ${arguments}</arguments>
+
+		    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
         </plugins>
