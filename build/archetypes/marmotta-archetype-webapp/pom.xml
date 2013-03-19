@@ -35,7 +35,8 @@
         <marmottaVersion>${project.version}</marmottaVersion>
         <servletApiVersion>${servlet.api.version}</servletApiVersion>
         <javaxElVersion>${javax.el.version}</javaxElVersion>
-        <weldVersion>${weld.version}</weldVersion>
+        <weldVersion>${weld.version}</weldVersion>        
+        <weldCoreVersion>${weld.core.version}</weldCoreVersion>
         <h2Version>${h2.version}</h2Version>
         <postgresqlVersion>${postgresql.version}</postgresqlVersion>
         <mysqlVersion>${mysql.version}</mysqlVersion>
