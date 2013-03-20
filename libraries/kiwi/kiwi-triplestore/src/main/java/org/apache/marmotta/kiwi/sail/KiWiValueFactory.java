@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
+import com.google.common.collect.MapMaker;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -42,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -69,31 +71,79 @@ public class KiWiValueFactory implements ValueFactory {
      * registry should not be used to check for existence of a resource via getResource(), it is purely meant
      * to ensure that a resource is not created multiple times.
      */
-    private WeakValueMap<String,KiWiUriResource>  uriRegistry;
-    private WeakValueMap<String,KiWiAnonResource> bnodeRegistry;
-    private WeakValueMap<String,KiWiLiteral>      literalRegistry;
-    private WeakValueMap<IntArray,Statement>      tripleRegistry;
+    private ConcurrentMap<IntArray,Statement> tripleRegistry;
 
-    private KiWiConnection connection;
+    private KiWiStore store;
 
-    private ReentrantLock lock;
+    private ReentrantLock nodeLock;
+    private ReentrantLock tripleLock;
+
+    private ConcurrentMap<String,ReentrantLock> resourceLocks;
+    private ConcurrentMap<Object,ReentrantLock> literalLocks;
 
     private String defaultContext;
 
 
-    public KiWiValueFactory(KiWiStore store, KiWiConnection connection, String defaultContext) {
-        lock = store.lock;
+    public KiWiValueFactory(KiWiStore store, String defaultContext) {
+        nodeLock = store.nodeLock;
+        tripleLock = store.tripleLock;
+        resourceLocks = new MapMaker().weakKeys().weakValues().makeMap();
+        literalLocks  = new MapMaker().weakKeys().weakValues().makeMap();
 
         anonIdGenerator = new Random();
-        uriRegistry     = store.uriRegistry;
-        bnodeRegistry   = store.bnodeRegistry;
-        literalRegistry = store.literalRegistry;
         tripleRegistry  = store.tripleRegistry;
 
-        this.connection     = connection;
+        this.store          = store;
         this.defaultContext = defaultContext;
     }
 
+    protected KiWiConnection aqcuireConnection() {
+        try {
+            KiWiConnection connection = store.getPersistence().getConnection();
+            return connection;
+        } catch(SQLException ex) {
+            log.error("could not acquire database connection",ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    protected void releaseConnection(KiWiConnection con) {
+        try {
+            con.commit();
+            con.close();
+        } catch (SQLException ex) {
+            log.error("could not release database connection", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    protected ReentrantLock acquireResourceLock(String uri) {
+        ReentrantLock lock;
+        synchronized (resourceLocks) {
+            lock = resourceLocks.get(uri);
+            if(lock == null) {
+                lock = new ReentrantLock();
+                resourceLocks.put(uri,lock);
+            }
+        }
+        lock.lock();
+
+        return lock;
+    }
+
+    protected ReentrantLock acquireLiteralLock(Object value) {
+        ReentrantLock lock;
+        synchronized (literalLocks) {
+            lock = literalLocks.get(value);
+            if(lock == null) {
+                lock = new ReentrantLock();
+                literalLocks.put(value,lock);
+            }
+        }
+        lock.lock();
+
+        return lock;
+    }
     /**
      * Creates a new bNode.
      *
@@ -109,23 +159,20 @@ public class KiWiValueFactory implements ValueFactory {
      *
      * @param uri A string-representation of a URI.
      * @return An object representing the URI.
-      */
+     */
     @Override
     public URI createURI(String uri) {
-        lock.lock();
+
+        ReentrantLock lock = acquireResourceLock(uri);
+        KiWiConnection connection = aqcuireConnection();
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
-            KiWiUriResource result = uriRegistry.get(uri);
+            KiWiUriResource result = connection.loadUriResource(uri);
 
             if(result == null) {
-                result = connection.loadUriResource(uri);
-
-                if(result == null) {
-                    result = new KiWiUriResource(uri);
-                    connection.storeNode(result);
-                    uriRegistry.put(uri,result);
-                }
+                result = new KiWiUriResource(uri);
+                connection.storeNode(result);
             }
 
             return result;
@@ -133,6 +180,7 @@ public class KiWiValueFactory implements ValueFactory {
             log.error("database error, could not load URI resource",e);
             throw new IllegalStateException("database error, could not load URI resource",e);
         } finally {
+            releaseConnection(connection);
             lock.unlock();
         }
     }
@@ -164,20 +212,16 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode(String nodeID) {
-        lock.lock();
+        nodeLock.lock();
+        KiWiConnection connection = aqcuireConnection();
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
-            KiWiAnonResource result = bnodeRegistry.get(nodeID);
+            KiWiAnonResource result = connection.loadAnonResource(nodeID);
 
             if(result == null) {
-                result = connection.loadAnonResource(nodeID);
-
-                if(result == null) {
-                    result = new KiWiAnonResource(nodeID);
-                    connection.storeNode(result);
-                    bnodeRegistry.put(nodeID,result);
-                }
+                result = new KiWiAnonResource(nodeID);
+                connection.storeNode(result);
             }
 
             return result;
@@ -185,7 +229,8 @@ public class KiWiValueFactory implements ValueFactory {
             log.error("database error, could not load anonymous resource",e);
             throw new IllegalStateException("database error, could not load anonymous resource",e);
         } finally {
-            lock.unlock();
+            releaseConnection(connection);
+            nodeLock.unlock();
         }
     }
 
@@ -269,22 +314,24 @@ public class KiWiValueFactory implements ValueFactory {
      * @return
      */
     private <T> KiWiLiteral createLiteral(T value, String lang, String type) {
-        lock.lock();
+        if (lang != null) {
+            type = LiteralCommons.getRDFLangStringType();
+        } else if(type == null) {
+            type = LiteralCommons.getXSDType(value.getClass());
+        }
+
+        KiWiLiteral result = null;
+
+        final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
+        final Locale locale;
+        if(lang != null) {
+            locale = LocaleUtils.toLocale(lang);
+        } else
+            locale  = null;
+
+        ReentrantLock lock = acquireLiteralLock(value);
+        KiWiConnection connection = aqcuireConnection();
         try {
-        	if (lang != null) {
-        		type = LiteralCommons.getRDFLangStringType();
-        	} else if(type == null) {
-                type = LiteralCommons.getXSDType(value.getClass());
-            }
-
-            KiWiLiteral result = null;
-
-            final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
-            final Locale locale;
-            if(lang != null) {
-                locale = LocaleUtils.toLocale(lang);
-            } else 
-            	locale  = null;
 
 
             // differentiate between the different types of the value
@@ -297,18 +344,14 @@ public class KiWiValueFactory implements ValueFactory {
                     dvalue = DateUtils.parseDate(value.toString());
                 }
 
-                final String cacheKey = LiteralCommons.createCacheKey(dvalue, type);
-                result = literalRegistry.get(cacheKey);
-                if(result == null) {
-                    result = connection.loadLiteral(dvalue);
+                result = connection.loadLiteral(dvalue);
 
-                    if(result == null) {
-                        result= new KiWiDateLiteral(dvalue, rtype);
-                    }
+                if(result == null) {
+                    result= new KiWiDateLiteral(dvalue, rtype);
                 }
             } else if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())  ||
-                      Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
-                      type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
+                    Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
+                    type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
                 long ivalue = 0;
                 if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
                     ivalue = (Integer)value;
@@ -319,18 +362,14 @@ public class KiWiValueFactory implements ValueFactory {
                 }
 
 
-                final String cacheKey = LiteralCommons.createCacheKey(Long.toString(ivalue), null, type);
-                result = literalRegistry.get(cacheKey);
-                if(result == null) {
-                    result = connection.loadLiteral(ivalue);
+                result = connection.loadLiteral(ivalue);
 
-                    if(result == null) {
-                        result= new KiWiIntLiteral(ivalue, rtype);
-                    }
+                if(result == null) {
+                    result= new KiWiIntLiteral(ivalue, rtype);
                 }
             } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
-                      Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
-                      type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
+                    Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
+                    type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
                 double dvalue = 0.0;
                 if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
                     dvalue = (Float)value;
@@ -341,17 +380,13 @@ public class KiWiValueFactory implements ValueFactory {
                 }
 
 
-                final String cacheKey = LiteralCommons.createCacheKey(Double.toString(dvalue), null, type);
-                result = literalRegistry.get(cacheKey);
-                if(result == null) {
-                    result = connection.loadLiteral(dvalue);
+                result = connection.loadLiteral(dvalue);
 
-                    if(result == null) {
-                        result= new KiWiDoubleLiteral(dvalue, rtype);
-                    }
+                if(result == null) {
+                    result= new KiWiDoubleLiteral(dvalue, rtype);
                 }
             } else if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())  ||
-                      type.equals(Namespaces.NS_XSD+"boolean")) {
+                    type.equals(Namespaces.NS_XSD+"boolean")) {
                 boolean bvalue = false;
                 if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())) {
                     bvalue = (Boolean)value;
@@ -360,24 +395,16 @@ public class KiWiValueFactory implements ValueFactory {
                 }
 
 
-                final String cacheKey = LiteralCommons.createCacheKey(Boolean.toString(bvalue), null, type);
-                result = literalRegistry.get(cacheKey);
-                if(result == null) {
-                    result = connection.loadLiteral(bvalue);
+                result = connection.loadLiteral(bvalue);
 
-                    if(result == null) {
-                        result= new KiWiBooleanLiteral(bvalue, rtype);
-                    }
+                if(result == null) {
+                    result= new KiWiBooleanLiteral(bvalue, rtype);
                 }
             } else {
-            	final String cacheKey = LiteralCommons.createCacheKey(value.toString(), locale, type);
-                result = literalRegistry.get(cacheKey);
-                if(result == null) {
-                    result = connection.loadLiteral(value.toString(), lang, rtype);
+                result = connection.loadLiteral(value.toString(), lang, rtype);
 
-                    if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, rtype);
-                    }
+                if(result == null) {
+                    result = new KiWiStringLiteral(value.toString(), locale, rtype);
                 }
             }
 
@@ -391,6 +418,7 @@ public class KiWiValueFactory implements ValueFactory {
             log.error("database error, could not load literal",e);
             throw new IllegalStateException("database error, could not load literal",e);
         } finally {
+            releaseConnection(connection);
             lock.unlock();
         }
     }
@@ -518,7 +546,8 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
-        lock.lock();
+        tripleLock.lock();
+        KiWiConnection connection = aqcuireConnection();
         try {
             IntArray cacheKey = IntArray.createSPOCKey(subject,predicate,object,context);
             Statement result = tripleRegistry.get(cacheKey);
@@ -547,7 +576,8 @@ public class KiWiValueFactory implements ValueFactory {
             log.error("database error, could not load triple", e);
             throw new IllegalStateException("database error, could not load triple",e);
         } finally {
-            lock.unlock();
+            releaseConnection(connection);
+            tripleLock.unlock();
         }
     }
 

@@ -88,7 +88,7 @@ public class KiWiSnapshotConnection implements SailConnection {
         try {
             this.databaseConnection = sailBase.getPersistence().getConnection();
             this.defaultContext     = sailBase.getBaseStore().getDefaultContext();
-            this.valueFactory       = new KiWiValueFactory(sailBase.getBaseStore(),databaseConnection,defaultContext);
+            this.valueFactory       = new KiWiValueFactory(sailBase.getBaseStore(),defaultContext);
             this.parent             = sailBase;
         } catch (SQLException e) {
             throw new SailException("error establishing database connection",e);

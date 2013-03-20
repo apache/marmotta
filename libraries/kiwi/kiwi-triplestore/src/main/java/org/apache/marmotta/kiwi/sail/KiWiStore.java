@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
+import com.google.common.collect.MapMaker;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
 import org.apache.marmotta.kiwi.model.collection.WeakValueMap;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
@@ -31,6 +32,7 @@ import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailBase;
 
 import java.sql.SQLException;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -45,13 +47,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class KiWiStore extends NotifyingSailBase {
 
-
-    /**
-     * A KiWiConnection used when a value factory is opened directly from the repository via getValueFactory().
-     * The connection will be initialised the first time getValueFactory is called and closed when the KiWiStore
-     * shuts down.
-     */
-    private KiWiConnection valueFactoryConnection;
 
     /**
      * The repository-wide value factory, using the valueFactoryConnection above. Will be initialised when
@@ -81,8 +76,9 @@ public class KiWiStore extends NotifyingSailBase {
      * For some operations (e.g. looking up nodes and triples) we hold a store-wide lock to avoid clashes between
      * threads. This could probably be relaxed a bit or even dropped altogether, but this approach is safer.
      */
-    protected ReentrantLock lock;
+    protected ReentrantLock nodeLock;
 
+    protected ReentrantLock tripleLock;
 
     /**
      * This is a hash map for storing references to resources that have not yet been persisted. It is used e.g. when
@@ -97,21 +93,16 @@ public class KiWiStore extends NotifyingSailBase {
      * registry should not be used to check for existence of a resource via getResource(), it is purely meant
      * to ensure that a resource is not created multiple times.
      */
-    protected WeakValueMap<String,KiWiUriResource>  uriRegistry;
-    protected WeakValueMap<String,KiWiAnonResource> bnodeRegistry;
-    protected WeakValueMap<String,KiWiLiteral>      literalRegistry;
-    protected WeakValueMap<IntArray,Statement>      tripleRegistry;
+    protected ConcurrentMap<IntArray,Statement> tripleRegistry;
 
     public KiWiStore(KiWiPersistence persistence, String defaultContext, String inferredContext) {
     	this.persistence    = persistence;
     	this.defaultContext = defaultContext;
-    	this.lock           = new ReentrantLock();
+        this.nodeLock       = new ReentrantLock();
+        this.tripleLock     = new ReentrantLock();
         this.inferredContext = inferredContext;
     	
-    	uriRegistry     = new WeakValueMap<String, KiWiUriResource>();
-    	bnodeRegistry   = new WeakValueMap<String, KiWiAnonResource>();
-    	literalRegistry = new WeakValueMap<String, KiWiLiteral>();
-    	tripleRegistry  = new WeakValueMap<IntArray, Statement>();
+    	tripleRegistry  = new MapMaker().weakValues().makeMap();
 
     }
 
@@ -192,21 +183,6 @@ public class KiWiStore extends NotifyingSailBase {
         if(repositoryValueFactory != null) {
             repositoryValueFactory = null;
         }
-        if(valueFactoryConnection != null) {
-            try {
-                if(!valueFactoryConnection.isClosed()) {
-                    // connection is autocommit
-                    if(!valueFactoryConnection.getAutoCommit()) {
-                        valueFactoryConnection.commit();
-                    }
-                    valueFactoryConnection.close();
-                }
-            } catch (SQLException ex) {
-                logger.warn("SQL exception ({}) while closing value factory connection",ex.getMessage());
-            } catch (Exception ex) {
-                logger.warn("generic exception ({}) while closing value factory connection",ex.getMessage());
-            }
-        }
 
     }
 
@@ -227,16 +203,8 @@ public class KiWiStore extends NotifyingSailBase {
      */
     @Override
     public ValueFactory getValueFactory() {
-        if(valueFactoryConnection == null) {
-            try {
-                valueFactoryConnection = persistence.getConnection();
-                valueFactoryConnection.setAutoCommit(true);
-            } catch (SQLException e) {
-                logger.error("could not create database connection",e);
-            }
-        }
         if(repositoryValueFactory == null) {
-            repositoryValueFactory = new KiWiValueFactory(this, valueFactoryConnection, defaultContext);
+            repositoryValueFactory = new KiWiValueFactory(this,  defaultContext);
         }
         return repositoryValueFactory;
     }
