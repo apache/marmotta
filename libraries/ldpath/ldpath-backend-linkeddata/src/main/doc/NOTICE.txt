@@ -18,6 +18,7 @@ Additionally, it includes the following 3rd party modules:
   rometools licensed under the Apache License 2.0
   Semargl: Core, RDF, RDFa and Sesame Integration under Apache Public License 2.0
   SLF4J API, Extension Module, and bridges for JUL, Log4j, JCL under MIT License
+  OneJar under New BSD License
 
 
 This project also contains annotations derived from JCIP-ANNOTATIONS
