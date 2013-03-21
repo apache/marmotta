@@ -455,9 +455,6 @@
                             <exclude>**/META-INF/**</exclude>
 
                             <!-- some parsers don't support comments ... -->
-                            <exclude>**/*.kwrl</exclude>
-                            <exclude>**/*.ldpath</exclude>
-                            <exclude>**/*.search</exclude>
                             <exclude>**/*.ics</exclude>
                             <exclude>**/*.json</exclude>
                         </excludes>

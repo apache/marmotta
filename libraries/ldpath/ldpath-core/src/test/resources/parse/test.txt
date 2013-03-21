@@ -1,1 +1,0 @@
-test:type is foo:bar | test:p1 & fn:eq("1", "2")

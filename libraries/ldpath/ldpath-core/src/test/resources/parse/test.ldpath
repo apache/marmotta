@@ -13,6 +13,4 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-($1 rdfs:subClassOf $2), ($2 rdfs:subClassOf $3) -> ($1 rdfs:subClassOf $3)
+test:type is foo:bar | test:p1 & fn:eq("1", "2")

@@ -61,7 +61,7 @@ public class ParserTest {
 
     @Test
     public void testParseProgram() throws IOException {
-        RdfPathParser<String> parser = createParser("program.txt");
+        RdfPathParser<String> parser = createParser("program.ldpath");
         try {
             Program<String> program = parser.parseProgram();
             assertNotNull(program.getField("path"));
@@ -81,7 +81,7 @@ public class ParserTest {
 
     @Test
     public void testParseTest() throws IOException {
-        RdfPathParser<String> parser = createParser("test.txt");
+        RdfPathParser<String> parser = createParser("test.ldpath");
         try {
             NodeTest<String> test = parser.parseTest(NAMESPACES);
             assertNotNull(test);
@@ -93,7 +93,7 @@ public class ParserTest {
 
     @Test
     public void testParsePrefixes() throws IOException {
-        RdfPathParser<String> parser = createParser("namespaces.txt");
+        RdfPathParser<String> parser = createParser("namespaces.ldpath");
         try {
             Map<String, String> prefixes = parser.parsePrefixes();
             assertTrue(prefixes.containsKey("test"));

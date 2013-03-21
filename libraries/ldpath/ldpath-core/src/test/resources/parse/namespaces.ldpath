@@ -13,6 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-($1 rdfs:subClassOf $2), ($2 rdfs:subClassOf $3) -> ($1 rdfs:subClassOf $3)
+@prefix skos: <http://www.w3.org/2004/02/skos/core#>
+@prefix foo: <http://foo.com/some/path#> ;
+@prefix foaf: <http://xmlns.com/foaf/0.1/> ;
+@prefix test: <http://example.com/>
+@prefix dcterms: <http://purl.org/dc/terms/> ;
