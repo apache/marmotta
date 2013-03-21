@@ -470,6 +470,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.marmotta</groupId>
+                    <artifactId>buildinfo-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.marmotta</groupId>
                     <artifactId>repocheck-maven-plugin</artifactId>
                     <version>${project.version}</version>
                     <!--
