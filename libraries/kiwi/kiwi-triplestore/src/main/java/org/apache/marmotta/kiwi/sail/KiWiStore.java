@@ -19,11 +19,6 @@ package org.apache.marmotta.kiwi.sail;
 
 import com.google.common.collect.MapMaker;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
-import org.apache.marmotta.kiwi.model.collection.WeakValueMap;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.openrdf.model.Statement;

@@ -77,7 +77,7 @@ public class KiWiVersioningPersistence {
      * @throws java.sql.SQLException in case a new connection could not be established
      */
     public KiWiVersioningConnection getConnection() throws SQLException {
-        return new KiWiVersioningConnection(persistence.getJDBCConnection(), persistence.getDialect(), persistence.getCacheManager());
+        return new KiWiVersioningConnection(persistence, persistence.getDialect(), persistence.getCacheManager());
     }
 
 

@@ -27,6 +27,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.versioning.model.Version;
@@ -52,8 +53,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
 
     private static Logger log = LoggerFactory.getLogger(KiWiVersioningConnection.class);
 
-    public KiWiVersioningConnection(Connection connection, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
-        super(connection, dialect, cacheManager);
+    public KiWiVersioningConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
+        super(persistence, dialect, cacheManager);
     }
 
 
@@ -74,6 +75,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
             log.warn("version {} already had a version ID, not persisting", data);
             return;
         }
+
+        requireJDBCConnection();
 
         // first create a new entry in the version table
         data.setId(getNextSequence("seq.versions"));
@@ -134,6 +137,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public Version getVersion(Long id) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryVersions = getPreparedStatement("load.version_by_id");
         queryVersions.setLong(1,id);
         queryVersions.setMaxRows(1);
@@ -161,6 +166,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public Version getLatestVersion(KiWiResource resource, Date date) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryVersions = getPreparedStatement("load.versions_by_resource_latest");
         synchronized (queryVersions) {
             queryVersions.setLong(1, resource.getId());
@@ -210,6 +217,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     private CloseableIteration<Version, SQLException> listVersionsInternal() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryVersions = getPreparedStatement("load.versions");
 
         final ResultSet result = queryVersions.executeQuery();
@@ -253,6 +262,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
         if(r.getId() == null) {
             return new EmptyIteration<Version, SQLException>();
         } else {
+            requireJDBCConnection();
+
             PreparedStatement queryVersions = getPreparedStatement("load.versions_by_resource");
             queryVersions.setLong(1,r.getId());
 
@@ -297,6 +308,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     private CloseableIteration<Version, SQLException> listVersionsInternal(Date from, Date to) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryVersions = getPreparedStatement("load.version_between");
         synchronized (queryVersions) {
             queryVersions.clearParameters();
@@ -343,6 +356,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     private CloseableIteration<Version, SQLException> listVersionsInternal(KiWiResource r, Date from, Date to) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryVersions = getPreparedStatement("load.versions_by_resource_between");
         synchronized (queryVersions) {
             queryVersions.clearParameters();
@@ -477,6 +492,8 @@ public class KiWiVersioningConnection extends KiWiConnection {
             return new EmptyIteration<Statement, SQLException>();
         }
 
+        requireJDBCConnection();
+
         // otherwise we need to create an appropriate SQL query and execute it, the repository result will be read-only
         // and only allow forward iteration, so we can limit the query using the respective flags
         PreparedStatement query = connection.prepareStatement(
@@ -578,6 +595,9 @@ public class KiWiVersioningConnection extends KiWiConnection {
         if(context.getId() == null) {
             return 0;
         };
+
+        requireJDBCConnection();
+
         PreparedStatement querySize = getPreparedStatement("query.snapshot_size_ctx");
         querySize.setLong(1,context.getId());
         querySize.setTimestamp(2, new Timestamp(snapshotDate.getTime()));

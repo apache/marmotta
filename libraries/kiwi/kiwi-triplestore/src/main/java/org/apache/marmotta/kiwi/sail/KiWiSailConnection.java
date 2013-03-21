@@ -89,6 +89,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
 
     private boolean triplesAdded, triplesRemoved;
 
+    private HashSet<Long> deletedStatementsLog;
 
     public KiWiSailConnection(KiWiStore sailBase) throws SailException {
         super(sailBase);
@@ -160,11 +161,19 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             for(Resource context : contextSet) {
                 KiWiResource kcontext = valueFactory.convert(context);
 
-                KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(ksubj,kpred,kobj,kcontext);
+                KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(ksubj,kpred,kobj,kcontext, databaseConnection);
                 triple.setInferred(inferred);
 
                 if(triple.getId() == null) {
                     databaseConnection.storeTriple(triple);
+                    triplesAdded = true;
+                    notifyStatementAdded(triple);
+                } else if(deletedStatementsLog.contains(triple.getId())) {
+                    // this is a hack for a concurrency problem that may occur in case the triple is removed in the
+                    // transaction and then added again; in these cases the createStatement method might return
+                    // an expired state of the triple because it uses its own database connection
+
+                    databaseConnection.undeleteTriple(triple);
                     triplesAdded = true;
                     notifyStatementAdded(triple);
                 }
@@ -334,6 +343,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         // nothing to do, the database transaction is started automatically
         triplesAdded = false;
         triplesRemoved = false;
+        deletedStatementsLog = new HashSet<Long>();
     }
 
     @Override
@@ -344,6 +354,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             throw new SailException("database error while committing transaction",e);
         }
         if(triplesAdded || triplesRemoved) {
+            deletedStatementsLog.clear();
+
             store.notifySailChanged(new SailChangedEvent() {
                 @Override
                 public Sail getSail() {
@@ -367,6 +379,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     protected void rollbackInternal() throws SailException {
         try {
             databaseConnection.rollback();
+            deletedStatementsLog.clear();
         } catch (SQLException e) {
             throw new SailException("database error while rolling back transaction",e);
         }
@@ -381,6 +394,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 if(triple.getId() != null) {
                     databaseConnection.deleteTriple(triple);
                     triplesRemoved = true;
+                    deletedStatementsLog.add(triple.getId());
                     notifyStatementRemoved(triple);
                 }
             }
@@ -411,6 +425,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 if(triple.getId() != null && triple.isInferred()) {
                     databaseConnection.deleteTriple(triple);
                     triplesRemoved = true;
+                    deletedStatementsLog.add(triple.getId());
                     notifyStatementRemoved(triple);
                 }
             }
@@ -438,6 +453,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             if(triple.getId() != null && triple.isInferred()) {
                 databaseConnection.deleteTriple(triple);
                 triplesRemoved = true;
+                deletedStatementsLog.add(triple.getId());
                 notifyStatementRemoved(triple);
             }
         } catch(SQLException ex) {

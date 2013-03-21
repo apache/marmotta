@@ -291,13 +291,7 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
-        Connection conn = connectionPool.getConnection();
-        conn.setAutoCommit(false);
-        //conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-
-        //managedConnections.add(conn);
-
-        return new KiWiConnection(conn,dialect,cacheManager);
+        return new KiWiConnection(this,dialect,cacheManager);
     }
 
     /**

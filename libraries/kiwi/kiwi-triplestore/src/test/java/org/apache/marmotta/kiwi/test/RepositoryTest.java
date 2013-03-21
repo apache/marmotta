@@ -475,4 +475,60 @@ public class RepositoryTest {
 
 
     }
+
+    /**
+     * Test adding-deleting-adding a triple
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRepeatedAddRemoveTransaction() throws Exception {
+        String value = RandomStringUtils.randomAlphanumeric(8);
+
+        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        Literal object1 = repository.getValueFactory().createLiteral(value);
+
+        RepositoryConnection connection1 = repository.getConnection();
+        try {
+            connection1.add(subject,predicate,object1);
+            connection1.commit();
+
+            Assert.assertTrue(connection1.hasStatement(subject,predicate,object1,true));
+
+            connection1.commit();
+        } finally {
+            connection1.close();
+        }
+
+        Literal object2 = repository.getValueFactory().createLiteral(value);
+        Literal object3 = repository.getValueFactory().createLiteral(value);
+        RepositoryConnection connection2 = repository.getConnection();
+        try {
+            Assert.assertTrue(connection2.hasStatement(subject,predicate,object2,true));
+
+            connection2.remove(subject,predicate,object2);
+            Assert.assertFalse(connection2.hasStatement(subject,predicate,object2,true));
+
+            connection2.add(subject,predicate,object3);
+            Assert.assertTrue(connection2.hasStatement(subject,predicate,object3,true));
+
+            connection2.commit();
+        } finally {
+            connection2.close();
+        }
+
+        Literal object4 = repository.getValueFactory().createLiteral(value);
+        RepositoryConnection connection4 = repository.getConnection();
+        try {
+            Assert.assertTrue(connection4.hasStatement(subject,predicate,object4,true));
+
+            connection4.commit();
+        } finally {
+            connection4.close();
+        }
+
+
+    }
+
 }

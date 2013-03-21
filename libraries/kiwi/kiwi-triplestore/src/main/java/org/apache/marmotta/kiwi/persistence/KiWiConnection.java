@@ -66,6 +66,7 @@ public class KiWiConnection {
 
     protected Connection connection;
 
+    protected KiWiPersistence  persistence;
 
     protected KiWiCacheManager cacheManager;
 
@@ -116,11 +117,13 @@ public class KiWiConnection {
 
     private Map<String,PreparedStatement> statementCache;
 
+    private boolean autoCommit = false;
 
-    public KiWiConnection(Connection connection, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
+
+    public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
-        this.connection = connection;
-        this.dialect = dialect;
+        this.dialect      = dialect;
+        this.persistence  = persistence;
 
         initCachePool();
         initStatementCache();
@@ -151,6 +154,16 @@ public class KiWiConnection {
         */
     }
 
+    /**
+     * This method must be called by all methods as soon as they actually require a JDBC connection. This allows
+     * more efficient implementations in case the queries can be answered directly from the cache.
+     */
+    protected void requireJDBCConnection() throws SQLException {
+        if(connection == null) {
+            connection = persistence.getJDBCConnection();
+            connection.setAutoCommit(autoCommit);
+        }
+    }
 
     /**
      * Get direct access to the JDBC connection used by this KiWiConnection.
@@ -183,6 +196,8 @@ public class KiWiConnection {
         if(element != null) {
             return (KiWiNamespace)element.getObjectValue();
         }
+
+        requireJDBCConnection();
 
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.namespace_prefix");
@@ -218,6 +233,8 @@ public class KiWiConnection {
             return (KiWiNamespace)element.getObjectValue();
         }
 
+        requireJDBCConnection();
+
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.namespace_uri");
         query.setString(1, uri);
@@ -251,6 +268,8 @@ public class KiWiConnection {
             return;
         }
 
+        requireJDBCConnection();
+
         namespace.setId(getNextSequence("seq.namespaces"));
 
         PreparedStatement insertNamespace = getPreparedStatement("store.namespace");
@@ -276,6 +295,8 @@ public class KiWiConnection {
             return;
         }
 
+        requireJDBCConnection();
+
         PreparedStatement deleteNamespace = getPreparedStatement("delete.namespace");
         deleteNamespace.setLong(1, namespace.getId());
         deleteNamespace.executeUpdate();
@@ -290,6 +311,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getSize() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement querySize = getPreparedStatement("query.size");
         ResultSet result = querySize.executeQuery();
         try {
@@ -312,6 +335,9 @@ public class KiWiConnection {
         if(context.getId() == null) {
             return 0;
         };
+
+        requireJDBCConnection();
+
         PreparedStatement querySize = getPreparedStatement("query.size_ctx");
         querySize.setLong(1,context.getId());
 
@@ -361,6 +387,8 @@ public class KiWiConnection {
             return (KiWiNode)element.getObjectValue();
         }
 
+        requireJDBCConnection();
+
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.node_by_id");
         query.setLong(1,id);
@@ -388,6 +416,8 @@ public class KiWiConnection {
         if(element != null) {
             return (KiWiTriple)element.getObjectValue();
         }
+
+        requireJDBCConnection();
 
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.triple_by_id");
@@ -427,6 +457,8 @@ public class KiWiConnection {
             return (KiWiUriResource)element.getObjectValue();
         }
 
+        requireJDBCConnection();
+
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.uri_by_uri");
         query.setString(1, uri);
@@ -465,6 +497,8 @@ public class KiWiConnection {
         if(element != null) {
             return (KiWiAnonResource)element.getObjectValue();
         }
+
+        requireJDBCConnection();
 
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.bnode_by_anonid");
@@ -511,6 +545,8 @@ public class KiWiConnection {
         if(ltype != null && ltype.getId() == null) {
             return null;
         }
+
+        requireJDBCConnection();
 
         // otherwise prepare a query, depending on the parameters given
         final PreparedStatement query;
@@ -570,6 +606,8 @@ public class KiWiConnection {
             return (KiWiDateLiteral)element.getObjectValue();
         }
 
+        requireJDBCConnection();
+
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_tv");
         query.setTimestamp(1, new Timestamp(DateUtils.getDateWithoutFraction(date).getTime()));
@@ -617,6 +655,8 @@ public class KiWiConnection {
             return (KiWiIntLiteral)element.getObjectValue();
         }
 
+        requireJDBCConnection();
+
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_iv");
         query.setLong(1,value);
@@ -662,6 +702,8 @@ public class KiWiConnection {
         if(element != null) {
             return (KiWiDoubleLiteral)element.getObjectValue();
         }
+
+        requireJDBCConnection();
 
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_dv");
@@ -709,6 +751,8 @@ public class KiWiConnection {
             return (KiWiBooleanLiteral)element.getObjectValue();
         }
 
+
+        requireJDBCConnection();
 
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_bv");
@@ -759,6 +803,8 @@ public class KiWiConnection {
                 storeNode(literal.getType());
             }
         }
+
+        requireJDBCConnection();
 
         // retrieve a new node id and set it in the node object
         node.setId(getNextSequence("seq.nodes"));
@@ -884,6 +930,8 @@ public class KiWiConnection {
         Preconditions.checkNotNull(triple.getContext().getId());
 
 
+        requireJDBCConnection();
+
         // retrieve a new triple ID and set it in the object
         triple.setId(getNextSequence("seq.triples"));
 
@@ -916,6 +964,8 @@ public class KiWiConnection {
             return;
         }
 
+        requireJDBCConnection();
+
         PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
         deleteTriple.setLong(1,triple.getId());
         deleteTriple.executeUpdate();
@@ -926,6 +976,43 @@ public class KiWiConnection {
         triple.setDeleted(true);
         triple.setDeletedAt(new Date());
     }
+
+    /**
+     * Mark the triple passed as argument as not deleted, setting the "deleted" flag to false and
+     * clearing the timestamp value of "deletedAt".
+     * <p/>
+     * Note that this operation should only be called if the triple was deleted before in the same
+     * transaction!
+     *
+     * @param triple
+     */
+    public void undeleteTriple(KiWiTriple triple) throws SQLException {
+        if(triple.getId() == null) {
+            log.warn("attempting to undelete non-persistent triple: {}",triple);
+            return;
+        }
+
+        requireJDBCConnection();
+
+        synchronized (triple) {
+            if(!triple.isDeleted()) {
+                log.warn("attemting to undelete triple that was not deleted: {}",triple);
+                return;
+            }
+
+            PreparedStatement undeleteTriple = getPreparedStatement("undelete.triple");
+            undeleteTriple.setLong(1, triple.getId());
+            undeleteTriple.executeUpdate();
+
+            // make sure the triple is marked as deleted in case some service still holds a reference
+            triple.setDeleted(false);
+            triple.setDeletedAt(null);
+
+            cacheTriple(triple);
+        }
+
+    }
+
 
     /**
      * Remove from the database all triples that have been marked as deleted and are not referenced by any other
@@ -942,6 +1029,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<KiWiResource, SQLException> listContexts() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryContexts = getPreparedStatement("query.contexts");
 
         final ResultSet result = queryContexts.executeQuery();
@@ -957,6 +1046,8 @@ public class KiWiConnection {
 
 
     public CloseableIteration<KiWiNamespace, SQLException> listNamespaces() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement queryContexts = getPreparedStatement("query.namespaces");
 
         final ResultSet result = queryContexts.executeQuery();
@@ -1029,6 +1120,8 @@ public class KiWiConnection {
         if(context != null && context.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
         }
+
+        requireJDBCConnection();
 
         // otherwise we need to create an appropriate SQL query and execute it, the repository result will be read-only
         // and only allow forward iteration, so we can limit the query using the respective flags
@@ -1283,6 +1376,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public PreparedStatement getPreparedStatement(String key) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement statement = statementCache.get(key);
         if(statement == null) {
             statement = connection.prepareStatement(dialect.getStatement(key));
@@ -1301,6 +1396,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
+        requireJDBCConnection();
+
         // retrieve a new node id and set it in the node object
 
         // if there is a preparation needed to update the transaction, run it first
@@ -1359,6 +1456,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public Set<String> getDatabaseTables() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement statement = getPreparedStatement("meta.tables");
         ResultSet result = statement.executeQuery();
         try {
@@ -1380,6 +1479,8 @@ public class KiWiConnection {
      * @return
      */
     public int getDatabaseVersion() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement statement = getPreparedStatement("meta.version");
         ResultSet result = statement.executeQuery();
         try {
@@ -1430,7 +1531,10 @@ public class KiWiConnection {
      * @see #getAutoCommit
      */
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        connection.setAutoCommit(autoCommit);
+        this.autoCommit = autoCommit;
+        if(connection != null) {
+            connection.setAutoCommit(autoCommit);
+        }
     }
 
 
@@ -1445,7 +1549,7 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public boolean getAutoCommit() throws SQLException {
-        return connection.getAutoCommit();
+        return autoCommit;
     }
 
     /**
@@ -1462,7 +1566,9 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void commit() throws SQLException {
-        connection.commit();
+        if(connection != null) {
+            connection.commit();
+        }
     }
 
     /**
@@ -1478,7 +1584,7 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void rollback() throws SQLException {
-        if(!connection.isClosed()) {
+        if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
     }
@@ -1501,7 +1607,11 @@ public class KiWiConnection {
      * @exception java.sql.SQLException if a database access error occurs
      */
     public boolean isClosed() throws SQLException {
-        return connection.isClosed();
+        if(connection != null) {
+            return connection.isClosed();
+        } else {
+            return false;
+        }
     }
 
 
@@ -1521,17 +1631,19 @@ public class KiWiConnection {
      * @exception java.sql.SQLException SQLException if a database access error occurs
      */
     public void close() throws SQLException {
-        // close all prepared statements
-        try {
-            for(Map.Entry<String,PreparedStatement> entry : statementCache.entrySet()) {
-                try {
-                    entry.getValue().close();
-                } catch (SQLException ex) {}
+        if(connection != null) {
+            // close all prepared statements
+            try {
+                for(Map.Entry<String,PreparedStatement> entry : statementCache.entrySet()) {
+                    try {
+                        entry.getValue().close();
+                    } catch (SQLException ex) {}
+                }
+            } catch(AbstractMethodError ex) {
+                log.debug("database system does not allow closing statements");
             }
-        } catch(AbstractMethodError ex) {
-            log.debug("database system does not allow closing statements");
-        }
 
-        connection.close();
+            connection.close();
+        }
     }
 }

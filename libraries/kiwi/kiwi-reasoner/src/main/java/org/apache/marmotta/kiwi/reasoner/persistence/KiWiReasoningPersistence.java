@@ -90,7 +90,7 @@ public class KiWiReasoningPersistence {
      * @throws java.sql.SQLException in case a new connection could not be established
      */
     public KiWiReasoningConnection getConnection() throws SQLException {
-        return new KiWiReasoningConnection(persistence.getJDBCConnection(), persistence.getDialect(), persistence.getCacheManager(), valueFactory );
+        return new KiWiReasoningConnection(persistence, persistence.getDialect(), persistence.getCacheManager(), valueFactory );
     }
 
 

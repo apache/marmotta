@@ -29,6 +29,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.reasoner.model.program.Field;
@@ -75,8 +76,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
     private Cache ruleIdCache;
 
-    public KiWiReasoningConnection(Connection connection, KiWiDialect dialect, KiWiCacheManager cacheManager, ValueFactory valueFactory) throws SQLException {
-        super(connection, dialect, cacheManager);
+    public KiWiReasoningConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager, ValueFactory valueFactory) throws SQLException {
+        super(persistence, dialect, cacheManager);
 
         this.valueFactory = valueFactory;
         this.ruleIdCache = getCacheManager().getCacheByName("reasoning-rule-id");
@@ -95,6 +96,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
             log.warn("rule {} already had a database ID, not persisting", rule);
             return;
         }
+
+        requireJDBCConnection();
 
         // first create a new entry in the rules table
         rule.setId(getNextSequence("seq.rules"));
@@ -125,6 +128,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
         if(cached != null) {
             return (Rule) cached.getObjectValue();
         } else {
+            requireJDBCConnection();
+
             // load namespaces if they are not yet given
             if(namespaces == null) {
                 namespaces = new HashMap<String, String>();
@@ -165,6 +170,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<Rule,SQLException> loadRulesByProgram(long programId, final Map<String, String> namespaces) throws SQLException, ParseException {
+
+        requireJDBCConnection();
 
         PreparedStatement loadRule = getPreparedStatement("rules.load_by_program");
         synchronized (loadRule) {
@@ -218,6 +225,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
             return;
         }
 
+        requireJDBCConnection();
+
         PreparedStatement deleteRule = getPreparedStatement("rules.delete_by_id");
         synchronized (deleteRule) {
             deleteRule.setLong(1, rule.getId());
@@ -241,6 +250,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
         if(program.getId() != null) {
             throw new SQLException("Program already stored in the database");
         }
+
+        requireJDBCConnection();
 
 
         // steps:
@@ -316,6 +327,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void updateProgram(Program program) throws SQLException {
+        requireJDBCConnection();
+
         // steps:
         // 1) load old program by name
         // 2) create a diff between old and new program as follows:
@@ -435,6 +448,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException in case of a database problem or an unparsable program
      */
     public Program loadProgram(String name) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement loadProgram = getPreparedStatement("programs.load_by_name");
         synchronized (loadProgram) {
             loadProgram.setString(1, name);
@@ -462,6 +477,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public Program loadProgram(Long id) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement loadProgram = getPreparedStatement("programs.load_by_id");
         synchronized (loadProgram) {
             loadProgram.setLong(1, id);
@@ -519,6 +536,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<Program, SQLException> listPrograms() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement listPrograms = getPreparedStatement("programs.list");
         synchronized (listPrograms) {
             ResultSet result = listPrograms.executeQuery();
@@ -549,6 +568,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
             log.warn("cannot delete non-persistent program (name={})!", program.getName());
             return;
         }
+
+        requireJDBCConnection();
 
         // 1. delete all rule associations and rules including the justifications they depend on
         PreparedStatement deleteProgramRule = getPreparedStatement("programs.delete_rule");
@@ -600,6 +621,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void storeJustifications(Iterable<Justification> justifications) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement insertJustification = getPreparedStatement("justifications.insert");
         PreparedStatement justificationAddTriple = getPreparedStatement("justifications.add_triple");
         PreparedStatement justificationAddRule   = getPreparedStatement("justifications.add_rule");
@@ -675,6 +698,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void deleteJustifications(Iteration<Justification, SQLException> justifications) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement deleteJustification = getPreparedStatement("justifications.delete");
         PreparedStatement deleteJustificationRules = getPreparedStatement("justifications.del_rule");
         PreparedStatement deleteJustificationTriples = getPreparedStatement("justifications.del_triple");
@@ -736,6 +761,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void deleteJustifications() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement deleteJustification = getPreparedStatement("justifications.delete_all");
         PreparedStatement deleteJustificationRules = getPreparedStatement("justifications.delete_all_rules");
         PreparedStatement deleteJustificationTriples = getPreparedStatement("justifications.delete_all_triples");
@@ -757,6 +784,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
         if(rule.getId() == null) {
             return new EmptyIteration<Justification, SQLException>();
         } else {
+            requireJDBCConnection();
+
             PreparedStatement listByRule = getPreparedStatement("justifications.load_by_srule");
             synchronized (listByRule) {
                 listByRule.setLong(1, rule.getId());
@@ -783,6 +812,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
         if(triple.getId() == null) {
             return new EmptyIteration<Justification, SQLException>();
         } else {
+            requireJDBCConnection();
+
             PreparedStatement listByTriple = getPreparedStatement("justifications.load_by_striple");
             synchronized (listByTriple) {
                 listByTriple.setLong(1, triple.getId());
@@ -820,6 +851,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<Justification,SQLException> listJustificationsForTriple(long tripleId) throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement listForTriple = getPreparedStatement("justifications.load_by_triple");
         synchronized (listForTriple) {
             listForTriple.setLong(1, tripleId);
@@ -872,6 +905,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<KiWiTriple, SQLException> listUnsupportedTriples() throws SQLException {
+        requireJDBCConnection();
+
         PreparedStatement listUnsupported = getPreparedStatement("justifications.list_unsupported");
         synchronized (listUnsupported) {
             ResultSet result = listUnsupported.executeQuery();
@@ -913,6 +948,8 @@ public class KiWiReasoningConnection extends KiWiConnection {
      *         variables and offset and limited by the parameters given
      */
     public CloseableIteration<QueryResult, SQLException> query(final Collection<Pattern> patterns, final QueryResult initialBindings, Set<Filter> filters, List<VariableField> orderBy, final boolean justifications) throws SQLException {
+        requireJDBCConnection();
+
         if(filters != null) {
             throw new IllegalArgumentException("filters are not yet supported by the QueryService");
         }

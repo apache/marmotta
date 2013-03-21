@@ -18,12 +18,11 @@
 package org.apache.marmotta.kiwi.sail;
 
 import com.google.common.collect.MapMaker;
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
-import org.apache.commons.lang.LocaleUtils;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
-import org.apache.marmotta.kiwi.model.collection.WeakValueMap;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.openrdf.model.BNode;
@@ -33,6 +32,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ContextStatementImpl;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -546,6 +547,8 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
+        return new ContextStatementImpl(subject,predicate,object,context);
+        /*
         tripleLock.lock();
         KiWiConnection connection = aqcuireConnection();
         try {
@@ -579,7 +582,51 @@ public class KiWiValueFactory implements ValueFactory {
             releaseConnection(connection);
             tripleLock.unlock();
         }
+        */
     }
+
+    /**
+     * Creates a new statement with the supplied subject, predicate and object and associated context. This is a
+     * specialised form of createStatement that allows the existance check for a triple to run in the same connection
+     * as the rest of the repository operations.
+     *
+     * @param subject   The statement's subject.
+     * @param predicate The statement's predicate.
+     * @param object    The statement's object.
+     * @param context   The statement's context.
+     * @return The created statement.
+     */
+    public Statement createStatement(Resource subject, URI predicate, Value object, Resource context, KiWiConnection connection) {
+        IntArray cacheKey = IntArray.createSPOCKey(subject,predicate,object,context);
+        Statement result = tripleRegistry.get(cacheKey);
+        try {
+            if(result == null || ((KiWiTriple)result).isDeleted()) {
+                KiWiResource ksubject   = convert(subject);
+                KiWiUriResource kpredicate = convert(predicate);
+                KiWiNode kobject    = convert(object);
+                KiWiResource    kcontext   = convert(context);
+
+                // test if the triple already exists in the database; if yes, return it
+                List<Statement> triples = connection.listTriples(ksubject,kpredicate,kobject,kcontext,true).asList();
+                if(triples.size() == 1) {
+                    result = triples.get(0);
+                } else {
+                    result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
+                    ((KiWiTriple)result).setMarkedForReasoning(true);
+                }
+
+                tripleRegistry.put(cacheKey,result);
+            }
+            return result;
+        } catch (SQLException e) {
+            log.error("database error, could not load triple", e);
+            throw new IllegalStateException("database error, could not load triple",e);
+        } catch (RepositoryException e) {
+            log.error("database error, could not load triple", e);
+            throw new IllegalStateException("database error, could not load triple",e);
+        }
+    }
+
 
 
     public KiWiResource convert(Resource r) {
