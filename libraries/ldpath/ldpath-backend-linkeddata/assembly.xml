@@ -32,18 +32,18 @@
 
     <files>
         <file>
-            <source>${project.basedir}/../../../LICENSE.txt</source>
+            <source>${project.basedir}/src/main/doc/LICENSE.txt</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/README.txt</source>
+            <source>${project.basedir}/src/main/doc/README.txt</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>${project.basedir}/NOTICE.txt</source>
+            <source>${project.basedir}/src/main/doc/NOTICE.txt</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
