@@ -142,3 +142,14 @@ table#add-new-prefix tr td {
     color: #4d4d4d;
 }
 
+.config_tdtitle span {
+    color: #b5b5b5;
+}
+
+.config_datatable td {
+    border-color: gray;
+}
+
+#center .CodeMirror-lines, .CodeMirror-lines {
+    background-color: #f7f7f7;
+}
