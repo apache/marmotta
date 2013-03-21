@@ -29,6 +29,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
  * Builds the union of two node selectors. Will eliminate duplicates.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  */

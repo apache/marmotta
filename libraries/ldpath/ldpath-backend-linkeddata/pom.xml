@@ -21,13 +21,30 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
     <name>LDPath Backend: Linked Data</name>
     <artifactId>ldpath-backend-linkeddata</artifactId>
     <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jasig.maven</groupId>
+                <artifactId>maven-notice-plugin</artifactId>
+                <version>1.0.4</version>
+                <configuration>
+                    <noticeTemplate>NOTICE.template</noticeTemplate>
+
+                    <licenseMapping>
+                        <param>../../../license-mappings.xml</param>
+                    </licenseMapping>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>

@@ -22,9 +22,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Description;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -177,6 +181,68 @@ public class TextFunctionsTest extends AbstractTestBase {
                 Assert.assertEquals("substr(<>, " + start + ", " + end + ")", text.substring(expStart, expEnd), val_3Arg);
             }
         }
+    }
+    
+    @Test
+    public void testStrJoin() throws ParseException, RepositoryException {
+        /* unique test, sets up it's own data */
+        String[] lits = new String[] {UUID.randomUUID().toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString()};
+        
+        SailRepositoryConnection con = repository.getConnection();
+        con.begin();
+        con.remove(subject, predicate, null);
+        for (int i = 0; i < lits.length; i++) {
+            con.add(con.getValueFactory().createStatement(subject, predicate, con.getValueFactory().createLiteral(lits[i])));
+        }
+        con.commit();
+        con.close();
+        
+        String[] seps = {"###", ", "};
+        String[] pres = {"", ":start:"};
+        String[] sufs = {"", ":eol:"};
+        
+        for (String suf : sufs) {
+            for (String pre : pres) {
+                for (String sep : seps) {
+                    final String join = String.format("fn:strJoin(<%s>, \"%s\", \"%s\", \"%s\") :: xsd:string", predicate, sep, pre, suf);
+                    Collection<Object> result = evaluateRule(join, subject);
+                    
+                    Assert.assertEquals(1, result.size());
+                    String joined = result.iterator().next().toString();
+                    
+                    Assert.assertThat(joined, CoreMatchers.startsWith(pre));
+                    Assert.assertThat(joined, CoreMatchers.endsWith(suf));
+                    for(String lit: lits) {
+                        Assert.assertThat(joined, new RegexMatcher(Pattern.compile(
+                                Pattern.quote(lit) + "((" + Pattern.quote(sep) + ")|(" + Pattern.quote(suf) + "$))"
+                                )));
+                        Assert.assertThat(joined, new RegexMatcher(Pattern.compile(
+                                "((^" + Pattern.quote(pre) + ")|(" + Pattern.quote(sep) + "))" + Pattern.quote(lit)
+                                )));
+                    }
+                }
+            }
+        }
+    }
+    
+    private static class RegexMatcher extends BaseMatcher<String> {
+        
+        private final Pattern regex;
+
+        public RegexMatcher(Pattern regex) {
+            this.regex = regex;
+        }
+
+        @Override
+        public boolean matches(Object item) {
+            return item != null && regex.matcher(item.toString()).find();
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("a string containing the regular expression ").appendValue(regex.pattern());
+        }
+        
     }
 
 }

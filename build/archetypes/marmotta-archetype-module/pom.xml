@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -29,9 +29,36 @@
     <packaging>maven-archetype</packaging>
 
     <name>Apache Marmotta Archetype: Module</name>
-    <description>This Maven Archetype allows creating the basic structure for an LMF Module</description>
+    <description>This Maven Archetype allows creating the basic structure for an Marmotta Module</description>
+
+    <properties>
+        <marmottaVersion>${project.version}</marmottaVersion>
+        <junitVersion>${junit.version}</junitVersion>
+        <weldCoreVersion>${weld.core.version}</weldCoreVersion>
+        <h2Version>${h2.version}</h2Version>
+        <restAssuredVersion>${rest.assured.version}</restAssuredVersion>
+        <hamcrestVersion>${hamcrest.version}</hamcrestVersion>
+        <tempusFugitVersion>${tempus.fugit.version}</tempusFugitVersion>
+        <jatlVersion>${jatl.version}</jatlVersion>
+    </properties>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>

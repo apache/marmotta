@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -112,7 +112,8 @@
         <url>https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</url>
         <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</developerConnection>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <issueManagement>
         <system>Jira</system>
@@ -172,11 +173,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>2.4</version>
                 <configuration>
                     <useReleaseProfile>false</useReleaseProfile>
                     <goals>deploy</goals>
-                    <arguments>-Pinstaller,marmotta-release ${arguments}</arguments>
+
+                    <!-- don't ask for every submodule -->
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+
+                    <!-- do not fetch over the Internet the whole repository -->
+                    <localCheckout>true</localCheckout>
+
+                    <!-- the name of the tag of a release in GIT -->
+                    <tagNameFormat>@{version}</tagNameFormat>
+
+                    <!-- the profiles to run for the release -->
+                    <arguments>-Pinstaller,marmotta-release,sign ${arguments}</arguments>
+
+		    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
         </plugins>
@@ -193,6 +207,19 @@
             </properties>
             <build>
                 <plugins>
+                    <!-- ensure that all license headers are present -->
+                    <plugin>
+                        <groupId>org.apache.rat</groupId>
+                        <artifactId>apache-rat-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
 
                     <!-- sign artifacts on release -->
                     <plugin>

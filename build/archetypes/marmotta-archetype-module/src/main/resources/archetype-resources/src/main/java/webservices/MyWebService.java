@@ -17,7 +17,6 @@
  */
 package ${package}.webservices;
 
-import kiwi.core.model.Constants;
 import org.apache.commons.lang.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -36,7 +35,7 @@ public class MyWebService {
     private MyService myService;
 
     @GET
-    @Produces(Constants.MIME_TYPE_HTML)
+    @Produces("text/html")
     public Response hello(@QueryParam("name") String name) {
         if (StringUtils.isEmpty(name)) {
             // No name given? Invalid request.

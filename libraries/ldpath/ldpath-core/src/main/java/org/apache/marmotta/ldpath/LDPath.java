@@ -44,6 +44,8 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * Main class providing query functionality for the different RDF backends.
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert
  */

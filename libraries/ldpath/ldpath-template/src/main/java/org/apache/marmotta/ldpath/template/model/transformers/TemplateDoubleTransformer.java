@@ -28,6 +28,8 @@ import java.util.Map;
 
 /**
  * Transform a node into the freemarker double type (TemplateDoubleModel).
+ *
+ * @param <Node> the node type used by the backend
  * <p/>
  * Author: Sebastian Schaffert
  */

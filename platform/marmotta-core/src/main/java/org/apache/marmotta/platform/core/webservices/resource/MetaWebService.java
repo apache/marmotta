@@ -216,7 +216,7 @@ public class MetaWebService {
             }
 
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService);
         }
     }
 
@@ -242,7 +242,7 @@ public class MetaWebService {
             RepositoryConnection conn = sesameService.getConnection();
             
             if (!ResourceUtils.existsResource(conn, uri)) {
-            	return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future");
+            	return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService);
             }
 
             try {
@@ -319,7 +319,7 @@ public class MetaWebService {
                 }
             }
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService);
         }
     }
 
@@ -333,7 +333,7 @@ public class MetaWebService {
                 return response;
             }
             if (request.getContentLength() == 0)
-                return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty in resource update");
+                return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty in resource update", configurationService);
 
             // a intercepting connection that filters out all triples that have
             // the wrong subject
@@ -356,11 +356,11 @@ public class MetaWebService {
             }
             return Response.ok().build();
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService);
         } catch (IOException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, "could not read request body");
+            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, "could not read request body", configurationService);
         } catch (RDFParseException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.UNSUPPORTED_MEDIA_TYPE, "could not parse request body");
+            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.UNSUPPORTED_MEDIA_TYPE, "could not parse request body", configurationService);
         }
     }
 

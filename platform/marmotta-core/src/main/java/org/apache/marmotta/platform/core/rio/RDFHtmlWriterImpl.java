@@ -214,10 +214,13 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             data.put("resources", resources);
             data.put("prefixMappings", prefixService.serializePrefixMapping());
 
-            String project = configurationService.getStringConfiguration("kiwi.pages.project","lmf");
-            data.put("LOGO",configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo","logo.png"));
-            data.put("FOOTER",configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer","a footer"));
-            data.put("SERVER_URL",configurationService.getServerUri());
+            data.put("SERVER_URL", configurationService.getServerUri());
+            data.put("BASIC_URL", configurationService.getBaseUri());
+            String project = configurationService.getStringConfiguration("kiwi.pages.project", "marmotta");
+            data.put("PROJECT", project);
+            data.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
+            data.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
+            data.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style", "marmotta"));
 
             //set timemap link
             if(configurationService.getBooleanConfiguration("versioning.enabled")) {

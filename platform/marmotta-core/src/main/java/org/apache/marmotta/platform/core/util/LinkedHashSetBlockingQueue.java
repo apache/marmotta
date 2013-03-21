@@ -372,6 +372,9 @@ public class LinkedHashSetBlockingQueue<E> extends AbstractQueue<E> implements B
                 fullyLock();
                 try {
                     it.remove();
+
+                    // remove counter
+                    count.getAndDecrement();
                 } finally {
                     fullyUnlock();
                 }
@@ -408,6 +411,7 @@ public class LinkedHashSetBlockingQueue<E> extends AbstractQueue<E> implements B
         fullyLock();
         try {
             delegate.clear();
+            count.set(0);
         } finally {
             fullyUnlock();
         }

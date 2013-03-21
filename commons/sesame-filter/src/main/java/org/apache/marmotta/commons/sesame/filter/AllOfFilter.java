@@ -25,6 +25,8 @@ import java.util.Set;
  * A filter combining several filters and requiring that all filters match.
  * <p/>
  * Author: Sebastian Schaffert
+ *
+ * @param <T> the type of object to filter
  */
 public class AllOfFilter<T> implements SesameFilter<T> {
 

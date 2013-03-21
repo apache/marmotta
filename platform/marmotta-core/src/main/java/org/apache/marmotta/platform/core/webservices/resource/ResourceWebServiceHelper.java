@@ -130,16 +130,25 @@ public class ResourceWebServiceHelper {
         }
     }
     
-    public static Response buildErrorPage(String uri, String base, Status status, String message) {
+    public static Response buildErrorPage(String uri, String base, Status status, String message, ConfigurationService configurationService) {
         Map<String, Object> data = new HashMap<String, Object>();
+        
         data.put("uri", uri);
-        data.put("baseUri", base);
         data.put("message", message);
         try {
             data.put("encoded_uri", URLEncoder.encode(uri, "UTF-8"));
         } catch (UnsupportedEncodingException uee) {
             data.put("encoded_uri", uri);
         }
+        
+        data.put("SERVER_URL", configurationService.getServerUri());
+        data.put("BASIC_URL", configurationService.getBaseUri());
+        String project = configurationService.getStringConfiguration("kiwi.pages.project", "marmotta");
+        data.put("PROJECT", project);
+        data.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
+        data.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
+        data.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style", "marmotta"));
+
         try {
             return Response.status(status)
                     .entity(TemplatingHelper.processTemplate("404.ftl", data))

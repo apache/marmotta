@@ -18,7 +18,7 @@
 package ${package}.services;
 
 import junit.framework.Assert;
-import kiwi.core.test.base.EmbeddedLMF;
+import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,13 +27,13 @@ import ${package}.api.MyService;
 
 public class MyServiceTest {
 
-    private static EmbeddedLMF lmf;
+    private static EmbeddedMarmotta marmotta;
     private static MyService myService;
 
     @BeforeClass
     public static void setUp() {
-        lmf = new EmbeddedLMF();
-        myService = lmf.getService(MyService.class);
+        marmotta = new EmbeddedMarmotta();
+        myService = marmotta.getService(MyService.class);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class MyServiceTest {
 
     @AfterClass
     public static void tearDown() {
-        lmf.shutdown();
+        marmotta.shutdown();
     }
 
 }

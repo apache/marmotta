@@ -7,7 +7,7 @@
    (the "License"); you may not use this file except in compliance with
    the License.  You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0  
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,32 +18,42 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.marmotta</groupId>
-        <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
-    </parent>
-
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <packaging>war</packaging>
 
     <name>Marmotta Web Application</name>
-    <description>Web Application bundle (WAR file) containing Marmotta</description>
+    <description>Marmotta Web Bundle (WAR)</description>
     <version>${version}</version>
 
     <properties>
-        <!-- these are used for the goals tomcat6/7:run or jetty:run -->
-        <lmf.home>/tmp/lmf</lmf.home>
-        <lmf.context>/</lmf.context>
-        <lmf.port>8080</lmf.port>
-        <lmf.version>2.6.0</lmf.version>
+        <marmotta.home>/tmp/marmotta</marmotta.home>
+        <marmotta.context>/</marmotta.context>
+        <marmotta.port>8080</marmotta.port>
     </properties>
 
     <build>
-        <finalName>LMF</finalName>
+        <finalName>marmotta</finalName>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.0</version>
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.12.4</version>
+                    <configuration>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                        <forkMode>always</forkMode>
+                    </configuration>
+                </plugin>
                 <plugin>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.3</version>
@@ -77,10 +87,10 @@
                     <artifactId>tomcat6-maven-plugin</artifactId>
                     <version>2.0</version>
                     <configuration>
-                        <path>${lmf.context}</path>
-                        <port>${lmf.port}</port>
+                        <path>${marmotta.context}</path>
+                        <port>${marmotta.port}</port>
                         <systemProperties>
-                            <kiwi.home>${lmf.home}</kiwi.home>
+                            <marmotta.home>${marmotta.home}</marmotta.home>
                         </systemProperties>
                     </configuration>
                 </plugin>
@@ -89,10 +99,10 @@
                     <artifactId>tomcat7-maven-plugin</artifactId>
                     <version>2.0</version>
                     <configuration>
-                        <path>${lmf.context}</path>
-                        <port>${lmf.port}</port>
+                        <path>${marmotta.context}</path>
+                        <port>${marmotta.port}</port>
                         <systemProperties>
-                            <kiwi.home>${lmf.home}</kiwi.home>
+                            <marmotta.home>${marmotta.home}</marmotta.home>
                         </systemProperties>
                         <!--                         <contextReloadable>true</contextReloadable> -->
                         <!--                         <backgroundProcessorDelay>10</backgroundProcessorDelay> -->
@@ -103,20 +113,19 @@
                     <artifactId>maven-jetty-plugin</artifactId>
                     <version>6.1.10</version>
                     <configuration>
-                        <contextPath>${lmf.context}</contextPath>
+                        <contextPath>${marmotta.context}</contextPath>
                         <connectors>
-                            <connector
-                                    implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-                                <port>${lmf.port}</port>
+                            <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                                <port>${marmotta.port}</port>
                             </connector>
                         </connectors>
                         <systemProperties>
                             <systemProperty>
-                                <name>kiwi.home</name>
-                                <value>${lmf.home}</value>
+                                <name>marmotta.home</name>
+                                <value>${marmotta.home}</value>
                             </systemProperty>
                         </systemProperties>
-                        <stopKey>foo</stopKey>
+                        <stopKey>marmotta</stopKey>
                         <stopPort>9999</stopPort>
                     </configuration>
                 </plugin>
@@ -129,6 +138,14 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat6-maven-plugin</artifactId>
@@ -158,7 +175,7 @@
                         <configuration>
                             <filesets>
                                 <fileset>
-                                    <directory>${lmf.home}</directory>
+                                    <directory>${marmotta.home}</directory>
                                     <followSymlinks>true</followSymlinks>
                                 </fileset>
                             </filesets>
@@ -170,122 +187,87 @@
     </profiles>
 
     <dependencies>
-        <!-- LMF Modules, include the ones needed by the application -->
+        <!-- Modules, include the ones needed by the application -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-core</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-ldpath</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-ldcache</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-reasoner</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-sparql</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-skos</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-search</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-security</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-scheduler</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-versioning</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-stanbol</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-enhancer</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-geo</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <!--
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-templating</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-user</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-social</artifactId>
-            <version>${lmf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>lmf-demo-books</artifactId>
-            <version>${lmf.version}</version>
+            <version>${marmottaVersion}</version>
         </dependency>
 
         <!-- Servlet / CDI Environment -->
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servletApiVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.el</groupId>
             <artifactId>el-api</artifactId>
+            <version>${javaxElVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld.servlet</groupId>
             <artifactId>weld-servlet-core</artifactId>
+            <version>${weldCoreVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld</groupId>
             <artifactId>weld-core</artifactId>
+            <version>${weldCoreVersion}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>${h2Version}</version>
         </dependency>
         <dependency>
-            <groupId>postgresql</groupId>
+            <groupId>org.jumpmind.symmetric.jdbc</groupId>
             <artifactId>postgresql</artifactId>
+            <version>${postgresqlVersion}</version>
         </dependency>
         <!-- enable for MySQL support; note that the MySQL driver is GPL licensed -->
         <!--
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>${mysqlVersion}</version>
         </dependency>
         -->
     </dependencies>

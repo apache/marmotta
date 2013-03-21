@@ -29,14 +29,15 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import kiwi.core.test.base.JettyLMF;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 
 public class MyWebServiceTest {
-    private static JettyLMF lmf;
+
+    private static JettyMarmotta marmotta;
 
     @BeforeClass
     public static void beforeClass() {
-        lmf = new JettyLMF("/${moduleKey}-test", 9090, MyWebService.class);
+        marmotta = new JettyMarmotta("/${moduleKey}-test", 9090, MyWebService.class);
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = 9090;
@@ -46,8 +47,8 @@ public class MyWebServiceTest {
 
     @AfterClass
     public static void afterClass() {
-        if (lmf != null) {
-            lmf.shutdown();
+        if (marmotta != null) {
+            marmotta.shutdown();
         }
     }
 

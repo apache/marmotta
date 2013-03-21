@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -72,6 +72,11 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-n3</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

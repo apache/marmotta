@@ -137,6 +137,11 @@ public class CollectionUtils {
     }
 
 
+    /**
+     * Allows a custom serialization of objects of type T to a string.
+     *
+     * @param <T> the object type to serialize as string
+     */
     public interface StringSerializer<T> {
         public String serialize(T t);
     }

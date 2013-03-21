@@ -21,6 +21,9 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Named;
 import java.lang.annotation.Annotation;
 
+/**
+ * Some utilities for working with CDI services
+ */
 public abstract class CDIUtils {
 
     public static <T> Instance<T> selectNamed(Instance<T> instance, String name) {

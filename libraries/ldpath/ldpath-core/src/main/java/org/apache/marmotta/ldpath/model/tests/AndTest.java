@@ -24,6 +24,8 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  * Tests the conjunction of two tests.
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
+ *
+ * @param <T> the type of object to filter
  */
 public class AndTest<Node> extends ComplexTest<Node> {
 

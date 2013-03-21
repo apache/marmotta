@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.marmotta.ldclient.test.facebook;
 
 import org.apache.commons.io.IOUtils;
@@ -7,6 +24,7 @@ import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.query.BooleanQuery;
@@ -46,6 +64,9 @@ public class FacebookProviderTest {
     public void testMovie() throws Exception {
 
         String uriMovie = "http://graph.facebook.com/160617097307237";
+
+        Assume.assumeTrue(ldclient.ping(uriMovie));
+
         ClientResponse respMovie = ldclient.retrieveResource(uriMovie);
 
         RepositoryConnection con = respMovie.getTriples().getConnection();
@@ -69,6 +90,9 @@ public class FacebookProviderTest {
     @Test
     public void testInterest() throws Exception {
         String uriInterest = "http://graph.facebook.com/106515832719603";
+
+        Assume.assumeTrue(ldclient.ping(uriInterest));
+
         ClientResponse respInterest = ldclient.retrieveResource(uriInterest);
 
         RepositoryConnection con = respInterest.getTriples().getConnection();
@@ -91,6 +115,9 @@ public class FacebookProviderTest {
     @Test
     public void testRestauraunt() throws Exception {
         String uriRestaurant = "http://graph.facebook.com/285699076901";
+
+        Assume.assumeTrue(ldclient.ping(uriRestaurant));
+
         ClientResponse respInterest = ldclient.retrieveResource(uriRestaurant);
 
         RepositoryConnection con = respInterest.getTriples().getConnection();

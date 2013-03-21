@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /* main */
 html,body {
     background-color: #4d4d4d;
@@ -46,7 +47,7 @@ a:visited {
 }
 
 #content h2 a {
-    color: #b5b5b5;
+    color: #6dcff5;
 }
 
 #content h2 {
@@ -64,7 +65,7 @@ a:visited {
     border-color: #2c2c2c;
 }
 
-#footer_line span{
+#footer_line span {
     color:#b5b5b5;
 }
 
@@ -101,7 +102,7 @@ ul.submenu li.active a {
 
 table.simple_table tr.title td,
 table.simple_table th {
-    background-color: #4d4d4d;
+    background-color: #2c2c2c;
     color: #6dcff5;
     border-color:#b5b5b5;
 }
@@ -114,9 +115,9 @@ table.simple_table tr.subheading th,
 table.simple_table th.subheading {
     background-color: #b5b5b5;
     color: #2c2c2c;
-}
+}   
 
-table.simple_table tr td{
+table.simple_table tr td {
     color: #b5b5b5;
     border-color: #b5b5b5;
 }
@@ -126,5 +127,18 @@ table.simple_table tr {
 }
 
 table.simple_table tr.even {
-    background-color: #6dcff5;
+    background-color: #2c2c2c;
 }
+
+div#top_serialisation_links a {
+    color: #6dcff5;
+}
+
+div#tab-raw-triples h2 {
+    background-color: #4d4d4d;
+}
+
+table#add-new-prefix tr td {
+    color: #4d4d4d;
+}
+

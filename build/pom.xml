@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -55,6 +55,7 @@
         <module>archetypes</module>
         <module>plugins</module>
         <module>dependency-resource-supplement</module>
+        <module>checkstyle-resources</module>
     </modules>
     
 </project>

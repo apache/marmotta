@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -31,13 +31,37 @@
     <name>Apache Marmotta Archetype: Web Application</name>
     <description>Web Application bundle (WAR file) containing Apache Marmotta</description>
 
+    <properties>
+        <marmottaVersion>${project.version}</marmottaVersion>
+        <servletApiVersion>${servlet.api.version}</servletApiVersion>
+        <javaxElVersion>${javax.el.version}</javaxElVersion>
+        <weldVersion>${weld.version}</weldVersion>        
+        <weldCoreVersion>${weld.core.version}</weldCoreVersion>
+        <h2Version>${h2.version}</h2Version>
+        <postgresqlVersion>${postgresql.version}</postgresqlVersion>
+        <mysqlVersion>${mysql.version}</mysqlVersion>
+    </properties>
+
     <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>1.0-beta-6</version>
-            </extension>
             <extension>
                 <groupId>org.apache.maven.archetype</groupId>
                 <artifactId>archetype-packaging</artifactId>
@@ -64,6 +88,7 @@
                 </configuration>
             </plugin>
         </plugins>
+
     </build>
 
 </project>

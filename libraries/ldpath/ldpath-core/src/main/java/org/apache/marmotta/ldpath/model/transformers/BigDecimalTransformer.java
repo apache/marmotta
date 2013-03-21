@@ -24,6 +24,11 @@ import java.util.Map;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
+/**
+ * A node transformer transforming the node to its big decimal value, if possible.
+ *
+ * @param <Node> the node type used by the backend
+ */
 public class BigDecimalTransformer<Node> implements NodeTransformer<BigDecimal,Node> {
 
     @Override

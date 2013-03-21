@@ -17,6 +17,29 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
@@ -25,29 +48,10 @@ import org.apache.marmotta.platform.core.events.ContentCreatedEvent;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
-
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Content Web Services
@@ -192,7 +196,7 @@ public class ContentWebService {
                 if (resource != null) {
                     if (contentService.deleteContent(resource)) return Response.ok().build();
                     else
-                        return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "no content found for this resource in LMF right now, but may be available again in the future");
+                        return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "no content found for this resource in LMF right now, but may be available again in the future", configurationService);
                 }
                 return Response.status(Response.Status.NOT_FOUND).build();
             } finally {
@@ -281,7 +285,7 @@ public class ContentWebService {
                     }
                     return response;
                 } else {
-                    Response response = ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.NOT_ACCEPTABLE, "no content for mimetype " + mimetype);
+                    Response response = ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.NOT_ACCEPTABLE, "no content for mimetype " + mimetype, configurationService);
                     ResourceWebServiceHelper.addHeader(response, "Content-Type", ResourceWebServiceHelper.appendContentTypes(contentService.getContentType(resource)));
                     return response;
                 }
@@ -314,16 +318,16 @@ public class ContentWebService {
     public Response putContent(URI resource, String mimetype, HttpServletRequest request) {
         try {
             if (request.getContentLength() == 0)
-                return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty for writting");
+                return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty for writting", configurationService);
             contentService.setContentStream(resource, request.getInputStream(), mimetype); // store content
             if(configurationService.getBooleanConfiguration(ENHANCER_STANBOL_ENHANCER_ENABLED, false)) {
                 afterContentCreated.fire(new ContentCreatedEvent(resource)); //enhancer
             }
             return Response.ok().build();
         } catch (IOException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "could not read request body");
+            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "could not read request body", configurationService);
         } catch (WritingNotSupportedException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.FORBIDDEN, "writting this content is not supported");
+            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.FORBIDDEN, "writting this content is not supported", configurationService);
         }
     }
 
