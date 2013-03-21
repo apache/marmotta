@@ -114,7 +114,10 @@ public class MementoFilter implements MarmottaHttpFilter {
     private URL getResourceURL(HttpServletRequest request) {
         try {
             if(request.getParameter("uri") != null) {
-                return new URL(request.getParameter("uri"));
+                //memento is only for http protocol
+                if(request.getParameter("uri").startsWith("http://") || request.getParameter("uri").startsWith("https://")) {
+                    return new URL(request.getParameter("uri"));
+                }
             } else {
                 //test if it is a resource / meta / content url
                 if(request.getRequestURI().startsWith("/"+ ConfigurationService.RESOURCE_PATH+"/")) {
