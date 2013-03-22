@@ -413,6 +413,7 @@
                     <configuration>
                         <excludeSubProjects>false</excludeSubProjects>
                         <excludes>
+                            <!-- auto-generated files -->
                             <exclude>**/*.txt</exclude>
                             <exclude>**/atlassian-ide-plugin.xml</exclude>
                             <exclude>**/README.*</exclude>
@@ -430,6 +431,7 @@
                             <exclude>**/*.psd</exclude>
                             <exclude>**/*.out</exclude>
                             <exclude>**/*.log</exclude>
+
 
                             <!-- known 3rd-party source code -->
                             <exclude>**/jquery*.js</exclude>
