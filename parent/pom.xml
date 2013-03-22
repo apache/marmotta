@@ -418,10 +418,8 @@
                             <exclude>**/README.*</exclude>
                             <exclude>**/NOTICE.*</exclude>
                             <exclude>**/.*</exclude>
-                            <exclude>**/.*/*</exclude>
-                            <exclude>**/.*/**/*</exclude>
+                            <exclude>**/.*/**</exclude>
                             <exclude>**/target/**</exclude>
-                            <exclude>doc/api/**/*</exclude>
                             <exclude>.gitignore</exclude>
                             <exclude>.git/**</exclude>
                             <exclude>.idea/**</exclude>
@@ -452,9 +450,10 @@
                             <!-- META-INF files don't take a license header -->
                             <exclude>**/META-INF/**</exclude>
 
-                            <!-- some parsers don't support comments ... -->
-                            <exclude>**/*.ics</exclude>
-                            <exclude>**/*.json</exclude>
+                            <!-- some parsers don't support comments, they are covered by the general LICENSE.txt
+                                 similar to binaries -->
+                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/ical/*.ics</exclude>
+                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/rdfjson/*.json</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
