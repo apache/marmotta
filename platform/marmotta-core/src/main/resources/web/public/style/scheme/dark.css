@@ -150,6 +150,11 @@ table.config_datatable td.config_tdtitle span {
     color: #b5b5b5;
 }
 
+table#security_rules tr.cls-PERMISSION td {
+    color: #2c2c2c;
+    border-color: #2c2c2c;
+}
+
 .CodeMirror-scroll {
     background-color: #f7f7f7;
 }
