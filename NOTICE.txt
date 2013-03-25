@@ -30,7 +30,7 @@ In addition, the source distribution of this product contains:
     
   - software based on SPARQL Flint Editor licensed under Apache License 2.0
 
-  - software based on Sgvizler license under a MIT-style license
+  - software based on Sgvizler license under a MIT license
 
   - software based on MigLayout licensed under New BSD License
 

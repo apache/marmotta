@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.0.0-incubating-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -76,6 +76,40 @@
                                     <filename>ldpath-${project.version}.jar</filename>
                                 </configuration>
                             </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>truezip-maven-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-into</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.basedir}/src/main/doc/</directory>
+                                            <includes>
+                                                <include>LICENSE.txt</include>
+                                                <include>NOTICE.txt</include>
+                                            </includes>
+                                            <outputDirectory>target/ldpath-${project.version}.jar/META-INF</outputDirectory>
+                                        </fileset>
+                                        <fileset>
+                                            <directory>${project.basedir}/../../../</directory>
+                                            <includes>
+                                                <include>DISCLAIMER.txt</include>
+                                            </includes>
+                                            <outputDirectory>target/ldpath-${project.version}.jar/META-INF</outputDirectory>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+
                         </executions>
                     </plugin>
                     <plugin>
