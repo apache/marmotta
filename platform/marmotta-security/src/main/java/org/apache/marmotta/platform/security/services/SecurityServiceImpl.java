@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -281,38 +282,64 @@ public class SecurityServiceImpl implements SecurityService {
     public void loadSecurityProfile(String profile) {
         profileLoading = true;
 
-        URL securityConfigUrl = this.getClass().getClassLoader().getResource("security-profile."+profile+".properties");
+        LinkedHashSet<String> profiles = new LinkedHashSet<String>(); 
+        Configuration securityConfig = loadProfile(profile, profiles);
+        if (securityConfig != null) {
+        	// remove all configuration keys that define permissions or restrictions
+        	for(String type : Lists.newArrayList("permission","restriction")) {
+        		// determine the names of constraints that are configured
+        		for(String key : configurationService.listConfigurationKeys("security."+type)) {
+        			configurationService.removeConfiguration(key);
+        		}
+        	}
 
-        if(securityConfigUrl != null) {
-            Configuration securityConfig = null;
-            try {
-                securityConfig = new PropertiesConfiguration(securityConfigUrl);
+        	for(Iterator<String> keys = securityConfig.getKeys() ; keys.hasNext(); ) {
+        		String key = keys.next();
 
-                // remove all configuration keys that define permissions or restrictions
-                for(String type : Lists.newArrayList("permission","restriction")) {
-                    // determine the names of constraints that are configured
-                    for(String key : configurationService.listConfigurationKeys("security."+type)) {
-                        configurationService.removeConfiguration(key);
-                    }
-                }
+        		configurationService.setConfigurationWithoutEvent(key, securityConfig.getProperty(key));
+        	}
 
-                for(Iterator<String> keys = securityConfig.getKeys() ; keys.hasNext(); ) {
-                    String key = keys.next();
-
-                    configurationService.setConfigurationWithoutEvent(key, securityConfig.getProperty(key));
-                }
-
-                configurationService.setConfigurationWithoutEvent("security.configured", true);
-            } catch (ConfigurationException e) {
-                log.error("error parsing security-profile.{}.properties file at {}: {}",new Object[] {profile,securityConfigUrl,e.getMessage()});
-            }
-
+        	configurationService.setConfigurationWithoutEvent("security.configured", true);
         }
 
         profileLoading = false;
 
         initSecurityConstraints();
     }
+
+	private Configuration loadProfile(String profile, LinkedHashSet<String> profiles) {
+		URL securityConfigUrl = this.getClass().getClassLoader().getResource("security-profile."+profile+".properties");
+        if(securityConfigUrl != null) {
+            try {
+            	Configuration securityConfig = null;
+				securityConfig = new PropertiesConfiguration(securityConfigUrl);
+
+				if (securityConfig.containsKey("security.profile.base")) {
+					final String baseP = securityConfig.getString("security.profile.base");
+					if (profiles.contains(baseP)) {
+						log.warn("Cycle in security configuration detected: {} -> {}", profiles, baseP);
+						return securityConfig;
+					} else {
+						profiles.add(baseP);
+						final Configuration baseProfile = loadProfile(baseP, profiles);
+						
+						for(Iterator<String> keys = securityConfig.getKeys() ; keys.hasNext(); ) {
+							String key = keys.next();
+							
+							baseProfile.setProperty(key, securityConfig.getProperty(key));
+						}
+						return baseProfile;
+					}
+				} else {
+					return securityConfig;
+				}
+            } catch (ConfigurationException e) {
+                log.error("error parsing security-profile.{}.properties file at {}: {}",new Object[] {profile,securityConfigUrl,e.getMessage()});
+            }
+
+        }
+		return null;
+	}
 
     @Override
     public List<SecurityConstraint> listSecurityConstraints() {
