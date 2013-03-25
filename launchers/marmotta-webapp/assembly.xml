@@ -43,6 +43,12 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>${project.basedir}/../../DISCLAIMER.txt</source>
+            <outputDirectory>/</outputDirectory>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>${project.basedir}/src/main/webapp/META-INF/NOTICE</source>
             <destName>NOTICE.txt</destName>
             <outputDirectory>/</outputDirectory>
