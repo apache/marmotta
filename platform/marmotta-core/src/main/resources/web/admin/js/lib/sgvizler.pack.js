@@ -53,7 +53,7 @@
             }
 
             // load stylesheet
-            $('head').append('<link rel="stylesheet" href="' + this.option.homefolder + 'sgvizler.chart.css" type="text/css" />');
+            $('head').append('<link rel="stylesheet" href="../../../core/public/style/sgvizler.chart.css" type="text/css" />');
         },
 
         drawFormQuery: function () {
