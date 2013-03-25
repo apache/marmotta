@@ -210,3 +210,26 @@ This binary distribution is built using OneJar and therefore bundles some
 OneJar components. OneJar is distributed under a "NewBSD license.
 Copyright (c) 2004-2010, P. Simon Tuffs (simon@simontuffs.com).
 For details, see http://www.simontuffs.com/one-jar
+
+
+This software contains the Compiler assisted localization library (CAL10N) API,
+which is available under a under MIT License. Copyright (c) 2013 QOS.ch.
+For details, see http://cal10n.qos.ch/
+
+This software contains unmodified binary redistributions of the Logback
+Core and Classic Module, which are available under Eclipse Public License
+(EPL 1.0). Copyright (c) 1999-2012 QOS.ch
+For details, see http://logback.qos.ch/
+
+This software contains the JSoup Java library, which is available under a
+"MIT" license.  Copyright (c) 2009-2013 Jonathan Hedley <jonathan@hedley.net>
+For details, see http://jsoup.org/.
+
+This software contains OpenRDF Sesame, which is available under a "Aduna BSD"
+license. Copyright Aduna (http://www.aduna-software.com/) 2001-2013.
+For details, see http://www.openrdf.org
+
+This software contains the SLF4J API, Extension Module, and bridges for JUL,
+Log4j, JCL, which are available under MIT License. Copyright (c) 2004-2012
+QOS.ch. For details, see http://www.slf4j.org/
+
