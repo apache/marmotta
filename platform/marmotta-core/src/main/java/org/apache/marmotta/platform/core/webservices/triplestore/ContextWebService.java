@@ -22,7 +22,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,11 +44,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.LMFHttpUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.util.JerseyUtils;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Context Web Service
@@ -63,28 +68,11 @@ public class ContextWebService {
 
     @Inject
     private ConfigurationService configurationService;
+    
+    @Inject
+    private ExportService exportService;
 
     private static final String  UUID_PATTERN = "{uuid:[^#?]+}";
-
-    /**
-     * Indirect context identification, listing in case 'graph' is missing
-     * 
-     * @param types
-     * @param context uri
-     * @return response
-     * @throws URISyntaxException
-     * @see <a href="http://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification">Indirect Graph Identification</a>
-     */
-    @GET
-    public Response get(@HeaderParam("Accept") String types, @QueryParam("graph") String context) throws URISyntaxException {
-        URI uri;
-        if (StringUtils.isBlank(context)) {
-            uri = new URI(configurationService.getServerUri() + ConfigurationService.CONTEXT_PATH + "/list");
-        } else {
-            uri = buildExportUri(context);            
-        }
-        return Response.seeOther(uri).header("Accept", types).build();
-    }
     
     /**
      *
@@ -125,12 +113,31 @@ public class ContextWebService {
      */
     @GET
     @Path(UUID_PATTERN)
-    public Response getContext(@HeaderParam("Accept") String types, @PathParam("uuid") String uuid) throws UnsupportedEncodingException,
+    public Response getContext(@PathParam("uuid") String uuid, @HeaderParam("Accept") String accept, @QueryParam("format") String format) throws UnsupportedEncodingException,
     URISyntaxException {
-        String context = buildUri(uuid);
-        URI uri = buildExportUri(context);
-        return Response.seeOther(uri).header("Accept", types).build();
+        String context = buildUri(uuid);        
+        URI uri = buildExportUri(context, accept, format);
+        return Response.seeOther(uri).build();
     }
+    
+    /**
+     * Indirect context identification, listing in case 'graph' is missing
+     * 
+     * @param types
+     * @param context uri
+     * @return response
+     * @throws URISyntaxException
+     * @see <a href="http://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification">Indirect Graph Identification</a>
+     */
+    @GET
+    public Response get(@QueryParam("graph") String context, @HeaderParam("Accept") String accept, @QueryParam("format") String format) throws URISyntaxException {
+        if (StringUtils.isBlank(context)) {
+        	return Response.seeOther(new URI(configurationService.getServerUri() + ConfigurationService.CONTEXT_PATH + "/list")).header("Accept", accept).build();
+        } else {
+            URI uri = buildExportUri(context, accept, format);
+            return Response.seeOther(uri).build();        
+        }
+    }    
     
     @PUT
     public Response put(@QueryParam("graph") String context, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
@@ -188,8 +195,17 @@ public class ContextWebService {
         return buildBaseUri() + uuid;
     }
     
-    private URI buildExportUri(String uri) throws URISyntaxException {
-        return new URI(configurationService.getBaseUri() + "export/download?context=" + uri);
+    private URI buildExportUri(String uri, String accept, String format) throws URISyntaxException {
+        List<ContentType> acceptedTypes;
+        if(format != null) {
+            acceptedTypes = LMFHttpUtils.parseAcceptHeader(format);
+        } else {
+            acceptedTypes = LMFHttpUtils.parseAcceptHeader(accept);
+        }
+        List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(exportService.getProducedTypes());
+        offeredTypes.removeAll(Collections.unmodifiableList(Arrays.asList(new ContentType("text", "html"), new ContentType("application", "xhtml+xml"))));
+        final ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+        return new URI(configurationService.getBaseUri() + "export/download?context=" + uri + "&format=" + bestType.getMime());
     }
 
 }
