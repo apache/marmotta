@@ -48,10 +48,22 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
+        var config = _SERVER_URL+"config/data/security.profile";
+
+        $.ajax({
+            type: "GET",
+            url: config,
+            dataType: "json",
+            success: function(data) {
+                        $("#profiles").val(data["security.profile"]);
+                     }
+        });
+        
+
         $("#btn_save").click(function() {
             $.ajax({
                     type: "POST",
-                    url: _SERVER_URL+"config/data/security.profile",
+                    url: config,
                     data: JSON.stringify([$("#profiles").val()]),
                     contentType: "application/json",
                     success: function(data) {
@@ -60,6 +72,7 @@
                     dataType: "json"
             })
         });
+
     });
 </script>
 
