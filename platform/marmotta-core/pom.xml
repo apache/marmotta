@@ -63,7 +63,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
 
-            <!-- for coffescript compilation -->
+            <!-- for coffeescript compilation -->
             <plugin>
                 <groupId>com.voltvoodoo</groupId>
                 <artifactId>brew</artifactId>
@@ -280,6 +280,10 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>jquery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-client-js</artifactId>
         </dependency>
         
         <!-- Persistence -->

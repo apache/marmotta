@@ -872,6 +872,11 @@
                 <artifactId>jquery</artifactId>
                 <version>1.8.2</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>marmotta-client-js</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>net.sf.ehcache</groupId>

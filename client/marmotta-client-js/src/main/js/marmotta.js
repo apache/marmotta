@@ -15,11 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Creates a Marmotta Client object which implements all methods below.
  *
  * Author: Thomas Kurz
- * @param url The basic URL of the Linked Media Framework.
+ * @param url The basic URL where Marmotta runs
  * @param opts an options object (OPTIONAL)
  */
 function MarmottaClient(url,opts) {

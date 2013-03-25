@@ -17,7 +17,7 @@
  */
 function Importer(id,host) {
 
-    var LMF = new LMFClient(host);
+    var LMF = new MarmottaClient(host);
     //TODO
     var loader =$("<img style='position: relative;top: 4px;margin-left: 10px;' src='../public/img/loader/ajax-loader_small.gif'>");
 
@@ -244,7 +244,6 @@ function Importer(id,host) {
 	    var regexp = /(file|ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
 	    return regexp.test(s);
     }
-
 
     function upload(source_filetype_input,source_filetype,context) {
        loader.show();

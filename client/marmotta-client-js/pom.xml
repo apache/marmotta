@@ -63,7 +63,8 @@
             <resource>
                 <directory>src/main/js</directory>
                 <filtering>false</filtering>
-                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>
+                <!--<targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>-->
+                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/</targetPath>
             </resource>
         </resources>
     </build>
