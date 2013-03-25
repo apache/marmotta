@@ -6,20 +6,7 @@ The Apache Software Foundation (http://www.apache.org/).
 
 Additionally, it includes the following 3rd party modules:
 
-  Compiler assisted localization library (CAL10N) -    API under MIT License
-  Guava: Google Core Libraries for Java under The Apache Software License, Version 2.0
-  Jackson (Core and Data Mapper) under The Apache Software License, Version 2.0
-  Jaxen under Apache style license
-  JDOM under Similar to Apache License but with the acknowledgment clause removed
-  jsonld-java licensed under the New BSD License
-  jsoup under The MIT License
   Logback Core and Classic Module under Eclipse Public License - v 1.0
-  OpenRDF Sesame under Aduna BSD license
-  rometools licensed under the Apache License 2.0
-  Semargl: Core, RDF, RDFa and Sesame Integration under Apache Public License 2.0
-  SLF4J API, Extension Module, and bridges for JUL, Log4j, JCL under MIT License
-  OneJar under New BSD License
-
 
 This project also contains annotations derived from JCIP-ANNOTATIONS
 Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net

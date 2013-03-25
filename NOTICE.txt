@@ -7,38 +7,3 @@ Portions of this software were originally based on the following:
     Copyright 2008-2012 Salzburg Research Forschungsgesellschaft mbH
 
 These have been licensed to the Apache Software Foundation under a software grant.
-
-In addition, the source distribution of this product contains:
-
-  - software based on IzPack licensed under Apache License 2.0
-
-  - software based on D3.js licensed under New BSD License
-
-  - software based on Dracula Graph Library licensed under MIT License
-
-  - software based on strftime licensed under New BSD License
-
-  - software based on JQuery licensed under MIT License
-
-  - software based on CodeMirror licensed under Apache License 2.0
-
-  - software based on D2R Snorql licensed under Apache License 2.0
-
-  - software based on script.aculo.us licensed under Apache License 2.0
-
-  - software based on Prototype licensed under Apache License 2.0
-    
-  - software based on SPARQL Flint Editor licensed under Apache License 2.0
-
-  - software based on Sgvizler license under a MIT license
-
-  - software based on MigLayout licensed under New BSD License
-
-  - software based on SwingBits licensed under New BSD License
-
-  - software based on rometools licensed under the Apache License 2.0
-
-  - software based on jsonld-java licensed under the New BSD License
-
-  - data based on JSON-LD Test Suite licensed under CC0 License
-
