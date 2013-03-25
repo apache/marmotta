@@ -20,7 +20,6 @@ package org.apache.marmotta.platform.core.webservices.task;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskInfo;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +130,5 @@ public class TaskManagerWebService {
 
         return Response.status(404).entity("Task " + name + " in Group " + group + " not found").build();
     }
-
 
 }

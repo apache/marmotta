@@ -17,9 +17,12 @@
  */
 package org.apache.marmotta.platform.core.services.prefix;
 
-import org.apache.marmotta.platform.core.api.http.HttpClientService;
-import org.apache.marmotta.platform.core.api.prefix.PrefixProvider;
-import org.apache.marmotta.platform.core.util.http.HttpRequestUtil;
+import java.io.IOException;
+import java.util.HashMap;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,13 +31,13 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.marmotta.platform.core.api.http.HttpClientService;
+import org.apache.marmotta.platform.core.api.prefix.PrefixProvider;
+import org.apache.marmotta.platform.core.util.http.HttpRequestUtil;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * Prefix.cc Provider
@@ -64,17 +67,21 @@ public class PrefixCC implements PrefixProvider {
 
                 @Override
                 public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-                    try {
-                        if (200 == response.getStatusLine().getStatusCode()) {
-                            HttpEntity entity = response.getEntity();
-                            JSONObject json = new JSONObject(EntityUtils.toString(entity));
-                            return json.getString(prefix);
+                    if (200 == response.getStatusLine().getStatusCode()) {
+                        HttpEntity entity = response.getEntity();
+                        JsonFactory factory = new JsonFactory(); 
+                        ObjectMapper mapper = new ObjectMapper(factory); 
+                        TypeReference<HashMap<String,String>> typeRef = new TypeReference<HashMap<String,String>>() {}; 
+                        HashMap<String,String> result = mapper.readValue(EntityUtils.toString(entity), typeRef); 
+                        if (result.containsKey(prefix)) {
+                        	return result.get(prefix);
                         } else {
-                            log.error("Error: prefix '" + prefix + "' not found at prefix.cc");
+                        	log.error("Error: prefix '" + prefix + "' not found at prefix.cc");
                             return null;
                         }
-                    } catch (JSONException e) {
-                        throw new IOException(e);
+                    } else {
+                        log.error("Error: prefix '" + prefix + "' not found at prefix.cc");
+                        return null;
                     }
                 }
             });
