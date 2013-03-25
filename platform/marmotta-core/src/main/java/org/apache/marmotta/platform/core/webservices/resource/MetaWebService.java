@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -43,6 +44,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
@@ -288,6 +290,17 @@ public class MetaWebService {
                     // build response
                     Response response = Response.ok(entity).lastModified(KiWiSesameUtil.lastModified(resource, conn)).build();
                     response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, resource) + "\"");
+                    
+                    if (!mimetype.contains("html")) { // then create a proper filename
+	                    String[] components;
+	                    if (uri.contains("#")) {
+	                    	components = uri.split("#");	                    	
+	                    } else {
+	                    	components = uri.split("/");
+	                    }
+	                    final String fileName = components[components.length-1] + "." + serializer.getDefaultFileExtension();   
+	                    response.getMetadata().add("Content-Disposition", "attachment; filename=\""+fileName+"\"");
+                    }
 
                     // create the Content-Type header for the response
                     if (mimetype.startsWith("text/") || mimetype.startsWith("application/")) {
