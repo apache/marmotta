@@ -26,7 +26,7 @@ import org.openrdf.model.Value;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public abstract class LMFLDPathFunction extends SelectorFunction<Value> {
+public abstract class AutoRegisteredLDPathFunction extends SelectorFunction<Value> {
 
     @Override
     public abstract String getLocalName();

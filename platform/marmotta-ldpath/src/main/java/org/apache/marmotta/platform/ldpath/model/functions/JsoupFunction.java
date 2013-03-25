@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.ldpath.model.functions;
 
-import org.apache.marmotta.platform.ldpath.api.LMFLDPathFunction;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
 
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
@@ -39,7 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class JsoupFunction extends LMFLDPathFunction {
+public class JsoupFunction extends AutoRegisteredLDPathFunction {
 
     private static final Logger               log         = LoggerFactory.getLogger(JsoupFunction.class);
 

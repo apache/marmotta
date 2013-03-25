@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.ldpath.services;
 
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
-import org.apache.marmotta.platform.ldpath.api.LMFLDPathFunction;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 
 import org.apache.marmotta.ldpath.LDPath;
@@ -63,7 +63,7 @@ public class LDPathServiceImpl implements LDPathService {
     private Configuration<Value>        config;
 
     @Inject @Any
-    private Instance<LMFLDPathFunction> functions;
+    private Instance<AutoRegisteredLDPathFunction> functions;
 
     @PostConstruct
     public void initialise() {
@@ -71,7 +71,7 @@ public class LDPathServiceImpl implements LDPathService {
 
         config = new DefaultConfiguration<Value>();
 
-        for(LMFLDPathFunction function : functions) {
+        for(AutoRegisteredLDPathFunction function : functions) {
             config.addFunction(Constants.NS_LMF_FUNCS + function.getLocalName(), function);
         }
     }
@@ -85,8 +85,8 @@ public class LDPathServiceImpl implements LDPathService {
      */
     @Override
     public void registerFunction(SelectorFunction<Value> function) {
-        if (function instanceof LMFLDPathFunction) {
-            config.addFunction(((LMFLDPathFunction) function).getLocalName(), function);
+        if (function instanceof AutoRegisteredLDPathFunction) {
+            config.addFunction(((AutoRegisteredLDPathFunction) function).getLocalName(), function);
         } else {
             try {
                 RepositoryConnection conn = sesameService.getConnection();

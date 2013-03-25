@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.ldpath.model.functions;
 
-import org.apache.marmotta.platform.ldpath.api.LMFLDPathFunction;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
@@ -39,7 +39,7 @@ import java.util.List;
  * Author: Sebastian Schaffert
  */
 @ApplicationScoped
-public class ContentFunction extends LMFLDPathFunction {
+public class ContentFunction extends AutoRegisteredLDPathFunction {
 
     @Inject
     private Logger log;

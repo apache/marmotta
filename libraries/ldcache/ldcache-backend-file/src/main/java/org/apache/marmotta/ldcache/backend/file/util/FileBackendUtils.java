@@ -118,7 +118,7 @@ public class FileBackendUtils {
 			try {
 				ps.println(ce.getResource().stringValue());
 				ps.printf("%tQ # last retrieved: %<tF %<tT.%<tL%n", ce.getLastRetrieved());
-				ps.printf("%tQ # last retrieved: %<tF %<tT.%<tL%n", ce.getExpiryDate());
+				ps.printf("%tQ # expires: %<tF %<tT.%<tL%n", ce.getExpiryDate());
 				ps.printf("%d # %<d updates%n", ce.getUpdateCount());
 			} finally {
 				ps.close();
