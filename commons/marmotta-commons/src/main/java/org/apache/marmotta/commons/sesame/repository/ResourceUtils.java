@@ -49,16 +49,18 @@ public class ResourceUtils {
     // *****************************************************************************************************
     
     /**
-     * Check whenever the resource actually exists. Since this could be under different
-     * interpretations, this implementation only checks for outgoing triples.
+     * Check whenever the uri actually exists. 
+     * Existence of a URI (Resource) is bound to the existence of a
+     * Statement referencing the Resource, so this method simply delegates to {@link #isUsed(RepositoryConnection, String)}.
      * 
      * @param conn connection with the repository
      * @param uri uri of the resource to check
      * @return resource exists or not
-     * @deprecated the name of this method is missleading. use {@link #isSubject(RepositoryConnection, String)}.
+     * @deprecated the name of this method is missleading. use {@link #isUsed(RepositoryConnection, String)}.
      */
+    @Deprecated
     public static boolean existsResource(RepositoryConnection conn, String uri) {
-    	return existsStatement(conn, conn.getValueFactory().createURI(uri), null, null, null);
+    	return isUsed(conn, conn.getValueFactory().createURI(uri));
     }
     
     /**
@@ -68,9 +70,60 @@ public class ResourceUtils {
      * @return true if the uri is ever used as subject.
      */
     public static boolean isSubject(RepositoryConnection conn, String uri) {
-    	return existsStatement(conn, conn.getValueFactory().createURI(uri), null, null, null);
+    	return isSubject(conn, conn.getValueFactory().createURI(uri));
     }
 
+    /**
+     * Check whether the {@link Resource} is ever used as subject. 
+     * @param conn connection with the repository
+     * @param uri the {@link Resource} to check
+     * @return true if the {@link Resource} is ever used as subject.
+     */
+	public static boolean isSubject(RepositoryConnection conn, final Resource rsc) {
+		return existsStatement(conn, rsc, null, null, null);
+	}
+
+    /**
+     * Check whether the uri is ever used as predicate. 
+     * @param conn connection with the repository
+     * @param uri uri of the resource to check
+     * @return true if the uri is ever used as predicate.
+     */
+	public static boolean isPredicate(RepositoryConnection conn, final String uri) {
+		return isPredicate(conn, conn.getValueFactory().createURI(uri));
+	}
+	
+    /**
+     * Check whether the {@link URI} is ever used as predicate. 
+     * @param conn connection with the repository
+     * @param uri the {@link URI} to check
+     * @return true if the {@link URI} is ever used as predicate.
+     */
+	public static boolean isPredicate(RepositoryConnection conn, final URI uri) {
+		return existsStatement(conn, null, uri, null, null);
+	}
+
+	   /**
+     * Check whether the uri is ever used as object. 
+     * @param conn connection with the repository
+     * @param uri uri of the resource to check
+     * @return true if the uri is ever used as predicate.
+     */
+	public static boolean isObject(RepositoryConnection conn, final String uri) {
+		return isObject(conn, conn.getValueFactory().createURI(uri));
+	}
+	
+    /**
+     * Check whether the {@link Value} is ever used as object. 
+     * @param conn connection with the repository
+     * @param val {@link Value} to check
+     * @return true if the {@link Value} is ever used as predicate.
+     */
+	public static boolean isObject(RepositoryConnection conn, final Value val) {
+		return existsStatement(conn, null, null, val, null);
+	}
+
+	
     /**
      * Check whether the uri is ever used as context. 
      * @param conn connection with the repository
@@ -78,9 +131,48 @@ public class ResourceUtils {
      * @return true if the uri is ever used as context.
      */
     public static boolean isContext(RepositoryConnection conn, String uri) {
-    	return existsStatement(conn, null, null, null, conn.getValueFactory().createURI(uri));
+    	return isContext(conn, conn.getValueFactory().createURI(uri));
     }
+
+    /**
+     * Check whether the {@link Resource} is ever used as context. 
+     * @param conn connection with the repository
+     * @param rsc the {@link Resource} to check
+     * @return true if the {@link Resource} is ever used as context.
+     */
+	public static boolean isContext(RepositoryConnection conn, Resource rsc) {
+		return existsStatement(conn, null, null, null, rsc);
+	}
+	
+	/**
+	 * Check whether the {@link Resource} is used in any statement.
+	 * Checks if the provided {@link Resource} is used as
+	 * <ol>
+	 * <li>subject
+	 * <li>context
+	 * <li>object
+	 * <li>predicate (if the resource is a {@link URI})
+	 * </ol>
+	 * @param conn {@link ResourceConnection} to check on
+	 * @param rsc the {@link Resource} to check
+	 * @return true if the {@link Resource} is ever used in a {@link Statement}
+	 */
+	public static boolean isUsed(RepositoryConnection conn, Resource rsc) {
+		if (isSubject(conn, rsc) || isContext(conn, rsc) || isObject(conn, rsc)) return true;
+		if (rsc instanceof URI && isPredicate(conn, (URI) rsc)) return true;
+		return false;
+	}
     
+	/**
+	 * Check for the existence of a {@link Statement} with the provided constraints. <code>null</code> is a wildcard.
+	 * <br>This is a convenience method and does not really fit whith <em>Resource</em>Utils. 
+	 * @param conn the {@link ResourceConnection} to check on
+	 * @param subj the subject of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @param pred the predicate of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @param object the object of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @param ctx the context of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @return true if a {@link Statement} with the provided constraints exists.
+	 */
     public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ctx) {
     	try {
     		RepositoryResult<Statement> stmts = conn.getStatements(subj, pred, object, true, ctx);
@@ -100,21 +192,18 @@ public class ResourceUtils {
      * A Resource exists if and only if it is used in a Statement, i.e. it is uses either as Subject, Context, Predicate or Object.
      * @param uri
      * @return the URI or null if the Resource is not used.
-     * @deprecated this method does not work as promised. <b>DO NOT USE IT</b>
+     * @deprecated this method is easy to misinterpret. Use {@link #isUsed(RepositoryConnection, Resource)}, 
+     * {@link #isSubject(RepositoryConnection, String)}, {@link #isPredicate(RepositoryConnection, String)}, 
+     * {@link #isObject(RepositoryConnection, String)} or {@link #isContext(RepositoryConnection, String)} according to your usecase. 
      */
     @Deprecated
     public static URI getUriResource(RepositoryConnection con, String uri) {
-    	URI r = con.getValueFactory().createURI(uri);
-    	if (isSubject(con, uri) || isContext(con, uri) || existsStatement(con, null, r, null, null) || existsStatement(con, null, null, r, null)) {
-    		return r;
+    	URI rsc = con.getValueFactory().createURI(uri);
+    	if (isUsed(con, rsc)) {
+    		return rsc;
     	} else {
     		return null;
     	}
-//        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
-//            return ((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).getURI(uri);
-//        } else {
-//            return r;
-//        }
     }
 
     /**
@@ -123,11 +212,12 @@ public class ResourceUtils {
      * @return
      */
     public static BNode getAnonResource(RepositoryConnection con, String id) {
-        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
-            return ((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).getBNode(id);
-        } else {
-            return con.getValueFactory().createBNode(id);
-        }
+    	final BNode bNode = con.getValueFactory().createBNode(id);
+    	if (isUsed(con, bNode)) {
+    		return bNode;
+    	} else {
+    		return null;
+    	}
     }
 
     /**
