@@ -1203,6 +1203,7 @@
 
             <!-- parsers -->
             <dependency>
+                <!-- 1.0.4 breaks the tests, so stay at 1.0.3 -->
                 <groupId>org.mnode.ical4j</groupId>
                 <artifactId>ical4j</artifactId>
                 <version>1.0.3</version>
