@@ -49,8 +49,8 @@ public class PrefixWebServiceTest {
         prefixService = marmotta.getService(PrefixService.class);
 
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "/marmotta";
+        RestAssured.port = marmotta.getPort();
+        RestAssured.basePath = marmotta.getContext();
 
     }
 

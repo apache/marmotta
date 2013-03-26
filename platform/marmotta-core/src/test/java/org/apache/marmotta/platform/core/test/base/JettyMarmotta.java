@@ -46,6 +46,10 @@ import org.mortbay.jetty.servlet.ServletHolder;
 public class JettyMarmotta extends AbstractMarmotta {
 
     private Server jetty;
+    
+    private int port;
+
+	private String context;
 
     public JettyMarmotta(String context, int port) {
         this(context, port, (Set<Class<?>>) null);
@@ -69,8 +73,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         Connector connector=new SelectChannelConnector();
         connector.setPort(port);
         jetty.setConnectors(new Connector[]{connector});
-
-
+        
         TestInjectorFactory.setManager(container.getBeanManager());
 
         Context ctx = new Context(jetty,context != null ? context : "/");
@@ -106,8 +109,11 @@ public class JettyMarmotta extends AbstractMarmotta {
 
         try {
             jetty.start();
-
-            String url = "http://localhost:"+port+ (context != null ? context + "/" : "/");
+            
+            this.port = port;
+            this.context = (context != null ? context + "/" : "/");
+            
+            String url = "http://localhost:"+ this.port + this.context;
 
             startupService.startupHost(url,url);
         } catch (Exception e) {
@@ -124,5 +130,13 @@ public class JettyMarmotta extends AbstractMarmotta {
         }
         super.shutdown();
     }
+    
+    public int getPort() {
+		return port;
+	}
+
+	public String getContext() {
+		return context;
+	}    
 
 }
