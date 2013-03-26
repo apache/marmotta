@@ -201,36 +201,62 @@
    limitations under the License.
 
 
-This source distribution bundles the JSON-LD java library, which is available
-under a "New BSD" license. Copyright (c) 2012, Deutsche Forschungszentrum für
-Künstliche Intelligenz GmbH.
-For details, see https://github.com/tristan/jsonld-java.
+==============================================================================
+==  New (3-clause) BSD License                                              ==
+==============================================================================
 
-This source distribution bundles the MigLayout java library, which is
-available under a "New BSD" license. Copyright (c) 2011 MiG InfoCom AB
-For details, see http://www.miglayout.com/.
+Copyright (c) <YEAR>, <OWNER> (see NOTICE)
+All rights reserved.
 
-This source distribution bundles the SwingBits java library, which is
-available under a "New BSD" license. Copyright (C) 2006 Michael Hjembaek
-For details, see http://swingbits.sourceforge.net/.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-This source distribution bundles the D3.js Javascript library, which is
-available under a "New BSD" license.  Copyright (c) 2012, Michael Bostock.
-For details, see http://d3js.org/.
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
 
-This source distribution bundles the Dracula Javascript library, which is
-available under a "MIT" license. (c) 2010 by Johann Philipp Strathausen
-<strathausen@gmail.com>. For details, see http://www.graphdracula.net/de/.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
 
-This source distribution bundles the jQuery Javascript library, which is
-available under a "MIT" license.  Copyright 2013 jQuery Foundation and other
-contributors. For details, see http://jquery.com/.
+ 3. Neither the name of the <ORGANIZATION> nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
-This source distribution bundles the Sgvizler Javascript library, which is
-available under a "MIT" license.  Copyright (c) 2011 Martin G. Skjæveland.
-For details, see https://code.google.com/p/sgvizler/.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
 
-This source distribution bundles the strftime Javascript library, which is
-available under a "New BSD" license.  Copyright (c) 2008, Philip S Tellis
-<philip@bluesmoon.info> For details, http://hacks.bluesmoon.info/strftime/.
+==============================================================================
+==  MIT License                                                             ==
+==============================================================================
+
+Copyright (c) <year> <copyright holders>  (see NOTICE)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
 

@@ -1,21 +1,546 @@
 Apache Marmotta Installer
 Copyright 2012-2013 The Apache Software Foundation
 
-This product includes software developed at
+This product includes software developed at The Apache Software Foundation
+(http://www.apache.org/).
+
+Portions of this software were originally based on the following:
+
+    Copyright 2008-2012 Salzburg Research Forschungsgesellschaft mbH
+
+These have been licensed to the Apache Software Foundation under a software
+grant.
+
+
+==============================================================================
+== Apache Tomcat Notice
+==============================================================================
+
+Apache Tomcat
+Copyright 1999-2013 The Apache Software Foundation
+
+This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
 
-Additionally, it includes the following 3rd party modules:
+The Windows Installer is built with the Nullsoft
+Scriptable Install System (NSIS), which is
+open source software.  The original software and
+related information is available at
+http://nsis.sourceforge.net.
 
-The following 3rd party modules included in this binary distribution require notice:
+Java compilation software for JSP pages is provided by Eclipse,
+which is open source software.  The original software and
+related information is available at
+http://www.eclipse.org.
 
-  H2 Database Engine under The H2 License, Version 1.0
-  JavaBeans Activation Framework (JAF) under Common Development and Distribution License (CDDL) v1.0
-  JSON (JavaScript Object Notation) under provided without support or warranty
-  JSR-250 Common Annotations for the JavaTM Platform under COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
-  Logback Core and Classic Module under Eclipse Public License - v 1.0
-  Servlet API under Commons Development and Distribution License, Version 1.0
+For the bayeux implementation
+The org.apache.cometd.bayeux API is derivative work originating at the Dojo
+Foundation
+* Copyright 2007-2008 Guy Molinari
+* Copyright 2007-2008 Filip Hanik
+* Copyright 2007 Dojo Foundation
+* Copyright 2007 Mort Bay Consulting Pty. Ltd.
 
-This project also contains annotations derived from JCIP-ANNOTATIONS
+The original XML Schemas for Java EE Deployment Descriptors:
+ - javaee_5.xsd
+ - javaee_web_services_1_2.xsd
+ - javaee_web_services_client_1_2.xsd
+ - javaee_6.xsd
+ - javaee_web_services_1_3.xsd
+ - javaee_web_services_client_1_3.xsd
+ - jsp_2_2.xsd
+ - web-app_3_0.xsd
+ - web-common_3_0.xsd
+ - web-fragment_3_0.xsd
+may be obtained from http://java.sun.com/xml/ns/javaee/
+
+==============================================================================
+== H2 Database Engine Notice
+==============================================================================
+
+This software contains unmodified binary redistributions for H2 database
+engine (http://www.h2database.com/), which is dual licensed and available under
+a modified version of the MPL 1.1 (Mozilla Public License) or under the
+(unmodified) EPL 1.0 (Eclipse Public License). An original copy of the license
+agreement can be found at: http://www.h2database.com/html/license.html
+
+The source code for the H2 database engine is available at:
+http://code.google.com/p/h2database/source
+
+==============================================================================
+==  Logback Notice                                                          ==
+==============================================================================
+
+This software contains unmodified binary redistributions of Logback, the
+reliable, generic, fast and flexible logging framework.
+Copyright (C) 1999-2012, QOS.ch. All rights reserved.
+
+This program and the accompanying materials are dual-licensed under either the
+terms of the Eclipse Public License v1.0 as published by the Eclipse
+Foundation
+
+ or (per the licensee's choosing)
+
+under the terms of the GNU Lesser General Public License version 2.1 as
+published by the Free Software Foundation.
+
+Apache Marmotta elects to include this software in this distribution under the
+Eclipse Public license.
+
+The source code of Logback is available at https://github.com/qos-ch/logback
+
+==============================================================================
+==  CAL10N Notice                                                           ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the CAL10N library
+copyright (c) 2009 QOS.ch and published under MIT License.
+
+The source code is available at https://github.com/qos-ch/cal10n
+
+==============================================================================
+==  Guava Library Notice                                                    ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the Guava Library.
+Guava is (c) 2010-2013 Google / The Guava Authors and published under
+Apache License 2.0.
+
+The source code is available at https://code.google.com/p/guava-libraries
+
+
+==============================================================================
+==  Jackson Notice                                                          ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the Jackson JSON
+processor, copyright (c) 2007- Tatu Saloranta, tatu.saloranta@iki.fi.
+Jackson is available under a dual-license Apache License 2.0 and Library
+General Public License.
+
+Apache Marmotta elects to include this software in this distribution under the
+Apache License 2.0.
+
+The source code is available at http://svn.codehaus.org/jackson/
+
+==============================================================================
+==  MimeUtil Notice                                                         ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the MimeUtil Mime
+Type Detection utility, copyright (c) Medsea Business Solutions S.L. MimeUtil
+is licensed under Apache License 2.0
+
+The source code is available at http://mime-util.sourceforge.net/
+
+==============================================================================
+==  IzPack Notice                                                           ==
+==============================================================================
+
+-- Ant notice --
+
+  This product includes software developed by
+  The Apache Software Foundation (http://www.apache.org/).
+
+  This product includes also software developed by :
+    - the W3C consortium (http://www.w3c.org) ,
+    - the SAX project (http://www.saxproject.org)
+
+  Please read the different LICENSE files present in the root directory of
+  this distribution.
+
+-- IzPack notice --
+
+  This product includes software developed by Julien Ponge and others
+  for the IzPack project:
+    - http://izpack.org/
+    - http://izpack.codehaus.org/
+
+The source code is available at https://github.com/izpack/izpack
+
+==============================================================================
+==  OpenCSV Notice                                                          ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the OpenCSV
+library, copyright (c) 2005 Bytecode Pty Ltd. OpenCSV is available under
+Apache License 2.0.
+
+The source code is available at http://opencsv.sourceforge.net/
+
+==============================================================================
+==  OpenRDF Sesame Notice                                                   ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the OpenRDF
+Sesame libraries, copyright 2001-2013 Aduna and licensed under Aduna BSD
+License.
+
+The source code is available at https://bitbucket.org/openrdf/sesame
+
+Source code contributions
+-------------------------
+
+This software includes code developed by Aduna
+(http://www.aduna-software.com/).
+
+This software includes code developed by Ontotext AD
+(http://www.ontotext.com/).
+
+This software includes code developed by 3 Round Stones
+(http://www.3roundstones.com/).
+
+This software includes code developed by Fluid Operations
+(http://www.fluidops.com/).
+
+This software includes code developed by the Information Management Group at
+Food & Biobased Research, Wageningen University (http://www.fbr.wur.nl/).
+
+This software includes code developed by Clark & Parsia
+(http://clarkparsia.com/).
+
+This software includes code developed by the Institute for Defense Analyses
+(IDA) (http://www.ida.org/).
+
+This software includes code developed by Atos (http://www.atos.net/).
+
+This software includes code developed by Peter Ansell.
+
+The above parties have licensed their code contributions to Aduna under the
+terms of a contributor license agreement (CLA).
+
+Third party libraries
+---------------------
+
+This product includes software developed by The Apache Software Foundation
+(http://www.apache.org/). License: http://www.apache.org/licenses/LICENSE-2.0
+
+This product includes software developed by the JUnit project
+(http://www.junit.org/). License: http://junit.sourceforge.net/cpl-v10.html
+
+Parts of this product use software developed by JSON.org
+(http://www.json.org/). License: http://www.json.org/license.html
+
+Parts of this product use software developed by the Mockito project
+(https://code.google.com/p/mockito/).
+License: https://github.com/mockito/mockito/blob/master/LICENSE
+
+
+==============================================================================
+==  PostgreSQL JDBC Notice                                                  ==
+==============================================================================
+
+This software contains the PostgreSQL JDBC drivers, which are available under
+a "New BSD" License. Copyright (c) 1997-2011, PostgreSQL Global Development
+Group. For details, see http://jdbc.postgresql.org/
+
+==============================================================================
+==  Scannotation Notice                                                     ==
+==============================================================================
+
+This software includes unmodified binary redistributions of the Scannotation
+library, copyright (c) 2011 Bill Burke. Scannotation is distributed under
+Apache License 2.0.
+
+The source code is available at http://scannotation.sourceforge.net/
+
+==============================================================================
+==  SLF4J Notice                                                            ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the SLF4J logging
+framework, including the adapters for JCL, JUL, and LOG4J. The SLF4J framework
+is copyright (c) 2004-2013 QOS.ch and distributed under a MIT license.
+
+The source code is available at https://github.com/qos-ch/slf4j
+
+==============================================================================
+==  Semargl Notice                                                          ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Semargl RDFa
+libraries. Semargl is copyright 2012 Lev Khomich and licensed under the
+Apache License 2.0
+
+This product uses software developed by The Apache Software Foundation:
+Clerezza, Jena, IO Commons (http://www.apache.org/).
+
+This product includes/uses test suite developed by Hewlett-Packard
+(http://hp.com/). Copyright (c) 2002, Hewlett-Packard Company.
+
+This product includes/uses test suite developed by W3C Consortium.
+
+This product includes/uses RDFa test harness developed by RDF Web Applications
+Working Group (http://www.w3.org/2010/02/rdfa/).
+
+The source code is available at https://github.com/levkhomich/semargl
+
+==============================================================================
+==  Janino Notice                                                           ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Janino embedded
+Java compiler. Janino is copyright (c) 2001-2010, Arno Unkrig and is licensed
+under a New BSD License.
+
+The source code is available at https://svn.codehaus.org/janino/
+
+==============================================================================
+==  iCal4J Notice                                                           ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the iCal4J and
+vCard libraries. Both are copyright (c) 2012, Ben Fortuna and are distributed
+under a New BSD License.
+
+The source code is available at http://sourceforge.net/projects/ical4j/
+
+==============================================================================
+==  javax.inject Notice                                                     ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Java Injection
+API, copyright (C) 2009 The JSR-330 Expert Group. The Java Injection API is
+distributed under Apache License 2.0.
+
+The source code is available at http://code.google.com/p/atinject/
+
+
+==============================================================================
+==  Javassist Notice                                                        ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Javassist
+library, a Java-bytecode translator toolkit. Javassist is copyright
+(c) 1999-2013 Shigeru Chiba and distributed under Mozilla Public License,
+Lesser General Public License, and Apache License 2.0.
+
+Apache Marmotta elects to include this software in this distribution under the
+Apache License 2.0.
+
+The source code is available at http://anonsvn.jboss.org/repos/javassist/
+
+==============================================================================
+==  Jaxen Notice                                                            ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Jaxen library.
+Jaxen is copyright (c) 2003-2006 The Werken Company and is distributed under
+a New BSD License.
+
+The source code is available at https://svn.codehaus.org/jaxen/
+
+==============================================================================
+==  JDOM Notice                                                             ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the JDOM XML
+library. JDOM is copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin and
+is distributed under a 4-clause BSD License with attribution.
+
+The source code is available at https://github.com/hunterhacker/jdom/
+
+==============================================================================
+==  JSoup Notice                                                            ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the JSoup library.
+JSoup is copyright (c) 2009-2013 Jonathan Hedley <jonathan@hedley.net> and is
+licensed under MIT license.
+
+The source code is available at https://github.com/jhy/jsoup/
+
+==============================================================================
+==  Freemarker Notice                                                       ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Freemarker
+templating engine. Freemarker is copyright (c) 2003 The Visigoth Software
+Society (http://www.visigoths.org/). Freemarker is distributed under a
+4-clause BSD license with attribution.
+
+The source code is available at https://github.com/freemarker/freemarker
+
+==============================================================================
+==  EHCache Notice                                                          ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the EHCache caching
+library. EHCache is copyright 2003-2010 Terracotta, Inc. and licensed under
+Apache License 2.0.
+
+The source code is available at http://svn.terracotta.org/svn/ehcache/
+
+==============================================================================
+==  Red Hat Notice                                                          ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the following
+software which was developed by Red Hat Middleware, LLC under Apache License
+2.0:
+ - CDI APIs 1.1
+   source code: https://github.com/jboss/cdi
+ - Weld APIs and Implementation
+   source code: https://github.com/weld
+ - Bean Validation API
+   source code: https://github.com/hibernate/hibernate-validator
+ - JBoss EJB 3.1 Common Interceptor Library
+   source code: https://github.com/jbossinterceptors/jbossinterceptors
+ - RESTEasy JAX-RS Implementation
+   source code: https://github.com/resteasy/Resteasy
+
+
+==============================================================================
+==  Sun/Oracle Notice                                                       ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the following
+software which was developed by Sun Microsystems and Oracle under a CDDL
+license. (http://www.oracle.com/):
+ - Java Activation Framework
+ - Java Servlet API
+ - Common Annotations for the JavaTM Platform (JSR-250)
+ - Expression Language API 2.2
+
+==============================================================================
+==  Xerces Notice                                                           ==
+==============================================================================
+
+Portions of this software were originally based on the following:
+  - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+  - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+  - voluntary contributions made by Paul Eng on behalf of the
+    Apache Software Foundation that were originally developed at
+    iClick, Inc., software copyright (c) 1999.
+
+
+==============================================================================
+== Javascript Libraries included in Marmotta Platform
+==============================================================================
+
+D3.js is copyright (c) 2013, Michael Bostock and licensed under New BSD
+License. The source code is available at https://github.com/mbostock/d3
+
+Source Locations:
+- platform/marmotta-core/src/main/resources/web/admin/js/lib/
+- platform/marmotta-sparql/src/main/resources/web/admin/sgvizler/0.5/lib/
+
+
+The Dracula Graph Library is (c) 2010 by Johann Philipp Strathausen
+<strathausen@gmail.com> and licensed under MIT License. The source code is
+available at https://github.com/strathausen/dracula
+
+Source Locations:
+- platform/marmotta-core/src/main/resources/web/admin/js/lib/
+
+
+The strftime library is copyright (c) 2008, Philip S Tellis
+<philip@bluesmoon.info> and licensed under New BSD License. The source code
+is available at http://hacks.bluesmoon.info/strftime/files.html
+
+Source Locations:
+- platform/marmotta-core/src/main/resources/web/public/js/lib
+
+
+The JQuery Library is copyright 2013 jQuery Foundation and other contributors,
+and licensed under MIT License. The source code is available at
+https://github.com/jquery/jquery
+
+Source Locations:
+- platform/marmotta-core/src/main/resources/web/public/js/lib
+
+
+The CodeMirror Library is copyright (C) 2013 by Marijn Haverbeke
+<marijnh@gmail.com> and licensed under MIT License. The source code is
+available at https://github.com/marijnh/CodeMirror
+
+Source Locations:
+- platform/marmotta-ldpath/src/main/resources/web/cm
+- platform/marmotta-sparql/src/main/resources/web/cm
+- platform/marmotta-sparql/src/main/resources/web/admin/editor/sparql/lib
+
+
+The D2R Snorql Library was originally created by Richard Cyganaik
+(http://richard.cyganiak.de/) for the D2R server project
+(http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/). It is licensed under the
+Apache Software License 2.0. The source code is available at
+https://github.com/kurtjx/SNORQL
+
+Source Locations:
+- platform/marmotta-sparql/src/main/resources/web/admin/snorql
+
+
+The script.aculo.us library is copyright (c) 2005-2010 Thomas Fuchs and is
+licensed under MIT License. The source code is available at
+https://github.com/madrobby/scriptaculous
+
+Source Locations:
+- platform/marmotta-sparql/src/main/resources/web/admin/snorql/scriptaculous
+
+
+The Prototype Library is copyright (c) 2005-2010 Sam Stephenson and is
+licensed under MIT License. The source code is available at
+https://github.com/sstephenson/prototype
+
+Source Locations:
+- platform/marmotta-sparql/src/main/resources/web/admin/snorql
+
+
+The SPARQL Flint Editor is copyright (c) 2011 TSO Ltd and is licensed under
+MIT License. The source code is available at
+https://github.com/TSO-Openup/FlintSparqlEditor
+
+Source Locations:
+- platform/marmotta-sparql/src/main/resources/web/admin/editor/
+
+
+The Sgvizler Library is copyright (c) 2011 Martin G. Skjæveland and is
+licensed under MIT License. The source code is available at
+https://code.google.com/p/sgvizler/source
+
+Source Locations:
+- platform/marmotta-core/src/main/resources/web/admin/js/lib
+- platform/marmotta-sparql/src/main/resources/web/admin/sgvizler
+
+
+==============================================================================
+== 3rd Party Source Code
+==============================================================================
+
+The module launchers/marmotta-splash contains source code from the projects
+MigLayout and SwingBits, which has the following copyrights:
+
+The MigLayout library is copyright (c) 2004, Mikael Grev, MiG InfoCom AB, and
+licensed under a New BSD License. The source code is available at
+http://www.migcalendar.com/miglayout/versions/
+
+The SwingBits library is copyright (C) 2006 Michael Hjembaek, and licensed
+under a New BSD License. The source code is available at
+http://swingbits.sourceforge.net/
+
+
+The module commons/sesame-tools-rio-rss contains source code from the
+orphaned ROME project. ROME has copyright 2004 Sun Microsystems, Inc.
+and copyright 2011 The ROME Team, and is licensed under Apache License 2.0.
+The source code is available at
+https://rometools.jira.com/source/browse/ROME/trunk
+
+
+The module commons/sesame-tools-rio-jsonld contains source code from the
+JSONLD-Java project. JSONLD-Java is copyright (c) 2012, Deutsches
+Forschungszentrum für Künstliche Intelligenz GmbH and licensed under a
+New BSD License. The source code is available at
+https://github.com/tristan/jsonld-java
+
+
+==============================================================================
+== JCIP-ANNOTATIONS Notice
+==============================================================================
+
+This project contains annotations derived from JCIP-ANNOTATIONS
 Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
+
+
+
 
 
