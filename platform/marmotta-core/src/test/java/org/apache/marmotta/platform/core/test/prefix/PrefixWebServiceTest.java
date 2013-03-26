@@ -45,7 +45,7 @@ public class PrefixWebServiceTest {
 
     @BeforeClass
     public static void setUp() {
-        marmotta = new JettyMarmotta("/marmotta", 8080, PrefixWebService.class);
+        marmotta = new JettyMarmotta("/marmotta", PrefixWebService.class);
         prefixService = marmotta.getService(PrefixService.class);
 
         RestAssured.baseURI = "http://localhost";

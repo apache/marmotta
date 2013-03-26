@@ -17,9 +17,12 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
@@ -50,20 +53,36 @@ public class JettyMarmotta extends AbstractMarmotta {
     private int port;
 
 	private String context;
+	
+    public JettyMarmotta(String context) {
+        this(context, getRandomPort());
+    }
 
     public JettyMarmotta(String context, int port) {
         this(context, port, (Set<Class<?>>) null);
+    }
+    
+    public JettyMarmotta(String context, Class<?> webservice) {
+        this(context, getRandomPort(), webservice);
     }
 
     public JettyMarmotta(String context, int port, Class<?> webservice) {
         this(context,port, Collections.<Class<?>>singleton(webservice));
     }
+    
+    public JettyMarmotta(String context, Class<?>... webservices) {
+        this(context, getRandomPort(), webservices);
+    }
 
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
         this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
     }
+    
+    public JettyMarmotta(String context, Set<Class<?>> webservices) {
+    	this(context, getRandomPort(), webservices);
+    }
 
-    public JettyMarmotta(String context, int port, Set<Class<?>> webservice) {
+    public JettyMarmotta(String context, int port, Set<Class<?>> webservices) {
         super();
 
         // create a new jetty
@@ -96,8 +115,8 @@ public class JettyMarmotta extends AbstractMarmotta {
         ServletHolder restEasyFilter  = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
         restEasyFilter.setInitParameter("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
 
-        if(webservice != null) {
-            TestApplication.setTestedWebServices(webservice);
+        if(webservices != null) {
+            TestApplication.setTestedWebServices(webservices);
             //restEasyFilter.setInitParameter("resteasy.resources", webservice.getName());
             restEasyFilter.setInitParameter("javax.ws.rs.Application", TestApplication.class.getCanonicalName());
         } else {
@@ -137,6 +156,36 @@ public class JettyMarmotta extends AbstractMarmotta {
 
 	public String getContext() {
 		return context;
-	}    
+	}
+	
+	public static int getRandomPort() {
+		Random ran = new Random();
+	    int port = 0;
+	    do {
+	    	port = ran.nextInt(2000) + 8000;
+	    } while (!isPortAvailable(port));
+
+	    return port;
+	}
+	
+	public static boolean isPortAvailable(final int port) {
+	    ServerSocket ss = null;
+	    try {
+	        ss = new ServerSocket(port);
+	        ss.setReuseAddress(true);
+	        return true;
+	    } catch (final IOException e) {
+	    	
+	    } finally {
+	        if (ss != null) {
+	            try {
+					ss.close();
+				} catch (IOException e) {
+					
+				}
+	        }
+	    }
+	    return false;
+	}
 
 }
