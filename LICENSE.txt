@@ -220,7 +220,7 @@ For details, see http://d3js.org/.
 
 This source distribution bundles the Dracula Javascript library, which is
 available under a "MIT" license. (c) 2010 by Johann Philipp Strathausen
-<strathausen@gmail.com>. For details, see http://jquery.com/.
+<strathausen@gmail.com>. For details, see http://www.graphdracula.net/de/.
 
 This source distribution bundles the jQuery Javascript library, which is
 available under a "MIT" license.  Copyright 2013 jQuery Foundation and other
