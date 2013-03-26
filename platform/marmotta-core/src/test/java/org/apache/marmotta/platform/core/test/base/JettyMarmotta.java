@@ -93,7 +93,6 @@ public class JettyMarmotta extends AbstractMarmotta {
         ServletHolder restEasyFilter  = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
         restEasyFilter.setInitParameter("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
 
-
         if(webservice != null) {
             TestApplication.setTestedWebServices(webservice);
             //restEasyFilter.setInitParameter("resteasy.resources", webservice.getName());

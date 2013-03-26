@@ -17,16 +17,16 @@
  */
 package org.apache.marmotta.platform.core.test.config;
 
-import junit.framework.Assert;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Test the functionality of the configuration service
@@ -137,8 +137,7 @@ public class ConfigurationServiceTest {
         // test without / with default value
         Assert.assertNull(configurationService.getStringConfiguration(key));
         Assert.assertEquals(value, configurationService.getIntConfiguration(key, value));
-        Assert.assertEquals((double)value,configurationService.getDoubleConfiguration(key, value));
-
+        Assert.assertEquals((double) value,configurationService.getDoubleConfiguration(key, value), 1e-15);
 
         // set value to a new value
         configurationService.setIntConfiguration(key, value);
