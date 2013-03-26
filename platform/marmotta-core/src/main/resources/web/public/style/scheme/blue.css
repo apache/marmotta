@@ -119,3 +119,8 @@ table.simple_table tr {
 table.simple_table tr.even {
     background-color: #EFF9FF;
 }
+
+dl dt {
+    color: #0B61A4;
+}
+

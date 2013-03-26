@@ -52,7 +52,6 @@ a#logo img {
     font-size: 13px;
 }
 
-
 #left {
     width:20%;
     float: left;
@@ -211,3 +210,17 @@ table.simple_table tr td{
     border-width: 1px;
     border-style: solid;
 }
+
+dl dt {
+    font-weight: bold;
+    position: relative;
+    top: 1em;
+    width: 12em;
+    text-align: right;
+}
+
+dd {
+    margin: 0 0 0 13em;
+    padding: 0 0 0 0.5em;
+}
+
