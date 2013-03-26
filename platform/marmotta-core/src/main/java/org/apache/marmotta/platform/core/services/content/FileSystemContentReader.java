@@ -136,9 +136,9 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
                     try {
-                        URI uri = new URI(((KiWiUriResource)resource).stringValue());
+                        URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
                     } catch(Exception ex) {}
                 }
@@ -189,9 +189,9 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
                     try {
-                        URI uri = new URI(((KiWiUriResource)resource).stringValue());
+                        URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
                     } catch(Exception ex) {}
                 }
@@ -231,9 +231,9 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
                     try {
-                        URI uri = new URI(((KiWiUriResource)resource).stringValue());
+                        URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
                     } catch(Exception ex) {}
                 }
@@ -287,9 +287,9 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
                     try {
-                        URI uri = new URI(((KiWiUriResource)resource).stringValue());
+                        URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
                     } catch(Exception ex) {}
                 }

@@ -4,12 +4,47 @@ Copyright [2012-2013] The Apache Software Foundation
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
-Additionally, it includes the following 3rd party modules:
+==============================================================================
+==  CAL10N Notice                                                           ==
+==============================================================================
 
-  Logback Core and Classic Module under Eclipse Public License - v 1.0
+This software contains unmodified binary redistributions of the CAL10N library
+copyright (c) 2009 QOS.ch and published under MIT License.
 
-This project also contains annotations derived from JCIP-ANNOTATIONS
-Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
+The source code is available at https://github.com/qos-ch/cal10n
+
+==============================================================================
+==  Logback Notice                                                          ==
+==============================================================================
+
+This software contains unmodified binary redistributions of Logback, the
+reliable, generic, fast and flexible logging framework.
+Copyright (C) 1999-2012, QOS.ch. All rights reserved.
+
+This program and the accompanying materials are dual-licensed under either the
+terms of the Eclipse Public License v1.0 as published by the Eclipse
+Foundation
+
+ or (per the licensee's choosing)
+
+under the terms of the GNU Lesser General Public License version 2.1 as
+published by the Free Software Foundation.
+
+Apache Marmotta elects to include this software in this distribution under the
+Eclipse Public license.
+
+The source code of Logback is available at https://github.com/qos-ch/logback
+
+==============================================================================
+==  Guava Library Notice                                                    ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the Guava Library.
+Guava is (c) 2010-2013 Google / The Guava Authors and published under
+Apache License 2.0.
+
+The source code is available at https://code.google.com/p/guava-libraries
+
 
 ==============================================================================
 ==  OneJAR Notice                                                           ==
@@ -21,3 +56,134 @@ binary code (http://www.simontuffs.com/one-jar). One-JAR is copyright
 a New BSD License.
 
 The source code is available at http://one-jar.sourceforge.net
+
+==============================================================================
+==  SLF4J Notice                                                            ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the SLF4J logging
+framework, including the adapters for JCL, JUL, and LOG4J. The SLF4J framework
+is copyright (c) 2004-2013 QOS.ch and distributed under a MIT license.
+
+The source code is available at https://github.com/qos-ch/slf4j
+
+==============================================================================
+==  Jaxen Notice                                                            ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Jaxen library.
+Jaxen is copyright (c) 2003-2006 The Werken Company and is distributed under
+a New BSD License.
+
+The source code is available at https://svn.codehaus.org/jaxen/
+
+==============================================================================
+==  JDOM Notice                                                             ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the JDOM XML
+library. JDOM is copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin and
+is distributed under a 4-clause BSD License with attribution.
+
+The source code is available at https://github.com/hunterhacker/jdom/
+
+==============================================================================
+==  JSoup Notice                                                            ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the JSoup library.
+JSoup is copyright (c) 2009-2013 Jonathan Hedley <jonathan@hedley.net> and is
+licensed under MIT license.
+
+The source code is available at https://github.com/jhy/jsoup/
+
+==============================================================================
+==  Jackson Notice                                                          ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the Jackson JSON
+processor, copyright (c) 2010 FasterXML LLC. Jackson is available under a
+dual-license Apache License 2.0 and Library General Public License.
+
+Apache Marmotta elects to include this software in this distribution under the
+Apache License 2.0.
+
+The source code is available at http://svn.codehaus.org/jackson/
+
+==============================================================================
+==  OpenRDF Sesame Notice                                                   ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the OpenRDF
+Sesame libraries, copyright 2001-2013 Aduna and licensed under Aduna BSD
+License.
+
+The source code is available at https://bitbucket.org/openrdf/sesame
+
+Source code contributions
+-------------------------
+
+This software includes code developed by Aduna
+(http://www.aduna-software.com/).
+
+This software includes code developed by Ontotext AD
+(http://www.ontotext.com/).
+
+This software includes code developed by 3 Round Stones
+(http://www.3roundstones.com/).
+
+This software includes code developed by Fluid Operations
+(http://www.fluidops.com/).
+
+This software includes code developed by the Information Management Group at
+Food & Biobased Research, Wageningen University (http://www.fbr.wur.nl/).
+
+This software includes code developed by Clark & Parsia
+(http://clarkparsia.com/).
+
+This software includes code developed by the Institute for Defense Analyses
+(IDA) (http://www.ida.org/).
+
+This software includes code developed by Atos (http://www.atos.net/).
+
+This software includes code developed by Peter Ansell.
+
+The above parties have licensed their code contributions to Aduna under the
+terms of a contributor license agreement (CLA).
+
+Third party libraries
+---------------------
+
+This product includes software developed by The Apache Software Foundation
+(http://www.apache.org/). License: http://www.apache.org/licenses/LICENSE-2.0
+
+This product includes software developed by the JUnit project
+(http://www.junit.org/). License: http://junit.sourceforge.net/cpl-v10.html
+
+Parts of this product use software developed by JSON.org
+(http://www.json.org/). License: http://www.json.org/license.html
+
+Parts of this product use software developed by the Mockito project
+(https://code.google.com/p/mockito/).
+License: https://github.com/mockito/mockito/blob/master/LICENSE
+
+==============================================================================
+==  Semargl Notice                                                          ==
+==============================================================================
+
+This product includes unmodified binary redistributions of the Semargl RDFa
+libraries. Semargl is copyright 2012 Lev Khomich and licensed under the
+Apache License 2.0
+
+This product uses software developed by The Apache Software Foundation:
+Clerezza, Jena, IO Commons (http://www.apache.org/).
+
+This product includes/uses test suite developed by Hewlett-Packard
+(http://hp.com/). Copyright (c) 2002, Hewlett-Packard Company.
+
+This product includes/uses test suite developed by W3C Consortium.
+
+This product includes/uses RDFa test harness developed by RDF Web Applications
+Working Group (http://www.w3.org/2010/02/rdfa/).
+
+The source code is available at https://github.com/levkhomich/semargl

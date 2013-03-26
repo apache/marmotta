@@ -114,9 +114,8 @@ The source code is available at https://code.google.com/p/guava-libraries
 ==============================================================================
 
 This software contains unmodified binary redistributions of the Jackson JSON
-processor, copyright (c) 2007- Tatu Saloranta, tatu.saloranta@iki.fi.
-Jackson is available under a dual-license Apache License 2.0 and Library
-General Public License.
+processor, copyright (c) 2010 FasterXML LLC. Jackson is available under a
+dual-license Apache License 2.0 and Library General Public License.
 
 Apache Marmotta elects to include this software in this distribution under the
 Apache License 2.0.
