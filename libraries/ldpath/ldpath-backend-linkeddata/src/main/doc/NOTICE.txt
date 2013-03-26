@@ -10,3 +10,14 @@ Additionally, it includes the following 3rd party modules:
 
 This project also contains annotations derived from JCIP-ANNOTATIONS
 Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
+
+==============================================================================
+==  OneJAR Notice                                                           ==
+==============================================================================
+
+This software contains unmodified binary redistributions of the One-JAR
+binary code (http://www.simontuffs.com/one-jar). One-JAR is copyright
+(c) 2004-2010 P. Simon Tuffs (simon@simontuffs.com) and is published under
+a New BSD License.
+
+The source code is available at http://one-jar.sourceforge.net
