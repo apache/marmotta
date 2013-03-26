@@ -187,3 +187,20 @@ This product includes/uses RDFa test harness developed by RDF Web Applications
 Working Group (http://www.w3.org/2010/02/rdfa/).
 
 The source code is available at https://github.com/levkhomich/semargl
+
+==============================================================================
+== 3rd Party Source Code
+==============================================================================
+
+The module commons/sesame-tools-rio-rss contains source code from the
+orphaned ROME project. ROME has copyright 2004 Sun Microsystems, Inc.
+and copyright 2011 The ROME Team, and is licensed under Apache License 2.0.
+The source code is available at
+https://rometools.jira.com/source/browse/ROME/trunk
+
+
+The module commons/sesame-tools-rio-jsonld contains source code from the
+JSONLD-Java project. JSONLD-Java is copyright (c) 2012, Deutsches
+Forschungszentrum für Künstliche Intelligenz GmbH and licensed under a
+New BSD License. The source code is available at
+https://github.com/tristan/jsonld-java
