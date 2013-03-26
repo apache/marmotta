@@ -37,7 +37,7 @@ public class EmbeddedMarmotta extends AbstractMarmotta {
         startupService.startupConfiguration(home.getAbsolutePath(), override, null);
 
         // initiate the second startup phase and pretend we are running at localhost
-        startupService.startupHost("http://localhost/","http://localhost/");
+        startupService.startupHost("http://localhost/", "http://localhost/");
 
         log.info(EmbeddedMarmotta.class.getName() + " created");
     }

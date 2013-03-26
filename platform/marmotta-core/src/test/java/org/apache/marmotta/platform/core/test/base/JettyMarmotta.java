@@ -101,7 +101,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         
         TestInjectorFactory.setManager(container.getBeanManager());
 
-        Context ctx = new Context(jetty, this.context);
+        Context ctx = new Context(jetty, (context != null ? context : "/"));
 
         // now we have a context, start up the first phase of the LMF initialisation
         startupService.startupConfiguration(home.getAbsolutePath(), override, ctx.getServletContext());
