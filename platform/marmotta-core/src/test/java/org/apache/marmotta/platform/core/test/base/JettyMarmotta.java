@@ -89,7 +89,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         super();
 
         this.port = port;
-        this.context = (context != null ? context + "/" : "/");
+        this.context = (context != null ? context : "/");
         
         // create a new jetty
         jetty = new Server();
@@ -101,7 +101,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         
         TestInjectorFactory.setManager(container.getBeanManager());
 
-        Context ctx = new Context(jetty, (context != null ? context : "/"));
+        Context ctx = new Context(jetty, this.context);
 
         // now we have a context, start up the first phase of the LMF initialisation
         startupService.startupConfiguration(home.getAbsolutePath(), override, ctx.getServletContext());
@@ -134,8 +134,8 @@ public class JettyMarmotta extends AbstractMarmotta {
 
         try {
             jetty.start(); 
-            String url = "http://localhost:" + this.port + this.context;
-            startupService.startupHost(url,url);
+            String url = "http://localhost:" + this.port + this.context + "/";
+            startupService.startupHost(url, url);
         } catch (Exception e) {
             log.error("could not start up embedded jetty server", e);
         }

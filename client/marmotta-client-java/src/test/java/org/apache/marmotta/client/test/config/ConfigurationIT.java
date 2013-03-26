@@ -41,16 +41,15 @@ import java.util.Set;
  */
 public class ConfigurationIT {
 
-
     private static JettyMarmotta marmotta;
 
     private static ClientConfiguration config;
 
     @BeforeClass
     public static void init() {
-        marmotta = new JettyMarmotta("/Marmotta",8080, ConfigurationWebService.class);
+        marmotta = new JettyMarmotta("/marmotta", ConfigurationWebService.class);
 
-        config = new ClientConfiguration("http://localhost:8080/Marmotta");
+        config = new ClientConfiguration("http://localhost:" + marmotta.getPort() + marmotta.getContext());
 
     }
 
@@ -58,8 +57,6 @@ public class ConfigurationIT {
     public static void tearDown() {
         marmotta.shutdown();
     }
-
-
 
     @Test
     public void testListConfigurationKeys() throws MarmottaClientException, IOException {
@@ -97,7 +94,7 @@ public class ConfigurationIT {
 
         Configuration c_path = client.getConfiguration("kiwi.path");
         Assert.assertNotNull(c_path);
-        Assert.assertEquals("/Marmotta",c_path.getString());
+        Assert.assertEquals(marmotta.getContext(), c_path.getString());
 
         Configuration c_allow = client.getConfiguration("kiwi.allow_methods");
         Assert.assertNotNull(c_allow);
@@ -110,7 +107,7 @@ public class ConfigurationIT {
         ConfigurationClient client = new ConfigurationClient(config);
 
         // set a single-value string configuration
-        client.setConfiguration("marmottaclient.test.single","abc");
+        client.setConfiguration("marmottaclient.test.single", "abc");
         Configuration c_single = client.getConfiguration("marmottaclient.test.single");
         Assert.assertNotNull(c_single);
         Assert.assertEquals("abc",c_single.getString());

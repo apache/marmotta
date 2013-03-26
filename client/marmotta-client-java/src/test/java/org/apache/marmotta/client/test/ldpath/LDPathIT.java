@@ -56,9 +56,9 @@ public class LDPathIT extends AbstractClientIT {
 
     @BeforeClass
     public static void init() throws MarmottaImportException {
-        marmotta = new JettyMarmotta("/Marmotta",8080, LDPathWebService.class);
+        marmotta = new JettyMarmotta("/Marmotta", LDPathWebService.class);
 
-        config = new ClientConfiguration("http://localhost:8080/Marmotta");
+        config = new ClientConfiguration("http://localhost:" + marmotta.getPort() + marmotta.getContext());
 
         importService = marmotta.getService(ImportService.class);
 
