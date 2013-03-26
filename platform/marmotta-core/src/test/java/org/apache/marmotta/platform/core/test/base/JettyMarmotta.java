@@ -17,9 +17,12 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
@@ -36,47 +39,72 @@ import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
- * An extended version of the EmbeddedLMF which also starts a jetty webcontainer. The context name and port
- * are passed in the constructor. The JettyMarmotta can optionally take a set of web service classes as argument.
- * If this argument is present, only the given web services will be instantiated; otherwise, all configured
- * web services will be instantiated (as in a normal webapp installation).
+ * An extended version of the EmbeddedMarmotta which also starts a jetty servlet 
+ * container. The context name is passed in the constructor; port could be passed,
+ * a random available port will be use otherwise. The JettyMarmotta can optionally 
+ * take a set of web service classes as argument; if this argument is present, only 
+ * the given web services will be instantiated; otherwise, all configured web services 
+ * will be instantiated (as in a normal webapp installation).
  * 
  * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 public class JettyMarmotta extends AbstractMarmotta {
 
     private Server jetty;
+    
+    private int port;
+
+	private String context;
+	
+    public JettyMarmotta(String context) {
+        this(context, getRandomPort());
+    }
 
     public JettyMarmotta(String context, int port) {
         this(context, port, (Set<Class<?>>) null);
+    }
+    
+    public JettyMarmotta(String context, Class<?> webservice) {
+        this(context, getRandomPort(), webservice);
     }
 
     public JettyMarmotta(String context, int port, Class<?> webservice) {
         this(context,port, Collections.<Class<?>>singleton(webservice));
     }
+    
+    public JettyMarmotta(String context, Class<?>... webservices) {
+        this(context, getRandomPort(), webservices);
+    }
 
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
         this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
     }
+    
+    public JettyMarmotta(String context, Set<Class<?>> webservices) {
+    	this(context, getRandomPort(), webservices);
+    }
 
-    public JettyMarmotta(String context, int port, Set<Class<?>> webservice) {
+    public JettyMarmotta(String context, int port, Set<Class<?>> webservices) {
         super();
 
+        this.port = port;
+        this.context = (context != null ? context : "/");
+        
         // create a new jetty
         jetty = new Server();
 
         // run it on port 8080
         Connector connector=new SelectChannelConnector();
-        connector.setPort(port);
+        connector.setPort(this.port);
         jetty.setConnectors(new Connector[]{connector});
-
-
+        
         TestInjectorFactory.setManager(container.getBeanManager());
 
-        Context ctx = new Context(jetty,context != null ? context : "/");
+        Context ctx = new Context(jetty, this.context);
 
         // now we have a context, start up the first phase of the LMF initialisation
-        startupService.startupConfiguration(home.getAbsolutePath(),override,ctx.getServletContext());
+        startupService.startupConfiguration(home.getAbsolutePath(), override, ctx.getServletContext());
 
         // register the RestEasy CDI injector factory
         ctx.setAttribute("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
@@ -93,9 +121,8 @@ public class JettyMarmotta extends AbstractMarmotta {
         ServletHolder restEasyFilter  = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
         restEasyFilter.setInitParameter("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
 
-
-        if(webservice != null) {
-            TestApplication.setTestedWebServices(webservice);
+        if(webservices != null) {
+            TestApplication.setTestedWebServices(webservices);
             //restEasyFilter.setInitParameter("resteasy.resources", webservice.getName());
             restEasyFilter.setInitParameter("javax.ws.rs.Application", TestApplication.class.getCanonicalName());
         } else {
@@ -106,13 +133,11 @@ public class JettyMarmotta extends AbstractMarmotta {
         ctx.addServlet(restEasyFilter, "/*");
 
         try {
-            jetty.start();
-
-            String url = "http://localhost:"+port+ (context != null ? context + "/" : "/");
-
-            startupService.startupHost(url,url);
+            jetty.start(); 
+            String url = "http://localhost:" + this.port + this.context + "/";
+            startupService.startupHost(url, url);
         } catch (Exception e) {
-            log.error("could not start up embedded jetty server",e);
+            log.error("could not start up embedded jetty server", e);
         }
     }
 
@@ -121,9 +146,47 @@ public class JettyMarmotta extends AbstractMarmotta {
         try {
             jetty.stop();
         } catch (Exception e) {
-            log.error("could not shutdown embedded jetty server",e);
+            log.error("could not shutdown embedded jetty server" ,e);
         }
         super.shutdown();
     }
+    
+    public int getPort() {
+		return port;
+	}
+
+	public String getContext() {
+		return context;
+	}
+	
+	public static int getRandomPort() {
+		Random ran = new Random();
+	    int port = 0;
+	    do {
+	    	port = ran.nextInt(2000) + 8000;
+	    } while (!isPortAvailable(port));
+
+	    return port;
+	}
+	
+	public static boolean isPortAvailable(final int port) {
+	    ServerSocket ss = null;
+	    try {
+	        ss = new ServerSocket(port);
+	        ss.setReuseAddress(true);
+	        return true;
+	    } catch (final IOException e) {
+	    	
+	    } finally {
+	        if (ss != null) {
+	            try {
+					ss.close();
+				} catch (IOException e) {
+					
+				}
+	        }
+	    }
+	    return false;
+	}
 
 }

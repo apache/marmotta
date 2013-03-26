@@ -57,8 +57,8 @@ public class SPARQLIT extends AbstractClientIT {
 
     @BeforeClass
     public static void init() throws MarmottaImportException {
-        marmotta = new JettyMarmotta("/marmotta",8080);
-        config = new ClientConfiguration("http://localhost:8080/marmotta");
+        marmotta = new JettyMarmotta("/marmotta");
+        config = new ClientConfiguration("http://localhost:" + marmotta.getPort() + marmotta.getContext());
 
         ImportService importService = marmotta.getService(ImportService.class);
         InputStream data = getTestData("demo-data.foaf"); // load initial data

@@ -158,3 +158,8 @@ table#security_rules tr.cls-PERMISSION td, table#security_rules tr.cls-RESTRICTI
 .CodeMirror-scroll {
     background-color: #f7f7f7;
 }
+
+dl dt {
+    color: #6dcff5;
+}
+

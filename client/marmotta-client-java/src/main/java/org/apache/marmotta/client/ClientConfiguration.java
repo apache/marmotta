@@ -61,7 +61,11 @@ public class ClientConfiguration {
 	private ClientConnectionManager conectionManager;
 
 	public ClientConfiguration(String marmottaUri) {
-		this.marmottaUri = marmottaUri;
+        if (marmottaUri.endsWith("/")) {
+		    this.marmottaUri = marmottaUri.substring(0, marmottaUri.length() - 1);
+        } else {
+		    this.marmottaUri = marmottaUri;
+        }
 	}
 
 	public ClientConfiguration(String marmottaUri, String marmottaUser, String marmottaPassword) {

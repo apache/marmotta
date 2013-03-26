@@ -36,8 +36,8 @@ public class TestApplication extends Application {
         return testedWebService;
     }
 
-
     public static void setTestedWebServices(Set<Class<?>> testedWebService) {
         TestApplication.testedWebService = testedWebService;
     }
+    
 }

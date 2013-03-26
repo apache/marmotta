@@ -50,12 +50,12 @@ public class ConfigurationWebServiceTest {
 
     @BeforeClass
     public static void setUp() {
-        marmotta = new JettyMarmotta("/marmotta", 8080, ConfigurationWebService.class);
+        marmotta = new JettyMarmotta("/marmotta", ConfigurationWebService.class);
         configurationService = marmotta.getService(ConfigurationService.class);
 
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "/marmotta";
+        RestAssured.port = marmotta.getPort();
+        RestAssured.basePath = marmotta.getContext();
 
     }
 

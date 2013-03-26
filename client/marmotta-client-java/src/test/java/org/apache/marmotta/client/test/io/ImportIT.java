@@ -46,9 +46,9 @@ public class ImportIT {
 
     @BeforeClass
     public static void init() {
-        marmotta = new JettyMarmotta("/Marmotta", 8080, ImportWebService.class, ResourceWebService.class, MetaWebService.class);
+        marmotta = new JettyMarmotta("/marmotta", ImportWebService.class, ResourceWebService.class, MetaWebService.class);
 
-        config = new ClientConfiguration("http://localhost:8080/Marmotta");
+        config = new ClientConfiguration("http://localhost:" + marmotta.getPort() + marmotta.getContext());
 
     }
 

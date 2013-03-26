@@ -34,18 +34,18 @@ import org.openrdf.model.URI;
  */
 public class UserServiceTest {
 
-    private static EmbeddedMarmotta lmf;
+    private static EmbeddedMarmotta marmotta;
     private static UserService userService;
 
     @BeforeClass
     public static void setUp() {
-        lmf = new EmbeddedMarmotta();
-        userService = lmf.getService(UserService.class);
+        marmotta = new EmbeddedMarmotta();
+        userService = marmotta.getService(UserService.class);
     }
 
     @AfterClass
     public static void tearDown() {
-        lmf.shutdown();
+        marmotta.shutdown();
     }
 
     @Test
