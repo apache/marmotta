@@ -33,7 +33,7 @@ import static org.junit.Assert.*;
  */
 public class UriUtilTests {
 
-    private final String base = "http://localhost:8080/LMF/resource/";
+    private final String base = "http://localhost:8080/marmotta/resource/";
 
     @Before
     public void setup() {

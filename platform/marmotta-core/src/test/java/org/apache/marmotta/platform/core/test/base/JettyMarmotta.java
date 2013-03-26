@@ -39,12 +39,15 @@ import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
- * An extended version of the EmbeddedLMF which also starts a jetty webcontainer. The context name and port
- * are passed in the constructor. The JettyMarmotta can optionally take a set of web service classes as argument.
- * If this argument is present, only the given web services will be instantiated; otherwise, all configured
- * web services will be instantiated (as in a normal webapp installation).
+ * An extended version of the EmbeddedMarmotta which also starts a jetty servlet 
+ * container. The context name is passed in the constructor; port could be passed,
+ * a random available port will be use otherwise. The JettyMarmotta can optionally 
+ * take a set of web service classes as argument; if this argument is present, only 
+ * the given web services will be instantiated; otherwise, all configured web services 
+ * will be instantiated (as in a normal webapp installation).
  * 
  * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 public class JettyMarmotta extends AbstractMarmotta {
 
@@ -85,20 +88,23 @@ public class JettyMarmotta extends AbstractMarmotta {
     public JettyMarmotta(String context, int port, Set<Class<?>> webservices) {
         super();
 
+        this.port = port;
+        this.context = (context != null ? context + "/" : "/");
+        
         // create a new jetty
         jetty = new Server();
 
         // run it on port 8080
         Connector connector=new SelectChannelConnector();
-        connector.setPort(port);
+        connector.setPort(this.port);
         jetty.setConnectors(new Connector[]{connector});
         
         TestInjectorFactory.setManager(container.getBeanManager());
 
-        Context ctx = new Context(jetty,context != null ? context : "/");
+        Context ctx = new Context(jetty, this.context);
 
         // now we have a context, start up the first phase of the LMF initialisation
-        startupService.startupConfiguration(home.getAbsolutePath(),override,ctx.getServletContext());
+        startupService.startupConfiguration(home.getAbsolutePath(), override, ctx.getServletContext());
 
         // register the RestEasy CDI injector factory
         ctx.setAttribute("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
@@ -127,16 +133,11 @@ public class JettyMarmotta extends AbstractMarmotta {
         ctx.addServlet(restEasyFilter, "/*");
 
         try {
-            jetty.start();
-            
-            this.port = port;
-            this.context = (context != null ? context + "/" : "/");
-            
-            String url = "http://localhost:"+ this.port + this.context;
-
+            jetty.start(); 
+            String url = "http://localhost:" + this.port + this.context;
             startupService.startupHost(url,url);
         } catch (Exception e) {
-            log.error("could not start up embedded jetty server",e);
+            log.error("could not start up embedded jetty server", e);
         }
     }
 
@@ -145,7 +146,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         try {
             jetty.stop();
         } catch (Exception e) {
-            log.error("could not shutdown embedded jetty server",e);
+            log.error("could not shutdown embedded jetty server" ,e);
         }
         super.shutdown();
     }
