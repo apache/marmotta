@@ -37,7 +37,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
-import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
+import org.apache.marmotta.ldpath.backend.sesame.SesameValueBackend;
 import org.apache.marmotta.ldpath.model.programs.Program;
 import org.apache.marmotta.ldpath.model.selectors.PathSelector;
 import org.apache.marmotta.ldpath.model.selectors.PropertySelector;
@@ -50,11 +50,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
-
 
 import com.google.common.collect.ImmutableMap;
 
@@ -65,14 +61,11 @@ import com.google.common.collect.ImmutableMap;
  */
 public class ParserTest {
 
-    private static SesameRepositoryBackend backend;
+    private static SesameValueBackend backend;
 
     @BeforeClass
     public static void setupRepository() throws RepositoryException {
-        Repository repository = new SailRepository(new MemoryStore());
-        repository.initialize();
-
-        backend = new SesameRepositoryBackend(repository);
+        backend = new SesameValueBackend();
     }
 
 

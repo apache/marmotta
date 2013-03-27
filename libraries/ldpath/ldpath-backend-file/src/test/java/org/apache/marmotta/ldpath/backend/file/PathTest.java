@@ -33,7 +33,6 @@ package org.apache.marmotta.ldpath.backend.file;
  */
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
 
 import java.util.Collection;
 import java.util.HashMap;
