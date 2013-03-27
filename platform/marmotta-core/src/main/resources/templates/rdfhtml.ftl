@@ -28,6 +28,7 @@
   <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
   <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
   <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
+  <link href="${SERVER_URL}${CSS}" title="${DEFAULT_STYLE}" rel="stylesheet" type="text/css" />
   <link href="${SERVER_URL}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css" />
 
   <script>
