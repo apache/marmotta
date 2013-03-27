@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.NodeFunction;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
@@ -100,7 +101,7 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
      * @param backend
      */
     @Override
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         final StringBuilder format = new StringBuilder();
         format.append(String.format("fn:%s(", function.getPathExpression(backend)));
         boolean first = true;
@@ -120,7 +121,7 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
      * occurrence of an atomic selector.
      */
     @Override
-    public String getName(RDFBackend<Node> nodeRDFBackend) {
+    public String getName(NodeBackend<Node> nodeRDFBackend) {
         throw new UnsupportedOperationException("cannot use functions in unnamed field definitions because the name is ambiguous");
     }
 

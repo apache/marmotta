@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -39,7 +39,7 @@ public class BooleanTransformer<Node> implements NodeTransformer<Boolean,Node> {
      * @return
      */
     @Override
-    public Boolean transform(RDFBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Boolean transform(NodeBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(rdfBackend.isLiteral(node)) {
             return rdfBackend.booleanValue(node);
         } else {

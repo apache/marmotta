@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.ldpath.api.functions;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 
 public abstract class TestFunction<Node> implements NodeFunction<Boolean, Node> {
 
     @Override
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         return getLocalName();
     }
 

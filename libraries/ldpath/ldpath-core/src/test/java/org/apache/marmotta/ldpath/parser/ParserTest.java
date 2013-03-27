@@ -17,17 +17,11 @@
  */
 package org.apache.marmotta.ldpath.parser;
 
-import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
-import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.tests.NodeTest;
-import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
-import org.apache.marmotta.ldpath.model.programs.Program;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,12 +30,20 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.tests.NodeTest;
+import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
+import org.apache.marmotta.ldpath.model.programs.Program;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assume;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class ParserTest {
 
-    private static RDFBackend<String> backend;
+    private static NodeBackend<String> backend;
     private static final String NS_TEST = "http://example.com/";
     private static final String NS_FOO = "http://foo.com/some/path#";
 
@@ -113,7 +115,7 @@ public class ParserTest {
         RdfPathParser<String> rdfPathParser = new RdfPathParser<String>(backend,new StringReader(IOUtils.toString(resource)));
         rdfPathParser.registerTransformer(NS_TEST + "type", new NodeTransformer<String, String>() {
             @Override
-            public String transform(RDFBackend<String> backend, String node, Map<String,String> configuration)
+            public String transform(NodeBackend<String> backend, String node, Map<String,String> configuration)
                     throws IllegalArgumentException {
                 return node;
             }

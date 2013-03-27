@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.api.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 
 import java.util.Map;
 
@@ -41,6 +41,6 @@ public interface NodeTransformer<T,Node> {
      * @param configuration the field configuration used when defining the LDPath rule
      * @return
      */
-    public T transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException;
+    public T transform(NodeBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException;
 
 }

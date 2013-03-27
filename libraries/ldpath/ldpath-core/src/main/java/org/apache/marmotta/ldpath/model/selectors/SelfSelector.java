@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
@@ -60,7 +61,7 @@ public class SelfSelector<Node> implements NodeSelector<Node> {
      * @return
      */
     @Override
-    public String getPathExpression(RDFBackend<Node> rdfBackend) {
+    public String getPathExpression(NodeBackend<Node> rdfBackend) {
         return ".";
     }
 
@@ -70,7 +71,7 @@ public class SelfSelector<Node> implements NodeSelector<Node> {
      * occurrence of an atomic selector.
      */
     @Override
-    public String getName(RDFBackend<Node> nodeRDFBackend) {
+    public String getName(NodeBackend<Node> nodeRDFBackend) {
         throw new UnsupportedOperationException("cannot use self selections in unnamed field definitions because the name is ambiguous");
     }
 

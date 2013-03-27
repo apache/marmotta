@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.marmotta.ldpath.api.LDPathConstruct;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 
 /**
@@ -55,5 +56,5 @@ public interface NodeSelector<Node> extends LDPathConstruct<Node> {
      *
      * @throws UnsupportedOperationException in case returning a name is not reasonable
      */
-    public String getName(RDFBackend<Node> backend);
+    public String getName(NodeBackend<Node> backend);
 }

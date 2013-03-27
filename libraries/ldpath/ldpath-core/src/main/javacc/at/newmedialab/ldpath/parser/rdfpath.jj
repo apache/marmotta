@@ -76,17 +76,17 @@ public class RdfPathParser<Node> {
          */
         private Map<String,String> namespaces = new HashMap<String,String>();
 
-        private RDFBackend<Node> backend;
+        private NodeBackend<Node> backend;
 
         private Configuration config;
 
         private Mode mode = Mode.PROGRAM;
 
-        public RdfPathParser(RDFBackend<Node> backend, Reader in) {
+        public RdfPathParser(NodeBackend<Node> backend, Reader in) {
             this(backend,null,in);
         }
 
-        public RdfPathParser(RDFBackend<Node> backend, Configuration config, Reader in) {
+        public RdfPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -98,11 +98,11 @@ public class RdfPathParser<Node> {
             initialise();
         }
 
-        public RdfPathParser(RDFBackend<Node> backend, InputStream in) {
+        public RdfPathParser(NodeBackend<Node> backend, InputStream in) {
             this(backend,null,in);
         }
 
-        public RdfPathParser(RDFBackend<Node> backend, Configuration config, InputStream in) {
+        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -114,11 +114,11 @@ public class RdfPathParser<Node> {
             initialise();
         }
 
-        public RdfPathParser(RDFBackend<Node> backend, InputStream in, String encoding) {
+        public RdfPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
             this(backend,null,in,encoding);
         }
 
-        public RdfPathParser(RDFBackend<Node> backend, Configuration config, InputStream in, String encoding) {
+        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
             this(in,encoding);
             this.backend = backend;
             if(config == null) {

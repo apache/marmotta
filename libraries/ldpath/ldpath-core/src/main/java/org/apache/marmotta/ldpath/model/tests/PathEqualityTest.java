@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.tests;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
@@ -64,7 +65,7 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
      * @return
      */
     @Override
-    public String getPathExpression(RDFBackend<Node> rdfBackend) {
+    public String getPathExpression(NodeBackend<Node> rdfBackend) {
         if (rdfBackend.isURI(node)) {
             return String.format("%s is <%s>", path.getPathExpression(rdfBackend), rdfBackend.stringValue(node));
         } else {

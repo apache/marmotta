@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.tests;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
 
@@ -34,7 +35,7 @@ public class NotTest<Node> extends NodeTest<Node> {
     }
 
     @Override
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         if (delegate instanceof ComplexTest<?>) {
             return String.format("!(%s)", delegate.getPathExpression(backend));
         } else {

@@ -20,7 +20,7 @@ package org.apache.marmotta.ldpath.api.functions;
 
 import java.util.Collection;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 
 /**
  * Intermediate Interface for {@link NodeFunction}s used in the
@@ -32,7 +32,7 @@ import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 public abstract class SelectorFunction<Node> implements NodeFunction<Collection<Node>, Node> {
 
     @Override
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         return getLocalName();
     }
 

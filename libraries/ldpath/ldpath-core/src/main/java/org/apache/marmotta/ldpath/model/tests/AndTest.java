@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.tests;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
 
@@ -58,7 +59,7 @@ public class AndTest<Node> extends ComplexTest<Node> {
      * @return
      */
     @Override
-    public String getPathExpression(RDFBackend<Node> rdfBackend) {
+    public String getPathExpression(NodeBackend<Node> rdfBackend) {
         return String.format("%s & %s", left.getPathExpression(rdfBackend), right.getPathExpression(rdfBackend));
     }
 

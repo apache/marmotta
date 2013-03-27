@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.selectors;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
@@ -32,7 +32,7 @@ public class WildcardSelector<Node> extends PropertySelector<Node> implements No
 	}
 
     @Override
-    public String getPathExpression(RDFBackend<Node> rdfBackend) {
+    public String getPathExpression(NodeBackend<Node> rdfBackend) {
 		return "*";
 	}
 

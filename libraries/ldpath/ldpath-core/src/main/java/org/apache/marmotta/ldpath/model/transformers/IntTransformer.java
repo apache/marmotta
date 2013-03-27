@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -39,7 +39,7 @@ public class IntTransformer<Node> implements NodeTransformer<Integer,Node> {
      * @return
      */
     @Override
-    public Integer transform(RDFBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Integer transform(NodeBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(rdfBackend.isLiteral(node)) {
             return rdfBackend.intValue(node);
         } else {

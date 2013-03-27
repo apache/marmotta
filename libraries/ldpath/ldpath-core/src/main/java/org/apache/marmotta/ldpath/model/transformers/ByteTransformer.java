@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class ByteTransformer<Node> implements NodeTransformer<Byte,Node> {
 
     @Override
-    public Byte transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Byte transform(NodeBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(backend.isLiteral(node)) {
             return backend.decimalValue(node).byteValueExact();
         } else {

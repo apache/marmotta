@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.marmotta.ldpath.LDPath;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.apache.marmotta.ldpath.model.Constants;
@@ -68,7 +69,7 @@ public class LDPathDirective<Node> implements TemplateDirectiveModel {
 
 
     private LDPath<Node>     ldpath;
-    private RDFBackend<Node> backend;
+    private NodeBackend<Node> backend;
 
     public LDPathDirective(RDFBackend<Node> backend) {
         this.ldpath  = new LDPath<Node>(backend);

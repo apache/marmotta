@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.TestFunction;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
@@ -62,7 +63,7 @@ public class FunctionTest<Node> extends NodeTest<Node> {
     }
 
     @Override
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         final StringBuilder sb = new StringBuilder("fn:");
         sb.append(test.getLocalName());
         sb.append("(");

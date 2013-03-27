@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.template.model.freemarker;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 
 import freemarker.template.*;
 
@@ -29,9 +29,9 @@ import freemarker.template.*;
 public class TemplateNodeModel<Node> implements TemplateModel, TemplateHashModel, AdapterTemplateModel {
 
     private Node node;
-    private RDFBackend<Node> backend;
+    private NodeBackend<Node> backend;
 
-    public TemplateNodeModel(Node node, RDFBackend<Node> backend) {
+    public TemplateNodeModel(Node node, NodeBackend<Node> backend) {
         this.node    = node;
         this.backend = backend;
     }

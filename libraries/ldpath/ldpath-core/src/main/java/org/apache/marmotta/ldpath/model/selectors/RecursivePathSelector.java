@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.*;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
@@ -85,7 +86,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @return
      */
     @Override
-    public String getPathExpression(RDFBackend<Node> rdfBackend) {
+    public String getPathExpression(NodeBackend<Node> rdfBackend) {
     	if (maxRecursions != Integer.MAX_VALUE) {
     		if (minRecursions <= 0) {
     	    	return String.format("(%s){,%d}", delegate.getPathExpression(rdfBackend), maxRecursions);
@@ -109,7 +110,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * occurrence of an atomic selector.
      */
     @Override
-    public String getName(RDFBackend<Node> nodeRDFBackend) {
+    public String getName(NodeBackend<Node> nodeRDFBackend) {
         return delegate.getName(nodeRDFBackend);
     }
 

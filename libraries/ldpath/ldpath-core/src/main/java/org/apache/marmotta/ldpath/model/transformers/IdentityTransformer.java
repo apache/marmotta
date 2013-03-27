@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -39,7 +39,7 @@ public class IdentityTransformer<Node> implements NodeTransformer<Node,Node> {
      * @return
      */
     @Override
-    public Node transform(RDFBackend<Node> nodeRDFBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Node transform(NodeBackend<Node> nodeRDFBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         return node;
     }
 }

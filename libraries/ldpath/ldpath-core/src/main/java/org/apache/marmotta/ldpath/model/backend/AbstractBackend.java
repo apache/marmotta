@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.util.FormatUtils;
 
@@ -64,9 +65,9 @@ import org.apache.marmotta.ldpath.util.FormatUtils;
  * </pre></code>
  * It will depend on the use cases what of the two implementations performs 
  * better.
- * @see org.apache.marmotta.ldpath.api.backend.RDFBackend#stringValue(java.lang.Object)
+ * @see org.apache.marmotta.ldpath.api.backend.NodeBackend#stringValue(java.lang.Object)
  */
-public abstract class AbstractBackend<Node> implements RDFBackend<Node> {
+public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
 
     /**
      * A clone of the DateFormat provided by {@link FormatUtils} to parse xsd:date 

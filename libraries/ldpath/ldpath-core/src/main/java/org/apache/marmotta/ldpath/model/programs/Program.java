@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.marmotta.ldpath.api.LDPathConstruct;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
 import org.apache.marmotta.ldpath.model.Constants;
@@ -159,7 +160,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
 
     
     
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         StringBuilder sb = new StringBuilder();
         // Filter (?)
         if (filter != null) {

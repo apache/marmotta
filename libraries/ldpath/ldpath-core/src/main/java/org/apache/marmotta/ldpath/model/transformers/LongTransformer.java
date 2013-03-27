@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -38,7 +38,7 @@ public class LongTransformer<Node> implements NodeTransformer<Long,Node> {
      * @return
      */
     @Override
-    public Long transform(RDFBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Long transform(NodeBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(rdfBackend.isLiteral(node)) {
             return rdfBackend.longValue(node);
         } else {

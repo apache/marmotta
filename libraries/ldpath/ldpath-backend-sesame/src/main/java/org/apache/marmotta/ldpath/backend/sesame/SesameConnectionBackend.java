@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
@@ -38,17 +39,17 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
 	}
 
 	@Override
-	public Value createLiteral(String content) {
+	public Literal createLiteral(String content) {
 		return createLiteralInternal(valueFactory, content);
 	}
 
 	@Override
-	public Value createLiteral(String content, Locale language, URI type) {
+	public Literal createLiteral(String content, Locale language, URI type) {
 		return createLiteralInternal(valueFactory, content, language, type);
 	}
 
 	@Override
-	public Value createURI(String uri) {
+	public org.openrdf.model.URI createURI(String uri) {
 		return createURIInternal(valueFactory, uri);
 	}
 

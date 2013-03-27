@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
@@ -63,7 +64,7 @@ public class IntersectionSelector<Node> implements NodeSelector<Node> {
 	}
 
 	@Override
-	public String getPathExpression(RDFBackend<Node> backend) {
+	public String getPathExpression(NodeBackend<Node> backend) {
 		return String.format("(%s & %s)", left.getPathExpression(backend), right.getPathExpression(backend));
 	}
 
@@ -73,7 +74,7 @@ public class IntersectionSelector<Node> implements NodeSelector<Node> {
      * occurrence of an atomic selector.
      */
     @Override
-    public String getName(RDFBackend<Node> nodeRDFBackend) {
+    public String getName(NodeBackend<Node> nodeRDFBackend) {
         throw new UnsupportedOperationException("cannot use intersections in unnamed field definitions because the name is ambiguous");
     }
 

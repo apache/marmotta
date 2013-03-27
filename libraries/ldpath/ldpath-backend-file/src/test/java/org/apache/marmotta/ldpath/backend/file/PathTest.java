@@ -43,6 +43,7 @@ import java.util.Map;
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.backend.file.FileBackend;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -73,7 +74,7 @@ public class PathTest {
         Map<Value, List<Value>> paths = new HashMap<Value, List<Value>>();
         Collection<Value> values = ldPath.pathQuery(backend.createURI("http://localhost:8080/LMF/resource/hans_meier"), "foaf:interest", null, paths);
         Assert.assertEquals(4,values.size());
-        Assert.assertThat(values,hasItems(
+        Assert.assertThat(values,CoreMatchers.<Value>hasItems(
                     backend.createURI("http://rdf.freebase.com/ns/en.software_engineering"),
                     backend.createURI("http://rdf.freebase.com/ns/en.linux"),
                     backend.createURI("http://dbpedia.org/resource/Java"),

@@ -27,7 +27,9 @@ import java.util.concurrent.ThreadPoolExecutor;
  * A threading version of the sesame backend.
  * <p/>
  * Author: Sebastian Schaffert
+ * @deprecated threading must be handled explicitly.
  */
+@Deprecated
 public class ThreadingSesameBackend extends SesameRepositoryBackend {
 
     private ThreadPoolExecutor workers;
@@ -54,7 +56,6 @@ public class ThreadingSesameBackend extends SesameRepositoryBackend {
      *
      * @return
      */
-    @Override
     public boolean supportsThreading() {
         return true;
     }
@@ -65,7 +66,6 @@ public class ThreadingSesameBackend extends SesameRepositoryBackend {
      *
      * @return
      */
-    @Override
     public ThreadPoolExecutor getThreadPool() {
         return workers;
     }

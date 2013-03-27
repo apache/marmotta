@@ -20,6 +20,7 @@ package org.apache.marmotta.ldpath.model.functions.coll;
 
 import java.util.Collection;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 
@@ -27,7 +28,7 @@ public abstract class AbstractCollFunction<Node> extends SelectorFunction<Node> 
 
     protected static final String RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
-    protected int getIndex(RDFBackend<Node> backend, Collection<Node> collection) {
+    protected int getIndex(NodeBackend<Node> backend, Collection<Node> collection) {
         if (collection.size() != 1) { throw new IllegalArgumentException("index must be a singel integer literal"); }
         return backend.intValue(collection.iterator().next());
     }
@@ -36,7 +37,7 @@ public abstract class AbstractCollFunction<Node> extends SelectorFunction<Node> 
         return backend.listObjects(node, backend.createURI(RDF + "type")).contains(backend.createURI(type));
     }
 
-    protected boolean isNil(RDFBackend<Node> backend, Node node) {
+    protected boolean isNil(NodeBackend<Node> backend, Node node) {
         return backend.isURI(node) && backend.stringValue(node).equals(RDF + "nil");
     }
 

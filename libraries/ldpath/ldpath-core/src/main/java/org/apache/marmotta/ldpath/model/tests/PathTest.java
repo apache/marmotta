@@ -20,6 +20,7 @@ package org.apache.marmotta.ldpath.model.tests;
 
 import java.util.Collection;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
@@ -65,7 +66,7 @@ public class PathTest<Node> extends NodeTest<Node> {
      * @return
      */
     @Override
-    public String getPathExpression(RDFBackend<Node> rdfBackend) {
+    public String getPathExpression(NodeBackend<Node> rdfBackend) {
         return path.getPathExpression(rdfBackend);
     }
 

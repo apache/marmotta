@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.model.Constants;
 import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;
@@ -45,7 +46,7 @@ public class SumFunction<Node> extends MathFunction<Node> {
         return result;
     }
 
-    protected Node calc(RDFBackend<Node> backend, Collection<Node> arg) {
+    protected Node calc(NodeBackend<Node> backend, Collection<Node> arg) {
         /* SUM */
         Double d = 0d;
         for (Node n : arg) {

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.marmotta.ldpath.api.LDPathConstruct;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
@@ -147,7 +148,7 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
 
     
     
-    public String getPathExpression(RDFBackend<Node> backend) {
+    public String getPathExpression(NodeBackend<Node> backend) {
         StringBuilder fc = new StringBuilder();
         if (fieldConfig != null) {
             fc.append("(");

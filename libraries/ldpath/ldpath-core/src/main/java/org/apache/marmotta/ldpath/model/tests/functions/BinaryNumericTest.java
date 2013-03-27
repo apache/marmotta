@@ -20,6 +20,7 @@ package org.apache.marmotta.ldpath.model.tests.functions;
 
 import java.util.Collection;
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.TestFunction;
 import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;
@@ -48,7 +49,7 @@ public abstract  class BinaryNumericTest<Node> extends TestFunction<Node> {
         return true;
     }
 
-    protected boolean test(RDFBackend<Node> backend, Node leftNode, Node rightNode) {
+    protected boolean test(NodeBackend<Node> backend, Node leftNode, Node rightNode) {
         try {
             return test(transformer.transform(backend, leftNode, null), transformer.transform(backend, rightNode, null));
         } catch (IllegalArgumentException e) {

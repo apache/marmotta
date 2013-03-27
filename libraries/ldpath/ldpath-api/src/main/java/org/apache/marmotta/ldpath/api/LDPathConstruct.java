@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.api;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 
 /**
  * Add file description here!
@@ -31,6 +31,6 @@ public interface LDPathConstruct<Node> {
      * @return
      * @param backend
      */
-    public String getPathExpression(RDFBackend<Node> backend);
+    public String getPathExpression(NodeBackend<Node> backend);
 
 }
