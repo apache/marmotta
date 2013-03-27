@@ -32,13 +32,13 @@ import org.openrdf.repository.RepositoryException;
  * Generic implementation of a Sesame backend for LDPath. A Sesame repository is passed as argument to the
  * constructor.
  * <p/>
+ * <strong>ATTENTION:</strong> This backend is creating an independent (new) transaction for each invocation of {@link #listObjects(Value, Value)} or {@link #listSubjects(Value, Value)}.
+ * Consider using the {@link SesameConnectionBackend} for inproved performance!
+ * <p/>
  * Implementatins can either use this class directly or implement their own Sesame-based backend by subclassing
  * and calling the super constructor.
  * <p/>
- * Author: Sebastian Schaffert
- * @deprecated Use a {@link SesameConnectionBackend} with explicit transaction handling.
  */
-@Deprecated
 public class SesameRepositoryBackend extends AbstractSesameBackend {
 
     private Repository repository;
