@@ -137,7 +137,7 @@ public class TestYoutubeProvider {
 
         String uriChannel = "http://www.youtube.com/user/dieSpringer";
 
-        Assume.assumeTrue(ldclient.ping(uriChannel));
+        Assume.assumeTrue(ldclient.ping("http://gdata.youtube.com/feeds/api/users/dieSpringer/uploads"));
 
         ClientResponse respChannel = ldclient.retrieveResource(uriChannel);
 
@@ -172,7 +172,7 @@ public class TestYoutubeProvider {
 
         String uriPlaylist = "http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g";
 
-        Assume.assumeTrue(ldclient.ping(uriPlaylist));
+        Assume.assumeTrue(ldclient.ping("http://gdata.youtube.com/feeds/api/playlists/FLsrORDOimfQf42SDGJgRY4g"));
 
         ClientResponse respPlaylist = ldclient.retrieveResource(uriPlaylist);
 
