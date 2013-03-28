@@ -400,6 +400,7 @@
                             <exclude>**/dygraph/**</exclude>
                             <exclude>**/sgvizler/**</exclude>
                             <exclude>**/js/lib/**</exclude>
+                            <exclude>**/src/main/resources/web/admin/snorql/**</exclude>
                             <exclude>**/src/main/java/solr2155/**</exclude>
                             <exclude>**/src/main/java/net/miginfocom/**</exclude>
                             <exclude>**/src/main/java/org/oxbow/**</exclude>

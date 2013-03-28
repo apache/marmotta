@@ -57,9 +57,9 @@ Source Locations:
 
 The D2R Snorql Library was originally created by Richard Cyganaik
 (http://richard.cyganiak.de/) for the D2R server project
-(http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/). It is licensed under the
-Apache Software License 2.0. The source code is available at
-https://github.com/kurtjx/SNORQL
+(http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/). It is licensed 
+under the Apache Software License 2.0. The source code is available
+at http://github.com/kurtjx/SNORQL
 
 Source Locations:
 - platform/marmotta-sparql/src/main/resources/web/admin/snorql
