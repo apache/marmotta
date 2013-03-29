@@ -136,3 +136,8 @@ The test sources for commons/sesame-tools-rio-jsonld contain the data files
 from the JSON-LD Test Suite. The JSON-LD Test Suite is published as public
 domain (with a Creative Commons Zero license and without copyright). The
 source code is available at https://github.com/json-ld/json-ld.org
+
+The test sources for commons/sesame-tools-rio-vcard contain the test data
+files used by the ical4j library. The ical4j library is copyright (c) 2010,
+Ben Fortuna and published under a New BSD License. The full source code is
+available at https://code.google.com/p/ical4j/source/
