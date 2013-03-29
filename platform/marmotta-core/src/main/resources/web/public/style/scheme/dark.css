@@ -163,3 +163,11 @@ dl dt {
     color: #6dcff5;
 }
 
+.snorql pre#prefixestext {
+    color: #2c2c2c !important;
+}
+
+.snorql table.queryresults td, .snorql table.queryresults td span.uri a.graph-link {
+    color: #2c2c2c !important;
+}
+
