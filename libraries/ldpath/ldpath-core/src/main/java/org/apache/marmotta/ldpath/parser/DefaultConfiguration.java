@@ -112,7 +112,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
 
     private void addDefaultFunctions() {
         for (SelectorFunction<Node> f : functionLoader) {
-            log.info("registering LDPath function: {}",f.getSignature());
+            log.debug("registering LDPath function: {}",f.getSignature());
             addFunction(f);
         }
     }
@@ -123,7 +123,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
 
     private void addDefaultTestFunctions() {
         for (TestFunction<Node> t : testLoader) {
-            log.info("registering LDPath test function: {}", t.getSignature());
+            log.debug("registering LDPath test function: {}", t.getSignature());
             addTestFunction(t);
         }
     }
