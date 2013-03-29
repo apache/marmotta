@@ -1,2 +1,5 @@
-Snorql includes the file xml-to-html.xsl files, witch has copyright 2006 by Dave Beckett (DAWG),
-Jeen Broekstra (DAWG) and Andy Seaborne (SPARQler). 
+Snorql includes the xml-to-html.xsl files, witch has copyright 2006 by 
+Dave Beckett (DAWG), Jeen Broekstra (DAWG) and Andy Seaborne (SPARQler). 
+
+Snorql includes the sparql.js files, witch has copyright 2006, 2007
+Lee Feigenbaum, Elias Torres and Wing Yung.
