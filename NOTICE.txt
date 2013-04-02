@@ -68,7 +68,7 @@ This product also includes the following third-party components:
 
 * JSON-LD Test Suite, http://json-ld.org/test-suite
 
-  Public Domain (Creative Commons Zero license) without copyright, 
+  Public Domain (Creative Commons Zero license) without copyright
 
 * ical4j test suite, http://ical4j.googlecode.com
 

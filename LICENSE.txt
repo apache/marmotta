@@ -389,6 +389,7 @@ For the script.aculo.us component,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
+
 For the Prototype component,
 
     located at:
@@ -413,6 +414,7 @@ For the Prototype component,
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.    
+
 
 For the SPARQL Flint Editor component, 
 
