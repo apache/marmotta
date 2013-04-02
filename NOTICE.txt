@@ -1,6 +1,6 @@
 Apache Marmotta, Copyright 2012-2013 The Apache Software Foundation
 
-This product includes software developed at The Apache Software Foundation (http://www.apache.org/).
+This product includes software developed at The Apache Software Foundation (http://www.apache.org).
 
 Portions of this software were originally based on the following:
 
@@ -8,136 +8,69 @@ Portions of this software were originally based on the following:
 
 These have been licensed to the Apache Software Foundation under a software grant.
 
+This product also includes the following third-party components:
 
-==============================================================================
-Javascript Libraries included in Marmotta Platform
-==============================================================================
+* D3.js, http://d3js.org
 
-D3.js is copyright (c) 2013, Michael Bostock and licensed under New BSD
-License. The source code is available at https://github.com/mbostock/d3
+  Copyright (c) 2013 Michael Bostock
 
-Source Locations:
-- platform/marmotta-core/src/main/resources/web/admin/js/lib/
-- platform/marmotta-sparql/src/main/resources/web/admin/sgvizler/0.5/lib/
+* Dracula Graph Library, http://www.graphdracula.net
 
+  Copyright (c) 2013 Johann Philipp Strathausen
 
-The Dracula Graph Library is (c) 2010 by Johann Philipp Strathausen
-<strathausen@gmail.com> and licensed under MIT License. The source code is
-available at https://github.com/strathausen/dracula
+* strftime, http://hacks.bluesmoon.info/strftime
 
-Source Locations:
-- platform/marmotta-core/src/main/resources/web/admin/js/lib/
+  Copyright (c) 2008 Philip S Tellis
 
+* jQuery, http://jquery.com
 
-The strftime library is copyright (c) 2008, Philip S Tellis
-<philip@bluesmoon.info> and licensed under New BSD License. The source code
-is available at http://hacks.bluesmoon.info/strftime/files.html
+  Copyright (c) 2013 jQuery Foundation
 
-Source Locations:
-- platform/marmotta-core/src/main/resources/web/public/js/lib
+* CodeMirror, http://codemirror.net
 
+  Copyright (c) 2013 Marijn Haverbeke
 
-The JQuery Library is copyright 2013 jQuery Foundation and other contributors,
-and licensed under MIT License. The source code is available at
-https://github.com/jquery/jquery
+* D2R Snorql, http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/,
 
-Source Locations:
-- platform/marmotta-core/src/main/resources/web/public/js/lib
+  Copyright (c) 2007 Richard Cyganiak
 
+* script.aculo.us, http://script.aculo.us
 
-The CodeMirror Library is copyright (C) 2013 by Marijn Haverbeke
-<marijnh@gmail.com> and licensed under MIT License. The source code is
-available at https://github.com/marijnh/CodeMirror
+  Copyright (c) 2010 Thomas Fuchs
 
-Source Locations:
-- platform/marmotta-ldpath/src/main/resources/web/cm
-- platform/marmotta-sparql/src/main/resources/web/cm
-- platform/marmotta-sparql/src/main/resources/web/admin/editor/sparql/lib
+* Prototype, http://prototypejs.org
 
+  Copyright (c) 2010 Sam Stephenson
 
-The D2R Snorql Library was originally created by Richard Cyganaik
-(http://richard.cyganiak.de/) for the D2R server project
-(http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/). It is licensed 
-under the Apache Software License 2.0. The source code is available
-at http://github.com/kurtjx/SNORQL
+* SPARQL Flint Editor, http://github.com/TSO-Openup/FlintSparqlEditor
 
-Source Locations:
-- platform/marmotta-sparql/src/main/resources/web/admin/snorql
+  Copyright (c) 2011 TSO Ltd
 
+* Sgvizler, http://sgvizler.googlecode.com
 
-The script.aculo.us library is copyright (c) 2005-2010 Thomas Fuchs and is
-licensed under MIT License. The source code is available at
-https://github.com/madrobby/scriptaculous
+  Copyright (c) 2011 Martin G. Skjæveland
 
-Source Locations:
-- platform/marmotta-sparql/src/main/resources/web/admin/snorql/scriptaculous
+* MigLayout, http://www.migcalendar.com/miglayout
 
+  Copyright (c) 2004 MiG InfoCom AB
 
-The Prototype Library is copyright (c) 2005-2010 Sam Stephenson and is
-licensed under MIT License. The source code is available at
-https://github.com/sstephenson/prototype
+* SwingBits, http://swingbits.sourceforge.net
 
-Source Locations:
-- platform/marmotta-sparql/src/main/resources/web/admin/snorql
+  Copyright (c) 2006 EzWare
 
+* ROME, http://rometools.jira.com
 
-The SPARQL Flint Editor is copyright (c) 2011 TSO Ltd and is licensed under
-MIT License. The source code is available at
-https://github.com/TSO-Openup/FlintSparqlEditor
+  Copyright (c) 2004 Sun Microsystems
 
-Source Locations:
-- platform/marmotta-sparql/src/main/resources/web/admin/editor/
+* JSONLD-Java, http://github.com/tristan/jsonld-java
 
+  Copyright (c) 2012, Deutsches Forschungszentrum für Künstliche Intelligenz GmbH
 
-The Sgvizler Library is copyright (c) 2011 Martin G. Skjæveland and is
-licensed under MIT License. The source code is available at
-https://code.google.com/p/sgvizler/source
+* JSON-LD Test Suite, http://json-ld.org/test-suite
 
-Source Locations:
-- platform/marmotta-core/src/main/resources/web/admin/js/lib
-- platform/marmotta-sparql/src/main/resources/web/admin/sgvizler
+  Public Domain (Creative Commons Zero license) without copyright, 
 
+* ical4j test suite, http://ical4j.googlecode.com
 
-==============================================================================
-3rd Party Source Code
-==============================================================================
+  Copyright (c) 2011 Ben Fortuna
 
-The module launchers/marmotta-splash contains source code from the projects
-MigLayout and SwingBits, which has the following copyrights:
-
-The MigLayout library is copyright (c) 2004, Mikael Grev, MiG InfoCom AB, and
-licensed under a New BSD License. The source code is available at
-http://www.migcalendar.com/miglayout/versions/
-
-The SwingBits library is copyright (C) 2006 Michael Hjembaek, and licensed
-under a New BSD License. The source code is available at
-http://swingbits.sourceforge.net/
-
-
-The module commons/sesame-tools-rio-rss contains source code from the
-orphaned ROME project. ROME has copyright 2004 Sun Microsystems, Inc.
-and copyright 2011 The ROME Team, and is licensed under Apache License 2.0.
-The source code is available at
-https://rometools.jira.com/source/browse/ROME/trunk
-
-
-The module commons/sesame-tools-rio-jsonld contains source code from the
-JSONLD-Java project. JSONLD-Java is copyright (c) 2012, Deutsches
-Forschungszentrum für Künstliche Intelligenz GmbH and licensed under a
-New BSD License. The source code is available at
-https://github.com/tristan/jsonld-java
-
-
-==============================================================================
-3rd Party Data Files
-==============================================================================
-
-The test sources for commons/sesame-tools-rio-jsonld contain the data files
-from the JSON-LD Test Suite. The JSON-LD Test Suite is published as public
-domain (with a Creative Commons Zero license and without copyright). The
-source code is available at https://github.com/json-ld/json-ld.org
-
-The test sources for commons/sesame-tools-rio-vcard contain the test data
-files used by the ical4j library. The ical4j library is copyright (c) 2010,
-Ben Fortuna and published under a New BSD License. The full source code is
-available at https://code.google.com/p/ical4j/source/
