@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +43,6 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
@@ -111,7 +109,7 @@ public class MetaWebService {
     @GET
     @Path(ResourceWebService.MIME_PATTERN)
     public Response getMetaRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException {
-        return getMeta(URLDecoder.decode(uri, "utf-8"), mimetype, null);
+        return getMeta(URLDecoder.decode(uri, "utf-8"), mimetype);
     }
 
     /**
@@ -136,7 +134,7 @@ public class MetaWebService {
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
     public Response getMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
-        return getMeta(uri, mimetype, uuid);
+        return getMeta(uri, mimetype);
     }
 
     /**
@@ -239,7 +237,7 @@ public class MetaWebService {
         return deleteMetaRemote(uri);
     }
 
-    private Response getMeta(String uri, String mimetype, String uuid) throws UnsupportedEncodingException {
+    private Response getMeta(String uri, String mimetype) throws UnsupportedEncodingException {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             
@@ -313,7 +311,7 @@ public class MetaWebService {
                     List<String> links = new LinkedList<String>();
 
                     // build the link to the human readable content of this resource (if it exists)
-                    String contentLink = ResourceWebServiceHelper.buildContentLink(resource, uuid, contentService.getContentType(resource), configurationService);
+                    String contentLink = ResourceWebServiceHelper.buildContentLink(resource, contentService.getContentType(resource), configurationService);
                     if(!"".equals(contentLink)) {
                         links.add(contentLink);
                     }

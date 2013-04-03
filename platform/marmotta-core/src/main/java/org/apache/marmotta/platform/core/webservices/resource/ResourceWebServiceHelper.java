@@ -69,8 +69,15 @@ public class ResourceWebServiceHelper {
         }
     }
     
+    /**
+     * @deprecated Use {@link #buildContentLink(URI,String,ConfigurationService)} instead
+     */
     public static String buildContentLink(URI resource, String uuid, String mime, ConfigurationService configurationService) {
-        // test if there is content
+        return buildContentLink(resource, mime, configurationService);
+    }
+
+    public static String buildContentLink(URI resource, String mime, ConfigurationService configurationService) {
+        //TODO: test if there is content
         StringBuffer b = new StringBuffer();
         if (mime != null) {
             b.append("<");
@@ -85,7 +92,14 @@ public class ResourceWebServiceHelper {
         return b.toString();
     }     
     
+    /**
+     * @deprecated Use {@link #buildMetaLinks(URI,List<String>,ConfigurationService)} instead
+     */
     public static String buildMetaLinks(URI resource, String uuid, List<String> datamimes, ConfigurationService configurationService) {
+        return buildMetaLinks(resource, datamimes, configurationService);
+    }
+
+    public static String buildMetaLinks(URI resource, List<String> datamimes, ConfigurationService configurationService) {
         StringBuilder b = new StringBuilder();
         for (int i = 0; i < datamimes.size(); i++) {
             b.append("<");

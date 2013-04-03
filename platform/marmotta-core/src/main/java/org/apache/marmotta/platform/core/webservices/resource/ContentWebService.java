@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.core.webservices.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -102,7 +103,7 @@ public class ContentWebService {
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
     public Response getContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
-        return getContent(uri, mimetype, uuid, range);
+        return getContent(uri, mimetype, range);
     }
 
     /**
@@ -127,8 +128,71 @@ public class ContentWebService {
     @GET
     @Path(ResourceWebService.MIME_PATTERN)
     public Response getContentRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException {
-        return getContent(URLDecoder.decode(uri, "utf-8"), mimetype, null, range);
+        return getContent(URLDecoder.decode(uri, "utf-8"), mimetype, range);
     }
+    
+    /**
+     * Creates a redirect depending of the stored mimeType for the requested uri.
+     * @param uri the resource requested
+     * @return a redirect
+     * @throws UnsupportedEncodingException
+     * 
+     * @HTTP 3xx redirect to the requested content
+     * @HTTP 404 if the resource has no contetn
+     * @HTTP 500 Internal Error
+     */
+    @GET
+    public Response getContentRemote(@QueryParam("uri") @NotNull String uri) throws UnsupportedEncodingException {
+        try {
+            final RepositoryConnection conn = sesameService.getConnection();
+            try {
+                conn.begin();
+                URI resource = conn.getValueFactory().createURI(uri);
+                conn.commit();
+                final String mimeType = contentService.getContentType(resource);
+                if (mimeType != null) {
+                    return Response
+                            .status(configurationService.getIntConfiguration(
+                                    "linkeddata.redirect.status", 303))
+                            .header("Vary", "Accept")
+                            .header("Content-Type", mimeType + "; rel=content")
+                            .location(
+                                    new java.net.URI(ResourceWebServiceHelper
+                                            .buildResourceLink(resource,
+                                                    "content", mimeType,
+                                                    configurationService)))
+                            .build();
+
+                } else {
+                    return Response.status(Status.NOT_FOUND).entity("No content for <"+resource.stringValue()+">").build();
+                }
+            } finally {
+                conn.close();
+            }
+        } catch (RepositoryException ex) {
+            return Response.serverError().entity(ex.getMessage()).build();
+        } catch (URISyntaxException ex) {
+            return Response.serverError().entity(ex.getMessage()).build();
+        }
+    }
+    
+    /**
+     * Creates a redirect depending of the stored mimeType for the requested resource.
+     * @param uuid the local resource requested
+     * @return a redirect
+     * @throws UnsupportedEncodingException
+     * 
+     * @HTTP 3xx redirect to the requested content
+     * @HTTP 404 if the resource has no content
+     * @HTTP 500 Internal Error
+     */
+    @GET
+    @Path(ResourceWebService.UUID_PATTERN)
+    public Response getContentLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException {
+        String uri = configurationService.getBaseUri() + ConfigurationService.RESOURCE_PATH + "/" + uuid;
+        return getContentRemote(uri);
+    }
+
 
     /**
      * Sets content to a given locale resource
@@ -227,7 +291,7 @@ public class ContentWebService {
         return deleteContentRemote(uri);
     }
 
-    private Response getContent(String uri, String mimetype, String uuid, String range) throws UnsupportedEncodingException {
+    private Response getContent(String uri, String mimetype, String range) throws UnsupportedEncodingException {
         try {
             // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
             // "/" + uuid;
@@ -236,6 +300,9 @@ public class ContentWebService {
                 conn.begin();
                 URI resource = conn.getValueFactory().createURI(uri);
                 conn.commit();
+                if (mimetype == null) {
+                    mimetype = contentService.getContentType(resource);
+                }
                 if (contentService.hasContent(resource, mimetype)) {
 
                     InputStream is = contentService.getContentStream(resource, mimetype);
@@ -279,7 +346,7 @@ public class ContentWebService {
                     }
 
                     // append data links
-                    String s = ResourceWebServiceHelper.buildMetaLinks(resource, uuid, kiWiIOService.getProducedTypes(), configurationService);
+                    String s = ResourceWebServiceHelper.buildMetaLinks(resource, kiWiIOService.getProducedTypes(), configurationService);
                     if (s != null) {
                         response.getMetadata().add("Links", s);
                     }
