@@ -298,7 +298,7 @@ public class ResourceWebService {
     public Response getLocal(@PathParam("uuid") String uuid, @HeaderParam("Accept") String types) throws UnsupportedEncodingException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         try {
-            return get(uri, types, uuid);
+            return get(uri, types);
         } catch (URISyntaxException e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
@@ -332,7 +332,7 @@ public class ResourceWebService {
                     types = format;
                 }
                 //TODO: add 'If-None-Match' support, sending a '304 Not Modified' when the ETag matches
-                return get(uri, types, null);
+                return get(uri, types);
             } else
                 return Response.status(400).entity("uri may not be null").build();
         } catch (URISyntaxException e) {
@@ -340,7 +340,7 @@ public class ResourceWebService {
         }
     }
 
-    private Response get(String uri, String types, String uuid) throws URISyntaxException, UnsupportedEncodingException {
+    private Response get(String uri, String types) throws URISyntaxException, UnsupportedEncodingException {
         try {
 
             RepositoryConnection conn = sesameService.getConnection();
@@ -379,7 +379,7 @@ public class ResourceWebService {
                 log.debug("identified best type: {}",bestType);
 
                 if(bestType != null) {
-                    Response response = buildGetResponse(resource, uuid, bestType);
+                    Response response = buildGetResponse(resource, bestType);
                     response.getMetadata().add("Last-Modified", KiWiSesameUtil.lastModified(resource, conn));
                     response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, resource) + "\"");
                     return response;
@@ -596,8 +596,7 @@ public class ResourceWebService {
         return deleteResourceRemote(uri);
     }
 
-    private Response buildGetResponse(URI resource, String uuid,
-            ContentType type) {
+    private Response buildGetResponse(URI resource, ContentType type) {
         try {
 
             return Response
