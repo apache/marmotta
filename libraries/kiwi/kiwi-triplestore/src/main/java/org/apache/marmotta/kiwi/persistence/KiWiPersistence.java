@@ -406,25 +406,5 @@ public class KiWiPersistence {
         cacheManager.clear();
     }
 
-    /**
-     * Notify the garbage collector thread to run. The garbage collection will be executed in the scope of the
-     * garbage collector thread.
-     */
-    public void notifyGarbageCollector() {
-        synchronized (garbageCollector) {
-            garbageCollector.notify();
-        }
-    }
-
-    /**
-     * Force the garbage collector to execute instantly in the scope of the calling thread.
-     *
-     * @throws SQLException
-     */
-    public void forceGarbageCollector() throws SQLException {
-        synchronized (garbageCollector) {
-            garbageCollector.garbageCollect();
-        }
-    }
 
 }

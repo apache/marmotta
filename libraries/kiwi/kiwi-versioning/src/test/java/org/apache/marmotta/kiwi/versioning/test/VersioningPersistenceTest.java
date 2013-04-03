@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
-import info.aduna.iteration.Iterations;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
@@ -39,8 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -295,7 +292,6 @@ public class VersioningPersistenceTest {
             version2.setCommitTime(new Date());
             version2.addTriple(triple2);
             version2.removeTriple(triple1);
-            connection.deleteTriple(triple1);
             connection.storeVersion(version2);
             connection.commit();
 
@@ -306,7 +302,7 @@ public class VersioningPersistenceTest {
 
 
             // now we test different ways of listing versions between dates
-            List<Version> list1 = Iterations.asList(connection.listVersions(date1, date2));
+            List<Version> list1 = connection.listVersions(date1,date2).asList();
             Assert.assertEquals("there should be exactly one version from "+date1+" to "+date2,1,list1.size());
             Assert.assertEquals("contents of version differ", version1, list1.get(0));
             Assert.assertEquals("version id is not 1", 1L, (long)list1.get(0).getId());
@@ -317,42 +313,27 @@ public class VersioningPersistenceTest {
             Assert.assertEquals("latest version is not the expected version", version1,latest2);
 
             // check if listVersions with subject1 now gives exactly one version
-            List<Version> listr1 = Iterations.asList(connection.listVersions(subject, date1, date2));
+            List<Version> listr1 = connection.listVersions(subject,date1,date2).asList();
             Assert.assertEquals("there should be exactly one version", 1, listr1.size());
             Assert.assertEquals("contents of version differ", version1, listr1.get(0));
             Assert.assertEquals("version id is not 1", 1L, (long)listr1.get(0).getId());
 
 
-            List<Version> list2 = Iterations.asList(connection.listVersions(date2, date3));
+            List<Version> list2 = connection.listVersions(date2,date3).asList();
             Assert.assertEquals("there should be exactly one version from "+date2+" to "+date3,1,list2.size());
             Assert.assertEquals("contents of version differ", version2, list2.get(0));
             Assert.assertEquals("version id is not 2", 2L, (long)list2.get(0).getId());
 
-            List<Version> list3 = Iterations.asList(connection.listVersions(date3, new Date()));
+            List<Version> list3 = connection.listVersions(date3,new Date()).asList();
             Assert.assertEquals("there should be no version from "+date3+" to now",0,list3.size());
 
-            List<Version> list4 = Iterations.asList(connection.listVersions(date1, date3));
+            List<Version> list4 = connection.listVersions(date1,date3).asList();
             Assert.assertEquals("there should be exactly two versions from "+date1+" to "+date3,2,list4.size());
             Assert.assertEquals("contents of version1 differ", version1, list4.get(0));
             Assert.assertEquals("contents of version2 differ", version2, list4.get(1));
 
 
             connection.commit();
-
-            // test garbage collector (should not throw an error and should not remove any triples, since they are
-            // referenced by the versioning table)
-            // test database contents
-            PreparedStatement stmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM triples WHERE deleted = true");
-            ResultSet dbResult1 = stmt.executeQuery();
-            Assert.assertTrue(dbResult1.next());
-
-            persistence.forceGarbageCollector();
-
-            // triple should not be garbage collected
-            ResultSet dbResult2 = stmt.executeQuery();
-            Assert.assertTrue(dbResult2.next());
-
-
         } finally {
             connection.close();
         }

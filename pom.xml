@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -329,14 +329,7 @@
                                                 <include name="*.tar.gz" />
                                             </fileset>
                                         </checksum>
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-installer.zip" algorithm="SHA1" property="checksum.installer.zip" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-installer.tar.gz" algorithm="SHA1" property="checksum.installer.tgz" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldpath.zip" algorithm="SHA1" property="checksum.ldpath.zip" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldpath.tar.gz" algorithm="SHA1" property="checksum.ldpath.tgz" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-src.zip" algorithm="SHA1" property="checksum.src.zip" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-src.tar.gz" algorithm="SHA1" property="checksum.src.tgz" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-webapp.zip" algorithm="SHA1" property="checksum.webapp.zip" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-webapp.tar.gz" algorithm="SHA1" property="checksum.webapp.tgz" />
+                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-src.zip" algorithm="SHA1" property="checksum" />
                                         <echo file="${basedir}/target/vote.txt">
 From: ${username}@apache.org
 To: dev@marmotta.incubator.apache.org
@@ -346,23 +339,11 @@ A candidate for the Marmotta ${project.version} release is available at:
 
 https://dist.apache.org/repos/dist/dev/incubator/marmotta/${project.version}/
 
-The release candidate is based on the sources tagged with ${project.version} in:
+The release candidate is a zip archive of the sources in:
 
 https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git
 
-The release candidate consists of the following distribution archives:
-- apache-marmotta-${project.version}-installer.[zip|tar.gz]
-  SHA1 of ZIP: ${checksum.installer.zip}
-  SHA1 of TGZ: ${checksum.installer.tgz}
-- apache-marmotta-${project.version}-ldpath.[zip|tar.gz]
-  SHA1 of ZIP: ${checksum.ldpath.zip}
-  SHA1 of TGZ: ${checksum.ldpath.tgz}
-- apache-marmotta-${project.version}-src.[zip|tar.gz]
-  SHA1 of ZIP: ${checksum.src.zip}
-  SHA1 of TGZ: ${checksum.src.tgz}
-- apache-marmotta-${project.version}-webapp.[zip|tar.gz]
-  SHA1 of ZIP: ${checksum.webapp.zip}
-  SHA1 of TGZ: ${checksum.webapp.tgz}
+The SHA1 checksum of the archive is ${checksum}.
 
 A staged Maven repository is available for review at:
 

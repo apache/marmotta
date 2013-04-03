@@ -99,7 +99,7 @@ public class KiWiGarbageCollector extends Thread {
     }
 
 
-    protected int garbageCollect() throws SQLException {
+    private int garbageCollect() throws SQLException {
         round++;
 
         Connection con = persistence.getJDBCConnection();
@@ -190,12 +190,13 @@ public class KiWiGarbageCollector extends Thread {
         builder.append("DELETE FROM triples WHERE deleted = true");
 
         if(tripleTableDependencies.size() > 0) {
+            builder.append(" AND NOT EXISTS (");
 
             Iterator<TableDependency> iterator = tripleTableDependencies.iterator();
             while (iterator.hasNext()) {
                 TableDependency next = iterator.next();
 
-                builder.append(" AND NOT EXISTS (");
+                builder.append("(");
                 builder.append("SELECT ");
                 builder.append(next.column);
                 builder.append(" FROM ");
@@ -205,8 +206,13 @@ public class KiWiGarbageCollector extends Thread {
                 builder.append(" = triples.id");
 
                 builder.append(")");
+
+                if(iterator.hasNext()) {
+                    builder.append(" UNION ");
+                }
             }
 
+            builder.append(")");
         }
         return builder.toString();
     }
@@ -222,6 +228,7 @@ public class KiWiGarbageCollector extends Thread {
             while (iterator.hasNext()) {
                 TableDependency next = iterator.next();
 
+                builder.append("(");
                 builder.append("SELECT ");
                 builder.append(next.column);
                 builder.append(" FROM ");
@@ -233,9 +240,11 @@ public class KiWiGarbageCollector extends Thread {
                 builder.append(")");
 
                 if(iterator.hasNext()) {
-                    builder.append(" AND NOT EXISTS (");
+                    builder.append(" UNION ");
                 }
             }
+
+            builder.append(")");
         }
         return builder.toString();
     }

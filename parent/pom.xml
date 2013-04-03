@@ -29,7 +29,7 @@
     <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.0-incubating-SNAPSHOT</version>
+    <version>3.1.0-incubating-SNAPSHOT</version>
 
     <name>Apache Marmotta Parent</name>
     <description>Parent POM for the Apache Marmotta project</description>
@@ -400,9 +400,6 @@
                             <exclude>**/dygraph/**</exclude>
                             <exclude>**/sgvizler/**</exclude>
                             <exclude>**/js/lib/**</exclude>
-                            <exclude>**/src/main/resources/web/admin/snorql/**</exclude>
-                            <exclude>**/src/main/resources/web/cm/**</exclude>
-                            <exclude>**/src/main/resources/web/admin/editor/sparql/lib/**</exclude>
                             <exclude>**/src/main/java/solr2155/**</exclude>
                             <exclude>**/src/main/java/net/miginfocom/**</exclude>
                             <exclude>**/src/main/java/org/oxbow/**</exclude>
@@ -451,9 +448,6 @@
                             <exclude>**/src/main/resources/task-dialog*.properties</exclude>
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/jsonld/**</exclude>
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
-                            <exclude>**/src/main/resources/web/cm/**</exclude>
-                            <exclude>**/src/main/resources/web/admin/editor/**</exclude>
-                            <exclude>**/src/main/resources/web/admin/snorql/**</exclude>
 
                             <!-- META-INF files don't take a license header -->
                             <exclude>**/META-INF/**</exclude>
