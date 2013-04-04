@@ -276,6 +276,7 @@ For the strftime component,
         platform/marmotta-core/src/main/resources/web/public/js/lib
 
     Copyright (c) 2008 Philip S Tellis, http://hacks.bluesmoon.info/strftime
+    Extended by Marmotta with German locales and %F formatter.
 
     Redistribution and use of this software in source and binary forms, with or 
     without modification, are permitted provided that the following conditions are met:

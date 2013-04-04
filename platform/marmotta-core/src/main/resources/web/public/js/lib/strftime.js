@@ -3,8 +3,8 @@
  Copyright (c) 2008, Philip S Tellis <philip@bluesmoon.info>
  All rights reserved.
  
- extended with german locales and %F formatter for LMF
- Jakob Frank <jakob.frank@salzburgresearch.at>
+ extended with german locales and %F formatter for Marmotta
+ Jakob Frank <jakob@apache.org>
  
  This code is distributed under the terms of the BSD licence
  
