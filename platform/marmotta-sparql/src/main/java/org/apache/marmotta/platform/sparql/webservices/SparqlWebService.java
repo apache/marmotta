@@ -17,56 +17,60 @@
  */
 package org.apache.marmotta.platform.sparql.webservices;
 
-import org.apache.marmotta.platform.core.exception.MarmottaException;
-import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
-import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLResultsHTMLWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqljson.SPARQLBooleanJSONWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqljson.SPARQLResultsJSONWriter;
-import com.google.common.collect.Lists;
-import com.google.common.io.CharStreams;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
-import org.apache.marmotta.platform.core.util.WebServiceUtil;
-import org.apache.commons.lang.StringUtils;
-import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.query.resultio.BooleanQueryResultWriter;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLBooleanXMLWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
-import org.openrdf.query.resultio.text.BooleanTextWriter;
-import org.openrdf.query.resultio.text.csv.SPARQLResultsCSVWriter;
-import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriBuilder;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
+import org.apache.marmotta.platform.core.util.WebServiceUtil;
+import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
+import org.apache.marmotta.platform.sparql.services.sparql.SparqlWritersHelper;
+import org.openrdf.query.BooleanQuery;
+import org.openrdf.query.GraphQuery;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.Query;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 
 /**
- * Execute SPARQL query (both query and update) on the LMF triple store
+ * Execute SPARQL query (both query and update) on the kiwi triple store
  * according the SPARQL 1.1 Protocol
  * 
  * @link http://www.w3.org/TR/sparql11-protocol/
@@ -82,7 +86,7 @@ public class SparqlWebService {
     public static final String SELECT = "/select";
     public static final String UPDATE = "/update";
     public static final String SNORQL = "/snorql";
-
+    
     @Inject
     private Logger log;
 
@@ -147,36 +151,46 @@ public class SparqlWebService {
     @GET
     @Path(SELECT)
     public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        if(resultType == null) {
-            List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-            List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
-
-            ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
-
-            if(bestType != null) {
-                resultType = bestType.getMime();
-            }
-        }
-
-        try {
-            if(resultType != null) {
-                if (StringUtils.isNotBlank(query))
-                    return buildQueryResponse(resultType, query);
-                else {
-                    if (parseSubType(resultType).equals("html"))
-                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/snorql/snorql.html")).build();
-                    else
-                        return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
-                }
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-        } catch (InvalidArgumentException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        } catch(Exception e) {
-            log.error("query execution threw an exception",e);
-
-            return Response.serverError().entity("query not supported").build();
-        }
+    	 if (StringUtils.isBlank(query)) {
+             try {
+            	 return Response.temporaryRedirect(new URI(configurationService.getServerUri() + "sparql/admin/snorql/snorql.html")).build();
+			} catch (URISyntaxException e) {
+				 return Response.status(Status.NOT_FOUND).build();
+			}
+         } else {
+        	try {
+    			final Query sparqlQuery = sparqlService.parseQuery(QueryLanguage.SPARQL, query);
+    			
+				final String format;
+    	        if(StringUtils.isBlank(resultType)) {
+        			List<ContentType> offeredTypes = new ArrayList<ContentType>();
+        			if (sparqlQuery instanceof TupleQuery || sparqlQuery instanceof BooleanQuery) {
+        				offeredTypes = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml", "application/sparql-results+json", "text/html", "text/csv"));
+        			} else if (sparqlQuery instanceof GraphQuery) {
+        				offeredTypes = LMFHttpUtils.parseStringList(Lists.newArrayList("application/rdf+xml", "text/rdf+n3", "text/turtle", "application/json"));
+        			}
+    	        	List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
+    	            ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
+    	            if(bestType != null) {
+    	                format = bestType.getMime();
+    	            } else {
+    	            	format = "";
+    	            }
+    	        } else {
+    	        	format = resultType; //FIXME: validate?
+    	        }
+    			
+    	        return buildQueryResponse(format, sparqlQuery);
+    	        
+    		} catch (RepositoryException e) {
+    			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+    		} catch (MalformedQueryException e) {
+    			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+    		} catch (Exception e) {
+                log.error("query execution threw an exception",e);
+                return Response.serverError().entity("query not supported").build();
+			}	 
+         }
     }
 
     /**
@@ -343,7 +357,7 @@ public class SparqlWebService {
                         resultType = bestType.getMime();
                     }
                 }
-                if (parseSubType(resultType).equals("html"))
+                if (SparqlWritersHelper.parseSubType(resultType).equals("html"))
                     return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/update.html")).build();
                 else
                     return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
@@ -481,7 +495,7 @@ public class SparqlWebService {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    sparqlService.query(QueryLanguage.SPARQL,query,getTupleResultWriter(resultType,output),getBooleanResultWriter(resultType,output), getGraphResultWriter(resultType,output));
+                    sparqlService.query(QueryLanguage.SPARQL, query, SparqlWritersHelper.getTupleResultWriter(resultType, output), SparqlWritersHelper.getBooleanResultWriter(resultType, output), SparqlWritersHelper.getGraphResultWriter(resultType, output));
                 } catch (MarmottaException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
                 } catch (QueryEvaluationException e) {
@@ -492,76 +506,22 @@ public class SparqlWebService {
             }
         };
 
-        //set returntype
-        String s = "";
-        if(resultType ==null) {
-            s = "application/sparql-results+xml;charset=utf-8";
-        } else if(parseSubType(resultType).equals("html") ) {
-            s = "text/html;charset=utf-8";
-        } else if(parseSubType(resultType).equals("json") ) {
-            s = "application/sparql-results+json;charset=utf-8";
-        } else if(parseSubType(resultType).equals("rdf+xml") ) {
-            s = "application/rdf+xml;charset=utf-8";
-        } else if(parseSubType(resultType).equals("rdf+n3") ) {
-            s = "text/rdf+n3;charset=utf-8";
-        } else if(parseSubType(resultType).equals("n3") ) {
-            s = "text/rdf+n3;charset=utf-8";
-        } else if(parseSubType(resultType).equals("csv") ) {
-            s = "text/csv;charset=utf-8";
-        } else {
-            s = "application/sparql-results+xml;charset=utf-8";
-        }
-
-        Response r = Response.ok().entity(entity).header("Content-Type", s).build();
-        return r;
+        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(resultType)).build();
     }
-
-    private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
-    private String parseSubType(String mimeType) {
-        Matcher matcher = subTypePattern.matcher(mimeType);
-        if (matcher.matches())
-            return matcher.group(2);
-        else
-            return mimeType;
-    }
-
-
-    private TupleQueryResultWriter getTupleResultWriter(String format, OutputStream os) {
-        //build outputwriter
-        final TupleQueryResultWriter out;
-        if(format == null) {
-            out = new SPARQLResultsXMLWriter(os);
-        } else if(parseSubType(format).equals("html")) {
-            out = new SPARQLResultsHTMLWriter(os);
-        } else if(parseSubType(format).equals("json")) {
-            out = new SPARQLResultsJSONWriter(os);
-        } else if(parseSubType(format).equals("xml")) {
-            out = new SPARQLResultsXMLWriter(os);
-        } else if(parseSubType(format).equals("csv")) {
-            out = new SPARQLResultsCSVWriter(os);
-        } else throw new InvalidArgumentException("could not produce format "+format);
-        return out;
-    }
-
-    private BooleanQueryResultWriter getBooleanResultWriter(String format, OutputStream os) {
-        //build outputwriter
-        final BooleanQueryResultWriter out;
-        if(format == null) {
-            out = new SPARQLBooleanXMLWriter(os);
-        } else if(parseSubType(format).equals("html")) {
-            out = new SPARQLBooleanHTMLWriter(os);
-        } else if(parseSubType(format).equals("json")) {
-            out = new SPARQLBooleanJSONWriter(os);
-        } else if(parseSubType(format).equals("xml")) {
-            out = new SPARQLBooleanXMLWriter(os);
-        } else if(parseSubType(format).equals("csv")) {
-            out = new BooleanTextWriter(os);
-        } else throw new InvalidArgumentException("could not produce format "+format);
-        return out;
-    }
-
-    protected SPARQLGraphResultWriter getGraphResultWriter(String format, OutputStream os) {
-        return new SPARQLGraphResultWriter(os,format);
+	
+	private Response buildQueryResponse(final String resultType, final Query query) throws Exception {
+        StreamingOutput entity = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                try {
+                    sparqlService.query(query, output, resultType);
+                } catch (QueryEvaluationException e) {
+                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+                }
+            }
+        };
+        
+        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(resultType)).build();
     }
 
 }
