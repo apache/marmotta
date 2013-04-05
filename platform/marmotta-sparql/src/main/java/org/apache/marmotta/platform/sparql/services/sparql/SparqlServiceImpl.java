@@ -127,7 +127,7 @@ public class SparqlServiceImpl implements SparqlService {
     }
     
     @Override
-    public void query(Query query, OutputStream output, String format) throws MarmottaException {
+    public void query(QueryLanguage language, String query, OutputStream output, String format) throws MarmottaException {
         long start = System.currentTimeMillis();
 
         log.debug("executing SPARQL query:\n{}", query);
@@ -136,7 +136,7 @@ public class SparqlServiceImpl implements SparqlService {
             RepositoryConnection connection = sesameService.getConnection();
             try {
                 connection.begin();
-                Query sparqlQuery = connection.prepareQuery(QueryLanguage.SPARQL, query.toString());
+                Query sparqlQuery = connection.prepareQuery(language, query);
 
                 if (sparqlQuery instanceof TupleQuery) {
                 	query((TupleQuery)sparqlQuery, output, format);

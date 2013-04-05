@@ -59,7 +59,6 @@ import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.GraphQuery;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.Query;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.UpdateExecutionException;
@@ -180,7 +179,7 @@ public class SparqlWebService {
     	        	format = resultType; //FIXME: validate?
     	        }
     			
-    	        return buildQueryResponse(format, sparqlQuery);
+    	        return buildQueryResponse(format, query);
     	        
     		} catch (RepositoryException e) {
     			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
@@ -490,38 +489,38 @@ public class SparqlWebService {
 		return params;
 	}
 
-	private Response buildQueryResponse(final String resultType, final String query) throws Exception {
-        StreamingOutput entity = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException, WebApplicationException {
-                try {
-                    sparqlService.query(QueryLanguage.SPARQL, query, SparqlWritersHelper.getTupleResultWriter(resultType, output), SparqlWritersHelper.getBooleanResultWriter(resultType, output), SparqlWritersHelper.getGraphResultWriter(resultType, output));
-                } catch (MarmottaException ex) {
-                    throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
-                } catch (QueryEvaluationException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
-                } catch (MalformedQueryException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
-                }
-            }
-        };
-
-        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(resultType)).build();
-    }
+//	private Response buildQueryResponse(final String resultType, final String query) throws Exception {
+//        StreamingOutput entity = new StreamingOutput() {
+//            @Override
+//            public void write(OutputStream output) throws IOException, WebApplicationException {
+//                try {
+//                    sparqlService.query(QueryLanguage.SPARQL, query, SparqlWritersHelper.getTupleResultWriter(resultType, output), SparqlWritersHelper.getBooleanResultWriter(resultType, output), SparqlWritersHelper.getGraphResultWriter(resultType, output));
+//                } catch (MarmottaException ex) {
+//                    throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
+//                } catch (QueryEvaluationException e) {
+//                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+//                } catch (MalformedQueryException e) {
+//                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+//                }
+//            }
+//        };
+//
+//        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(resultType)).build();
+//    }
 	
-	private Response buildQueryResponse(final String resultType, final Query query) throws Exception {
+	private Response buildQueryResponse(final String format, final String query) throws Exception {
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    sparqlService.query(query, output, resultType);
+                    sparqlService.query(QueryLanguage.SPARQL, query, output, format);
                 } catch (MarmottaException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 }
             }
         };
         
-        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(resultType)).build();
+        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(format)).build();
     }
 
 }

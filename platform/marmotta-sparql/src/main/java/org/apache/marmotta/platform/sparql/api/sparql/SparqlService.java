@@ -79,7 +79,7 @@ public interface SparqlService {
 	 * @param format mimetype
 	 * @throws MarmottaException
 	 */
-	void query(Query query, OutputStream output, String format) throws MarmottaException;
+	void query(QueryLanguage language, String query, OutputStream output, String format) throws MarmottaException;
 	
     /**
      * Evaluate a SPARQL ASK query on the KiWi TripleStore
