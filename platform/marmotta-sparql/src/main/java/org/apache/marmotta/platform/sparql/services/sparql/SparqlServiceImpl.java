@@ -127,20 +127,46 @@ public class SparqlServiceImpl implements SparqlService {
     }
     
     @Override
-    public void query(Query query, OutputStream output, String format) throws QueryEvaluationException {
-        if (query instanceof TupleQuery) {
-        	query((TupleQuery)query, output, format);
-        } else if (query instanceof BooleanQuery) {
-        	query((BooleanQuery)query, output, format);
-        } else if (query instanceof GraphQuery) {
-        	query((GraphQuery)query, output, format);
-        } else {
-            throw new InvalidArgumentException("SPARQL query type " + query.getClass() + " not supported!");
+    public void query(Query query, OutputStream output, String format) throws MarmottaException {
+        long start = System.currentTimeMillis();
+
+        log.debug("executing SPARQL query:\n{}", query);
+
+        try {
+            RepositoryConnection connection = sesameService.getConnection();
+            try {
+                connection.begin();
+                Query sparqlQuery = connection.prepareQuery(QueryLanguage.SPARQL, query.toString());
+
+                if (sparqlQuery instanceof TupleQuery) {
+                	query((TupleQuery)sparqlQuery, output, format);
+                } else if (sparqlQuery instanceof BooleanQuery) {
+                	query((BooleanQuery)sparqlQuery, output, format);
+                } else if (sparqlQuery instanceof GraphQuery) {
+                	query((GraphQuery)sparqlQuery, output, format);
+                } else {
+                    throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+                }
+
+                connection.commit();
+			} finally {
+                connection.close();
+            }
+        } catch(RepositoryException e) {
+            log.error("error while getting repository connection: {}", e);
+            throw new MarmottaException("error while getting repository connection", e);
+        } catch (QueryEvaluationException e) {
+        	log.error("error while evaluating query: {}", e);
+            throw new MarmottaException("error while writing query result in format ", e);
+        } catch (MalformedQueryException e) {
+        	log.error("error because malformed query: {}", e);
+            throw new MarmottaException("error because malformed query result in format ", e);
         }
+
+        log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
     }
 
-    @Override
-    public void query(TupleQuery query, TupleQueryResultWriter writer) throws QueryEvaluationException {
+    private void query(TupleQuery query, TupleQueryResultWriter writer) throws QueryEvaluationException {
     	try {
 			query.evaluate(writer);
 		} catch (TupleQueryResultHandlerException e) {
@@ -148,13 +174,11 @@ public class SparqlServiceImpl implements SparqlService {
 		}
     }
     
-    @Override
-    public void query(TupleQuery query, OutputStream output, String format) throws QueryEvaluationException {
+    private void query(TupleQuery query, OutputStream output, String format) throws QueryEvaluationException {
     	query(query, SparqlWritersHelper.getTupleResultWriter(format, output));
     }
     
-    @Override
-    public void query(BooleanQuery query, BooleanQueryResultWriter writer) throws QueryEvaluationException {
+    private void query(BooleanQuery query, BooleanQueryResultWriter writer) throws QueryEvaluationException {
     	try {
 			writer.write(query.evaluate());
 		} catch (IOException e) {
@@ -162,13 +186,11 @@ public class SparqlServiceImpl implements SparqlService {
 		}
     }
     
-    @Override
-    public void query(BooleanQuery query, OutputStream output, String format) throws QueryEvaluationException {
+    private void query(BooleanQuery query, OutputStream output, String format) throws QueryEvaluationException {
     	query(query, SparqlWritersHelper.getBooleanResultWriter(format, output));
     }
     
-    @Override
-    public void query(GraphQuery query, SPARQLGraphResultWriter writer) throws QueryEvaluationException {
+    private void query(GraphQuery query, SPARQLGraphResultWriter writer) throws QueryEvaluationException {
     	try {
 			writer.write(query.evaluate());
 		} catch (IOException e) {
@@ -176,8 +198,7 @@ public class SparqlServiceImpl implements SparqlService {
 		}
     }
     
-    @Override
-    public void query(GraphQuery query, OutputStream output, String format) throws QueryEvaluationException {
+    private void query(GraphQuery query, OutputStream output, String format) throws QueryEvaluationException {
     	query(query, SparqlWritersHelper.getGraphResultWriter(format, output));
     }
     

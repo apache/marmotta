@@ -515,7 +515,7 @@ public class SparqlWebService {
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
                     sparqlService.query(query, output, resultType);
-                } catch (QueryEvaluationException e) {
+                } catch (MarmottaException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 }
             }

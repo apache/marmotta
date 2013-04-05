@@ -17,25 +17,22 @@
  */
 package org.apache.marmotta.platform.sparql.api.sparql;
 
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.openrdf.model.Value;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.GraphQuery;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.Query;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryException;
-
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Add file description here!
@@ -77,72 +74,12 @@ public interface SparqlService {
 	 * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
      * to the stream passed in the format requested.
      * 
-	 * @param query
-	 * @param output
-	 * @param format
-	 * @throws QueryEvaluationException
+	 * @param query query
+	 * @param output strem to write 
+	 * @param format mimetype
+	 * @throws MarmottaException
 	 */
-	void query(Query query, OutputStream output, String format) throws QueryEvaluationException;
-	
-	/**
-	 * Evaluate a SPARQL tuple query on the KiWi TripleStore. Writes the query results 
-     * to the writer passed.
-	 * 
-	 * @param tuple query
-	 * @param writer the writer to use to write results
-	 * @throws QueryEvaluationException
-	 */
-    void query(TupleQuery query, TupleQueryResultWriter writer) throws QueryEvaluationException;
-    
-    /**
-     * Evaluate a SPARQL tuple query on the KiWi TripleStore. Writes the query results 
-     * to the stream passed in the format requested.
-     * 
-     * @param query
-     * @param output
-     * @param format
-     */
-    void query(TupleQuery query, OutputStream output, String format) throws QueryEvaluationException;
-    
-    /**
-     * Evaluate a SPARQL boolean query on the KiWi TripleStore. Writes the query results 
-     * to the writer passed.
-     * 
-     * @param query boolean query
-     * @param writer the writer to use to write results
-     * @throws QueryEvaluationException
-     */
-    void query(BooleanQuery query, BooleanQueryResultWriter writer) throws QueryEvaluationException;
-    
-    /**
-     * Evaluate a SPARQL boolean query on the KiWi TripleStore. Writes the query results 
-     * to the stream passed in the format requested.
-     * 
-     * @param query
-     * @param output
-     * @param format
-     */
-    void query(BooleanQuery query, OutputStream output, String format) throws QueryEvaluationException;    
-    
-    /**
-     * Evaluate a SPARQL graph query on the KiWi TripleStore. Writes the query results 
-     * to the writer passed.
-     * 
-     * @param query graph query
-     * @param writer the writer to use to write results
-     * @throws QueryEvaluationException
-     */
-    void query(GraphQuery query, SPARQLGraphResultWriter writer) throws QueryEvaluationException;
-    
-    /**
-     * Evaluate a SPARQL graph query on the KiWi TripleStore. Writes the query results 
-     * to the stream passed in the format requested.
-     * 
-     * @param query
-     * @param output
-     * @param format
-     */
-    void query(GraphQuery query, OutputStream output, String format) throws QueryEvaluationException;    
+	void query(Query query, OutputStream output, String format) throws MarmottaException;
 	
     /**
      * Evaluate a SPARQL ASK query on the KiWi TripleStore
