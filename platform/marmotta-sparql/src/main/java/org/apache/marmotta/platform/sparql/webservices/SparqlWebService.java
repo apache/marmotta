@@ -520,7 +520,7 @@ public class SparqlWebService {
             }
         };
         
-        return Response.ok().entity(entity).header("Content-Type", SparqlWritersHelper.buildSparqlContentType(format)).build();
+        return Response.ok().entity(entity).header("Content-Type", format+";charset=utf-8").build();
     }
 
 }

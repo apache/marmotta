@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
@@ -93,24 +92,4 @@ public class SparqlWritersHelper {
             return mimeType;
     }
     
-    public static String buildSparqlContentType(String resultType) {
-        if(StringUtils.isBlank(resultType)) {
-            return "application/sparql-results+xml;charset=utf-8";
-        } else if(parseSubType(resultType).equals("html") ) {
-        	return "text/html;charset=utf-8";
-        } else if(parseSubType(resultType).equals("json") ) {
-        	return "application/sparql-results+json;charset=utf-8";
-        } else if(parseSubType(resultType).equals("rdf+xml") ) {
-        	return "application/rdf+xml;charset=utf-8";
-        } else if(parseSubType(resultType).equals("rdf+n3") ) {
-        	return "text/rdf+n3;charset=utf-8";
-        } else if(parseSubType(resultType).equals("n3") ) {
-        	return "text/rdf+n3;charset=utf-8";
-        } else if(parseSubType(resultType).equals("csv") ) {
-        	return "text/csv;charset=utf-8";
-        } else {
-        	return "application/sparql-results+xml;charset=utf-8";
-        }
-    }
-
 }
