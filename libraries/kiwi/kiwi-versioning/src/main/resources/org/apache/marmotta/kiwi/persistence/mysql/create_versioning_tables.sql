@@ -40,6 +40,8 @@ CREATE TABLE versions_removed (
 );
 
 CREATE INDEX idx_versions_added ON versions_added(version_id);
+CREATE INDEX idx_versions_added_tid ON versions_added(triple_id);
 CREATE INDEX idx_versions_removed ON versions_removed(version_id);
+CREATE INDEX idx_versions_removed_tid ON versions_removed(triple_id);
 CREATE INDEX idx_versions_created ON versions(createdAt);
 

@@ -13,7 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 DROP INDEX idx_versions_added on versions_added;
+DROP INDEX idx_versions_added_tid on versions_added;
 DROP INDEX idx_versions_removed on versions_removed;
+DROP INDEX idx_versions_removed_tid on versions_removed;
 DROP INDEX idx_versions_created on versions;
 
 

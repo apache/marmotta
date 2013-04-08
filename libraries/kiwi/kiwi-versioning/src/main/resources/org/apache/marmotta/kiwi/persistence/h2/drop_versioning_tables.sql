@@ -14,6 +14,8 @@
 -- limitations under the License.
 DROP INDEX IF EXISTS idx_versions_added;
 DROP INDEX IF EXISTS idx_versions_removed;
+DROP INDEX IF EXISTS idx_versions_added_tid;
+DROP INDEX IF EXISTS idx_versions_removed_tid;
 DROP INDEX IF EXISTS idx_versions_created;
 
 
