@@ -25,11 +25,8 @@
 <head>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}" />
-    <link href="${SERVER_URL}core/public/style/javadoc.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}javadoc.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}core/public/img/icon/lmf.ico" rel="SHORTCUT ICON">
     <script type="text/javascript">
         var _BASIC_URL = "${BASIC_URL}";

@@ -59,7 +59,7 @@ public class TemplatingServiceImpl implements TemplatingService {
     private static final String TEMPLATE_STRING = "admin.ftl";
     private static final String DEFAULT_REST_PATH = "/doc/rest/";
     private static final String DEFAULT_REST_FILE = "overview-summary.html";
-    private static final String DEFAULT_STYLE = "screen";
+    private static final String DEFAULT_STYLE = "blue";
     private static final String DEFAULT_TITLE_FOR_WEBSERVICES = "webservices";
     private static final String DEFAULT_PROJECT = "marmotta";
 
@@ -121,7 +121,7 @@ public class TemplatingServiceImpl implements TemplatingService {
         datamodel.put("USER_MODULE_IS_ACTIVE", moduleService.listModules().contains("Users"));
         //end hack!!!
         datamodel.put("MODULE_MENU",menu.menuItems);
-        datamodel.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style", DEFAULT_STYLE));
+        datamodel.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style_path", DEFAULT_STYLE));
         datamodel.put("CURRENT_TITLE", getNameFromPath(path));
         datamodel.put("CURRENT_MODULE",module);
         try {

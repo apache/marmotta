@@ -25,10 +25,8 @@
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}">
   <script type="text/javascript" src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
-  <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
-  <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
-  <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
-  <link href="${SERVER_URL}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css" />
+  <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
+  <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
 
   <script>
       $(document).ready(function(){
