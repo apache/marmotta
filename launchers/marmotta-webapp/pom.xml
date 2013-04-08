@@ -282,6 +282,13 @@
             <artifactId>postgresql</artifactId>
         </dependency>
 
+        <!-- CORS filter -->
+        <dependency>
+            <groupId>com.thetransactioncompany</groupId>
+            <artifactId>cors-filter</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
     </dependencies>
 
 </project>

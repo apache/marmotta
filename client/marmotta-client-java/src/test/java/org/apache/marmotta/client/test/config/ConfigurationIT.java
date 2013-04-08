@@ -96,9 +96,12 @@ public class ConfigurationIT {
         Assert.assertNotNull(c_path);
         Assert.assertEquals(marmotta.getContext(), c_path.getString());
 
+        /*
+         * is not managed by the webservice anymore
         Configuration c_allow = client.getConfiguration("kiwi.allow_methods");
         Assert.assertNotNull(c_allow);
         Assert.assertThat(c_allow.getList(),Matchers.hasItem("POST"));
+        */
     }
 
 
