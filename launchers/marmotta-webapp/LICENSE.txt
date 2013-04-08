@@ -919,7 +919,7 @@ For the Jaxen component,
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-For ther JSoup component, 
+For the JSoup component,
 
     Copyright (c) 2013 Jonathan Hedley, http://jsoup.org
 
