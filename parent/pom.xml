@@ -1439,6 +1439,13 @@
             </dependency>
         </dependencies>
 
+        <!-- CORS filter -->
+        <dependency>
+            <groupId>com.thetransactioncompany</groupId>
+            <artifactId>cors-filter</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+
     </dependencyManagement>
 
     <dependencies>
@@ -1465,7 +1472,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <profiles>
         <profile>
