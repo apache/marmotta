@@ -24,6 +24,7 @@ import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.query.BooleanQuery;
@@ -67,6 +68,9 @@ public class TestYoutubeProvider {
     public void testVideo() throws Exception {
 
         String uriLMFVideo = "http://youtu.be/_3BmNcHW4Ew";
+
+        Assume.assumeTrue(ldclient.ping(uriLMFVideo));
+
         ClientResponse respLMFVideo = ldclient.retrieveResource(uriLMFVideo);
 
         RepositoryConnection conLMFVideo = respLMFVideo.getTriples().getConnection();
@@ -98,6 +102,9 @@ public class TestYoutubeProvider {
     public void testVideoPage() throws Exception {
 
         String uriLMFVideo = "http://www.youtube.com/watch?v=_3BmNcHW4Ew";
+
+        Assume.assumeTrue(ldclient.ping(uriLMFVideo));
+
         ClientResponse respLMFVideo = ldclient.retrieveResource(uriLMFVideo);
 
         RepositoryConnection conLMFVideo = respLMFVideo.getTriples().getConnection();
@@ -129,6 +136,9 @@ public class TestYoutubeProvider {
     public void testChannel() throws Exception {
 
         String uriChannel = "http://www.youtube.com/user/dieSpringer";
+
+        Assume.assumeTrue(ldclient.ping("http://gdata.youtube.com/feeds/api/users/dieSpringer/uploads"));
+
         ClientResponse respChannel = ldclient.retrieveResource(uriChannel);
 
         RepositoryConnection conChannel = respChannel.getTriples().getConnection();
@@ -161,6 +171,9 @@ public class TestYoutubeProvider {
     public void testPlaylist() throws Exception {
 
         String uriPlaylist = "http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g";
+
+        Assume.assumeTrue(ldclient.ping("http://gdata.youtube.com/feeds/api/playlists/FLsrORDOimfQf42SDGJgRY4g"));
+
         ClientResponse respPlaylist = ldclient.retrieveResource(uriPlaylist);
 
         RepositoryConnection conPlaylist = respPlaylist.getTriples().getConnection();

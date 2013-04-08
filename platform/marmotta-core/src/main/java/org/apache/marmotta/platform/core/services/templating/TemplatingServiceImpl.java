@@ -123,7 +123,7 @@ public class TemplatingServiceImpl implements TemplatingService {
         datamodel.put("MODULE_MENU",menu.menuItems);
         datamodel.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style_path", DEFAULT_STYLE));
         datamodel.put("CURRENT_TITLE", getNameFromPath(path));
-        datamodel.put("CURRENT_MODULE",module);
+        datamodel.put("CURRENT_MODULE", module);
         try {
             String s = new String(bytes);
             Matcher m = PATTERN.matcher(s);
@@ -162,6 +162,7 @@ public class TemplatingServiceImpl implements TemplatingService {
         String project = configurationService.getStringConfiguration("kiwi.pages.project", DEFAULT_PROJECT);
         basic_map.put("PROJECT", project);
         basic_map.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
+        basic_map.put("CSS", configurationService.getStringConfiguration("kiwi.pages.project."+project+".css", "core/public/style/"+project+".css"));
         basic_map.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
 
         menu = new Menu();

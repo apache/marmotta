@@ -92,7 +92,7 @@ public class PrefixCC implements PrefixProvider {
     }
 
     @Override
-    public String getPrefix(String namespace) {
+    public String getPrefix(final String namespace) {
         HttpHead head = new HttpHead(URI + "reverse?uri=" + namespace);
         HttpRequestUtil.setFollowRedirect(head, false);
         HttpRequestUtil.setUserAgentString(head, USER_AGENT);
@@ -103,8 +103,10 @@ public class PrefixCC implements PrefixProvider {
                     if (response.containsHeader("location")) {
                         Header location = response.getFirstHeader("location");
                         return location.getValue().substring(URI.length());
-                    } else
+                    } else {
+                    	log.error("Error: reverse namespace lookup for '" + namespace + "' not found at prefix.cc");
                         return null;
+                    }
                 }
             });
         } catch (Exception e) {

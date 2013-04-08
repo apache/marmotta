@@ -19,12 +19,13 @@ package org.apache.marmotta.platform.core.services.content;
 
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import com.google.common.io.ByteStreams;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.content.ContentReader;
-import org.apache.marmotta.platform.core.api.http.HttpClientService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.model.content.MediaContentItem;
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -32,16 +33,16 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.platform.core.api.content.ContentReader;
+import org.apache.marmotta.platform.core.api.http.HttpClientService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.model.content.MediaContentItem;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.common.io.ByteStreams;
 
 /**
  * Add file description here!
@@ -54,12 +55,8 @@ public class HTTPContentReader implements ContentReader {
     @Inject
     private Logger log;
 
-
     @Inject
     private SesameService sesameService;
-
-    @Inject
-    private ConfigurationService configurationService;
 
     @Inject
     private HttpClientService    httpClientService;
