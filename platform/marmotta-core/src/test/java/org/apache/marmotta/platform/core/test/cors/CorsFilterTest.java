@@ -39,7 +39,7 @@ import static com.jayway.restassured.RestAssured.given;
  * Author: Thomas Kurz (tkurz@apache.org)
  */
 public class CorsFilterTest {
-
+    /*
     private static JettyMarmotta marmotta;
     private static ConfigurationService configurationService;
 
@@ -58,10 +58,12 @@ public class CorsFilterTest {
     public static void tearDown() {
         marmotta.shutdown();
     }
+    */
 
     /**
      * Sparql Service should use the basic cors functionality
      */
+    /*
     @Test
     public void testCorsRequestOnSparqlService() throws UnsupportedEncodingException {
 
@@ -91,10 +93,11 @@ public class CorsFilterTest {
         when().post("/config/data/key");
 
     }
-
+     */
     /**
      * resource Service should overwrite the basic cors functionality
      */
+    /*
     @Test
     public void testCorsRequestOnResourceService() {
         //change configuration
@@ -107,5 +110,5 @@ public class CorsFilterTest {
         expect().header("Access-Control-Allow-Methods","POST, PUT, GET, DELETE, HEAD").
         when().post("/resource/123");
     }
-
+    */
 }
