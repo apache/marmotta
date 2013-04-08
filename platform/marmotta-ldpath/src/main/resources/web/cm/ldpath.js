@@ -178,12 +178,15 @@ CodeMirror.defineMode("ldpath", function(config, parserConfig) {
         }
 
         // IDENT
-        if (stream.match(/^\w+/, true)) {
-            if (state.current() == "prefix") {
+        if (state.current() == "prefix") {
+            if (stream.match(/^\w+/, true)) {
                 state.tmp["prefix"] = stream.current();
                 return token.PREFIX;
-            } else
+            }
+        } else {
+            if (stream.match(/^[\w.-]+/, true)) {
                 return token.IDENT;
+            }
         }
 
         return tokenError(stream, state);
