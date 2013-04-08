@@ -254,9 +254,11 @@ public class TemplatingServiceImpl implements TemplatingService {
                 if(path.startsWith((String)menuItem.getProperties().get("baseurl"))) {
                     module = (String)menuItem.getProperties().get("title");
                 }
+                menuItem.getProperties().put("active",false);
                 for(MenuItem submenu : menuItem.getSubmenu()) {
                     if(submenu.getProperties().get("path").equals(path)) {
                         submenu.getProperties().put("active",true);
+                        menuItem.getProperties().put("active",true);
                         module = (String)menuItem.getProperties().get("title");
                         active = true;
                     } else {
@@ -271,6 +273,7 @@ public class TemplatingServiceImpl implements TemplatingService {
                         for(MenuItem submenu : menuItem.getSubmenu()) {
                             if(submenu.getProperties().get("title").equals(DEFAULT_TITLE_FOR_WEBSERVICES)) {
                                 submenu.getProperties().put("active",true);
+                                menuItem.getProperties().put("active",true);
                             }
                         }
                     }

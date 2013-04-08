@@ -179,9 +179,14 @@ ul#menu li.menu_item {
 
 ul#menu div.menu_heading {
     padding: 5px 4px 5px 10px;
-    font-weight: bold;
     background-color: #0B61A4;
+
+}
+
+ul#menu div.menu_heading a {
     color: white;
+    font-weight: bold;
+    text-decoration: none;
 }
 
 ul.submenu {

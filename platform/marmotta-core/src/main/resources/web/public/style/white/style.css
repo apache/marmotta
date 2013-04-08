@@ -158,6 +158,12 @@ ul#menu div.menu_heading {
     font-weight: bold;
 }
 
+ul#menu div.menu_heading a {
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+}
+
 ul.submenu {
     margin: 0;
     padding: 2px 0 10px 0;

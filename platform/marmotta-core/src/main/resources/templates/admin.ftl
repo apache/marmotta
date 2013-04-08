@@ -66,8 +66,14 @@
     <div id="left">
         <ul id="menu">
             <#list MODULE_MENU as menu>
-            <li class="menu_item">
-                <div class="menu_heading">${menu.properties["title"]}</div>
+            <li
+                <#if menu.properties["active"]>
+                        class="menu_item active"
+                <#else>
+                        class="menu_item"
+                </#if>
+            >
+                <div class="menu_heading"><a href="${menu.submenu[0].properties["path"]}">${menu.properties["title"]}</a></div>
                 <ul class="submenu">
                 <#list menu.submenu as submenu>
                     <li
