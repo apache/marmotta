@@ -37,7 +37,10 @@ import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.Literal;
@@ -46,6 +49,8 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -198,6 +203,19 @@ public class PatternQueryTest {
         repository.shutDown();
     }
 
+    final Logger logger =
+            LoggerFactory.getLogger(PatternQueryTest.class);
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     // test the method for querying patterns by:
     // - evaluating a single pattern without variables (no bindings but justifications non-empty)

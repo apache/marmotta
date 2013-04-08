@@ -20,13 +20,18 @@ package org.apache.marmotta.kiwi.reasoner.test.parser;
 import com.google.common.collect.ImmutableMap;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
+import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test parsing of individual rules
@@ -48,6 +53,20 @@ public class KWRLRuleParserTest {
     public void shutdown() throws Exception {
         repository.shutDown();
     }
+
+    final Logger logger =
+            LoggerFactory.getLogger(KWRLRuleParserTest.class);
+
+    @org.junit.Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     @Test
     public void testRule1() throws Exception {

@@ -24,12 +24,16 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.URI;
@@ -156,6 +160,16 @@ public class ReasoningSailTest {
         repository.shutDown();
     }
 
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            log.info("{} being run...", description.getMethodName());
+        }
+    };
 
     /**
      * Test incremental reasoning with a small sample program. This test will carry out the following steps in order:

@@ -42,6 +42,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.Resource;
@@ -210,6 +212,16 @@ public class ReasoningEngineTest {
         repository.shutDown();
     }
 
+    @org.junit.Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            log.info("{} being run...", description.getMethodName());
+        }
+    };
 
     /**
      * Test the reasoning engine by incrementally adding and later removing triples through explicit calls to the
