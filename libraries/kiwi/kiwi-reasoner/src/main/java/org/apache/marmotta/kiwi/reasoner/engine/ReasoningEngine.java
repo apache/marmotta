@@ -189,7 +189,7 @@ public class ReasoningEngine implements TransactionListener {
     public void notifyAddRule(Rule rule) {
         startTask("Addition of rule " + rule.getName(), TASK_GROUP);
 
-        log.info("processing new rule: {}", rule);
+        log.debug("processing new rule: {}", rule);
 
         try {
             updateTaskStatus("processing new rule ...");
@@ -360,7 +360,7 @@ public class ReasoningEngine implements TransactionListener {
             long start2 = System.currentTimeMillis();
             updateTaskStatus("reasoning over " + newTriples.size() + " new triples");
             processRules(newTriples);
-            log.info("REASONER: reasoning for {} new triples took {} ms overall",newTriples.size(),System.currentTimeMillis()-start2);
+            log.debug("REASONER: reasoning for {} new triples took {} ms overall",newTriples.size(),System.currentTimeMillis()-start2);
         }
 
         if(data.getRemovedTriples().size() > 0) {

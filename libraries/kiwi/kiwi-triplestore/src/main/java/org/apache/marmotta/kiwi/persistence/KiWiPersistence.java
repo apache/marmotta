@@ -196,7 +196,7 @@ public class KiWiPersistence {
                 int version = connection.getDatabaseVersion();
 
                 String updateScript = dialect.getMigrationScript(version,scriptName);
-                if(updateScript != null) {
+                if(updateScript != null && updateScript.length() > 0) {
                     log.info("upgrading existing KiWi database from version {} to version {}", version, dialect.getVersion());
 
                     ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
