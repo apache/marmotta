@@ -32,7 +32,10 @@ import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.Literal;
@@ -162,6 +165,20 @@ public class RepositoryTest {
         store.getPersistence().dropDatabase();
         repository.shutDown();
     }
+
+    final Logger logger =
+            LoggerFactory.getLogger(RepositoryTest.class);
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     /**
      * Test importing data; the test will load a small sample RDF file and check whether the expected resources are

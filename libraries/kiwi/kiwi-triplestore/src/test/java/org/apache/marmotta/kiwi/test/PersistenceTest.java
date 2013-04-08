@@ -34,10 +34,15 @@ import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -149,6 +154,21 @@ public class PersistenceTest {
         persistence.dropDatabase();
         persistence.shutdown();
     }
+
+
+    final Logger logger =
+            LoggerFactory.getLogger(PersistenceTest.class);
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
 
     @Test
