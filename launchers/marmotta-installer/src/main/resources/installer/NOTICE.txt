@@ -121,6 +121,15 @@ This product also includes the following third-party components:
   The above parties have licensed their code contributions to Aduna under the
   terms of a contributor license agreement (CLA).
 
+  This product includes software developed by the JUnit project
+  (http://www.junit.org). License: http://junit.sourceforge.net/cpl-v10.html
+
+  Parts of this product use software developed by JSON.org
+  (http://www.json.org). License: http://www.json.org/license.html
+
+  Parts of this product use software developed by the Mockito project
+  (http://mockito.googlecode.com). License: https://github.com/mockito/mockito/blob/master/LICENSE
+
 * PostgreSQL JDBC, http://jdbc.postgresql.org
 
   Copyright (c) 2011 PostgreSQL Global Development Group
@@ -136,6 +145,17 @@ This product also includes the following third-party components:
 * Semargl, http://semarglproject.org
 
   Copyright (c) 2012 Lev Khomich
+
+  This product uses software developed by The Apache Software Foundation:
+  Clerezza, Jena, IO Commons (http://www.apache.org/).
+
+  This product includes/uses test suite developed by Hewlett-Packard
+  (http://hp.com/). Copyright (c) 2002, Hewlett-Packard Company.
+
+  This product includes/uses test suite developed by W3C Consortium.
+
+  This product includes/uses RDFa test harness developed by RDF Web Applications
+  Working Group (http://www.w3.org/2010/02/rdfa/).
 
 * Janino, http://janino.codehaus.org
 
