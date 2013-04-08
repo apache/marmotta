@@ -119,11 +119,7 @@ public abstract class KiWiDialect {
                 log.warn("upgrade script {} -> {} not found or not readable!", i-1, i);
             }
         }
-        if(builder.length() > 0) {
-            return builder.toString();
-        } else {
-            return null;
-        }
+        return builder.toString();
     }
 
 
