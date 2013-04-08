@@ -1437,14 +1437,15 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
-        </dependencies>
 
-        <!-- CORS filter -->
-        <dependency>
-            <groupId>com.thetransactioncompany</groupId>
-            <artifactId>cors-filter</artifactId>
-            <version>1.5.1</version>
-        </dependency>
+            <!-- CORS filter -->
+            <dependency>
+                <groupId>com.thetransactioncompany</groupId>
+                <artifactId>cors-filter</artifactId>
+                <version>1.5.1</version>
+            </dependency>
+
+        </dependencies>
 
     </dependencyManagement>
 
