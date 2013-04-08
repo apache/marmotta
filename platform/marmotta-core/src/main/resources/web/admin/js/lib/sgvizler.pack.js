@@ -53,7 +53,7 @@
             }
 
             // load stylesheet
-            $('head').append('<link rel="stylesheet" href="../../../core/public/style/sgvizler.chart.css" type="text/css" />');
+            $('head').append('<link rel="stylesheet" href="'+this.option.stylepath+'sgvizler.chart.css" type="text/css" />');
         },
 
         drawFormQuery: function () {
@@ -102,6 +102,8 @@
         home: (window.location.href).replace(window.location.search, ""),
         homefolder: "",
         libfolder: "/lib/",
+
+        stylepath:"",
 
         //// Prefixes included in queries:
         namespace: {

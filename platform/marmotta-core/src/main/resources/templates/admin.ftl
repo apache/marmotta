@@ -32,6 +32,9 @@
         var _BASIC_URL = "${BASIC_URL}";
         //use _SERVER_URL for webservice calls
         var _SERVER_URL = "${SERVER_URL}";
+
+        var _CURRENT_STYLE = "${DEFAULT_STYLE}";
+
     </script>
     <#if USER_MODULE_IS_ACTIVE>
         <link href="${SERVER_URL}user/admin/style/style.css" rel="stylesheet" type="text/css">
