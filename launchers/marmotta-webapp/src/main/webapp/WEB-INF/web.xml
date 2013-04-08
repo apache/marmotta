@@ -60,6 +60,7 @@
     </filter-mapping>
 
     <!-- handle OPTIONS requests -->
+    <!--
     <filter>
       <filter-name>MarmottaOptionsFilter</filter-name>
       <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaOptionsFilter</filter-class>
@@ -68,7 +69,7 @@
         <filter-name>MarmottaOptionsFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
+    -->
     <!-- Serve static resources from file system and from .jar files of the respective modules -->
     <filter>
         <filter-name>MarmottaResourceFilter</filter-name>

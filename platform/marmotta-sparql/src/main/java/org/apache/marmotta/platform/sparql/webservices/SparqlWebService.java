@@ -185,7 +185,7 @@ public class SparqlWebService {
      * 
      * @param reqHeaders
      * @return responde
-     */
+
     @OPTIONS
     @Path(UPDATE)
     public Response optionsResourceRemote(@HeaderParam("Access-Control-Request-Headers") String reqHeaders) {
@@ -200,6 +200,7 @@ public class SparqlWebService {
                 .build();
 
     }
+    */
     
     /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
