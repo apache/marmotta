@@ -228,6 +228,14 @@ This product also includes the following third-party components:
      Apache Software Foundation that were originally developed at
      iClick, Inc., software copyright (c) 1999.
 
+* "Java Concurrency in Practice" book annotations component, http://jcip.net
+
+  Copyright (c) 2005 Brian Goetz and Tim Peierls
+
+* Hamcrest, http://www.hamcrest.org
+
+  Copyright (c) 2000-2006 Joe Walnes, Nat Pryce, Steve Freeman
+
 * D3.js, http://d3js.org
 
   Copyright (c) 2013 Michael Bostock
