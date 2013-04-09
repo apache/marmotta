@@ -154,10 +154,10 @@
                 <version>1.0.4</version>
                 <configuration>
                     <noticeTemplate>NOTICE.template</noticeTemplate>
-
                     <licenseMapping>
                         <param>../../license-mappings.xml</param>
                     </licenseMapping>
+                    <noticeMessage>* {0}, under {1}</noticeMessage>
                 </configuration>
             </plugin>
         </plugins>
@@ -280,6 +280,12 @@
         <dependency>
             <groupId>org.jumpmind.symmetric.jdbc</groupId>
             <artifactId>postgresql</artifactId>
+        </dependency>
+
+        <!-- CORS filter -->
+        <dependency>
+            <groupId>com.thetransactioncompany</groupId>
+            <artifactId>cors-filter</artifactId>
         </dependency>
 
     </dependencies>

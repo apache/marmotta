@@ -12,9 +12,11 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-DROP INDEX idx_versions_added;
-DROP INDEX idx_versions_removed;
-DROP INDEX idx_versions_created;
+DROP INDEX IF EXISTS idx_versions_added;
+DROP INDEX IF EXISTS idx_versions_removed;
+DROP INDEX IF EXISTS idx_versions_added_tid;
+DROP INDEX IF EXISTS idx_versions_removed_tid;
+DROP INDEX IF EXISTS idx_versions_created;
 
 
 DROP TABLE IF EXISTS versions_added;

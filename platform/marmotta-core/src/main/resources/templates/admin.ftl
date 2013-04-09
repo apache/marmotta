@@ -25,17 +25,16 @@
 <head>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}" />
-    <link href="${SERVER_URL}core/public/style/javadoc.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
-    <link href="${SERVER_URL}${CSS}" title="${DEFAULT_STYLE}" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}javadoc.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}core/public/img/icon/lmf.ico" rel="SHORTCUT ICON">
     <script type="text/javascript">
         var _BASIC_URL = "${BASIC_URL}";
         //use _SERVER_URL for webservice calls
         var _SERVER_URL = "${SERVER_URL}";
+
+        var _CURRENT_STYLE = "${DEFAULT_STYLE}";
+
     </script>
     <#if USER_MODULE_IS_ACTIVE>
         <link href="${SERVER_URL}user/admin/style/style.css" rel="stylesheet" type="text/css">
@@ -67,8 +66,14 @@
     <div id="left">
         <ul id="menu">
             <#list MODULE_MENU as menu>
-            <li class="menu_item">
-                <div class="menu_heading">${menu.properties["title"]}</div>
+            <li
+                <#if menu.properties["active"]>
+                        class="menu_item active"
+                <#else>
+                        class="menu_item"
+                </#if>
+            >
+                <div class="menu_heading"><a href="${menu.submenu[0].properties["path"]}">${menu.properties["title"]}</a></div>
                 <ul class="submenu">
                 <#list menu.submenu as submenu>
                     <li

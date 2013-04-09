@@ -1,0 +1,53 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*** sMap ***/
+
+div.sgvizler-sMap{
+    padding: 0;
+    margin: 0;
+    font-family: sans-serif;
+}
+div.sgvizler-sMap h1, div.sgvizler-sMap p{
+    font-size: 11pt;
+    margin: 2px 0 1px 0;
+}
+div.sgvizler-sMap p.text{
+    font-family: serif;
+}
+div.sgvizler-sMap div.img{
+    float: right;
+    padding: 10px;
+}
+
+/*** pForce ***/
+
+circle.node {
+  stroke: #999;
+  stroke-width: 0.5px;
+}
+
+line.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+.nodetext { 
+    pointer-events: none; 
+    font: 10px sans-serif; 
+    color: black;
+}

@@ -20,15 +20,21 @@ package org.apache.marmotta.kiwi.reasoner.test.parser;
 import org.apache.marmotta.kiwi.reasoner.model.program.Program;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParserBase;
+import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,6 +76,21 @@ public class KWRLProgramParserTest {
     public void shutdown() throws Exception {
         repository.shutDown();
     }
+
+    final Logger logger =
+            LoggerFactory.getLogger(KWRLProgramParserTest.class);
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
+
 
     @Test
     public void testParseProgram() throws Exception {

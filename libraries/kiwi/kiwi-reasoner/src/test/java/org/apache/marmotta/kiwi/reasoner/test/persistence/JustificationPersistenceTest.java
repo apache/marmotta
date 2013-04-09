@@ -33,11 +33,15 @@ import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
+import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.Statement;
@@ -45,6 +49,8 @@ import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
@@ -174,6 +180,19 @@ public class JustificationPersistenceTest {
         repository.shutDown();
     }
 
+    final Logger logger =
+            LoggerFactory.getLogger(JustificationPersistenceTest.class);
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     /**
      * Test 1: create some triples through a repository connection (some inferred, some base), load a program, and

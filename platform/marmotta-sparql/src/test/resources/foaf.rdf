@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:doap="http://usefulinc.com/ns/doap#"
+    xmlns:sioc="http://rdfs.org/sioc/ns#"
+    xmlns:sioct="http://rdfs.org/sioc/types#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:mvcb="http://webns.net/mvcb/"
+    xmlns:rss="http://purl.org/rss/1.0/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:contact="http://www.w3.org/2000/10/swap/pim/contact#"
+    xmlns:air="http://www.daml.org/2001/10/html/airport-ont#"
+    xmlns:wn="http://xmlns.com/wordnet/1.6/"
+    xmlns:uranai="http://kota.s12.xrea.com/vocab/uranai#"
+    xmlns:rel="http://purl.org/vocab/relationship/"
+    xmlns:session="http://redfoot.net/2005/session#"
+    xmlns:cert="http://www.w3.org/ns/auth/cert#"
+    xmlns:wot="http://xmlns.com/wot/0.1/"
+    xml:lang="en"
+>
+
+  <foaf:Document rdf:about="http://www.wikier.org/foaf.rdf">
+    <rdfs:label>Wikier's FOAF document</rdfs:label>
+    <rdfs:comment>Document with Friend-of-a-Friend description of Wikier</rdfs:comment>
+    <foaf:maker rdf:resource="http://www.wikier.org/foaf#wikier"/>
+    <dct:license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+    <foaf:primaryTopic rdf:resource="http://www.wikier.org/foaf#wikier"/>
+    <mvcb:generatorAgent rdf:resource="http://rdfohloh.wikier.org/project/emacs"/>
+    <mvcb:errorReportsTo rdf:resource="mailto:sergio@wikier.org" />
+  </foaf:Document>
+
+  <foaf:Person rdf:about="http://www.wikier.org/foaf#wikier">
+    <foaf:name xml:lang="es">Sergio Fernández</foaf:name>
+    <foaf:title>Mr</foaf:title>
+    <foaf:firstName xml:lang="es">Sergio</foaf:firstName>
+    <foaf:surname xml:lang="es">Fernández</foaf:surname>
+    <foaf:gender>male</foaf:gender>
+    <foaf:nick>wikier</foaf:nick>
+    <session:hexdigest>30e97da6ad2d5be1086a64f3fc44a03a6fecadb3</session:hexdigest>
+    <uranai:bloodtype>O-</uranai:bloodtype>
+    <rdfs:comment>This URI indentifies me as a person. Feel free to use it when making statements about me as a person</rdfs:comment>
+    <rdfs:comment xml:lang="es">Esta URI me identifica como persona. Úsala para referirte a mi como persona</rdfs:comment>
+
+    <foaf:mbox rdf:resource="mailto:sergio@wikier.org" />
+    <foaf:mbox_sha1sum>d0fd987214f56f70b4c47fb96795f348691f93ab</foaf:mbox_sha1sum>
+
+    <foaf:mbox rdf:resource="mailto:wikier@asturlinux.org" />
+    <foaf:mbox_sha1sum>119222cf3a2893a375cc4f884a0138155c771415</foaf:mbox_sha1sum>
+
+    <foaf:mbox rdf:resource="mailto:sergio.fernandez@salzburgresearch.at" />
+    <foaf:mbox_sha1sum>fe6d23dc07ca84b1c487eb20d816aa4caf12ee84</foaf:mbox_sha1sum>
+
+    <foaf:mbox rdf:resource="mailto:wikier@apache.org" />
+    <foaf:mbox_sha1sum>762842c4b57e9657fe68badcc5439d3053d85f05</foaf:mbox_sha1sum>
+
+  </foaf:Person>
+
+</rdf:RDF>
+

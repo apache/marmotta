@@ -17,6 +17,10 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparqlio.rdf;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
+
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.Repository;
@@ -29,23 +33,16 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.memory.MemoryStore;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Map;
-
 /**
- * Add file description here!
- * <p/>
+ * SPARQL grapg result writer for Sesam RIO
+ * 
  * Author: Sebastian Schaffert
  */
 public class SPARQLGraphResultWriter {
 
-
     private OutputStream outputStream;
 
-
     private RDFFormat format;
-
 
     public SPARQLGraphResultWriter(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -57,38 +54,37 @@ public class SPARQLGraphResultWriter {
         this.format = RDFFormat.forMIMEType(mimeType, RDFFormat.RDFXML);
     }
 
-
     public void write(GraphQueryResult result) throws IOException {
         Repository repository = new SailRepository(new MemoryStore());
         try {
             repository.initialize();
 
-            RepositoryConnection con = repository.getConnection();
+            RepositoryConnection conn = repository.getConnection();
+
             for(Map.Entry<String,String> namespace : result.getNamespaces().entrySet()) {
-                con.setNamespace(namespace.getKey(),namespace.getValue());
+                conn.setNamespace(namespace.getKey(), namespace.getValue());
             }
 
-            while(result.hasNext()) {
-                con.add(result.next());
-            }
-            con.commit();
+            conn.add(result);           
+            conn.commit();
 
-            RDFWriter writer = Rio.createWriter(format,outputStream);
-            con.export(writer);
-            con.close();
+            RDFWriter writer = Rio.createWriter(format, outputStream);
+            conn.export(writer);
+            conn.close();
             repository.shutDown();
 
             outputStream.flush();
             outputStream.close();
 
         } catch (RepositoryException e) {
-            throw new IOException("query result writing failed because there was an error while creating temporary triple store",e);
+            throw new IOException("query result writing failed because there was an error while creating temporary triple store", e);
         } catch (QueryEvaluationException e) {
-            throw new IOException("query result writing failed because query evaluation had a problem",e);
+            throw new IOException("query result writing failed because query evaluation had a problem", e);
         } catch (RDFHandlerException e) {
-            throw new IOException("query result writing failed because writer could not handle rdf data",e);
+            throw new IOException("query result writing failed because writer could not handle rdf data", e);
         }
 
 
     }
+    
 }

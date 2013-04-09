@@ -12,8 +12,8 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-DROP INDEX idx_ldcache_expires;
-DROP INDEX idx_ldcache_resource;
+DROP INDEX IF EXISTS idx_ldcache_expires;
+DROP INDEX IF EXISTS idx_ldcache_resource;
 
 DROP TABLE IF EXISTS ldcache_entries;
 

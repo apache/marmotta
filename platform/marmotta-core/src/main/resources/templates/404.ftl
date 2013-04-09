@@ -23,16 +23,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 
   <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
-    <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}" /> 
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>404 Not Found - Marmotta Linked Data Explorer</title>
     <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js" type="text/javascript" ></script>
-    <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css" />  
-    <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css" />
-     <link href="${SERVER_URL}${CSS}" title="${DEFAULT_STYLE}" rel="stylesheet" type="text/css" />  
-    <link href="${SERVER_URL}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css" />  
-    <link href="${SERVER_URL}core/public/style/404.css" rel="stylesheet" type="text/css" />  
+    <link href="${SERVER_URL}${DEFAULT_STYLE}/style.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}/rdfhtml.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}/404.css" rel="stylesheet" type="text/css" />
   </head>
 
   <body>

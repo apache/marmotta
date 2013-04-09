@@ -1431,6 +1431,14 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!-- CORS filter -->
+            <dependency>
+                <groupId>com.thetransactioncompany</groupId>
+                <artifactId>cors-filter</artifactId>
+                <version>1.5.1</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -1459,7 +1467,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <profiles>
         <profile>
@@ -1510,4 +1517,8 @@
 
         </profile>
     </profiles>
+
+  <scm>
+    <tag>3.0.0-incubating</tag>
+  </scm>
 </project>

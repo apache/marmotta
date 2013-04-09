@@ -29,16 +29,22 @@ import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParserBase;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
+import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -162,6 +168,20 @@ public class KWRLProgramPersistenceTest {
 
         repository.shutDown();
     }
+
+    final Logger logger =
+            LoggerFactory.getLogger(KWRLProgramPersistenceTest.class);
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
 
     @Test

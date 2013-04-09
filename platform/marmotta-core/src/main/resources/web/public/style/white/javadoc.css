@@ -1,0 +1,112 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+.javadoc a {
+    color: #0B61A4;
+}
+.javadoc table.info {
+ width: 100%;
+ border-collapse: collapse;
+}
+
+.javadoc table.info .TableCaption {
+ text-align: left;
+ background: #339de2;
+ font-weight: bold;
+ padding: 0.5em 1em;
+ border-top: thin solid black;
+ border-left: thin solid black;
+ border-right: thin solid black;
+ color:white;
+}
+
+.javadoc table.info th,
+.javadoc table.info td {
+ padding: 0.5em 1em;
+ border: thin solid black;
+}
+
+.javadoc table.info .TableHeader {
+ font-size: smaller;
+ text-align: center;
+ font-weight: bold;
+}
+
+.javadoc table.menu {
+ width: 100%;
+}
+
+.javadoc table.menu col {
+ width: 50%;
+}
+
+.javadoc span.comment {
+ color: gray;
+}
+
+.javadoc td.NavBarCell1 {
+ background-color: #CCCCCC;
+}
+
+.javadoc td.NavBarCell1 table {
+ padding: 0.3em 0.8em;
+ border-collapse: separate;
+}
+
+.javadoc td.NavBarCell1 table th.selected,
+.javadoc td.NavBarCell1 table a {
+ font-weight: bold;
+}
+
+.javadoc td.NavBarCell1 table th {
+ padding: 0.1em 0.3em;
+ background-color: transparent;
+ border: none;
+}
+
+.javadoc td.NavBarCell1 table th.selected {
+ background: #0B61A4;
+ color: white;
+}
+
+.javadoc .NavBarCell3 {
+ text-transform: uppercase;
+ font-size: small;
+}
+
+.javadoc .deep-resource {
+ font-size: smaller;
+}
+
+.javadoc table.examples {
+ width: 100%;
+}
+
+.javadoc table.examples td {
+ width: 50%;
+ vertical-align: top;
+}
+
+.javadoc .footer {
+ font-style: italic;
+ font-size: smaller;
+ color: gray;
+}
+
+.javadoc {
+    font-size:85%;
+}

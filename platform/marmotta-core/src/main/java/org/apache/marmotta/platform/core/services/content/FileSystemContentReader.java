@@ -19,15 +19,23 @@ package org.apache.marmotta.platform.core.services.content;
 
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.model.content.MediaContentItem;
-
-import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
 import org.openrdf.model.Resource;
@@ -35,15 +43,8 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 
 /**
  * A content reader that reads the content of a resource from the file system.
@@ -76,7 +77,7 @@ public class FileSystemContentReader implements ContentReader {
     @PostConstruct
     public void initialise() {
         detector = new DefaultDetector();
-        defaultDir = configurationService.getWorkDir()+File.separator+"resources";
+        defaultDir = configurationService.getHome()+File.separator+"resources";
 
         log.debug("FileSystem Content Reader started (default directory: {})",defaultDir);
 

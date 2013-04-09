@@ -17,19 +17,22 @@
  */
 package org.apache.marmotta.platform.sparql.api.sparql;
 
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.openrdf.model.Value;
 import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.Query;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
-
-import java.util.List;
-import java.util.Map;
+import org.openrdf.repository.RepositoryException;
 
 /**
  * Add file description here!
@@ -37,10 +40,21 @@ import java.util.Map;
  * User: sschaffe
  */
 public interface SparqlService {
+	
+	/**
+	 * Parse query 
+	 * 
+	 * @param language language 
+	 * @param query query
+	 * @return query parsed
+	 * @throws RepositoryException
+	 * @throws MalformedQueryException
+	 */
+	Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException ;
 
     /**
      * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
-     * to the output stream passed as argument os in the output format specified 
+     * to the output stream passed as argument on in the output format specified 
      * as argument outputFormat.
      *
      * see http://www.w3.org/TR/sparql11-query/
@@ -54,8 +68,19 @@ public interface SparqlService {
      * @throws InvalidArgumentException if the output format or query language are undefined
      * @throws org.apache.marmotta.platform.core.exception.MarmottaException if the query evaluation fails
      */
-	public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, MarmottaException, MalformedQueryException, QueryEvaluationException;
+	void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, MarmottaException, MalformedQueryException, QueryEvaluationException;
 
+	/**
+	 * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
+     * to the stream passed in the format requested.
+     * 
+	 * @param query query
+	 * @param output strem to write 
+	 * @param format mimetype
+	 * @throws MarmottaException
+	 */
+	void query(QueryLanguage language, String query, OutputStream output, String format) throws MarmottaException;
+	
     /**
      * Evaluate a SPARQL ASK query on the KiWi TripleStore
      *
@@ -66,10 +91,10 @@ public interface SparqlService {
      * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
      * @throws org.apache.marmotta.platform.core.exception.MarmottaException if the query evaluation fails
      */
-	public boolean ask(QueryLanguage queryLanguage, String query) throws MarmottaException;
+	boolean ask(QueryLanguage queryLanguage, String query) throws MarmottaException;
 
     /**
-     * Evaluate a SPARQL query on the LMF TripleStore. Returns the results as a list of result maps, each element
+     * Evaluate a SPARQL query on the KiWi TripleStore. Returns the results as a list of result maps, each element
      * a KiWiNode.
      *
      * see http://www.w3.org/TR/sparql11-query/
@@ -80,7 +105,7 @@ public interface SparqlService {
     public List<Map<String,Value>> query(QueryLanguage queryLanguage, String query) throws MarmottaException;
 
     /**
-     * Execute a SPARQL update on the LMF TripleStore. Throws a KiWiException in case the update execution fails.
+     * Execute a SPARQL update on the KiWi TripleStore. Throws a KiWiException in case the update execution fails.
      *
      * see http://www.w3.org/TR/sparql11-update/
      *
@@ -88,6 +113,6 @@ public interface SparqlService {
      * @param query  a string representing the update query in SPARQL Update 1.1 syntax
      * @throws Exception
      */
-    public void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
+    void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
 
 }
