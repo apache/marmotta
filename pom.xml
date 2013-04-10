@@ -350,16 +350,18 @@ The release candidate is based on the sources tagged with ${project.version} in:
 
 https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git
 
-The release candidate consists of the following distribution archives:
+The release candidate consists of the following source distribution archives:
+- apache-marmotta-${project.version}-src.[zip|tar.gz]
+  SHA1 of ZIP: ${checksum.src.zip}
+  SHA1 of TGZ: ${checksum.src.tgz}
+
+In addition, the following supplementary binary distributions are provided:
 - apache-marmotta-${project.version}-installer.[zip|tar.gz]
   SHA1 of ZIP: ${checksum.installer.zip}
   SHA1 of TGZ: ${checksum.installer.tgz}
 - apache-marmotta-${project.version}-ldpath.[zip|tar.gz]
   SHA1 of ZIP: ${checksum.ldpath.zip}
   SHA1 of TGZ: ${checksum.ldpath.tgz}
-- apache-marmotta-${project.version}-src.[zip|tar.gz]
-  SHA1 of ZIP: ${checksum.src.zip}
-  SHA1 of TGZ: ${checksum.src.tgz}
 - apache-marmotta-${project.version}-webapp.[zip|tar.gz]
   SHA1 of ZIP: ${checksum.webapp.zip}
   SHA1 of TGZ: ${checksum.webapp.tgz}
