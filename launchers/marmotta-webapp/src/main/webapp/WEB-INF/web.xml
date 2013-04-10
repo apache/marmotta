@@ -59,18 +59,6 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!-- handle OPTIONS requests -->
-    <!--
-    <filter>
-      <filter-name>MarmottaOptionsFilter</filter-name>
-      <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaOptionsFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>MarmottaOptionsFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    -->
-
     <!-- enables a cors filter and maps it to any request -->
     <!-- for more fine grained configuration have a look at http://software.dzhuvinov.com/cors-filter-configuration.html -->
     <filter>
