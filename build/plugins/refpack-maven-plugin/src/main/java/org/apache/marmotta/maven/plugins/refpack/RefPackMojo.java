@@ -31,7 +31,11 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
@@ -54,13 +58,9 @@ import org.sonatype.aether.resolution.DependencyResult;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 /**
- * Goal which touches a timestamp file.
- *
- * @requiresDependencyResolution compile
- * @goal generate
- *
- * @phase validate
+ * Generate IzPack refpack descriptions from Maven dependencies
  */
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class RefPackMojo extends AbstractMojo {
     
     /**
@@ -83,33 +83,23 @@ public class RefPackMojo extends AbstractMojo {
     /**
      * The entry point to Aether, i.e. the component doing all the work.
      *
-     * @component
      */
+    @Component
     private RepositorySystem repoSystem;
 
-    /**
-     * @parameter default-value="${repositorySystemSession}"
-     * @readonly
-     */
+    @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
     private RepositorySystemSession session;
 
     /**
      * The project's remote repositories to use for the resolution of project dependencies.
-     *
-     * @parameter default-value="${project.remoteProjectRepositories}"
-     * @readonly
      */
+    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
     private List<RemoteRepository> projectRepos;
 
-    /**
-     * @component
-     */
+    @Component
     private ProjectBuilder projectBuilder;
 
-
-    /**
-     * @component
-     */
+    @Component
     private ArtifactFactory artifactFactory;
 
     /**
@@ -131,7 +121,7 @@ public class RefPackMojo extends AbstractMojo {
 
         getLog().info("generating reference packs for group id "+moduleGroupId);
 
-        for(org.apache.maven.artifact.Artifact artifact : (Set<org.apache.maven.artifact.Artifact>)project.getArtifacts()) {
+        for(org.apache.maven.artifact.Artifact artifact : project.getArtifacts()) {
             if(artifact.getGroupId().equals(moduleGroupId)) {
 
                 DefaultArtifact aetherArtifact = new DefaultArtifact(artifact.getGroupId(),artifact.getArtifactId(), artifact.getType(), artifact.getVersion());
