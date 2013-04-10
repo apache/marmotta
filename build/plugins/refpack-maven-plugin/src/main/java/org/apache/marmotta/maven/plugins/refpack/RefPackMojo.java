@@ -31,6 +31,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
@@ -64,27 +65,19 @@ public class RefPackMojo extends AbstractMojo {
     
     /**
      * Location of the file.
-     * @parameter expression="${project.build.directory}"
-     * @required
      */
+    @Parameter(property="project.build.directory", required = true)
     private File outputDirectory;
 
-    /**
-     * @parameter default-value="${project}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
     /**
      * The Group Identifier of the artifacts that should be considered local modules. When walking
      * the dependency tree, the process will break at each module of this group id and instead add
      * a dependency to the other module to the refpacks.
-     *
-     * @parameter expression="${refpack.moduleGroupId}" default-value="org.apache.marmotta"
-     * @required
-     * @readonly
      */
+    @Parameter(property="refpack.moduleGroupId", defaultValue="org.apache.marmotta", required = true, readonly = true)
     private String moduleGroupId;
 
     /**
@@ -121,10 +114,8 @@ public class RefPackMojo extends AbstractMojo {
 
     /**
      * The required modules of the refpack
-     *
-     * @parameter expression="${refpack.requiredModules}"
-     * @readonly
      */
+    @Parameter(property = "refpack.requiredModules", readonly = true)
     private List<String> requiredModules;
 
     // we collect here the library dependencies of each module, so we can identify which of the dependencies are already
