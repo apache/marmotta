@@ -23,7 +23,12 @@ import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestLDClientTest {
 
@@ -39,6 +44,20 @@ public class TestLDClientTest {
     public void cleanUp() {
         client.shutdown();
     }
+
+    final Logger logger =
+            LoggerFactory.getLogger(this.getClass());
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     @Test(expected = UnsupportedOperationException.class)
     public void testConnectionRefused() throws Exception {
