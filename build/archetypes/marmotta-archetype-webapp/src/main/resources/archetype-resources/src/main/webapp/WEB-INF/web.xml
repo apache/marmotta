@@ -52,19 +52,20 @@
         <param-value>/tmp/lmf</param-value>
     </context-param>
 
-    <!-- this filter performs startup configurations for first installation -->
+    <!-- handle OPTIONS requests -->
     <filter>
-        <filter-name>MarmottaPreStartupFilter</filter-name>
-        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupFilter</filter-class>
+        <filter-name>MarmottaOptionsFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaOptionsFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <filter-name>MarmottaOptionsFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <!-- enables a cors filter and maps it to any request -->
     <!-- for more fine grained configuration have a look at http://software.dzhuvinov.com/cors-filter-configuration.html -->
     <filter>
+        <!-- The CORS filter with parameters -->
         <filter-name>CORS</filter-name>
         <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
 
@@ -79,8 +80,14 @@
         </init-param>
 
     </filter>
+
+    <!-- this filter performs startup configurations for first installation -->
+    <filter>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupFilter</filter-class>
+    </filter>
     <filter-mapping>
-        <filter-name>CORS</filter-name>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
