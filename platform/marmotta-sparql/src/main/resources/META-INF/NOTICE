@@ -1,12 +1,32 @@
-Apache Marmotta Web Application
+Apache Marmotta Platform SPARQL
 Copyright 2012-2013 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
-Additionally, it includes the following 3rd party modules:
+This product also includes the following third-party components:
 
-  CodeMirror licensed under Apache License 2.0
-  D2R Snorql licensed under Apache License 2.0
-  Sgvizler licensed under a MIT-style license
-  SPARQL Flint Editor licensed under Apache License 2.0
+
+* CodeMirror, http://codemirror.net
+
+  Copyright (c) 2013 Marijn Haverbeke
+
+* D2R Snorql, http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/,
+
+  Copyright (c) 2007 Richard Cyganiak
+
+* script.aculo.us, http://script.aculo.us
+
+  Copyright (c) 2010 Thomas Fuchs
+
+* Prototype, http://prototypejs.org
+
+  Copyright (c) 2010 Sam Stephenson
+
+* SPARQL Flint Editor, http://github.com/TSO-Openup/FlintSparqlEditor
+
+  Copyright (c) 2011 TSO Ltd
+
+* Sgvizler, http://sgvizler.googlecode.com
+
+  Copyright (c) 2011 Martin G. Skjæveland

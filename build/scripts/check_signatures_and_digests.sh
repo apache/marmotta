@@ -17,7 +17,7 @@
 #
 # Checks signatures and digests of source-releases. Inspired by Apache Stanbol.
 #
-# Usage: check_signatures_and_digests.sh <DIR_WITH_SOURCE_RELEASE.ZIPs>
+# Usage: check_signatures_and_digests.sh <DIR_WITH_RELEASE>
 #
 
 if hash realpath 2>/dev/null; then
@@ -28,7 +28,7 @@ fi
 
 echo "Checking signatures and digests over '$DIR'...."
 
-for i in `find "$DIR" -maxdepth 1 -type f | grep -v '\.\(asc\|sha1\|md5\)$'`
+for i in `find "$DIR" -name "*.*" -maxdepth 1 -type f | grep -v '\.\(asc\|sha1\|md5\)$'`
 do
   f=`echo $i | sed 's/\.asc$//'`
   echo "$f"

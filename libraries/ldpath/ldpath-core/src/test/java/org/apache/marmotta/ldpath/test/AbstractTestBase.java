@@ -26,6 +26,9 @@ import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
@@ -34,6 +37,8 @@ import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +92,21 @@ public abstract class AbstractTestBase {
     public void after() throws RepositoryException {
         repository.shutDown();
     }
+
+    final Logger logger =
+            LoggerFactory.getLogger(this.getClass());
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
+
 
     protected RdfPathParser<Value> createParserFromResource(String input) throws IOException {
         final URL resource = this.getClass().getResource(input);

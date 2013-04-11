@@ -31,10 +31,15 @@ import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersist
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -145,6 +150,19 @@ public class LDCachePersistenceTest {
         persistence.shutdown();
     }
 
+    final Logger logger =
+            LoggerFactory.getLogger(this.getClass());
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     @Test
     public void testTablesCreateDrop() throws Exception {
