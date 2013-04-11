@@ -26,9 +26,9 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <title>404 Not Found - Marmotta Linked Data Explorer</title>
     <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js" type="text/javascript" ></script>
-    <link href="${SERVER_URL}${DEFAULT_STYLE}/style.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}${DEFAULT_STYLE}/rdfhtml.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}${DEFAULT_STYLE}/404.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}404.css" rel="stylesheet" type="text/css" />
   </head>
 
   <body>
