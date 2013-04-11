@@ -17,39 +17,45 @@
  */
 package org.apache.marmotta.platform.core.api.templating;
 
-import org.apache.marmotta.platform.core.exception.TemplatingException;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
-import javax.servlet.ServletContext;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 /**
- * User: Thomas Kurz
- * Date: 22.07.11
- * Time: 13:06
+ * Templating Service
+ * 
+ * @author Sergio Fernández
  */
 public interface TemplatingService {
     
-    public final static String PATH = "/templates/";
-
-    /**
-     * inits a freebase template service with a servlet context
-     * @param context
-     */
-    public void init(ServletContext context) throws TemplatingException;
+    final static String PATH = "/templates/";
     
-    /**
-     * this method wraps a file with a default template
-     * @param bytes
-     * @return
-     */
-    public byte[] process(byte[] bytes, String path) throws TemplatingException;
+    static final String DEFAULT_PROJECT = "marmotta";
+    
+    static final String DEFAULT_STYLE = "blue";
+    
+    void initDataModel();
+    
+    Configuration getConfiguration();
+    
+    Configuration getConfiguration(Class<?> cls);    
+    
+    Template getTemplate(String name) throws IOException; 
+    
+    Template getTemplate(Class<?> cls, String name) throws IOException;
+    
+    String process(String name) throws IOException, TemplateException;
+    
+    String process(String name, Map<String, Object> data) throws IOException, TemplateException;
 
-    /**
-     * Check whether the templating service considers the resource passed in the path as a menu entry it is
-     * responsible for.
-     *
-     * @param path
-     * @return
-     */
-    boolean isMenuEntry(String path);
+    void process(String name, Writer writer) throws IOException, TemplateException;
+    
+    void process(String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException;
+
+    void process(Class<?> cls, String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException;
 
 }
