@@ -44,6 +44,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.ContentCreatedEvent;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
@@ -68,6 +69,9 @@ public class ContentWebService {
 
     @Inject
     private ConfigurationService configurationService;
+    
+    @Inject
+    private TemplatingService templatingService;
 
     @Inject
     private ContentService contentService;
@@ -260,7 +264,7 @@ public class ContentWebService {
                 if (resource != null) {
                     if (contentService.deleteContent(resource)) return Response.ok().build();
                     else
-                        return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "no content found for this resource in LMF right now, but may be available again in the future", configurationService);
+                        return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "no content found for this resource in LMF right now, but may be available again in the future", configurationService, templatingService);
                 }
                 return Response.status(Response.Status.NOT_FOUND).build();
             } finally {
@@ -352,7 +356,7 @@ public class ContentWebService {
                     }
                     return response;
                 } else {
-                    Response response = ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.NOT_ACCEPTABLE, "no content for mimetype " + mimetype, configurationService);
+                    Response response = ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.NOT_ACCEPTABLE, "no content for mimetype " + mimetype, configurationService, templatingService);
                     ResourceWebServiceHelper.addHeader(response, "Content-Type", ResourceWebServiceHelper.appendContentTypes(contentService.getContentType(resource)));
                     return response;
                 }
@@ -385,16 +389,16 @@ public class ContentWebService {
     public Response putContent(URI resource, String mimetype, HttpServletRequest request) {
         try {
             if (request.getContentLength() == 0)
-                return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty for writting", configurationService);
+                return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty for writting", configurationService, templatingService);
             contentService.setContentStream(resource, request.getInputStream(), mimetype); // store content
             if(configurationService.getBooleanConfiguration(ENHANCER_STANBOL_ENHANCER_ENABLED, false)) {
                 afterContentCreated.fire(new ContentCreatedEvent(resource)); //enhancer
             }
             return Response.ok().build();
         } catch (IOException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "could not read request body", configurationService);
+            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "could not read request body", configurationService, templatingService);
         } catch (WritingNotSupportedException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.FORBIDDEN, "writting this content is not supported", configurationService);
+            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.FORBIDDEN, "writting this content is not supported", configurationService, templatingService);
         }
     }
 

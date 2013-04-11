@@ -19,37 +19,46 @@ package org.apache.marmotta.platform.core.webservices.resource;
 
 import static javax.ws.rs.core.Response.status;
 
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.content.ContentService;
-import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
-import org.apache.commons.lang.StringUtils;
-import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.ETagGenerator;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.ETagGenerator;
+import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.content.ContentService;
+import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
 
 /**
  * Resource Web Services
@@ -72,6 +81,9 @@ public class ResourceWebService {
 
     @Inject
     private ConfigurationService configurationService;
+    
+    @Inject
+    private TemplatingService templatingService;
 
     @Inject
     private ContentService contentService;
@@ -354,7 +366,7 @@ public class ResourceWebService {
                 	log.debug("So redirecting directly to it...");
                 	return Response.seeOther(new java.net.URI(uri)).build();
                 }
-                if (resource == null) return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService);
+                if (resource == null) return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
                 // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
                 // "/" + uuid;
 

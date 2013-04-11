@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.sparql.webservices;
 
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
@@ -91,6 +92,9 @@ public class SparqlWebService {
 
     @Inject
     private ConfigurationService configurationService;
+
+    @Inject
+    private TemplatingService templatingService;
     
     /**
      * Single SPARQL endpoint, redirecting to the actual select endpoint 
@@ -533,7 +537,7 @@ public class SparqlWebService {
         if(format == null) {
             out = new SPARQLResultsXMLWriter(os);
         } else if(parseSubType(format).equals("html")) {
-            out = new SPARQLResultsHTMLWriter(os);
+            out = new SPARQLResultsHTMLWriter(os, templatingService);
         } else if(parseSubType(format).equals("json")) {
             out = new SPARQLResultsJSONWriter(os);
         } else if(parseSubType(format).equals("xml")) {
