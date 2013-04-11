@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.core.webservices.resource;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.commons.http.ContentType;
 import org.openrdf.model.URI;
 
@@ -38,7 +38,9 @@ import java.util.Map;
  */
 public class ResourceWebServiceHelper {
     
-    public static void addHeader(Response response, String name, String value) {
+    private static final String TEMPLATE_404 = "404.ftl";
+
+	public static void addHeader(Response response, String name, String value) {
         response.getMetadata().add(name, value);
     }
     
@@ -144,9 +146,8 @@ public class ResourceWebServiceHelper {
         }
     }
     
-    public static Response buildErrorPage(String uri, String base, Status status, String message, ConfigurationService configurationService) {
+    public static Response buildErrorPage(String uri, String base, Status status, String message, ConfigurationService configurationService, TemplatingService templatingService) {
         Map<String, Object> data = new HashMap<String, Object>();
-        
         data.put("uri", uri);
         data.put("message", message);
         try {
@@ -154,19 +155,10 @@ public class ResourceWebServiceHelper {
         } catch (UnsupportedEncodingException uee) {
             data.put("encoded_uri", uri);
         }
-        
-        data.put("SERVER_URL", configurationService.getServerUri());
-        data.put("BASIC_URL", configurationService.getBaseUri());
-        String project = configurationService.getStringConfiguration("kiwi.pages.project", "marmotta");
-        data.put("PROJECT", project);
-        data.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
-        data.put("CSS", configurationService.getStringConfiguration("kiwi.pages.project."+project+".css", "core/public/style/"+project+".css"));
-        data.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
-        data.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style", "marmotta"));
 
         try {
             return Response.status(status)
-                    .entity(TemplatingHelper.processTemplate("404.ftl", data))
+                    .entity(templatingService.process(TEMPLATE_404, data))
                     .build();
         } catch (Exception e) {
             return Response.status(Response.Status.NOT_FOUND)

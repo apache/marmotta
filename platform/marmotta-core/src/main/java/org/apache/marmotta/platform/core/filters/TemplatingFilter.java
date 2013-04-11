@@ -17,13 +17,8 @@
  */
 package org.apache.marmotta.platform.core.filters;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
-import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
-import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
-import org.apache.marmotta.platform.core.api.templating.TemplatingService;
-import org.apache.marmotta.platform.core.exception.TemplatingException;
-import org.slf4j.Logger;
+import java.io.IOException;
+import java.net.URL;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -34,8 +29,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URL;
+
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
+import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
+import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
+import org.apache.marmotta.platform.core.api.templating.AdminInterfaceService;
+import org.apache.marmotta.platform.core.exception.TemplatingException;
+import org.slf4j.Logger;
 
 /**
  * Add file description here!
@@ -55,7 +56,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
     private ConfigurationService configurationService;
 
     @Inject
-    private TemplatingService templatingService;
+    private AdminInterfaceService adminInterfaceService;
 
     /**
      * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
@@ -94,7 +95,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
         //init templating service
         try {
-            templatingService.init(filterConfig.getServletContext());
+            adminInterfaceService.init(filterConfig.getServletContext());
         } catch (TemplatingException e) {
             log.error("templating service could not be initialized: " + e.getMessage());
         }
@@ -130,7 +131,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
         long starttime = System.currentTimeMillis();
 
 
-        if(path != null && templatingService.isMenuEntry(path)) {
+        if(path != null && adminInterfaceService.isMenuEntry(path)) {
 
             ResourceEntry data = resourceService.getResource(path);
 
@@ -138,7 +139,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
             if(data != null && data.getLength() > 0) {
 
                 try {
-                    byte [] templatedData = templatingService.process(data.getData(),path);
+                    byte [] templatedData = adminInterfaceService.process(data.getData(),path);
                     data = new ResourceEntry(data.getLocation(),templatedData,templatedData.length,data.getContentType());
 
                     HttpServletResponse hresponse = (HttpServletResponse) response;
