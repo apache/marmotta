@@ -59,7 +59,7 @@ public class TemplatingServiceImpl implements TemplatingService {
     private static final String TEMPLATE_STRING = "admin.ftl";
     private static final String DEFAULT_REST_PATH = "/doc/rest/";
     private static final String DEFAULT_REST_FILE = "overview-summary.html";
-    private static final String DEFAULT_STYLE = "blue";
+    private static final String DEFAULT_STYLE = "/";
     private static final String DEFAULT_TITLE_FOR_WEBSERVICES = "webservices";
     private static final String DEFAULT_PROJECT = "marmotta";
 

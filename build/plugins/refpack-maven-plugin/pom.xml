@@ -62,6 +62,21 @@
             <artifactId>jcabi-aether</artifactId>
             <version>0.7.8</version>
         </dependency>
+        <!-- dependencies to annotations -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.2</version>
+            <!-- annotations are not needed for plugin execution so you can remove this dependency
+                 for execution with using provided scope -->
+            <scope>provided</scope>
+        </dependency>
+        <!-- generated help mojo has a dependency to plexus-utils -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.0.10</version>
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>

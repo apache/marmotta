@@ -221,7 +221,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             data.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
             data.put("CSS", configurationService.getStringConfiguration("kiwi.pages.project."+project+".css", "core/public/style/"+project+".css"));
             data.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
-            data.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style", "marmotta"));
+            data.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style_path", "/"));
 
             //set timemap link
             if(configurationService.getBooleanConfiguration("versioning.enabled")) {

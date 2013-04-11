@@ -30,7 +30,10 @@ import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.model.Literal;
@@ -41,6 +44,8 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -155,6 +160,20 @@ public class LDCacheBackendTest {
         repository.shutDown();
     }
 
+
+    final Logger logger =
+            LoggerFactory.getLogger(this.getClass());
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     /**
      * This test verifies if triples are added to the correct context using the repository connection obtained from the backend
