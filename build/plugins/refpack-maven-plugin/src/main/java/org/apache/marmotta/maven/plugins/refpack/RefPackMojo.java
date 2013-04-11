@@ -31,6 +31,11 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
@@ -53,78 +58,54 @@ import org.sonatype.aether.resolution.DependencyResult;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 /**
- * Goal which touches a timestamp file.
- *
- * @requiresDependencyResolution compile
- * @goal generate
- *
- * @phase validate
+ * Generate IzPack refpack descriptions from Maven dependencies
  */
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.VALIDATE, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class RefPackMojo extends AbstractMojo {
     
     /**
      * Location of the file.
-     * @parameter expression="${project.build.directory}"
-     * @required
      */
+    @Parameter(property="project.build.directory", required = true)
     private File outputDirectory;
 
-    /**
-     * @parameter default-value="${project}"
-     * @required
-     * @readonly
-     */
+    @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
 
     /**
      * The Group Identifier of the artifacts that should be considered local modules. When walking
      * the dependency tree, the process will break at each module of this group id and instead add
      * a dependency to the other module to the refpacks.
-     *
-     * @parameter expression="${refpack.moduleGroupId}" default-value="org.apache.marmotta"
-     * @required
-     * @readonly
      */
+    @Parameter(property="refpack.moduleGroupId", defaultValue="org.apache.marmotta", required = true, readonly = true)
     private String moduleGroupId;
 
     /**
      * The entry point to Aether, i.e. the component doing all the work.
      *
-     * @component
      */
+    @Component
     private RepositorySystem repoSystem;
 
-    /**
-     * @parameter default-value="${repositorySystemSession}"
-     * @readonly
-     */
+    @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
     private RepositorySystemSession session;
 
     /**
      * The project's remote repositories to use for the resolution of project dependencies.
-     *
-     * @parameter default-value="${project.remoteProjectRepositories}"
-     * @readonly
      */
+    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
     private List<RemoteRepository> projectRepos;
 
-    /**
-     * @component
-     */
+    @Component
     private ProjectBuilder projectBuilder;
 
-
-    /**
-     * @component
-     */
+    @Component
     private ArtifactFactory artifactFactory;
 
     /**
      * The required modules of the refpack
-     *
-     * @parameter expression="${refpack.requiredModules}"
-     * @readonly
      */
+    @Parameter(property = "refpack.requiredModules", readonly = true)
     private List<String> requiredModules;
 
     // we collect here the library dependencies of each module, so we can identify which of the dependencies are already
@@ -140,7 +121,7 @@ public class RefPackMojo extends AbstractMojo {
 
         getLog().info("generating reference packs for group id "+moduleGroupId);
 
-        for(org.apache.maven.artifact.Artifact artifact : (Set<org.apache.maven.artifact.Artifact>)project.getArtifacts()) {
+        for(org.apache.maven.artifact.Artifact artifact : project.getArtifacts()) {
             if(artifact.getGroupId().equals(moduleGroupId)) {
 
                 DefaultArtifact aetherArtifact = new DefaultArtifact(artifact.getGroupId(),artifact.getArtifactId(), artifact.getType(), artifact.getVersion());

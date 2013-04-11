@@ -26,7 +26,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryConnection;
@@ -59,6 +62,19 @@ public class FacebookProviderTest {
         ldclient.shutdown();
     }
 
+    final Logger logger =
+            LoggerFactory.getLogger(this.getClass());
+
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     @Test
     public void testMovie() throws Exception {
