@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -e
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -15,48 +15,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License
 #
-# Checks signatures and digests of source-releases. Inspired by Apache Stanbol.
+##############################################################################
 #
-# Usage: check_signatures_and_digests.sh <DIR_WITH_RELEASE>
+# Usage: ./check_signatures.sh <RELEASE_DIR>
+#
+# Progress printed on STDOUT, result available via exit-code
+#
+# Exit-Codes:
+#    0 - All fine, signatures and digests are valid and correct
+#    1 - A Required file (.asc, .md5, .sha1) is missing
+#    2 - Invalid pgp/gpg signature found (.asc)
+#    3 - Incorrect md5-sum detected (.md5)
+#    4 - Incorrect sha1-sum detected (.sha1)
+#  255 - Wrong/Missing command parameter
 #
 
-if hash realpath 2>/dev/null; then
-  DIR=`realpath $1`
-else
-  DIR=$1
-fi
+# Check for arguments
+[ -z $1 ] && { echo "USAGE: $0 <RELEASE_DIR>" >&2; exit 255; }
+[ ! -d $1 ] && { echo "release-dir '$1' not found" >&2; exit 255; }
 
-echo "Checking signatures and digests over '$DIR'...."
+BASE="${1}"
+#cd "$BASE"
 
-for i in `find "$DIR" -name "*.*" -maxdepth 1 -type f | grep -v '\.\(asc\|sha1\|md5\)$'`
-do
-  f=`echo $i | sed 's/\.asc$//'`
-  echo "$f"
-  gpg --verify $f.asc 2>/dev/null
-  if [ "$?" = "0" ]; then CHKSUM="GOOD"; else CHKSUM="BAD!!!!!!!!"; fi
-  if [ ! -f "$f.asc" ]; then CHKSUM="----"; fi
-  echo "gpg:  ${CHKSUM}"
+KR=$(mktemp)
+# make sure that the temp-keyring is removed on exit
+trap "{ C=$?; rm -f ${KR} ${KR}~ ; exit $C; }" EXIT
 
-  for tp in md5 sha1
-  do
-    if [ ! -f "$f.$tp" ]
-    then
-      CHKSUM="----"
-    else
-      A="`cat $f.$tp 2>/dev/null`"
-      B="`openssl $tp < $f 2>/dev/null | sed 's/.*= *//' `"
-      if [ "$A" = "$B" ]; 
-      then 
-        CHKSUM="GOOD (`cat $f.$tp`)"
-      else 
-        CHKSUM="BAD!! : $A not equal to $B" 
-      fi
-   fi
-   echo "$tp : ${CHKSUM}"
- done
+gpg="gpg --primary-keyring $KR"
+# If there is a KEYS file, import it into the temp keyring
+[ -r "$BASE/KEYS" ] && { echo "Import KEYS into temporary keyring"; $gpg --import "$BASE/KEYS"; echo; }
 
+# Look for all archives: *.zip, *.tar.gz, *.tgz
+find "$BASE" -maxdepth 1 -type f -name "*.zip" -o -name "*.t*gz" | sort | while read f; do
+	echo "Checking archive $(basename $f)..."
+
+        # Check gpg/pgp signature
+        if [ -f "${f}.asc" ]; then
+           $gpg --verify "${f}.asc" &>/dev/null && echo "  - Signature: OK" || { echo "  - Signature: ERROR"; exit 2; }
+        else
+           echo "  - Signature: MISSING"; exit 1
+        fi
+
+        # Check md5sum
+        if [ -f "${f}.md5" ]; then
+           echo "$(cat ${f}.md5)  ${f}" | md5sum --check - &>/dev/null && echo "  - MD5: OK" || { echo "  - MD5: ERROR"; exit 3; }
+        else
+           echo "  - MD5: MISSING"; exit 1
+        fi
+
+        # Check sha1
+        if [ -f "${f}.sha1" ]; then
+           echo "$(cat ${f}.sha1)  ${f}" | sha1sum --check - &>/dev/null && echo "  - SHA1: OK" || { echo "  - SHA1: ERROR"; exit 4; }
+        else
+           echo "  - SHA1: MISSING"; exit 1
+        fi
+	echo
 done
-
-if [ -z "${CHKSUM}" ]; then echo "WARNING: no files found!"; fi
-
-echo "DONE"
+echo "All archives in $BASE have valid signatures and digests."
+echo
