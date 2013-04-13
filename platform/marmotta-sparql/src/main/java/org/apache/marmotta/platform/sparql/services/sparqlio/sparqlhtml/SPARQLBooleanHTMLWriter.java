@@ -96,7 +96,6 @@ public class SPARQLBooleanHTMLWriter implements BooleanQueryResultWriter {
         try {
             Source input      = new StreamSource(new ByteArrayInputStream(queryResult));
 
-
             Transformer transformer = stylesheet.newTransformer();
             transformer.setParameter("serverurl", server_uri);
 

@@ -37,7 +37,7 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.io.RDFHtmlWriter;
 import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
-import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.util.CDIContext;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -62,6 +62,8 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
     protected ConfigurationService configurationService;
 
     protected PrefixService prefixService;
+    
+    protected TemplatingService templatingService;
 
     protected Logger log = LoggerFactory.getLogger(RDFHtmlWriterImpl.class);
 
@@ -87,6 +89,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
         configurationService = CDIContext
                 .getInstance(ConfigurationService.class);
         prefixService = CDIContext.getInstance(PrefixService.class);
+        templatingService = CDIContext.getInstance(TemplatingService.class);
     }
 
     /**
@@ -214,21 +217,12 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             data.put("resources", resources);
             data.put("prefixMappings", prefixService.serializePrefixMapping());
 
-            data.put("SERVER_URL", configurationService.getServerUri());
-            data.put("BASIC_URL", configurationService.getBaseUri());
-            String project = configurationService.getStringConfiguration("kiwi.pages.project", "marmotta");
-            data.put("PROJECT", project);
-            data.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
-            data.put("CSS", configurationService.getStringConfiguration("kiwi.pages.project."+project+".css", "core/public/style/"+project+".css"));
-            data.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
-            data.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style", "marmotta"));
-
             //set timemap link
             if(configurationService.getBooleanConfiguration("versioning.enabled")) {
                 data.put("timemaplink", configurationService.getStringConfiguration("versioning.memento.timemap"));
             }
 
-            TemplatingHelper.processTemplate(TEMPLATE, data, writer);
+            templatingService.process(TEMPLATE, data, writer);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RDFHandlerException(e);

@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.marmotta.platform.core.services.templating.TemplatingHelper;
+
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
@@ -50,8 +51,10 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
     private OutputStream out;
     
     private List<String> vars;
+
+    private TemplatingService templatingService;
     
-    public SPARQLResultsHTMLWriter(OutputStream out) {
+    public SPARQLResultsHTMLWriter(OutputStream out, TemplatingService templatingService) {
         this.out = out;
     }
 
@@ -66,7 +69,7 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
         data.put("vars", vars);
         this.vars = vars;
         try {
-            TemplatingHelper.processTemplate(SPARQLResultsHTMLWriter.class, START_TEMPLATE, data, new OutputStreamWriter(out));
+            templatingService.process(SPARQLResultsHTMLWriter.class, START_TEMPLATE, data, new OutputStreamWriter(out));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new TupleQueryResultHandlerException(e);
@@ -87,7 +90,7 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
         }
         data.put("result", result);
         try {
-            TemplatingHelper.processTemplate(SPARQLResultsHTMLWriter.class, RESULT_TEMPLATE, data, new OutputStreamWriter(out));
+            templatingService.process(SPARQLResultsHTMLWriter.class, RESULT_TEMPLATE, data, new OutputStreamWriter(out));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new TupleQueryResultHandlerException(e);
@@ -98,7 +101,7 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
 	public void endQueryResult() throws TupleQueryResultHandlerException {
 		Map<String, Object> data = new HashMap<String, Object>();
         try {            
-            TemplatingHelper.processTemplate(SPARQLResultsHTMLWriter.class, END_TEMPLATE, data, new OutputStreamWriter(out));
+            templatingService.process(SPARQLResultsHTMLWriter.class, END_TEMPLATE, data, new OutputStreamWriter(out));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new TupleQueryResultHandlerException(e);
