@@ -33,9 +33,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Add file description here!
- * <p/>
- * User: sschaffe
+ * JSON-LD RIO Writer
+ * 
+ * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 public class JsonLdWriter implements RDFWriter {
 
