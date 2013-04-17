@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +47,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +71,8 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
     protected Logger log = LoggerFactory.getLogger(RDFHtmlWriterImpl.class);
 
     protected PrintWriter writer;
+    
+    protected WriterConfig config;
 
     protected Map<Resource, SortedSet<Statement>> tripleMap = new HashMap<Resource, SortedSet<Statement>>();
 
@@ -318,5 +323,39 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
     public RDFWriterPriority getPriority() {
         return RDFWriterPriority.MEDIUM;
     }
+    
+    /**
+     * @return A collection of {@link RioSetting}s that are supported by this
+     *         RDFWriter.
+     * @since 2.7.0
+     */
+	@Override
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return new ArrayList<RioSetting<?>>();
+	}
+
+    /**
+     * Retrieves the current writer configuration as a single object.
+     * 
+     * @return a writer configuration object representing the current
+     *         configuration of the writer.
+     * @since 2.7.0
+     */
+	@Override
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+    /**
+     * Sets all supplied writer configuration options.
+     * 
+     * @param config
+     *        a writer configuration object.
+     * @since 2.7.0
+     */
+	@Override
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
+	}    
 
 }
