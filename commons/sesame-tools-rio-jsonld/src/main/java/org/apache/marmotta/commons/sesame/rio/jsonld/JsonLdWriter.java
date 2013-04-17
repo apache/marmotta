@@ -22,11 +22,15 @@ import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Add file description here!
@@ -35,9 +39,9 @@ import java.io.Writer;
  */
 public class JsonLdWriter implements RDFWriter {
 
-
     private PrintWriter writer;
-
+    private WriterConfig config;
+    
     SesameJSONLDSerializer serializer;
 
     public JsonLdWriter(OutputStream out) {
@@ -122,5 +126,40 @@ public class JsonLdWriter implements RDFWriter {
      */
     @Override
     public void handleComment(String comment) throws RDFHandlerException {
+    	
     }
+    
+    /**
+     * @return A collection of {@link RioSetting}s that are supported by this
+     *         RDFWriter.
+     * @since 2.7.0
+     */
+	@Override
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return new ArrayList<RioSetting<?>>();
+	}
+
+    /**
+     * Retrieves the current writer configuration as a single object.
+     * 
+     * @return a writer configuration object representing the current
+     *         configuration of the writer.
+     * @since 2.7.0
+     */
+	@Override
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+    /**
+     * Sets all supplied writer configuration options.
+     * 
+     * @param config
+     *        a writer configuration object.
+     * @since 2.7.0
+     */
+	@Override
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
+	}    
 }
