@@ -17,13 +17,34 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import com.google.common.collect.MapMaker;
+import info.aduna.iteration.Iterations;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -33,19 +54,11 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
-import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReentrantLock;
+import com.google.common.collect.MapMaker;
 
 /**
  * Add file description here!
@@ -77,7 +90,7 @@ public class KiWiValueFactory implements ValueFactory {
     private KiWiStore store;
 
     private ReentrantLock nodeLock;
-    private ReentrantLock tripleLock;
+    //private ReentrantLock tripleLock;
 
     private ConcurrentMap<String,ReentrantLock> resourceLocks;
     private ConcurrentMap<Object,ReentrantLock> literalLocks;
@@ -87,7 +100,7 @@ public class KiWiValueFactory implements ValueFactory {
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
         nodeLock = store.nodeLock;
-        tripleLock = store.tripleLock;
+        //tripleLock = store.tripleLock;
         resourceLocks = new MapMaker().weakKeys().weakValues().makeMap();
         literalLocks  = new MapMaker().weakKeys().weakValues().makeMap();
 
@@ -260,7 +273,6 @@ public class KiWiValueFactory implements ValueFactory {
      * @return a typed literal representation of the supplied object.
      * @since 2.7.0
      */
-    @Override
     public Literal createLiteral(Object object) {
         if(object instanceof XMLGregorianCalendar) {
             return createLiteral((XMLGregorianCalendar)object);
@@ -607,7 +619,7 @@ public class KiWiValueFactory implements ValueFactory {
                 KiWiResource    kcontext   = convert(context);
 
                 // test if the triple already exists in the database; if yes, return it
-                List<Statement> triples = connection.listTriples(ksubject,kpredicate,kobject,kcontext,true).asList();
+                List<Statement> triples = Iterations.asList(connection.listTriples(ksubject,kpredicate,kobject,kcontext,true));
                 if(triples.size() == 1) {
                     result = triples.get(0);
                 } else {
