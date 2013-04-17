@@ -17,6 +17,15 @@
  */
 package org.apache.marmotta.commons.sesame.rio.rdfjson;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -26,18 +35,14 @@ import org.openrdf.model.Value;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.HashSet;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 
 /**
- * Add file description here!
- * <p/>
- * User: sschaffe
+ * RDF/JSON RIO Writer
+ * 
+ * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 public class RDFJsonWriter implements RDFWriter {
 
@@ -49,11 +54,10 @@ public class RDFJsonWriter implements RDFWriter {
     private static final String LANG = "lang";
     private static final String DATATYPE = "datatype";
 
-
     private Writer writer;
-
+    private WriterConfig config;
+    
     private HashMap<String,HashMap<String,HashSet<HashMap<String,String>>>> subjects;
-
 
     public RDFJsonWriter(OutputStream out) {
         writer = new OutputStreamWriter(out);
@@ -115,6 +119,7 @@ public class RDFJsonWriter implements RDFWriter {
      */
     @Override
     public void handleNamespace(String prefix, String uri) throws RDFHandlerException {
+    	
     }
 
     /**
@@ -186,8 +191,41 @@ public class RDFJsonWriter implements RDFWriter {
      */
     @Override
     public void handleComment(String comment) throws RDFHandlerException {
+    	
     }
 
+    /**
+     * @return A collection of {@link RioSetting}s that are supported by this
+     *         RDFWriter.
+     * @since 2.7.0
+     */
+	@Override
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return new ArrayList<RioSetting<?>>();
+	}
 
+    /**
+     * Retrieves the current writer configuration as a single object.
+     * 
+     * @return a writer configuration object representing the current
+     *         configuration of the writer.
+     * @since 2.7.0
+     */
+	@Override
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+    /**
+     * Sets all supplied writer configuration options.
+     * 
+     * @param config
+     *        a writer configuration object.
+     * @since 2.7.0
+     */
+	@Override
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
+	}
 
 }
