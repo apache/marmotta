@@ -45,6 +45,8 @@ import org.apache.marmotta.platform.core.qualifiers.kspace.InferredKnowledgeSpac
 import org.apache.marmotta.platform.core.qualifiers.kspace.SystemKnowledgeSpace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.util.Literals;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -178,9 +180,10 @@ public class ContextServiceImpl implements ContextService {
             try {
                 conn.begin();
                 checkConnectionNamespace(conn);
-                URI ctx = conn.getValueFactory().createURI(uri);
+                ValueFactory valueFactory = conn.getValueFactory();
+				URI ctx = valueFactory.createURI(uri);
                 if (StringUtils.isNotBlank(label)) {
-                    conn.add(ctx, RDFS.LABEL, conn.getValueFactory().createLiteral(label), ctx);
+                    conn.add(ctx, RDFS.LABEL, Literals.createLiteral(valueFactory, label), ctx);
                 }
                 return ctx;
             } finally {
