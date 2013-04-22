@@ -62,11 +62,13 @@ public class SPARQLBooleanJSONWriter implements BooleanQueryResultWriter {
      * Writes the specified boolean value.
      */
     @Override
+    @Deprecated
     public void write(boolean value) throws IOException {
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
-        writer.println("{ \"head\": {}, \"boolean\": \""+value+"\" }");
-        writer.flush();
-        writer.close();
+    	try {
+			handleBoolean(value);
+		} catch (QueryResultHandlerException e) {
+			throw new IOException(e);
+		}
     }
     
     /**
@@ -146,9 +148,11 @@ public class SPARQLBooleanJSONWriter implements BooleanQueryResultWriter {
 	}
 
 	@Override
-	public void handleBoolean(boolean arg0) throws QueryResultHandlerException {
-		// TODO Auto-generated method stub
-		
+	public void handleBoolean(boolean value) throws QueryResultHandlerException {
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
+        writer.println("{ \"head\": {}, \"boolean\": \""+value+"\" }");
+        writer.flush();
+        writer.close();
 	}
 
 	@Override
@@ -167,5 +171,6 @@ public class SPARQLBooleanJSONWriter implements BooleanQueryResultWriter {
 	public void startQueryResult(List<String> arg0) throws TupleQueryResultHandlerException {
 		// TODO Auto-generated method stub
 		
-	}    
+	}
+	
 }

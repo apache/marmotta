@@ -335,4 +335,5 @@ public class SPARQLResultsJSONWriter implements TupleQueryResultWriter {
 	public void setWriterConfig(WriterConfig config) {
 		this.config = config;
 	}
+	
 }
