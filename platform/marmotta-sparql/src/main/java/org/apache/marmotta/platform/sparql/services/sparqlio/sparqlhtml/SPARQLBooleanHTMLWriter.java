@@ -96,33 +96,13 @@ public class SPARQLBooleanHTMLWriter implements BooleanQueryResultWriter {
      * Writes the specified boolean value.
      */
     @Override
+    @Deprecated
     public void write(boolean value) throws IOException {
-        writer.write(value);
-
-        byte[] queryResult = xmlOut.toByteArray();
-
-        // get server uri
-        String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
-
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
-        try {
-            Source input = new StreamSource(new ByteArrayInputStream(queryResult));
-
-            Transformer transformer = stylesheet.newTransformer();
-            transformer.setParameter("serverurl", server_uri);
-
-            JDOMResult result = new JDOMResult();
-            transformer.transform(input,result);
-            Document output = result.getDocument();
-
-            XMLOutputter printer = new XMLOutputter(Format.getPrettyFormat());
-            printer.output(output, writer);
-            writer.flush();
-        } catch (Exception ex) {
-            throw new IOException("error while transforming XML results to HTML",ex);
-        } finally {
-            writer.close();
-        }
+    	try {
+			handleBoolean(value);
+		} catch (QueryResultHandlerException e) {
+			throw new IOException(e);
+		}
     }
 
 	@Override
@@ -181,8 +161,34 @@ public class SPARQLBooleanHTMLWriter implements BooleanQueryResultWriter {
 	}
 
 	@Override
-	public void handleBoolean(boolean arg0) throws QueryResultHandlerException {
-		// TODO Auto-generated method stub
+	public void handleBoolean(boolean value) throws QueryResultHandlerException { 	
+        try {
+            writer.write(value);
+
+            byte[] queryResult = xmlOut.toByteArray();
+
+            // get server uri
+            String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
+
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+        	
+        	Source input = new StreamSource(new ByteArrayInputStream(queryResult));
+
+            Transformer transformer = stylesheet.newTransformer();
+            transformer.setParameter("serverurl", server_uri);
+
+            JDOMResult result = new JDOMResult();
+            transformer.transform(input,result);
+            Document output = result.getDocument();
+
+            XMLOutputter printer = new XMLOutputter(Format.getPrettyFormat());
+            printer.output(output, writer);
+            writer.flush();
+        } catch (Exception ex) {
+            throw new QueryResultHandlerException("error while transforming XML results to HTML",ex);
+        } finally {
+            //writer.close();
+        }
 		
 	}
 
