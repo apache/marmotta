@@ -43,6 +43,11 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
 
     }
 
+    /**
+     * Get the root sail in the wrapped sail stack
+     * @param sail
+     * @return
+     */
     private KiWiStore getRootSail(Sail sail) {
         if(sail instanceof KiWiStore) {
             return (KiWiStore) sail;
@@ -53,6 +58,11 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
         }
     }
 
+    /**
+     * Get the root connection in a wrapped sail connection stack
+     * @param connection
+     * @return
+     */
     private KiWiSailConnection getRootConnection(SailConnection connection) {
         if(connection instanceof KiWiSailConnection) {
             return (KiWiSailConnection) connection;
