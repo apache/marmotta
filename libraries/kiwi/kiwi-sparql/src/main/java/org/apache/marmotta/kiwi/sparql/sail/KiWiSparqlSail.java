@@ -79,7 +79,7 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
         KiWiSailConnection root   = getRootConnection(connection);
 
         try {
-            return new KiWiSparqlSailConnection(connection, new KiWiSparqlConnection(root.getDatabaseConnection()), root.getValueFactory());
+            return new KiWiSparqlSailConnection(connection, new KiWiSparqlConnection(root.getDatabaseConnection(), root.getValueFactory()), root.getValueFactory());
         } catch (SQLException e) {
             throw new SailException(e);
         }

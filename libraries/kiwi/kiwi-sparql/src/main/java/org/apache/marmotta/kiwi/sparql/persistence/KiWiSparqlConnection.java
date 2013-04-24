@@ -26,6 +26,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
+import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.openrdf.model.Value;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -55,9 +56,11 @@ public class KiWiSparqlConnection {
     private static Logger log = LoggerFactory.getLogger(KiWiSparqlConnection.class);
 
     private KiWiConnection parent;
+    private KiWiValueFactory valueFactory;
 
-    public KiWiSparqlConnection(KiWiConnection parent) throws SQLException {
+    public KiWiSparqlConnection(KiWiConnection parent, KiWiValueFactory valueFactory) throws SQLException {
         this.parent = parent;
+        this.valueFactory = valueFactory;
     }
 
     /**
@@ -199,7 +202,7 @@ public class KiWiSparqlConnection {
                 // in this way we can avoid setting too many query parameters
                 Long nodeId = null;
                 if(fields[i] != null && fields[i].hasValue()) {
-                    Value v = fields[i].getValue();
+                    Value v = valueFactory.convert(fields[i].getValue());
                     if(v instanceof KiWiNode) {
                         nodeId = ((KiWiNode) v).getId();
                     } else {
@@ -233,7 +236,7 @@ public class KiWiSparqlConnection {
                             entry.getValue() != null && entry.getValue().size() > 0) {
                         List<String> vNames = queryVariables.get(v);
                         String vName = vNames.get(0);
-                        Value binding = bindings.getValue(v);
+                        Value binding = valueFactory.convert(bindings.getValue(v));
                         if(binding instanceof KiWiNode) {
                             whereConditions.add(vName+".id = "+((KiWiNode)binding).getId());
                         } else {

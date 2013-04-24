@@ -17,6 +17,8 @@
 
 package org.apache.marmotta.kiwi.sparql.test;
 
+import info.aduna.iteration.Iterations;
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -24,22 +26,30 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItem;
 
 /**
  * Test the KiWi SPARQL Join optimization.
@@ -128,11 +138,23 @@ public class KiWiSparqlJoinTest {
 
 
     @Before
-    public void initDatabase() throws RepositoryException {
+    public void initDatabase() throws RepositoryException, IOException, RDFParseException {
         store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
         ssail = new KiWiSparqlSail(store);
         repository = new SailRepository(ssail);
         repository.initialize();
+
+        // load demo data
+        RepositoryConnection con = repository.getConnection();
+        try {
+            con.begin();
+
+            con.add(this.getClass().getResourceAsStream("demo-data.foaf"), "http://localhost/test/", RDFFormat.RDFXML);
+
+            con.commit();
+        } finally {
+            con.close();
+        }
     }
 
     @After
@@ -154,5 +176,38 @@ public class KiWiSparqlJoinTest {
             logger.info("{} being run...", description.getMethodName());
         }
     };
+
+
+    /**
+     * This method tests a simple triple join with two triple patterns.
+     * @throws Exception
+     */
+    @Test
+    public void testQuery1() throws Exception {
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("query1.sparql"), "UTF-8");
+
+        RepositoryConnection con = repository.getConnection();
+        try {
+            con.begin();
+
+
+            TupleQuery query = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result = query.evaluate();
+
+            con.commit();
+
+            Assert.assertTrue(result.hasNext());
+
+            List<BindingSet> bindingSets = Iterations.asList(result);
+
+            for(BindingSet bindings : bindingSets) {
+                System.err.println(bindings);
+            }
+        } catch(RepositoryException ex) {
+            con.rollback();
+        } finally {
+            con.close();
+        }
+    }
 
 }

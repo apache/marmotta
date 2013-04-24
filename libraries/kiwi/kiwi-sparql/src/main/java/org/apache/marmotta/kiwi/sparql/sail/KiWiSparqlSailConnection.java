@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.sparql.sail;
 
 import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
+import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStatistics;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStrategyImpl;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiTripleSource;
@@ -44,9 +45,9 @@ import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
 public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
 
     private KiWiSparqlConnection connection;
-    private ValueFactory valueFactory;
+    private KiWiValueFactory valueFactory;
 
-    public KiWiSparqlSailConnection(NotifyingSailConnection parent, KiWiSparqlConnection connection, ValueFactory valueFactory) {
+    public KiWiSparqlSailConnection(NotifyingSailConnection parent, KiWiSparqlConnection connection, KiWiValueFactory valueFactory) {
         super(parent);
         this.connection = connection;
         this.valueFactory = valueFactory;
