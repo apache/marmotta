@@ -17,8 +17,11 @@
 
 package org.apache.marmotta.kiwi.sparql.test;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -31,25 +34,23 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.hasItem;
+import java.util.Set;
 
 /**
  * Test the KiWi SPARQL Join optimization.
@@ -120,6 +121,9 @@ public class KiWiSparqlJoinTest {
 
     private Repository repository;
 
+    // reference repository for checking if the results are the same
+    private Repository reference;
+
     public KiWiSparqlJoinTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
         this.jdbcPass = jdbcPass;
         this.jdbcUrl = jdbcUrl;
@@ -155,6 +159,21 @@ public class KiWiSparqlJoinTest {
         } finally {
             con.close();
         }
+
+        reference = new SailRepository(new MemoryStore());
+        reference.initialize();
+
+        // load demo data
+        RepositoryConnection con2 = reference.getConnection();
+        try {
+            con2.begin();
+
+            con2.add(this.getClass().getResourceAsStream("demo-data.foaf"), "http://localhost/test/", RDFFormat.RDFXML);
+
+            con2.commit();
+        } finally {
+            con2.close();
+        }
     }
 
     @After
@@ -184,30 +203,110 @@ public class KiWiSparqlJoinTest {
      */
     @Test
     public void testQuery1() throws Exception {
-        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("query1.sparql"), "UTF-8");
+        testQuery("query1.sparql");
+    }
 
-        RepositoryConnection con = repository.getConnection();
+    @Test
+    public void testQuery2() throws Exception {
+        testQuery("query2.sparql");
+    }
+
+
+    private void testQuery(String filename) throws Exception {
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
+
+        RepositoryConnection con1 = repository.getConnection();
+        RepositoryConnection con2 = reference.getConnection();
         try {
-            con.begin();
+            con1.begin();
+
+            TupleQuery query1 = con1.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result1 = query1.evaluate();
+
+            con1.commit();
+
+            Assert.assertTrue(result1.hasNext());
 
 
-            TupleQuery query = con.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-            TupleQueryResult result = query.evaluate();
+            con2.begin();
 
-            con.commit();
+            TupleQuery query2 = con2.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result2 = query2.evaluate();
 
-            Assert.assertTrue(result.hasNext());
+            con2.commit();
 
-            List<BindingSet> bindingSets = Iterations.asList(result);
+            compareResults(result1,result2);
 
-            for(BindingSet bindings : bindingSets) {
-                System.err.println(bindings);
-            }
         } catch(RepositoryException ex) {
-            con.rollback();
+            con1.rollback();
         } finally {
-            con.close();
+            con1.close();
+            con2.close();
         }
     }
+
+
+    private void compareResults(TupleQueryResult result1, TupleQueryResult result2) throws QueryEvaluationException {
+        List<BindingSet> bindingSets1 = Iterations.asList(result1);
+        List<BindingSet> bindingSets2 = Iterations.asList(result2);
+
+        Set<Set<Pair>> set1 = new HashSet<Set<Pair>>(Lists.transform(bindingSets1,new BindingSetPairFunction()));
+        Set<Set<Pair>> set2 = new HashSet<Set<Pair>>(Lists.transform(bindingSets2,new BindingSetPairFunction()));
+
+        Assert.assertTrue(CollectionUtils.isEqualCollection(set1, set2));
+    }
+
+
+    private static class BindingSetPairFunction implements Function<BindingSet, Set<Pair>> {
+        @Override
+        public Set<Pair> apply(BindingSet input) {
+            Set<Pair> result = new HashSet<Pair>();
+
+            for(Binding b : input) {
+                Pair p = new Pair(b.getName(), b.getValue() != null ? b.getValue().stringValue() : null);
+                result.add(p);
+            }
+
+            return result;
+        }
+    }
+
+    private static class Pair {
+        String key, value;
+
+        private Pair(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        private String getKey() {
+            return key;
+        }
+
+        private String getValue() {
+            return value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Pair pair = (Pair) o;
+
+            if (!key.equals(pair.key)) return false;
+            if (value != null ? !value.equals(pair.value) : pair.value != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key.hashCode();
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+    }
+
 
 }
