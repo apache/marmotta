@@ -170,7 +170,9 @@ public class KiWiConnection {
      *
      * @return
      */
-    public Connection getJDBCConnection() {
+    public Connection getJDBCConnection() throws SQLException {
+        requireJDBCConnection();
+
         return connection;
     }
 
