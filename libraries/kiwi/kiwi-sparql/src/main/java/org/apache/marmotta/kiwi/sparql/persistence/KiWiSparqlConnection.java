@@ -44,6 +44,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Provide improved SPARQL support by evaluating certain common compley SPARQL constructs directly on the
@@ -354,7 +355,8 @@ public class KiWiSparqlConnection {
 
             // TODO: simplify the trivial cases to LIKE
 
-            return parent.getDialect().getRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
+            //return parent.getDialect().getRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
+            return optimizeRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
         } else if(expr instanceof LangMatches) {
             LangMatches lm = (LangMatches)expr;
             String value = evaluateExpression(lm.getLeftArg(), queryVariables, optype);
@@ -581,6 +583,65 @@ public class KiWiSparqlConnection {
             throw new IllegalArgumentException("unsupported type coercion: " + left + " and " + right);
         }
     }
+
+
+    /**
+     * Test if the regular expression given in the pattern can be simplified to a LIKE SQL statement; these are
+     * considerably more efficient to evaluate in most databases, so in case we can simplify, we return a LIKE.
+     *
+     * @param value
+     * @param pattern
+     * @return
+     */
+    private String optimizeRegexp(String value, String pattern) {
+        String simplified = pattern;
+
+        // apply simplifications
+
+        // remove SQL quotes at beginning and end
+        simplified = simplified.replaceFirst("^'","");
+        simplified = simplified.replaceFirst("'$","");
+
+
+        // remove .* at beginning and end, they are the default anyways
+        simplified = simplified.replaceFirst("^\\.\\*","");
+        simplified = simplified.replaceFirst("\\.\\*$","");
+
+        // replace all occurrences of % with \% and _ with \_, as they are special characters in SQL
+        simplified = simplified.replaceAll("%","\\%");
+        simplified = simplified.replaceAll("_","\\_");
+
+        // if pattern now does not start with a ^, we put a "%" in front
+        if(!simplified.startsWith("^")) {
+            simplified = "%" + simplified;
+        } else {
+            simplified = simplified.substring(1);
+        }
+
+        // if pattern does not end with a "$", we put a "%" at the end
+        if(!simplified.endsWith("$")) {
+            simplified = simplified + "%";
+        } else {
+            simplified = simplified.substring(0,simplified.length()-2);
+        }
+
+        // replace all non-escaped occurrences of .* with %
+        simplified = simplified.replaceAll("(?<!\\\\)\\.\\*","%");
+
+        // replace all non-escaped occurrences of .+ with _%
+        simplified = simplified.replaceAll("(?<!\\\\)\\.\\+","_%");
+
+        // the pattern is not simplifiable if the simplification still contains unescaped regular expression constructs
+        Pattern notSimplifiable = Pattern.compile("(?<!\\\\)[\\.\\*\\+\\{\\}\\[\\]\\|]");
+
+        if(notSimplifiable.matcher(simplified).find()) {
+            return parent.getDialect().getRegexp(value, pattern);
+        } else {
+            return value + " LIKE '"+simplified+"'";
+        }
+
+    }
+
 
     private static enum OPTypes {
         STRING, DOUBLE, INT, DATE, ANY
