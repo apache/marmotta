@@ -211,6 +211,28 @@ public class KiWiSparqlJoinTest {
         testQuery("query2.sparql");
     }
 
+    @Test
+    public void testQuery3() throws Exception {
+        testQuery("query3.sparql");
+    }
+
+    @Test
+    public void testQuery4() throws Exception {
+        testQuery("query4.sparql");
+    }
+
+    // numeric operator
+    @Test
+    public void testQuery5() throws Exception {
+        testQuery("query5.sparql");
+    }
+
+    // language match
+    @Test
+    public void testQuery6() throws Exception {
+        testQuery("query6.sparql");
+    }
+
 
     private void testQuery(String filename) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");

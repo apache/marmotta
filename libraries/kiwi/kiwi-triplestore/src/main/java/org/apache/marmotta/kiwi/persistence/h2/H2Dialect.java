@@ -44,4 +44,15 @@ public class H2Dialect extends KiWiDialect {
     public String getDriverClass() {
         return "org.h2.Driver";
     }
+
+    @Override
+    public String getRegexp(String text, String pattern) {
+        return text + " REGEXP " + pattern;
+    }
+
+    @Override
+    public String getILike(String text, String pattern) {
+        return "lower("+text+") LIKE lower("+pattern+")";
+    }
+
 }

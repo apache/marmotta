@@ -36,6 +36,8 @@ import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -43,6 +45,8 @@ import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
+
+    private static Logger log = LoggerFactory.getLogger(KiWiSparqlSailConnection.class);
 
     private KiWiSparqlConnection connection;
     private KiWiValueFactory valueFactory;
@@ -79,6 +83,8 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             new IterativeEvaluationOptimizer().optimize(tupleExpr, dataset, bindings);
             new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
             new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
+
+            log.debug("evaluating SPARQL query:\n {}", tupleExpr);
 
             return strategy.evaluate(tupleExpr, bindings);
 

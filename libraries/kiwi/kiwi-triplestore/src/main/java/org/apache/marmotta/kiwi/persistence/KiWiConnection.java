@@ -184,6 +184,10 @@ public class KiWiConnection {
         return cacheManager;
     }
 
+    public KiWiDialect getDialect() {
+        return dialect;
+    }
+
     /**
      * Load a KiWiNamespace with the given prefix, or null if the namespace does not exist. The method will first
      * look in the node cache for cached nodes. If no cache entry is found, it will run a database query
@@ -1361,8 +1365,8 @@ public class KiWiConnection {
 
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
-        if(locale == null) {
-            locale = LocaleUtils.toLocale(language);
+        if(locale == null && language != null) {
+            locale = LocaleUtils.toLocale(language.replace("-","_"));
             localeMap.put(language,locale);
 
         }

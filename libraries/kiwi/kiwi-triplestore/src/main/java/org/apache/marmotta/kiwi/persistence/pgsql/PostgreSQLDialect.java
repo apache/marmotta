@@ -45,4 +45,14 @@ public class PostgreSQLDialect extends KiWiDialect {
     public String getDriverClass() {
         return "org.postgresql.Driver";
     }
+
+    @Override
+    public String getRegexp(String text, String pattern) {
+        return text + " ~ " + pattern;
+    }
+
+    @Override
+    public String getILike(String text, String pattern) {
+        return text + " ILIKE " + pattern;
+    }
 }

@@ -152,4 +152,24 @@ public abstract class KiWiDialect {
     public Set<String> getStatementIdentifiers() {
         return statements.stringPropertyNames();
     }
+
+
+    /**
+     * Return the database specific operator for matching a text against a regular expression.
+     *
+     * @param text
+     * @param pattern
+     * @return
+     */
+    public abstract String getRegexp(String text, String pattern);
+
+
+    /**
+     * Return the database specific case insensitive like comparison, e.g. ILIKE in Postgres.
+     *
+     * @param text
+     * @param pattern
+     * @return
+     */
+    public abstract String getILike(String text, String pattern);
 }

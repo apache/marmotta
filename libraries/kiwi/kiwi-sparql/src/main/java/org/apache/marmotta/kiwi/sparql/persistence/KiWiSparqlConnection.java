@@ -19,21 +19,19 @@ package org.apache.marmotta.kiwi.sparql.persistence;
 
 import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
-import org.openrdf.query.algebra.Join;
-import org.openrdf.query.algebra.StatementPattern;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -54,6 +54,8 @@ import java.util.*;
 public class KiWiSparqlConnection {
 
     private static Logger log = LoggerFactory.getLogger(KiWiSparqlConnection.class);
+
+    private static DateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 
     private KiWiConnection parent;
     private KiWiValueFactory valueFactory;
@@ -69,9 +71,8 @@ public class KiWiSparqlConnection {
      * @param join
      * @return
      */
-    public CloseableIteration<BindingSet, SQLException> evaluateJoin(Join join, final BindingSet bindings) throws SQLException {
-        Preconditions.checkArgument(join.getLeftArg() instanceof StatementPattern || join.getLeftArg() instanceof Join);
-        Preconditions.checkArgument(join.getRightArg() instanceof StatementPattern || join.getRightArg() instanceof Join);
+    public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings) throws SQLException {
+        Preconditions.checkArgument(join instanceof Join || join instanceof Filter || join instanceof StatementPattern);
 
         // some definitions
         String[] positions = new String[] {"subject","predicate","object","context"};
@@ -234,7 +235,7 @@ public class KiWiSparqlConnection {
                 for(Map.Entry<Var,List<String>> entry : queryVariables.entrySet()) {
                     if(entry.getKey().getName() != null && entry.getKey().getName().equals(v) &&
                             entry.getValue() != null && entry.getValue().size() > 0) {
-                        List<String> vNames = queryVariables.get(v);
+                        List<String> vNames = entry.getValue();
                         String vName = vNames.get(0);
                         Value binding = valueFactory.convert(bindings.getValue(v));
                         if(binding instanceof KiWiNode) {
@@ -253,6 +254,15 @@ public class KiWiSparqlConnection {
             whereConditions.add(pName+".deleted = false");
         }
 
+
+        // 5. for each filter condition, add a statement to the where clause
+        List<ValueExpr> filters = new ArrayList<ValueExpr>();
+        collectFilters(join, filters);
+        for(ValueExpr expr : filters) {
+            whereConditions.add(evaluateExpression(expr,queryVariables, null));
+        }
+
+
         // construct the where clause
         StringBuilder whereClause = new StringBuilder();
         for(Iterator<String> it = whereConditions.iterator(); it.hasNext(); ) {
@@ -270,7 +280,9 @@ public class KiWiSparqlConnection {
                         "FROM " + fromClause + "\n " +
                         "WHERE " + whereClause;
 
-        log.debug("constructed SQL query string {}",queryString);
+        log.debug("original SPARQL syntax tree:\n {}", join);
+        log.debug("constructed SQL query string:\n {}",queryString);
+        log.debug("SPARQL -> SQL variable mappings:\n {}", queryVariables);
 
         PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(queryString);
         ResultSet result = queryStatement.executeQuery();
@@ -296,6 +308,84 @@ public class KiWiSparqlConnection {
 
     }
 
+    private String evaluateExpression(ValueExpr expr, Map<Var, List<String>> queryVariables, OPTypes optype) {
+        if(expr instanceof And) {
+            return "(" + evaluateExpression(((And) expr).getLeftArg(), queryVariables, optype) + " AND " + evaluateExpression(((And) expr).getRightArg(),queryVariables, optype) + ")";
+        } else if(expr instanceof Or) {
+            return "(" + evaluateExpression(((Or) expr).getLeftArg(), queryVariables, optype) + " OR " + evaluateExpression(((Or) expr).getRightArg(),queryVariables, optype) + ")";
+        } else if(expr instanceof Str) {
+            Str str = (Str)expr;
+            // get value of argument and express it as string
+            if(str.getArg() instanceof Var) {
+                return queryVariables.get(str.getArg()).get(0) + ".svalue";
+            } else if(str.getArg() instanceof ValueConstant) {
+                return "'" + ((ValueConstant) str.getArg()).getValue().stringValue() + "'";
+            }
+        } else if(expr instanceof Lang) {
+            Lang lang = (Lang)expr;
+
+            if(lang.getArg() instanceof Var) {
+                return queryVariables.get(lang.getArg()).get(0) + ".lang";
+            }
+        } else if(expr instanceof Compare) {
+            Compare cmp = (Compare)expr;
+
+            OPTypes ot = determineOpType(cmp.getLeftArg(), cmp.getRightArg());
+
+            return evaluateExpression(cmp.getLeftArg(),queryVariables, ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(),queryVariables, ot);
+        } else if(expr instanceof Regex) {
+            Regex re = (Regex)expr;
+
+            // TODO: simplify the trivial cases to LIKE
+
+            return parent.getDialect().getRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
+        } else if(expr instanceof LangMatches) {
+            LangMatches lm = (LangMatches)expr;
+            String value = evaluateExpression(lm.getLeftArg(), queryVariables, optype);
+            ValueConstant pattern = (ValueConstant) lm.getRightArg();
+
+            if(pattern.getValue().stringValue().equals("*")) {
+                return value + " LIKE '%'";
+            } else if(pattern.getValue().stringValue().equals("")) {
+                return value + " IS NULL";
+            } else {
+                return "(" + value + " = '"+pattern.getValue().stringValue()+"' OR " + parent.getDialect().getILike(value, "'" + pattern.getValue().stringValue() + "-%' )");
+            }
+        } else if(expr instanceof Var) {
+            String var = queryVariables.get(expr).get(0);
+
+            if(optype == null) {
+                return var + ".svalue";
+            } else {
+                switch (optype) {
+                    case STRING: return var + ".svalue";
+                    case INT:    return var + ".ivalue";
+                    case DOUBLE: return var + ".dvalue";
+                    case DATE:   return var + ".tvalue";
+                    default: throw new IllegalArgumentException("unsupported value type: " + optype);
+                }
+            }
+        } else if(expr instanceof ValueConstant) {
+            String val = ((ValueConstant) expr).getValue().stringValue();
+
+            if(optype == null) {
+                return "'" + val + "'";
+            } else {
+                switch (optype) {
+                    case STRING: return "'" + val + "'";
+                    case INT:    return ""+Integer.parseInt(val);
+                    case DOUBLE: return ""+Double.parseDouble(val);
+                    case DATE:   return "'" + DateUtils.parseDate(val) + "'";
+                    default: throw new IllegalArgumentException("unsupported value type: " + optype);
+                }
+            }
+        }
+
+
+        throw new IllegalArgumentException("unsupported value expression: "+expr);
+    }
+
+
     /**
      * Collect all statement patterns in a tuple expression in depth-first order. The tuple expression may only
      * contain Join or StatementPattern expressions, otherwise an IllegalArgumentException is thrown.
@@ -306,11 +396,133 @@ public class KiWiSparqlConnection {
         if(expr instanceof Join) {
             collectPatterns(((Join) expr).getLeftArg(), patterns);
             collectPatterns(((Join) expr).getRightArg(), patterns);
+        } else if(expr instanceof Filter) {
+            collectPatterns(((Filter) expr).getArg(), patterns);
         } else if(expr instanceof StatementPattern) {
             patterns.add((StatementPattern)expr);
         } else {
             throw new IllegalArgumentException("the tuple expression was neither a join nor a statement pattern: "+expr);
         }
 
+    }
+
+
+    /**
+     * Collect all filter conditions in a tuple expression in depth-first order. The tuple expression may only
+     * contain Join or StatementPattern expressions, otherwise an IllegalArgumentException is thrown.
+     * @param expr
+     * @param filters
+     */
+    private void collectFilters(TupleExpr expr, List<ValueExpr> filters) {
+        if(expr instanceof Join) {
+            collectFilters(((Join) expr).getLeftArg(), filters);
+            collectFilters(((Join) expr).getRightArg(), filters);
+        } else if(expr instanceof Filter) {
+            filters.add(((Filter) expr).getCondition());
+        } else if(expr instanceof StatementPattern) {
+            // do nothing
+        } else {
+            throw new IllegalArgumentException("the tuple expression was neither a join nor a statement pattern: "+expr);
+        }
+
+    }
+
+
+    private String getSQLOperator(Compare.CompareOp op) {
+        switch (op) {
+            case EQ: return " = ";
+            case GE: return " >= ";
+            case GT: return " > ";
+            case LE: return " <= ";
+            case LT: return " < ";
+            case NE: return " <> ";
+        }
+        throw new IllegalArgumentException("unsupported operator type for comparison: "+op);
+    }
+
+
+    private String getSQLOperator(MathExpr.MathOp op) {
+        switch (op) {
+            case PLUS: return " + ";
+            case MINUS: return " - ";
+            case DIVIDE: return " / ";
+            case MULTIPLY: return " / ";
+        }
+        throw new IllegalArgumentException("unsupported operator type for math expression: "+op);
+    }
+
+
+
+    private OPTypes determineOpType(ValueExpr expr) {
+        if(expr instanceof ValueConstant) {
+            if(((ValueConstant) expr).getValue() instanceof Literal) {
+                Literal l = (Literal)((ValueConstant) expr).getValue();
+                String type = l.getDatatype().stringValue();
+
+                if(StringUtils.equals(Namespaces.NS_XSD + "double", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "float", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "decimal", type)) {
+                    return OPTypes.DOUBLE;
+                } else if(StringUtils.equals(Namespaces.NS_XSD + "integer", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "long", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "int", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "short", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "nonNegativeInteger", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "nonPositiveInteger", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "negativeInteger", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "positiveInteger", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "unsignedLong", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "unsignedShort", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "byte", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "unsignedByte", type)) {
+                    return OPTypes.INT;
+                } else if(StringUtils.equals(Namespaces.NS_XSD + "dateTime", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "date", type)
+                        || StringUtils.equals(Namespaces.NS_XSD + "time", type)) {
+                    return OPTypes.DATE;
+                } else {
+                    return OPTypes.STRING;
+                }
+            } else {
+                return OPTypes.STRING;
+            }
+        } else if(expr instanceof Str) {
+            return OPTypes.STRING;
+        } else if(expr instanceof Lang) {
+            return OPTypes.STRING;
+        } else if(expr instanceof LocalName) {
+            return OPTypes.STRING;
+        } else if(expr instanceof Label) {
+            return OPTypes.STRING;
+        } else if(expr instanceof MathExpr) {
+            return determineOpType(((MathExpr) expr).getLeftArg(), ((MathExpr) expr).getRightArg());
+        } else if(expr instanceof Var) {
+            return OPTypes.ANY;
+        } else {
+            throw new IllegalArgumentException("unsupported expression: "+expr);
+        }
+    }
+
+    private OPTypes determineOpType(ValueExpr expr1, ValueExpr expr2) {
+        OPTypes left  = determineOpType(expr1);
+        OPTypes right = determineOpType(expr2);
+
+        if(left == OPTypes.ANY) {
+            return right;
+        } else if(right == OPTypes.ANY) {
+            return left;
+        } else if(left == right) {
+            return left;
+        } else if( (left == OPTypes.INT && right == OPTypes.DOUBLE) || (left == OPTypes.DOUBLE && right == OPTypes.INT)) {
+            return OPTypes.DOUBLE;
+        } else if( (left == OPTypes.STRING) || (right == OPTypes.STRING)) {
+            return OPTypes.STRING;
+        } else {
+            throw new IllegalArgumentException("unsupported type coercion: " + left + " and " + right);
+        }
+    }
+
+    private static enum OPTypes {
+        STRING, DOUBLE, INT, DATE, ANY
     }
 }

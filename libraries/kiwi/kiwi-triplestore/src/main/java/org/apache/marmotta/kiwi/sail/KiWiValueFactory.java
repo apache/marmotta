@@ -338,7 +338,7 @@ public class KiWiValueFactory implements ValueFactory {
         final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
         final Locale locale;
         if(lang != null) {
-            locale = LocaleUtils.toLocale(lang);
+            locale = LocaleUtils.toLocale(lang.replace("-","_"));
         } else
             locale  = null;
 
