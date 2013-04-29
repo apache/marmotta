@@ -221,7 +221,7 @@ public class KiWiSparqlJoinTest {
         testQuery("query4.sparql");
     }
 
-    // numeric operator
+    // numeric comparison
     @Test
     public void testQuery5() throws Exception {
         testQuery("query5.sparql");
@@ -231,6 +231,30 @@ public class KiWiSparqlJoinTest {
     @Test
     public void testQuery6() throws Exception {
         testQuery("query6.sparql");
+    }
+
+    // math expression
+    @Test
+    public void testQuery7() throws Exception {
+        testQuery("query7.sparql");
+    }
+
+    // isLiteral
+    @Test
+    public void testQuery8() throws Exception {
+        testQuery("query8.sparql");
+    }
+
+    // isURI
+    @Test
+    public void testQuery9() throws Exception {
+        testQuery("query9.sparql");
+    }
+
+    // term comparison
+    @Test
+    public void testQuery10() throws Exception {
+        testQuery("query10.sparql");
     }
 
 

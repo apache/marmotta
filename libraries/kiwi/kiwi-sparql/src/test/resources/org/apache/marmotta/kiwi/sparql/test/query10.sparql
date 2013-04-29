@@ -1,0 +1,10 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+
+SELECT ?fn1 ?fn2 WHERE {
+    ?p1 foaf:name ?fn1 .
+    ?p1 foaf:interest ?interest1 .
+    ?p2 foaf:name ?fn2 .
+    ?p2 foaf:interest ?interest2 .
+    FILTER( ?interest1 = ?interest2 )
+}

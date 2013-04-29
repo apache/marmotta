@@ -27,7 +27,9 @@ import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
+import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -321,6 +323,14 @@ public class KiWiSparqlConnection {
             } else if(str.getArg() instanceof ValueConstant) {
                 return "'" + ((ValueConstant) str.getArg()).getValue().stringValue() + "'";
             }
+        } else if(expr instanceof Label) {
+            Label str = (Label)expr;
+            // get value of argument and express it as string
+            if(str.getArg() instanceof Var) {
+                return queryVariables.get(str.getArg()).get(0) + ".svalue";
+            } else if(str.getArg() instanceof ValueConstant) {
+                return "'" + ((ValueConstant) str.getArg()).getValue().stringValue() + "'";
+            }
         } else if(expr instanceof Lang) {
             Lang lang = (Lang)expr;
 
@@ -329,6 +339,12 @@ public class KiWiSparqlConnection {
             }
         } else if(expr instanceof Compare) {
             Compare cmp = (Compare)expr;
+
+            OPTypes ot = determineOpType(cmp.getLeftArg(), cmp.getRightArg());
+
+            return evaluateExpression(cmp.getLeftArg(),queryVariables, ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(),queryVariables, ot);
+        } else if(expr instanceof MathExpr) {
+            MathExpr cmp = (MathExpr)expr;
 
             OPTypes ot = determineOpType(cmp.getLeftArg(), cmp.getRightArg());
 
@@ -351,6 +367,50 @@ public class KiWiSparqlConnection {
             } else {
                 return "(" + value + " = '"+pattern.getValue().stringValue()+"' OR " + parent.getDialect().getILike(value, "'" + pattern.getValue().stringValue() + "-%' )");
             }
+        } else if(expr instanceof IsResource) {
+            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
+
+            // operator must be a variable or a constant
+            if(arg instanceof ValueConstant) {
+                return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI || ((ValueConstant) arg).getValue() instanceof BNode);
+            } else if(arg instanceof Var) {
+                String var = queryVariables.get(arg).get(0);
+
+                return "(" + var + ".ntype = 'uri' OR " + var + ".ntype = 'bnode')";
+            }
+        } else if(expr instanceof IsURI) {
+            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
+
+            // operator must be a variable or a constant
+            if(arg instanceof ValueConstant) {
+                return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI);
+            } else if(arg instanceof Var) {
+                String var = queryVariables.get(arg).get(0);
+
+                return var + ".ntype = 'uri'";
+            }
+        } else if(expr instanceof IsBNode) {
+            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
+
+            // operator must be a variable or a constant
+            if(arg instanceof ValueConstant) {
+                return Boolean.toString(((ValueConstant) arg).getValue() instanceof BNode);
+            } else if(arg instanceof Var) {
+                String var = queryVariables.get(arg).get(0);
+
+                return var + ".ntype = 'bnode'";
+            }
+        } else if(expr instanceof IsLiteral) {
+            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
+
+            // operator must be a variable or a constant
+            if(arg instanceof ValueConstant) {
+                return Boolean.toString(((ValueConstant) arg).getValue() instanceof Literal);
+            } else if(arg instanceof Var) {
+                String var = queryVariables.get(arg).get(0);
+
+                return "(" + var + ".ntype = 'string' OR " + var + ".ntype = 'int' OR " + var + ".ntype = 'double'  OR " + var + ".ntype = 'date'  OR " + var + ".ntype = 'boolean')";
+            }
         } else if(expr instanceof Var) {
             String var = queryVariables.get(expr).get(0);
 
@@ -362,7 +422,7 @@ public class KiWiSparqlConnection {
                     case INT:    return var + ".ivalue";
                     case DOUBLE: return var + ".dvalue";
                     case DATE:   return var + ".tvalue";
-                    default: throw new IllegalArgumentException("unsupported value type: " + optype);
+                    case ANY:    return var + ".id";
                 }
             }
         } else if(expr instanceof ValueConstant) {

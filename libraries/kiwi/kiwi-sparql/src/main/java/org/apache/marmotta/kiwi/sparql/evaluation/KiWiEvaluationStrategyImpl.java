@@ -122,7 +122,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
         } else if(expr instanceof MathExpr) {
-                return isSupported(((MathExpr) expr).getLeftArg()) && isSupported(((MathExpr) expr).getRightArg());
+            return isSupported(((MathExpr) expr).getLeftArg()) && isSupported(((MathExpr) expr).getRightArg());
         } else if(expr instanceof And) {
             return isSupported(((And) expr).getLeftArg()) && isSupported(((And) expr).getRightArg());
         } else if(expr instanceof Or) {
@@ -133,6 +133,16 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return true;
         } else if(expr instanceof Str) {
             return isAtomic(((Str) expr).getArg());
+        } else if(expr instanceof Label) {
+            return isAtomic(((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof IsResource) {
+            return isAtomic(((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof IsURI) {
+            return isAtomic(((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof IsBNode) {
+            return isAtomic(((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof IsLiteral) {
+            return isAtomic(((UnaryValueOperator) expr).getArg());
         } else if(expr instanceof Lang) {
             return isAtomic(((Lang) expr).getArg());
         } else if(expr instanceof LangMatches) {
