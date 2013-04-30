@@ -55,4 +55,20 @@ public class H2Dialect extends KiWiDialect {
         return "lower("+text+") LIKE lower("+pattern+")";
     }
 
+
+
+    @Override
+    public String getConcat(String... args) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("CONCAT(");
+        for(int i=0; i<args.length; i++) {
+            buf.append(args[i]);
+            if(i + 1 <args.length) {
+                buf.append(",");
+            }
+        }
+        buf.append(")");
+        return buf.toString();
+    }
+
 }

@@ -172,4 +172,13 @@ public abstract class KiWiDialect {
      * @return
      */
     public abstract String getILike(String text, String pattern);
+
+
+    /**
+     * Get the database specific string concatenation function for the (variable number of) arguments.
+     *
+     * @param args
+     * @return
+     */
+    public abstract String getConcat(String... args);
 }

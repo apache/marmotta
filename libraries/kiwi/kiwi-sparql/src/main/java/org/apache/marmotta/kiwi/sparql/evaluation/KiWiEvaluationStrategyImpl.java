@@ -32,7 +32,16 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 
 /**
- * An implementation of the SPARQL query evaluation strategy with specific extensions and optimizations.
+ * An implementation of the SPARQL query evaluation strategy with specific extensions and optimizations. The KiWi
+ * evaluation strategy is able to apply optimizations to certain frequently found query patterns by directly translating
+ * them into SQL queries. Currently, the following constructs are supported:
+ * <ul>
+ *     <li>JOINs of statement patterns are translated into SQL joins (no OPTIONAL and no path expressions supporterd)</li>
+ *     <li>FILTERs are translated to SQL where conditions, in case the FILTER conditions are supported (no aggregation constructs are supported)</li>
+ * </ul>
+ * In case a query is not completely supported by the optimizer, the optimizer might still improve performance by
+ * evaluating the optimizable components of the query and then letting the in-memory implementation take over
+ * (e.g. for aggregation constructs, distinct, path expressions, optional).
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -80,7 +89,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Filter join, BindingSet bindings) throws QueryEvaluationException {
         if(isSupported(join)) {
-            log.debug("applying KiWi JOIN optimizations on SPARQL query ...");
+            log.debug("applying KiWi FILTER optimizations on SPARQL query ...");
 
             try {
                 return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings)) {
@@ -101,7 +110,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
 
     /**
-     * Test if a join consists only of joins of statement patterns; in this case we can apply a specific optimization.
+     * Test if a tuple expression is supported nby the optimized evaluation; in this case we can apply a specific optimization.
      * @param expr
      * @return
      */
@@ -117,7 +126,13 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         }
     }
 
-
+    /**
+     * Test if the value expression construct and all its subexpressions are supported by the optimized evaluation
+     * strategy. Returns true if yes, false otherwise.
+     *
+     * @param expr
+     * @return
+     */
     private static boolean isSupported(ValueExpr expr) {
         if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
@@ -127,6 +142,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((And) expr).getLeftArg()) && isSupported(((And) expr).getRightArg());
         } else if(expr instanceof Or) {
             return isSupported(((Or) expr).getLeftArg()) && isSupported(((Or) expr).getRightArg());
+        } else if(expr instanceof Not) {
+            return isSupported(((Not) expr).getArg());
         } else if(expr instanceof ValueConstant) {
             return true;
         } else if(expr instanceof Var) {

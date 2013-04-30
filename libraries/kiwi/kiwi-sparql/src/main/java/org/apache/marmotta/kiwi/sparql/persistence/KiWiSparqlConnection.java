@@ -69,7 +69,7 @@ public class KiWiSparqlConnection {
     }
 
     /**
-     * Evaluate a statement pattern join on the database by translating it into an appropriate SQL statement.
+     * Evaluate a statement pattern join or filter on the database by translating it into an appropriate SQL statement.
      * Copied and adapted from KiWiReasoningConnection.query()
      * @param join
      * @return
@@ -316,6 +316,8 @@ public class KiWiSparqlConnection {
             return "(" + evaluateExpression(((And) expr).getLeftArg(), queryVariables, optype) + " AND " + evaluateExpression(((And) expr).getRightArg(),queryVariables, optype) + ")";
         } else if(expr instanceof Or) {
             return "(" + evaluateExpression(((Or) expr).getLeftArg(), queryVariables, optype) + " OR " + evaluateExpression(((Or) expr).getRightArg(),queryVariables, optype) + ")";
+        } else if(expr instanceof Not) {
+            return "NOT (" + evaluateExpression(((Not) expr).getArg(), queryVariables, optype)  + ")";
         } else if(expr instanceof Str) {
             Str str = (Str)expr;
             // get value of argument and express it as string
@@ -349,13 +351,18 @@ public class KiWiSparqlConnection {
 
             OPTypes ot = determineOpType(cmp.getLeftArg(), cmp.getRightArg());
 
-            return evaluateExpression(cmp.getLeftArg(),queryVariables, ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(),queryVariables, ot);
+            if(ot == OPTypes.STRING) {
+                if(cmp.getOperator() == MathExpr.MathOp.PLUS) {
+                    return parent.getDialect().getConcat(evaluateExpression(cmp.getLeftArg(),queryVariables, ot), evaluateExpression(cmp.getRightArg(),queryVariables, ot));
+                } else {
+                    throw new IllegalArgumentException("operation "+cmp.getOperator()+" is not supported on strings");
+                }
+            } else {
+                return evaluateExpression(cmp.getLeftArg(),queryVariables, ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(),queryVariables, ot);
+            }
         } else if(expr instanceof Regex) {
             Regex re = (Regex)expr;
 
-            // TODO: simplify the trivial cases to LIKE
-
-            //return parent.getDialect().getRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
             return optimizeRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
         } else if(expr instanceof LangMatches) {
             LangMatches lm = (LangMatches)expr;
@@ -435,9 +442,9 @@ public class KiWiSparqlConnection {
             } else {
                 switch (optype) {
                     case STRING: return "'" + val + "'";
-                    case INT:    return ""+Integer.parseInt(val);
-                    case DOUBLE: return ""+Double.parseDouble(val);
-                    case DATE:   return "'" + DateUtils.parseDate(val) + "'";
+                    case INT:    return ""  + Integer.parseInt(val);
+                    case DOUBLE: return ""  + Double.parseDouble(val);
+                    case DATE:   return "'" + sqlDateFormat.format(DateUtils.parseDate(val)) + "'";
                     default: throw new IllegalArgumentException("unsupported value type: " + optype);
                 }
             }

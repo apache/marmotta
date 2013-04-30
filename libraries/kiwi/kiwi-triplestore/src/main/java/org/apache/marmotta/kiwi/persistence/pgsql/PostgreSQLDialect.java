@@ -55,4 +55,21 @@ public class PostgreSQLDialect extends KiWiDialect {
     public String getILike(String text, String pattern) {
         return text + " ILIKE " + pattern;
     }
+
+
+
+    @Override
+    public String getConcat(String... args) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("(");
+        for(int i=0; i<args.length; i++) {
+            buf.append(args[i]);
+            if(i + 1 <args.length) {
+                buf.append("||");
+            }
+        }
+        buf.append(")");
+        return buf.toString();
+    }
+
 }
