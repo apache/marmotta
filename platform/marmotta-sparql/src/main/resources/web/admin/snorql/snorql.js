@@ -79,34 +79,38 @@ function Snorql() {
 	        }
         }
         
-        if (queryString.match(/property=([^&]*)/)) {
-            var resultTitle = 'All uses of property ' + decodeURIComponent(match[1]) + ':';
+        var properties = queryString.match(/property=([^&]*)/);
+        if (properties) {
+            var resultTitle = 'All uses of property ' + decodeURIComponent(properties[1]) + ':';
             var query = 'SELECT DISTINCT ?resource ?value\n' +
-                    'WHERE { ?resource <' + decodeURIComponent(match[1]) + '> ?value }\n' +
+                    'WHERE { ?resource <' + decodeURIComponent(properties[1]) + '> ?value }\n' +
                     'ORDER BY ?resource ?value';
         }
         
-        if (queryString.match(/class=([^&]*)/)) {
-            var resultTitle = 'All instances of class ' + decodeURIComponent(match[1]) + ':';
+        var classes = queryString.match(/class=([^&]*)/);
+        if (classes) {
+            var resultTitle = 'All instances of class ' + decodeURIComponent(classes[1]) + ':';
             var query = 'SELECT DISTINCT ?instance\n' +
-                    'WHERE { ?instance a <' + decodeURIComponent(match[1]) + '> }\n' +
+                    'WHERE { ?instance a <' + decodeURIComponent(classes[1]) + '> }\n' +
                     'ORDER BY ?instance';
         }
         
-        if (queryString.match(/describe=([^&]*)/)) {
-            var resultTitle = 'Description of ' + decodeURIComponent(match[1]) + ':';
+        var describe = queryString.match(/describe=([^&]*)/);
+        if (describe) {
+            var resultTitle = 'Description of ' + decodeURIComponent(describe[1]) + ':';
             var query = 'SELECT DISTINCT ?property ?hasValue ?isValueOf\n' +
                     'WHERE {\n' +
-                    '  { <' + decodeURIComponent(match[1]) + '> ?property ?hasValue }\n' +
+                    '  { <' + decodeURIComponent(describe[1]) + '> ?property ?hasValue }\n' +
                     '  UNION\n' +
-                    '  { ?isValueOf ?property <' + decodeURIComponent(match[1]) + '> }\n' +
+                    '  { ?isValueOf ?property <' + decodeURIComponent(describe[1]) + '> }\n' +
                     '}\n' +
                     'ORDER BY (!BOUND(?hasValue)) ?property ?hasValue ?isValueOf';
         }
         
-        if (queryString.match(/query=/)) {
+        var queryMatch = queryString.match(/query=([^&]*)/);
+        if (queryMatch) {
         	var resultTitle = 'SPARQL results:';
-        	var query = this._betterUnescape(queryString.match(/query=([^&]*)/)[1]);
+        	var query = this._betterUnescape(queryMatch[1]);
         
         }
         
@@ -370,7 +374,6 @@ function Snorql() {
         return unescape(s.replace(/\+/g, ' '));
     }
 }
-
 
 /*
  * RDFXMLFormatter
