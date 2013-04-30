@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class ShortTransformer<Node> implements NodeTransformer<Short,Node> {
 
     @Override
-    public Short transform(NodeBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Short transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(backend.isLiteral(node)) {
             return backend.decimalValue(node).shortValueExact();
         } else {

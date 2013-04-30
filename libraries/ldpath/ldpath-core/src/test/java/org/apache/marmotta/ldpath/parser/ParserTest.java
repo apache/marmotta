@@ -32,6 +32,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.programs.Program;
@@ -115,7 +116,7 @@ public class ParserTest {
         RdfPathParser<String> rdfPathParser = new RdfPathParser<String>(backend,new StringReader(IOUtils.toString(resource)));
         rdfPathParser.registerTransformer(NS_TEST + "type", new NodeTransformer<String, String>() {
             @Override
-            public String transform(NodeBackend<String> backend, String node, Map<String,String> configuration)
+            public String transform(RDFBackend<String> backend, String node, Map<String,String> configuration)
                     throws IllegalArgumentException {
                 return node;
             }
