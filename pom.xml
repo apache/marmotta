@@ -112,8 +112,8 @@
         <url>https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</url>
         <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</developerConnection>
-      <tag>3.0.0-incubating</tag>
-  </scm>
+        <tag>3.0.0-incubating</tag>
+    </scm>
 
     <issueManagement>
         <system>Jira</system>
