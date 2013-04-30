@@ -49,7 +49,7 @@ public class RoundFunction<Node> extends MathFunction<Node> {
         return result;
     }
 
-    protected Node calc(NodeBackend<Node> backend, Node node) {
+    protected Node calc(RDFBackend<Node> backend, Node node) {
         /* SUM */
         try {
             Double val = doubleTransformer.transform(backend, node, null);

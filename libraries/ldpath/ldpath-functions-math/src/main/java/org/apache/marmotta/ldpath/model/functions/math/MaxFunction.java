@@ -46,7 +46,7 @@ public class MaxFunction<Node> extends MathFunction<Node> {
         return result;
     }
 
-    protected Node calc(NodeBackend<Node> backend, Collection<Node> arg) {
+    protected Node calc(RDFBackend<Node> backend, Collection<Node> arg) {
         /* MAX */
         double d = Double.MIN_VALUE;
         Node max = null;

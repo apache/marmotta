@@ -49,7 +49,7 @@ public abstract  class BinaryNumericTest<Node> extends TestFunction<Node> {
         return true;
     }
 
-    protected boolean test(NodeBackend<Node> backend, Node leftNode, Node rightNode) {
+    protected boolean test(RDFBackend<Node> backend, Node leftNode, Node rightNode) {
         try {
             return test(transformer.transform(backend, leftNode, null), transformer.transform(backend, rightNode, null));
         } catch (IllegalArgumentException e) {
