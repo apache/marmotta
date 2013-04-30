@@ -28,9 +28,9 @@ String.prototype.startsWith = function(str) {
 function Snorql() {
     // modify this._endpoint to point to your SPARQL endpoint
     this._endpoint = _BASIC_URL + 'sparql/select';
-    // modify these to your likeing
-    this._poweredByLink = 'http://code.google.com/p/lmf';
-    this._poweredByLabel = 'Linked Media Framework';
+    // modify these to your liking
+    this._poweredByLink = 'http://marmotta.incubator.apache.org';
+    this._poweredByLabel = 'Snorql & Apache Marmotta';
     this._enableNamedGraphs = false;
 
     this._browserBase = null;
@@ -43,7 +43,6 @@ function Snorql() {
         this.setBrowserBase(document.location.href.replace(/\?.*/, ''));
         this._displayEndpointURL();
         //this._displayPoweredBy();
-        this.setNamespaces(D2R_namespacePrefixes);
         this.updateOutputMode();
         var match = document.location.href.match(/\?(.*)/);
         var queryString = match ? match[1] : '';
@@ -52,49 +51,49 @@ function Snorql() {
             this._updateGraph(null, false);
             return;
         }
+        
         var graph = queryString.match(/graph=([^&]*)/);
         graph = graph ? decodeURIComponent(graph[1]) : null;
         this._updateGraph(graph, false);
+        
         var browse = queryString.match(/browse=([^&]*)/);
-        var querytext = null;
-        if (browse && browse[1] == 'classes') {
-            var resultTitle = 'List of all classes:';
-            var query = 'SELECT DISTINCT ?class\n' +
-                    'WHERE { [] a ?class }\n' +
-                    'ORDER BY ?class';
+        if (browse) {
+	        if (browse[1] == 'classes') {
+	            var resultTitle = 'List of all classes:';
+	            var query = 'SELECT DISTINCT ?class\n' +
+	                    'WHERE { [] a ?class }\n' +
+	                    'ORDER BY ?class';
+	        } else if (browse[1] == 'properties') {
+	            var resultTitle = 'List of all properties:';
+	            var query = 'SELECT DISTINCT ?property\n' +
+	                    'WHERE { [] ?property [] }\n' +
+	                    'ORDER BY ?property';
+	        } else if (browse[1] == 'graphs') {
+	            var resultTitle = 'List of all named graphs:';
+	            var query = 'SELECT DISTINCT ?namedgraph ?label\n' +
+	                    'WHERE {\n' +
+	                    '  GRAPH ?namedgraph { ?s ?p ?o }\n' +
+	                    '  OPTIONAL { ?namedgraph rdfs:label ?label }\n' +
+	                    '}\n' +
+	                    'ORDER BY ?namedgraph';
+	        }
         }
-        if (browse && browse[1] == 'properties') {
-            var resultTitle = 'List of all properties:';
-            var query = 'SELECT DISTINCT ?property\n' +
-                    'WHERE { [] ?property [] }\n' +
-                    'ORDER BY ?property';
-        }
-        if (browse && browse[1] == 'graphs') {
-            var resultTitle = 'List of all named graphs:';
-            var querytext = 'SELECT DISTINCT ?namedgraph ?label\n' +
-                    'WHERE {\n' +
-                    '  GRAPH ?namedgraph { ?s ?p ?o }\n' +
-                    '  OPTIONAL { ?namedgraph rdfs:label ?label }\n' +
-                    '}\n' +
-                    'ORDER BY ?namedgraph';
-            var query = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' + querytext;
-        }
-        var match = queryString.match(/property=([^&]*)/);
-        if (match) {
+        
+        if (queryString.match(/property=([^&]*)/)) {
             var resultTitle = 'All uses of property ' + decodeURIComponent(match[1]) + ':';
             var query = 'SELECT DISTINCT ?resource ?value\n' +
                     'WHERE { ?resource <' + decodeURIComponent(match[1]) + '> ?value }\n' +
                     'ORDER BY ?resource ?value';
         }
-        var match = queryString.match(/class=([^&]*)/);
-        if (match) {
+        
+        if (queryString.match(/class=([^&]*)/)) {
             var resultTitle = 'All instances of class ' + decodeURIComponent(match[1]) + ':';
             var query = 'SELECT DISTINCT ?instance\n' +
                     'WHERE { ?instance a <' + decodeURIComponent(match[1]) + '> }\n' +
                     'ORDER BY ?instance';
         }
-        var match = queryString.match(/describe=([^&]*)/);
-        if (match) {
+        
+        if (queryString.match(/describe=([^&]*)/)) {
             var resultTitle = 'Description of ' + decodeURIComponent(match[1]) + ':';
             var query = 'SELECT DISTINCT ?property ?hasValue ?isValueOf\n' +
                     'WHERE {\n' +
@@ -104,15 +103,20 @@ function Snorql() {
                     '}\n' +
                     'ORDER BY (!BOUND(?hasValue)) ?property ?hasValue ?isValueOf';
         }
+        
         if (queryString.match(/query=/)) {
-            var resultTitle = 'SPARQL results:';
-            querytext = this._betterUnescape(queryString.match(/query=([^&]*)/)[1]);
-            var query = prefixes + querytext;
+        	var resultTitle = 'SPARQL results:';
+        	var query = this._betterUnescape(queryString.match(/query=([^&]*)/)[1]);
+        
         }
-        if (!querytext) {
-            querytext = query;
+        
+        var prefixes = this._getPrefixes();
+        if (queryString.match(/prefixes=/)) {
+        	prefixes = this._betterUnescape(queryString.match(/prefixes=([^&]*)/)[1]);
         }
-        document.getElementById('querytext').value = querytext;
+        
+        var querytext = prefixes + " " + query;
+        document.getElementById('querytext').value = query;
         this.displayBusyMessage();
         var service = new SPARQL.Service(this._endpoint);
         if (this._graph) {
@@ -123,7 +127,7 @@ function Snorql() {
         var dummy = this;
 
    	    var exp = /^\s*(?:PREFIX\s+\w*:\s+<[^>]*>\s*)*(\w+)\s*.*/i;
-   	    var match = exp.exec(querytext);
+   	    var match = exp.exec(query);
    	    if (match) {
 	        if (match[1].toUpperCase() == 'ASK') {
 	        	service.setOutput('boolean');
@@ -144,7 +148,7 @@ function Snorql() {
 	        }
    	    }
 
-        service.query(query, {
+        service.query(querytext, {
             success: successFunc,
             failure: function(report) {
                 var message = report.responseText.match(/<pre>([\s\S]*)<\/pre>/);
@@ -175,7 +179,9 @@ function Snorql() {
 
     this.setNamespaces = function(namespaces) {
         this._namespaces = namespaces;
-        this._display(document.createTextNode(this._getPrefixes()), 'prefixestext');
+        var prefixes = this._getPrefixes();
+        document.getElementById('prefixes').value = prefixes;
+        this._display(document.createTextNode(prefixes), 'prefixestext');
     }
 
     this.switchToGraph = function(uri) {
@@ -246,12 +252,10 @@ function Snorql() {
         var mode = this._selectedOutputMode();
         if (mode == 'browse') {
             document.getElementById('queryform').action = this._browserBase;
-            document.getElementById('query').value = document.getElementById('querytext').value;
         } else {
-            //fix { bug
-            document.getElementById('query').value = this._getPrefixes() + document.getElementById('querytext').value;
             document.getElementById('queryform').action = this._endpoint;
         }
+        document.getElementById('query').value = document.getElementById('querytext').value;
         document.getElementById('jsonoutput').disabled = (mode != 'json');
         if(mode == 'html') {
            document.getElementById('jsonoutput').disabled = false;
