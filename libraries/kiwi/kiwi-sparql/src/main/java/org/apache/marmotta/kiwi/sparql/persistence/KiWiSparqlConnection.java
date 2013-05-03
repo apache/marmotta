@@ -19,6 +19,8 @@ package org.apache.marmotta.kiwi.sparql.persistence;
 
 import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.CloseableIteratorIteration;
+import info.aduna.iteration.Iterations;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -290,7 +292,7 @@ public class KiWiSparqlConnection {
         PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(queryString);
         ResultSet result = queryStatement.executeQuery();
 
-        return new ResultSetIteration<BindingSet>(result, true, new ResultTransformerFunction<BindingSet>() {
+        ResultSetIteration<BindingSet> it = new ResultSetIteration<BindingSet>(result, true, new ResultTransformerFunction<BindingSet>() {
             @Override
             public BindingSet apply(ResultSet row) throws SQLException {
                 MapBindingSet resultRow = new MapBindingSet();
@@ -309,6 +311,7 @@ public class KiWiSparqlConnection {
             }
         });
 
+        return new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator());
     }
 
     private String evaluateExpression(ValueExpr expr, Map<Var, List<String>> queryVariables, OPTypes optype) {
