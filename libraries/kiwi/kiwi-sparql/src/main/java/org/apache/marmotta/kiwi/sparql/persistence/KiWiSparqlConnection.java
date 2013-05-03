@@ -526,7 +526,7 @@ public class KiWiSparqlConnection {
         if(expr instanceof ValueConstant) {
             if(((ValueConstant) expr).getValue() instanceof Literal) {
                 Literal l = (Literal)((ValueConstant) expr).getValue();
-                String type = l.getDatatype().stringValue();
+                String type = l.getDatatype() != null ? l.getDatatype().stringValue() : null;
 
                 if(StringUtils.equals(Namespaces.NS_XSD + "double", type)
                         || StringUtils.equals(Namespaces.NS_XSD + "float", type)

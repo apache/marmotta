@@ -151,6 +151,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             if(contextSet.size() == 0) {
                 contextSet.add(valueFactory.createURI(defaultContext));
             }
+            if(inferred) {
+                contextSet.add(valueFactory.createURI(inferredContext));
+            }
 
             KiWiResource    ksubj = valueFactory.convert(subj);
             KiWiUriResource kpred = valueFactory.convert(pred);
