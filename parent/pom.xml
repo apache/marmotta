@@ -1528,7 +1528,8 @@
         </profile>
     </profiles>
 
-  <scm>
-    <tag>3.0.0-incubating</tag>
-  </scm>
+    <scm>
+        <tag>3.0.0-incubating</tag>
+    </scm>
+
 </project>
