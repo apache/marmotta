@@ -43,6 +43,7 @@ var LoginLogout = {
 
         if(user.login=="anonymous") {
             var login_link = document.createElement("a");
+            login_link.setAttribute("class",'navbar-link');
             login_link.innerHTML = "login";
             login_link.onclick = function() {
                 call(basic_url+"user/login");
@@ -51,13 +52,14 @@ var LoginLogout = {
         } else {
             //logout button
             var logout_link = document.createElement("a");
+            logout_link.setAttribute("class",'navbar-link');
             logout_link.innerHTML = "change user";
             logout_link.onclick = function() {
                 call(basic_url+"user/login?logout=true");
             };
 
             document.getElementById(container).innerHTML =
-                "<span><a href='"+basic_url+"user/me.html'>"+user.login+"</a></span>&nbsp;|&nbsp;";
+                "<span><a class='navbar-link' href='"+basic_url+"user/me.html'>"+user.login+"</a></span>&nbsp;|&nbsp;";
             document.getElementById(container).appendChild(logout_link);
         }
     }

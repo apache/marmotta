@@ -515,6 +515,13 @@
             <artifactId>kiwi-transactions</artifactId>
         </dependency>
 
+        <!-- to enable boostrap ui -->
+        <dependency>
+            <groupId>com.efsavage.twitter.bootstrap</groupId>
+            <artifactId>bootstrap-maven</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+
     </dependencies>
 
 </project>
