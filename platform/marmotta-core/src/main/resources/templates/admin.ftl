@@ -138,7 +138,7 @@
             <div class="span4">
                 <div class="hero-unit">
                     <form>
-                        <fieldset>
+                    <fieldset>
                             <legend>Legend</legend>
                             <div class="field-box">
                                 <label>Format</label>
