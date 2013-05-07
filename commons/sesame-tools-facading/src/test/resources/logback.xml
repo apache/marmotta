@@ -21,6 +21,7 @@
             <pattern>%d{HH:mm:ss.SSS} %highlight(%level) %cyan(%logger{15}) - %m%n</pattern>
         </encoder>
     </appender>
+    <logger name="org.apache.marmotta.commons.sesame.facading.concurrent.model" level="TRACE" />
     <root level="${root-level:-INFO}">
         <appender-ref ref="CONSOLE"/>
     </root>
