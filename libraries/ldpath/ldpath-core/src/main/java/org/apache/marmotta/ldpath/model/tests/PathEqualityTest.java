@@ -68,6 +68,8 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
     public String getPathExpression(NodeBackend<Node> rdfBackend) {
         if (rdfBackend.isURI(node)) {
             return String.format("%s is <%s>", path.getPathExpression(rdfBackend), rdfBackend.stringValue(node));
+        } else if (rdfBackend.isLiteral(node)) {
+            return String.format("%s is \"%s\"", path.getPathExpression(rdfBackend), rdfBackend.stringValue(node));
         } else {
             // TODO Can this happen?
             return String.format("%s is %s", path.getPathExpression(rdfBackend), rdfBackend.stringValue(node));
