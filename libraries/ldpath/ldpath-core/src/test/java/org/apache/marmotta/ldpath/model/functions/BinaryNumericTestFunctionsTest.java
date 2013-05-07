@@ -70,7 +70,7 @@ public class BinaryNumericTestFunctionsTest extends AbstractTestBase {
 
     @Before
     public void loadData() throws RepositoryException, RDFParseException, IOException {
-        super.loadData("test-data.n3", RDFFormat.N3);
+        super.loadData("/ldpath/test-data.n3", RDFFormat.N3);
     }
 
     @Test

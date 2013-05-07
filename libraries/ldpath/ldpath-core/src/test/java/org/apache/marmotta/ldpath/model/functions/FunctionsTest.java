@@ -47,7 +47,7 @@ public class FunctionsTest extends AbstractTestBase {
 
     @Before
     public void loadData() throws RepositoryException, RDFParseException, IOException {
-        loadData("test-data.n3", RDFFormat.N3);
+        loadData("/ldpath/test-data.n3", RDFFormat.N3);
     }
 
     @Test
