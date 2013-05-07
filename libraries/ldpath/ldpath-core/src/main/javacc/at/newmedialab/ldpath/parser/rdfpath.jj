@@ -689,7 +689,7 @@ NodeSelector GroupedSelector() :
     /* Other selector enclosed in braces */
     "(" result = Selector() ")"
     {
-        return result;
+        return new GroupedSelector(result);
     }
 
 }
