@@ -36,8 +36,8 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class PathEqualityTest<Node> extends NodeTest<Node> {
 
-    private NodeSelector<Node> path;
-    private Node node;
+    private final NodeSelector<Node> path;
+    protected final Node node;
 
 
     public PathEqualityTest(NodeSelector<Node> path, Node node) {

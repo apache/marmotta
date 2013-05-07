@@ -73,7 +73,7 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
      */
     @Override
     public String getPathExpression(NodeBackend<Node> rdfBackend) {
-        return "^^" + typeUri;
+        return String.format("^^<%s>", typeUri);
     }
 
     /**

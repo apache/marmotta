@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestsTest {
 
-    @Parameters(name = "{1}Test")
+    @Parameters(name = "{index}: {1}Test")
     public static List<String[]> testCases() {
         return Arrays.asList(new String[][] {
                 {"<http://foo.bar> & <http://bar.foo>", "And"},
@@ -31,7 +31,7 @@ public class TestsTest {
                 {"!@en", "Not"},
                 {"<http://foo.bar> | <http://bar.foo>", "Or"},
                 {"<http://www.example.com/> is <http://foo.bar>", "PathEquality"},
-                {"is-a <http://foo.bar>", "PathEquality"},
+                {"is-a <http://foo.bar>", "IsA"},
                 {"<http://www.example.com/>", "Path"},
                 });
     }

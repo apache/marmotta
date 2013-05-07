@@ -970,7 +970,7 @@ PathEqualityTest TypeTest() :
 }
 {
     <IS_A> node = Node() {
-        return new PathEqualityTest(new PropertySelector(resolveResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")), node);
+        return new IsATest(resolveResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), node);
     }
 }
 

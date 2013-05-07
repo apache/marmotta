@@ -21,7 +21,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class SelectorsTest {
 
-    @Parameters(name = "{1}Selector")
+    @Parameters(name = "{index}: {1}Selector")
     public static List<String[]> testCases() {
         return Arrays.asList(new String[][] {
                 {"*", "Wildcard"},
