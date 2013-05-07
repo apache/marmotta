@@ -39,7 +39,7 @@ public class LocaleFacadingTest extends AbstractFacadingTest {
 
     @Test
     public void testWithLocale() throws RepositoryException {
-        final Locale de = Locale.GERMAN, en = Locale.ENGLISH, fr = Locale.FRENCH, none = new Locale("none");
+        final Locale de = Locale.GERMAN, en = Locale.ENGLISH, fr = Locale.FRENCH, none = new Locale("xx", "none");
 
         final String lbl = "Label",
                 lbl_de = lbl + ": " + de.toString(),
@@ -49,6 +49,7 @@ public class LocaleFacadingTest extends AbstractFacadingTest {
 
         final RepositoryConnection connection = repositoryRDF.getConnection();
         try {
+            connection.begin();
             final Facading facading = FacadingFactory.createFacading(connection);
 
             final URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/locale");
@@ -101,6 +102,7 @@ public class LocaleFacadingTest extends AbstractFacadingTest {
             assertNull(f.getLabel(fr));
             assertNull(f.getLabel(none));
 
+            connection.commit();
         } finally {
             connection.close();
         }

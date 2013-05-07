@@ -39,20 +39,22 @@ public class CollectionFacadingTest extends AbstractFacadingTest {
 
     @Test
     public void testCollectionFacading() throws RepositoryException {
-        final RepositoryConnection connection = repositoryRDF.getConnection();
 
         final Random rnd = new Random();
         final Date a, b, c, d, e, now;
-        now = new Date();
-        // Start 10Yrs back;
-        final int tenYrsInSecs = 10 * 365 * 24 * 60 * 60;
-        a = new Date(now.getTime() - tenYrsInSecs * 1000L);
-        b = new Date(a.getTime() + rnd.nextInt(tenYrsInSecs) * 1000L);
-        c = new Date(a.getTime() + rnd.nextInt(tenYrsInSecs) * 1000L);
-        d = new Date(a.getTime() + rnd.nextInt(tenYrsInSecs) * 1000L);
-        e = new Date(a.getTime() + rnd.nextInt(tenYrsInSecs) * 1000L);
+        now = new Date(60000*(System.currentTimeMillis()/60000L));
 
+        // Start 10Yrs back;
+        final int tenYrsInMin = 10 * 365 * 24 * 60;
+        a = new Date(now.getTime() - tenYrsInMin * 60000L);
+        b = new Date(a.getTime() + rnd.nextInt(tenYrsInMin) * 60000L);
+        c = new Date(a.getTime() + rnd.nextInt(tenYrsInMin) * 60000L);
+        d = new Date(a.getTime() + rnd.nextInt(tenYrsInMin) * 60000L);
+        e = new Date(a.getTime() + rnd.nextInt(tenYrsInMin) * 60000L);
+
+        final RepositoryConnection connection = repositoryRDF.getConnection();
         try {
+            connection.begin();
             final Facading facading = FacadingFactory.createFacading(connection);
 
             URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/collections");
@@ -70,6 +72,8 @@ public class CollectionFacadingTest extends AbstractFacadingTest {
 
             facade.deleteDates();
             Assert.assertEquals(facade.getDates().size(), 0);
+            
+            connection.commit();
         } finally {
             connection.close();
         }
@@ -83,6 +87,7 @@ public class CollectionFacadingTest extends AbstractFacadingTest {
 
         try {
             final Facading facading = FacadingFactory.createFacading(connection);
+            connection.begin();
 
             URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/document");
             CollectionFacade facade = facading.createFacade(uri, CollectionFacade.class);
