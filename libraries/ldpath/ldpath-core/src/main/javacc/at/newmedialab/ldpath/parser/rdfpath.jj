@@ -47,6 +47,7 @@ import org.apache.marmotta.ldpath.model.transformers.*;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -456,6 +457,7 @@ Program Program() :
     Map<String, String> nss = null;
     FieldMapping<?,Node> rule;
     NodeSelector<Node> boostSelector;
+    LinkedList<Node> graphs;
 }
 {
   (
@@ -466,6 +468,11 @@ Program Program() :
         }
     }
   )?
+
+  (
+    <K_GRAPH> graphs = UriList() <SCOLON> {
+      program.setGraphs(graphs);
+    }  )?
 
   (
     <K_FILTER> filter = NodeTest() <SCOLON> {
@@ -491,6 +498,17 @@ Program Program() :
   {
     return program;
   }
+}
+
+LinkedList<Node> UriList() :{
+    LinkedList<Node> rest = null;
+    String uri;}
+{
+    uri = Uri() ( <COMMA> rest = UriList() )?    {
+      if (rest == null) rest = new LinkedList<Node>();
+      rest.addFirst(resolveResource(uri));
+      return rest;
+    }
 }
 
 FieldMapping Rule() :

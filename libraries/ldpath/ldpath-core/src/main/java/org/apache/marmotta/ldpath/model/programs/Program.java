@@ -58,6 +58,11 @@ public class Program<Node> implements LDPathConstruct<Node> {
      * A map mapping from namespace prefix to namespace URI
      */
     private Map<String, String> namespaces;
+    
+    /**
+     * Restrict evaluation of the program to the graphs/contexts
+     */
+    private Set<Node> graphs;
 
     /**
      * An (optional) filter to use for checking which resources should be
@@ -78,6 +83,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     public Program() {
         namespaces = new LinkedHashMap<String, String>();
         fields = new LinkedHashSet<FieldMapping<?,Node>>();
+        graphs = new HashSet<Node>();
     }
 
     public void addNamespace(String prefix, String uri) {
@@ -127,6 +133,20 @@ public class Program<Node> implements LDPathConstruct<Node> {
 
     public void setNamespaces(Map<String, String> namespaces) {
         this.namespaces = new LinkedHashMap<String, String>(namespaces);
+    }
+    
+    public Set<Node> getGraphs() {
+        return this.graphs;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Node[] getGraphArr() {
+        return (Node[]) this.graphs.toArray(new Object[this.graphs.size()]);
+    }
+    
+    public void setGraphs(Collection<Node> graphs) {
+        this.graphs.clear();
+        this.graphs.addAll(graphs);
     }
     
     /**
