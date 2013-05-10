@@ -389,7 +389,7 @@ public class ModuleServiceImpl implements ModuleService {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
         if(config != null) {
             ArrayList<HashMap<String,String>> l = new ArrayList<HashMap<String,String>>();
-            if(!config.subset("adminpage.").isEmpty()) {
+            if(!config.subset("adminpage").isEmpty()) {
                 while(config.getString("adminpage."+l.size()+".link") != null) {
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put("link",config.getString("baseurl")+config.getString("adminpage."+l.size()+".link"));
@@ -400,7 +400,7 @@ public class ModuleServiceImpl implements ModuleService {
                 for(String path : config.getStringArray("adminpages")) {
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put("link",config.getString("baseurl")+path);
-                    map.put("title",path.substring(path.lastIndexOf("/"),path.lastIndexOf(".")).replaceAll("_"," "));
+                    map.put("title",path.substring(path.lastIndexOf("/")+1,path.lastIndexOf(".")).replaceAll("_"," "));
                     l.add(map);
                 }
             }

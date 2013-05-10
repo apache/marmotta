@@ -71,7 +71,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
      */
     @Override
     public void init(ServletContext context) throws TemplatingException {
-    	buildMenu();
+    	menu = buildMenu();
         this.context = context;
         try {
         	 //try-run to check it from the very beginning
@@ -92,8 +92,10 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
 
         if(!configurationService.getBooleanConfiguration("templating.cache.enabled",true) && context!=null) {
             init(context);
-            menu.setActive(path);
         }
+
+        //set active
+        menu.setActive(path);
 
         //fill data model
         Map<String, Object> datamodel = new HashMap<String,Object>();
@@ -105,7 +107,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         //end hack!!!
 
         //add menu
-        datamodel.put("MENU",menu);
+        datamodel.put("MENU",menu.getProperties());
         try {
             String s = new String(bytes);
             Matcher m = PATTERN.matcher(s);
@@ -147,24 +149,26 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
             //add modules
             for(String module_string : moduleService.listSortedModules(container_string)) {
                 MenuItem module = new MenuItem(module_string, MenuItemType.MODULE);
-                module.setPath(moduleService.getModuleWeb(module_string));
-                module.setIcon(moduleService.getIcon(module_string));
+                module.set("path",moduleService.getModuleWeb(module_string));
+                if(moduleService.getIcon(module_string) != null)
+                    module.set("icon",moduleService.getIcon(module_string));
 
                 //add pages
                 for(HashMap<String,String> page_object : moduleService.getAdminPageObjects(module_string)) {
                     MenuItem page = new MenuItem(page_object.get("title"), MenuItemType.PAGE);
-                    page.setPath(page_object.get("path"));
+                    page.set("path",page_object.get("link"));
                     module.addItem(page);
                 }
 
                 //add webservice
                 if(!moduleService.getWebservices(module_string).isEmpty()) {
-                    MenuItem page = new MenuItem(DEFAULT_WEBSERVICE_TITLE, MenuItemType.MODULE);
-                    page.setPath(module.getPath()+DEFAULT_REST_PATH);
+                    MenuItem page = new MenuItem(DEFAULT_WEBSERVICE_TITLE, MenuItemType.WEBSERVICE);
+                    page.set("path",module.get("path")+DEFAULT_REST_PATH+DEFAULT_REST_FILE);
+                    module.addItem(page);
                 }
 
                 //add if there are pages to display
-                if(!module.getItems().isEmpty()) container.addItem(module);
+                if(!module.isEmpty()) container.addItem(module);
             }
             menu.addItem(container);
         }
