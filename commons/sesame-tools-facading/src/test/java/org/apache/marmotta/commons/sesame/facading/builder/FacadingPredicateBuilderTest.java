@@ -49,6 +49,7 @@ public class FacadingPredicateBuilderTest extends AbstractFacadingTest {
         super.setup();
 
         connection = repositoryRDF.getConnection();
+        connection.begin();
         facading = FacadingFactory.createFacading(connection);
     }
 
@@ -90,7 +91,7 @@ public class FacadingPredicateBuilderTest extends AbstractFacadingTest {
     @After
     public void tearDown() throws RepositoryException {
         if (connection != null) {
-            connection.rollback();
+            connection.commit();
             connection.close();
         }
 

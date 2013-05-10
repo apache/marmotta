@@ -20,6 +20,7 @@ package org.apache.marmotta.ldpath.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -37,7 +38,6 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.programs.Program;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -110,8 +110,8 @@ public class ParserTest {
 
 
     private RdfPathParser<String> createParser(String input) throws IOException {
-        final URL resource = ParserTest.class.getResource(input);
-        Assume.assumeThat("Could not load test input data '" + input + "'", resource, CoreMatchers.notNullValue());
+        final URL resource = ParserTest.class.getResource("/parse/"+input);
+        assertThat("Could not load test input data '" + input + "'", resource, CoreMatchers.notNullValue());
 
         RdfPathParser<String> rdfPathParser = new RdfPathParser<String>(backend,new StringReader(IOUtils.toString(resource)));
         rdfPathParser.registerTransformer(NS_TEST + "type", new NodeTransformer<String, String>() {

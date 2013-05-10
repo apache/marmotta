@@ -19,30 +19,25 @@ package org.apache.marmotta.ldpath.model.selectors;
 
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
- * Builds the union of two node selectors. Will eliminate duplicates.
+ * A Group is a complex selector in brackets.
  *
  * @param <Node> the node type used by the backend
- * <p/>
- * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
+ * @author Jakob Frank <jakob@apache.org>
  */
-public class UnionSelector<Node> implements NodeSelector<Node> {
+public class GroupedSelector<Node> implements NodeSelector<Node> {
 
-    private NodeSelector<Node> left;
-    private NodeSelector<Node> right;
+    private final NodeSelector<Node> content;
 
-    public UnionSelector(NodeSelector<Node> left, NodeSelector<Node> right) {
-        this.left = left;
-        this.right = right;
+    public GroupedSelector(NodeSelector<Node> content) {
+        this.content = content;
     }
 
 
@@ -59,11 +54,7 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public Collection<Node> select(final RDFBackend<Node> rdfBackend, final Node context, final List<Node> path, final Map<Node, List<Node>> resultPaths) {
-        final Set<Node> result = new HashSet<Node>();
-
-        result.addAll(left.select(rdfBackend,context,path,resultPaths));
-        result.addAll(right.select(rdfBackend,context,path,resultPaths));
-        return result;
+        return content.select(rdfBackend, context, path, resultPaths);
     }
 
     /**
@@ -74,7 +65,7 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public String getPathExpression(NodeBackend<Node> rdfBackend) {
-        return String.format("%s | %s", left.getPathExpression(rdfBackend), right.getPathExpression(rdfBackend));
+        return String.format("(%s)", content.getPathExpression(rdfBackend));
     }
 
     /**
@@ -84,7 +75,7 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public String getName(NodeBackend<Node> nodeRDFBackend) {
-        throw new UnsupportedOperationException("cannot use unions in unnamed field definitions because the name is ambiguous");
+        throw new UnsupportedOperationException("cannot use a group in unnamed field definitions because the name is ambiguous");
     }
 
 
@@ -94,18 +85,17 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
         if (o == null || getClass() != o.getClass()) return false;
 
         @SuppressWarnings("rawtypes")
-		UnionSelector that = (UnionSelector) o;
+		GroupedSelector that = (GroupedSelector) o;
 
-        if (left != null ? !left.equals(that.left) : that.left != null) return false;
-        if (right != null ? !right.equals(that.right) : that.right != null) return false;
+        if (content!= null ? !content.equals(that.content) : that.content!= null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = left != null ? left.hashCode() : 0;
-        result = 31 * result + (right != null ? right.hashCode() : 0);
+        int result = 31;
+        result = 31 * result + (content != null ? content.hashCode() : 0);
         return result;
     }
 }
