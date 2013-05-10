@@ -64,17 +64,25 @@
 
 <div class="well sidebar-nav square-corners menu-level-2 span3 full-height">
     <ul class="nav nav-list">
-        <li class="nav-header">$menu_container</li>
-        <#list MODULE_MENU as menu>
-                    <li
-                        <#if menu.properties["active"]> class="active" </#if>
+        <#list MENU as menu>
+        <li class="nav-header">${menu["label"]}</li>
+        <#list menu.modules as submenu>
+            <li
+                <#if submenu["active"]> class="active" </#if>
                     >
-                        <a href="${menu.submenu[0].properties["path"]}">
-                            <i class="icon-random"></i>  <!-- TODO icon -->
-                            <span>${menu.properties["title"]}</span>
-                        </a>
-                    </li>
-         </#list>
+                <a href="${SERVER_URL}${submenu["path"]}
+                <#if submenu["pages"]??>
+                    ${submenu["pages"][0]["link"]}"
+                <#else>
+                        doc/rest/index.html"
+                </#if>
+                >
+                    <i class="${submenu["icon"]}"></i>  <!-- TODO icon -->
+                    <span>${submenu["label"]}</span>
+                </a>
+            </li>
+        </#list>
+        </#list>
     </ul>
 </div><!--/.well -->
 
@@ -82,14 +90,26 @@
     <div class="offset3 span9">
 
         <ul class="nav nav-tabs square-corners">
-        <#list MODULE_MENU as menu>
-            <#if menu.properties["active"]>
-                <#list menu.submenu as submenu>
-                    <li
-                        <#if submenu.properties["active"]> class="active" </#if>
-                    >
-                        <a href="${submenu.properties["path"]}">${submenu.properties["title"]}</a>
-                    </li>
+        <#list MENU as menu>
+            <#if menu["active"]>
+                <#list menu["modules"] as submenu>
+                    <#if submenu["active"]>
+                        <#list submenu["pages"] as pages>
+                                <li
+                                <#if pages["active"]> class="active" </#if>
+                                >
+                                    <a href="${SERVER_URL}${submenu["path"]}${pages["link"]}">${pages["label"]}</a>
+                                </li>
+                        </#list>
+                        <#if submenu["webservice"]>
+                            <li
+                            <#if submenu["webservice_active"]> class="active" </#if>
+                            >
+                                <a href="${SERVER_URL}${submenu["path"]}doc/rest/index.html">webservice</a>
+                            </li>
+
+                        </#if>
+                    </#if>
                 </#list>
             </#if>
         </#list>

@@ -17,10 +17,15 @@
  */
 package org.apache.marmotta.platform.core.model.template;
 
+import org.apache.marmotta.platform.core.api.templating.AdminInterfaceService;
+import org.apache.marmotta.platform.core.services.templating.AdminTemplatingServiceImpl;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.marmotta.platform.core.model.template.MenuItemType.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,19 +36,68 @@ import java.util.Map;
  */
 public class MenuItem {
 
-    private Map<String,Object> properties;
-    private List<MenuItem> submenu;
+    private boolean active;
+    private String label;
+    private String path;
+    private MenuItemType type;
+    private List<MenuItem> items;
+    private String icon;
 
-    public MenuItem() {
-        properties = new HashMap<String, Object>();
-        submenu = new ArrayList<MenuItem>();
+    public MenuItem(String label, MenuItemType type) {
+        this.type = type;
+        this.label = label;
+        this.items = new ArrayList<MenuItem>();
+        this.active = false;
+        this.icon = AdminInterfaceService.DEFAULT_MENU_ICON;
     }
 
-    public Map<String, Object> getProperties() {
-        return properties;
+    public String getIcon() {
+        return icon;
     }
 
-    public List<MenuItem> getSubmenu() {
-        return submenu;
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public List<MenuItem> getItems() {
+        return this.items;
+    }
+
+    public void addItem(MenuItem item) {
+        this.addItem(item);
+    }
+
+    public boolean setActive(String path) {
+        switch(type) {
+            case ROOT:
+            case CONTAINER:
+            case MODULE:
+                for(MenuItem item : items) {
+                    if(item.setActive(path)) {
+                        active = true;
+                    } else {
+                        active = false;
+                    }
+                }
+                return active;
+            case PAGE:
+                return active = this.path.equals(path);
+            case WEBSERVICE:
+                return active = path.contains(AdminInterfaceService.DEFAULT_REST_PATH);
+            default:
+                return false;
+        }
     }
 }

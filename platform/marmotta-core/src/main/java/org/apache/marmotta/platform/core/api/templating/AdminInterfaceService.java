@@ -29,6 +29,9 @@ import javax.servlet.ServletContext;
 public interface AdminInterfaceService {
     
     public final static String PATH = "/templates/";
+    public final static String DEFAULT_REST_PATH = "doc/rest/";
+    public final static String DEFAULT_MENU_ICON = "icon-asterisk";
+    public final static String DEFAULT_WEBSERVICE_TITLE = "Webservice";
 
     /**
      * inits a freebase template service with a servlet context

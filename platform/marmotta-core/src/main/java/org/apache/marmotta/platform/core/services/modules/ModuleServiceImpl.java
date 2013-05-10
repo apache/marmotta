@@ -18,9 +18,7 @@
 package org.apache.marmotta.platform.core.services.modules;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
-import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -34,7 +32,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
@@ -51,28 +48,29 @@ import java.util.*;
 public class ModuleServiceImpl implements ModuleService {
 
     private String default_container_name = "Others";
-    private int default_container_number = 100;
+    //private int default_container_number = 100;
 
     private Logger log = LoggerFactory.getLogger(ModuleServiceImpl.class);
 
     private Set<String> modules;
 
-    private List<AdminPageContainer> containers;
+    private HashMap<String,ArrayList<String>> containers;
+
+    private HashMap<String,Integer> container_weight;
 
     private Map<String,Configuration> configurationMap;
     private Map<String, Configuration> jarURLs;
 
-    @Inject
-    ConfigurationService configurationService;
-
     @PostConstruct
     public void initialize() {
 
-        default_container_name = configurationService.getStringConfiguration("kiwi.pages.default_container.name",default_container_name);
-        default_container_number = configurationService.getIntConfiguration("kiwi.pages.default_container.number",default_container_number);
+        //default_container_name = configurationService.getStringConfiguration("kiwi.pages.default_container.name",default_container_name);
+        //default_container_number = configurationService.getIntConfiguration("kiwi.pages.default_container.number",default_container_number);
 
         modules = new HashSet<String>();
-        containers = new ArrayList<AdminPageContainer>();
+        containers = new HashMap<String,ArrayList<String>>();
+        container_weight = new HashMap<String, Integer>();
+
         configurationMap = new HashMap<String, Configuration>();
         jarURLs = new HashMap<String, Configuration>();
 
@@ -93,14 +91,20 @@ public class ModuleServiceImpl implements ModuleService {
                     String moduleName = moduleProperties.getString("name");
                     modules.add(moduleName);
 
+                    String c_name = moduleProperties.getString("container") != null ? moduleProperties.getString("container") : default_container_name;
 
+                    if(containers.get(c_name) == null) {
+                        containers.put(c_name, new ArrayList<String>());
+                    }
+                    containers.get(c_name).add(moduleName);
 
-                    if(moduleProperties.getString("container") != null) {
-                        addContainerModule(moduleProperties.getString("container"),moduleName,moduleProperties.getInt("container.weight",-1));
-                    } else {
-                        addContainerModule(default_container_name,moduleName,default_container_number);
+                    if(container_weight.get(c_name) == null ) {
+                        container_weight.put(c_name,-1);
                     }
 
+                    if(moduleProperties.getString("container.weight") != null) {
+                        container_weight.put(c_name,Math.max(container_weight.get(c_name),moduleProperties.getInt("container.weight",-1)));
+                    }
 
                     URLConnection urlConnection = moduleUrl.openConnection();
                     URL jarUrl;
@@ -130,8 +134,6 @@ public class ModuleServiceImpl implements ModuleService {
                     } catch(ConfigurationException ex) {
                     }
 
-
-
                     // create runtime configuration
                     MapConfiguration runtimeConfiguration = new MapConfiguration(new HashMap<String, Object>());
                     runtimeConfiguration.setProperty("runtime.jarfile", jarUrl.toString());
@@ -148,24 +150,10 @@ public class ModuleServiceImpl implements ModuleService {
 
 
             }
+            //TODO container should be sortable
         } catch (IOException ex) {
             log.error("I/O error while trying to retrieve kiwi-module.properties file",ex);
         }
-    }
-
-    private void addContainerModule(String container, String module, int number) {
-        AdminPageContainer c;
-        int i = containers.indexOf(container);
-        if(i>=0) {
-            c = containers.get(i);
-            c.addModule(module);
-        }
-        else {
-            c = new AdminPageContainer(container);
-            containers.add(c);
-            c.addModule(module);
-        }
-        if(number>0) c.setNumber(number);
     }
 
     /**
@@ -225,12 +213,60 @@ public class ModuleServiceImpl implements ModuleService {
         return modules;
     }
 
+    public List<String> listSortedModules() {
+        return sortModules(modules);
+    }
+
+    /**
+     * returns all modules within a container
+     * @param container
+     * @return
+     */
+    public Collection<String> listModules(String container) {
+        if(containers.containsKey(container)) {
+            return containers.get(container);
+        } else return null;
+    }
+
+    public List<String> listSortedModules(String container) {
+        if(containers.containsKey(container)) {
+            return sortModules(containers.get(container));
+        } else return null;
+    }
+
+    /**
+     * sort modules
+     * @param m
+     * @return
+     */
+    private List<String> sortModules(Collection<String> m) {
+        List<String> sorted = new ArrayList<String>(m);
+        Collections.sort(sorted,new Comparator<String>() {
+            @Override
+            public int compare(String o, String o2) {
+                return ((Integer) getWeight(o)).compareTo(getWeight(o2));
+            }
+        });
+        return sorted;
+    }
+
     /**
      * Lists containers and underlying modules
      * @return
      */
-    public List<AdminPageContainer> listContainers() {
-        return containers;
+    public Collection<String> listContainers() {
+        return containers.keySet();
+    }
+
+    public List<String> listSortedContainers() {
+        List sorted = new ArrayList(containers.keySet());
+        Collections.sort(sorted,new Comparator<String>() {
+            @Override
+            public int compare(String o, String o2) {
+                return ((Integer)container_weight.get(o)).compareTo(container_weight.get(o2));
+            }
+        });
+        return sorted;
     }
 
     /**
@@ -324,53 +360,53 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     /**
-     * Return a list of admin pages (paths)
+     * Return a list of admin pages (links)
      * @param moduleName
      * @return
      */
     @Override
-    @Deprecated
     public List<String> getAdminPages(String moduleName) {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
-        if(config != null) return ImmutableList.copyOf(config.getStringArray("adminpages"));
-        else
+        if(config != null) {
+            if(!config.subset("adminpage.").isEmpty()) {
+                ArrayList<String> l = new ArrayList<String>();
+                while(config.getString("adminpage."+l.size()+".link") != null) {
+                    l.add(config.getString("adminpage."+l.size()+".link"));
+                }
+                return l;
+            } else return ImmutableList.copyOf(config.getStringArray("adminpages"));
+        } else
             return null;
     }
 
     /**
-     * Returns a list of AdminPage Objects
+     * returns  more complex admin page description
      * @param moduleName
      * @return
      */
     @Override
-    public List<AdminPage> getAdminPageList(String moduleName) {
-        ArrayList<AdminPage> l = new ArrayList<AdminPage>();
+    public List<HashMap<String,String>> getAdminPageObjects(String moduleName) {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
-
-        if(config==null) return null;
-
-        //test if there are names and order for admin pages
-        if(config.getString("adminpages.0") != null) {
-            int i=0;
-            while(config.getString("adminpages."+i) != null) {
-                try {
-                    l.add(new AdminPage(
-                            i,
-                            config.getString("adminpages." + i + ".path", null),
-                            config.getString("adminpages."+i+".title",null),
-                            config.getBoolean("adminpages."+i+".important",false)
-                    ));
-                } catch (MarmottaException e) {
-                    log.error("admin page cannot be added for module "+moduleName);
+        if(config != null) {
+            ArrayList<HashMap<String,String>> l = new ArrayList<HashMap<String,String>>();
+            if(!config.subset("adminpage.").isEmpty()) {
+                while(config.getString("adminpage."+l.size()+".link") != null) {
+                    HashMap<String,String> map = new HashMap<String, String>();
+                    map.put("link",config.getString("baseurl")+config.getString("adminpage."+l.size()+".link"));
+                    map.put("title",config.getString("adminpage."+l.size()+".title"));
+                    l.add(map);
+                }
+            } else {
+                for(String path : config.getStringArray("adminpages")) {
+                    HashMap<String,String> map = new HashMap<String, String>();
+                    map.put("link",config.getString("baseurl")+path);
+                    map.put("title",path.substring(path.lastIndexOf("/"),path.lastIndexOf(".")).replaceAll("_"," "));
+                    l.add(map);
                 }
             }
-        } else {
-            for(String path : getAdminPages(moduleName)) {
-                l.add(new AdminPage(path));
-            }
-        }
-        Collections.sort(l);
-        return l;
+            return l;
+        } else
+            return null;
     }
 
     @Override

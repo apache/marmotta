@@ -19,12 +19,7 @@ package org.apache.marmotta.platform.core.services.templating;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +33,7 @@ import org.apache.marmotta.platform.core.api.templating.AdminInterfaceService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.exception.TemplatingException;
 import org.apache.marmotta.platform.core.model.template.MenuItem;
+import org.apache.marmotta.platform.core.model.template.MenuItemType;
 
 /**
  * User: Thomas Kurz
@@ -61,15 +57,13 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
     private ConfigurationService configurationService;
 
     //some statics
+    private static final String DEFAULT_ICON = "icon-beaker";
     private static final String TEMPLATE_STRING = "admin.ftl";
-    private static final String DEFAULT_REST_PATH = "/doc/rest/";
-    private static final String DEFAULT_REST_FILE = "overview-summary.html";
-    private static final String DEFAULT_TITLE_FOR_WEBSERVICES = "webservices";
 
 
     //pattern to filter comments content
     private static final Pattern PATTERN = Pattern.compile("\\<!--###BEGIN_([^#]+)###--\\>(.+)\\<!--###END_\\1###--\\>",Pattern.DOTALL);
-    private Menu menu;
+    private MenuItem menu;
 
     /**
      * inits a freemarker template service with a servlet context
@@ -77,7 +71,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
      */
     @Override
     public void init(ServletContext context) throws TemplatingException {
-    	menu = new Menu();
+    	buildMenu();
         this.context = context;
         try {
         	 //try-run to check it from the very beginning
@@ -85,20 +79,6 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         } catch (Exception e) {
             throw new TemplatingException("Severe Error: admin template cannot be found: " + e.getMessage());
         }
-    }
-
-    /**
-     * Check whether the templating service considers the resource passed in the path as a menu entry it is
-     * responsible for.
-     *
-     * @param path a url path
-     * @return if the give path points to an admin page
-     */
-    @Override
-    public boolean isMenuEntry(String path) {
-        if(menu.path_titles.keySet().contains(configurationService.getPath()+path)) return true;
-        if(path.contains(DEFAULT_REST_PATH)) return true;
-        else return false;
     }
 
     /**
@@ -112,11 +92,9 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
 
         if(!configurationService.getBooleanConfiguration("templating.cache.enabled",true) && context!=null) {
             init(context);
+            menu.setActive(path);
         }
-        //apply template
-        if(!isMenuEntry(path)) return bytes;
-        //activate
-        String module = menu.getCurrentModule(configurationService.getPath() + path);
+
         //fill data model
         Map<String, Object> datamodel = new HashMap<String,Object>();
     	for(Properties p : Properties.values()) {
@@ -125,9 +103,9 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         //begin hack!!!
         datamodel.put("USER_MODULE_IS_ACTIVE", moduleService.listModules().contains("Users"));
         //end hack!!!
-        datamodel.put("MODULE_MENU",menu.menuItems);
-        datamodel.put("CURRENT_TITLE", getNameFromPath(path));
-        datamodel.put("CURRENT_MODULE", module);
+
+        //add menu
+        datamodel.put("MENU",menu);
         try {
             String s = new String(bytes);
             Matcher m = PATTERN.matcher(s);
@@ -151,133 +129,47 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         return bytes;
     }
 
-    /**
-     * This object represents a menu for the admin interface. It is build using the ModuleService.
-     */
-    class Menu {
-
-        public List<MenuItem> menuItems;
-        public Map<String,String> path_titles;
-
-        public Menu() {
-            //instantiate
-            menuItems = new ArrayList<MenuItem>();
-            path_titles = new HashMap<String, String>();
-            //sort menu
-            ArrayList<String> menuSorted = new ArrayList<String>(moduleService.listModules());
-            if(configurationService.getBooleanConfiguration("templating.sort_by_weight", true)) {
-                Collections.sort(menuSorted, new Comparator<String>() {
-                    @Override
-                    public int compare(String o1, String o2) {
-                        final int w1 = moduleService.getWeight(o1), w2 = moduleService.getWeight(o2);
-                        if (w1 == w2) return o1.compareTo(o2);
-                        return w1 - w2;
-                    }
-                });
-            } else {
-                Collections.sort(menuSorted);
-            }
-
-            //build structure
-            for(String module : menuSorted) {
-                String path = configurationService.getPath() + moduleService.getModuleWeb(module);
-                if(moduleHasAdminPages(module)) {
-                    MenuItem menu_item = new MenuItem();
-                    menu_item.getProperties().put("title",module);
-                    menu_item.getProperties().put("baseurl",moduleService.getModuleConfiguration(module).getConfiguration().getString("baseurl","/"+module));
-                    for(String page : moduleService.getAdminPages(module)) {
-                        if(page.equals("")) {
-                            continue;
-                        }
-                        MenuItem submenu = new MenuItem();
-                        submenu.getProperties().put("title",getNameFromPath(page));
-                        submenu.getProperties().put("path",path+page);
-                        //test if it is active
-                        menu_item.getSubmenu().add(submenu);
-                        path_titles.put(path+page,page);
-                    }
-                    if(moduleService.getWebservices(module)!=null &&
-                            !moduleService.getWebservices(module).isEmpty() &&
-                            !moduleService.getWebservices(module).iterator().next().equals("")) {
-                        MenuItem submenu = new MenuItem();
-                        submenu.getProperties().put("title",DEFAULT_TITLE_FOR_WEBSERVICES);
-                        submenu.getProperties().put("path",path+DEFAULT_REST_PATH+DEFAULT_REST_FILE);
-                        //test if it is active
-                        menu_item.getSubmenu().add(submenu);
-                        path_titles.put(path+DEFAULT_REST_PATH+DEFAULT_REST_FILE,DEFAULT_TITLE_FOR_WEBSERVICES);
-                    }
-                    menuItems.add(menu_item);
-                }
-            }
-        }
-
-        /**
-         * get current module and set submenu to active
-         * @param path the current system path
-         * @return current module name
-         */
-        public String getCurrentModule(String path) {
-            String module = "";
-            boolean active = false;
-            //test with module and submenu must be active
-            for(MenuItem menuItem : menuItems) {
-                if(path.startsWith((String)menuItem.getProperties().get("baseurl"))) {
-                    module = (String)menuItem.getProperties().get("title");
-                }
-                menuItem.getProperties().put("active",false);
-                for(MenuItem submenu : menuItem.getSubmenu()) {
-                    if(submenu.getProperties().get("path").equals(path)) {
-                        submenu.getProperties().put("active",true);
-                        menuItem.getProperties().put("active",true);
-                        module = (String)menuItem.getProperties().get("title");
-                        active = true;
-                    } else {
-                        submenu.getProperties().put("active",false);
-                    }
-                }
-            }
-            //workaround for webservices (autogenerated pages that are nit fix stored in the menu structure)
-            if(!active) {
-                for(MenuItem menuItem : menuItems) {
-                    if(module.equals(menuItem.getProperties().get("title"))) {
-                        for(MenuItem submenu : menuItem.getSubmenu()) {
-                            if(submenu.getProperties().get("title").equals(DEFAULT_TITLE_FOR_WEBSERVICES)) {
-                                submenu.getProperties().put("active",true);
-                                menuItem.getProperties().put("active",true);
-                            }
-                        }
-                    }
-                }
-            }
-            return module;
-        }
-
-        /**
-         * Tests if a module should appear in the menu
-         * @param module a module name
-         * @return true is module should appear, false if not
-         */
-        private boolean moduleHasAdminPages(String module) {
-            if(moduleService.getAdminPages(module)!=null &&
-                    !moduleService.getAdminPages(module).isEmpty() &&
-                    !moduleService.getAdminPages(module).get(0).equals(""))
-                return true;
-            else if(moduleService.getWebservices(module)!=null &&
-                    !moduleService.getWebservices(module).isEmpty() &&
-                    !moduleService.getWebservices(module).iterator().next().equals("")) return true;
-            return false;
-        }
-
+    @Override
+    public boolean isMenuEntry(String path) {
+        return menu.setActive(path);
     }
 
     /**
-     * returns a proper name for a path by using the filename.
-     * @param path
+     * build menu
      * @return
      */
-    private String getNameFromPath(String path) {
-        if(path.contains(DEFAULT_REST_PATH)) return DEFAULT_TITLE_FOR_WEBSERVICES;
-        return path.substring(path.lastIndexOf("/")).replaceAll("/"," ").replaceAll("_"," ").replaceAll(".html","").replaceAll(".jsp","");
+    private MenuItem buildMenu() {
+        MenuItem menu = new MenuItem("MENU",MenuItemType.ROOT);
+
+        for(String container_string : moduleService.listSortedContainers()) {
+            MenuItem container = new MenuItem(container_string, MenuItemType.CONTAINER);
+
+            //add modules
+            for(String module_string : moduleService.listSortedModules(container_string)) {
+                MenuItem module = new MenuItem(module_string, MenuItemType.MODULE);
+                module.setPath(moduleService.getModuleWeb(module_string));
+                module.setIcon(moduleService.getIcon(module_string));
+
+                //add pages
+                for(HashMap<String,String> page_object : moduleService.getAdminPageObjects(module_string)) {
+                    MenuItem page = new MenuItem(page_object.get("title"), MenuItemType.PAGE);
+                    page.setPath(page_object.get("path"));
+                    module.addItem(page);
+                }
+
+                //add webservice
+                if(!moduleService.getWebservices(module_string).isEmpty()) {
+                    MenuItem page = new MenuItem(DEFAULT_WEBSERVICE_TITLE, MenuItemType.MODULE);
+                    page.setPath(module.getPath()+DEFAULT_REST_PATH);
+                }
+
+                //add if there are pages to display
+                if(!module.getItems().isEmpty()) container.addItem(module);
+            }
+            menu.addItem(container);
+        }
+
+        return menu;
     }
 
 }

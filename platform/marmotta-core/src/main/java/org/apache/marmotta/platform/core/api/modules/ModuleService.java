@@ -17,14 +17,12 @@
  */
 package org.apache.marmotta.platform.core.api.modules;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.apache.marmotta.platform.core.services.modules.AdminPage;
-import org.apache.marmotta.platform.core.services.modules.AdminPageContainer;
 
 import javax.enterprise.inject.spi.InjectionPoint;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -114,7 +112,6 @@ public interface ModuleService {
      * @param moduleName
      * @return
      */
-    @Deprecated
     public List<String> getAdminPages(String moduleName);
 
     /**
@@ -141,16 +138,19 @@ public interface ModuleService {
     public String getIcon(String moduleName);
 
     /**
-     * Returns a list of AdminPage Objects
-     * @param moduleName
-     * @return
-     */
-    public List<AdminPage> getAdminPageList(String moduleName);
-
-    /**
      * Lists containers and underlying modules
      * @return
      */
-    public List<AdminPageContainer> listContainers();
+    public Collection<String> listContainers();
+    public List<String> listSortedContainers();
 
+    /**
+     * returns all modules within a container
+     * @param container
+     * @return
+     */
+    public Collection<String> listModules(String container);
+    public List<String> listSortedModules(String container);
+
+    List<HashMap<String,String>> getAdminPageObjects(String moduleName);
 }
