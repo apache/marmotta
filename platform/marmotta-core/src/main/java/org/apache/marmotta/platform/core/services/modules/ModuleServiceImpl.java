@@ -48,7 +48,6 @@ import java.util.*;
 public class ModuleServiceImpl implements ModuleService {
 
     private String default_container_name = "Others";
-    //private int default_container_number = 100;
 
     private Logger log = LoggerFactory.getLogger(ModuleServiceImpl.class);
 
@@ -263,7 +262,7 @@ public class ModuleServiceImpl implements ModuleService {
         Collections.sort(sorted,new Comparator<String>() {
             @Override
             public int compare(String o, String o2) {
-                return ((Integer)container_weight.get(o2)).compareTo(container_weight.get(o));
+                return container_weight.get(o2).compareTo(container_weight.get(o));
             }
         });
         return sorted;
