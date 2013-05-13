@@ -263,7 +263,7 @@ public class ModuleServiceImpl implements ModuleService {
         Collections.sort(sorted,new Comparator<String>() {
             @Override
             public int compare(String o, String o2) {
-                return ((Integer)container_weight.get(o)).compareTo(container_weight.get(o2));
+                return ((Integer)container_weight.get(o2)).compareTo(container_weight.get(o));
             }
         });
         return sorted;
