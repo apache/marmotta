@@ -30,7 +30,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-
         <dependency>
            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-api</artifactId>
@@ -42,11 +41,6 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-repository-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 
