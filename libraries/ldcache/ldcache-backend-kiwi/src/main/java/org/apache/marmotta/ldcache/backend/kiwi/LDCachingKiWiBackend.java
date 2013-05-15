@@ -177,6 +177,27 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
     }
 
 
+    /**
+     * Return true in case the resource is a cached resource.
+     *
+     * @param resource the URI of the resource to check
+     * @return true in case the resource is a cached resource
+     */
+    @Override
+    public boolean isCached(String resource) throws RepositoryException {
+        try {
+            final LDCachingKiWiSailConnection sailConnection = sail.getConnection();
+            sailConnection.begin();
+            boolean result = sailConnection.getCacheEntry(sailConnection.getValueFactory().createURI(resource)) != null;
+            sailConnection.commit();
+            sailConnection.close();
+
+            return result;
+        } catch (SailException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
     public LDCachingKiWiPersistence getPersistence() {
         return persistence;
     }

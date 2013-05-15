@@ -38,6 +38,7 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.SailException;
 import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,19 @@ public class LDCachingFileBackend implements LDCachingBackend {
 
         };
     }
+
+    /**
+     * Return true in case the resource is a cached resource.
+     *
+     * @param resource the URI of the resource to check
+     * @return true in case the resource is a cached resource
+     */
+    @Override
+    public boolean isCached(String resource) throws RepositoryException {
+        File file = FileBackendUtils.getMetaFile(resource, storageDir);
+        return file.exists();
+    }
+
 
     /* (non-Javadoc)
      * @see org.apache.marmotta.ldcache.api.LDCachingBackend#initialize()

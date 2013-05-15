@@ -127,6 +127,18 @@ public class LDCache implements LDCachingService {
         return backend.listExpiredEntries();
     }
 
+
+    /**
+     * Return true if the resource is a cached resource.
+     *
+     * @param resourceUri
+     * @return
+     * @throws RepositoryException
+     */
+    public boolean isCached(String resourceUri) throws RepositoryException {
+        return backend.isCached(resourceUri);
+    }
+
     /**
      * Manually expire the caching information for the given resource. The resource will be
      * re-retrieved upon the next access.

@@ -60,6 +60,14 @@ public interface LDCachingBackend {
 
 
     /**
+     * Return true in case the resource is a cached resource.
+     *
+     * @param resource the URI of the resource to check
+     * @return true in case the resource is a cached resource
+     */
+    public boolean isCached(String resource)  throws RepositoryException;
+
+    /**
      * Carry out any initialization tasks that might be necessary
      */
     public void initialize();

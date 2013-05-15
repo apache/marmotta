@@ -311,6 +311,7 @@ public class KiWiSparqlConnection {
             }
         });
 
+        // materialize result to avoid having more than one result set open at the same time
         return new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator());
     }
 
