@@ -307,12 +307,27 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.info("Apache Marmotta Configuration Service: initialisation completed");
 
             configurationInitEvent.fire(new ConfigurationServiceInitEvent());
-
-            initialising = false;
         } finally {
             lock.writeLock().unlock();
         }
 
+    }
+
+    @Override
+    public boolean isInitialising() {
+        return initialising;
+    }
+
+    /**
+     * Signal that initialisation of the system has completed and configuration events are now enabled.
+     *
+     * @param initialising
+     */
+    @Override
+    public void setInitialising(boolean initialising) {
+        this.initialising = initialising;
+
+        log.info("Initialisation completed, enabling configuration events");
     }
 
     /**

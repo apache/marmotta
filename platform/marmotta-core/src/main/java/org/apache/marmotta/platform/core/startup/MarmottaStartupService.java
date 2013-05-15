@@ -250,6 +250,8 @@ public class MarmottaStartupService {
 
             hostStarted = true;
 
+            configurationService.setInitialising(false);
+
             startupEvent.fire(new SystemStartupEvent());
         } finally {
             lock.unlock();
