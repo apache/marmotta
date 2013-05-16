@@ -163,6 +163,8 @@ public class LDCacheBackendTest {
             con.addCacheEntry(subject1, entry1);
             con.commit();
 
+            Assert.assertTrue(backend.isCached(subject1.stringValue()));
+            Assert.assertFalse(backend.isCached(subject2.stringValue()));
             Assert.assertEquals(1,asList(backend.listCacheEntries()).size());
             Assert.assertEquals(0,asList(backend.listExpiredEntries()).size());
 
@@ -176,6 +178,8 @@ public class LDCacheBackendTest {
 
             con.commit();
 
+            Assert.assertTrue(backend.isCached(subject1.stringValue()));
+            Assert.assertTrue(backend.isCached(subject2.stringValue()));
             Assert.assertEquals(2,asList(backend.listCacheEntries()).size());
             Assert.assertEquals(1,asList(backend.listExpiredEntries()).size());
 
@@ -183,6 +187,8 @@ public class LDCacheBackendTest {
             con.removeCacheEntry(subject1);
             con.commit();
 
+            Assert.assertFalse(backend.isCached(subject1.stringValue()));
+            Assert.assertTrue(backend.isCached(subject2.stringValue()));
             Assert.assertEquals(1,asList(backend.listCacheEntries()).size());
             Assert.assertEquals(1,asList(backend.listExpiredEntries()).size());
         } catch(RepositoryException ex) {
