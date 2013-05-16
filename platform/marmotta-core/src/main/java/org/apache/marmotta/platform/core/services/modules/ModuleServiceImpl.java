@@ -399,7 +399,12 @@ public class ModuleServiceImpl implements ModuleService {
                 for(String path : config.getStringArray("adminpages")) {
                     HashMap<String,String> map = new HashMap<String, String>();
                     map.put("link",config.getString("baseurl")+path);
-                    map.put("title",path.substring(path.lastIndexOf("/")+1,path.lastIndexOf(".")).replaceAll("_"," "));
+                    String title;
+                    if(path.lastIndexOf(".") > path.lastIndexOf("/")+1)
+                        title = path.substring(path.lastIndexOf("/")+1,path.lastIndexOf(".")).replaceAll("_"," ");
+                    else
+                        title = path.substring(path.lastIndexOf("/")+1);
+                    map.put("title",title);
                     l.add(map);
                 }
             }
