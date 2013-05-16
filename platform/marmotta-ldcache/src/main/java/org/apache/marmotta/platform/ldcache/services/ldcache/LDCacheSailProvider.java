@@ -95,9 +95,7 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(LDCACHE_ENABLED)) {
-        	// FIXME: (jf) i don't like this dependency - i think it would be better to fire an event here
-            sesameService.shutdown();
-            sesameService.initialise();
+            sesameService.restart();
         }
     }
 

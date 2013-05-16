@@ -98,8 +98,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(REASONING_ENABLED)) {
-            sesameService.shutdown();
-            sesameService.initialise();
+            sesameService.restart();
         } else if(e.containsChangedKeyWithPrefix("reasoning")) {
             ReasoningConfiguration config = sail.getConfig();
             config.setBatchSize(configurationService.getIntConfiguration("reasoning.batchsize",1000));

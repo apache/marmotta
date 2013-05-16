@@ -83,5 +83,6 @@ public interface SesameService {
      */
     @Deprecated
     ValueFactory getValueFactory();
-    
+
+    void restart();
 }
