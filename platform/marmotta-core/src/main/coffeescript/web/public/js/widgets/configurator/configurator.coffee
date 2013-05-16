@@ -89,7 +89,7 @@ class Property
       @comment = value.comment
     mapping = value.type.match(/\((.+)\)/)
     @options = mapping[1] if mapping && mapping[1]
-    @tdtitle = "<td class='config_tdtitle'><h3>#{@key}</h2><span>#{@comment}</span></td>"
+    @tdtitle = "<td class='config_tdtitle'><h4>#{@key}</h4><small>#{@comment}</small></td>"
 
   setValue:(@value)->
 
@@ -145,7 +145,7 @@ class EnumProperty extends Property
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
     @td = $("<td></td>")
-    @select = $("<select></select>").addClass("config_selectfield").appendTo @td
+    @select = $("<select></select>").appendTo @td
     values = value.type.substring(15,value.type.length-1).split "|"
     for index,value of values
       @select.append $("<option>"+value.substring(1,value.length-1)+"</option>")
@@ -169,7 +169,7 @@ class EnumProperty extends Property
 class IntegerProperty extends Property
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
-    @input = $("<input >").addClass "config_intergerfield_short"
+    @input = $("<input type='text'>")
     @field = $("<div></div>").append @input
 
     values = []
@@ -197,7 +197,7 @@ class IntegerProperty extends Property
           @onchange @
 
 
-      up = $("<button>+</button>").mousedown =>
+      up = $("<button class='btn'>+</button>").mousedown =>
         interval = setInterval(up_func,100)
       .mouseup =>
         clearInterval interval
@@ -213,7 +213,7 @@ class IntegerProperty extends Property
           @input.val(parseInt(@input.val())-step)
           @onchange @
 
-      down = $("<button>-</button>").mousedown =>
+      down = $("<button class='btn'>-</button>").mousedown =>
         interval = setInterval(down_func,100)
       .mouseup =>
         clearInterval interval
@@ -222,7 +222,7 @@ class IntegerProperty extends Property
 
       @field.append(down).append(up)
     else
-      @input.removeClass("config_intergerfield_short").addClass("config_intergerfield")
+      @input.removeClass("config_intergerfield_short")
     @input.keydown ()=>
       @onchange @
 
@@ -245,7 +245,7 @@ class IntegerProperty extends Property
 class StringProperty extends Property
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
-    @input = $('<input>').addClass "config_inputfield"
+    @input = $('<input type="text">').addClass("span6")
     @field = $("<div></div>").append @input
 
     # clean lists
@@ -256,7 +256,7 @@ class StringProperty extends Property
     match = value.type.match /".+"/
     if match and match[0] == "\"password\""
       @input.css "display","none"
-      @button = $("<button>edit</button>").click =>
+      @button = $("<button class='btn'>edit</button>").click =>
         if prompt("insert old password","")==@value
           val = prompt "insert new password",""
           if val != ""
@@ -299,7 +299,7 @@ class URIProperty extends StringProperty
 class TextProperty extends Property
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
-    @input = $('<textarea>').addClass "config_textfield"
+    @input = $('<textarea>')
     @input.keydown =>
       @onchange @
 
@@ -320,7 +320,6 @@ class TextProperty extends Property
 class ProgramProperty extends TextProperty
   constructor:(@key,value,@comment)->
     super(@key,value,@comment)
-    @input.addClass "config_solrprorgamfield"
     @input.attr "readonly","readonly"
     @input.unbind "keydown"
     @input.keydown ->
@@ -339,13 +338,20 @@ class ListProperty extends StringProperty
 class AddValue
   constructor:(container,@prefix,@blacklist,@url)->
     @container = $("#"+container)
-    @background = $('<div style="display:none"></div>').css({display:'none'}).addClass('config_background').appendTo 'body'
+    @background = $('<div style="display:none"></div>').css({display:'none'}).addClass('modal-backdrop').addClass('modal-backdrop.fade.in').appendTo 'body'
     prefix_span = if prefix == undefined then '' else '<span>'+prefix+'.</span>'
     @popup = $("
-                <div id='config_popup' style='display:none'>
-                  <h1>Add new value</h1>
-                  <table>
-                    <tr><td>Key</td><td>#{prefix_span}<input type='text' id='config_add_label'/></td></tr>
+                <div id='config_popup' class='modal' style='display:none'>
+                  <div class='modal-header'>
+                  <h3>Add new value</h3>
+                  </div>
+                  <div class='modal-body'>
+                       <table class='table'>
+                    <tr><td>Key</td><td>
+                    <div class='input-prepend'>
+                    <span class='add-on'>#{prefix_span}</span><input class='span2' type='text' id='config_add_label'/>
+
+                              </td></tr>
                     <tr><td>Type</td><td><select id='config_add_type'>
                       <option value='java.lang.String'>String</option>
                       <option value='java.lang.Integer'>Integer</option>
@@ -358,7 +364,7 @@ class AddValue
                     <tr><td>Value</td><td><input type='text' id='config_add_value'/></td></tr>
                     <tr><td>Comment</td><td><textarea cols='20' rows='3' type='text' id='config_add_comment'/></td></tr>
                   </table>
-                </div>
+                  </div></div>
                ").appendTo 'body'
     @popup.find('#config_add_type').change =>
       ps = @popup.find('#config_add_parameters')
@@ -367,7 +373,7 @@ class AddValue
         when 'java.lang.Enum' then ps.val('"one 1"|"two 2"')
         else ps.val("")
 
-    @button = $("<button></button>").css({margin:"0px auto",display:"block",marginBottom:"40px"}).text('Add Value').click =>
+    @button = $("<button class='btn btn-primary'></button>").css({margin:"0px auto",display:"block",marginBottom:"40px"}).text('Add Value').click =>
       @open()
 
     @container.append @button
@@ -378,14 +384,14 @@ class AddValue
       @popup.find('#config_add_value').val ''
       @popup.find('#config_add_comment').val ''
 
-    buttons = $("<div id='config_add_buttons'></div>").appendTo @popup
+    buttons = $("<div id='config_add_buttons' class='modal-footer'></div>").appendTo @popup
 
-    buttons.append $('<button></button>').text('cancel').click =>
+    buttons.append $('<button class="btn"></button>').text('cancel').click =>
       @popup.hide()
       @background.hide()
       clean()
 
-    buttons.append $('<button></button>').text('add').click =>
+    buttons.append $('<button class="btn btn-primary"></button>').text('add').click =>
       # store data
       label = @popup.find('#config_add_label').val()
       type = @popup.find('#config_add_type').val()
@@ -440,7 +446,7 @@ class DataTable
 
   constructor:(container)->
     @container = $("#"+container)
-    @saver = $("<div>SAVE</div>").addClass("config_saveButton").css("display","none");
+    @saver = $("<div class='btn btn-danger' style='position: fixed;top: 90px;right: 20px;z-index: 2000;'>SAVE CONFIGURATION</div>").css("display","none");
 
   draw:(model,client)->
     @container.html "<h2>Configurator:</h2>"
@@ -452,7 +458,9 @@ class DataTable
       0
     model.properties.sort sortFunction
 
-    @table = $("<table></table>").addClass("config_datatable").appendTo @container
+    @table = $("<table></table>").addClass("table").addClass("table-bordered").addClass("table-striped").appendTo @container
+
+    @table.append($("<colgroup></colgroup>").append("<col class='span2'>").append("<col class='span5'>").append("<col class='span1'>"));
 
     filter = (key)=>
       regex = new RegExp ".*"+key+".*"
@@ -462,13 +470,13 @@ class DataTable
         else
           row.hide()
 
-    filter_input = $("<input>").addClass("config_filterinput").keyup ()->
+    filter_input = $("<input type='text' class='span3'>").keyup ()->
       filter filter_input.val()
 
-    $("<tr></tr>").append($("<td style='text-align:center' colspan='3'></td>").append("<span style='font-weight:bold;'>Filter: </span>").append(filter_input)).appendTo(@table)
+    $("<tr></tr>").append($("<td style='text-align:center' colspan='3'></td>").append($("<div class='input-prepend'>").append("<span class='add-on'>Filter</span>").append(filter_input))).appendTo(@table)
 
     remover = (val)->
-      button = $("<button>remove</button>").click =>
+      button = $("<button class='btn btn btn-warning'>remove</button>").click =>
         client.delete val.key
 
       $("<td></td>").append button

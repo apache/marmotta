@@ -22,7 +22,7 @@
             anker_name: 'database',
             title: 'Database Configuration',
             loading_img: '../public/img/loader/ajax-loader_small.gif',
-            toplink:true
+            toplink:false
         }
 
         //jquery elements
@@ -43,7 +43,7 @@
                     var tr1 = $("<tr/>");
                     var td11 = $("<td/>").css({"font-weight":"bold"}).text("Database: ");
                     var td12 = $("<td/>");
-                    this.input_fields.db_select = $("<select/>").css({'width':'200px'});
+                    this.input_fields.db_select = $("<select/>").addClass("span9");
                     for (value in databases) {
                         this.input_fields.db_select.append("<option>" + databases[value] + "</option>");
                     }
@@ -59,7 +59,7 @@
                     var tr2 = $("<tr/>");
                     var td21 = $("<td/>").css({"font-weight":"bold"}).text("Host: ");
                     var td22 = $("<td/>");
-                    this.input_fields.db_host = $("<input type='text' style='width:100%'/>");
+                    this.input_fields.db_host = $("<input type='text' class='span9'/>");
                     this.input_fields.db_host.val(values["database.url"]);
                     td22.append(this.input_fields.db_host);
                     td21.appendTo(tr2);
@@ -70,7 +70,7 @@
                     var tr3 = $("<tr/>");
                     var td31 = $("<td/>").css({"font-weight":"bold"}).text("User: ");
                     var td32 = $("<td/>");
-                    this.input_fields.db_user = $("<input type='text' style='width:100%'/>");
+                    this.input_fields.db_user = $("<input type='text' class='span9'/>");
                     this.input_fields.db_user.val(values["database.user"]);
                     td32.append(this.input_fields.db_user);
                     td31.appendTo(tr3);
@@ -81,7 +81,7 @@
                     var tr4 = $("<tr/>");
                     var td41 = $("<td/>").css({"font-weight":"bold"}).text("Password: ");
                     var td42 = $("<td/>");
-                    this.input_fields.db_pass = $("<input type='password' style='width:100%'/>");
+                    this.input_fields.db_pass = $("<input type='password' class='span9'/>");
                     this.input_fields.db_pass.val(values["database.password"]);
                     td42.append(this.input_fields.db_pass);
                     td41.appendTo(tr4);
@@ -284,11 +284,11 @@
             var top="";
             if(settings.toplink)top='<a href="#" target="_top" style="position:absolute;right:5px;font-size:12px;top:7px;text-decoration:none;">top</a>';
             //build basic view elements
-            var title = $("<h2 style='position:relative;margin-bottom:10px'><a style='text-decoration:none' name='"+settings.anker_name+"'>"+settings.title+"</a><span style='margin-left:10px;display:none;' class='tiny_text,lmf_configurator_loader'><img src='"+settings.loading_img+"' alt='loading...'></span>"+top+"</h2>");
-            table = $("<table style='margin:0px auto;background-color:#eeeeee;padding:20px;border:1px solid gray;-webkit-border-radius: 3px;border-radius: 3px;'></table>");
-            var buttons = $("<div style='width:100%;text-align:center;padding-top:10px;margin-bottom:30px;'></div>");
-            var b1 = $("<button>Reload</button>").click(function(){if(confirm("Discard all changes?"))functions.getValues()});
-            var b3 = $("<button style='margin-left:10px;'>Test Configuration</button>").click(function(){functions.ping()});
+            var title = $("<h2><a style='text-decoration:none;color:#000000' name='"+settings.anker_name+"'>"+settings.title+"</a><span style='margin-left:10px;display:none;' class='tiny_text,lmf_configurator_loader'><img src='"+settings.loading_img+"' alt='loading...'></span>"+top+"</h2>");
+            table = $("<table class='table table-striped table-bordered'></table>");
+            var buttons = $("<p style='text-align: center'></p>");
+            var b1 = $("<button class='btn'>Reload</button>").click(function(){if(confirm("Discard all changes?"))functions.getValues()});
+            var b3 = $("<button class='btn'>Test Configuration</button>").click(function(){functions.ping()});
             buttons.append(b1);
             buttons.append(b3);
 

@@ -5,7 +5,7 @@
     <title>Aapche Marmotta</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="${SERVER_URL}core/public/img/icon/lmf.ico" rel="SHORTCUT ICON">
-
+    <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
     <!-- JS -->
     <script type="text/javascript">
         var _BASIC_URL = "${BASIC_URL}";
@@ -117,7 +117,7 @@
                    data-toggle="dropdown"
                    href="#">
                     More
-                    <b class="caret"></b>
+                    <b class="caret"></b>   ???
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="#">System</a></li>
@@ -188,7 +188,6 @@
 <!-- Le javascript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
 <script src="${SERVER_URL}ext/bootstrap/js/bootstrap.js"></script>
 
 </html>
