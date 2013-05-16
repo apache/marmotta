@@ -64,7 +64,7 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
     @Inject
     private SesameService sesameService;
-    
+
     @Inject
     private HttpClientService         httpClientService;
 
@@ -96,6 +96,10 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(LDCACHE_ENABLED)) {
             sesameService.restart();
+
+            if(!isEnabled()) {
+                sail = null;
+            }
         }
     }
 
@@ -149,7 +153,11 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
      * @return
      */
     public LDClientService getLDClient() {
-        return sail.getLDCache().getLDClient();
+        if(sail != null) {
+            return sail.getLDCache().getLDClient();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -157,7 +165,11 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
      * @return
      */
     public LDCache getLDCache() {
-        return sail.getLDCache();
+        if(sail != null) {
+            return sail.getLDCache();
+        } else {
+            return null;
+        }
     }
 
 }

@@ -61,6 +61,9 @@ public class MarmottaNotCachedFilter implements ResourceFilter {
         if(resource instanceof BNode) {
             return true;
         }
+        if(!cacheSailProvider.isEnabled()) {
+            return true;
+        }
 
         URI uri = (URI)resource;
 
