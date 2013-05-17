@@ -123,10 +123,16 @@ public class KiWiPersistence {
         */
 
         // interceptors
+/*
         poolConfig.setJdbcInterceptors(
                 "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
                         "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
                         "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
+        );
+*/
+        poolConfig.setJdbcInterceptors(
+                "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
+                "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
         );
 
         if(log.isDebugEnabled()) {
