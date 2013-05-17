@@ -125,8 +125,8 @@ public class KiWiPersistence {
         // interceptors
         poolConfig.setJdbcInterceptors(
                 "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
-                "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
-                "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
+                        "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
+                        "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
         );
 
         if(log.isDebugEnabled()) {
@@ -291,7 +291,11 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
-        return new KiWiConnection(this,dialect,cacheManager);
+        if(connectionPool != null) {
+            return new KiWiConnection(this,dialect,cacheManager);
+        } else {
+            throw new SQLException("connection pool is closed, database connections not available");
+        }
     }
 
     /**
@@ -300,18 +304,21 @@ public class KiWiPersistence {
      * @throws SQLException
      */
     public Connection getJDBCConnection() throws SQLException {
-        Connection conn = connectionPool.getConnection();
-        conn.setAutoCommit(false);
-        //conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        if(connectionPool != null) {
+            Connection conn = connectionPool.getConnection();
+            conn.setAutoCommit(false);
 
-        //managedConnections.add(conn);
-
-        return conn;
+            return conn;
+        } else {
+            throw new SQLException("connection pool is closed, database connections not available");
+        }
     }
 
 
     private void forceCloseConnections() {
-        connectionPool.close(true);
+        if(connectionPool != null) {
+            connectionPool.close(true);
+        }
 
         connectionPool = new DataSource(poolConfig);
     }
@@ -397,6 +404,8 @@ public class KiWiPersistence {
         garbageCollector.shutdown();
         cacheManager.shutdown();
         connectionPool.close();
+
+        connectionPool = null;
     }
 
     /**

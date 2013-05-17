@@ -20,7 +20,6 @@ package org.apache.marmotta.ldpath.model.tests.functions;
 
 import java.util.Collection;
 
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.TestFunction;
 import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;

@@ -547,12 +547,12 @@ public class KiWiConnection {
             return (KiWiLiteral)element.getObjectValue();
         }
 
+        requireJDBCConnection();
+
         // ltype not persisted
         if(ltype != null && ltype.getId() == null) {
             return null;
         }
-
-        requireJDBCConnection();
 
         // otherwise prepare a query, depending on the parameters given
         final PreparedStatement query;
@@ -600,19 +600,19 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public KiWiDateLiteral loadLiteral(Date date) throws SQLException {
-        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "dateTime");
-
-        if(ltype == null || ltype.getId() == null) {
-            return null;
-        }
-
         // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),ltype.stringValue()));
+        Element element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),Namespaces.NS_XSD + "dateTime"));
         if(element != null) {
             return (KiWiDateLiteral)element.getObjectValue();
         }
 
         requireJDBCConnection();
+
+        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "dateTime");
+
+        if(ltype == null || ltype.getId() == null) {
+            return null;
+        }
 
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_tv");
@@ -648,20 +648,20 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public KiWiIntLiteral loadLiteral(long value) throws SQLException {
+        // look in cache
+        Element element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,Namespaces.NS_XSD + "integer"));
+        if(element != null) {
+            return (KiWiIntLiteral)element.getObjectValue();
+        }
+
+        requireJDBCConnection();
+
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "integer");
 
         // ltype not persisted
         if(ltype == null || ltype.getId() == null) {
             return null;
         }
-
-        // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,ltype.stringValue()));
-        if(element != null) {
-            return (KiWiIntLiteral)element.getObjectValue();
-        }
-
-        requireJDBCConnection();
 
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_iv");
@@ -696,20 +696,20 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
+        // look in cache
+        Element element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
+        if(element != null) {
+            return (KiWiDoubleLiteral)element.getObjectValue();
+        }
+
+        requireJDBCConnection();
+
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "double");
 
         // ltype not persisted
         if(ltype == null || ltype.getId() == null) {
             return null;
         }
-
-        // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,ltype.stringValue()));
-        if(element != null) {
-            return (KiWiDoubleLiteral)element.getObjectValue();
-        }
-
-        requireJDBCConnection();
 
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_dv");
@@ -744,21 +744,21 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
-        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "boolean");
-
-        // ltype not persisted
-        if(ltype == null || ltype.getId() == null) {
-            return null;
-        }
-
         // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,ltype.stringValue()));
+        Element element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
         if(element != null) {
             return (KiWiBooleanLiteral)element.getObjectValue();
         }
 
 
         requireJDBCConnection();
+
+        KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "boolean");
+
+        // ltype not persisted
+        if(ltype == null || ltype.getId() == null) {
+            return null;
+        }
 
         // otherwise prepare a query, depending on the parameters given
         PreparedStatement query = getPreparedStatement("load.literal_by_bv");

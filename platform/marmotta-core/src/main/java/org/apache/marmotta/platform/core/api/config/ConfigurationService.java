@@ -530,4 +530,7 @@ public interface ConfigurationService {
     void performServerShutdown();
 
 
+    boolean isInitialising();
+
+    void setInitialising(boolean initialising);
 }

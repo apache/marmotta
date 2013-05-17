@@ -18,13 +18,27 @@
 package org.apache.marmotta.ldpath.test;
 
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
-import org.apache.marmotta.ldpath.parser.*;
+import org.apache.marmotta.ldpath.parser.ParseException;
+import org.apache.marmotta.ldpath.parser.RdfPathParser;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
-import org.junit.Assume;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestWatcher;
@@ -39,20 +53,6 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeThat;
 
 public abstract class AbstractTestBase {
     protected final static Map<String, String> NSS;
@@ -110,7 +110,7 @@ public abstract class AbstractTestBase {
 
     protected RdfPathParser<Value> createParserFromResource(String input) throws IOException {
         final URL resource = this.getClass().getResource(input);
-        assumeThat("Could not load test input data '" + input + "'", resource, CoreMatchers.notNullValue());
+        assertThat("Could not load test input data '" + input + "'", resource, CoreMatchers.notNullValue());
 
         RdfPathParser<Value> parser = new RdfPathParser<Value>(backend, resource.openStream());
         assertThat("Could not parse ldPath", parser, CoreMatchers.notNullValue());
@@ -132,7 +132,7 @@ public abstract class AbstractTestBase {
     protected final void loadData(String datafile, RDFFormat format, String baseURI) throws RepositoryException, RDFParseException, IOException {
         // load demo data
         InputStream data = this.getClass().getResourceAsStream(datafile);
-        Assume.assumeThat("Could not load test-data: " + datafile, data, notNullValue(InputStream.class));
+        Assert.assertThat("Could not load test-data: " + datafile, data, notNullValue(InputStream.class));
 
         final SailRepositoryConnection con = repository.getConnection();
         try {

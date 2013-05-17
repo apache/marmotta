@@ -16,6 +16,8 @@
 @prefix test: <http://example.com/>;
 @prefix foo: <http://foo.com/some/path#> ;
 
+@graph test:context, foo:ctx, test:bar ;
+
 @filter test:type is foo:bar | test:p1 & is-a test:Case ;
 
 @boost foo:boost / ^test:boost ;

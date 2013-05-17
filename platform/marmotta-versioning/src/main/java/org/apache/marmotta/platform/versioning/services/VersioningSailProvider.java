@@ -96,8 +96,7 @@ public class VersioningSailProvider implements TransactionalSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(VERSIONING_ENABLED)) {
-            sesameService.shutdown();
-            sesameService.initialise();
+            sesameService.restart();
         }
     }
 

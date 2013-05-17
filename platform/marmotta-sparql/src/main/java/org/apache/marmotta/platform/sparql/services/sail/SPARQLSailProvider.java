@@ -56,8 +56,7 @@ public class SPARQLSailProvider implements NotifyingSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(SPARQL_STRATEGY)) {
-            sesameService.shutdown();
-            sesameService.initialise();
+            sesameService.restart();
         }
     }
 

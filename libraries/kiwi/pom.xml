@@ -100,19 +100,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
 
-            <!-- do not install / deploy reactor -->
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
