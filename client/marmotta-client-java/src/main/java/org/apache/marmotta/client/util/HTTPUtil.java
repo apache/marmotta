@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.client.util;
 
+import java.io.IOException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
@@ -37,9 +39,6 @@ import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.marmotta.client.ClientConfiguration;
-import org.apache.marmotta.client.MarmottaClient;
-
-import java.io.IOException;
 
 /**
  * HTTP Utilities
@@ -54,7 +53,7 @@ public class HTTPUtil {
 	public static HttpClient createClient(ClientConfiguration config) {
 
         HttpParams httpParams = new BasicHttpParams();
-        httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Marmotta Client Library/"+ MarmottaClient.VERSION);
+        httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Marmotta Client Library/"+ MetaUtil.getVersion());
 
         httpParams.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, config.getSoTimeout());
         httpParams.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, config.getConnectionTimeout());
