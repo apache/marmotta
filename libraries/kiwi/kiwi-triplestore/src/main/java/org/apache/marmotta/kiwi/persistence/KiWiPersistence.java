@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
@@ -51,21 +52,9 @@ public class KiWiPersistence {
     private static int KIWI_ID = 0;
 
     /**
-     * A unique name for identifying this instance of KiWiPersistence. Can be used in case there are several
-     * instances running in the same environment.
-     */
-    private String name;
-
-
-    /**
      * The connection pool for managing JDBC connections
      */
     private DataSource connectionPool;
-
-    /**
-     * The SQL dialect to use
-     */
-    private KiWiDialect           dialect;
 
     private PoolProperties        poolConfig;
 
@@ -73,12 +62,21 @@ public class KiWiPersistence {
 
     private KiWiGarbageCollector  garbageCollector;
 
+    /**
+     * The KiWi configuration for this persistence.
+     */
+    private KiWiConfiguration     configuration;
+
+    @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
-        this.name       = name;
-        this.dialect    = dialect;
+        this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect));
+    }
+
+    public KiWiPersistence(KiWiConfiguration configuration) {
+        this.configuration = configuration;
 
         // init JDBC connection pool
-        initConnectionPool(jdbcUrl, db_user, db_password);
+        initConnectionPool();
 
         // init EHCache caches
         initCachePool();
@@ -95,7 +93,7 @@ public class KiWiPersistence {
     }
 
     public KiWiDialect getDialect() {
-        return dialect;
+        return configuration.getDialect();
     }
 
     public KiWiCacheManager getCacheManager() {
@@ -104,17 +102,17 @@ public class KiWiPersistence {
 
 
     private void initCachePool() {
-        cacheManager = new KiWiCacheManager(name);
+        cacheManager = new KiWiCacheManager(configuration.getName());
     }
 
 
-    private void initConnectionPool(String jdbcUrl, String db_user, String db_password) {
+    private void initConnectionPool() {
         poolConfig = new PoolProperties();
         poolConfig.setName("kiwi-" + (++KIWI_ID));
-        poolConfig.setUrl(jdbcUrl);
-        poolConfig.setDriverClassName(dialect.getDriverClass());
-        poolConfig.setUsername(db_user);
-        poolConfig.setPassword(db_password);
+        poolConfig.setUrl(configuration.getJdbcUrl());
+        poolConfig.setDriverClassName(configuration.getDialect().getDriverClass());
+        poolConfig.setUsername(configuration.getDbUser());
+        poolConfig.setPassword(configuration.getDbPassword());
         poolConfig.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
         poolConfig.setCommitOnReturn(true);
         /*
@@ -123,17 +121,18 @@ public class KiWiPersistence {
         */
 
         // interceptors
-/*
-        poolConfig.setJdbcInterceptors(
-                "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
-                        "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
-                        "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
-        );
-*/
-        poolConfig.setJdbcInterceptors(
-                "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
-                "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
-        );
+        if(configuration.isQueryLoggingEnabled()) {
+            poolConfig.setJdbcInterceptors(
+                    "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
+                    "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
+                    "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
+            );
+        } else {
+            poolConfig.setJdbcInterceptors(
+                    "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
+                    "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
+            );
+        }
 
         if(log.isDebugEnabled()) {
             poolConfig.setSuspectTimeout(30);
@@ -196,14 +195,14 @@ public class KiWiPersistence {
                 log.info("creating new KiWi database ...");
 
                 ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
-                runner.runScript(new StringReader(dialect.getCreateScript(scriptName)));
+                runner.runScript(new StringReader(configuration.getDialect().getCreateScript(scriptName)));
 
             } else {
                 int version = connection.getDatabaseVersion();
 
-                String updateScript = dialect.getMigrationScript(version,scriptName);
+                String updateScript = configuration.getDialect().getMigrationScript(version,scriptName);
                 if(updateScript != null && updateScript.length() > 0) {
-                    log.info("upgrading existing KiWi database from version {} to version {}", version, dialect.getVersion());
+                    log.info("upgrading existing KiWi database from version {} to version {}", version, configuration.getDialect().getVersion());
 
                     ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
                     runner.runScript(new StringReader(updateScript));
@@ -264,7 +263,7 @@ public class KiWiPersistence {
                 }
 
                 ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
-                runner.runScript(new StringReader(dialect.getDropScript(scriptName)));
+                runner.runScript(new StringReader(configuration.getDialect().getDropScript(scriptName)));
 
 
                 if(log.isDebugEnabled()) {
@@ -298,7 +297,7 @@ public class KiWiPersistence {
      */
     public KiWiConnection getConnection() throws SQLException {
         if(connectionPool != null) {
-            return new KiWiConnection(this,dialect,cacheManager);
+            return new KiWiConnection(this,configuration.getDialect(),cacheManager);
         } else {
             throw new SQLException("connection pool is closed, database connections not available");
         }

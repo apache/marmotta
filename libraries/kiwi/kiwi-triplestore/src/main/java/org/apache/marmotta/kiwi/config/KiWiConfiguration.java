@@ -33,19 +33,52 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
  */
 public class KiWiConfiguration {
 
+    /**
+     * A unique name for identifying this instance of KiWiPersistence. Can be used in case there are several
+     * instances running in the same environment.
+     */
     private String name;
     private String jdbcUrl;
     private String dbUser;
     private String dbPassword;
+
+    /**
+     * The default context to use when no explicit context is given in createStatement. The KiWi triple store
+     * does not support null values for the context of a triple, so this URL must be set to an appropriate value
+     */
+    private String defaultContext;
+
+    /**
+     * The context to use for storing all inferred triples. The value set here will override all contexts
+     * given to addInferredTriple, because KiWi always stores all inferred triples in the same context.
+     */
+    private String inferredContext;
+
+
+    /**
+     * The SQL dialect to use
+     */
     private KiWiDialect dialect;
 
+    /**
+     * A flag indicating if the query logging (Tomcat JDBC SlowQueryReport) is enabled or not.
+     */
+    private boolean queryLoggingEnabled = false;
+
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
+        this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
+    }
+
+    public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect, String defaultContext, String inferredContext) {
         this.dbPassword = dbPassword;
         this.dbUser = dbUser;
         this.dialect = dialect;
         this.jdbcUrl = jdbcUrl;
         this.name = name;
+        this.defaultContext = defaultContext;
+        this.inferredContext = inferredContext;
     }
+
 
     public String getDbPassword() {
         return dbPassword;
@@ -65,5 +98,29 @@ public class KiWiConfiguration {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isQueryLoggingEnabled() {
+        return queryLoggingEnabled;
+    }
+
+    public void setQueryLoggingEnabled(boolean queryLoggingEnabled) {
+        this.queryLoggingEnabled = queryLoggingEnabled;
+    }
+
+    public String getDefaultContext() {
+        return defaultContext;
+    }
+
+    public void setDefaultContext(String defaultContext) {
+        this.defaultContext = defaultContext;
+    }
+
+    public String getInferredContext() {
+        return inferredContext;
+    }
+
+    public void setInferredContext(String inferredContext) {
+        this.inferredContext = inferredContext;
     }
 }

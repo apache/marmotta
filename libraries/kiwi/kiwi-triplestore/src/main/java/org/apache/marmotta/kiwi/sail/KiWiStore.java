@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.sail;
 
 import com.google.common.collect.MapMaker;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
@@ -101,8 +102,13 @@ public class KiWiStore extends NotifyingSailBase {
 
     }
 
+    @Deprecated
     public KiWiStore(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect, String defaultContext, String inferredContext) {
-    	this(new KiWiPersistence(name,jdbcUrl,db_user,db_password,dialect), defaultContext, inferredContext);
+    	this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect, defaultContext, inferredContext));
+    }
+
+    public KiWiStore(KiWiConfiguration configuration) {
+        this(new KiWiPersistence(configuration), configuration.getDefaultContext(), configuration.getInferredContext());
     }
 
 

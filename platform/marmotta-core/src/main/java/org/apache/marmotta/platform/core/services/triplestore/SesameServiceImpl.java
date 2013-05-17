@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.core.services.triplestore;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -148,7 +149,10 @@ public class SesameServiceImpl implements SesameService {
             String dbUser  = configurationService.getStringConfiguration("database.user");
             String dbPass  = configurationService.getStringConfiguration("database.password");
 
-            store = new KiWiStore("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
+            KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
+            configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
+
+            store = new KiWiStore(configuration);
 
             tsail = new KiWiTransactionalSail(store);
 
