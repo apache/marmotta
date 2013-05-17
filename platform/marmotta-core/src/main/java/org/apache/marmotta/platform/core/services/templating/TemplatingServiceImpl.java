@@ -17,12 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.templating;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +26,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+
 import com.google.common.base.Preconditions;
+
+import org.apache.commons.io.FileUtils;
+
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
@@ -39,7 +38,10 @@ import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
 import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Template Service Implementation
@@ -57,6 +59,10 @@ public class TemplatingServiceImpl implements TemplatingService {
     @Inject
     private MarmottaStartupService startupService;
 
+    private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
+
+    private File templateDir;
+
 	public TemplatingServiceImpl() {
 		super();
 		common = new HashMap<String,String>();
@@ -73,6 +79,22 @@ public class TemplatingServiceImpl implements TemplatingService {
         common.put("BASIC_URL", configurationService.getBaseUri());
         common.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
         common.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
+
+        templateDir =new File(configurationService.getHome()+TemplatingService.PATH);
+
+        if (!templateDir.exists()) templateDir.mkdirs();
+
+        for (String fName: new String[] {"admin.ftl", "404.ftl", "rdfhtml.ftl"}) {
+        final File dT = new File(templateDir, fName);
+        if (!dT.exists()) {
+            try {
+                log.info("Default Template not found, using fallback...");
+                final InputStream str = this.getClass().getResourceAsStream(TemplatingService.PATH+fName);
+                FileUtils.copyInputStreamToFile(str, dT);
+            } catch (IOException e) {
+                log.error("Could not create fallback template, templating might react weird!", e);
+            }
+        }                                      }
 	}
 	
     /**
@@ -96,9 +118,16 @@ public class TemplatingServiceImpl implements TemplatingService {
 	@Override
     public  Configuration getConfiguration(Class<?> cls) {
         Configuration cfg = new Configuration();
-        cfg.setClassForTemplateLoading(cls, TemplatingService.PATH);
+        try {
+            cfg.setDirectoryForTemplateLoading(templateDir);
+        } catch (IOException e) {
+            log.warn("not a directory");
+            cfg.setClassForTemplateLoading(cls, TemplatingService.PATH);
+        }
         return cfg;
     }
+
+
 
     @Override
     public Template getTemplate(String name) throws IOException {
