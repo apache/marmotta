@@ -19,7 +19,8 @@ package org.apache.marmotta.platform.core.services.templating;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,8 +59,6 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
 
     //some statics
     private static final String DEFAULT_ICON = "icon-beaker";
-    private static final String TEMPLATE_STRING = "admin.ftl";
-
 
     //pattern to filter comments content
     private static final Pattern PATTERN = Pattern.compile("\\<!--###BEGIN_([^#]+)###--\\>(.+)\\<!--###END_\\1###--\\>",Pattern.DOTALL);
@@ -75,7 +74,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         this.context = context;
         try {
         	 //try-run to check it from the very beginning
-            templatingService.getTemplate(TEMPLATE_STRING);
+            templatingService.getTemplate(TemplatingService.ADMIN_TPL);
         } catch (Exception e) {
             throw new TemplatingException("Severe Error: admin template cannot be found: " + e.getMessage());
         }
@@ -121,7 +120,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         //make magic happen
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        	templatingService.process(TEMPLATE_STRING, datamodel, new OutputStreamWriter(bos));
+        	templatingService.process(TemplatingService.ADMIN_TPL, datamodel, new OutputStreamWriter(bos));
             bytes = bos.toByteArray();
             bos.flush();
             bos.close();
