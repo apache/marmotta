@@ -44,6 +44,12 @@ public interface TemplatingService {
     
     final static String RDF_HTML_TPL = "rdfhtml.ftl";
     
+    final static String ADMIN_TPL = "admin.ftl";
+    
+    final static String ERROR_404_TPL = "404.ftl";
+    
+    final static String RDF_HTML_TPL = "rdfhtml.ftl";
+    
     static final String DEFAULT_PROJECT = "marmotta";
     
     static final String DEFAULT_STYLE = "blue";
