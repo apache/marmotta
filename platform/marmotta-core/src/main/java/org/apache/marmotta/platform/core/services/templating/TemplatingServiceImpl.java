@@ -70,21 +70,25 @@ public class TemplatingServiceImpl implements TemplatingService {
         common.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
         common.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
 
-        templateDir =new File(configurationService.getHome()+TemplatingService.PATH);
+        templateDir = new File(configurationService.getHome(), TemplatingService.PATH);
 
         if (!templateDir.exists()) templateDir.mkdirs();
 
-        for (String fName: new String[] {"admin.ftl", "404.ftl", "rdfhtml.ftl"}) {
-        final File dT = new File(templateDir, fName);
-        if (!dT.exists()) {
-            try {
-                log.info("Default Template not found, using fallback...");
-                final InputStream str = this.getClass().getResourceAsStream(TemplatingService.PATH+fName);
-                FileUtils.copyInputStreamToFile(str, dT);
-            } catch (IOException e) {
-                log.error("Could not create fallback template, templating might react weird!", e);
-            }
-        }                                      }
+        for (String fName: new String[] { 
+        		TemplatingService.ADMIN_TPL, 
+        		TemplatingService.ERROR_404_TPL, 
+        		TemplatingService.RDF_HTML_TPL }) {
+	        final File dT = new File(templateDir, fName);
+	        if (!dT.exists()) {
+	            try {
+	                log.warn("Default template not found at {}, copying fallback...", dT.getAbsolutePath());
+	                final InputStream str = this.getClass().getResourceAsStream(TemplatingService.PATH + fName);
+	                FileUtils.copyInputStreamToFile(str, dT);
+	            } catch (IOException e) {
+	                log.error("Could not create fallback template, templating might react weird!", e);
+	            }
+	        }                                     
+        }
 	}
 	
     /**
