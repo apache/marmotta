@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Aapche Marmotta</title>
+    <title>Apache Marmotta</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="${SERVER_URL}core/public/img/icon/lmf.ico" rel="SHORTCUT ICON">
     <script src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
