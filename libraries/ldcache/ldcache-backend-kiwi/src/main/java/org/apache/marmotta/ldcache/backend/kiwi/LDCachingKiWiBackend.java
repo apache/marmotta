@@ -23,6 +23,7 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.api.LDCachingConnection;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
+import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
 import org.apache.marmotta.ldcache.backend.kiwi.repository.LDCachingSailRepositoryConnection;
 import org.apache.marmotta.ldcache.backend.kiwi.sail.LDCachingKiWiSail;
 import org.apache.marmotta.ldcache.backend.kiwi.sail.LDCachingKiWiSailConnection;
@@ -186,14 +187,15 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
     @Override
     public boolean isCached(String resource) throws RepositoryException {
         try {
-            final LDCachingKiWiSailConnection sailConnection = sail.getConnection();
-            sailConnection.begin();
-            boolean result = sailConnection.getCacheEntry(sailConnection.getValueFactory().createURI(resource)) != null;
-            sailConnection.commit();
-            sailConnection.close();
-
-            return result;
-        } catch (SailException e) {
+            LDCachingKiWiPersistenceConnection con = persistence.getConnection();
+            try {
+                CacheEntry entry = con.getCacheEntry(resource);
+                return  entry != null && entry.getTripleCount() > 0;
+            } finally {
+                con.commit();
+                con.close();
+            }
+        } catch (SQLException e) {
             throw new RepositoryException(e);
         }
     }

@@ -193,6 +193,7 @@ public class LDCachePersistenceTest {
             entry1.setLastRetrieved(new Date());
             entry1.setUpdateCount(1);
             entry1.setResource(subject1);
+            entry1.setTripleCount(1);
             connection.storeCacheEntry(entry1);
 
             connection.commit();
@@ -205,6 +206,7 @@ public class LDCachePersistenceTest {
             entry2.setLastRetrieved(new Date());
             entry2.setUpdateCount(1);
             entry2.setResource(subject2);
+            entry2.setTripleCount(1);
             connection.storeCacheEntry(entry2);
 
             connection.commit();
@@ -252,6 +254,7 @@ public class LDCachePersistenceTest {
             entry1.setLastRetrieved(new Date());
             entry1.setUpdateCount(1);
             entry1.setResource(subject1);
+            entry1.setTripleCount(1);
             connection.storeCacheEntry(entry1);
 
             KiWiCacheEntry entry2 = new KiWiCacheEntry();
@@ -259,6 +262,7 @@ public class LDCachePersistenceTest {
             entry2.setLastRetrieved(new Date());
             entry2.setUpdateCount(1);
             entry2.setResource(subject2);
+            entry2.setTripleCount(1);
             connection.storeCacheEntry(entry2);
 
             connection.commit();

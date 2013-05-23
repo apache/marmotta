@@ -250,7 +250,7 @@ public class LDCache implements LDCachingService {
 
                         cacheConnection1.remove(subject, null, null);
 
-
+                        int count = 0;
                         RepositoryResult<Statement> triples = respConnection.getStatements(null,null,null,true);
                         while(triples.hasNext()) {
                             Statement triple = triples.next();
@@ -259,6 +259,7 @@ public class LDCache implements LDCachingService {
                             } catch (RuntimeException ex) {
                                 log.warn("not adding triple {}: an exception occurred ({})",triple,ex.getMessage());
                             }
+                            count++;
                         }
                         triples.close();
                         respConnection.close();
@@ -272,6 +273,7 @@ public class LDCache implements LDCachingService {
                         } else {
                             newEntry.setUpdateCount(1);
                         }
+                        newEntry.setTripleCount(count);
 
                         cacheConnection1.removeCacheEntry(resource);
                         cacheConnection1.addCacheEntry(resource, newEntry);
@@ -295,6 +297,7 @@ public class LDCache implements LDCachingService {
                 } else {
                     newEntry.setUpdateCount(1);
                 }
+                newEntry.setTripleCount(0);
 
                 LDCachingConnection cacheConnection2 = backend.getCacheConnection(resource.stringValue());
                 cacheConnection2.begin();

@@ -35,6 +35,7 @@ import org.apache.marmotta.ldcache.backend.file.repository.LDCachingFileReposito
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
@@ -118,8 +119,15 @@ public class LDCachingFileBackend implements LDCachingBackend {
      */
     @Override
     public boolean isCached(String resource) throws RepositoryException {
-        File file = FileBackendUtils.getMetaFile(resource, storageDir);
-        return file.exists();
+        try {
+            final File dataFile = FileBackendUtils.getMetaFile(resource, storageDir);
+            if (!(dataFile.exists())) return false;
+            final CacheEntry ce = FileBackendUtils.readCacheEntry(dataFile, new ValueFactoryImpl());
+            //return ce != null && !FileBackendUtils.isExpired(ce) && ce.getTripleCount() > 0;
+            return ce != null && ce.getTripleCount() > 0;
+        } catch (IOException e) {
+            throw new RepositoryException(e);
+        }
     }
 
 

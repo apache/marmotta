@@ -160,6 +160,7 @@ public class LDCacheBackendTest {
             entry1.setLastRetrieved(new Date());
             entry1.setUpdateCount(1);
             entry1.setResource(subject1);
+            entry1.setTripleCount(1);
             con.addCacheEntry(subject1, entry1);
             con.commit();
 
@@ -174,6 +175,7 @@ public class LDCacheBackendTest {
             entry2.setLastRetrieved(new Date());
             entry2.setUpdateCount(1);
             entry2.setResource(subject2);
+            entry2.setTripleCount(1);
             con.addCacheEntry(subject2,entry2);
 
             con.commit();

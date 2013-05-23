@@ -52,41 +52,83 @@ public class CacheEntry {
     private Integer updateCount;
 
 
+    /**
+     * The number of triples that have been retrieved in the last cache refresh.
+     */
+    private Integer tripleCount;
+
 
     public CacheEntry() {
     }
 
 
+    /**
+     * The URI resource managed by this cache entry.
+     */
     public URI getResource() {
         return resource;
     }
 
+    /**
+     * The URI resource managed by this cache entry.
+     */
     public void setResource(URI resource) {
         this.resource = resource;
     }
 
+    /**
+     * The date when this resource has been retrieved the last time.
+     */
     public Date getLastRetrieved() {
         return lastRetrieved;
     }
 
+    /**
+     * The date when this resource has been retrieved the last time.
+     */
     public void setLastRetrieved(Date lastRetrieved) {
         this.lastRetrieved = new Date(lastRetrieved.getTime());
     }
 
+    /**
+     * The date when this resource needs to be retrieved again according to expiry configuration.
+     */
     public Date getExpiryDate() {
         return expiryDate;
     }
 
+    /**
+     * The date when this resource needs to be retrieved again according to expiry configuration.
+     */
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = new Date(expiryDate.getTime());
     }
 
+    /**
+     * The number of times this resource has already been updated.
+     */
     public Integer getUpdateCount() {
         return updateCount;
     }
 
+    /**
+     * The number of times this resource has already been updated.
+     */
     public void setUpdateCount(Integer updateCount) {
         this.updateCount = updateCount;
     }
 
+    /**
+     * The number of triples that have been retrieved in the last cache refresh.
+     */
+    public Integer getTripleCount() {
+        return tripleCount;
+    }
+
+    /**
+     * The number of triples that have been retrieved in the last cache refresh.
+     */
+    public void setTripleCount(Integer tripleCount) {
+        this.tripleCount = tripleCount;
+    }
 }
