@@ -25,6 +25,7 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
@@ -52,6 +53,8 @@ public class TestStanbolProvider {
         config.addEndpoint(new StanbolEndpoint("DBPedia (Stanbol Cache)","http://dev.iks-project.eu:8080/entityhub/site/dbpedia/","^http://dbpedia\\.org/resource/.*"));
 
         LDClientService ldclient = new TestLDClient(new LDClient(config));
+
+        Assume.assumeTrue(ldclient.ping("http://dev.iks-project.eu:8080/"));
 
         String uriBerlin = "http://dbpedia.org/resource/Berlin";
         ClientResponse respBerlin = ldclient.retrieveResource(uriBerlin);
