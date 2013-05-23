@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.engine;
 
+import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.Iterations;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -51,16 +52,19 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.Assert.fail;
 
 /**
  * This test verifies the functionality of the KiWi Reasonong Engine. Based on a small sample program, it will test
@@ -72,7 +76,7 @@ import static org.hamcrest.Matchers.hasItem;
  * <ul>
  *     <li>PostgreSQL:
  *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
+ *         <li>c</li>
  *         <li>postgresql.user (default: lmf)</li>
  *         <li>postgresql.pass (default: lmf)</li>
  *     </ul>
@@ -469,6 +473,26 @@ public class ReasoningEngineTest {
             Assert.assertTrue("expected inferred triple not found", con.hasStatement(b,t,d,true));
             Assert.assertTrue("expected inferred triple not found", con.hasStatement(b,s,a,true));
 
+
+            // we also expect that there are justifications for all inferred triples
+            Resource[][] patterns = new Resource[][] {
+                    new Resource[] { a, t, c },
+                    new Resource[] { b, t, d },
+                    new Resource[] { b, s, a }
+            };
+
+
+            RepositoryResult<Statement> result = con.getStatements(null,null,null,true, con.getValueFactory().createURI(store.getInferredContext()));
+            if(result.hasNext()) {
+                while (result.hasNext()) {
+                    Statement stmt1 = result.next();
+
+                    CloseableIteration<Justification, SQLException> justs1 = rcon.listJustificationsForTriple((KiWiTriple) stmt1);
+                    Assert.assertTrue(justs1.hasNext());
+                }
+            } else {
+                fail("no inferred statements found");
+            }
             con.commit();
         } finally {
             con.close();
