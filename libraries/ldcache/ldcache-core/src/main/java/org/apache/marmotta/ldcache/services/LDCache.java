@@ -136,7 +136,20 @@ public class LDCache implements LDCachingService {
      * @throws RepositoryException
      */
     public boolean isCached(String resourceUri) throws RepositoryException {
-        return backend.isCached(resourceUri);
+        // if there is no cache entry, then return false in any case
+        if(!backend.isCached(resourceUri)) {
+            return false;
+        } else {
+            // else list all cached triples - if there are none, the resource is not cached (e.g. blacklist or no LD resource)
+            RepositoryConnection con = backend.getCacheConnection(resourceUri);
+            try {
+                con.begin();
+                return con.hasStatement(con.getValueFactory().createURI(resourceUri), null, null, false);
+            } finally {
+                con.commit();
+                con.close();
+            }
+        }
     }
 
     /**
