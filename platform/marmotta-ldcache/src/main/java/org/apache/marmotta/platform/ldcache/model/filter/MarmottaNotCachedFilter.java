@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldcache.model.filter;
 
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
+import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.ldcache.services.ldcache.LDCacheSailProvider;
 import org.openrdf.model.BNode;
@@ -33,9 +34,11 @@ import org.openrdf.repository.RepositoryException;
 public class MarmottaNotCachedFilter implements ResourceFilter {
 
     private LDCacheSailProvider cacheSailProvider;
+    private MarmottaLocalFilter marmottaLocalFilter;
 
     public MarmottaNotCachedFilter() {
         cacheSailProvider = CDIContext.getInstance(LDCacheSailProvider.class);
+        marmottaLocalFilter = CDIContext.getInstance(MarmottaLocalFilter.class);
     }
 
 
@@ -62,6 +65,10 @@ public class MarmottaNotCachedFilter implements ResourceFilter {
             return true;
         }
         if(!cacheSailProvider.isEnabled()) {
+            return true;
+        }
+
+        if(marmottaLocalFilter.accept(resource)) {
             return true;
         }
 
