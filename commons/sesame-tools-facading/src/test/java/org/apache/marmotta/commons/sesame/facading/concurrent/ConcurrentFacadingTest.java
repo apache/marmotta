@@ -11,6 +11,7 @@ import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
@@ -99,6 +100,7 @@ public class ConcurrentFacadingTest extends AbstractFacadingTest {
     }
 
     @Test
+    @Ignore("Not a proper solution yet")
     public void testParallelFacadingType() throws RepositoryException {
         final RepositoryConnection mainCon = repositoryRDF.getConnection();
         try {
