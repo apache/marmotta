@@ -83,5 +83,5 @@ CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 -- a function for cleaning up table rows without incoming references
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','1');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );

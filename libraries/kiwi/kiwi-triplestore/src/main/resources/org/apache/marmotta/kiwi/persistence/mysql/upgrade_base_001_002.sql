@@ -1,0 +1,1 @@
+UPDATE metadata SET mvalue = '2' WHERE mkey = 'version';

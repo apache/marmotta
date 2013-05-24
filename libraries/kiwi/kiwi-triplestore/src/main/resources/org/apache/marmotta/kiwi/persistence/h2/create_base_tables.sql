@@ -79,5 +79,5 @@ CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','1');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',FORMATDATETIME(now(),'yyyy-MM-dd HH:mm:ss z','en') );
