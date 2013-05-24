@@ -81,7 +81,8 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         this.context = context;
         try {
         	 //try-run to check it from the very beginning
-            templatingService.getTemplate(TEMPLATE_STRING);
+            // sschaffert: disabled the call because it requires the host name
+            //templatingService.getTemplate(TEMPLATE_STRING);
         } catch (Exception e) {
             throw new TemplatingException("Severe Error: admin template cannot be found: " + e.getMessage());
         }
