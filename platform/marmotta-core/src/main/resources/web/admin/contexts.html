@@ -28,25 +28,30 @@
 <div id="main">
 <div id="contents">
 <!--###BEGIN_CONTENT###-->
-    <h1>Contexts</h1>
-    <h2>Triple Contexts / Graphs</h2>
+
+    <div class="page-header">
+      <h1>
+        Contexts
+        <small>Triple Contexts / Graphs</small>
+      </h1>
+    </div>
     <p>
         In Marmotta we call <em>contexts</em> to triple containers with their own URI;
-        what is commonly known as 
+        what is commonly known as
         <a href="http://www.w3.org/TR/sparql11-query/#namedAndDefaultGraph">graphs</a>
         in SPARQL.
     </p>
     <p>
         Currently there are <span id="contexts-count">0</span> contexts in Marmotta:
-    </p>    
-    <table id="contexts" class="simple_table">
+    </p>
+    <table id="contexts" class="simple_table table table-striped">
       <tr class="subtitle">
         <th>Context</th>
         <th>Label</th>
         <th>&nbsp;</th>
-      </tr>    
-    </table>  
-    
+      </tr>
+    </table>
+
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript">
         jQuery(document).ready(function() {
