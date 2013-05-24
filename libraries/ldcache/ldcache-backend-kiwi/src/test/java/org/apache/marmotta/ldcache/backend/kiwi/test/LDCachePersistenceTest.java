@@ -170,7 +170,7 @@ public class LDCachePersistenceTest {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(), hasItems("ldcache_entries"));
-            Assert.assertEquals(1, connection.getDatabaseVersion());
+            Assert.assertEquals(2, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
