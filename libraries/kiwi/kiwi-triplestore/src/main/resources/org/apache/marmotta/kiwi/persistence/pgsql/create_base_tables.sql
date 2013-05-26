@@ -67,13 +67,13 @@ CREATE TABLE metadata (
 CREATE INDEX idx_node_content ON nodes USING hash(svalue);
 CREATE INDEX idx_literal_lang ON nodes(lang) WHERE ntype = 'string';
 
-CREATE INDEX idx_triples_s ON triples(subject) WHERE deleted = false;
+--CREATE INDEX idx_triples_s ON triples(subject) WHERE deleted = false;
 CREATE INDEX idx_triples_o ON triples(object) WHERE deleted = false;
-CREATE INDEX idx_triples_sp ON triples(subject,predicate) WHERE deleted = false;
+--CREATE INDEX idx_triples_sp ON triples(subject,predicate) WHERE deleted = false;
 CREATE INDEX idx_triples_po ON triples(predicate,object) WHERE deleted = false;
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object) WHERE deleted = false;
-CREATE INDEX idx_triples_cs ON triples(context,subject) WHERE deleted = false;
-CREATE INDEX idx_triples_csp ON triples(context,subject,predicate) WHERE deleted = false;
+--CREATE INDEX idx_triples_cs ON triples(context,subject) WHERE deleted = false;
+--CREATE INDEX idx_triples_csp ON triples(context,subject,predicate) WHERE deleted = false;
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object) WHERE deleted = false;
 
 CREATE INDEX idx_namespaces_uri ON namespaces(uri);
