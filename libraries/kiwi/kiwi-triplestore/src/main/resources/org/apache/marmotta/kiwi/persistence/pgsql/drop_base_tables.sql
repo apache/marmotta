@@ -15,13 +15,8 @@
 DROP INDEX idx_node_content;
 DROP INDEX idx_literal_lang;
 
--- DROP INDEX idx_triples_s;
-DROP INDEX idx_triples_o;
--- DROP INDEX idx_triples_sp;
-DROP INDEX idx_triples_po;
+DROP INDEX idx_triples_op;
 DROP INDEX idx_triples_spo;
--- DROP INDEX idx_triples_cs;
--- DROP INDEX idx_triples_csp;
 DROP INDEX idx_triples_cspo;
 
 DROP INDEX idx_namespaces_uri;
