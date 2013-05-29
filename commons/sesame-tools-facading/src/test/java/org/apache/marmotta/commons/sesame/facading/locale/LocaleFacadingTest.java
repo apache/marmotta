@@ -16,13 +16,13 @@
  */
 package org.apache.marmotta.commons.sesame.facading.locale;
 
+import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-
 
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
@@ -32,8 +32,6 @@ import org.junit.Test;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-
-import java.util.Locale;
 
 public class LocaleFacadingTest extends AbstractFacadingTest {
 
