@@ -67,14 +67,10 @@ CREATE TABLE metadata (
 CREATE INDEX idx_node_content ON nodes USING hash(svalue);
 CREATE INDEX idx_literal_lang ON nodes(lang) WHERE ntype = 'string';
 
-CREATE INDEX idx_triples_s ON triples(subject) WHERE deleted = false;
-CREATE INDEX idx_triples_o ON triples(object) WHERE deleted = false;
-CREATE INDEX idx_triples_sp ON triples(subject,predicate) WHERE deleted = false;
-CREATE INDEX idx_triples_po ON triples(predicate,object) WHERE deleted = false;
+CREATE INDEX idx_triples_op ON triples(object,predicate) WHERE deleted = false;
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object) WHERE deleted = false;
-CREATE INDEX idx_triples_cs ON triples(context,subject) WHERE deleted = false;
-CREATE INDEX idx_triples_csp ON triples(context,subject,predicate) WHERE deleted = false;
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object) WHERE deleted = false;
+
 
 CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
@@ -83,5 +79,5 @@ CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 -- a function for cleaning up table rows without incoming references
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','1');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );

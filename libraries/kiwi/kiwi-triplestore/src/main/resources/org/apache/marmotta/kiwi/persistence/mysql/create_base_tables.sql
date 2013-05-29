@@ -75,18 +75,13 @@ CREATE TABLE metadata (
 CREATE INDEX idx_node_content ON nodes(svalue(256));
 CREATE INDEX idx_literal_lang ON nodes(lang);
 
-CREATE INDEX idx_triples_s ON triples(subject);
-CREATE INDEX idx_triples_o ON triples(object);
-CREATE INDEX idx_triples_sp ON triples(subject,predicate);
-CREATE INDEX idx_triples_po ON triples(predicate,object);
+CREATE INDEX idx_triples_op ON triples(object,predicate);
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object);
-CREATE INDEX idx_triples_cs ON triples(context,subject);
-CREATE INDEX idx_triples_csp ON triples(context,subject,predicate);
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object);
 
 CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','1');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s') );

@@ -263,4 +263,11 @@ public class MarmottaStartupService {
         log.info("Apache Marmotta Core shutting down ...");
     }
 
+    public boolean isConfigurationStarted() {
+        return configurationStarted;
+    }
+
+    public boolean isHostStarted() {
+        return hostStarted;
+    }
 }

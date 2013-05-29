@@ -36,7 +36,7 @@ public abstract class KiWiDialect {
 
     private static Logger log = LoggerFactory.getLogger(KiWiDialect.class);
 
-    private final static int VERSION = 1;
+    private final static int VERSION = 2;
 
     private Properties statements;
 
@@ -112,7 +112,7 @@ public abstract class KiWiDialect {
         StringBuilder builder = new StringBuilder();
         for(int i = oldVersion+1; i <= VERSION; i++ ) {
             try {
-                String script = String.format("upgrade_"+name+"_%02d_%02d.sql",i-1,i);
+                String script = String.format("upgrade_"+name+"_%03d_%03d.sql",i-1,i);
 
                 builder.append(IOUtils.toString(this.getClass().getResourceAsStream(script)));
             } catch (Exception e) {
