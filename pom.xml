@@ -101,6 +101,12 @@
             <email>tkurz@apache.org</email>
             <organization>The Apache Software Foundation</organization>
         </developer>
+        <developer>
+            <id>rpalmieri</id>
+            <name>Raffaele Palmieri</name>
+            <email>rpalmieri@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
     </developers>
 
     <organization>
