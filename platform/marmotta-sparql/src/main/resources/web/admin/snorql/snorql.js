@@ -409,7 +409,7 @@ function SPARQLResultFormatter(json, namespaces) {
 
     this.toDOM = function() {
         var table = document.createElement('table');
-        table.className = 'queryresults';
+        table.className = 'table table-striped table-condensed table-hover';
         table.appendChild(this._createTableHeader());
         for (var i = 0; i < this._results.length; i++) {
             table.appendChild(this._createTableRow(this._results[i], i));

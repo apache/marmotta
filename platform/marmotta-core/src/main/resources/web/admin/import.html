@@ -26,28 +26,112 @@
     <script type="text/javascript" src="js/widgets/import.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            var imp = new Importer("importer_div",_SERVER_URL);
+          var imp = new Importer(_SERVER_URL);
         })
     </script>
-    <style>
-        .import_type {
-            padding: 2px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .importer_table {
-            background-color: #eeeeee;
-            padding: 10px;
-            border: 1px solid gray;
-            -webkit-border-radius: 3px;
-            border-radius: 3px;
-        }
-    </style>
 <!--###END_HEAD###-->
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
-<div id="importer_div"></div>
+    <div class="page-header">
+      <h1>
+        Import
+        <small>from file or URL</small>
+      </h1>
+    </div>
+
+<div class="row-fluid">
+  <div class="span5">
+    <input id="fileinput" type="file" style="display:none" />
+    <div class="input-append">
+      <input class="input-large" id="fileupload" type="text" placeholder="choose file" />
+      <button onclick="$('input[type=file]').click();" class="btn" type="button">Browse</button>
+    </div>
+
+    <p>or</p>
+
+    <div id="urlimport" class="control-group">
+      <div class="controls">
+        <div class="input-append">
+          <input class="input-large" id="url" type="text" placeholder="URL" />
+          <button class="btn" type="button">OK</button>
+        </div>
+        <span data-invalid="please fill in a valid URL" class="help-inline"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="droparea" class="span5">
+    <p>or drop files here</p>
+  </div>
+</div>
+
+<hr/>
+
+<div class="loading pull-right"></div>
+
+<div id="notice" class="alert hidden"
+  data-success="Import was successful! <br/><a href='javascript:location.reload()'>import another file</a>"
+  data-externalsuccess="<strong>Upload is running!</strong><br/>You can control the running import tasks <a href='tasks.html' title='tasks'>here</a>">
+</div>
+
+
+<div id="step2" class="row-fluid">
+  <form class="form-horizontal import">
+    <div id="relations" class="control-group hidden">
+      <label class="control-label" for="relation">Relation</label>
+      <div class="controls">
+        <label class="radio inline">
+          <input type="radio" name="relation" id="relationmeta" value="meta" checked />
+          meta
+        </label>
+        <label class="radio inline">
+          <input type="radio" name="relation" id="relationcontent" value="content" />
+          content
+        </label>
+        <div class="help-inline">
+          <input id="contenturl" type="text" placeholder="URL" />
+          <span data-error="please fill in a valid URL or leave it empty" class="help-inline"></span>
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="mime">MIME-Type</label>
+      <div class="controls">
+        <select name="mime"></select>
+        <input id="filemime" type="text" class="hidden" />
+      </div>
+    </div>
+    <div id="context" class="control-group">
+      <label class="control-label" for="context">Context</label>
+      <div class="controls">
+        <select name="context">
+          <option selected>default</option>
+          <option>use existing</option>
+          <option>define new</option>
+        </select>
+
+        <div id="existingcontexts" class="hidden help-inline">
+          Select context URL
+          <select></select>
+          <span data-nocontexts="no existing context, default is used." class="warning help-inline"></span>
+        </div>
+
+        <div id="contexturl" class="hidden help-inline">
+          Define context
+          <input type="text" placeholder="URL" />
+          <span data-invalid="please fill in a valid URL" class="help-inline"></span>
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="controls">
+        <input type="submit" class="btn" value="Import" />
+      </div>
+    </div>
+  </form>
+</div>
+
 <!--###END_CONTENT###-->
 </body>
 </html>

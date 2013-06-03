@@ -92,16 +92,16 @@
           XSLT stylesheet URL:
           <input id="xsltstylesheet" type="text" value="snorql/xml-to-html.xsl" size="30" />
         </span></span>
-            <input type="button" value="Go!" onclick="editor.save(); snorql.submitQuery()" />
+            <input type="button" class="btn" value="Go" onclick="editor.save(); snorql.submitQuery()" />
         </div>
     </div>
 
     <div class="section">
-        <div id="result"><span></span></div>
+      <table id="result" class="table table-striped table-condensed table-hover"></table>
     </div>
 
     <!-- <div id="footer_snorql">Powered by <a id="poweredby" href="#">Snorql</a></div>  -->
-    
+
     <script type="text/javascript" src="prototype.js"></script>
     <script type="text/javascript" src="scriptaculous/scriptaculous.js"></script>
     <script type="text/javascript" src="../../../core/public/js/lib/jquery-1.7.2.js"></script>

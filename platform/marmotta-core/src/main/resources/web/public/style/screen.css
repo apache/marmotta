@@ -21,7 +21,7 @@ body {
 }
 
 body .menu-level-1.navbar .navbar-inner .brand {
-  background-image: url(../img/logo/marmotta-logo-neg.png);
+  background-image: url('../img/logo/marmotta-logo-neg.png');
   height: 40px;
   width: 120px;
   background-size: contain;
@@ -47,6 +47,18 @@ body .menu-level-3 {
   background-color: #fff;
   width: 100%;
   text-transform: lowercase;
+  z-index: 100;
+}
+
+.loading {
+  display: inline-block;
+  height: 15px;
+  width: 15px;
+  background-image: url('../img/loader/ajax-loader_small.gif');
+}
+
+.hidden {
+  display: none !important;
 }
 
 .square-corners {
@@ -86,3 +98,31 @@ body #content {
 legend+.control-group {
   -webkit-margin-top-collapse: collapse;
 }
+
+/**
+ * Droparea
+ */
+#droparea{
+  height: 220px;
+  padding-top: 90px;
+  border: 7px dashed #ccc;
+  border-radius: 10px;
+  vertical-align: baseline;
+  margin: 0 auto;
+  text-align: center;
+  text-shadow: 1px 1px 0 #fff;
+}
+#droparea p {
+  font-size: 18px;
+  font-weight: bold;
+  color: #555;
+}
+#droparea.upload {
+  height: 120px;
+  padding-top: 40px;
+}
+#droparea.hover{
+  border-color: #777;
+  background-color: #fff;
+}
+
