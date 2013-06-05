@@ -924,11 +924,6 @@ public class KiWiConnection {
      * @throws NullPointerException in case the subject, predicate, object or context have not been persisted
      */
     public synchronized void storeTriple(KiWiTriple triple) throws SQLException {
-        // if the node already has an ID, storeNode should not be called, since it is already persisted
-        if(triple.getId() != null) {
-            log.warn("triple {} already had a triple ID, not persisting", triple);
-            return;
-        }
 
         Preconditions.checkNotNull(triple.getSubject().getId());
         Preconditions.checkNotNull(triple.getPredicate().getId());
@@ -939,7 +934,9 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         // retrieve a new triple ID and set it in the object
-        triple.setId(getNextSequence("seq.triples"));
+        if(triple.getId() == null) {
+            triple.setId(getNextSequence("seq.triples"));
+        }
 
         PreparedStatement insertTriple = getPreparedStatement("store.triple");
         insertTriple.setLong(1,triple.getId());

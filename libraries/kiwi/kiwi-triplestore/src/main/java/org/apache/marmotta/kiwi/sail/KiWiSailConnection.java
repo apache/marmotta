@@ -167,11 +167,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(ksubj,kpred,kobj,kcontext, databaseConnection);
                 triple.setInferred(inferred);
 
-                if(triple.getId() == null) {
-                    databaseConnection.storeTriple(triple);
-                    triplesAdded = true;
-                    notifyStatementAdded(triple);
-                } else if(deletedStatementsLog.contains(triple.getId())) {
+                if(triple.getId() != null && deletedStatementsLog.contains(triple.getId())) {
                     // this is a hack for a concurrency problem that may occur in case the triple is removed in the
                     // transaction and then added again; in these cases the createStatement method might return
                     // an expired state of the triple because it uses its own database connection
@@ -179,6 +175,15 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     databaseConnection.undeleteTriple(triple);
                     triplesAdded = true;
                     notifyStatementAdded(triple);
+                } else {
+                    try {
+                        databaseConnection.storeTriple(triple);
+                        triplesAdded = true;
+                        notifyStatementAdded(triple);
+                    } catch (SQLException ex) {
+                        // triple already exists, just issue a warning
+                        log.warn("adding triple to database failed, triple probably already exists; message: {}", ex.getMessage());
+                    }
                 }
 
                 added.add(triple);

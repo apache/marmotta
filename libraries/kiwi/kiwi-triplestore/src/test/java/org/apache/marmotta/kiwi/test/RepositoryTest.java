@@ -548,4 +548,44 @@ public class RepositoryTest {
 
     }
 
+    /**
+     * Test the rollback functionality of the triple store by adding a triple, rolling back, adding the triple again.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRollback() throws Exception {
+        String value = RandomStringUtils.randomAlphanumeric(8);
+
+        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        Literal object = repository.getValueFactory().createLiteral(value);
+
+        RepositoryConnection connection1 = repository.getConnection();
+        try {
+            connection1.begin();
+            connection1.add(subject,predicate,object);
+            connection1.rollback();
+
+        } finally {
+            connection1.close();
+        }
+
+        RepositoryConnection connection2 = repository.getConnection();
+        try {
+            connection2.begin();
+            Assert.assertFalse(connection2.hasStatement(subject,predicate,object,true));
+
+            connection2.add(subject,predicate,object);
+            connection2.commit();
+
+            Assert.assertTrue(connection2.hasStatement(subject,predicate,object,true));
+
+            connection2.commit();
+        } finally {
+            connection2.close();
+        }
+
+    }
+
 }
