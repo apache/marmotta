@@ -41,6 +41,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A sail provider service that allows wrapping a transparent Linked Data caching component around the
@@ -67,6 +68,9 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
     @Inject
     private HttpClientService         httpClientService;
+
+
+    private Set<Endpoint> volatileEndpoints;
 
     private ClientConfiguration ldclientConfig;
 
@@ -106,12 +110,17 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
     @PostConstruct
     public void initialize() {
+        volatileEndpoints = new HashSet<Endpoint>();
         ldclientConfig = new ClientConfiguration();
         updateConfig();
     }
 
     public void updateEndpoints() {
-        ldclientConfig.setEndpoints(new HashSet<Endpoint>(endpointService.listEndpoints()));
+        HashSet<Endpoint> endpoints = new HashSet<Endpoint>();
+        endpoints.addAll(endpointService.listEndpoints());
+        endpoints.addAll(volatileEndpoints);
+
+        ldclientConfig.setEndpoints(endpoints);
 
         if(sail != null &&  sail.getLDCache() != null) {
             sail.getLDCache().reload();
@@ -125,7 +134,11 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
         ldclientConfig.setSocketTimeout(configurationService.getIntConfiguration("ldcache.so_timeout", 60000));
         ldclientConfig.setConnectionTimeout(configurationService.getIntConfiguration("ldcache.connection_timeout", 10000));
         ldclientConfig.setMaxParallelRequests(configurationService.getIntConfiguration("ldcache.max_parallel_requests",10));
-        ldclientConfig.setEndpoints(new HashSet<Endpoint>(endpointService.listEndpoints()));
+
+        HashSet<Endpoint> endpoints = new HashSet<Endpoint>();
+        endpoints.addAll(endpointService.listEndpoints());
+        endpoints.addAll(volatileEndpoints);
+        ldclientConfig.setEndpoints(endpoints);
 
         ldclientConfig.setHttpClient(httpClientService.getHttpClient());
 
@@ -172,4 +185,29 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
         }
     }
 
+
+    /**
+     * Add a volatile (in-memory) endpoint to the LDClient configuration. Can be used by other services for auto-registering
+     * LDClient endpoints for special endpoints.
+     *
+     * @param endpoint
+     */
+    public void addVolatileEndpoint(Endpoint endpoint) {
+        if(!volatileEndpoints.contains(endpoint)) {
+            volatileEndpoints.add(endpoint);
+            updateEndpoints();
+        }
+    }
+
+
+    /**
+     * Remove a volatile (in-memory) endpoint from the LDClient configuration.
+     * @param endpoint
+     */
+    public void removeVolatileEndpoint(Endpoint endpoint) {
+        if(volatileEndpoints.contains(endpoint)) {
+            volatileEndpoints.remove(endpoint);
+            updateEndpoints();
+        }
+    }
 }
