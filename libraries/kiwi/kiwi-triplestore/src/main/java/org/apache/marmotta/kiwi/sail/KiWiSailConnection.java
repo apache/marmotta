@@ -176,14 +176,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     triplesAdded = true;
                     notifyStatementAdded(triple);
                 } else {
-                    try {
-                        databaseConnection.storeTriple(triple);
-                        triplesAdded = true;
-                        notifyStatementAdded(triple);
-                    } catch (SQLException ex) {
-                        // triple already exists, just issue a warning
-                        //log.warn("adding triple to database failed, triple probably already exists; message: {}", ex.getMessage());
-                    }
+                    databaseConnection.storeTriple(triple);
+                    triplesAdded = true;
+                    notifyStatementAdded(triple);
                 }
 
                 added.add(triple);
