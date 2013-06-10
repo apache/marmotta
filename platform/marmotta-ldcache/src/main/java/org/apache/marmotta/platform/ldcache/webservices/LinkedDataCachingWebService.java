@@ -218,7 +218,10 @@ public class LinkedDataCachingWebService {
 
         List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
         for(Endpoint endpoint : endpointService.listEndpoints()) {
-            result.add(buildEndpointJSON(endpoint));
+            result.add(buildEndpointJSON(endpoint, false));
+        }
+        for(Endpoint endpoint : cacheSailProvider.getVolatileEndpoints()) {
+            result.add(buildEndpointJSON(endpoint, true));
         }
 
         return Response.ok().entity(result).build();
@@ -245,7 +248,7 @@ public class LinkedDataCachingWebService {
         if (endpoint == null) return notFound(id);
 
 
-        return Response.ok().entity(buildEndpointJSON(endpoint)).build();
+        return Response.ok().entity(buildEndpointJSON(endpoint, false)).build();
     }
 
     @DELETE
@@ -287,7 +290,7 @@ public class LinkedDataCachingWebService {
     }
 
 
-    private Map<String, Object> buildEndpointJSON(Endpoint endpoint) {
+    private Map<String, Object> buildEndpointJSON(Endpoint endpoint, boolean isVolatile) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("id",endpoint.getName().replaceAll("[^A-Za-z0-9 ]", "").toLowerCase());
         resultMap.put("name",endpoint.getName());
@@ -297,6 +300,7 @@ public class LinkedDataCachingWebService {
         resultMap.put("kind",endpoint.getType().toString());
         resultMap.put("mimetype",endpoint.getContentTypes());
         resultMap.put("active", endpoint.isActive());
+        resultMap.put("volatile", isVolatile);
 
         return resultMap;
     }

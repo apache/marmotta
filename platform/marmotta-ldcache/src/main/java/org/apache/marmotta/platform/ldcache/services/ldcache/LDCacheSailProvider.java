@@ -210,4 +210,12 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
             updateEndpoints();
         }
     }
+
+    /**
+     * Return all configured volatile endpoints.
+     * @return
+     */
+    public Set<Endpoint> getVolatileEndpoints() {
+        return new HashSet<Endpoint>(volatileEndpoints);
+    }
 }
