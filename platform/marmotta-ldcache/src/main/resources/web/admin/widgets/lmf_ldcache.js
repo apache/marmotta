@@ -213,7 +213,7 @@
             }
 
             for ( var i = 0; i < ps.length; i++) {
-                if(ps[i].volatile) {
+                if(!ps[i].volatile) {
                     var delBtn = $("<button/>").text("delete");
                     delBtn.attr('data-id', ps[i].id);
                     delBtn.click(function() {
@@ -238,7 +238,7 @@
                 $("<td/>").text(ps[i].endpoint || '').appendTo(tr);
                 $("<td/>").text(ps[i].mimetype != undefined ? ctToString(ps[i].mimetype) : '').appendTo(tr);
                 $("<td/>").text(ps[i].expiry || '').appendTo(tr);
-                if(ps[i].volatile) {
+                if(!ps[i].volatile) {
                     $("<td/>").append(modBtn).append(delBtn).appendTo(tr);
                 } else {
                     $("<td>autoregistered</td>").appendTo(tr);
