@@ -176,9 +176,10 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     triplesAdded = true;
                     notifyStatementAdded(triple);
                 } else {
-                    databaseConnection.storeTriple(triple);
-                    triplesAdded = true;
-                    notifyStatementAdded(triple);
+                    if(databaseConnection.storeTriple(triple)) {
+                        triplesAdded = true;
+                        notifyStatementAdded(triple);
+                    }
                 }
 
                 added.add(triple);
