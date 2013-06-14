@@ -29,7 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;

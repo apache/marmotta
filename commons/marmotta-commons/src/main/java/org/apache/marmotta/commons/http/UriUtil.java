@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.commons.http;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.net.URI;

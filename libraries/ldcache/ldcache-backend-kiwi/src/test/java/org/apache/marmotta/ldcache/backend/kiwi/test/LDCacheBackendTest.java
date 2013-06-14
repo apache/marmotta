@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.backend.kiwi.test;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;

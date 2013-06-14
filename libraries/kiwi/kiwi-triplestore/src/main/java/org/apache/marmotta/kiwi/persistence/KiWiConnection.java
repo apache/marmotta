@@ -26,7 +26,7 @@ import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;

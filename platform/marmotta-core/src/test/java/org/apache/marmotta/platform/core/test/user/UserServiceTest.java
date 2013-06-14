@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.core.test.user;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
 import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

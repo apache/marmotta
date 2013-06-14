@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.reasoner.test.persistence;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
