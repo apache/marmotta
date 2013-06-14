@@ -76,6 +76,16 @@ CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 
+-- a rule to ignore duplicate inserts into triple table
+CREATE RULE "triples_ignore_duplicates" AS
+ON INSERT TO triples
+  WHERE EXISTS(
+      SELECT 1 FROM triples
+      WHERE id = NEW.id
+  )
+DO INSTEAD NOTHING;
+
+
 -- a function for cleaning up table rows without incoming references
 
 -- insert initial metadata

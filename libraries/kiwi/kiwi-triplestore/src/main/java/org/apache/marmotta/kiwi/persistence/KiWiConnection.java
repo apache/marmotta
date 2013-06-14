@@ -922,8 +922,9 @@ public class KiWiConnection {
      * @param triple     the triple to store
      * @throws SQLException
      * @throws NullPointerException in case the subject, predicate, object or context have not been persisted
+     * @return true in case the update added a new triple to the database, false in case the triple already existed
      */
-    public synchronized void storeTriple(KiWiTriple triple) throws SQLException {
+    public synchronized boolean storeTriple(KiWiTriple triple) throws SQLException {
 
         Preconditions.checkNotNull(triple.getSubject().getId());
         Preconditions.checkNotNull(triple.getPredicate().getId());
@@ -933,22 +934,30 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
-        // retrieve a new triple ID and set it in the object
-        if(triple.getId() == null) {
-            triple.setId(getNextSequence("seq.triples"));
+        try {
+            // retrieve a new triple ID and set it in the object
+            if(triple.getId() == null) {
+                triple.setId(getNextSequence("seq.triples"));
+            }
+
+            PreparedStatement insertTriple = getPreparedStatement("store.triple");
+            insertTriple.setLong(1,triple.getId());
+            insertTriple.setLong(2,triple.getSubject().getId());
+            insertTriple.setLong(3,triple.getPredicate().getId());
+            insertTriple.setLong(4,triple.getObject().getId());
+            insertTriple.setLong(5,triple.getContext().getId());
+            insertTriple.setBoolean(6,triple.isInferred());
+            insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+            int count = insertTriple.executeUpdate();
+
+            cacheTriple(triple);
+
+            return count > 0;
+        } catch(SQLException ex) {
+            // this is an ugly hack to catch duplicate key errors in some databases (H2)
+            // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
+            return false;
         }
-
-        PreparedStatement insertTriple = getPreparedStatement("store.triple");
-        insertTriple.setLong(1,triple.getId());
-        insertTriple.setLong(2,triple.getSubject().getId());
-        insertTriple.setLong(3,triple.getPredicate().getId());
-        insertTriple.setLong(4,triple.getObject().getId());
-        insertTriple.setLong(5,triple.getContext().getId());
-        insertTriple.setBoolean(6,triple.isInferred());
-        insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-        insertTriple.executeUpdate();
-
-        cacheTriple(triple);
     }
 
 

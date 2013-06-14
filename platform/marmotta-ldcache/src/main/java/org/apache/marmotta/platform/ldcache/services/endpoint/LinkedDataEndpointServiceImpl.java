@@ -58,7 +58,7 @@ public class LinkedDataEndpointServiceImpl implements LinkedDataEndpointService 
 
     @PostConstruct
     public void initialize() {
-        log.trace("LDEndpointService staring up...");
+        log.trace("LDEndpointService starting up...");
     }
 
 
