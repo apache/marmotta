@@ -19,7 +19,7 @@ package org.apache.marmotta.ldcache.backend.file.test;
 import com.google.common.io.Files;
 import info.aduna.iteration.CloseableIteration;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.ldcache.api.LDCachingConnection;
 import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.apache.marmotta.ldcache.model.CacheEntry;

@@ -17,7 +17,7 @@
 package org.apache.marmotta.commons.sesame.facading.util;
 
 
-import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Resource;

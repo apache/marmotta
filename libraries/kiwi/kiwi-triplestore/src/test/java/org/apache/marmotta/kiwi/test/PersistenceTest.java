@@ -22,7 +22,7 @@ import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLang
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import info.aduna.iteration.Iterations;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;

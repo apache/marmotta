@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.maven.plugins.buildinfo;
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.maven.project.MavenProject;
 
 import java.util.Date;

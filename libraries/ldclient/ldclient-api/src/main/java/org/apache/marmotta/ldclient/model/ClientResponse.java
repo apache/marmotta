@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldclient.model;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openrdf.repository.Repository;
 
 import java.util.Date;

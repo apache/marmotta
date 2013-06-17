@@ -30,7 +30,7 @@ import com.google.common.collect.HashBiMap;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.prefix.PrefixCC;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;

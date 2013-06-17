@@ -40,7 +40,7 @@ import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.marmotta.platform.core.util.CDIContext;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

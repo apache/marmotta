@@ -24,7 +24,7 @@ import org.apache.marmotta.commons.util.DateUtils;
 import com.google.common.base.Preconditions;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import org.apache.commons.lang.LocaleUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
