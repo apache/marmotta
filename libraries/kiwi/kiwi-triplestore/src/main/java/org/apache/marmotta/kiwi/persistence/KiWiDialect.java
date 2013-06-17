@@ -69,6 +69,12 @@ public abstract class KiWiDialect {
 
 
     /**
+     * Return true if batched commits are supported by this dialect.
+     * @return
+     */
+    public abstract boolean isBatchSupported();
+
+    /**
      * Return the contents of the SQL create script used for initialising an empty database
      * @return
      */

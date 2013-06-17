@@ -47,6 +47,11 @@ public class PostgreSQLDialect extends KiWiDialect {
     }
 
     @Override
+    public boolean isBatchSupported() {
+        return true;
+    }
+
+    @Override
     public String getRegexp(String text, String pattern) {
         return text + " ~ " + pattern;
     }

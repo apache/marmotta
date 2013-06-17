@@ -17,17 +17,16 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
+import info.aduna.iteration.*;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import com.google.common.base.Preconditions;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.EmptyIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
@@ -49,6 +48,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A KiWiConnection offers methods for storing and retrieving KiWiTriples, KiWiNodes, and KiWiNamespaces in the
@@ -70,6 +70,7 @@ public class KiWiConnection {
 
     protected KiWiCacheManager cacheManager;
 
+    protected TripleTable<KiWiTriple> tripleBatch;
 
     /**
      * Cache nodes by database ID
@@ -119,11 +120,18 @@ public class KiWiConnection {
 
     private boolean autoCommit = false;
 
+    private boolean batchCommit = true;
+
+    private int batchSize = 1000;
+
+    private ReentrantLock commitLock;
 
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
         this.persistence  = persistence;
+        this.commitLock   = new ReentrantLock();
+        this.batchCommit  = dialect.isBatchSupported();
 
         initCachePool();
         initStatementCache();
@@ -162,6 +170,9 @@ public class KiWiConnection {
         if(connection == null) {
             connection = persistence.getJDBCConnection();
             connection.setAutoCommit(autoCommit);
+        }
+        if(tripleBatch == null) {
+            tripleBatch = new TripleTable<KiWiTriple>();
         }
     }
 
@@ -323,9 +334,9 @@ public class KiWiConnection {
         ResultSet result = querySize.executeQuery();
         try {
             if(result.next()) {
-                return result.getLong(1);
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.size() : 0);
             } else {
-                return 0;
+                return 0  + (tripleBatch != null ? tripleBatch.size() : 0);
             }
         } finally {
             result.close();
@@ -350,9 +361,9 @@ public class KiWiConnection {
         ResultSet result = querySize.executeQuery();
         try {
             if(result.next()) {
-                return result.getLong(1);
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
             } else {
-                return 0;
+                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
             }
         } finally {
             result.close();
@@ -934,29 +945,38 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
-        try {
-            // retrieve a new triple ID and set it in the object
-            if(triple.getId() == null) {
-                triple.setId(getNextSequence("seq.triples"));
-            }
+        // retrieve a new triple ID and set it in the object
+        if(triple.getId() == null) {
+            triple.setId(getNextSequence("seq.triples"));
+        }
 
-            PreparedStatement insertTriple = getPreparedStatement("store.triple");
-            insertTriple.setLong(1,triple.getId());
-            insertTriple.setLong(2,triple.getSubject().getId());
-            insertTriple.setLong(3,triple.getPredicate().getId());
-            insertTriple.setLong(4,triple.getObject().getId());
-            insertTriple.setLong(5,triple.getContext().getId());
-            insertTriple.setBoolean(6,triple.isInferred());
-            insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-            int count = insertTriple.executeUpdate();
-
+        if(batchCommit) {
             cacheTriple(triple);
+            boolean result = tripleBatch.add(triple);
+            if(tripleBatch.size() >= batchSize) {
+                flushBatch();
+            }
+            return result;
+        }  else {
+            try {
+                PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                insertTriple.setLong(1,triple.getId());
+                insertTriple.setLong(2,triple.getSubject().getId());
+                insertTriple.setLong(3,triple.getPredicate().getId());
+                insertTriple.setLong(4,triple.getObject().getId());
+                insertTriple.setLong(5,triple.getContext().getId());
+                insertTriple.setBoolean(6,triple.isInferred());
+                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+                int count = insertTriple.executeUpdate();
 
-            return count > 0;
-        } catch(SQLException ex) {
-            // this is an ugly hack to catch duplicate key errors in some databases (H2)
-            // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
-            return false;
+                cacheTriple(triple);
+
+                return count > 0;
+            } catch(SQLException ex) {
+                // this is an ugly hack to catch duplicate key errors in some databases (H2)
+                // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
+                return false;
+            }
         }
     }
 
@@ -987,6 +1007,10 @@ public class KiWiConnection {
         // make sure the triple is marked as deleted in case some service still holds a reference
         triple.setDeleted(true);
         triple.setDeletedAt(new Date());
+
+        if(tripleBatch != null) {
+            tripleBatch.remove(triple);
+        }
     }
 
     /**
@@ -1161,13 +1185,25 @@ public class KiWiConnection {
 
         final ResultSet result = query.executeQuery();
 
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            return new UnionIteration<Statement, SQLException>(
+                    new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
+                    new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
+                        @Override
+                        public Statement apply(ResultSet row) throws SQLException {  // could be lazy without even asking the database
+                            return constructTripleFromDatabase(result);
+                        }
+                    })
+            );
+        }  else {
+            return new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
+                @Override
+                public Statement apply(ResultSet row) throws SQLException {
+                    return constructTripleFromDatabase(result);
+                }
+            });
+        }
 
-        return new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
-            @Override
-            public Statement apply(ResultSet row) throws SQLException {
-                return constructTripleFromDatabase(result);
-            }
-        });
     }
 
     /**
@@ -1565,6 +1601,47 @@ public class KiWiConnection {
     }
 
     /**
+     * Return true if batched commits are enabled. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @return
+     */
+    public boolean isBatchCommit() {
+        return batchCommit;
+    }
+
+    /**
+     * Enabled batched commits. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @return
+     */
+    public void setBatchCommit(boolean batchCommit) {
+        if(dialect.isBatchSupported()) {
+            this.batchCommit = batchCommit;
+        } else {
+            log.warn("batch commits are not supported by this database dialect");
+        }
+    }
+
+
+    /**
+     * Return the size of a batch for batched commits. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @return
+     */
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    /**
+     * Set the size of a batch for batched commits. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @param batchSize
+     */
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    /**
      * Makes all changes made since the previous
      * commit/rollback permanent and releases any database locks
      * currently held by this <code>Connection</code> object.
@@ -1578,6 +1655,9 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void commit() throws SQLException {
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
         if(connection != null) {
             connection.commit();
         }
@@ -1596,6 +1676,9 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void rollback() throws SQLException {
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            tripleBatch.clear();
+        }
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
@@ -1657,5 +1740,41 @@ public class KiWiConnection {
 
             connection.close();
         }
+    }
+
+
+    private void flushBatch() throws SQLException {
+        if(batchCommit) {
+            requireJDBCConnection();
+
+            commitLock.lock();
+            try {
+                PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                insertTriple.clearParameters();
+                for(KiWiTriple triple : tripleBatch) {
+                    // retrieve a new triple ID and set it in the object
+                    if(triple.getId() == null) {
+                        triple.setId(getNextSequence("seq.triples"));
+                        log.warn("the batched triple did not have an ID");
+                    }
+
+                    insertTriple.setLong(1,triple.getId());
+                    insertTriple.setLong(2,triple.getSubject().getId());
+                    insertTriple.setLong(3,triple.getPredicate().getId());
+                    insertTriple.setLong(4,triple.getObject().getId());
+                    insertTriple.setLong(5,triple.getContext().getId());
+                    insertTriple.setBoolean(6,triple.isInferred());
+                    insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+
+                    insertTriple.addBatch();
+                }
+                insertTriple.executeBatch();
+                tripleBatch.clear();
+            }  finally {
+                commitLock.unlock();
+            }
+
+        }
+
     }
 }
