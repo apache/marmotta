@@ -42,12 +42,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -1045,6 +1040,45 @@ public class KiWiConnection {
         }
     }
 
+
+    /**
+     * Return the identifier of the triple with the given subject, predicate, object and context, or null if this
+     * triple does not exist. Used for quick existance checks of triples.
+     *
+     * @param subject
+     * @param predicate
+     * @param object
+     * @param context
+     * @param inferred
+     * @return
+     */
+    public Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context);
+            if(batched.size() > 0) {
+                return batched.iterator().next().getId();
+            }
+        }
+
+        requireJDBCConnection();
+        PreparedStatement loadTripleId = getPreparedStatement("load.triple");
+        loadTripleId.setLong(1, subject.getId());
+        loadTripleId.setLong(2, predicate.getId());
+        loadTripleId.setLong(3, object.getId());
+        loadTripleId.setLong(4, context.getId());
+
+        ResultSet result = loadTripleId.executeQuery();
+        try {
+            if(result.next()) {
+                return result.getLong(1);
+            } else {
+                return null;
+            }
+
+        } finally {
+            result.close();
+        }
+    }
 
     /**
      * Mark the triple passed as argument as deleted, setting the "deleted" flag to true and

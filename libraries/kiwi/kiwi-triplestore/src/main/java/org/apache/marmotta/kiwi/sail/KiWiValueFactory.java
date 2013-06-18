@@ -703,7 +703,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context, KiWiConnection connection) {
         IntArray cacheKey = IntArray.createSPOCKey(subject,predicate,object,context);
-        Statement result = tripleRegistry.get(cacheKey);
+        KiWiTriple result = (KiWiTriple)tripleRegistry.get(cacheKey);
         try {
             if(result == null || ((KiWiTriple)result).isDeleted()) {
                 KiWiResource ksubject   = convert(subject);
@@ -712,6 +712,7 @@ public class KiWiValueFactory implements ValueFactory {
                 KiWiResource    kcontext   = convert(context);
 
                 // test if the triple already exists in the database; if yes, return it
+                /*
                 List<Statement> triples = Iterations.asList(connection.listTriples(ksubject,kpredicate,kobject,kcontext,true));
                 if(triples.size() == 1) {
                     result = triples.get(0);
@@ -719,14 +720,17 @@ public class KiWiValueFactory implements ValueFactory {
                     result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
                     ((KiWiTriple)result).setMarkedForReasoning(true);
                 }
+                */
+                result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
+                result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext,true));
+                if(result.getId() == null) {
+                    result.setMarkedForReasoning(true);
+                }
 
                 tripleRegistry.put(cacheKey,result);
             }
             return result;
         } catch (SQLException e) {
-            log.error("database error, could not load triple", e);
-            throw new IllegalStateException("database error, could not load triple",e);
-        } catch (RepositoryException e) {
             log.error("database error, could not load triple", e);
             throw new IllegalStateException("database error, could not load triple",e);
         }
