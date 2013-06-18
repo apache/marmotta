@@ -182,6 +182,7 @@ public class KiWiStore extends NotifyingSailBase {
      */
     public void closeValueFactory() {
         if(repositoryValueFactory != null) {
+            repositoryValueFactory.close();
             repositoryValueFactory = null;
             persistence.setValueFactory(null);
         }

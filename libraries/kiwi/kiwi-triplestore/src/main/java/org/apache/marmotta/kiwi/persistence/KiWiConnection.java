@@ -986,6 +986,7 @@ public class KiWiConnection {
             PreparedStatement insertNode = getPreparedStatement(stmt);
             insertNode.executeBatch();
         }
+        connection.commit();
     }
 
     /**
@@ -997,11 +998,6 @@ public class KiWiConnection {
      * @return true in case the update added a new triple to the database, false in case the triple already existed
      */
     public synchronized boolean storeTriple(KiWiTriple triple) throws SQLException {
-
-        Preconditions.checkNotNull(triple.getSubject().getId());
-        Preconditions.checkNotNull(triple.getPredicate().getId());
-        Preconditions.checkNotNull(triple.getObject().getId());
-        Preconditions.checkNotNull(triple.getContext().getId());
 
 
         requireJDBCConnection();
@@ -1021,6 +1017,12 @@ public class KiWiConnection {
             }
             return !hasId;
         }  else {
+            Preconditions.checkNotNull(triple.getSubject().getId());
+            Preconditions.checkNotNull(triple.getPredicate().getId());
+            Preconditions.checkNotNull(triple.getObject().getId());
+            Preconditions.checkNotNull(triple.getContext().getId());
+
+
             try {
                 PreparedStatement insertTriple = getPreparedStatement("store.triple");
                 insertTriple.setLong(1,triple.getId());

@@ -106,6 +106,10 @@ public class KiWiValueFactory implements ValueFactory {
     private Map<String,KiWiAnonResource> batchBNodeLookup;
     private Map<String,KiWiLiteral> batchLiteralLookup;
 
+    // this connection is kept open and never closed when releaseConnection is called; it will only be
+    // used for generating sequence numbers for RDF nodes
+    private KiWiConnection batchConnection;
+
     private ReentrantLock commitLock;
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
@@ -134,8 +138,15 @@ public class KiWiValueFactory implements ValueFactory {
 
     protected KiWiConnection aqcuireConnection() {
         try {
-            KiWiConnection connection = store.getPersistence().getConnection();
-            return connection;
+            if(batchCommit) {
+                if(batchConnection == null) {
+                    batchConnection = store.getPersistence().getConnection();
+                }
+                return batchConnection;
+            } else {
+                KiWiConnection connection = store.getPersistence().getConnection();
+                return connection;
+            }
         } catch(SQLException ex) {
             log.error("could not acquire database connection",ex);
             throw new RuntimeException(ex);
@@ -143,12 +154,14 @@ public class KiWiValueFactory implements ValueFactory {
     }
 
     protected void releaseConnection(KiWiConnection con) {
-        try {
-            con.commit();
-            con.close();
-        } catch (SQLException ex) {
-            log.error("could not release database connection", ex);
-            throw new RuntimeException(ex);
+        if(!batchCommit) {
+            try {
+                con.commit();
+                con.close();
+            } catch (SQLException ex) {
+                log.error("could not release database connection", ex);
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -788,5 +801,16 @@ public class KiWiValueFactory implements ValueFactory {
             }
         }
 
+    }
+
+    public void close() {
+        try {
+            if(batchConnection != null && !batchConnection.isClosed()) {
+                batchConnection.commit();
+                batchConnection.close();
+            }
+        } catch (SQLException e) {
+            log.warn("could not close value factory connection: {}",e.getMessage());
+        }
     }
 }

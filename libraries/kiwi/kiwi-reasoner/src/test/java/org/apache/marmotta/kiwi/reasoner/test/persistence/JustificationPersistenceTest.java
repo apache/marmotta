@@ -159,11 +159,12 @@ public class JustificationPersistenceTest {
     @Before
     public void initDatabase() throws Exception {
 
-        persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
-        persistence.initDatabase();
+        KiWiStore store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
 
-        repository = new SailRepository(new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred"));
+        repository = new SailRepository(store);
         repository.initialize();
+
+        persistence = store.getPersistence();
 
         rpersistence = new KiWiReasoningPersistence(persistence, repository.getValueFactory());
         rpersistence.initDatabase();
@@ -173,10 +174,7 @@ public class JustificationPersistenceTest {
     @After
     public void dropDatabase() throws Exception {
         rpersistence.dropDatabase();
-
         persistence.dropDatabase();
-        persistence.shutdown();
-
         repository.shutDown();
     }
 

@@ -170,14 +170,12 @@ public class ReasoningEngineTest {
     @Before
     public void initDatabase() throws Exception {
 
-        persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
-        persistence.initDatabase();
-
-
         store      = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
         tsail      = new KiWiTransactionalSail(store);
         repository = new SailRepository(tsail);
         repository.initialize();
+
+        persistence = store.getPersistence();
 
         rpersistence = new KiWiReasoningPersistence(persistence, repository.getValueFactory());
         rpersistence.initDatabase();
@@ -209,9 +207,7 @@ public class ReasoningEngineTest {
         engine.shutdown();
 
         rpersistence.dropDatabase();
-
         persistence.dropDatabase();
-        persistence.shutdown();
 
         repository.shutDown();
     }
