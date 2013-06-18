@@ -23,6 +23,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
+import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.openrdf.model.Statement;
@@ -66,6 +67,12 @@ public class KiWiPersistence {
      * The KiWi configuration for this persistence.
      */
     private KiWiConfiguration     configuration;
+
+
+    /**
+     * A reference to the value factory used to access this store. Used for notifications when to flush batches.
+     */
+    private KiWiValueFactory      valueFactory;
 
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
@@ -297,7 +304,12 @@ public class KiWiPersistence {
      */
     public KiWiConnection getConnection() throws SQLException {
         if(connectionPool != null) {
-            return new KiWiConnection(this,configuration.getDialect(),cacheManager);
+            KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
+            if(getDialect().isBatchSupported()) {
+                con.setBatchCommit(configuration.isBatchCommit());
+                con.setBatchSize(configuration.getBatchSize());
+            }
+            return con;
         } else {
             throw new SQLException("connection pool is closed, database connections not available");
         }
@@ -421,4 +433,15 @@ public class KiWiPersistence {
     }
 
 
+    public void setValueFactory(KiWiValueFactory valueFactory) {
+        this.valueFactory = valueFactory;
+    }
+
+    public KiWiValueFactory getValueFactory() {
+        return valueFactory;
+    }
+
+    public KiWiConfiguration getConfiguration() {
+        return configuration;
+    }
 }

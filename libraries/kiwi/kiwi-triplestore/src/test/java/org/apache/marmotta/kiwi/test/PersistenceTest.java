@@ -197,7 +197,7 @@ public class PersistenceTest {
         try {
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-            connection.storeNode(uri);
+            connection.storeNode(uri, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(uri.getId());
@@ -272,7 +272,7 @@ public class PersistenceTest {
         try {
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiAnonResource bnode = new KiWiAnonResource(RandomStringUtils.randomAlphanumeric(8));
-            connection.storeNode(bnode);
+            connection.storeNode(bnode, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(bnode.getId());
@@ -346,11 +346,11 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             KiWiUriResource   stype   = new KiWiUriResource(Namespaces.NS_XSD+"string");
-            connection.storeNode(stype);
+            connection.storeNode(stype, false);
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8),null,stype);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -425,11 +425,11 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             KiWiUriResource   stype   = new KiWiUriResource(getRDFLangStringType());
-            connection.storeNode(stype);
+            connection.storeNode(stype, false);
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8), Locale.ENGLISH, stype);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -507,7 +507,7 @@ public class PersistenceTest {
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8), null, uri);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -593,7 +593,7 @@ public class PersistenceTest {
 
                     // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiIntLiteral literal = new KiWiIntLiteral(value, uri);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -698,7 +698,7 @@ public class PersistenceTest {
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiDoubleLiteral literal = new KiWiDoubleLiteral(value, uri);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -802,7 +802,7 @@ public class PersistenceTest {
             boolean value = rnd.nextBoolean();
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiBooleanLiteral literal = new KiWiBooleanLiteral(value, uri);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -905,7 +905,7 @@ public class PersistenceTest {
             Date value = new Date();
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiDateLiteral literal = new KiWiDateLiteral(value, uri);
-            connection.storeNode(literal);
+            connection.storeNode(literal, false);
 
             // check if it then has a database ID
             Assert.assertNotNull(literal.getId());
@@ -1009,13 +1009,13 @@ public class PersistenceTest {
                 KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32),null,stype);
                 KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
-                connection.storeNode(stype);
-                connection.storeNode(subject);
-                connection.storeNode(pred_1);
-                connection.storeNode(pred_2);
-                connection.storeNode(object_1);
-                connection.storeNode(object_2);
-                connection.storeNode(context);
+                connection.storeNode(stype, false);
+                connection.storeNode(subject, false);
+                connection.storeNode(pred_1, false);
+                connection.storeNode(pred_2, false);
+                connection.storeNode(object_1, false);
+                connection.storeNode(object_2, false);
+                connection.storeNode(context, false);
 
                 KiWiTriple triple1 = new KiWiTriple(subject,pred_1,object_1,context);
                 KiWiTriple triple2 = new KiWiTriple(subject,pred_2,object_2,context);
@@ -1054,7 +1054,7 @@ public class PersistenceTest {
                 Assert.assertEquals(0, connection.getSize(subject));
 
                 // test database contents
-                PreparedStatement stmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM triples WHERE deleted = false");
+                PreparedStatement stmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM triples WHERE deleted = false ORDER BY subject, predicate");
                 ResultSet dbResult1 = stmt.executeQuery();
 
                 Assert.assertTrue(dbResult1.next());

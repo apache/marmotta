@@ -796,6 +796,13 @@ public class KiWiConnection {
 //    }
 
 
+
+    public synchronized long getNodeId() throws SQLException {
+        requireJDBCConnection();
+
+        return getNextSequence("seq.nodes");
+    }
+
     /**
      * Store a new node in the database. The method will retrieve a new database id for the node and update the
      * passed object. Afterwards, the node data will be inserted into the database using appropriate INSERT
@@ -803,28 +810,27 @@ public class KiWiConnection {
      * <p/>
      * If the node already has an ID, the method will do nothing (assuming that it is already persistent)
      *
+     *
      * @param node
+     * @param batch
      * @throws SQLException
      */
-    public synchronized void storeNode(KiWiNode node) throws SQLException {
-        // if the node already has an ID, storeNode should not be called, since it is already persisted
-        if(node.getId() != null) {
-            log.warn("node {} already had a node ID, not persisting", node);
-            return;
-        }
+    public synchronized void storeNode(KiWiNode node, boolean batch) throws SQLException {
 
         // ensure the data type of a literal is persisted first
         if(node instanceof KiWiLiteral) {
             KiWiLiteral literal = (KiWiLiteral)node;
             if(literal.getType() != null && literal.getType().getId() == null) {
-                storeNode(literal.getType());
+                storeNode(literal.getType(), batch);
             }
         }
 
         requireJDBCConnection();
 
         // retrieve a new node id and set it in the node object
-        node.setId(getNextSequence("seq.nodes"));
+        if(node.getId() == null) {
+            node.setId(getNextSequence("seq.nodes"));
+        }
 
         // distinguish the different node types and run the appropriate updates
         if(node instanceof KiWiUriResource) {
@@ -834,7 +840,12 @@ public class KiWiConnection {
             insertNode.setLong(1,node.getId());
             insertNode.setString(2,uriResource.stringValue());
             insertNode.setTimestamp(3, new Timestamp(uriResource.getCreated().getTime()));
-            insertNode.executeUpdate();
+
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
 
         } else if(node instanceof KiWiAnonResource) {
             KiWiAnonResource anonResource = (KiWiAnonResource)node;
@@ -843,7 +854,12 @@ public class KiWiConnection {
             insertNode.setLong(1,node.getId());
             insertNode.setString(2,anonResource.stringValue());
             insertNode.setTimestamp(3, new Timestamp(anonResource.getCreated().getTime()));
-            insertNode.executeUpdate();
+
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiDateLiteral) {
             KiWiDateLiteral dateLiteral = (KiWiDateLiteral)node;
 
@@ -857,7 +873,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("a date literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(dateLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiIntLiteral) {
             KiWiIntLiteral intLiteral = (KiWiIntLiteral)node;
 
@@ -872,7 +892,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("an integer literal must have a datatype");
             insertNode.setTimestamp(6, new Timestamp(intLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiDoubleLiteral) {
             KiWiDoubleLiteral doubleLiteral = (KiWiDoubleLiteral)node;
 
@@ -886,7 +910,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("a double literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(doubleLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiBooleanLiteral) {
             KiWiBooleanLiteral booleanLiteral = (KiWiBooleanLiteral)node;
 
@@ -900,7 +928,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("a boolean literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(booleanLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiStringLiteral) {
             KiWiStringLiteral stringLiteral = (KiWiStringLiteral)node;
 
@@ -919,12 +951,41 @@ public class KiWiConnection {
             }
             insertNode.setTimestamp(5, new Timestamp(stringLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else {
             log.warn("unrecognized node type: {}", node.getClass().getCanonicalName());
         }
 
         cacheNode(node);
+    }
+
+    /**
+     * Start a batch operation for inserting nodes. Afterwards, storeNode needs to be called with the batch argument
+     * set to "true".
+     *
+     * @throws SQLException
+     */
+    public void startNodeBatch() throws SQLException {
+        for(String stmt : new String[] { "store.uri", "store.sliteral", "store.bliteral", "store.dliteral", "store.iliteral", "store.tliteral", "store.bnode"}) {
+            PreparedStatement insertNode = getPreparedStatement(stmt);
+            insertNode.clearParameters();
+            insertNode.clearBatch();
+        }
+    }
+
+    /**
+     * Execute the batch operation for inserting nodes into the database.
+     * @throws SQLException
+     */
+    public void commitNodeBatch() throws SQLException {
+        for(String stmt : new String[] { "store.uri", "store.sliteral", "store.bliteral", "store.dliteral", "store.iliteral", "store.tliteral", "store.bnode"}) {
+            PreparedStatement insertNode = getPreparedStatement(stmt);
+            insertNode.executeBatch();
+        }
     }
 
     /**
@@ -945,6 +1006,8 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
+        boolean hasId = triple.getId() != null;
+
         // retrieve a new triple ID and set it in the object
         if(triple.getId() == null) {
             triple.setId(getNextSequence("seq.triples"));
@@ -952,11 +1015,11 @@ public class KiWiConnection {
 
         if(batchCommit) {
             cacheTriple(triple);
-            boolean result = tripleBatch.add(triple);
+            tripleBatch.add(triple);
             if(tripleBatch.size() >= batchSize) {
                 flushBatch();
             }
-            return result;
+            return !hasId;
         }  else {
             try {
                 PreparedStatement insertTriple = getPreparedStatement("store.triple");
@@ -991,22 +1054,20 @@ public class KiWiConnection {
      * @param triple
      */
     public void deleteTriple(KiWiTriple triple) throws SQLException {
-        if(triple.getId() == null) {
-            log.warn("attempting to remove non-persistent triple: {}",triple);
-            return;
-        }
-
-        requireJDBCConnection();
-
-        PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
-        deleteTriple.setLong(1,triple.getId());
-        deleteTriple.executeUpdate();
-
-        removeCachedTriple(triple);
-
         // make sure the triple is marked as deleted in case some service still holds a reference
         triple.setDeleted(true);
         triple.setDeletedAt(new Date());
+
+        if(triple.getId() == null) {
+            log.warn("attempting to remove non-persistent triple: {}", triple);
+        } else {
+            requireJDBCConnection();
+
+            PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
+            deleteTriple.setLong(1,triple.getId());
+            deleteTriple.executeUpdate();
+        }
+        removeCachedTriple(triple);
 
         if(tripleBatch != null) {
             tripleBatch.remove(triple);
@@ -1117,17 +1178,41 @@ public class KiWiConnection {
      * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
      *         by the caller
      */
-    public RepositoryResult<Statement> listTriples(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) throws SQLException {
+    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
 
-        return new RepositoryResult<Statement>(
-                new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
-                    @Override
-                    protected RepositoryException convert(Exception e) {
-                        return new RepositoryException("database error while iterating over result set",e);
+
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            return new RepositoryResult<Statement>(
+                    new ExceptionConvertingIteration<Statement, RepositoryException>(
+                            new UnionIteration<Statement, SQLException>(
+                                    new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
+                                    new DelayedIteration<Statement, SQLException>() {
+                                        @Override
+                                        protected Iteration<? extends Statement, ? extends SQLException> createIteration() throws SQLException {
+                                            return listTriplesInternal(subject,predicate,object,context,inferred);
+                                        }
+                                    }
+
+                            )
+                    ) {
+                        @Override
+                        protected RepositoryException convert(Exception e) {
+                            return new RepositoryException("database error while iterating over result set",e);
+                        }
                     }
-                }
 
-        );
+            );
+        }  else {
+            return new RepositoryResult<Statement>(
+                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
+                        @Override
+                        protected RepositoryException convert(Exception e) {
+                            return new RepositoryException("database error while iterating over result set",e);
+                        }
+                    }
+
+            );
+        }
     }
 
     /**
@@ -1185,25 +1270,12 @@ public class KiWiConnection {
 
         final ResultSet result = query.executeQuery();
 
-        if(tripleBatch != null && tripleBatch.size() > 0) {
-            return new UnionIteration<Statement, SQLException>(
-                    new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
-                    new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
-                        @Override
-                        public Statement apply(ResultSet row) throws SQLException {  // could be lazy without even asking the database
-                            return constructTripleFromDatabase(result);
-                        }
-                    })
-            );
-        }  else {
-            return new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
-                @Override
-                public Statement apply(ResultSet row) throws SQLException {
-                    return constructTripleFromDatabase(result);
-                }
-            });
-        }
-
+        return new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
+            @Override
+            public Statement apply(ResultSet row) throws SQLException {
+                return constructTripleFromDatabase(result);
+            }
+        });
     }
 
     /**
@@ -1677,6 +1749,9 @@ public class KiWiConnection {
      */
     public void rollback() throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
+            for(KiWiTriple triple : tripleBatch) {
+                triple.setId(null);
+            }
             tripleBatch.clear();
         }
         if(connection != null && !connection.isClosed()) {
@@ -1744,32 +1819,42 @@ public class KiWiConnection {
 
 
     private void flushBatch() throws SQLException {
-        if(batchCommit) {
+        if(batchCommit && tripleBatch != null) {
             requireJDBCConnection();
 
             commitLock.lock();
             try {
+                if(persistence.getValueFactory() != null) {
+                    persistence.getValueFactory().flushBatch(this);
+                }
+
                 PreparedStatement insertTriple = getPreparedStatement("store.triple");
                 insertTriple.clearParameters();
+                insertTriple.clearBatch();
                 for(KiWiTriple triple : tripleBatch) {
                     // retrieve a new triple ID and set it in the object
-                    if(triple.getId() == null) {
-                        triple.setId(getNextSequence("seq.triples"));
-                        log.warn("the batched triple did not have an ID");
+                    if(!triple.isDeleted()) {
+                        if(triple.getId() == null) {
+                            triple.setId(getNextSequence("seq.triples"));
+                            log.warn("the batched triple did not have an ID");
+                        }
+
+                        insertTriple.setLong(1,triple.getId());
+                        insertTriple.setLong(2,triple.getSubject().getId());
+                        insertTriple.setLong(3,triple.getPredicate().getId());
+                        insertTriple.setLong(4,triple.getObject().getId());
+                        insertTriple.setLong(5,triple.getContext().getId());
+                        insertTriple.setBoolean(6,triple.isInferred());
+                        insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+
+                        insertTriple.addBatch();
                     }
-
-                    insertTriple.setLong(1,triple.getId());
-                    insertTriple.setLong(2,triple.getSubject().getId());
-                    insertTriple.setLong(3,triple.getPredicate().getId());
-                    insertTriple.setLong(4,triple.getObject().getId());
-                    insertTriple.setLong(5,triple.getContext().getId());
-                    insertTriple.setBoolean(6,triple.isInferred());
-                    insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-
-                    insertTriple.addBatch();
                 }
                 insertTriple.executeBatch();
                 tripleBatch.clear();
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+                throw ex;
             }  finally {
                 commitLock.unlock();
             }

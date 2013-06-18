@@ -65,6 +65,12 @@ public class KiWiConfiguration {
      */
     private boolean queryLoggingEnabled = false;
 
+
+    private boolean batchCommit;
+
+    private int batchSize = 1000;
+
+
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
     }
@@ -77,6 +83,8 @@ public class KiWiConfiguration {
         this.name = name;
         this.defaultContext = defaultContext;
         this.inferredContext = inferredContext;
+
+        batchCommit = dialect.isBatchSupported();
     }
 
 
@@ -122,5 +130,23 @@ public class KiWiConfiguration {
 
     public void setInferredContext(String inferredContext) {
         this.inferredContext = inferredContext;
+    }
+
+    public boolean isBatchCommit() {
+        return batchCommit;
+    }
+
+    public void setBatchCommit(boolean batchCommit) {
+        if(dialect.isBatchSupported()) {
+            this.batchCommit = batchCommit;
+        }
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 }

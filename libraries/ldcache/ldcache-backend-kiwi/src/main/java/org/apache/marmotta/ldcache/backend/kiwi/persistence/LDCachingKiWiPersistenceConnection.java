@@ -329,7 +329,7 @@ public class LDCachingKiWiPersistenceConnection  {
      * @throws java.sql.SQLException
      */
     public void storeNode(KiWiNode node) throws SQLException {
-        connection.storeNode(node);
+        connection.storeNode(node, false);
     }
 
     /**
