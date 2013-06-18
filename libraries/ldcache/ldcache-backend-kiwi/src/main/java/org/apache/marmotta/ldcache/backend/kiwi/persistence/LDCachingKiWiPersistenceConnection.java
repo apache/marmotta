@@ -153,6 +153,9 @@ public class LDCachingKiWiPersistenceConnection  {
             throw new IllegalStateException("the resource contained in the cache entry is not a KiWiResource!");
         }
 
+        // needed before the entry can be inserted
+        connection.flushBatch();
+
         kEntry.setId(connection.getNextSequence("seq.ldcache"));
 
         PreparedStatement insertEntry = connection.getPreparedStatement("store.entry");

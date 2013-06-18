@@ -65,11 +65,20 @@ public class KiWiConfiguration {
      */
     private boolean queryLoggingEnabled = false;
 
-
+    /**
+     * Enable batched commit (if supported by the database dialect). If this is enabled, the KiWiConnection will
+     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
+     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     */
     private boolean batchCommit;
 
     private int batchSize = 1000;
 
+    /**
+     * If enabled, and batchCommit is also true, load sequence values into static memory fields once and increment
+     * values purely in-memory. The last value is then written back on batch commits.
+     */
+    private boolean memorySequences = true;
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
@@ -132,10 +141,20 @@ public class KiWiConfiguration {
         this.inferredContext = inferredContext;
     }
 
+    /**
+     * Return true if batched commit is enabled. If this is enabled, the KiWiConnection will
+     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
+     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     */
     public boolean isBatchCommit() {
         return batchCommit;
     }
 
+    /**
+     * Enable batched commit (if supported by the database dialect). If this is enabled, the KiWiConnection will
+     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
+     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     */
     public void setBatchCommit(boolean batchCommit) {
         if(dialect.isBatchSupported()) {
             this.batchCommit = batchCommit;
@@ -148,5 +167,19 @@ public class KiWiConfiguration {
 
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
+    }
+
+    public boolean isMemorySequences() {
+        return memorySequences;
+    }
+
+    /**
+     * Enable in-memory sequences. If enabled, and batchCommit is also true, load sequence values into static memory
+     * fields once and increment values purely in-memory. The last value is then written back on batch commits. This
+     * feature can avoid many database accesses and connections and therefore give significant performance improvements.
+     * (EXPERIMENTAL).
+     */
+    public void setMemorySequences(boolean memorySequences) {
+        this.memorySequences = memorySequences;
     }
 }

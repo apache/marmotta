@@ -28,6 +28,8 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.openrdf.model.Literal;
@@ -793,9 +795,9 @@ public class KiWiConnection {
 
 
     public synchronized long getNodeId() throws SQLException {
-        requireJDBCConnection();
+        long result = getNextSequence("seq.nodes");
 
-        return getNextSequence("seq.nodes");
+        return result;
     }
 
     /**
@@ -1535,7 +1537,7 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         PreparedStatement statement = statementCache.get(key);
-        if(statement == null) {
+        if(statement == null || statement.isClosed()) {
             statement = connection.prepareStatement(dialect.getStatement(key));
             statementCache.put(key,statement);
         }
@@ -1552,26 +1554,73 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        requireJDBCConnection();
-
-        // retrieve a new node id and set it in the node object
-
-        // if there is a preparation needed to update the transaction, run it first
-        if(dialect.hasStatement(sequenceName+".prep")) {
-            PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
-            prepNodeId.executeUpdate();
-        }
-
-        PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
-        ResultSet resultNodeId = queryNodeId.executeQuery();
-        try {
-            if(resultNodeId.next()) {
-                return resultNodeId.getLong(1);
-            } else {
-                throw new SQLException("the sequence did not return a new value");
+        if(batchCommit && persistence.getConfiguration().isMemorySequences()) {
+            // use in-memory sequences
+            if(persistence.getMemorySequences() == null) {
+                persistence.setMemorySequences(new HashMap<String,Long>());
             }
-        } finally {
-            resultNodeId.close();
+
+            synchronized (persistence.getMemorySequences()) {
+                Long sequence = persistence.getMemorySequences().get(sequenceName);
+                if(sequence == null) {
+                    requireJDBCConnection();
+
+                    // load sequence value from database
+                    // if there is a preparation needed to update the transaction, run it first
+                    if(dialect.hasStatement(sequenceName+".prep")) {
+                        PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
+                        prepNodeId.executeUpdate();
+                    }
+
+                    PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
+                    ResultSet resultNodeId = queryNodeId.executeQuery();
+                    try {
+                        if(resultNodeId.next()) {
+                            sequence = resultNodeId.getLong(1);
+                        } else {
+                            throw new SQLException("the sequence did not return a new value");
+                        }
+                    } finally {
+                        resultNodeId.close();
+                    }
+
+                    // this is a very ugly hack needed by MySQL because the sequences are not atomic
+                    // it is only necessary for the nodes sequence, because the value factory always keeps
+                    // a connection open to it; we could solve it maybe differently by remembering the
+                    // connection responsible for a in-memory sequence...
+                    if(sequenceName.equals("seq.nodes") && dialect instanceof MySQLDialect) {
+                        connection.commit();
+                    }
+
+                } else {
+                    sequence += 1;
+                }
+                persistence.getMemorySequences().put(sequenceName,sequence);
+                return sequence;
+            }
+
+        } else {
+            requireJDBCConnection();
+
+            // retrieve a new node id and set it in the node object
+
+            // if there is a preparation needed to update the transaction, run it first
+            if(dialect.hasStatement(sequenceName+".prep")) {
+                PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
+                prepNodeId.executeUpdate();
+            }
+
+            PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
+            ResultSet resultNodeId = queryNodeId.executeQuery();
+            try {
+                if(resultNodeId.next()) {
+                    return resultNodeId.getLong(1);
+                } else {
+                    throw new SQLException("the sequence did not return a new value");
+                }
+            } finally {
+                resultNodeId.close();
+            }
         }
 
     }
@@ -1763,9 +1812,31 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void commit() throws SQLException {
+        if(persistence.getMemorySequences() != null) {
+            requireJDBCConnection();
+
+            try {
+                synchronized (persistence.getMemorySequences()) {
+                    for(Map.Entry<String,Long> entry : persistence.getMemorySequences().entrySet()) {
+                        PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
+                        updateSequence.setLong(1, entry.getValue());
+                        if(updateSequence.execute()) {
+                            updateSequence.getResultSet().close();
+                        } else {
+                            updateSequence.getUpdateCount();
+                        }
+                    }
+                }
+            } catch(SQLException ex) {
+                log.error("SQL exception:",ex);
+                throw ex;
+            }
+        }
+
         if(tripleBatch != null && tripleBatch.size() > 0) {
             flushBatch();
         }
+
         if(connection != null) {
             connection.commit();
         }
@@ -1854,7 +1925,7 @@ public class KiWiConnection {
     }
 
 
-    private void flushBatch() throws SQLException {
+    public void flushBatch() throws SQLException {
         if(batchCommit && tripleBatch != null) {
             requireJDBCConnection();
 
@@ -1888,6 +1959,7 @@ public class KiWiConnection {
                 }
                 insertTriple.executeBatch();
                 tripleBatch.clear();
+
             } catch (Throwable ex) {
                 ex.printStackTrace();
                 throw ex;

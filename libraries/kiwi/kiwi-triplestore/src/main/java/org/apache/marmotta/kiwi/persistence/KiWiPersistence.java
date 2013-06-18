@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -67,6 +68,12 @@ public class KiWiPersistence {
      * The KiWi configuration for this persistence.
      */
     private KiWiConfiguration     configuration;
+
+    /**
+     * A map holding in-memory sequences to be used for sequence caching in case the appropriate configuration option
+     * is configued and batched commits are enabled.
+     */
+    private Map<String,Long> memorySequences;
 
 
     /**
@@ -218,7 +225,7 @@ public class KiWiPersistence {
                     log.info("connecting to existing KiWi database (version: {})",version);
                 }
             }
-            connection.commit();
+            connection.getJDBCConnection().commit();
         } catch (SQLException ex) {
             log.error("SQL exception while initialising database, rolling back");
             connection.rollback();
@@ -280,7 +287,7 @@ public class KiWiPersistence {
                         log.debug("- found table: {}",table);
                     }
                 }
-                connection.commit();
+                connection.getJDBCConnection().commit();
             } catch (SQLException ex) {
                 log.error("SQL exception while dropping database, rolling back");
                 connection.rollback();
@@ -423,6 +430,7 @@ public class KiWiPersistence {
         connectionPool.close();
 
         connectionPool = null;
+        memorySequences = null;
     }
 
     /**
@@ -443,5 +451,13 @@ public class KiWiPersistence {
 
     public KiWiConfiguration getConfiguration() {
         return configuration;
+    }
+
+    public Map<String, Long> getMemorySequences() {
+        return memorySequences;
+    }
+
+    public void setMemorySequences(Map<String, Long> memorySequences) {
+        this.memorySequences = memorySequences;
     }
 }
