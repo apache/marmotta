@@ -72,7 +72,7 @@ public class KiWiConfiguration {
      */
     private boolean batchCommit;
 
-    private int batchSize = 1000;
+    private int batchSize = 10000;
 
     /**
      * If enabled, and batchCommit is also true, load sequence values into static memory fields once and increment
