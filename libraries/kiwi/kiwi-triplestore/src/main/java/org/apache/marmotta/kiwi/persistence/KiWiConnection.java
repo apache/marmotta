@@ -464,7 +464,9 @@ public class KiWiConnection {
      * @param uri the URI of the resource to load
      * @return the KiWiUriResource identified by the given URI  or null if it does not exist
      */
-    public KiWiUriResource loadUriResource(String uri) throws SQLException {
+    public synchronized KiWiUriResource loadUriResource(String uri) throws SQLException {
+        Preconditions.checkNotNull(uri);
+
         // look in cache
         Element element = uriCache.get(uri);
         if(element != null) {
@@ -505,7 +507,7 @@ public class KiWiConnection {
      * @param id the anonymous ID of the resource to load
      * @return the KiWiAnonResource identified by the given internal ID or null if it does not exist
      */
-    public KiWiAnonResource loadAnonResource(String id) throws SQLException {
+    public synchronized KiWiAnonResource loadAnonResource(String id) throws SQLException {
         // look in cache
         Element element = bnodeCache.get(id);
         if(element != null) {
@@ -548,7 +550,7 @@ public class KiWiConnection {
      * @return the literal matching the given arguments or null if it does not exist
      * @throws SQLException
      */
-    public KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
+    public synchronized KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
         // look in cache
         final Element element = literalCache.get(LiteralCommons.createCacheKey(value,getLocale(lang), ltype));
         if(element != null) {
@@ -607,7 +609,7 @@ public class KiWiConnection {
      * @return a KiWiDateLiteral with the correct date, or null if it does not exist
      * @throws SQLException
      */
-    public KiWiDateLiteral loadLiteral(Date date) throws SQLException {
+    public synchronized KiWiDateLiteral loadLiteral(Date date) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),Namespaces.NS_XSD + "dateTime"));
         if(element != null) {
@@ -655,7 +657,7 @@ public class KiWiConnection {
      * @return a KiWiIntLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public KiWiIntLiteral loadLiteral(long value) throws SQLException {
+    public synchronized KiWiIntLiteral loadLiteral(long value) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,Namespaces.NS_XSD + "integer"));
         if(element != null) {
@@ -703,7 +705,7 @@ public class KiWiConnection {
      * @return a KiWiDoubleLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
+    public synchronized KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
         if(element != null) {
@@ -751,7 +753,7 @@ public class KiWiConnection {
      * @return a KiWiBooleanLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
+    public synchronized KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
         if(element != null) {
@@ -1008,9 +1010,11 @@ public class KiWiConnection {
 
         if(batchCommit) {
             cacheTriple(triple);
-            tripleBatch.add(triple);
-            if(tripleBatch.size() >= batchSize) {
-                flushBatch();
+            synchronized (tripleBatch) {
+                tripleBatch.add(triple);
+                if(tripleBatch.size() >= batchSize) {
+                    flushBatch();
+                }
             }
             return !hasId;
         }  else {
@@ -1054,11 +1058,13 @@ public class KiWiConnection {
      * @param inferred
      * @return
      */
-    public Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+    public synchronized Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
-            Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context);
-            if(batched.size() > 0) {
-                return batched.iterator().next().getId();
+            synchronized (tripleBatch) {
+                Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context);
+                if(batched.size() > 0) {
+                    return batched.iterator().next().getId();
+                }
             }
         }
 
@@ -1108,7 +1114,9 @@ public class KiWiConnection {
         removeCachedTriple(triple);
 
         if(tripleBatch != null) {
-            tripleBatch.remove(triple);
+            synchronized (tripleBatch) {
+                tripleBatch.remove(triple);
+            }
         }
     }
 
@@ -1220,26 +1228,28 @@ public class KiWiConnection {
 
 
         if(tripleBatch != null && tripleBatch.size() > 0) {
-            return new RepositoryResult<Statement>(
-                    new ExceptionConvertingIteration<Statement, RepositoryException>(
-                            new UnionIteration<Statement, SQLException>(
-                                    new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
-                                    new DelayedIteration<Statement, SQLException>() {
-                                        @Override
-                                        protected Iteration<? extends Statement, ? extends SQLException> createIteration() throws SQLException {
-                                            return listTriplesInternal(subject,predicate,object,context,inferred);
+            synchronized (tripleBatch) {
+                return new RepositoryResult<Statement>(
+                        new ExceptionConvertingIteration<Statement, RepositoryException>(
+                                new UnionIteration<Statement, SQLException>(
+                                        new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
+                                        new DelayedIteration<Statement, SQLException>() {
+                                            @Override
+                                            protected Iteration<? extends Statement, ? extends SQLException> createIteration() throws SQLException {
+                                                return listTriplesInternal(subject,predicate,object,context,inferred);
+                                            }
                                         }
-                                    }
 
-                            )
-                    ) {
-                        @Override
-                        protected RepositoryException convert(Exception e) {
-                            return new RepositoryException("database error while iterating over result set",e);
+                                )
+                        ) {
+                            @Override
+                            protected RepositoryException convert(Exception e) {
+                                return new RepositoryException("database error while iterating over result set",e);
+                            }
                         }
-                    }
 
-            );
+                );
+            }
         }  else {
             return new RepositoryResult<Statement>(
                     new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
@@ -1856,10 +1866,12 @@ public class KiWiConnection {
      */
     public void rollback() throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
-            for(KiWiTriple triple : tripleBatch) {
-                triple.setId(null);
+            synchronized (tripleBatch) {
+                for(KiWiTriple triple : tripleBatch) {
+                    triple.setId(null);
+                }
+                tripleBatch.clear();
             }
-            tripleBatch.clear();
         }
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
@@ -1938,27 +1950,30 @@ public class KiWiConnection {
                 PreparedStatement insertTriple = getPreparedStatement("store.triple");
                 insertTriple.clearParameters();
                 insertTriple.clearBatch();
-                for(KiWiTriple triple : tripleBatch) {
-                    // retrieve a new triple ID and set it in the object
-                    if(!triple.isDeleted()) {
-                        if(triple.getId() == null) {
-                            triple.setId(getNextSequence("seq.triples"));
-                            log.warn("the batched triple did not have an ID");
+
+                synchronized (tripleBatch) {
+                    for(KiWiTriple triple : tripleBatch) {
+                        // retrieve a new triple ID and set it in the object
+                        if(!triple.isDeleted()) {
+                            if(triple.getId() == null) {
+                                triple.setId(getNextSequence("seq.triples"));
+                                log.warn("the batched triple did not have an ID");
+                            }
+
+                            insertTriple.setLong(1,triple.getId());
+                            insertTriple.setLong(2,triple.getSubject().getId());
+                            insertTriple.setLong(3,triple.getPredicate().getId());
+                            insertTriple.setLong(4,triple.getObject().getId());
+                            insertTriple.setLong(5,triple.getContext().getId());
+                            insertTriple.setBoolean(6,triple.isInferred());
+                            insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+
+                            insertTriple.addBatch();
                         }
-
-                        insertTriple.setLong(1,triple.getId());
-                        insertTriple.setLong(2,triple.getSubject().getId());
-                        insertTriple.setLong(3,triple.getPredicate().getId());
-                        insertTriple.setLong(4,triple.getObject().getId());
-                        insertTriple.setLong(5,triple.getContext().getId());
-                        insertTriple.setBoolean(6,triple.isInferred());
-                        insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-
-                        insertTriple.addBatch();
                     }
+                    tripleBatch.clear();
                 }
                 insertTriple.executeBatch();
-                tripleBatch.clear();
 
             } catch (Throwable ex) {
                 ex.printStackTrace();
