@@ -17,18 +17,19 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
+import info.aduna.iteration.*;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import com.google.common.base.Preconditions;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.EmptyIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.openrdf.model.Literal;
@@ -43,12 +44,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A KiWiConnection offers methods for storing and retrieving KiWiTriples, KiWiNodes, and KiWiNamespaces in the
@@ -70,6 +67,7 @@ public class KiWiConnection {
 
     protected KiWiCacheManager cacheManager;
 
+    protected TripleTable<KiWiTriple> tripleBatch;
 
     /**
      * Cache nodes by database ID
@@ -119,11 +117,25 @@ public class KiWiConnection {
 
     private boolean autoCommit = false;
 
+    private boolean batchCommit = true;
+
+    private int batchSize = 1000;
+
+    private ReentrantLock commitLock;
+
+    private ReentrantLock literalLock;
+    private ReentrantLock uriLock;
+    private ReentrantLock bnodeLock;
 
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
         this.persistence  = persistence;
+        this.commitLock   = new ReentrantLock();
+        this.literalLock   = new ReentrantLock();
+        this.uriLock   = new ReentrantLock();
+        this.bnodeLock   = new ReentrantLock();
+        this.batchCommit  = dialect.isBatchSupported();
 
         initCachePool();
         initStatementCache();
@@ -162,6 +174,9 @@ public class KiWiConnection {
         if(connection == null) {
             connection = persistence.getJDBCConnection();
             connection.setAutoCommit(autoCommit);
+        }
+        if(tripleBatch == null) {
+            tripleBatch = new TripleTable<KiWiTriple>();
         }
     }
 
@@ -323,9 +338,9 @@ public class KiWiConnection {
         ResultSet result = querySize.executeQuery();
         try {
             if(result.next()) {
-                return result.getLong(1);
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.size() : 0);
             } else {
-                return 0;
+                return 0  + (tripleBatch != null ? tripleBatch.size() : 0);
             }
         } finally {
             result.close();
@@ -350,9 +365,9 @@ public class KiWiConnection {
         ResultSet result = querySize.executeQuery();
         try {
             if(result.next()) {
-                return result.getLong(1);
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
             } else {
-                return 0;
+                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
             }
         } finally {
             result.close();
@@ -397,20 +412,22 @@ public class KiWiConnection {
 
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.node_by_id");
-        query.setLong(1,id);
-        query.setMaxRows(1);
+        synchronized (query) {
+            query.setLong(1,id);
+            query.setMaxRows(1);
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
-        try {
-            if(result.next()) {
-                return constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
-        } finally {
-            result.close();
         }
 
     }
@@ -457,6 +474,8 @@ public class KiWiConnection {
      * @return the KiWiUriResource identified by the given URI  or null if it does not exist
      */
     public KiWiUriResource loadUriResource(String uri) throws SQLException {
+        Preconditions.checkNotNull(uri);
+
         // look in cache
         Element element = uriCache.get(uri);
         if(element != null) {
@@ -465,22 +484,27 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
-        // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
-        PreparedStatement query = getPreparedStatement("load.uri_by_uri");
-        query.setString(1, uri);
-        query.setMaxRows(1);
-
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
+        uriLock.lock();
         try {
-            if(result.next()) {
-                return (KiWiUriResource)constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
+            PreparedStatement query = getPreparedStatement("load.uri_by_uri");
+            query.setString(1, uri);
+            query.setMaxRows(1);
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiUriResource)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            uriLock.unlock();
         }
     }
 
@@ -506,22 +530,29 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
-        // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
-        PreparedStatement query = getPreparedStatement("load.bnode_by_anonid");
-        query.setString(1,id);
-        query.setMaxRows(1);
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
+        bnodeLock.lock();
+
         try {
-            if(result.next()) {
-                return (KiWiAnonResource)constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
+            PreparedStatement query = getPreparedStatement("load.bnode_by_anonid");
+            query.setString(1,id);
+            query.setMaxRows(1);
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiAnonResource)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            bnodeLock.unlock();
         }
     }
 
@@ -554,35 +585,41 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        final PreparedStatement query;
-        if(lang == null && ltype == null) {
-            query = getPreparedStatement("load.literal_by_v");
-            query.setString(1,value);
-        } else if(lang != null) {
-            query = getPreparedStatement("load.literal_by_vl");
-            query.setString(1,value);
-            query.setString(2, lang);
-        } else if(ltype != null) {
-            query = getPreparedStatement("load.literal_by_vt");
-            query.setString(1,value);
-            query.setLong(2,ltype.getId());
-        } else {
-            // This cannot happen...
-            throw new IllegalArgumentException("Impossible combination of lang/type in loadLiteral!");
-        }
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiLiteral)constructNodeFromDatabase(result);
+            // otherwise prepare a query, depending on the parameters given
+            final PreparedStatement query;
+            if(lang == null && ltype == null) {
+                query = getPreparedStatement("load.literal_by_v");
+                query.setString(1,value);
+            } else if(lang != null) {
+                query = getPreparedStatement("load.literal_by_vl");
+                query.setString(1,value);
+                query.setString(2, lang);
+            } else if(ltype != null) {
+                query = getPreparedStatement("load.literal_by_vt");
+                query.setString(1,value);
+                query.setLong(2,ltype.getId());
             } else {
-                return null;
+                // This cannot happen...
+                throw new IllegalArgumentException("Impossible combination of lang/type in loadLiteral!");
+            }
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -614,22 +651,28 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_tv");
-        query.setTimestamp(1, new Timestamp(DateUtils.getDateWithoutFraction(date).getTime()));
-        query.setLong(2,ltype.getId());
-
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
+        literalLock.lock();
         try {
-            if(result.next()) {
-                return (KiWiDateLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_tv");
+            query.setTimestamp(1, new Timestamp(DateUtils.getDateWithoutFraction(date).getTime()));
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiDateLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -663,22 +706,29 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_iv");
-        query.setLong(1,value);
-        query.setLong(2,ltype.getId());
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiIntLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_iv");
+            query.setLong(1,value);
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiIntLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -695,7 +745,7 @@ public class KiWiConnection {
      * @return a KiWiDoubleLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
+    public synchronized KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
         if(element != null) {
@@ -711,22 +761,28 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_dv");
-        query.setDouble(1, value);
-        query.setLong(2,ltype.getId());
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiDoubleLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_dv");
+            query.setDouble(1, value);
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiDoubleLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -760,22 +816,29 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_bv");
-        query.setBoolean(1, value);
-        query.setLong(2,ltype.getId());
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiBooleanLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_bv");
+            query.setBoolean(1, value);
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiBooleanLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -785,6 +848,13 @@ public class KiWiConnection {
 //    }
 
 
+
+    public synchronized long getNodeId() throws SQLException {
+        long result = getNextSequence("seq.nodes");
+
+        return result;
+    }
+
     /**
      * Store a new node in the database. The method will retrieve a new database id for the node and update the
      * passed object. Afterwards, the node data will be inserted into the database using appropriate INSERT
@@ -792,28 +862,27 @@ public class KiWiConnection {
      * <p/>
      * If the node already has an ID, the method will do nothing (assuming that it is already persistent)
      *
+     *
      * @param node
+     * @param batch
      * @throws SQLException
      */
-    public synchronized void storeNode(KiWiNode node) throws SQLException {
-        // if the node already has an ID, storeNode should not be called, since it is already persisted
-        if(node.getId() != null) {
-            log.warn("node {} already had a node ID, not persisting", node);
-            return;
-        }
+    public synchronized void storeNode(KiWiNode node, boolean batch) throws SQLException {
 
         // ensure the data type of a literal is persisted first
         if(node instanceof KiWiLiteral) {
             KiWiLiteral literal = (KiWiLiteral)node;
             if(literal.getType() != null && literal.getType().getId() == null) {
-                storeNode(literal.getType());
+                storeNode(literal.getType(), batch);
             }
         }
 
         requireJDBCConnection();
 
         // retrieve a new node id and set it in the node object
-        node.setId(getNextSequence("seq.nodes"));
+        if(node.getId() == null) {
+            node.setId(getNextSequence("seq.nodes"));
+        }
 
         // distinguish the different node types and run the appropriate updates
         if(node instanceof KiWiUriResource) {
@@ -823,7 +892,12 @@ public class KiWiConnection {
             insertNode.setLong(1,node.getId());
             insertNode.setString(2,uriResource.stringValue());
             insertNode.setTimestamp(3, new Timestamp(uriResource.getCreated().getTime()));
-            insertNode.executeUpdate();
+
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
 
         } else if(node instanceof KiWiAnonResource) {
             KiWiAnonResource anonResource = (KiWiAnonResource)node;
@@ -832,7 +906,12 @@ public class KiWiConnection {
             insertNode.setLong(1,node.getId());
             insertNode.setString(2,anonResource.stringValue());
             insertNode.setTimestamp(3, new Timestamp(anonResource.getCreated().getTime()));
-            insertNode.executeUpdate();
+
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiDateLiteral) {
             KiWiDateLiteral dateLiteral = (KiWiDateLiteral)node;
 
@@ -846,7 +925,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("a date literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(dateLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiIntLiteral) {
             KiWiIntLiteral intLiteral = (KiWiIntLiteral)node;
 
@@ -861,7 +944,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("an integer literal must have a datatype");
             insertNode.setTimestamp(6, new Timestamp(intLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiDoubleLiteral) {
             KiWiDoubleLiteral doubleLiteral = (KiWiDoubleLiteral)node;
 
@@ -875,7 +962,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("a double literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(doubleLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiBooleanLiteral) {
             KiWiBooleanLiteral booleanLiteral = (KiWiBooleanLiteral)node;
 
@@ -889,7 +980,11 @@ public class KiWiConnection {
                 throw new IllegalStateException("a boolean literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(booleanLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else if(node instanceof KiWiStringLiteral) {
             KiWiStringLiteral stringLiteral = (KiWiStringLiteral)node;
 
@@ -908,12 +1003,42 @@ public class KiWiConnection {
             }
             insertNode.setTimestamp(5, new Timestamp(stringLiteral.getCreated().getTime()));
 
-            insertNode.executeUpdate();
+            if(batch) {
+                insertNode.addBatch();
+            } else {
+                insertNode.executeUpdate();
+            }
         } else {
             log.warn("unrecognized node type: {}", node.getClass().getCanonicalName());
         }
 
         cacheNode(node);
+    }
+
+    /**
+     * Start a batch operation for inserting nodes. Afterwards, storeNode needs to be called with the batch argument
+     * set to "true".
+     *
+     * @throws SQLException
+     */
+    public void startNodeBatch() throws SQLException {
+        for(String stmt : new String[] { "store.uri", "store.sliteral", "store.bliteral", "store.dliteral", "store.iliteral", "store.tliteral", "store.bnode"}) {
+            PreparedStatement insertNode = getPreparedStatement(stmt);
+            insertNode.clearParameters();
+            insertNode.clearBatch();
+        }
+    }
+
+    /**
+     * Execute the batch operation for inserting nodes into the database.
+     * @throws SQLException
+     */
+    public void commitNodeBatch() throws SQLException {
+        for(String stmt : new String[] { "store.uri", "store.sliteral", "store.bliteral", "store.dliteral", "store.iliteral", "store.tliteral", "store.bnode"}) {
+            PreparedStatement insertNode = getPreparedStatement(stmt);
+            insertNode.executeBatch();
+        }
+        connection.commit();
     }
 
     /**
@@ -926,40 +1051,95 @@ public class KiWiConnection {
      */
     public synchronized boolean storeTriple(KiWiTriple triple) throws SQLException {
 
-        Preconditions.checkNotNull(triple.getSubject().getId());
-        Preconditions.checkNotNull(triple.getPredicate().getId());
-        Preconditions.checkNotNull(triple.getObject().getId());
-        Preconditions.checkNotNull(triple.getContext().getId());
-
 
         requireJDBCConnection();
 
-        try {
-            // retrieve a new triple ID and set it in the object
-            if(triple.getId() == null) {
-                triple.setId(getNextSequence("seq.triples"));
-            }
+        boolean hasId = triple.getId() != null;
 
-            PreparedStatement insertTriple = getPreparedStatement("store.triple");
-            insertTriple.setLong(1,triple.getId());
-            insertTriple.setLong(2,triple.getSubject().getId());
-            insertTriple.setLong(3,triple.getPredicate().getId());
-            insertTriple.setLong(4,triple.getObject().getId());
-            insertTriple.setLong(5,triple.getContext().getId());
-            insertTriple.setBoolean(6,triple.isInferred());
-            insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-            int count = insertTriple.executeUpdate();
+        // retrieve a new triple ID and set it in the object
+        if(triple.getId() == null) {
+            triple.setId(getNextSequence("seq.triples"));
+        }
 
+        if(batchCommit) {
             cacheTriple(triple);
+            synchronized (tripleBatch) {
+                tripleBatch.add(triple);
+                if(tripleBatch.size() >= batchSize) {
+                    flushBatch();
+                }
+            }
+            return !hasId;
+        }  else {
+            Preconditions.checkNotNull(triple.getSubject().getId());
+            Preconditions.checkNotNull(triple.getPredicate().getId());
+            Preconditions.checkNotNull(triple.getObject().getId());
+            Preconditions.checkNotNull(triple.getContext().getId());
 
-            return count > 0;
-        } catch(SQLException ex) {
-            // this is an ugly hack to catch duplicate key errors in some databases (H2)
-            // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
-            return false;
+
+            try {
+                PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                insertTriple.setLong(1,triple.getId());
+                insertTriple.setLong(2,triple.getSubject().getId());
+                insertTriple.setLong(3,triple.getPredicate().getId());
+                insertTriple.setLong(4,triple.getObject().getId());
+                insertTriple.setLong(5,triple.getContext().getId());
+                insertTriple.setBoolean(6,triple.isInferred());
+                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+                int count = insertTriple.executeUpdate();
+
+                cacheTriple(triple);
+
+                return count > 0;
+            } catch(SQLException ex) {
+                // this is an ugly hack to catch duplicate key errors in some databases (H2)
+                // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
+                return false;
+            }
         }
     }
 
+
+    /**
+     * Return the identifier of the triple with the given subject, predicate, object and context, or null if this
+     * triple does not exist. Used for quick existance checks of triples.
+     *
+     * @param subject
+     * @param predicate
+     * @param object
+     * @param context
+     * @param inferred
+     * @return
+     */
+    public synchronized Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            synchronized (tripleBatch) {
+                Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context);
+                if(batched.size() > 0) {
+                    return batched.iterator().next().getId();
+                }
+            }
+        }
+
+        requireJDBCConnection();
+        PreparedStatement loadTripleId = getPreparedStatement("load.triple");
+        loadTripleId.setLong(1, subject.getId());
+        loadTripleId.setLong(2, predicate.getId());
+        loadTripleId.setLong(3, object.getId());
+        loadTripleId.setLong(4, context.getId());
+
+        ResultSet result = loadTripleId.executeQuery();
+        try {
+            if(result.next()) {
+                return result.getLong(1);
+            } else {
+                return null;
+            }
+
+        } finally {
+            result.close();
+        }
+    }
 
     /**
      * Mark the triple passed as argument as deleted, setting the "deleted" flag to true and
@@ -971,22 +1151,26 @@ public class KiWiConnection {
      * @param triple
      */
     public void deleteTriple(KiWiTriple triple) throws SQLException {
-        if(triple.getId() == null) {
-            log.warn("attempting to remove non-persistent triple: {}",triple);
-            return;
-        }
-
-        requireJDBCConnection();
-
-        PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
-        deleteTriple.setLong(1,triple.getId());
-        deleteTriple.executeUpdate();
-
-        removeCachedTriple(triple);
-
         // make sure the triple is marked as deleted in case some service still holds a reference
         triple.setDeleted(true);
         triple.setDeletedAt(new Date());
+
+        if(triple.getId() == null) {
+            log.warn("attempting to remove non-persistent triple: {}", triple);
+        } else {
+            requireJDBCConnection();
+
+            PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
+            deleteTriple.setLong(1,triple.getId());
+            deleteTriple.executeUpdate();
+        }
+        removeCachedTriple(triple);
+
+        if(tripleBatch != null) {
+            synchronized (tripleBatch) {
+                tripleBatch.remove(triple);
+            }
+        }
     }
 
     /**
@@ -1093,17 +1277,43 @@ public class KiWiConnection {
      * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
      *         by the caller
      */
-    public RepositoryResult<Statement> listTriples(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) throws SQLException {
+    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
 
-        return new RepositoryResult<Statement>(
-                new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
-                    @Override
-                    protected RepositoryException convert(Exception e) {
-                        return new RepositoryException("database error while iterating over result set",e);
+
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            synchronized (tripleBatch) {
+                return new RepositoryResult<Statement>(
+                        new ExceptionConvertingIteration<Statement, RepositoryException>(
+                                new UnionIteration<Statement, SQLException>(
+                                        new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
+                                        new DelayedIteration<Statement, SQLException>() {
+                                            @Override
+                                            protected Iteration<? extends Statement, ? extends SQLException> createIteration() throws SQLException {
+                                                return listTriplesInternal(subject,predicate,object,context,inferred);
+                                            }
+                                        }
+
+                                )
+                        ) {
+                            @Override
+                            protected RepositoryException convert(Exception e) {
+                                return new RepositoryException("database error while iterating over result set",e);
+                            }
+                        }
+
+                );
+            }
+        }  else {
+            return new RepositoryResult<Statement>(
+                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
+                        @Override
+                        protected RepositoryException convert(Exception e) {
+                            return new RepositoryException("database error while iterating over result set",e);
+                        }
                     }
-                }
 
-        );
+            );
+        }
     }
 
     /**
@@ -1160,7 +1370,6 @@ public class KiWiConnection {
         }
 
         final ResultSet result = query.executeQuery();
-
 
         return new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
             @Override
@@ -1391,7 +1600,7 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         PreparedStatement statement = statementCache.get(key);
-        if(statement == null) {
+        if(statement == null || statement.isClosed()) {
             statement = connection.prepareStatement(dialect.getStatement(key));
             statementCache.put(key,statement);
         }
@@ -1408,26 +1617,73 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        requireJDBCConnection();
-
-        // retrieve a new node id and set it in the node object
-
-        // if there is a preparation needed to update the transaction, run it first
-        if(dialect.hasStatement(sequenceName+".prep")) {
-            PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
-            prepNodeId.executeUpdate();
-        }
-
-        PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
-        ResultSet resultNodeId = queryNodeId.executeQuery();
-        try {
-            if(resultNodeId.next()) {
-                return resultNodeId.getLong(1);
-            } else {
-                throw new SQLException("the sequence did not return a new value");
+        if(batchCommit && persistence.getConfiguration().isMemorySequences()) {
+            // use in-memory sequences
+            if(persistence.getMemorySequences() == null) {
+                persistence.setMemorySequences(new HashMap<String,Long>());
             }
-        } finally {
-            resultNodeId.close();
+
+            synchronized (persistence.getMemorySequences()) {
+                Long sequence = persistence.getMemorySequences().get(sequenceName);
+                if(sequence == null) {
+                    requireJDBCConnection();
+
+                    // load sequence value from database
+                    // if there is a preparation needed to update the transaction, run it first
+                    if(dialect.hasStatement(sequenceName+".prep")) {
+                        PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
+                        prepNodeId.executeUpdate();
+                    }
+
+                    PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
+                    ResultSet resultNodeId = queryNodeId.executeQuery();
+                    try {
+                        if(resultNodeId.next()) {
+                            sequence = resultNodeId.getLong(1);
+                        } else {
+                            throw new SQLException("the sequence did not return a new value");
+                        }
+                    } finally {
+                        resultNodeId.close();
+                    }
+
+                    // this is a very ugly hack needed by MySQL because the sequences are not atomic
+                    // it is only necessary for the nodes sequence, because the value factory always keeps
+                    // a connection open to it; we could solve it maybe differently by remembering the
+                    // connection responsible for a in-memory sequence...
+                    if(sequenceName.equals("seq.nodes") && dialect instanceof MySQLDialect) {
+                        connection.commit();
+                    }
+
+                } else {
+                    sequence += 1;
+                }
+                persistence.getMemorySequences().put(sequenceName,sequence);
+                return sequence;
+            }
+
+        } else {
+            requireJDBCConnection();
+
+            // retrieve a new node id and set it in the node object
+
+            // if there is a preparation needed to update the transaction, run it first
+            if(dialect.hasStatement(sequenceName+".prep")) {
+                PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
+                prepNodeId.executeUpdate();
+            }
+
+            PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
+            ResultSet resultNodeId = queryNodeId.executeQuery();
+            try {
+                if(resultNodeId.next()) {
+                    return resultNodeId.getLong(1);
+                } else {
+                    throw new SQLException("the sequence did not return a new value");
+                }
+            } finally {
+                resultNodeId.close();
+            }
         }
 
     }
@@ -1565,6 +1821,47 @@ public class KiWiConnection {
     }
 
     /**
+     * Return true if batched commits are enabled. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @return
+     */
+    public boolean isBatchCommit() {
+        return batchCommit;
+    }
+
+    /**
+     * Enabled batched commits. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @return
+     */
+    public void setBatchCommit(boolean batchCommit) {
+        if(dialect.isBatchSupported()) {
+            this.batchCommit = batchCommit;
+        } else {
+            log.warn("batch commits are not supported by this database dialect");
+        }
+    }
+
+
+    /**
+     * Return the size of a batch for batched commits. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @return
+     */
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    /**
+     * Set the size of a batch for batched commits. Batched commits will try to group database operations and
+     * keep a memory log while storing triples. This can considerably improve the database performance.
+     * @param batchSize
+     */
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
+
+    /**
      * Makes all changes made since the previous
      * commit/rollback permanent and releases any database locks
      * currently held by this <code>Connection</code> object.
@@ -1578,6 +1875,31 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void commit() throws SQLException {
+        if(persistence.getMemorySequences() != null) {
+            requireJDBCConnection();
+
+            try {
+                synchronized (persistence.getMemorySequences()) {
+                    for(Map.Entry<String,Long> entry : persistence.getMemorySequences().entrySet()) {
+                        PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
+                        updateSequence.setLong(1, entry.getValue());
+                        if(updateSequence.execute()) {
+                            updateSequence.getResultSet().close();
+                        } else {
+                            updateSequence.getUpdateCount();
+                        }
+                    }
+                }
+            } catch(SQLException ex) {
+                log.error("SQL exception:",ex);
+                throw ex;
+            }
+        }
+
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
+
         if(connection != null) {
             connection.commit();
         }
@@ -1596,6 +1918,14 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void rollback() throws SQLException {
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            synchronized (tripleBatch) {
+                for(KiWiTriple triple : tripleBatch) {
+                    triple.setId(null);
+                }
+                tripleBatch.clear();
+            }
+        }
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
@@ -1657,5 +1987,55 @@ public class KiWiConnection {
 
             connection.close();
         }
+    }
+
+
+    public void flushBatch() throws SQLException {
+        if(batchCommit && tripleBatch != null) {
+            requireJDBCConnection();
+
+            commitLock.lock();
+            try {
+                if(persistence.getValueFactory() != null) {
+                    persistence.getValueFactory().flushBatch(this);
+                }
+
+                PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                insertTriple.clearParameters();
+                insertTriple.clearBatch();
+
+                synchronized (tripleBatch) {
+                    for(KiWiTriple triple : tripleBatch) {
+                        // retrieve a new triple ID and set it in the object
+                        if(!triple.isDeleted()) {
+                            if(triple.getId() == null) {
+                                triple.setId(getNextSequence("seq.triples"));
+                                log.warn("the batched triple did not have an ID");
+                            }
+
+                            insertTriple.setLong(1,triple.getId());
+                            insertTriple.setLong(2,triple.getSubject().getId());
+                            insertTriple.setLong(3,triple.getPredicate().getId());
+                            insertTriple.setLong(4,triple.getObject().getId());
+                            insertTriple.setLong(5,triple.getContext().getId());
+                            insertTriple.setBoolean(6,triple.isInferred());
+                            insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+
+                            insertTriple.addBatch();
+                        }
+                    }
+                    tripleBatch.clear();
+                }
+                insertTriple.executeBatch();
+
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+                throw ex;
+            }  finally {
+                commitLock.unlock();
+            }
+
+        }
+
     }
 }

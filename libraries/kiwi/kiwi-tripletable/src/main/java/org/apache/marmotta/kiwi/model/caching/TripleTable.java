@@ -400,7 +400,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @param context
      * @return
      */
-    public Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final URI context) {
+    public Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final Resource context) {
         // in special cases we can make use of the index
         if(subject != null && property != null && object != null && context != null) {
             IntArray key = IntArray.createSPOCKey(subject, property, object, context);

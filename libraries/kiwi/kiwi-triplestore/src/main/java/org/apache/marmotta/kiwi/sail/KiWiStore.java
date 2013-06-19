@@ -182,7 +182,9 @@ public class KiWiStore extends NotifyingSailBase {
      */
     public void closeValueFactory() {
         if(repositoryValueFactory != null) {
+            repositoryValueFactory.close();
             repositoryValueFactory = null;
+            persistence.setValueFactory(null);
         }
 
     }
@@ -206,6 +208,7 @@ public class KiWiStore extends NotifyingSailBase {
     public ValueFactory getValueFactory() {
         if(repositoryValueFactory == null) {
             repositoryValueFactory = new KiWiValueFactory(this,  defaultContext);
+            persistence.setValueFactory(repositoryValueFactory);
         }
         return repositoryValueFactory;
     }

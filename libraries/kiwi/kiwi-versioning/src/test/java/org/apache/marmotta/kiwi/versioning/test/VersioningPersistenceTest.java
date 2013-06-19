@@ -195,13 +195,13 @@ public class VersioningPersistenceTest {
             KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32));
             KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
-            connection.storeNode(subject1);
-            connection.storeNode(subject2);
-            connection.storeNode(pred_1);
-            connection.storeNode(pred_2);
-            connection.storeNode(object_1);
-            connection.storeNode(object_2);
-            connection.storeNode(context);
+            connection.storeNode(subject1, false);
+            connection.storeNode(subject2, false);
+            connection.storeNode(pred_1, false);
+            connection.storeNode(pred_2, false);
+            connection.storeNode(object_1, false);
+            connection.storeNode(object_2, false);
+            connection.storeNode(context, false);
 
             KiWiTriple triple1 = new KiWiTriple(subject1,pred_1,object_1,context);
             KiWiTriple triple2 = new KiWiTriple(subject2,pred_2,object_2,context);
@@ -271,12 +271,12 @@ public class VersioningPersistenceTest {
             KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32));
             KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
-            connection.storeNode(subject);
-            connection.storeNode(pred_1);
-            connection.storeNode(pred_2);
-            connection.storeNode(object_1);
-            connection.storeNode(object_2);
-            connection.storeNode(context);
+            connection.storeNode(subject, false);
+            connection.storeNode(pred_1, false);
+            connection.storeNode(pred_2, false);
+            connection.storeNode(object_1, false);
+            connection.storeNode(object_2, false);
+            connection.storeNode(context, false);
 
             KiWiTriple triple1 = new KiWiTriple(subject,pred_1,object_1,context);
             KiWiTriple triple2 = new KiWiTriple(subject,pred_2,object_2,context);

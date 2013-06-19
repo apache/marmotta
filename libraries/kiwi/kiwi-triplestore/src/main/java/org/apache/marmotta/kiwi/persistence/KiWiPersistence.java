@@ -23,6 +23,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
+import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.openrdf.model.Statement;
@@ -36,6 +37,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -66,6 +68,18 @@ public class KiWiPersistence {
      * The KiWi configuration for this persistence.
      */
     private KiWiConfiguration     configuration;
+
+    /**
+     * A map holding in-memory sequences to be used for sequence caching in case the appropriate configuration option
+     * is configued and batched commits are enabled.
+     */
+    private Map<String,Long> memorySequences;
+
+
+    /**
+     * A reference to the value factory used to access this store. Used for notifications when to flush batches.
+     */
+    private KiWiValueFactory      valueFactory;
 
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
@@ -211,7 +225,7 @@ public class KiWiPersistence {
                     log.info("connecting to existing KiWi database (version: {})",version);
                 }
             }
-            connection.commit();
+            connection.getJDBCConnection().commit();
         } catch (SQLException ex) {
             log.error("SQL exception while initialising database, rolling back");
             connection.rollback();
@@ -273,7 +287,7 @@ public class KiWiPersistence {
                         log.debug("- found table: {}",table);
                     }
                 }
-                connection.commit();
+                connection.getJDBCConnection().commit();
             } catch (SQLException ex) {
                 log.error("SQL exception while dropping database, rolling back");
                 connection.rollback();
@@ -297,7 +311,12 @@ public class KiWiPersistence {
      */
     public KiWiConnection getConnection() throws SQLException {
         if(connectionPool != null) {
-            return new KiWiConnection(this,configuration.getDialect(),cacheManager);
+            KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
+            if(getDialect().isBatchSupported()) {
+                con.setBatchCommit(configuration.isBatchCommit());
+                con.setBatchSize(configuration.getBatchSize());
+            }
+            return con;
         } else {
             throw new SQLException("connection pool is closed, database connections not available");
         }
@@ -411,6 +430,7 @@ public class KiWiPersistence {
         connectionPool.close();
 
         connectionPool = null;
+        memorySequences = null;
     }
 
     /**
@@ -421,4 +441,23 @@ public class KiWiPersistence {
     }
 
 
+    public void setValueFactory(KiWiValueFactory valueFactory) {
+        this.valueFactory = valueFactory;
+    }
+
+    public KiWiValueFactory getValueFactory() {
+        return valueFactory;
+    }
+
+    public KiWiConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    public Map<String, Long> getMemorySequences() {
+        return memorySequences;
+    }
+
+    public void setMemorySequences(Map<String, Long> memorySequences) {
+        this.memorySequences = memorySequences;
+    }
 }

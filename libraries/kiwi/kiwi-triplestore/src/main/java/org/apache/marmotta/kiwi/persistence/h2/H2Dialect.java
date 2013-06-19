@@ -46,6 +46,11 @@ public class H2Dialect extends KiWiDialect {
     }
 
     @Override
+    public boolean isBatchSupported() {
+        return false;
+    }
+
+    @Override
     public String getRegexp(String text, String pattern) {
         return text + " REGEXP " + pattern;
     }

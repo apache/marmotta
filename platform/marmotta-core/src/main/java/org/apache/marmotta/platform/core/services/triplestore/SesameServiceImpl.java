@@ -148,9 +148,13 @@ public class SesameServiceImpl implements SesameService {
             String jdbcUrl = configurationService.getStringConfiguration("database.url");
             String dbUser  = configurationService.getStringConfiguration("database.user");
             String dbPass  = configurationService.getStringConfiguration("database.password");
+            boolean batchCommit = configurationService.getBooleanConfiguration("database.batchcommit", true);
 
             KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
             configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
+            configuration.setBatchCommit(batchCommit);
+            configuration.setBatchSize(configurationService.getIntConfiguration("database.batchsize",10000));
+            configuration.setMemorySequences(configurationService.getBooleanConfiguration("database.memsequences",true));
 
             store = new KiWiStore(configuration);
 
