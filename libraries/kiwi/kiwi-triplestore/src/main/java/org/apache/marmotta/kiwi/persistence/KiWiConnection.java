@@ -123,11 +123,18 @@ public class KiWiConnection {
 
     private ReentrantLock commitLock;
 
+    private ReentrantLock literalLock;
+    private ReentrantLock uriLock;
+    private ReentrantLock bnodeLock;
+
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
         this.persistence  = persistence;
         this.commitLock   = new ReentrantLock();
+        this.literalLock   = new ReentrantLock();
+        this.uriLock   = new ReentrantLock();
+        this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
 
         initCachePool();
@@ -405,20 +412,22 @@ public class KiWiConnection {
 
         // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
         PreparedStatement query = getPreparedStatement("load.node_by_id");
-        query.setLong(1,id);
-        query.setMaxRows(1);
+        synchronized (query) {
+            query.setLong(1,id);
+            query.setMaxRows(1);
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
-        try {
-            if(result.next()) {
-                return constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
-        } finally {
-            result.close();
         }
 
     }
@@ -464,7 +473,7 @@ public class KiWiConnection {
      * @param uri the URI of the resource to load
      * @return the KiWiUriResource identified by the given URI  or null if it does not exist
      */
-    public synchronized KiWiUriResource loadUriResource(String uri) throws SQLException {
+    public KiWiUriResource loadUriResource(String uri) throws SQLException {
         Preconditions.checkNotNull(uri);
 
         // look in cache
@@ -475,22 +484,27 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
-        // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
-        PreparedStatement query = getPreparedStatement("load.uri_by_uri");
-        query.setString(1, uri);
-        query.setMaxRows(1);
-
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
+        uriLock.lock();
         try {
-            if(result.next()) {
-                return (KiWiUriResource)constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
+            PreparedStatement query = getPreparedStatement("load.uri_by_uri");
+            query.setString(1, uri);
+            query.setMaxRows(1);
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiUriResource)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            uriLock.unlock();
         }
     }
 
@@ -507,7 +521,7 @@ public class KiWiConnection {
      * @param id the anonymous ID of the resource to load
      * @return the KiWiAnonResource identified by the given internal ID or null if it does not exist
      */
-    public synchronized KiWiAnonResource loadAnonResource(String id) throws SQLException {
+    public KiWiAnonResource loadAnonResource(String id) throws SQLException {
         // look in cache
         Element element = bnodeCache.get(id);
         if(element != null) {
@@ -516,22 +530,29 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
-        // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
-        PreparedStatement query = getPreparedStatement("load.bnode_by_anonid");
-        query.setString(1,id);
-        query.setMaxRows(1);
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
+        bnodeLock.lock();
+
         try {
-            if(result.next()) {
-                return (KiWiAnonResource)constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // prepare a query; we will only iterate once, read only, and need only one result row since the id is unique
+            PreparedStatement query = getPreparedStatement("load.bnode_by_anonid");
+            query.setString(1,id);
+            query.setMaxRows(1);
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiAnonResource)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            bnodeLock.unlock();
         }
     }
 
@@ -550,7 +571,7 @@ public class KiWiConnection {
      * @return the literal matching the given arguments or null if it does not exist
      * @throws SQLException
      */
-    public synchronized KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
+    public KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
         // look in cache
         final Element element = literalCache.get(LiteralCommons.createCacheKey(value,getLocale(lang), ltype));
         if(element != null) {
@@ -564,35 +585,41 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        final PreparedStatement query;
-        if(lang == null && ltype == null) {
-            query = getPreparedStatement("load.literal_by_v");
-            query.setString(1,value);
-        } else if(lang != null) {
-            query = getPreparedStatement("load.literal_by_vl");
-            query.setString(1,value);
-            query.setString(2, lang);
-        } else if(ltype != null) {
-            query = getPreparedStatement("load.literal_by_vt");
-            query.setString(1,value);
-            query.setLong(2,ltype.getId());
-        } else {
-            // This cannot happen...
-            throw new IllegalArgumentException("Impossible combination of lang/type in loadLiteral!");
-        }
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiLiteral)constructNodeFromDatabase(result);
+            // otherwise prepare a query, depending on the parameters given
+            final PreparedStatement query;
+            if(lang == null && ltype == null) {
+                query = getPreparedStatement("load.literal_by_v");
+                query.setString(1,value);
+            } else if(lang != null) {
+                query = getPreparedStatement("load.literal_by_vl");
+                query.setString(1,value);
+                query.setString(2, lang);
+            } else if(ltype != null) {
+                query = getPreparedStatement("load.literal_by_vt");
+                query.setString(1,value);
+                query.setLong(2,ltype.getId());
             } else {
-                return null;
+                // This cannot happen...
+                throw new IllegalArgumentException("Impossible combination of lang/type in loadLiteral!");
+            }
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -609,7 +636,7 @@ public class KiWiConnection {
      * @return a KiWiDateLiteral with the correct date, or null if it does not exist
      * @throws SQLException
      */
-    public synchronized KiWiDateLiteral loadLiteral(Date date) throws SQLException {
+    public KiWiDateLiteral loadLiteral(Date date) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),Namespaces.NS_XSD + "dateTime"));
         if(element != null) {
@@ -624,22 +651,28 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_tv");
-        query.setTimestamp(1, new Timestamp(DateUtils.getDateWithoutFraction(date).getTime()));
-        query.setLong(2,ltype.getId());
-
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
+        literalLock.lock();
         try {
-            if(result.next()) {
-                return (KiWiDateLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_tv");
+            query.setTimestamp(1, new Timestamp(DateUtils.getDateWithoutFraction(date).getTime()));
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiDateLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -657,7 +690,7 @@ public class KiWiConnection {
      * @return a KiWiIntLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public synchronized KiWiIntLiteral loadLiteral(long value) throws SQLException {
+    public KiWiIntLiteral loadLiteral(long value) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,Namespaces.NS_XSD + "integer"));
         if(element != null) {
@@ -673,22 +706,29 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_iv");
-        query.setLong(1,value);
-        query.setLong(2,ltype.getId());
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiIntLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_iv");
+            query.setLong(1,value);
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiIntLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -721,22 +761,28 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_dv");
-        query.setDouble(1, value);
-        query.setLong(2,ltype.getId());
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiDoubleLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_dv");
+            query.setDouble(1, value);
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiDoubleLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
@@ -753,7 +799,7 @@ public class KiWiConnection {
      * @return a KiWiBooleanLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public synchronized KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
+    public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
         // look in cache
         Element element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
         if(element != null) {
@@ -770,22 +816,29 @@ public class KiWiConnection {
             return null;
         }
 
-        // otherwise prepare a query, depending on the parameters given
-        PreparedStatement query = getPreparedStatement("load.literal_by_bv");
-        query.setBoolean(1, value);
-        query.setLong(2,ltype.getId());
+        literalLock.lock();
 
-        // run the database query and if it yields a result, construct a new node; the method call will take care of
-        // caching the constructed node for future calls
-        ResultSet result = query.executeQuery();
         try {
-            if(result.next()) {
-                return (KiWiBooleanLiteral)constructNodeFromDatabase(result);
-            } else {
-                return null;
+
+            // otherwise prepare a query, depending on the parameters given
+            PreparedStatement query = getPreparedStatement("load.literal_by_bv");
+            query.setBoolean(1, value);
+            query.setLong(2,ltype.getId());
+
+            // run the database query and if it yields a result, construct a new node; the method call will take care of
+            // caching the constructed node for future calls
+            ResultSet result = query.executeQuery();
+            try {
+                if(result.next()) {
+                    return (KiWiBooleanLiteral)constructNodeFromDatabase(result);
+                } else {
+                    return null;
+                }
+            } finally {
+                result.close();
             }
         } finally {
-            result.close();
+            literalLock.unlock();
         }
     }
 
