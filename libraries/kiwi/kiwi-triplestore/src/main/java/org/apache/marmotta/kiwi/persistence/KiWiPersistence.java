@@ -22,6 +22,7 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -35,11 +36,15 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Add file description here!
@@ -73,7 +78,7 @@ public class KiWiPersistence {
      * A map holding in-memory sequences to be used for sequence caching in case the appropriate configuration option
      * is configued and batched commits are enabled.
      */
-    private Map<String,Long> memorySequences;
+    private Map<String,AtomicLong> memorySequences;
 
 
     /**
@@ -138,13 +143,13 @@ public class KiWiPersistence {
         if(configuration.isQueryLoggingEnabled()) {
             poolConfig.setJdbcInterceptors(
                     "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
-                    "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
-                    "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
+                            "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
+                            "org.apache.tomcat.jdbc.pool.interceptor.SlowQueryReport"
             );
         } else {
             poolConfig.setJdbcInterceptors(
                     "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
-                    "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
+                            "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
             );
         }
 
@@ -168,6 +173,49 @@ public class KiWiPersistence {
         garbageCollector.addNodeTableDependency("triples","creator");
         garbageCollector.addNodeTableDependency("nodes","ltype");
 
+    }
+
+    /**
+     * Initialise in-memory sequences if the feature is enabled.
+     */
+    public void initSequences() {
+        if(configuration.isBatchCommit() && configuration.isMemorySequences()) {
+            memorySequences = new ConcurrentHashMap<String,AtomicLong>();
+
+            try {
+                Connection con = getJDBCConnection();
+                try {
+                    for(String sequenceName : getDialect().listSequences()) {
+
+                        // load sequence value from database
+                        // if there is a preparation needed to update the transaction, run it first
+                        if(getDialect().hasStatement(sequenceName+".prep")) {
+                            PreparedStatement prepNodeId = con.prepareStatement(getDialect().getStatement(sequenceName+".prep"));
+                            prepNodeId.executeUpdate();
+                            prepNodeId.close();
+                        }
+
+                        PreparedStatement queryNodeId = con.prepareStatement(getDialect().getStatement(sequenceName));
+                        ResultSet resultNodeId = queryNodeId.executeQuery();
+                        try {
+                            if(resultNodeId.next()) {
+                                memorySequences.put(sequenceName,new AtomicLong(resultNodeId.getLong(1)-1));
+                            } else {
+                                throw new SQLException("the sequence did not return a new value");
+                            }
+                        } finally {
+                            resultNodeId.close();
+                        }
+
+                        con.commit();
+                    }
+                } finally {
+                    con.close();
+                }
+            } catch(SQLException ex) {
+                log.warn("database error: could not initialise in-memory sequences",ex);
+            }
+        }
     }
 
     public void logPoolInfo() throws SQLException {
@@ -236,6 +284,9 @@ public class KiWiPersistence {
         } finally {
             connection.close();
         }
+
+        // init the in-memory sequences
+        initSequences();
     }
 
     /**
@@ -453,11 +504,13 @@ public class KiWiPersistence {
         return configuration;
     }
 
-    public Map<String, Long> getMemorySequences() {
+    public Map<String, AtomicLong> getMemorySequences() {
         return memorySequences;
     }
 
-    public void setMemorySequences(Map<String, Long> memorySequences) {
+    public void setMemorySequences(Map<String, AtomicLong> memorySequences) {
         this.memorySequences = memorySequences;
     }
+
+
 }
