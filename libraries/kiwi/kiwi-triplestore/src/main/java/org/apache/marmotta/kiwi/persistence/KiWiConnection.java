@@ -45,6 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -1617,51 +1618,9 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        if(batchCommit && persistence.getConfiguration().isMemorySequences()) {
-            // use in-memory sequences
-            if(persistence.getMemorySequences() == null) {
-                persistence.setMemorySequences(new HashMap<String,Long>());
-            }
-
-            synchronized (persistence.getMemorySequences()) {
-                Long sequence = persistence.getMemorySequences().get(sequenceName);
-                if(sequence == null) {
-                    requireJDBCConnection();
-
-                    // load sequence value from database
-                    // if there is a preparation needed to update the transaction, run it first
-                    if(dialect.hasStatement(sequenceName+".prep")) {
-                        PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
-                        prepNodeId.executeUpdate();
-                    }
-
-                    PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
-                    ResultSet resultNodeId = queryNodeId.executeQuery();
-                    try {
-                        if(resultNodeId.next()) {
-                            sequence = resultNodeId.getLong(1);
-                        } else {
-                            throw new SQLException("the sequence did not return a new value");
-                        }
-                    } finally {
-                        resultNodeId.close();
-                    }
-
-                    // this is a very ugly hack needed by MySQL because the sequences are not atomic
-                    // it is only necessary for the nodes sequence, because the value factory always keeps
-                    // a connection open to it; we could solve it maybe differently by remembering the
-                    // connection responsible for a in-memory sequence...
-                    if(sequenceName.equals("seq.nodes") && dialect instanceof MySQLDialect) {
-                        connection.commit();
-                    }
-
-                } else {
-                    sequence += 1;
-                }
-                persistence.getMemorySequences().put(sequenceName,sequence);
-                return sequence;
-            }
-
+        if(batchCommit && persistence.getConfiguration().isMemorySequences() && persistence.getMemorySequences().containsKey(sequenceName)) {
+            AtomicLong sequence = persistence.getMemorySequences().get(sequenceName);
+            return sequence.incrementAndGet();
         } else {
             requireJDBCConnection();
 
@@ -1879,10 +1838,10 @@ public class KiWiConnection {
             requireJDBCConnection();
 
             try {
-                synchronized (persistence.getMemorySequences()) {
-                    for(Map.Entry<String,Long> entry : persistence.getMemorySequences().entrySet()) {
+                for(Map.Entry<String,AtomicLong> entry : persistence.getMemorySequences().entrySet()) {
+                    if( entry.getValue().get() > 0) {
                         PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
-                        updateSequence.setLong(1, entry.getValue());
+                        updateSequence.setLong(1, entry.getValue().get());
                         if(updateSequence.execute()) {
                             updateSequence.getResultSet().close();
                         } else {
@@ -2028,8 +1987,11 @@ public class KiWiConnection {
                 }
                 insertTriple.executeBatch();
 
-            } catch (Throwable ex) {
+            } catch (SQLException ex) {
+                System.err.println("main exception:");
                 ex.printStackTrace();
+                System.err.println("next exception:");
+                ex.getNextException().printStackTrace();
                 throw ex;
             }  finally {
                 commitLock.unlock();

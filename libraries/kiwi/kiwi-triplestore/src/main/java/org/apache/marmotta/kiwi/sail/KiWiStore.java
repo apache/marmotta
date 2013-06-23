@@ -205,7 +205,7 @@ public class KiWiStore extends NotifyingSailBase {
      * @return a ValueFactory object for this Sail object.
      */
     @Override
-    public ValueFactory getValueFactory() {
+    public synchronized ValueFactory getValueFactory() {
         if(repositoryValueFactory == null) {
             repositoryValueFactory = new KiWiValueFactory(this,  defaultContext);
             persistence.setValueFactory(repositoryValueFactory);

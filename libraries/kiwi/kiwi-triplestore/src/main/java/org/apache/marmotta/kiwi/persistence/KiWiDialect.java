@@ -22,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A dialect provides the SQL statements necessary to access the different types of database systems. Each
@@ -159,6 +157,21 @@ public abstract class KiWiDialect {
         return statements.stringPropertyNames();
     }
 
+    /**
+     * Return the names of all sequences that have been configured in the system, i.e. all statements starting with "seq."
+     * @return
+     */
+    public Set<String> listSequences() {
+        Set<String> names = new HashSet<String>();
+        Enumeration e = statements.propertyNames();
+        while(e.hasMoreElements()) {
+            String[] keys = e.nextElement().toString().split("\\.");
+            if(keys[0].equals("seq")) {
+                names.add(keys[0] + "." + keys[1]);
+            }
+        }
+        return names;
+    }
 
     /**
      * Return the database specific operator for matching a text against a regular expression.
