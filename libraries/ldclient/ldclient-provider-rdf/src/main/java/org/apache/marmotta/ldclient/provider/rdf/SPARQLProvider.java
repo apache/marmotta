@@ -152,9 +152,14 @@ public class SPARQLProvider extends AbstractHttpProvider {
                         public void endQueryResult() throws TupleQueryResultHandlerException   {
                             try {
                                 con.commit();
-                                con.close();
                             } catch (RepositoryException e) {
-                                throw new TupleQueryResultHandlerException("error while closing repository connection",e);
+                                throw new TupleQueryResultHandlerException("error while committing repository connection",e);
+                            } finally {
+                                try {
+                                    con.close();
+                                } catch(RepositoryException e) {
+                                    throw new TupleQueryResultHandlerException("error while closing repository connection",e);
+                                }
                             }
                         }
 
