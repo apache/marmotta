@@ -149,24 +149,24 @@ public class RDFJSONParser {
             for(Map.Entry<String,Set<RDFNode>> predicate : subject.getValue().entrySet()) {
                 org.openrdf.model.URI predicateURI = vf.createURI(predicate.getKey());
                 for(RDFNode objectNode : predicate.getValue()) {
-                    org.openrdf.model.Value literalValue;
+                    org.openrdf.model.Value objectValue;
                     if( objectNode instanceof Literal) {
                         if(((Literal) objectNode).getLanguage() != null )
-                            literalValue = vf.createLiteral(((Literal)objectNode).getContent(), 
+                            objectValue = vf.createLiteral(((Literal)objectNode).getContent(), 
                                                 ((Literal)objectNode).getLanguage());
                         else if(((Literal) objectNode).getType() != null)
-                            literalValue = vf.createLiteral(((Literal)objectNode).getContent(), 
+                            objectValue = vf.createLiteral(((Literal)objectNode).getContent(), 
                                                 vf.createURI(((Literal)objectNode).getType().getUri()));
                         else
-                            literalValue = vf.createLiteral(((Literal)objectNode).getContent());
+                            objectValue = vf.createLiteral(((Literal)objectNode).getContent());
                     } else {
                         if( objectNode instanceof URI ) {
-                            literalValue = vf.createURI(((URI)objectNode).getUri());
+                            objectValue = vf.createURI(((URI)objectNode).getUri());
                         } else {
-                            literalValue = vf.createURI(((BNode)objectNode).getAnonId());
+                            objectValue = vf.createBNode(((BNode)objectNode).getAnonId());
                         }
                     }
-                    results.add(subjectResource, predicateURI, literalValue);
+                    results.add(subjectResource, predicateURI, objectValue);
                 }
             }
                 
@@ -181,7 +181,7 @@ public class RDFJSONParser {
     
     private static org.openrdf.model.Resource stringToResource(String resource, ValueFactory vf) {
         if(resource.startsWith("_:")) {
-            return vf.createBNode(resource);
+            return vf.createBNode(resource.substring(2));
         } else {
             return vf.createURI(resource);
         }
