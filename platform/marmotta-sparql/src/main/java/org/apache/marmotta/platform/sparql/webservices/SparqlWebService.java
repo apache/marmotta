@@ -20,11 +20,10 @@ package org.apache.marmotta.platform.sparql.webservices;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
+import org.apache.marmotta.platform.sparql.services.sparql.SparqlWritersHelper;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLResultsHTMLWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqljson.SPARQLBooleanJSONWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqljson.SPARQLResultsJSONWriter;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -37,12 +36,11 @@ import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
+import org.openrdf.query.resultio.QueryResultIO;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLBooleanXMLWriter;
-import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
-import org.openrdf.query.resultio.text.BooleanTextWriter;
-import org.openrdf.query.resultio.text.csv.SPARQLResultsCSVWriter;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -535,15 +533,15 @@ public class SparqlWebService {
         //build outputwriter
         final TupleQueryResultWriter out;
         if(format == null) {
-            out = new SPARQLResultsXMLWriter(os);
-        } else if(parseSubType(format).equals("html")) {
+            out = QueryResultIO.createWriter(TupleQueryResultFormat.SPARQL, os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("html")) {
             out = new SPARQLResultsHTMLWriter(os, templatingService);
-        } else if(parseSubType(format).equals("json")) {
-            out = new SPARQLResultsJSONWriter(os);
-        } else if(parseSubType(format).equals("xml")) {
-            out = new SPARQLResultsXMLWriter(os);
-        } else if(parseSubType(format).equals("csv")) {
-            out = new SPARQLResultsCSVWriter(os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("json")) {
+            out = QueryResultIO.createWriter(TupleQueryResultFormat.JSON, os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("xml")) {
+            out = QueryResultIO.createWriter(TupleQueryResultFormat.SPARQL, os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("csv")) {
+            out = QueryResultIO.createWriter(TupleQueryResultFormat.CSV, os);
         } else throw new InvalidArgumentException("could not produce format "+format);
         return out;
     }
@@ -552,15 +550,15 @@ public class SparqlWebService {
         //build outputwriter
         final BooleanQueryResultWriter out;
         if(format == null) {
-            out = new SPARQLBooleanXMLWriter(os);
-        } else if(parseSubType(format).equals("html")) {
+            out = QueryResultIO.createWriter(BooleanQueryResultFormat.SPARQL, os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("html")) {
             out = new SPARQLBooleanHTMLWriter(os);
-        } else if(parseSubType(format).equals("json")) {
-            out = new SPARQLBooleanJSONWriter(os);
-        } else if(parseSubType(format).equals("xml")) {
-            out = new SPARQLBooleanXMLWriter(os);
-        } else if(parseSubType(format).equals("csv")) {
-            out = new BooleanTextWriter(os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("json")) {
+            out = QueryResultIO.createWriter(BooleanQueryResultFormat.JSON, os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("xml")) {
+            out = QueryResultIO.createWriter(BooleanQueryResultFormat.SPARQL, os);
+        } else if(SparqlWritersHelper.parseSubType(format).equals("csv")) {
+            out = QueryResultIO.createWriter(BooleanQueryResultFormat.TEXT, os);
         } else throw new InvalidArgumentException("could not produce format "+format);
         return out;
     }
