@@ -101,6 +101,10 @@
             <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
         <dependency>
+        	<groupId>org.openrdf.sesame</groupId>
+        	<artifactId>sesame-rio-rdfjson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
