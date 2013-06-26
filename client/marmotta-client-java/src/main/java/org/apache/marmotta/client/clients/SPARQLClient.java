@@ -28,9 +28,6 @@ import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.model.rdf.URI;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.apache.marmotta.client.util.HTTPUtil;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -38,14 +35,12 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandler;
 import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.query.resultio.QueryResultParseException;
 import org.openrdf.query.resultio.QueryResultParser;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultParser;
 import org.openrdf.query.resultio.UnsupportedQueryResultFormatException;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
 import org.slf4j.Logger;
@@ -55,11 +50,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Add file description here!
@@ -87,14 +80,13 @@ public class SPARQLClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
-    @SuppressWarnings("unchecked")
     public SPARQLResult select(String query) throws IOException, MarmottaClientException {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(query, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/sparql-results+json");
+        get.setHeader("Accept", TupleQueryResultFormat.JSON.getDefaultMIMEType());
         
         try {
 
@@ -171,29 +163,6 @@ public class SPARQLClient {
     }
 
     /**
-     * FIXME: Replace this with QueryResultIO.parse after Sesame-2.7.3.
-     * 
-     * @param in
-     * @param format
-     * @param handler
-     * @param valueFactory
-     * @throws IOException
-     * @throws QueryResultParseException
-     * @throws TupleQueryResultHandlerException
-     * @throws UnsupportedQueryResultFormatException
-     */
-    private static void parse(InputStream in, TupleQueryResultFormat format, QueryResultHandler handler,
-            ValueFactory valueFactory)
-        throws IOException, QueryResultParseException, QueryResultHandlerException,
-        UnsupportedQueryResultFormatException
-    {
-        QueryResultParser parser = QueryResultIO.createParser(format);
-        parser.setValueFactory(valueFactory);
-        parser.setQueryResultHandler(handler);
-        parser.parseQueryResult(in);
-    }
-    
-    /**
      * Carry out a SPARQL ASK Query and return either true or false, depending on the query result.
      *
      * @param askQuery
@@ -207,7 +176,7 @@ public class SPARQLClient {
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(askQuery, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/sparql-results+json");
+        get.setHeader("Accept", BooleanQueryResultFormat.JSON.getDefaultMIMEType());
         
         try {
 
@@ -216,22 +185,30 @@ public class SPARQLClient {
             switch(response.getStatusLine().getStatusCode()) {
                 case 200:
                     log.debug("SPARQL ASK Query {} evaluated successfully",askQuery);
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-                    Map<String,Object> resultMap =
-                            mapper.readValue(response.getEntity().getContent(),new TypeReference<Map<String,Object>>(){});
+                    QueryResultCollector results = new QueryResultCollector();
+                    
+                    parse(response.getEntity().getContent(), BooleanQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
 
-                    if(resultMap.isEmpty()) {
+                    if(!results.getHandledBoolean()) {
                         return false;
                     } else {
-                        Boolean result = resultMap.get("boolean") != null && ((String)resultMap.get("boolean")).equalsIgnoreCase("true");
-                        return result;
+                        return results.getBoolean();
                     }
                 default:
                     log.error("error evaluating SPARQL ASK Query {}: {} {}",new Object[] {askQuery,response.getStatusLine().getStatusCode(),response.getStatusLine().getReasonPhrase()});
                     throw new MarmottaClientException("error evaluating SPARQL ASK Query "+askQuery+": "+response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
             }
 
+        } catch(TupleQueryResultHandlerException e) {
+            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
+        } catch(QueryResultParseException e) {
+            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
+        } catch(UnsupportedQueryResultFormatException e) {
+            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
+        } catch(IllegalStateException e) {
+            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
+        } catch(QueryResultHandlerException e) {
+            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
         } finally {
             get.releaseConnection();
         }
@@ -271,4 +248,49 @@ public class SPARQLClient {
         }
     }
     
+    /**
+     * FIXME: Replace this with QueryResultIO.parse after Sesame-2.7.3.
+     * 
+     * @param in
+     * @param format
+     * @param handler
+     * @param valueFactory
+     * @throws IOException
+     * @throws QueryResultParseException
+     * @throws TupleQueryResultHandlerException
+     * @throws UnsupportedQueryResultFormatException
+     */
+    private static void parse(InputStream in, TupleQueryResultFormat format, QueryResultHandler handler,
+            ValueFactory valueFactory)
+        throws IOException, QueryResultParseException, QueryResultHandlerException,
+        UnsupportedQueryResultFormatException
+    {
+        QueryResultParser parser = QueryResultIO.createParser(format);
+        parser.setValueFactory(valueFactory);
+        parser.setQueryResultHandler(handler);
+        parser.parseQueryResult(in);
+    }
+    
+    /**
+     * FIXME: Replace this with QueryResultIO.parse after Sesame-2.7.3.
+     * 
+     * @param in
+     * @param format
+     * @param handler
+     * @param valueFactory
+     * @throws IOException
+     * @throws QueryResultParseException
+     * @throws TupleQueryResultHandlerException
+     * @throws UnsupportedQueryResultFormatException
+     */
+    private static void parse(InputStream in, BooleanQueryResultFormat format, QueryResultHandler handler,
+            ValueFactory valueFactory)
+        throws IOException, QueryResultParseException, QueryResultHandlerException,
+        UnsupportedQueryResultFormatException
+    {
+        QueryResultParser parser = QueryResultIO.createParser(format);
+        parser.setValueFactory(valueFactory);
+        parser.setQueryResultHandler(handler);
+        parser.parseQueryResult(in);
+    }
 }
