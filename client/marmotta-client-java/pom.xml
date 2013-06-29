@@ -101,6 +101,23 @@
             <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
         <dependency>
+        	<groupId>org.openrdf.sesame</groupId>
+        	<artifactId>sesame-rio-api</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.openrdf.sesame</groupId>
+        	<artifactId>sesame-rio-rdfjson</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.openrdf.sesame</groupId>
+        	<artifactId>sesame-queryresultio-api</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.openrdf.sesame</groupId>
+        	<artifactId>sesame-queryresultio-sparqljson</artifactId>
+        	<scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
