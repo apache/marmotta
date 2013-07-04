@@ -225,7 +225,8 @@ public class RepositoryTest {
         );
 
         // test if the result has the expected size
-        Assert.assertEquals(4, resources.size());
+        //FIXME: this test is no longer valid, because resource existance is not bound to use as subject
+        //Assert.assertEquals(4, resources.size());
 
         // test if the result contains all resources that have been used as subject
         Assert.assertThat(resources, hasItems(
