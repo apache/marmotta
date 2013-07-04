@@ -1,12 +1,10 @@
 package org.apache.marmotta.kiwi.test;
 
-import com.google.code.tempusfugit.concurrency.ConcurrentRule;
-import com.google.code.tempusfugit.concurrency.RepeatingRule;
-import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
-import com.google.code.tempusfugit.concurrency.annotations.Repeating;
+import java.sql.SQLException;
+import java.util.Random;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
@@ -25,8 +23,10 @@ import org.openrdf.repository.sail.SailRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.Random;
+import com.google.code.tempusfugit.concurrency.ConcurrentRule;
+import com.google.code.tempusfugit.concurrency.RepeatingRule;
+import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
+import com.google.code.tempusfugit.concurrency.annotations.Repeating;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,
@@ -79,7 +79,6 @@ public class MySQLConcurrencyTest {
         }
     };
 
-
     private static KiWiDialect dialect;
 
     private static String jdbcUrl;
@@ -114,9 +113,11 @@ public class MySQLConcurrencyTest {
 
     @AfterClass
     public static void dropDatabase() throws RepositoryException, SQLException {
-        store.closeValueFactory(); // release all connections before dropping the database
-        store.getPersistence().dropDatabase();
-        repository.shutDown();
+    	if (store != null) {
+	        store.closeValueFactory(); // release all connections before dropping the database
+	        store.getPersistence().dropDatabase();
+	        repository.shutDown();
+    	}
     }
 
     @Override

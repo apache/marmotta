@@ -27,7 +27,14 @@
   <script type="text/javascript" src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
   <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
   <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
-
+  <#if resources?size = 1>
+  <link rel="alternate" type="application/rdf+xml" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bxml" /> 
+  <link rel="alternate" type="text/rdf+n3" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/rdf%2Bn3" /> 
+  <link rel="alternate" type="text/turtle" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/turtle" /> 
+  <link rel="alternate" type="application/rdf+json" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bjson" /> 
+  <link rel="alternate" type="application/ld+json" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/ld%2Bjson" /> 
+  </#if>
+      
   <script>
       $(document).ready(function(){
           $(".submenu li").click(function(event){

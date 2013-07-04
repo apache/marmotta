@@ -107,6 +107,12 @@
             <email>rpalmieri@apache.org</email>
             <organization>The Apache Software Foundation</organization>
         </developer>
+        <developer>
+            <id>ansell</id>
+            <name>Peter Ansell</name>
+            <email>ansell@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
     </developers>
 
     <organization>
