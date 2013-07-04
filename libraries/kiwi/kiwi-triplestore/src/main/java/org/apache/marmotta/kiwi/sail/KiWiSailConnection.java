@@ -26,18 +26,14 @@ import info.aduna.iteration.ExceptionConvertingIteration;
 import info.aduna.iteration.Iteration;
 import info.aduna.iteration.Iterations;
 import info.aduna.iteration.UnionIteration;
+import org.apache.marmotta.commons.sesame.repository.ResourceConnection;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -50,6 +46,7 @@ import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.*;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailChangedEvent;
 import org.openrdf.sail.SailException;
@@ -70,7 +67,7 @@ import java.util.Set;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiSailConnection extends NotifyingSailConnectionBase implements InferencerConnection {
+public class KiWiSailConnection extends NotifyingSailConnectionBase implements InferencerConnection, ResourceConnection {
 
     private static final Logger log = LoggerFactory.getLogger(KiWiSailConnection.class);
 
@@ -629,6 +626,83 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         }
     }
 
+    /**
+     * Return an iterator over the resources contained in this repository.
+     *
+     * @return
+     */
+    @Override
+    public RepositoryResult<Resource> getResources() throws RepositoryException {
+        try {
+            return new RepositoryResult<Resource>(new ExceptionConvertingIteration<Resource,RepositoryException>(databaseConnection.listResources()) {
+                @Override
+                protected RepositoryException convert(Exception e) {
+                    return new RepositoryException(e);
+                }
+            });
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    /**
+     * Return an iterator over the resources contained in this repository matching the given prefix.
+     *
+     * @return
+     */
+    @Override
+    public RepositoryResult<URI> getResources(String prefix) throws RepositoryException {
+        try {
+            return new RepositoryResult<URI>(new ExceptionConvertingIteration<URI,RepositoryException>(databaseConnection.listResources(prefix)) {
+                @Override
+                protected RepositoryException convert(Exception e) {
+                    return new RepositoryException(e);
+                }
+            });
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    /**
+     * Return the Sesame URI with the given uri identifier if it exists, or null if it does not exist.
+     *
+     * @param uri
+     * @return
+     */
+    @Override
+    public URI getURI(String uri) {
+        try {
+            return databaseConnection.loadUriResource(uri);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return the Sesame BNode with the given anonymous ID if it exists, or null if it does not exist.
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public BNode getBNode(String id) {
+        try {
+            return databaseConnection.loadAnonResource(id);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Remove the resource given as argument from the triple store and the resource repository.
+     *
+     * @param resource
+     */
+    @Override
+    public void removeResource(Resource resource) {
+        // handled by garbage collection
+    }
 
     protected static class KiWiEvaluationStatistics extends EvaluationStatistics {
 

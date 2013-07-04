@@ -1262,6 +1262,29 @@ public class KiWiConnection {
 
     }
 
+    /**
+     * List all contexts used in this triple store. See query.contexts .
+     * @return
+     * @throws SQLException
+     */
+    public CloseableIteration<KiWiUriResource, SQLException> listResources(String prefix) throws SQLException {
+        requireJDBCConnection();
+
+        PreparedStatement queryContexts = getPreparedStatement("query.resources_prefix");
+        queryContexts.setString(1, prefix+"%");
+
+        final ResultSet result = queryContexts.executeQuery();
+
+        return new ResultSetIteration<KiWiUriResource>(result, new ResultTransformerFunction<KiWiUriResource>() {
+            @Override
+            public KiWiUriResource apply(ResultSet row) throws SQLException {
+                return (KiWiUriResource)constructNodeFromDatabase(row);
+            }
+        });
+
+    }
+
+
     public CloseableIteration<KiWiNamespace, SQLException> listNamespaces() throws SQLException {
         requireJDBCConnection();
 

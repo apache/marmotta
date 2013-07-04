@@ -28,6 +28,8 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepositoryConnection;
+import org.openrdf.sail.SailConnection;
+import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,13 +250,15 @@ public class ResourceUtils {
      *
      * @return
      */
-    public static Iterable<Resource> listResources(final RepositoryConnection con) {
-        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
+    public static Iterable<Resource> listResources(RepositoryConnection con) {
+        final ResourceConnection rcon = getWrappedResourceConnection(con);
+
+        if(rcon != null) {
             return new Iterable<Resource>() {
                 @Override
                 public Iterator<Resource> iterator() {
                     try {
-                        return ResultUtils.unwrap(((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).getResources());
+                        return ResultUtils.unwrap(rcon.getResources());
                     } catch (RepositoryException e) {
                         ExceptionUtils.handleRepositoryException(e,ResourceUtils.class);
                         return Iterators.emptyIterator();
@@ -327,12 +331,14 @@ public class ResourceUtils {
      * @param limit
      */
     public static Iterable<URI> listResourcesByPrefix(final RepositoryConnection con, final String prefix, final int offset, final int limit) {
-        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
+        final ResourceConnection rcon = getWrappedResourceConnection(con);
+
+        if(rcon != null) {
             return new Iterable<URI>() {
                 @Override
                 public Iterator<URI> iterator() {
                     try {
-                        Iterator<URI> result = ResultUtils.unwrap(((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).getResources(prefix));
+                        Iterator<URI> result = ResultUtils.unwrap(rcon.getResources(prefix));
 
                         Iterators.advance(result,offset);
 
@@ -1388,5 +1394,25 @@ public class ResourceUtils {
     public static boolean isLiteral(Value v) {
         return v instanceof Literal;
     }
-    
+
+
+    private static ResourceConnection getWrappedResourceConnection(SailConnection connection) {
+        if(connection instanceof ResourceConnection) {
+            return (ResourceConnection)connection;
+        } else if(connection instanceof SailConnectionWrapper) {
+            return getWrappedResourceConnection(((SailConnectionWrapper) connection).getWrappedConnection());
+        } else {
+            return null;
+        }
+
+    }
+
+    private static ResourceConnection getWrappedResourceConnection(RepositoryConnection connection) {
+        if(connection instanceof SailRepositoryConnection) {
+            return getWrappedResourceConnection(((SailRepositoryConnection) connection).getSailConnection());
+        } else {
+            return null;
+        }
+    }
+
 }
