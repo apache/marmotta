@@ -177,12 +177,7 @@ public class ResourceUtils {
 	 */
     public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ctx) {
     	try {
-    		RepositoryResult<Statement> stmts = conn.getStatements(subj, pred, object, true, ctx);
-    		try {
-    			return stmts.hasNext();
-    		} finally {
-    			stmts.close();
-    		}
+            return conn.hasStatement(subj,pred,object,true,ctx);
     	} catch (RepositoryException e) {
     		log.error(e.getMessage());
     		return false;
@@ -291,36 +286,6 @@ public class ResourceUtils {
         URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
 
         return listResourcesInternal(con,rdf_type,type,context);
-    }
-
-    /**
-     * List all resources that have a specific property set to the given value
-     *
-     * @param propertyUri
-     * @param value  the literal value to query for
-     * @return
-     */
-    public static Iterable<Resource> listResourcesByProperty(final RepositoryConnection con, String propertyUri, String value) {
-        return listResourcesByProperty(con,propertyUri,value,null);
-    }
-
-    /**
-     * List all resources that have a specific property set to the given value and context
-     *
-     * @param propertyUri
-     * @param value  the literal value to query for
-     * @return
-     */
-    public static Iterable<Resource> listResourcesByProperty(final RepositoryConnection con, String propertyUri, String value, URI context) {
-        URI property = getUriResource(con,propertyUri);
-        Value object = con.getValueFactory().createLiteral(value);
-
-        if(property != null) {
-            return listResourcesInternal(con,property,object,context);
-        } else {
-            return Collections.emptySet();
-        }
-
     }
 
     /**
@@ -534,31 +499,6 @@ public class ResourceUtils {
      */
     public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel) throws RepositoryException {
         return getProperties(con,r,propLabel,null, null);
-    }
-
-    /**
-     * Generic method to query for literal values related to this resource with the property
-     * identified by "propLabel" (SeRQL/SPARQL short or long notation) and the given locale. Just for the given space !!
-     *
-     * @param propLabel label of the property; either RDF short form (e.g. "foaf:mbox") or long form (e.g. <http://xmlns.com/foaf/0.1/mbox>)
-     * @return
-     *
-     */
-    public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel, URI context) throws RepositoryException {
-        return getProperties(con, r, propLabel, null, context);
-    }
-
-    /**
-     * Generic method to query for literal values related to this resource with the property
-     * identified by "propLabel" (SeRQL/SPARQL short or long notation) and the given locale.
-     *
-     * @param propLabel label of the property; either RDF short form (e.g. "foaf:mbox") or long
-     *                  form (e.g. <http://xmlns.com/foaf/0.1/mbox>)
-     * @param loc
-     * @return
-     */
-    public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel, Locale loc) throws RepositoryException {
-        return getProperties(con, r, propLabel, loc, null);
     }
 
     /**

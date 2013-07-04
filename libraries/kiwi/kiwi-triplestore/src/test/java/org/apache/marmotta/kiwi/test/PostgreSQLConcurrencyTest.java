@@ -126,7 +126,7 @@ public class PostgreSQLConcurrencyTest {
     }
 
     final Logger logger =
-            LoggerFactory.getLogger(RepositoryTest.class);
+            LoggerFactory.getLogger(PostgreSQLConcurrencyTest.class);
 
 
     long tripleCount = 0;

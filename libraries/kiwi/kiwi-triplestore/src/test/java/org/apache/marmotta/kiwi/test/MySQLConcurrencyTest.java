@@ -126,7 +126,7 @@ public class MySQLConcurrencyTest {
     }
 
     final Logger logger =
-            LoggerFactory.getLogger(RepositoryTest.class);
+            LoggerFactory.getLogger(MySQLConcurrencyTest.class);
 
 
     long tripleCount = 0;

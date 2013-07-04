@@ -127,7 +127,7 @@ public class H2ConcurrencyTest {
     }
 
     final Logger logger =
-            LoggerFactory.getLogger(RepositoryTest.class);
+            LoggerFactory.getLogger(H2ConcurrencyTest.class);
 
 
     long tripleCount = 0;
