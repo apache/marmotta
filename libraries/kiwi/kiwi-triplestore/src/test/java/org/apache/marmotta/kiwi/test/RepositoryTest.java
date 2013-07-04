@@ -330,7 +330,7 @@ public class RepositoryTest {
             );
 
             // test if the result has the expected size
-            Assert.assertEquals(4, resources.size());
+            Assert.assertEquals(31, resources.size());
 
             // test if the result contains all resources that have been used as subject
             Assert.assertThat(resources, hasItems(
