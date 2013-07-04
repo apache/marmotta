@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +162,22 @@ public abstract class KiWiDialect {
      * Return the names of all sequences that have been configured in the system, i.e. all statements starting with "seq."
      * @return
      */
-    public Set<String> listSequences() {
+    public Set<String> listSequences(String scriptName) {
+        // quick hack for current modules, fix later!
+        if("base".equals(scriptName)) {
+            return ImmutableSet.of("seq.nodes", "seq.triples", "seq.namespaces");
+        } else if("reasoner".equals(scriptName)) {
+            return ImmutableSet.of("seq.rules", "seq.justifications", "seq.programs");
+        } else if("versioning".equals(scriptName)) {
+            return ImmutableSet.of("seq.versions");
+        } else if("ldcache".equals(scriptName)) {
+            return ImmutableSet.of("seq.ldcache");
+        } else {
+            return Collections.EMPTY_SET;
+        }
+
+
+        /*
         Set<String> names = new HashSet<String>();
         Enumeration e = statements.propertyNames();
         while(e.hasMoreElements()) {
@@ -171,6 +187,7 @@ public abstract class KiWiDialect {
             }
         }
         return names;
+        */
     }
 
     /**

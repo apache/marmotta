@@ -180,7 +180,7 @@ public class KiWiStore extends NotifyingSailBase {
      * In case there is a value factory managed by this repository directly, close it (and the underlying database
      * connection)
      */
-    public void closeValueFactory() {
+    public synchronized void closeValueFactory() {
         if(repositoryValueFactory != null) {
             repositoryValueFactory.close();
             repositoryValueFactory = null;

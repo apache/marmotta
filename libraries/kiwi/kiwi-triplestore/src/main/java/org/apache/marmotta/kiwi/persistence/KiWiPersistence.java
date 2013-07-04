@@ -178,14 +178,16 @@ public class KiWiPersistence {
     /**
      * Initialise in-memory sequences if the feature is enabled.
      */
-    public void initSequences() {
+    public void initSequences(String scriptName) {
         if(configuration.isBatchCommit() && configuration.isMemorySequences()) {
-            memorySequences = new ConcurrentHashMap<String,AtomicLong>();
+            if(memorySequences == null) {
+                memorySequences = new ConcurrentHashMap<String,AtomicLong>();
+            }
 
             try {
                 Connection con = getJDBCConnection();
                 try {
-                    for(String sequenceName : getDialect().listSequences()) {
+                    for(String sequenceName : getDialect().listSequences(scriptName)) {
 
                         // load sequence value from database
                         // if there is a preparation needed to update the transaction, run it first
@@ -286,7 +288,7 @@ public class KiWiPersistence {
         }
 
         // init the in-memory sequences
-        initSequences();
+        initSequences(scriptName);
     }
 
     /**

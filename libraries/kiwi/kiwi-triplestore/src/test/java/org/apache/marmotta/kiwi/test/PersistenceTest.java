@@ -226,6 +226,8 @@ public class PersistenceTest {
 
             connection.commit();
 
+            Assert.assertEquals(1,Iterations.asList(connection.listResources()).size());
+
 
             // clear cache and test again
             persistence.clearCache();
@@ -301,6 +303,7 @@ public class PersistenceTest {
 
             connection.commit();
 
+            Assert.assertEquals(1,Iterations.asList(connection.listResources()).size());
 
             // clear cache and test again
             persistence.clearCache();

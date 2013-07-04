@@ -148,7 +148,7 @@ public class PostgreSQLConcurrencyTest {
                         break;
                     case 1: object = repository.getValueFactory().createBNode();
                         break;
-                    case 2: object = repository.getValueFactory().createLiteral(RandomStringUtils.random(40));
+                    case 2: object = repository.getValueFactory().createLiteral(RandomStringUtils.randomAscii(40));
                         break;
                     case 3: object = repository.getValueFactory().createLiteral(rnd.nextInt());
                         break;
