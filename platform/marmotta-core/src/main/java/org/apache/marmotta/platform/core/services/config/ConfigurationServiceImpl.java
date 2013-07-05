@@ -49,6 +49,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
@@ -585,16 +586,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, value);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getProperty(key))) {
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, value);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -718,16 +721,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, value);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getDouble(key))) {
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, value);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -767,16 +772,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, value);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getInt(key))) {
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, value);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -832,16 +839,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, value);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getLong(key))) {
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, value);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -883,17 +892,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, value);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || value != config.getBoolean(key)) {
+
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, value);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -976,17 +988,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, value);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getList(key))) {
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, value);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -1011,23 +1025,26 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+        if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getString(key))) {
+
+            lock.writeLock().lock();
+            try {
+                if (config instanceof AbstractConfiguration) {
+                    ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
+                }
+                config.setProperty(key, value);
+                if (config instanceof AbstractConfiguration) {
+                    ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
+                }
+                save();
+            } finally {
+                lock.writeLock().unlock();
             }
-            config.setProperty(key, value);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
 
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
@@ -1092,17 +1109,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
-        lock.writeLock().lock();
-        try {
-            config.setProperty(key, values);
-            save();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        if(!config.containsKey(key) || !ObjectUtils.equals(values,config.getList(key))) {
+            lock.writeLock().lock();
+            try {
+                config.setProperty(key, values);
+                save();
+            } finally {
+                lock.writeLock().unlock();
+            }
 
 
-        if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(key));
+            if (!initialising) {
+                configurationEvent.fire(new ConfigurationChangedEvent(key));
+            }
         }
     }
 
