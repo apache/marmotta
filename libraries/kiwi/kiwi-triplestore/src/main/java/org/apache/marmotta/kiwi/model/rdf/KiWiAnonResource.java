@@ -29,13 +29,7 @@ import org.openrdf.model.BNode;
  */
 public class KiWiAnonResource extends KiWiResource implements BNode {
 
-    private static HashFunction hasher = Hashing.goodFastHash(16);
-
     private static final long serialVersionUID = -873594698794527452L;
-
-    // @Transient
-    private transient HashCode goodHashCode;
-
 
     private String anonId;
 
@@ -110,9 +104,6 @@ public class KiWiAnonResource extends KiWiResource implements BNode {
 
     @Override
     public int hashCode() {
-        if(goodHashCode == null) {
-            goodHashCode = hasher.newHasher().putChar('A').putString(anonId).hash();
-        }
-        return goodHashCode.hashCode();
+        return anonId.hashCode();
     }
 }

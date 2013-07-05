@@ -44,21 +44,10 @@ import java.util.Locale;
  */
 public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
-    private static HashFunction hasher = Hashing.goodFastHash(32);
-
-    //@Transient
-    private HashCode goodHashCode;
-
     /**
      * 
      */
     private static final long serialVersionUID = 1772323725671607249L;
-
-
-    /**
-     * An internal checksum of the content of the literal, used to efficiently check equality.
-     */
-    private String contentMd5;
 
 
     private Locale locale;
@@ -180,17 +169,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     @Override
     public int hashCode() {
-        if(goodHashCode == null) {
-            Hasher hash = hasher.newHasher().putChar('L').putString(getContent());
-            if(getLocale() != null) {
-                hash.putString(getLocale().toString());
-            }
-            if(getType() != null) {
-                hash.putString(getType().stringValue());
-            }
-            goodHashCode = hash.hash();
-        }
-        return goodHashCode.hashCode();
+        return this.getLabel().hashCode();
     }
 
 

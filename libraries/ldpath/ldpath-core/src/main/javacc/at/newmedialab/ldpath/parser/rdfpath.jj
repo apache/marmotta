@@ -472,7 +472,8 @@ Program Program() :
   (
     <K_GRAPH> graphs = UriList() <SCOLON> {
       program.setGraphs(graphs);
-    }  )?
+    }
+  )?
 
   (
     <K_FILTER> filter = NodeTest() <SCOLON> {
@@ -500,11 +501,14 @@ Program Program() :
   }
 }
 
-LinkedList<Node> UriList() :{
-    LinkedList<Node> rest = null;
-    String uri;}
+LinkedList<Node> UriList() :
 {
-    uri = Uri() ( <COMMA> rest = UriList() )?    {
+    LinkedList<Node> rest = null;
+    String uri;
+}
+{
+    uri = Uri() ( <COMMA> rest = UriList() )?
+    {
       if (rest == null) rest = new LinkedList<Node>();
       rest.addFirst(resolveResource(uri));
       return rest;
