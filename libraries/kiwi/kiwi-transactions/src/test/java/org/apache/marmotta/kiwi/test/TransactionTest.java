@@ -234,7 +234,7 @@ public class TransactionTest {
             connection.begin();
             List<String> resources = ImmutableList.copyOf(
                     Iterables.transform(
-                            ResourceUtils.listResources(connection),
+                            ResourceUtils.listSubjects(connection),
                             new Function<Resource, String>() {
                                 @Override
                                 public String apply(Resource input) {
