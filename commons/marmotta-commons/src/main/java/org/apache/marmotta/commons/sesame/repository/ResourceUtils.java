@@ -257,9 +257,22 @@ public class ResourceUtils {
                 }
             };
         } else {
-            return listResourcesInternal(con,null,null,null);
+            return listSubjectsInternal(con, null, null, null);
         }
     }
+
+    /**
+     * List all resources contained in the KiWi System, regardless of knowledge space or type. Since this
+     * operation works directly on the triple store, there is no guarantee the result is free of duplicates.
+     * In case the underlying connection does not directly support listing resources (i.e. is not an instance of
+     * ResourceConnection), the method will iterate over all triples and return their subjects
+     *
+     * @return
+     */
+    public static Iterable<Resource> listSubjects(RepositoryConnection con) {
+        return listSubjectsInternal(con, null, null, null);
+    }
+
 
     /**
      * List all resources of a specific type in the KiWi system.
@@ -281,7 +294,7 @@ public class ResourceUtils {
     public static Iterable<Resource> listResources(final RepositoryConnection con, final Resource type, final URI context) {
         URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
 
-        return listResourcesInternal(con,rdf_type,type,context);
+        return listSubjectsInternal(con, rdf_type, type, context);
     }
 
     /**
@@ -359,7 +372,7 @@ public class ResourceUtils {
         return listResourcesByPrefix(con,prefix,0,0);
     }
 
-    private static Iterable<Resource> listResourcesInternal(final RepositoryConnection con, final URI property, final Value value, final URI context) {
+    private static Iterable<Resource> listSubjectsInternal(final RepositoryConnection con, final URI property, final Value value, final URI context) {
         final Resource[] contexts;
         if(context != null) {
             contexts = new Resource[] { context };

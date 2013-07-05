@@ -356,7 +356,7 @@ public class RepositoryTest {
             // the resource hans_meier should not be contained in the list of resources
             List<String> resources2 = ImmutableList.copyOf(
                     Iterables.transform(
-                            ResourceUtils.listResources(connection),
+                            ResourceUtils.listSubjects(connection),
                             new Function<Resource, String>() {
                                 @Override
                                 public String apply(Resource input) {
