@@ -134,7 +134,8 @@ public class KiWiPersistence {
         poolConfig.setPassword(configuration.getDbPassword());
         poolConfig.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
         poolConfig.setCommitOnReturn(true);
-        poolConfig.setValidationQuery("SELECT 1");
+        poolConfig.setValidationQuery(configuration.getDialect().getValidationQuery());
+        poolConfig.setLogValidationErrors(true);
         /*
         poolConfig.setLogAbandoned(true);
         poolConfig.setRemoveAbandoned(true);
