@@ -217,4 +217,12 @@ public abstract class KiWiDialect {
      * @return
      */
     public abstract String getConcat(String... args);
+
+
+    /**
+     * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
+     * Typically, this should be an inexpensive operation like "SELECT 1",
+     * @return
+     */
+    public abstract String getValidationQuery();
 }

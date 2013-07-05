@@ -77,4 +77,14 @@ public class PostgreSQLDialect extends KiWiDialect {
         return buf.toString();
     }
 
+    /**
+     * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
+     * Typically, this should be an inexpensive operation like "SELECT 1",
+     *
+     * @return
+     */
+    @Override
+    public String getValidationQuery() {
+        return "SELECT 1";
+    }
 }
