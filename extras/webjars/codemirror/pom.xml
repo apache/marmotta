@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.marmotta</groupId>
+        <artifactId>marmotta-parent</artifactId>
+        <version>3.1.0-incubating-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.apache.marmotta.webjars</groupId>
+    <artifactId>codemirror</artifactId>
+    <version>2.24</version>
+    <packaging>jar</packaging>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>yuicompressor-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <id>assemble-javascript</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
+                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/codemirror.js</output>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>assemble-css</id>
+                        <goals>
+                            <goal>aggregate-css</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
+                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/codemirror.css</output>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/*.js</exclude>
+                    <exclude>**/*.css</exclude>
+                </excludes>
+                <filtering>false</filtering>
+                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>
+            </resource>
+        </resources>
+    </build>
+
+</project>

@@ -154,6 +154,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>codemirror</artifactId>
+        </dependency>
+
+
+        <dependency>
            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>
         </dependency>

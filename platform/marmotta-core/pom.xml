@@ -311,6 +311,10 @@
             <artifactId>jquery</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>sgvizler</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-client-js</artifactId>
         </dependency>

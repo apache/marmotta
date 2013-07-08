@@ -165,6 +165,22 @@
             <artifactId>marmotta-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>codemirror</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>snorql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>sgvizler</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>

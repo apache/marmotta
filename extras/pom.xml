@@ -50,4 +50,7 @@
         </plugins>
     </build>
 
+    <modules>
+        <module>webjars</module>
+    </modules>
 </project>
