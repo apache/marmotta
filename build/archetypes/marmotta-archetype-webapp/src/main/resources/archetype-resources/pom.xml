@@ -217,7 +217,7 @@
             <version>${h2Version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jumpmind.symmetric.jdbc</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresqlVersion}</version>
         </dependency>

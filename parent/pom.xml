@@ -38,18 +38,19 @@
     <properties>
         <sesame.version>2.7.3</sesame.version>
         <junit.version>4.11</junit.version>
-        <weld.version>1.1.Final</weld.version>
-        <weld.core.version>1.1.13.Final</weld.core.version>
+        <weld.version>2.0.SP1</weld.version>
+        <weld.core.version>2.0.2.Final</weld.core.version>
         <rest.assured.version>1.7.1</rest.assured.version>
         <hamcrest.version>1.3</hamcrest.version>
         <tempus.fugit.version>1.1</tempus.fugit.version>
         <jatl.version>0.2.2</jatl.version>
         <servlet.api.version>3.0.1</servlet.api.version>
         <javax.el.version>2.2.4</javax.el.version>
-        <h2.version>1.3.170</h2.version>
-        <postgresql.version>9.2-1002-jdbc4</postgresql.version>
+        <h2.version>1.3.172</h2.version>
+        <postgresql.version>9.2-1003-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.0.3.v20130506</jetty.version>
+        <resteasy.version>3.0.1.Final</resteasy.version>
     </properties>
 
     <prerequisites>
@@ -769,7 +770,7 @@
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-cdi</artifactId>
-                <version>2.3.6.Final</version>
+                <version>${resteasy.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -780,7 +781,7 @@
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-jackson-provider</artifactId>
-                <version>2.3.6.Final</version>
+                <version>${resteasy.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
@@ -842,6 +843,10 @@
                         <groupId>org.javassist</groupId>
                         <artifactId>javassist</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.el</groupId>
+                        <artifactId>jboss-el-api_3.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -853,6 +858,10 @@
                         <groupId>javax.el</groupId>
                         <artifactId>el-api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.el</groupId>
+                        <artifactId>jboss-el-api_3.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -860,6 +869,16 @@
                 <artifactId>weld-servlet-core</artifactId>
                 <version>${weld.core.version}</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>el-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.el</groupId>
+                        <artifactId>jboss-el-api_3.0_spec</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
@@ -902,7 +921,7 @@
                 <version>${h2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jumpmind.symmetric.jdbc</groupId>
+                <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>

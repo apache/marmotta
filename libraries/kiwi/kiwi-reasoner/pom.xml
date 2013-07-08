@@ -167,7 +167,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jumpmind.symmetric.jdbc</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>

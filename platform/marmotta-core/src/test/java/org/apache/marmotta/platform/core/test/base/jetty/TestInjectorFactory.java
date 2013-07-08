@@ -27,6 +27,10 @@ import org.jboss.resteasy.spi.InjectorFactory;
 import org.jboss.resteasy.spi.MethodInjector;
 import org.jboss.resteasy.spi.PropertyInjector;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.jboss.resteasy.spi.metadata.Parameter;
+import org.jboss.resteasy.spi.metadata.ResourceClass;
+import org.jboss.resteasy.spi.metadata.ResourceConstructor;
+import org.jboss.resteasy.spi.metadata.ResourceLocator;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
@@ -65,7 +69,7 @@ public class TestInjectorFactory implements InjectorFactory {
     }
 
     @Override
-    public ConstructorInjector createConstructor(Constructor constructor) {
+    public ConstructorInjector createConstructor(Constructor constructor, ResteasyProviderFactory factory) {
         Class<?> clazz = constructor.getDeclaringClass();
 
         if (!manager.getBeans(clazz).isEmpty())
@@ -75,30 +79,44 @@ public class TestInjectorFactory implements InjectorFactory {
         }
 
         log.debug("No CDI beans found for {0}. Using default ConstructorInjector.", clazz);
-        return delegate.createConstructor(constructor);
+        return delegate.createConstructor(constructor, factory);
 
     }
 
     @Override
-    public PropertyInjector createPropertyInjector(Class resourceClass) {
-        return new CdiPropertyInjector(delegate.createPropertyInjector(resourceClass), resourceClass, Collections.<Class<?>, Type>emptyMap(), manager);
+    public PropertyInjector createPropertyInjector(Class resourceClass, ResteasyProviderFactory factory) {
+        return new CdiPropertyInjector(delegate.createPropertyInjector(resourceClass, factory), resourceClass, Collections.<Class<?>, Type>emptyMap(), manager);
     }
 
     @Override
-    public MethodInjector createMethodInjector(Class root, Method method) {
-        return delegate.createMethodInjector(root, method);
+    public MethodInjector createMethodInjector(ResourceLocator method, ResteasyProviderFactory factory) {
+        return delegate.createMethodInjector(method, factory);
     }
 
     @Override
-    public ValueInjector createParameterExtractor(Class injectTargetClass, AccessibleObject injectTarget, Class type, Type genericType, Annotation[] annotations) {
-        return delegate.createParameterExtractor(injectTargetClass, injectTarget, type, genericType, annotations);
+    public ValueInjector createParameterExtractor(Class injectTargetClass, AccessibleObject injectTarget, Class type, Type genericType, Annotation[] annotations, ResteasyProviderFactory factory) {
+        return delegate.createParameterExtractor(injectTargetClass, injectTarget, type, genericType, annotations, factory);
     }
 
     @Override
-    public ValueInjector createParameterExtractor(Class injectTargetClass, AccessibleObject injectTarget, Class type, Type genericType, Annotation[] annotations, boolean useDefault) {
-        return delegate.createParameterExtractor(injectTargetClass, injectTarget, type, genericType, annotations, useDefault);
+    public ValueInjector createParameterExtractor(Class injectTargetClass, AccessibleObject injectTarget, Class type, Type genericType, Annotation[] annotations, boolean useDefault, ResteasyProviderFactory factory) {
+        return delegate.createParameterExtractor(injectTargetClass, injectTarget, type, genericType, annotations, useDefault, factory);
     }
 
+    @Override
+    public ValueInjector createParameterExtractor(Parameter parameter, ResteasyProviderFactory providerFactory) {
+        return delegate.createParameterExtractor(parameter, providerFactory);
+    }
+
+    @Override
+    public PropertyInjector createPropertyInjector(ResourceClass resourceClass, ResteasyProviderFactory providerFactory) {
+        return delegate.createPropertyInjector(resourceClass, providerFactory);
+    }
+
+    @Override
+    public ConstructorInjector createConstructor(ResourceConstructor constructor, ResteasyProviderFactory providerFactory) {
+        return createConstructor(constructor.getConstructor(), providerFactory);
+    }
 
     /**
      * Lookup ResteasyCdiExtension instance that was instantiated during CDI bootstrap
