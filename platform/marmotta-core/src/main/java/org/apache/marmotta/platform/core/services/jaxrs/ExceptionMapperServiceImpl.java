@@ -3,6 +3,7 @@ package org.apache.marmotta.platform.core.services.jaxrs;
 import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.jaxrs.ExceptionMapperService;
 import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.jaxrs.CDIExceptionMapper;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
     }
 
     // trigger startup once configuration service is finished with initialisation
-    public void initEvent(@Observes ConfigurationServiceInitEvent e) {
+    public void initEvent(@Observes SystemStartupEvent e) {
 
     }
 
