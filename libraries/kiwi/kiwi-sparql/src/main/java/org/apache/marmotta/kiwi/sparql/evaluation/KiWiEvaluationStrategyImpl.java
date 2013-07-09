@@ -80,6 +80,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
                 throw new QueryEvaluationException(e);
             } catch (IllegalArgumentException e) {
                 throw new QueryEvaluationException(e);
+            } catch (InterruptedException e) {
+                throw new QueryEvaluationException(e);
             }
         } else {
             return super.evaluate(join, bindings);
@@ -101,6 +103,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             } catch (SQLException e) {
                 throw new QueryEvaluationException(e);
             } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e);
+            } catch (InterruptedException e) {
                 throw new QueryEvaluationException(e);
             }
         } else {

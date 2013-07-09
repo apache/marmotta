@@ -70,7 +70,7 @@
             <artifactId>kiwi-tripletable</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
+            <groupId>net.sf.ehcache.internal</groupId>
             <artifactId>ehcache-core</artifactId>
         </dependency>
     </dependencies>

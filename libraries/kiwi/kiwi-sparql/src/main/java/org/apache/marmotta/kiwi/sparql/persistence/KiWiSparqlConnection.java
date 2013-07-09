@@ -46,6 +46,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.Pattern;
 
 /**
@@ -65,9 +66,14 @@ public class KiWiSparqlConnection {
     private KiWiConnection parent;
     private KiWiValueFactory valueFactory;
 
+    private ExecutorService executorService;
+
     public KiWiSparqlConnection(KiWiConnection parent, KiWiValueFactory valueFactory) throws SQLException {
         this.parent = parent;
         this.valueFactory = valueFactory;
+
+        // interruptible queries run in a separate thread
+        this.executorService = Executors.newCachedThreadPool();
     }
 
     /**
@@ -76,7 +82,7 @@ public class KiWiSparqlConnection {
      * @param join
      * @return
      */
-    public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings) throws SQLException {
+    public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings) throws SQLException, InterruptedException {
         Preconditions.checkArgument(join instanceof Join || join instanceof Filter || join instanceof StatementPattern);
 
         // some definitions
@@ -289,30 +295,51 @@ public class KiWiSparqlConnection {
         log.debug("constructed SQL query string:\n {}",queryString);
         log.debug("SPARQL -> SQL variable mappings:\n {}", queryVariables);
 
-        PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(queryString);
-        ResultSet result = queryStatement.executeQuery();
-
-        ResultSetIteration<BindingSet> it = new ResultSetIteration<BindingSet>(result, true, new ResultTransformerFunction<BindingSet>() {
-            @Override
-            public BindingSet apply(ResultSet row) throws SQLException {
-                MapBindingSet resultRow = new MapBindingSet();
-
-                for(Var v : selectVariables) {
-                    resultRow.addBinding(v.getName(), parent.loadNodeById(row.getLong(variableNames.get(v))));
-                }
+        final PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(queryString);
 
 
-                if(bindings != null) {
-                    for(Binding binding : bindings) {
-                        resultRow.addBinding(binding);
+        Future<ResultSet> queryFuture =
+                executorService.submit(new Callable<ResultSet>() {
+                    @Override
+                    public ResultSet call() throws Exception {
+                        return queryStatement.executeQuery();
                     }
                 }
-                return resultRow;
-            }
-        });
+                );
 
-        // materialize result to avoid having more than one result set open at the same time
-        return new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator());
+
+        try {
+            ResultSet result = queryFuture.get();
+
+            ResultSetIteration<BindingSet> it = new ResultSetIteration<BindingSet>(result, true, new ResultTransformerFunction<BindingSet>() {
+                @Override
+                public BindingSet apply(ResultSet row) throws SQLException {
+                    MapBindingSet resultRow = new MapBindingSet();
+
+                    for(Var v : selectVariables) {
+                        resultRow.addBinding(v.getName(), parent.loadNodeById(row.getLong(variableNames.get(v))));
+                    }
+
+
+                    if(bindings != null) {
+                        for(Binding binding : bindings) {
+                            resultRow.addBinding(binding);
+                        }
+                    }
+                    return resultRow;
+                }
+            });
+
+            // materialize result to avoid having more than one result set open at the same time
+            return new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator());
+        } catch (InterruptedException e) {
+            log.info("SPARQL query execution cancelled");
+            queryStatement.cancel();
+            throw e;
+        } catch (ExecutionException e) {
+            log.error("error executing SPARQL query",e);
+            throw new SQLException("error executing SPARQL query",e);
+        }
     }
 
     private String evaluateExpression(ValueExpr expr, Map<Var, List<String>> queryVariables, OPTypes optype) {

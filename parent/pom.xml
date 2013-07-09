@@ -942,7 +942,7 @@
             </dependency>
 
             <dependency>
-                <groupId>net.sf.ehcache</groupId>
+                <groupId>net.sf.ehcache.internal</groupId>
                 <artifactId>ehcache-core</artifactId>
                 <version>2.7.2</version>
             </dependency>
