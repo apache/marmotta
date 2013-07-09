@@ -10,9 +10,13 @@
         <version>3.1.0-incubating-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <webjar.version>1.0</webjar.version>
+    </properties>
+
+
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>snorql</artifactId>
-    <version>1.0</version>
     <packaging>jar</packaging>
 
 
@@ -31,7 +35,7 @@
                         <configuration>
                             <nomunge>true</nomunge>
                             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/snorql.js</output>
+                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/snorql.js</output>
                             <includes>
                                 <include>prototype.js</include>
                                 <include>scriptaculous/scriptaculous.js</include>
@@ -54,7 +58,7 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/snorql.css</output>
+                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/snorql.css</output>
                         </configuration>
                     </execution>
                 </executions>
@@ -68,7 +72,7 @@
                     <exclude>**/*.css</exclude>
                 </excludes>
                 <filtering>false</filtering>
-                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>
+                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}</targetPath>
             </resource>
         </resources>
     </build>

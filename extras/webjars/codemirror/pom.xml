@@ -10,9 +10,13 @@
         <version>3.1.0-incubating-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <webjar.version>2.24</webjar.version>
+    </properties>
+
+
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>codemirror</artifactId>
-    <version>2.24</version>
     <packaging>jar</packaging>
 
 
@@ -30,7 +34,7 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/codemirror.js</output>
+                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/codemirror.js</output>
                         </configuration>
                     </execution>
                     <execution>
@@ -40,7 +44,7 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/codemirror.css</output>
+                            <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/codemirror.css</output>
                         </configuration>
                     </execution>
                 </executions>
@@ -54,7 +58,7 @@
                     <exclude>**/*.css</exclude>
                 </excludes>
                 <filtering>false</filtering>
-                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>
+                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}</targetPath>
             </resource>
         </resources>
     </build>

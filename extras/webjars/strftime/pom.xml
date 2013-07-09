@@ -10,9 +10,13 @@
         <version>3.1.0-incubating-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <webjar.version>1.3</webjar.version>
+    </properties>
+
+
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>strftime</artifactId>
-    <version>1.3</version>
     <packaging>jar</packaging>
 
 
@@ -32,7 +36,7 @@
                 <configuration>
                     <nomunge>true</nomunge>
                     <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                    <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/strftime.js</output>
+                    <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/strftime.js</output>
                 </configuration>
             </plugin>
         </plugins>
@@ -43,7 +47,7 @@
                     <exclude>**/*.js</exclude>
                 </excludes>
                 <filtering>false</filtering>
-                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>
+                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}</targetPath>
             </resource>
         </resources>
      </build>

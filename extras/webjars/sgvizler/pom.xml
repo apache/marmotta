@@ -10,9 +10,12 @@
         <version>3.1.0-incubating-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <webjar.version>0.5.1</webjar.version>
+    </properties>
+
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>sgvizler</artifactId>
-    <version>0.5.1</version>
     <packaging>jar</packaging>
 
 
@@ -32,7 +35,7 @@
                 <configuration>
                     <nomunge>true</nomunge>
                     <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-                    <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}/sgvizler.js</output>
+                    <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/sgvizler.js</output>
                 </configuration>
             </plugin>
         </plugins>
@@ -43,7 +46,7 @@
                     <exclude>**/*.js</exclude>
                 </excludes>
                 <filtering>false</filtering>
-                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</targetPath>
+                <targetPath>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}</targetPath>
             </resource>
         </resources>
      </build>
