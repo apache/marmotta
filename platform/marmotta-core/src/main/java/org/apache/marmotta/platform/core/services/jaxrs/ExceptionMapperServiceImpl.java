@@ -14,7 +14,12 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 /**
- * Add file description here!
+ * This service auto-registers JAX-RS exception mappers implementing the CDIExceptionMapper interface and
+ * registers them with RESTEasy. This allows applications based on Marmotta to easily implement and register their
+ * own ExceptionMapppers without needing to go into RESTEasy.
+ * <p/>
+ * Note that ExceptionMappers that are injected via CDI need to be annotated with @Dependent, or otherwise
+ * they will be proxied by the CDI implementation and then the generic type cannot be determined.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -25,7 +30,7 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
     private Logger log;
 
     @Inject
-    private Instance<CDIExceptionMapper> mappers;
+    private Instance<CDIExceptionMapper<?>> mappers;
 
     /**
      * Register Exception Mappers
@@ -36,7 +41,7 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
 
         ResteasyProviderFactory factory = ResteasyProviderFactory.getInstance();
 
-        for(CDIExceptionMapper mapper : mappers) {
+        for(CDIExceptionMapper<?> mapper : mappers) {
             log.debug("registering exception mapper: {}", mapper.getClass().getName());
 
             factory.registerProviderInstance(mapper);

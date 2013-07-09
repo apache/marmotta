@@ -21,6 +21,9 @@ package org.apache.marmotta.platform.core.api.jaxrs;
  * This service auto-registers JAX-RS exception mappers implementing the CDIExceptionMapper interface and
  * registers them with RESTEasy. This allows applications based on Marmotta to easily implement and register their
  * own ExceptionMapppers without needing to go into RESTEasy.
+ * <p/>
+ * Note that ExceptionMappers that are injected via CDI need to be annotated with @Dependent, or otherwise
+ * they will be proxied by the CDI implementation and then the generic type cannot be determined.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */

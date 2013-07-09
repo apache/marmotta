@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.platform.core.jaxrs;
 
+import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.net.URISyntaxException;
@@ -27,6 +28,7 @@ import java.net.URISyntaxException;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @Provider
+@Dependent
 public class URISyntaxExceptionMapper implements CDIExceptionMapper<URISyntaxException> {
 
     /**

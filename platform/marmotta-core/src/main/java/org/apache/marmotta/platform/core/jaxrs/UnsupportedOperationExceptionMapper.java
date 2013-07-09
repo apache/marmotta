@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.core.jaxrs;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
@@ -27,7 +28,7 @@ import javax.ws.rs.ext.Provider;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @Provider
-@ApplicationScoped
+@Dependent
 public class UnsupportedOperationExceptionMapper implements CDIExceptionMapper<UnsupportedOperationException> {
 
     /**
