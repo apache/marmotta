@@ -23,7 +23,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -82,7 +84,21 @@ public class SparqlServiceImpl implements SparqlService {
 
     @Inject
     private SesameService sesameService;
-    
+
+    private ExecutorService executorService;
+
+    private long queryId = 0;
+
+    @PostConstruct
+    public void initialize() {
+        executorService = Executors.newCachedThreadPool(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "SPARQL Query Thread " + (++queryId));
+            }
+        });
+    }
+
     @Override
     public Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException {
     	Query sparqlQuery = null;
@@ -98,45 +114,69 @@ public class SparqlServiceImpl implements SparqlService {
     }
 
     @Override
-    public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
-        long start = System.currentTimeMillis();
+    public void query(final QueryLanguage queryLanguage, final String query, final TupleQueryResultWriter tupleWriter, final BooleanQueryResultWriter booleanWriter, final SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
 
         log.debug("executing SPARQL query:\n{}", query);
 
-        try {
-            RepositoryConnection connection = sesameService.getConnection();
-            try {
-                connection.begin();
-                Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
 
-                if (sparqlQuery instanceof TupleQuery) {
-                    query((TupleQuery) sparqlQuery, tupleWriter);
-                } else if (sparqlQuery instanceof BooleanQuery) {
-                    query((BooleanQuery) sparqlQuery, booleanWriter);
-                } else if (sparqlQuery instanceof GraphQuery) {
-                    query((GraphQuery) sparqlQuery, graphWriter);
-                } else {
-                    connection.rollback();
-                    throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+        Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                long start = System.currentTimeMillis();
+                try {
+                    RepositoryConnection connection = sesameService.getConnection();
+                    try {
+                        connection.begin();
+                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+
+                        if (sparqlQuery instanceof TupleQuery) {
+                            query((TupleQuery) sparqlQuery, tupleWriter);
+                        } else if (sparqlQuery instanceof BooleanQuery) {
+                            query((BooleanQuery) sparqlQuery, booleanWriter);
+                        } else if (sparqlQuery instanceof GraphQuery) {
+                            query((GraphQuery) sparqlQuery, graphWriter);
+                        } else {
+                            connection.rollback();
+                            throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+                        }
+
+                        connection.commit();
+                    } finally {
+                        connection.close();
+                    }
+                } catch(RepositoryException e) {
+                    log.error("error while getting repository connection: {}", e);
+                    throw new MarmottaException("error while getting repository connection", e);
+                } catch (QueryEvaluationException e) {
+                    log.error("error while evaluating query: {}", e);
+                    throw new MarmottaException("error while writing query result in format ", e);
                 }
 
-                connection.commit();
-            } finally {
-                connection.close();
-            }
-        } catch(RepositoryException e) {
-            log.error("error while getting repository connection: {}", e);
-            throw new MarmottaException("error while getting repository connection", e);
-        } catch (QueryEvaluationException e) {
-        	log.error("error while evaluating query: {}", e);
-            throw new MarmottaException("error while writing query result in format ", e);
-        }
+                log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
 
-        log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
+                return Boolean.TRUE;
+            }
+        });
+
+        try {
+            Boolean result = future.get(timeoutInSeconds, TimeUnit.SECONDS);
+        } catch (InterruptedException | TimeoutException e) {
+            log.info("SPARQL query execution aborted due to timeout");
+            future.cancel(true);
+        } catch (ExecutionException e) {
+            log.info("SPARQL query execution aborted due to exception");
+            if(e.getCause() instanceof MarmottaException) {
+                throw (MarmottaException)e.getCause();
+            } else if(e.getCause() instanceof MalformedQueryException) {
+                throw (MalformedQueryException)e.getCause();
+            } else {
+                throw new MarmottaException("unknown exception while evaluating SPARQL query",e.getCause());
+            }
+        }
     }
     
     @Override
-    public void query(QueryLanguage language, String query, OutputStream output, String format) throws MarmottaException {
+    public void query(QueryLanguage language, String query, OutputStream output, String format, int timeoutInSeconds) throws MarmottaException {
         long start = System.currentTimeMillis();
 
         log.debug("executing SPARQL query:\n{}", query);

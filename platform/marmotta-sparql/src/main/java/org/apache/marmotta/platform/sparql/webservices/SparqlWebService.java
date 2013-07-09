@@ -455,7 +455,7 @@ public class SparqlWebService {
      * Parse the encoded query parameters
      * 
      * @todo this should be somewhere already implemented
-     * @param string
+     * @param body
      * @return parameters
      */
     private Map<String,String> parseEncodedQueryParameters(String body) {
@@ -484,7 +484,7 @@ public class SparqlWebService {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    sparqlService.query(QueryLanguage.SPARQL,query,getTupleResultWriter(resultType,output),getBooleanResultWriter(resultType,output), getGraphResultWriter(resultType,output));
+                    sparqlService.query(QueryLanguage.SPARQL,query,getTupleResultWriter(resultType,output),getBooleanResultWriter(resultType,output), getGraphResultWriter(resultType,output), configurationService.getIntConfiguration("sparql.timeout", 60));
                 } catch (MarmottaException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
                 } catch (QueryEvaluationException e) {

@@ -52,34 +52,59 @@ public interface SparqlService {
 	 */
 	Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException ;
 
-    /**
-     * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
-     * to the output stream passed as argument on in the output format specified 
-     * as argument outputFormat.
-     *
-     * see http://www.w3.org/TR/sparql11-query/
-     *
-     *
-     * @param queryLanguage the query language to use
-     * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
-     * @param tupleWriter   the writer to use to write tuple query results
-     * @param booleanWriter the writer to use to write boolean query results
-     * @param graphWriter
-     * @throws InvalidArgumentException if the output format or query language are undefined
-     * @throws org.apache.marmotta.platform.core.exception.MarmottaException if the query evaluation fails
-     */
-	void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, MarmottaException, MalformedQueryException, QueryEvaluationException;
+    @Override
+    public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
+        long start = System.currentTimeMillis();
+
+        log.debug("executing SPARQL query:\n{}", query);
+
+
+
+
+        try {
+            RepositoryConnection connection = sesameService.getConnection();
+            try {
+                connection.begin();
+                Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+
+                if (sparqlQuery instanceof TupleQuery) {
+                    query((TupleQuery) sparqlQuery, tupleWriter);
+                } else if (sparqlQuery instanceof BooleanQuery) {
+                    query((BooleanQuery) sparqlQuery, booleanWriter);
+                } else if (sparqlQuery instanceof GraphQuery) {
+                    query((GraphQuery) sparqlQuery, graphWriter);
+                } else {
+                    connection.rollback();
+                    throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+                }
+
+                connection.commit();
+            } finally {
+                connection.close();
+            }
+        } catch(RepositoryException e) {
+            log.error("error while getting repository connection: {}", e);
+            throw new MarmottaException("error while getting repository connection", e);
+        } catch (QueryEvaluationException e) {
+            log.error("error while evaluating query: {}", e);
+            throw new MarmottaException("error while writing query result in format ", e);
+        }
+
+        log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
+    }
 
 	/**
 	 * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
      * to the stream passed in the format requested.
      * 
-	 * @param query query
-	 * @param output strem to write 
-	 * @param format mimetype
-	 * @throws MarmottaException
+	 *
+     * @param query query
+     * @param output strem to write
+     * @param format mimetype
+     * @param timeoutInSeconds
+     * @throws MarmottaException
 	 */
-	void query(QueryLanguage language, String query, OutputStream output, String format) throws MarmottaException;
+	void query(QueryLanguage language, String query, OutputStream output, String format, int timeoutInSeconds) throws MarmottaException;
 	
     /**
      * Evaluate a SPARQL ASK query on the KiWi TripleStore
