@@ -61,6 +61,7 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -491,6 +492,8 @@ public class SparqlWebService {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (MalformedQueryException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+                } catch (TimeoutException e) {
+                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.REQUEST_TIMEOUT).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 }
             }
         };

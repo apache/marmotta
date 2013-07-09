@@ -114,7 +114,7 @@ public class SparqlServiceImpl implements SparqlService {
     }
 
     @Override
-    public void query(final QueryLanguage queryLanguage, final String query, final TupleQueryResultWriter tupleWriter, final BooleanQueryResultWriter booleanWriter, final SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
+    public void query(final QueryLanguage queryLanguage, final String query, final TupleQueryResultWriter tupleWriter, final BooleanQueryResultWriter booleanWriter, final SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
 
         log.debug("executing SPARQL query:\n{}", query);
 
@@ -163,6 +163,8 @@ public class SparqlServiceImpl implements SparqlService {
         } catch (InterruptedException | TimeoutException e) {
             log.info("SPARQL query execution aborted due to timeout");
             future.cancel(true);
+
+            throw new TimeoutException("SPARQL query execution aborted due to timeout (" + configurationService.getIntConfiguration("sparql.timeout",60)+"s)");
         } catch (ExecutionException e) {
             log.info("SPARQL query execution aborted due to exception");
             if(e.getCause() instanceof MarmottaException) {

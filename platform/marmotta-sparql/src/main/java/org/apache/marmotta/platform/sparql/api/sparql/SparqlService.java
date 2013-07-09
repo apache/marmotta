@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.sparql.api.sparql;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
@@ -52,46 +53,6 @@ public interface SparqlService {
 	 */
 	Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException ;
 
-    @Override
-    public void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException {
-        long start = System.currentTimeMillis();
-
-        log.debug("executing SPARQL query:\n{}", query);
-
-
-
-
-        try {
-            RepositoryConnection connection = sesameService.getConnection();
-            try {
-                connection.begin();
-                Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
-
-                if (sparqlQuery instanceof TupleQuery) {
-                    query((TupleQuery) sparqlQuery, tupleWriter);
-                } else if (sparqlQuery instanceof BooleanQuery) {
-                    query((BooleanQuery) sparqlQuery, booleanWriter);
-                } else if (sparqlQuery instanceof GraphQuery) {
-                    query((GraphQuery) sparqlQuery, graphWriter);
-                } else {
-                    connection.rollback();
-                    throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
-                }
-
-                connection.commit();
-            } finally {
-                connection.close();
-            }
-        } catch(RepositoryException e) {
-            log.error("error while getting repository connection: {}", e);
-            throw new MarmottaException("error while getting repository connection", e);
-        } catch (QueryEvaluationException e) {
-            log.error("error while evaluating query: {}", e);
-            throw new MarmottaException("error while writing query result in format ", e);
-        }
-
-        log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
-    }
 
 	/**
 	 * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
@@ -140,4 +101,5 @@ public interface SparqlService {
      */
     void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
 
+    void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
 }
