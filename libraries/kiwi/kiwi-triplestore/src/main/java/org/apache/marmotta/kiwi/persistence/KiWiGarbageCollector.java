@@ -102,7 +102,7 @@ public class KiWiGarbageCollector extends Thread {
     private int garbageCollect() throws SQLException {
         round++;
 
-        Connection con = persistence.getJDBCConnection();
+        Connection con = persistence.getJDBCConnection(true);
         try {
             int count = 0;
 
@@ -121,8 +121,19 @@ public class KiWiGarbageCollector extends Thread {
 
             // garbage collect nodes (only every 10th garbage collection, only makes sense when we previously deleted triples ...)
             // TODO: this is currently not working, because the nodes remain in the cache; we need to find a different solution ...
-            //if(count > 0 && round % 10 == 1) {
-            if(false) {
+            if(count > 0 && round % 10 == 1) {
+                // flush all nodes from the value factory first
+                if(persistence.getValueFactory() != null) {
+                    KiWiConnection vfConnection = persistence.getConnection();
+                    try {
+                        persistence.getValueFactory().flushBatch(vfConnection);
+                    } finally {
+                        vfConnection.close();
+                    }
+                }
+
+
+                // then delete all unconnected nodes
                 try {
                     String gcNodesQuery = buildGCNodesQuery();
                     PreparedStatement stmtGcNodes = con.prepareStatement(gcNodesQuery);
@@ -138,7 +149,7 @@ public class KiWiGarbageCollector extends Thread {
 
             return count;
         } finally {
-            con.close();
+            persistence.releaseJDBCConnection(con, true);
         }
     }
 
@@ -149,7 +160,6 @@ public class KiWiGarbageCollector extends Thread {
      *
      * @see #start()
      * @see #stop()
-     * @see #Thread(ThreadGroup, Runnable, String)
      */
     @Override
     public void run() {

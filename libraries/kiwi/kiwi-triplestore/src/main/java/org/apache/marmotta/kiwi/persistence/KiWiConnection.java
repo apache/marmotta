@@ -1987,7 +1987,7 @@ public class KiWiConnection {
                 log.debug("database system does not allow closing statements");
             }
 
-            connection.close();
+            persistence.releaseJDBCConnection(connection);
         }
     }
 

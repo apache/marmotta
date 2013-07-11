@@ -45,6 +45,8 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Add file description here!
@@ -85,6 +87,15 @@ public class KiWiPersistence {
      * A reference to the value factory used to access this store. Used for notifications when to flush batches.
      */
     private KiWiValueFactory      valueFactory;
+
+
+    /**
+     * This lock allows setting the backend into maintenance mode (by locking the write lock), which essentially
+     * grants an exclusive access to the database. This is currently used by the garbage collector, but can also
+     * be used in other situations-
+     */
+    private ReadWriteLock         maintenanceLock;
+
 
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
@@ -187,7 +198,7 @@ public class KiWiPersistence {
             }
 
             try {
-                Connection con = getJDBCConnection();
+                Connection con = getJDBCConnection(true);
                 try {
                     for(String sequenceName : getDialect().listSequences(scriptName)) {
 
@@ -214,7 +225,7 @@ public class KiWiPersistence {
                         con.commit();
                     }
                 } finally {
-                    con.close();
+                    releaseJDBCConnection(con,true);
                 }
             } catch(SQLException ex) {
                 log.warn("database error: could not initialise in-memory sequences",ex);
@@ -383,7 +394,21 @@ public class KiWiPersistence {
      * @throws SQLException
      */
     public Connection getJDBCConnection() throws SQLException {
+        return getJDBCConnection(false);
+    }
+
+    /**
+     * Return a raw JDBC connection from the connection pool, which already has the auto-commit disabled.
+     * @return
+     * @throws SQLException
+     */
+    public Connection getJDBCConnection(boolean maintenance) throws SQLException {
         if(connectionPool != null) {
+            if(maintenance) {
+                maintenanceLock.writeLock().lock();
+            } else {
+                maintenanceLock.readLock().lock();
+            }
             Connection conn = connectionPool.getConnection();
             conn.setAutoCommit(false);
 
@@ -393,6 +418,34 @@ public class KiWiPersistence {
         }
     }
 
+
+    /**
+     * Release the JDBC connection passed as argument. This method will close the connection and release
+     * any locks that might be held by the caller.
+     * @param con
+     * @throws SQLException
+     */
+    public void releaseJDBCConnection(Connection con) throws SQLException {
+        releaseJDBCConnection(con,false);
+    }
+
+    /**
+     * Release the JDBC connection passed as argument. This method will close the connection and release
+     * any locks that might be held by the caller.
+     * @param con
+     * @throws SQLException
+     */
+    public void releaseJDBCConnection(Connection con, boolean maintenance) throws SQLException {
+        try {
+            con.close();
+        } finally {
+            if(maintenance) {
+                maintenanceLock.writeLock().unlock();
+            } else {
+                maintenanceLock.readLock().unlock();
+            }
+        }
+    }
 
     private void forceCloseConnections() {
         if(connectionPool != null) {
