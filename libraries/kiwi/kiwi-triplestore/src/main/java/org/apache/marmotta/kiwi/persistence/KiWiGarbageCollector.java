@@ -102,6 +102,8 @@ public class KiWiGarbageCollector extends Thread {
     protected int garbageCollect() throws SQLException {
         round++;
 
+        long start = System.currentTimeMillis();
+
         Connection con = persistence.getJDBCConnection(true);
         try {
             int count = 0;
@@ -120,7 +122,6 @@ public class KiWiGarbageCollector extends Thread {
             }
 
             // garbage collect nodes (only every 10th garbage collection, only makes sense when we previously deleted triples ...)
-            // TODO: this is currently not working, because the nodes remain in the cache; we need to find a different solution ...
             if(count > 0 && round % 10 == 1) {
                 // flush all nodes from the value factory first
                 if(persistence.getValueFactory() != null) {
@@ -146,6 +147,7 @@ public class KiWiGarbageCollector extends Thread {
                     log.warn("SQL error while executing garbage collection on nodes table: {}", ex.getMessage());
                 }
             }
+            log.info("... cleaned up {} entries (duration: {} ms)", count, (System.currentTimeMillis()-start));
 
             return count;
         } finally {
@@ -170,11 +172,9 @@ public class KiWiGarbageCollector extends Thread {
             while(!shutdown) {
                 // don't run immediately on startup
                 if(started) {
-                    long start = System.currentTimeMillis();
                     log.info("running garbage collection ...");
                     try {
                         int count = garbageCollect();
-                        log.info("... cleaned up {} entries (duration: {} ms)", count, (System.currentTimeMillis()-start));
                     } catch (SQLException e) {
                         log.error("error while executing garbage collection: {}",e.getMessage());
                     }
