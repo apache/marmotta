@@ -149,7 +149,7 @@ public class KiWiGarbageCollector extends Thread {
 
             return count;
         } finally {
-            persistence.releaseJDBCConnection(con, true);
+            persistence.releaseJDBCConnection(con);
         }
     }
 

@@ -22,7 +22,6 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
@@ -39,15 +38,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Add file description here!
@@ -95,7 +89,7 @@ public class KiWiPersistence {
      * grants an exclusive access to the database. This is currently used by the garbage collector, but can also
      * be used in other situations-
      */
-    private ReadWriteLock         maintenanceLock;
+    private boolean         maintenance;
 
 
     @Deprecated
@@ -105,7 +99,7 @@ public class KiWiPersistence {
 
     public KiWiPersistence(KiWiConfiguration configuration) {
         this.configuration = configuration;
-        this.maintenanceLock = new ReentrantReadWriteLock();
+        this.maintenance = false;
 
         // init JDBC connection pool
         initConnectionPool();
@@ -227,7 +221,7 @@ public class KiWiPersistence {
                         con.commit();
                     }
                 } finally {
-                    releaseJDBCConnection(con,true);
+                    releaseJDBCConnection(con);
                 }
             } catch(SQLException ex) {
                 log.warn("database error: could not initialise in-memory sequences",ex);
@@ -405,12 +399,18 @@ public class KiWiPersistence {
      * @throws SQLException
      */
     public Connection getJDBCConnection(boolean maintenance) throws SQLException {
-        if(connectionPool != null) {
-            if(maintenance) {
-                maintenanceLock.writeLock().lock();
-            } else {
-                maintenanceLock.readLock().lock();
+        synchronized (this) {
+            if(this.maintenance) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) { }
             }
+            if(maintenance) {
+                this.maintenance = true;
+            }
+        }
+
+        if(connectionPool != null) {
             Connection conn = connectionPool.getConnection();
             conn.setAutoCommit(false);
 
@@ -428,23 +428,14 @@ public class KiWiPersistence {
      * @throws SQLException
      */
     public void releaseJDBCConnection(Connection con) throws SQLException {
-        releaseJDBCConnection(con,false);
-    }
-
-    /**
-     * Release the JDBC connection passed as argument. This method will close the connection and release
-     * any locks that might be held by the caller.
-     * @param con
-     * @throws SQLException
-     */
-    public void releaseJDBCConnection(Connection con, boolean maintenance) throws SQLException {
         try {
             con.close();
         } finally {
-            if(maintenance) {
-                maintenanceLock.writeLock().unlock();
-            } else {
-                maintenanceLock.readLock().unlock();
+            synchronized (this) {
+                if(this.maintenance) {
+                    this.maintenance = false;
+                    this.notifyAll();
+                }
             }
         }
     }
