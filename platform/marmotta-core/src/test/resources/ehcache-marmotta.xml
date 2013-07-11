@@ -19,7 +19,7 @@
 <!--
 CacheManager Configuration
 ==========================
-An ehcache-lmf.xml corresponds to a single CacheManager.
+An ehcache-marmotta.xml corresponds to a single CacheManager.
 
 See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 
@@ -72,7 +72,10 @@ are "on" and "off".  The default is "autodetect".
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
 
     -->
+    <!--
     <diskStore path="java.io.tmpdir/lmf-cache/lmf"/>
+
+    -->
 
    <!--
     Cachemanagereventlistener
@@ -107,7 +110,7 @@ are "on" and "off".  The default is "autodetect".
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
     CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
 
-    One or more providers can be configured. The first one in the ehcache-lmf.xml is the default, which is used
+    One or more providers can be configured. The first one in the ehcache-marmotta.xml is the default, which is used
     for replication and bootstrapping.
 
     The attributes of cacheManagerPeerProviderFactory are:
@@ -368,12 +371,12 @@ are "on" and "off".  The default is "autodetect".
     <cache name="namespace-prefix-cache"
            statistics="true"
            maxElementsInMemory="100"
-           overflowToDisk="true"/>
+           overflowToDisk="false"/>
 
     <cache name="namespace-uri-cache"
            statistics="true"
            maxElementsInMemory="100"
-           overflowToDisk="true"/>
+           overflowToDisk="false"/>
 
     <!-- the cache used for triple queries by KiWi -->
     <cache name="query-cache"
@@ -390,21 +393,6 @@ are "on" and "off".  The default is "autodetect".
            timeToLiveSeconds="3600"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LRU"/>
-
-    <!-- the cache used for triple queries by KiWi -->
-    <cache name="page-cache"
-           statistics="true"
-           maxElementsInMemory="500"
-           timeToIdleSeconds="3600"
-           memoryStoreEvictionPolicy="LRU"
-           overflowToDisk="true"/>
-
-    <cache name="http-content-cache"
-           statistics="true"
-           maxElementsInMemory="500"
-           timeToIdleSeconds="3600"
-           memoryStoreEvictionPolicy="LRU"
-           overflowToDisk="true"/>
 
 
     <!--  uncomment to enable cache debugging -->
