@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Add file description here!
@@ -104,6 +105,7 @@ public class KiWiPersistence {
 
     public KiWiPersistence(KiWiConfiguration configuration) {
         this.configuration = configuration;
+        this.maintenanceLock = new ReentrantReadWriteLock();
 
         // init JDBC connection pool
         initConnectionPool();
