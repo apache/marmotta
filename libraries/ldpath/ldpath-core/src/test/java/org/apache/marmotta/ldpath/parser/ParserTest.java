@@ -47,12 +47,14 @@ public class ParserTest {
     private static NodeBackend<String> backend;
     private static final String NS_TEST = "http://example.com/";
     private static final String NS_FOO = "http://foo.com/some/path#";
+    private static final String NS_FOOBAR = "urn:uuid:1234";
 
     private static final Map<String, String> NAMESPACES;
     static {
         Map<String, String> ns = new HashMap<String, String>();
         ns.put("test", NS_TEST);
         ns.put("foo", NS_FOO);
+        ns.put("foobar", NS_FOOBAR);
         NAMESPACES = Collections.unmodifiableMap(ns);
     }
 
@@ -101,8 +103,10 @@ public class ParserTest {
             Map<String, String> prefixes = parser.parsePrefixes();
             assertTrue(prefixes.containsKey("test"));
             assertTrue(prefixes.containsKey("foo"));
+            assertTrue(prefixes.containsKey("foobar"));
             assertEquals(NS_TEST, prefixes.get("test"));
             assertEquals(NS_FOO, prefixes.get("foo"));
+            assertEquals(NS_FOOBAR, prefixes.get("foobar"));
         } catch (ParseException e) {
             assertFalse(e.getMessage(), true);
         }

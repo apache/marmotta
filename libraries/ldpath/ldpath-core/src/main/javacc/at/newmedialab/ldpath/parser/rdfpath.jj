@@ -417,7 +417,7 @@ TOKEN : /* BRACKETS */
 }
 TOKEN :
 {
-    < URI: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","+","-","."])* "://"  (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+ ("#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])*)? | "#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+> |
+    < URI: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ ">" > |
     < IDENTIFIER: ["a"-"z","A"-"Z","0"-"9","_"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])* > |
     < #URICHAR: ["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"] >
 }
@@ -445,9 +445,9 @@ Entry<String, String> Namespace() :
 }
 {
   ( 
-    <K_PREFIX> id = <IDENTIFIER> <COLON> <B_XO> uri = <URI> <B_XC> (<SCOLON> )? {
+    <K_PREFIX> id = <IDENTIFIER> <COLON> uri = <URI> (<SCOLON> )? {
     }
-  ) { return new Namespace(id.image, uri.image); }
+  ) { return new Namespace(id.image, uri.image.substring(1,uri.image.length()-1)); }
 }
 
 Program Program() :
@@ -605,8 +605,8 @@ String Uri() : {
 
 }
 {
-    "<" uri = <URI> ">" {
-       return uri.image;
+    uri = <URI> {
+       return uri.image.substring(1,uri.image.length()-1);
     }
 |   prefix = <IDENTIFIER> ":" localName = <IDENTIFIER> {
         return resolveNamespace(prefix.image)+localName.image;
