@@ -99,7 +99,7 @@ public class KiWiGarbageCollector extends Thread {
     }
 
 
-    private int garbageCollect() throws SQLException {
+    protected int garbageCollect() throws SQLException {
         round++;
 
         Connection con = persistence.getJDBCConnection(true);

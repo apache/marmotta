@@ -570,4 +570,7 @@ public class KiWiPersistence {
     }
 
 
+    public void garbageCollect() throws SQLException {
+        this.garbageCollector.garbageCollect();
+    }
 }

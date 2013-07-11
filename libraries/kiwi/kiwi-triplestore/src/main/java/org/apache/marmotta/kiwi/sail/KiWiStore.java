@@ -213,4 +213,14 @@ public class KiWiStore extends NotifyingSailBase {
         return repositoryValueFactory;
     }
 
+    /**
+     * Manually call the garbage collector for the triple store. Otherwise it will run every hour.
+     */
+    public void garbageCollect() throws SailException {
+        try {
+            persistence.garbageCollect();
+        } catch (SQLException e) {
+            throw new SailException("error calling garbage collector",e);
+        }
+    }
 }

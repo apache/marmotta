@@ -52,15 +52,18 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(int code, Exception ex) {
+        this(code, ex.getMessage(), ex);
+    }
+
+    public ErrorResponse(int code, String message, Exception ex) {
         this.code = code;
-        this.message = ex.getMessage();
+        this.message = message;
 
         StringWriter writer = new StringWriter();
         ex.printStackTrace(new PrintWriter(writer));
 
         this.stackTrace = writer.toString();
     }
-
 
     @XmlElement(name = "code", required = true)
     public int getCode() {
@@ -98,6 +101,13 @@ public class ErrorResponse {
         ErrorResponse entity = new ErrorResponse(status.getStatusCode(), ex);
         return Response.status(status).entity(entity).build();
     }
+
+    public static Response errorResponse(Response.Status status, String message, Exception ex) {
+        ErrorResponse entity = new ErrorResponse(status.getStatusCode(), message);
+
+        return Response.status(status).entity(entity).build();
+    }
+
 
     public String toString() {
         StringBuffer b = new StringBuffer();
