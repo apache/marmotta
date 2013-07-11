@@ -78,7 +78,7 @@ public class SparqlServiceImpl implements SparqlService {
 
     @Inject
     private ConfigurationService configurationService;
-    
+
     @Inject
     private TemplatingService templatingService;
 
@@ -101,7 +101,7 @@ public class SparqlServiceImpl implements SparqlService {
 
     @Override
     public Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException {
-    	Query sparqlQuery = null;
+        Query sparqlQuery = null;
         RepositoryConnection connection = sesameService.getConnection();
         try {
             connection.begin();
@@ -176,83 +176,109 @@ public class SparqlServiceImpl implements SparqlService {
             }
         }
     }
-    
-    @Override
-    public void query(QueryLanguage language, String query, OutputStream output, String format, int timeoutInSeconds) throws MarmottaException {
-        long start = System.currentTimeMillis();
 
+    @Override
+    public void query(final QueryLanguage language, final String query, final OutputStream output, final String format, int timeoutInSeconds) throws MarmottaException, TimeoutException, MalformedQueryException {
         log.debug("executing SPARQL query:\n{}", query);
 
-        try {
-            RepositoryConnection connection = sesameService.getConnection();
-            try {
-                connection.begin();
-                Query sparqlQuery = connection.prepareQuery(language, query);
 
-                if (sparqlQuery instanceof TupleQuery) {
-                	query((TupleQuery)sparqlQuery, output, format);
-                } else if (sparqlQuery instanceof BooleanQuery) {
-                	query((BooleanQuery)sparqlQuery, output, format);
-                } else if (sparqlQuery instanceof GraphQuery) {
-                	query((GraphQuery)sparqlQuery, output, format);
-                } else {
-                    throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+
+        Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                long start = System.currentTimeMillis();
+                try {
+                    RepositoryConnection connection = sesameService.getConnection();
+                    try {
+                        connection.begin();
+                        Query sparqlQuery = connection.prepareQuery(language, query);
+
+                        if (sparqlQuery instanceof TupleQuery) {
+                            query((TupleQuery)sparqlQuery, output, format);
+                        } else if (sparqlQuery instanceof BooleanQuery) {
+                            query((BooleanQuery)sparqlQuery, output, format);
+                        } else if (sparqlQuery instanceof GraphQuery) {
+                            query((GraphQuery)sparqlQuery, output, format);
+                        } else {
+                            throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+                        }
+
+                        connection.commit();
+                    } finally {
+                        connection.close();
+                    }
+                } catch(RepositoryException e) {
+                    log.error("error while getting repository connection: {}", e);
+                    throw new MarmottaException("error while getting repository connection", e);
+                } catch (QueryEvaluationException e) {
+                    log.error("error while evaluating query: {}", e);
+                    throw new MarmottaException("error while writing query result in format ", e);
+                } catch (MalformedQueryException e) {
+                    log.error("error because malformed query: {}", e);
+                    throw new MarmottaException("error because malformed query result in format ", e);
                 }
 
-                connection.commit();
-			} finally {
-                connection.close();
+                log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
+                return Boolean.TRUE;
             }
-        } catch(RepositoryException e) {
-            log.error("error while getting repository connection: {}", e);
-            throw new MarmottaException("error while getting repository connection", e);
-        } catch (QueryEvaluationException e) {
-        	log.error("error while evaluating query: {}", e);
-            throw new MarmottaException("error while writing query result in format ", e);
-        } catch (MalformedQueryException e) {
-        	log.error("error because malformed query: {}", e);
-            throw new MarmottaException("error because malformed query result in format ", e);
+        });
+
+        try {
+            Boolean result = future.get(timeoutInSeconds, TimeUnit.SECONDS);
+        } catch (InterruptedException | TimeoutException e) {
+            log.info("SPARQL query execution aborted due to timeout");
+            future.cancel(true);
+
+            throw new TimeoutException("SPARQL query execution aborted due to timeout (" + configurationService.getIntConfiguration("sparql.timeout",60)+"s)");
+        } catch (ExecutionException e) {
+            log.info("SPARQL query execution aborted due to exception");
+            if(e.getCause() instanceof MarmottaException) {
+                throw (MarmottaException)e.getCause();
+            } else if(e.getCause() instanceof MalformedQueryException) {
+                throw (MalformedQueryException)e.getCause();
+            } else {
+                throw new MarmottaException("unknown exception while evaluating SPARQL query",e.getCause());
+            }
         }
 
-        log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
     }
 
     private void query(TupleQuery query, TupleQueryResultWriter writer) throws QueryEvaluationException {
-    	try {
-			query.evaluate(writer);
-		} catch (TupleQueryResultHandlerException e) {
-			throw new QueryEvaluationException("error while writing query tuple result: ",e);
-		}
+        try {
+            query.evaluate(writer);
+        } catch (TupleQueryResultHandlerException e) {
+            throw new QueryEvaluationException("error while writing query tuple result: ",e);
+        }
     }
-    
+
     private void query(TupleQuery query, OutputStream output, String format) throws QueryEvaluationException {
-    	query(query, getTupleResultWriter(format, output));
+        query(query, getTupleResultWriter(format, output));
     }
-    
+
     private void query(BooleanQuery query, BooleanQueryResultWriter writer) throws QueryEvaluationException {
-    	try {
-			writer.write(query.evaluate());
-		} catch (IOException e) {
-			throw new QueryEvaluationException("error while writing query boolean result: ",e);
-		}
+        try {
+            writer.write(query.evaluate());
+        } catch (IOException e) {
+            throw new QueryEvaluationException("error while writing query boolean result: ",e);
+        }
     }
-    
+
     private void query(BooleanQuery query, OutputStream output, String format) throws QueryEvaluationException {
-    	query(query, getBooleanResultWriter(format, output));
+        query(query, getBooleanResultWriter(format, output));
     }
-    
+
     private void query(GraphQuery query, SPARQLGraphResultWriter writer) throws QueryEvaluationException {
-    	try {
-			writer.write(query.evaluate());
-		} catch (IOException e) {
-			throw new QueryEvaluationException("error while writing query graph result: ",e);
-		}
+        try {
+            writer.write(query.evaluate());
+        } catch (IOException e) {
+            throw new QueryEvaluationException("error while writing query graph result: ",e);
+        }
     }
-    
+
     private void query(GraphQuery query, OutputStream output, String format) throws QueryEvaluationException {
-    	query(query, getGraphResultWriter(format, output));
+        query(query, getGraphResultWriter(format, output));
     }
-    
+
     /**
      * Evaluate a SPARQL query on the LMF TripleStore. Returns the results as a list of result maps, each element
      * a KiWiNode.

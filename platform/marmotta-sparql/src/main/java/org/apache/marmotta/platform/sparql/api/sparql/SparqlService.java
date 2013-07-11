@@ -65,7 +65,7 @@ public interface SparqlService {
      * @param timeoutInSeconds
      * @throws MarmottaException
 	 */
-	void query(QueryLanguage language, String query, OutputStream output, String format, int timeoutInSeconds) throws MarmottaException;
+	void query(QueryLanguage language, String query, OutputStream output, String format, int timeoutInSeconds) throws MarmottaException, TimeoutException, MalformedQueryException;
 	
     /**
      * Evaluate a SPARQL ASK query on the KiWi TripleStore
