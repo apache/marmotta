@@ -1,0 +1,6 @@
+org.apache.marmotta.ldpath.model.tests.functions.text.StringIsEmptyTest
+org.apache.marmotta.ldpath.model.tests.functions.text.StringEqualsTest
+org.apache.marmotta.ldpath.model.tests.functions.text.StringEqualsIC
+org.apache.marmotta.ldpath.model.tests.functions.text.StringContainsTest
+org.apache.marmotta.ldpath.model.tests.functions.text.StringStartsWithTest
+org.apache.marmotta.ldpath.model.tests.functions.text.StringEndsWithTest
