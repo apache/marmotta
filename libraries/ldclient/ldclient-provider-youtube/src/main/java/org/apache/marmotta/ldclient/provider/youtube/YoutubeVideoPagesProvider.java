@@ -122,7 +122,7 @@ public class YoutubeVideoPagesProvider implements DataProvider {
                 log.error(msg);
                 throw new RuntimeException(msg, e);
             }
-            ClientResponse clientResponse = new ClientResponse(triples);
+            ClientResponse clientResponse = new ClientResponse(200, triples);
             clientResponse.setExpires(DateUtils.addYears(new Date(), 10));
             return clientResponse;
         }

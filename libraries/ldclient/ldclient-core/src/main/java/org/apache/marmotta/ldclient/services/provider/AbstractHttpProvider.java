@@ -60,6 +60,7 @@ import static org.apache.marmotta.commons.http.LMFHttpUtils.parseContentType;
  */
 public abstract class AbstractHttpProvider implements DataProvider {
 
+    public static final int RETRY_AFTER = 60;
     private static Logger log = LoggerFactory.getLogger(AbstractHttpProvider.class);
 
     /**
@@ -175,7 +176,7 @@ public abstract class AbstractHttpProvider implements DataProvider {
                 con.close();
             }
 
-            ClientResponse result = new ClientResponse(handler.triples);
+            ClientResponse result = new ClientResponse(handler.httpStatus, handler.triples);
             result.setExpires(expiresDate);
             return result;
         } catch (RepositoryException e) {
@@ -228,6 +229,8 @@ public abstract class AbstractHttpProvider implements DataProvider {
 
         private final String resource;
 
+        private int httpStatus;
+
         public ResponseHandler(String resource, Endpoint endpoint) throws RepositoryException {
             this.resource = resource;
             this.endpoint = endpoint;
@@ -244,12 +247,14 @@ public abstract class AbstractHttpProvider implements DataProvider {
             	final HttpEntity entity = response.getEntity();
             	if (entity == null)
             		throw new IOException("no content returned by Linked Data resource " + resource);
-            	
+
 	            if (!isValidContentType(entity.getContentType().getValue().split(";")[0], endpoint)) {
 	                // FIXME: here was get.abort()
 	            	throw new IOException("invalid content returned by Linked Data resource " + resource + ": "
 	            			+ entity.getContentType().getValue());
 	            }
+
+                this.httpStatus = response.getStatusLine().getStatusCode();
 
                 if (entity != null) {
                     String parseContentType = "application/rdf+xml";
@@ -282,8 +287,23 @@ public abstract class AbstractHttpProvider implements DataProvider {
                     } finally {
                         in.close();
                     }
-                } 
+                }
                 EntityUtils.consume(entity);
+            } else if(response.getStatusLine().getStatusCode() == 500 || response.getStatusLine().getStatusCode() == 503  || response.getStatusLine().getStatusCode() == 504) {
+                this.httpStatus = response.getStatusLine().getStatusCode();
+
+                Header retry = response.getFirstHeader("Retry-After");
+                if(retry != null) {
+                    try {
+                        int duration = Integer.parseInt(retry.getValue());
+                        expiresDate = new Date(System.currentTimeMillis() + duration*1000);
+                    } catch(NumberFormatException ex) {
+                        log.debug("error parsing Retry-After: header");
+                    }
+                } else {
+                    expiresDate = new Date(System.currentTimeMillis() + RETRY_AFTER *1000);
+                }
+
             } else {
                 log.error("the HTTP request failed (status: {})", response.getStatusLine());
                 throw new ClientProtocolException("the HTTP request failed (status: " + response.getStatusLine() + ")");

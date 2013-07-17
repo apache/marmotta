@@ -32,13 +32,19 @@ public class ClientResponse {
 
     private static final int DEFAULT_EXPIRATION_IN_DAYS = 7;
 
+    /**
+     * The HTTP status code returned by the client
+     */
+    private int httpStatus;
+
     private Repository triples;
 
     private Date expires;
 
-    public ClientResponse(Repository triples) {
+    public ClientResponse(int httpStatus, Repository triples) {
         this.triples = triples;
         this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
+        this.httpStatus = this.httpStatus;
     }
 
     public Repository getTriples() {
@@ -57,4 +63,11 @@ public class ClientResponse {
         this.expires = new Date(expires.getTime());
     }
 
+    public int getHttpStatus() {
+        return httpStatus;
+    }
+
+    public void setHttpStatus(int httpStatus) {
+        this.httpStatus = httpStatus;
+    }
 }

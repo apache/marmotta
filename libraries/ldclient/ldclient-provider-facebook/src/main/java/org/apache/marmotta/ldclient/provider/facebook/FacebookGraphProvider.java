@@ -22,12 +22,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIUtils;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.util.EntityUtils;
-import org.apache.marmotta.commons.collections.CollectionUtils;
-import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.FOAF;
@@ -37,7 +34,6 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -60,8 +56,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.marmotta.commons.http.LMFHttpUtils.parseContentType;
-
 /**
  * A provider that accesses objects exposed by the Facebook Graph API (in JSON format). The provider will map the
  * properties of Facebook Objects to RDF and tries choosing the most appropriate RDF types and vocabularies. The base
@@ -76,6 +70,7 @@ public class FacebookGraphProvider implements DataProvider {
 
 
     private static final Pattern pattern = Pattern.compile("http://www\\.facebook\\.com/([^/]+/)*([^/]+)");
+    public static final int RETRY_AFTER = 60;
 
     private static Logger log = LoggerFactory.getLogger(FacebookGraphProvider.class);
 
@@ -406,7 +401,7 @@ public class FacebookGraphProvider implements DataProvider {
                 con.close();
             }
 
-            ClientResponse result = new ClientResponse(handler.triples);
+            ClientResponse result = new ClientResponse(200, handler.triples);
             result.setExpires(expiresDate);
             return result;
         } catch (RepositoryException e) {
@@ -439,6 +434,8 @@ public class FacebookGraphProvider implements DataProvider {
 
         private final String resource;
 
+        private int httpStatus;
+
         // language tag to use for literals
         public String language;
 
@@ -459,6 +456,7 @@ public class FacebookGraphProvider implements DataProvider {
                 if (entity == null)
                     throw new IOException("no content returned by Linked Data resource " + resource);
 
+                this.httpStatus = response.getStatusLine().getStatusCode();
 
                 if (entity != null) {
                     InputStream in = entity.getContent();
@@ -486,6 +484,21 @@ public class FacebookGraphProvider implements DataProvider {
                     }
                 }
                 EntityUtils.consume(entity);
+            } else if(response.getStatusLine().getStatusCode() == 500 || response.getStatusLine().getStatusCode() == 503  || response.getStatusLine().getStatusCode() == 504) {
+                this.httpStatus = response.getStatusLine().getStatusCode();
+
+                Header retry = response.getFirstHeader("Retry-After");
+                if(retry != null) {
+                    try {
+                        int duration = Integer.parseInt(retry.getValue());
+                        expiresDate = new Date(System.currentTimeMillis() + duration*1000);
+                    } catch(NumberFormatException ex) {
+                        log.debug("error parsing Retry-After: header");
+                    }
+                } else {
+                    expiresDate = new Date(System.currentTimeMillis() + RETRY_AFTER *1000);
+                }
+
             } else {
                 log.error("the HTTP request failed (status: {})", response.getStatusLine());
                 throw new ClientProtocolException("the HTTP request failed (status: " + response.getStatusLine() + ")");
