@@ -225,4 +225,13 @@ public abstract class KiWiDialect {
      * @return
      */
     public abstract String getValidationQuery();
+
+
+    /**
+     * Return true in case the database system supports using cursors for queries over large data tables.
+     * @return
+     */
+    public boolean isCursorSupported() {
+        return false;
+    }
 }

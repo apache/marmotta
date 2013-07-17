@@ -26,6 +26,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -202,6 +203,10 @@ public class KiWiConnection {
 
     public KiWiDialect getDialect() {
         return dialect;
+    }
+
+    public KiWiConfiguration getConfiguration() {
+        return persistence.getConfiguration();
     }
 
     /**
@@ -1398,6 +1403,10 @@ public class KiWiConnection {
         );
         query.clearParameters();
 
+        if(persistence.getDialect().isCursorSupported()) {
+            query.setFetchSize(persistence.getConfiguration().getCursorSize());
+        }
+
         // set query parameters
         int position = 1;
         if(subject != null) {
@@ -1649,6 +1658,9 @@ public class KiWiConnection {
             statementCache.put(key,statement);
         }
         statement.clearParameters();
+        if(persistence.getDialect().isCursorSupported()) {
+            statement.setFetchSize(persistence.getConfiguration().getCursorSize());
+        }
         return statement;
     }
 

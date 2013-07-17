@@ -296,7 +296,9 @@ public class KiWiSparqlConnection {
         log.debug("SPARQL -> SQL variable mappings:\n {}", queryVariables);
 
         final PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(queryString);
-
+        if(parent.getDialect().isCursorSupported()) {
+            queryStatement.setFetchSize(parent.getConfiguration().getCursorSize());
+        }
 
         Future<ResultSet> queryFuture =
                 executorService.submit(new Callable<ResultSet>() {

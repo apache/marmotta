@@ -87,4 +87,14 @@ public class PostgreSQLDialect extends KiWiDialect {
     public String getValidationQuery() {
         return "SELECT 1";
     }
+
+    /**
+     * Return true in case the database system supports using cursors for queries over large data tables.
+     *
+     * @return
+     */
+    @Override
+    public boolean isCursorSupported() {
+        return true;
+    }
 }
