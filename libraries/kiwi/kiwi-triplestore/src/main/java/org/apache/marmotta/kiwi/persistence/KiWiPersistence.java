@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Add file description here!
@@ -77,6 +78,8 @@ public class KiWiPersistence {
      */
     private Map<String,AtomicLong> memorySequences;
 
+    private ReentrantLock          sequencesLock;
+
 
     /**
      * A reference to the value factory used to access this store. Used for notifications when to flush batches.
@@ -100,6 +103,7 @@ public class KiWiPersistence {
     public KiWiPersistence(KiWiConfiguration configuration) {
         this.configuration = configuration;
         this.maintenance = false;
+        this.sequencesLock = new ReentrantLock();
 
         // init JDBC connection pool
         initConnectionPool();
@@ -189,42 +193,47 @@ public class KiWiPersistence {
      */
     public void initSequences(String scriptName) {
         if(configuration.isBatchCommit() && configuration.isMemorySequences()) {
-            if(memorySequences == null) {
-                memorySequences = new ConcurrentHashMap<String,AtomicLong>();
-            }
-
+            sequencesLock.lock();
             try {
-                Connection con = getJDBCConnection(true);
-                try {
-                    for(String sequenceName : getDialect().listSequences(scriptName)) {
-
-                        // load sequence value from database
-                        // if there is a preparation needed to update the transaction, run it first
-                        if(getDialect().hasStatement(sequenceName+".prep")) {
-                            PreparedStatement prepNodeId = con.prepareStatement(getDialect().getStatement(sequenceName+".prep"));
-                            prepNodeId.executeUpdate();
-                            prepNodeId.close();
-                        }
-
-                        PreparedStatement queryNodeId = con.prepareStatement(getDialect().getStatement(sequenceName));
-                        ResultSet resultNodeId = queryNodeId.executeQuery();
-                        try {
-                            if(resultNodeId.next()) {
-                                memorySequences.put(sequenceName,new AtomicLong(resultNodeId.getLong(1)-1));
-                            } else {
-                                throw new SQLException("the sequence did not return a new value");
-                            }
-                        } finally {
-                            resultNodeId.close();
-                        }
-
-                        con.commit();
-                    }
-                } finally {
-                    releaseJDBCConnection(con);
+                if(memorySequences == null) {
+                    memorySequences = new ConcurrentHashMap<String,AtomicLong>();
                 }
-            } catch(SQLException ex) {
-                log.warn("database error: could not initialise in-memory sequences",ex);
+
+                try {
+                    Connection con = getJDBCConnection(true);
+                    try {
+                        for(String sequenceName : getDialect().listSequences(scriptName)) {
+
+                            // load sequence value from database
+                            // if there is a preparation needed to update the transaction, run it first
+                            if(getDialect().hasStatement(sequenceName+".prep")) {
+                                PreparedStatement prepNodeId = con.prepareStatement(getDialect().getStatement(sequenceName+".prep"));
+                                prepNodeId.executeUpdate();
+                                prepNodeId.close();
+                            }
+
+                            PreparedStatement queryNodeId = con.prepareStatement(getDialect().getStatement(sequenceName));
+                            ResultSet resultNodeId = queryNodeId.executeQuery();
+                            try {
+                                if(resultNodeId.next()) {
+                                    memorySequences.put(sequenceName,new AtomicLong(resultNodeId.getLong(1)-1));
+                                } else {
+                                    throw new SQLException("the sequence did not return a new value");
+                                }
+                            } finally {
+                                resultNodeId.close();
+                            }
+
+                            con.commit();
+                        }
+                    } finally {
+                        releaseJDBCConnection(con);
+                    }
+                } catch(SQLException ex) {
+                    log.warn("database error: could not initialise in-memory sequences",ex);
+                }
+            } finally {
+                sequencesLock.unlock();
             }
         }
     }
@@ -556,6 +565,19 @@ public class KiWiPersistence {
 
     public Map<String, AtomicLong> getMemorySequences() {
         return memorySequences;
+    }
+
+    public AtomicLong getMemorySequence(String name) {
+        if(memorySequences != null) {
+            sequencesLock.lock();
+            try {
+                return memorySequences.get(name);
+            } finally {
+                sequencesLock.unlock();
+            }
+        } else {
+            return null;
+        }
     }
 
     public void setMemorySequences(Map<String, AtomicLong> memorySequences) {

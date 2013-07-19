@@ -1673,8 +1673,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        if(batchCommit && persistence.getConfiguration().isMemorySequences() && persistence.getMemorySequences().containsKey(sequenceName)) {
-            AtomicLong sequence = persistence.getMemorySequences().get(sequenceName);
+        AtomicLong sequence = persistence.getMemorySequence(sequenceName);
+        if(batchCommit && persistence.getConfiguration().isMemorySequences() && sequence != null) {
             return sequence.incrementAndGet();
         } else {
             requireJDBCConnection();
