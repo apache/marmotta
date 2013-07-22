@@ -14,11 +14,9 @@
         <webjar.version>2.24</webjar.version>
     </properties>
 
-
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>codemirror</artifactId>
     <packaging>jar</packaging>
-
 
     <build>
         <plugins>
@@ -35,6 +33,11 @@
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
                             <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/codemirror.js</output>
+                            <includes>
+                                <include>codemirror.js</include>
+                                <include>sparql.js</include>
+                                <include>ldpath.js</include>
+                            </includes>
                         </configuration>
                     </execution>
                     <execution>
