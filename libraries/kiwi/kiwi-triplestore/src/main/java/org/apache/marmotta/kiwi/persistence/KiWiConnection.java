@@ -29,8 +29,6 @@ import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.openrdf.model.Literal;
@@ -1673,9 +1671,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        AtomicLong sequence = persistence.getMemorySequence(sequenceName);
-        if(batchCommit && persistence.getConfiguration().isMemorySequences() && sequence != null) {
-            return sequence.incrementAndGet();
+        if(batchCommit && persistence.getConfiguration().isMemorySequences()) {
+            return persistence.incrementAndGetMemorySequence(sequenceName);
         } else {
             requireJDBCConnection();
 
@@ -1893,10 +1890,10 @@ public class KiWiConnection {
             requireJDBCConnection();
 
             try {
-                for(Map.Entry<String,AtomicLong> entry : persistence.getMemorySequences().entrySet()) {
-                    if( entry.getValue().get() > 0) {
+                for(Map.Entry<String,Long> entry : persistence.getMemorySequences().asMap().entrySet()) {
+                    if( entry.getValue() > 0) {
                         PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
-                        updateSequence.setLong(1, entry.getValue().get());
+                        updateSequence.setLong(1, entry.getValue());
                         if(updateSequence.execute()) {
                             updateSequence.getResultSet().close();
                         } else {

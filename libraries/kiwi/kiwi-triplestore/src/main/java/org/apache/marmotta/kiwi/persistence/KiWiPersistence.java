@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
+import com.google.common.util.concurrent.AtomicLongMap;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
@@ -76,7 +77,7 @@ public class KiWiPersistence {
      * A map holding in-memory sequences to be used for sequence caching in case the appropriate configuration option
      * is configued and batched commits are enabled.
      */
-    private Map<String,AtomicLong> memorySequences;
+    private AtomicLongMap<String> memorySequences;
 
     private ReentrantLock          sequencesLock;
 
@@ -196,7 +197,7 @@ public class KiWiPersistence {
             sequencesLock.lock();
             try {
                 if(memorySequences == null) {
-                    memorySequences = new ConcurrentHashMap<String,AtomicLong>();
+                    memorySequences = AtomicLongMap.create();
                 }
 
                 try {
@@ -216,7 +217,7 @@ public class KiWiPersistence {
                             ResultSet resultNodeId = queryNodeId.executeQuery();
                             try {
                                 if(resultNodeId.next()) {
-                                    memorySequences.put(sequenceName,new AtomicLong(resultNodeId.getLong(1)-1));
+                                    memorySequences.put(sequenceName,resultNodeId.getLong(1)-1);
                                 } else {
                                     throw new SQLException("the sequence did not return a new value");
                                 }
@@ -563,25 +564,16 @@ public class KiWiPersistence {
         return configuration;
     }
 
-    public Map<String, AtomicLong> getMemorySequences() {
+    public AtomicLongMap<String> getMemorySequences() {
         return memorySequences;
     }
 
-    public AtomicLong getMemorySequence(String name) {
+    public long incrementAndGetMemorySequence(String name) {
         if(memorySequences != null) {
-            sequencesLock.lock();
-            try {
-                return memorySequences.get(name);
-            } finally {
-                sequencesLock.unlock();
-            }
+            return memorySequences.incrementAndGet(name);
         } else {
-            return null;
+            return 0;
         }
-    }
-
-    public void setMemorySequences(Map<String, AtomicLong> memorySequences) {
-        this.memorySequences = memorySequences;
     }
 
 

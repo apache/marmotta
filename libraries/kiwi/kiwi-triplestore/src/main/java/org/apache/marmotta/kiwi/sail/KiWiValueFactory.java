@@ -17,45 +17,27 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import info.aduna.iteration.Iterations;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.Monitor;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ContextStatementImpl;
-import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.MapMaker;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Add file description here!
@@ -86,11 +68,9 @@ public class KiWiValueFactory implements ValueFactory {
 
     private KiWiStore store;
 
-    private ReentrantLock nodeLock;
-    //private ReentrantLock tripleLock;
 
-    private ConcurrentMap<String,ReentrantLock> resourceLocks;
-    private ConcurrentMap<Object,ReentrantLock> literalLocks;
+    private LoadingCache<String,Monitor> resourceLocks;
+    private LoadingCache<String,Monitor> literalLocks;
 
     private String defaultContext;
 
@@ -110,13 +90,11 @@ public class KiWiValueFactory implements ValueFactory {
     // used for generating sequence numbers for RDF nodes
     private KiWiConnection batchConnection;
 
-    private ReentrantLock commitLock;
+    private Monitor commitLock;
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
-        nodeLock = store.nodeLock;
-        //tripleLock = store.tripleLock;
-        resourceLocks = new MapMaker().weakKeys().weakValues().makeMap();
-        literalLocks  = new MapMaker().weakKeys().weakValues().makeMap();
+        resourceLocks = CacheBuilder.newBuilder().weakValues().build(new LockCacheLoader());
+        literalLocks  = CacheBuilder.newBuilder().weakValues().build(new LockCacheLoader());
 
         anonIdGenerator = new Random();
         tripleRegistry  = store.tripleRegistry;
@@ -126,14 +104,14 @@ public class KiWiValueFactory implements ValueFactory {
 
         // batch commits
         this.nodeBatch      = new ArrayList<KiWiNode>(batchSize);
-        this.commitLock     = new ReentrantLock();
+        this.commitLock     = new Monitor();
 
         this.batchCommit    = store.getPersistence().getConfiguration().isBatchCommit();
         this.batchSize      = store.getPersistence().getConfiguration().getBatchSize();
 
-        this.batchUriLookup     = new HashMap<String,KiWiUriResource>();
-        this.batchBNodeLookup   = new HashMap<String, KiWiAnonResource>();
-        this.batchLiteralLookup = new HashMap<String,KiWiLiteral>();
+        this.batchUriLookup     = new ConcurrentHashMap<String,KiWiUriResource>();
+        this.batchBNodeLookup   = new ConcurrentHashMap<String, KiWiAnonResource>();
+        this.batchLiteralLookup = new ConcurrentHashMap<String,KiWiLiteral>();
     }
 
     protected KiWiConnection aqcuireConnection() {
@@ -165,33 +143,6 @@ public class KiWiValueFactory implements ValueFactory {
         }
     }
 
-    protected ReentrantLock acquireResourceLock(String uri) {
-        ReentrantLock lock;
-        synchronized (resourceLocks) {
-            lock = resourceLocks.get(uri);
-            if(lock == null) {
-                lock = new ReentrantLock();
-                resourceLocks.put(uri,lock);
-            }
-        }
-        lock.lock();
-
-        return lock;
-    }
-
-    protected ReentrantLock acquireLiteralLock(Object value) {
-        ReentrantLock lock;
-        synchronized (literalLocks) {
-            lock = literalLocks.get(value);
-            if(lock == null) {
-                lock = new ReentrantLock();
-                literalLocks.put(value,lock);
-            }
-        }
-        lock.lock();
-
-        return lock;
-    }
     /**
      * Creates a new bNode.
      *
@@ -211,51 +162,56 @@ public class KiWiValueFactory implements ValueFactory {
     @Override
     public URI createURI(String uri) {
 
-        KiWiUriResource result = batchUriLookup.get(uri);
+        Monitor lock = resourceLocks.getUnchecked(uri);
+        lock.enter();
 
-        if(result != null) {
-            return result;
-        } else {
+        try {
+            KiWiUriResource result = batchUriLookup.get(uri);
 
-            ReentrantLock lock = acquireResourceLock(uri);
-            KiWiConnection connection = aqcuireConnection();
-            try {
-                // first look in the registry for newly created resources if the resource has already been created and
-                // is still volatile
-                result = connection.loadUriResource(uri);
+            if(result != null) {
+                return result;
+            } else {
 
-                if(result == null) {
-                    result = new KiWiUriResource(uri);
+                KiWiConnection connection = aqcuireConnection();
+                try {
+                    // first look in the registry for newly created resources if the resource has already been created and
+                    // is still volatile
+                    result = connection.loadUriResource(uri);
 
-                    if(result.getId() == null) {
-                        if(batchCommit) {
-                            result.setId(connection.getNodeId());
-                            synchronized (nodeBatch) {
-                                nodeBatch.add(result);
-                                batchUriLookup.put(uri,result);
+                    if(result == null) {
+                        result = new KiWiUriResource(uri);
 
-                                if(nodeBatch.size() >= batchSize) {
-                                    flushBatch(connection);
+                        if(result.getId() == null) {
+                            if(batchCommit) {
+                                result.setId(connection.getNodeId());
+                                synchronized (nodeBatch) {
+                                    nodeBatch.add(result);
+                                    batchUriLookup.put(uri,result);
+
+                                    if(nodeBatch.size() >= batchSize) {
+                                        flushBatch(connection);
+                                    }
                                 }
+                            } else {
+                                connection.storeNode(result, false);
                             }
-                        } else {
-                            connection.storeNode(result, false);
+                        }
+
+                        if(result.getId() == null) {
+                            log.error("node ID is null!");
                         }
                     }
 
-                    if(result.getId() == null) {
-                        log.error("node ID is null!");
-                    }
+                    return result;
+                } catch (SQLException e) {
+                    log.error("database error, could not load URI resource",e);
+                    throw new IllegalStateException("database error, could not load URI resource",e);
+                } finally {
+                    releaseConnection(connection);
                 }
-
-                return result;
-            } catch (SQLException e) {
-                log.error("database error, could not load URI resource",e);
-                throw new IllegalStateException("database error, could not load URI resource",e);
-            } finally {
-                releaseConnection(connection);
-                lock.unlock();
             }
+        } finally {
+            lock.leave();
         }
     }
 
@@ -286,45 +242,50 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode(String nodeID) {
-        KiWiAnonResource result = batchBNodeLookup.get(nodeID);
+        Monitor lock = resourceLocks.getUnchecked(nodeID);
+        lock.enter();
 
-        if(result != null) {
-            return result;
-        } else {
-            nodeLock.lock();
-            KiWiConnection connection = aqcuireConnection();
-            try {
-                // first look in the registry for newly created resources if the resource has already been created and
-                // is still volatile
-                result = connection.loadAnonResource(nodeID);
+        try {
+            KiWiAnonResource result = batchBNodeLookup.get(nodeID);
 
-                if(result == null) {
-                    result = new KiWiAnonResource(nodeID);
+            if(result != null) {
+                return result;
+            } else {
+                KiWiConnection connection = aqcuireConnection();
+                try {
+                    // first look in the registry for newly created resources if the resource has already been created and
+                    // is still volatile
+                    result = connection.loadAnonResource(nodeID);
 
-                    if(result.getId() == null) {
-                        if(batchCommit) {
-                            result.setId(connection.getNodeId());
-                            synchronized (nodeBatch) {
-                                nodeBatch.add(result);
-                                batchBNodeLookup.put(nodeID,result);
+                    if(result == null) {
+                        result = new KiWiAnonResource(nodeID);
+
+                        if(result.getId() == null) {
+                            if(batchCommit) {
+                                result.setId(connection.getNodeId());
+                                synchronized (nodeBatch) {
+                                    nodeBatch.add(result);
+                                    batchBNodeLookup.put(nodeID,result);
+                                }
+                                if(nodeBatch.size() >= batchSize) {
+                                    flushBatch(connection);
+                                }
+                            } else {
+                                connection.storeNode(result, false);
                             }
-                            if(nodeBatch.size() >= batchSize) {
-                                flushBatch(connection);
-                            }
-                        } else {
-                            connection.storeNode(result, false);
                         }
                     }
-                }
 
-                return result;
-            } catch (SQLException e) {
-                log.error("database error, could not load anonymous resource",e);
-                throw new IllegalStateException("database error, could not load anonymous resource",e);
-            } finally {
-                releaseConnection(connection);
-                nodeLock.unlock();
+                    return result;
+                } catch (SQLException e) {
+                    log.error("database error, could not load anonymous resource",e);
+                    throw new IllegalStateException("database error, could not load anonymous resource",e);
+                } finally {
+                    releaseConnection(connection);
+                }
             }
+        } finally {
+            lock.leave();
         }
     }
 
@@ -418,119 +379,125 @@ public class KiWiValueFactory implements ValueFactory {
         } else if(type == null) {
             type = LiteralCommons.getXSDType(value.getClass());
         }
+        String key = LiteralCommons.createCacheKey(value.toString(),locale,type);
 
-        KiWiLiteral result = batchLiteralLookup.get(LiteralCommons.createCacheKey(value.toString(),locale,type));
+        Monitor lock = literalLocks.getUnchecked(key);
+        lock.enter();
 
-
-        if(result != null) {
-            return result;
-        } else {
-            final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
-
-            ReentrantLock lock = acquireLiteralLock(value);
-            KiWiConnection connection = aqcuireConnection();
-            try {
+        try {
+            KiWiLiteral result = batchLiteralLookup.get(key);
 
 
-                // differentiate between the different types of the value
-                if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
-                    // parse if necessary
-                    final Date dvalue;
-                    if(value instanceof Date) {
-                        dvalue = (Date)value;
-                    } else {
-                        dvalue = DateUtils.parseDate(value.toString());
-                    }
+            if(result != null) {
+                return result;
+            } else {
+                final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
 
-                    result = connection.loadLiteral(dvalue);
-
-                    if(result == null) {
-                        result= new KiWiDateLiteral(dvalue, rtype);
-                    }
-                } else if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())  ||
-                        Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
-                        type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
-                    long ivalue = 0;
-                    if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
-                        ivalue = (Integer)value;
-                    } else if(Long.class.equals(value.getClass()) || long.class.equals(value.getClass())) {
-                        ivalue = (Long)value;
-                    } else {
-                        ivalue = Long.parseLong(value.toString());
-                    }
+                KiWiConnection connection = aqcuireConnection();
+                try {
 
 
-                    result = connection.loadLiteral(ivalue);
+                    // differentiate between the different types of the value
+                    if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
+                        // parse if necessary
+                        final Date dvalue;
+                        if(value instanceof Date) {
+                            dvalue = (Date)value;
+                        } else {
+                            dvalue = DateUtils.parseDate(value.toString());
+                        }
 
-                    if(result == null) {
-                        result= new KiWiIntLiteral(ivalue, rtype);
-                    }
-                } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
-                        Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
-                        type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
-                    double dvalue = 0.0;
-                    if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
-                        dvalue = (Float)value;
-                    } else if(Double.class.equals(value.getClass()) || double.class.equals(value.getClass())) {
-                        dvalue = (Double)value;
-                    } else {
-                        dvalue = Double.parseDouble(value.toString());
-                    }
+                        result = connection.loadLiteral(dvalue);
 
-
-                    result = connection.loadLiteral(dvalue);
-
-                    if(result == null) {
-                        result= new KiWiDoubleLiteral(dvalue, rtype);
-                    }
-                } else if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())  ||
-                        type.equals(Namespaces.NS_XSD+"boolean")) {
-                    boolean bvalue = false;
-                    if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())) {
-                        bvalue = (Boolean)value;
-                    } else {
-                        bvalue = Boolean.parseBoolean(value.toString());
-                    }
+                        if(result == null) {
+                            result= new KiWiDateLiteral(dvalue, rtype);
+                        }
+                    } else if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())  ||
+                            Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
+                            type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
+                        long ivalue = 0;
+                        if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
+                            ivalue = (Integer)value;
+                        } else if(Long.class.equals(value.getClass()) || long.class.equals(value.getClass())) {
+                            ivalue = (Long)value;
+                        } else {
+                            ivalue = Long.parseLong(value.toString());
+                        }
 
 
-                    result = connection.loadLiteral(bvalue);
+                        result = connection.loadLiteral(ivalue);
 
-                    if(result == null) {
-                        result= new KiWiBooleanLiteral(bvalue, rtype);
-                    }
-                } else {
-                    result = connection.loadLiteral(value.toString(), lang, rtype);
+                        if(result == null) {
+                            result= new KiWiIntLiteral(ivalue, rtype);
+                        }
+                    } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
+                            Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
+                            type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
+                        double dvalue = 0.0;
+                        if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
+                            dvalue = (Float)value;
+                        } else if(Double.class.equals(value.getClass()) || double.class.equals(value.getClass())) {
+                            dvalue = (Double)value;
+                        } else {
+                            dvalue = Double.parseDouble(value.toString());
+                        }
 
-                    if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, rtype);
-                    }
-                }
 
-                if(result.getId() == null) {
-                    if(batchCommit) {
-                        result.setId(connection.getNodeId());
-                        synchronized (nodeBatch) {
-                            nodeBatch.add(result);
-                            batchLiteralLookup.put(LiteralCommons.createCacheKey(value.toString(),locale,type), result);
+                        result = connection.loadLiteral(dvalue);
 
-                            if(nodeBatch.size() >= batchSize) {
-                                flushBatch(connection);
-                            }
+                        if(result == null) {
+                            result= new KiWiDoubleLiteral(dvalue, rtype);
+                        }
+                    } else if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())  ||
+                            type.equals(Namespaces.NS_XSD+"boolean")) {
+                        boolean bvalue = false;
+                        if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())) {
+                            bvalue = (Boolean)value;
+                        } else {
+                            bvalue = Boolean.parseBoolean(value.toString());
+                        }
+
+
+                        result = connection.loadLiteral(bvalue);
+
+                        if(result == null) {
+                            result= new KiWiBooleanLiteral(bvalue, rtype);
                         }
                     } else {
-                        connection.storeNode(result, false);
+                        result = connection.loadLiteral(value.toString(), lang, rtype);
+
+                        if(result == null) {
+                            result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                        }
                     }
+
+                    if(result.getId() == null) {
+                        if(batchCommit) {
+                            result.setId(connection.getNodeId());
+                            synchronized (nodeBatch) {
+                                nodeBatch.add(result);
+                                batchLiteralLookup.put(LiteralCommons.createCacheKey(value.toString(),locale,type), result);
+
+                                if(nodeBatch.size() >= batchSize) {
+                                    flushBatch(connection);
+                                }
+                            }
+                        } else {
+                            connection.storeNode(result, false);
+                        }
+                    }
+
+                    return result;
+
+                } catch (SQLException e) {
+                    log.error("database error, could not load literal",e);
+                    throw new IllegalStateException("database error, could not load literal",e);
+                } finally {
+                    releaseConnection(connection);
                 }
-
-                return result;
-
-            } catch (SQLException e) {
-                log.error("database error, could not load literal",e);
-                throw new IllegalStateException("database error, could not load literal",e);
-            } finally {
-                releaseConnection(connection);
-                lock.unlock();
             }
+        } finally {
+            lock.leave();
         }
     }
 
@@ -790,27 +757,28 @@ public class KiWiValueFactory implements ValueFactory {
      * the node batch.
      */
     public void flushBatch(KiWiConnection con) throws SQLException {
-        commitLock.lock();
-        try {
-            if(batchCommit && nodeBatch.size() > 0) {
-                con.startNodeBatch();
+        if(commitLock.tryEnter()) {
+            try {
+                if(batchCommit && nodeBatch.size() > 0) {
+                    con.startNodeBatch();
 
-                synchronized (nodeBatch) {
-                    for(KiWiNode n : nodeBatch) {
-                        con.storeNode(n,true);
+                    synchronized (nodeBatch) {
+                        for(KiWiNode n : nodeBatch) {
+                            con.storeNode(n,true);
+                        }
+                        nodeBatch.clear();
+
+                        batchLiteralLookup.clear();
+                        batchUriLookup.clear();
+                        batchBNodeLookup.clear();
                     }
-                    nodeBatch.clear();
 
-                    batchLiteralLookup.clear();
-                    batchUriLookup.clear();
-                    batchBNodeLookup.clear();
+                    con.commitNodeBatch();
+
                 }
-
-                con.commitNodeBatch();
-
+            } finally {
+                commitLock.leave();
             }
-        } finally {
-            commitLock.unlock();
         }
 
     }
@@ -823,6 +791,16 @@ public class KiWiValueFactory implements ValueFactory {
             }
         } catch (SQLException e) {
             log.warn("could not close value factory connection: {}",e.getMessage());
+        }
+    }
+
+    /**
+     * A simple Guava cache loader implementation for generating object-based locks
+     */
+    private static class LockCacheLoader extends CacheLoader<Object,Monitor> {
+        @Override
+        public Monitor load(Object key) throws Exception {
+            return new Monitor();
         }
     }
 }
