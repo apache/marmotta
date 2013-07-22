@@ -38,11 +38,7 @@ import org.slf4j.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Date;
@@ -198,6 +194,34 @@ public class VersioningWebService {
 
         } catch (SailException e) {
             return Response.serverError().entity("error loading version "+id+": "+e.getMessage()).build();
+        }
+    }
+
+    /**
+     * Remove the version with the given ID from the triple store. Calling this service will only remove the versioning
+     * metadata, not the triples themselves. Triples that are marked as deleted and no longer attached to a version will
+     * be cleaned up by a garbage collection process that is running periodically or can be triggered manually.
+     *
+     * @param id
+     * @return
+     */
+    @DELETE
+    @Path("/versions/{id:[0-9]+}")
+    public Response deleteVersion(@PathParam("id") Long id) {
+        try {
+            Version version = versioningService.getVersion(id);
+
+            if(version != null) {
+                versioningService.removeVersion(id);
+
+                return Response.ok().entity("success").build();
+
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("version with id "+id+" does not exist").build();
+            }
+
+        } catch (SailException e) {
+            return Response.serverError().entity("error deleting version "+id+": "+e.getMessage()).build();
         }
     }
 
