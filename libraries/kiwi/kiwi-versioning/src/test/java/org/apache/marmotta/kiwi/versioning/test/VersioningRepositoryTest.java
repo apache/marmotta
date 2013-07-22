@@ -36,6 +36,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -246,6 +247,95 @@ public class VersioningRepositoryTest {
         Assert.assertEquals("expected 1 version!", 1, versions1.size());
         Assert.assertEquals(1, (long)versions1.get(0).getId());
         Assert.assertEquals(3, (long)versions1.get(0).getAddedTriples().size());
+    }
+
+
+    /**
+     * This test imports three small RDF files in sequence and checks afterwards that the number of versions
+     * is correct and they contain the correct information
+     * @throws Exception
+     */
+    @Test
+    public void testRevertVersions() throws Exception {
+        // import three files in sequence and check if the versions are created properly
+
+        Date date1 = new Date();
+
+        mysqlSleep();
+
+        // base data
+        InputStream baseData = this.getClass().getResourceAsStream("version-base.rdf");
+        assumeThat("Could not load test-data: version-base.rdf", baseData, notNullValue(InputStream.class));
+
+        RepositoryConnection connectionBase = repository.getConnection();
+        try {
+            connectionBase.add(baseData, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionBase.commit();
+        } finally {
+            connectionBase.close();
+        }
+
+        mysqlSleep();
+
+        Date date2 = new Date();
+
+        mysqlSleep();
+
+        // update 1
+        InputStream update1Data = this.getClass().getResourceAsStream("version-update1.rdf");
+        assumeThat("Could not load test-data: version-update1.rdf", update1Data, notNullValue(InputStream.class));
+
+        RepositoryConnection connectionUpdate1 = repository.getConnection();
+        try {
+            connectionUpdate1.add(update1Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate1.commit();
+        } finally {
+            connectionUpdate1.close();
+        }
+
+        // update 2
+        InputStream update2Data = this.getClass().getResourceAsStream("version-update2.rdf");
+        assumeThat("Could not load test-data: version-update2.rdf", update2Data, notNullValue(InputStream.class));
+
+        RepositoryConnection connectionUpdate2 = repository.getConnection();
+        try {
+            connectionUpdate2.add(update2Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate2.commit();
+        } finally {
+            connectionUpdate2.close();
+        }
+
+        // list all versions
+        List<Version> versions = asList(vsail.listVersions());
+        Assert.assertEquals("expected 3 versions!", 3, versions.size());
+        Assert.assertEquals(1, (long)versions.get(0).getId());
+
+        URI subject = repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R1");
+        URI predicate = repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/P2");
+
+        RepositoryConnection connectionBeforeRevert = repository.getConnection();
+        try {
+            Assert.assertTrue(connectionBeforeRevert.hasStatement(subject,predicate,null,true));
+        } finally {
+            connectionBeforeRevert.close();
+        }
+
+        // revert version; afterwards we expect there to be 4 versions
+        vsail.revertVersion(versions.get(0));
+
+        List<Version> versions2 = asList(vsail.listVersions());
+        Assert.assertEquals("expected 4 versions!", 4, versions2.size());
+
+        // the repository should now lo longer contain any P2 property for ns1:C
+        RepositoryConnection connectionAfterRevert = repository.getConnection();
+        try {
+            Assert.assertFalse(connectionAfterRevert.hasStatement(subject, predicate, null, true));
+        } finally {
+            connectionAfterRevert.close();
+        }
+
+
+
     }
 
 

@@ -226,4 +226,31 @@ public class VersioningWebService {
     }
 
 
+    /**
+     * Revert (undo) the version with the given ID. Calling this service will add all removed triples and remove all
+     * added triples of the old version. If versioning is active, this will create a new version as well.
+     *
+     * @param id
+     * @return
+     */
+    @POST
+    @Path("/versions/{id:[0-9]+}")
+    public Response revertVersion(@PathParam("id") Long id) {
+        try {
+            Version version = versioningService.getVersion(id);
+
+            if(version != null) {
+                versioningService.removeVersion(id);
+
+                return Response.ok().entity("success").build();
+
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("version with id "+id+" does not exist").build();
+            }
+
+        } catch (SailException e) {
+            return Response.serverError().entity("error deleting version "+id+": "+e.getMessage()).build();
+        }
+    }
+
 }

@@ -34,6 +34,8 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+import org.openrdf.repository.sail.SailRepositoryConnection;
+import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.StackableSail;
 import org.slf4j.Logger;
@@ -473,6 +475,32 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         }
     }
 
+    /**
+     * Revert (undo) the version given as argument. This method creates a new transaction, adds all triples
+     * that were deleted in the old version, removes all triples that were added in the old version, and commits
+     * the transaction, effectively creating a new (reverted) version.
+     *
+     * @param version    the version to revert
+     * @throws SailException in case reverting the version failed
+     */
+    public void revertVersion(Version version) throws SailException {
+        SailConnection con = getConnection();
+        try {
+            con.begin();
+
+            for(Statement stmt : version.getAddedTriples()) {
+                con.removeStatements(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), stmt.getContext());
+            }
+
+            for(Statement stmt : version.getRemovedTriples()) {
+                con.addStatement(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), stmt.getContext());
+            }
+
+            con.commit();
+        } finally {
+            con.close();
+        }
+    }
 
 
     @Override

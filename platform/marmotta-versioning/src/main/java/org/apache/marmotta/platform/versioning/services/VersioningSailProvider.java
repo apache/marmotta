@@ -256,4 +256,16 @@ public class VersioningSailProvider implements TransactionalSailProvider {
     public void removeVersions(Date until) throws SailException {
         sail.removeVersions(until);
     }
+
+    /**
+     * Revert (undo) the version given as argument. This method creates a new transaction, adds all triples
+     * that were deleted in the old version, removes all triples that were added in the old version, and commits
+     * the transaction, effectively creating a new (reverted) version.
+     *
+     * @param version    the version to revert
+     * @throws org.openrdf.sail.SailException in case reverting the version failed
+     */
+    public void revertVersion(Version version) throws SailException {
+        sail.revertVersion(version);
+    }
 }
