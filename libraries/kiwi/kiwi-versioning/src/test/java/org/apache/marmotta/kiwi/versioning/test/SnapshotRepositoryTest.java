@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
+import info.aduna.iteration.Iterations;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -378,17 +379,6 @@ public class SnapshotRepositoryTest {
      * @return
      */
     public static <E> List<E> asList(RepositoryResult<E> result) throws RepositoryException {
-        ArrayList<E> collection = new ArrayList<E>();
-        try {
-            while (result.hasNext()) {
-                collection.add(result.next());
-            }
-
-            return collection;
-        }
-        finally {
-            result.close();
-        }
+        return Iterations.asList(result);
     }
-
 }
