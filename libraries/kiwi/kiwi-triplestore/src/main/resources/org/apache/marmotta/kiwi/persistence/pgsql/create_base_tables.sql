@@ -29,7 +29,8 @@ CREATE TABLE nodes (
   ltype     bigint     REFERENCES nodes(id),
   lang      varchar(5),
   createdAt timestamp  NOT NULL DEFAULT now(),
-  PRIMARY KEY(id)
+  PRIMARY KEY(id),
+  UNIQUE(ntype,svalue)
 );
 
 CREATE TABLE triples (
@@ -77,7 +78,7 @@ CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 
 -- a rule to ignore duplicate inserts into triple table
-CREATE RULE "triples_ignore_duplicates" AS
+CREATE OR REPLACE RULE "triples_ignore_duplicates" AS
 ON INSERT TO triples
   WHERE EXISTS(
       SELECT 1 FROM triples

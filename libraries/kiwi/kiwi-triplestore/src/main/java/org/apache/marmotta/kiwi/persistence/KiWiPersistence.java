@@ -580,4 +580,8 @@ public class KiWiPersistence {
     public void garbageCollect() throws SQLException {
         this.garbageCollector.garbageCollect();
     }
+
+    public boolean checkConsistency() throws SQLException {
+        return garbageCollector.checkConsistency();
+    }
 }

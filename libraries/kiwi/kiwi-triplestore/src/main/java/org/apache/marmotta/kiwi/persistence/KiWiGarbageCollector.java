@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -98,6 +99,28 @@ public class KiWiGarbageCollector extends Thread {
         nodeTableDependencies.add(new TableDependency(tableName,columnName));
     }
 
+    protected boolean checkConsistency() throws SQLException {
+        boolean consistent = true;
+
+        String checkNodeDuplicatesQuery = "SELECT svalue, count(id) FROM nodes WHERE ntype='uri' group by svalue having count(id) > 1";
+
+        try(Connection con = persistence.getJDBCConnection()) {
+            PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(checkNodeDuplicatesQuery);
+
+            ResultSet result = checkNodeDuplicatesStatement.executeQuery();
+            if(result.next()) {
+                log.warn("DATABASE INCONSISTENCY: duplicate node entries found, manual repair required!");
+                do {
+                    log.warn(" - inconsistent resource: {}", result.getString("svalue"));
+                } while(result.next());
+
+                consistent = false;
+            }
+
+        }
+
+        return consistent;
+    }
 
     protected int garbageCollect() throws SQLException {
         round++;
@@ -172,6 +195,13 @@ public class KiWiGarbageCollector extends Thread {
             while(!shutdown) {
                 // don't run immediately on startup
                 if(started) {
+                    log.info("running database consistency checks ...");
+                    try {
+                        checkConsistency();
+                    } catch (SQLException e) {
+                        log.error("error while executing consistency checks: {}",e.getMessage());
+                    }
+
                     log.info("running garbage collection ...");
                     try {
                         int count = garbageCollect();
