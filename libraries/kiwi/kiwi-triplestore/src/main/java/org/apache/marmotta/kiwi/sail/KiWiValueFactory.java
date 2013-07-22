@@ -90,7 +90,13 @@ public class KiWiValueFactory implements ValueFactory {
     // used for generating sequence numbers for RDF nodes
     private KiWiConnection batchConnection;
 
-    private Monitor commitLock;
+    private Monitor       commitLock  = new Monitor();
+    private Monitor.Guard commitGuard = new Monitor.Guard(commitLock) {
+        @Override
+        public boolean isSatisfied() {
+            return batchCommit && nodeBatch.size() > 0;
+        }
+    };
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
         resourceLocks = CacheBuilder.newBuilder().weakValues().build(new LockCacheLoader());
@@ -104,7 +110,6 @@ public class KiWiValueFactory implements ValueFactory {
 
         // batch commits
         this.nodeBatch      = new ArrayList<KiWiNode>(batchSize);
-        this.commitLock     = new Monitor();
 
         this.batchCommit    = store.getPersistence().getConfiguration().isBatchCommit();
         this.batchSize      = store.getPersistence().getConfiguration().getBatchSize();
@@ -757,30 +762,26 @@ public class KiWiValueFactory implements ValueFactory {
      * the node batch.
      */
     public void flushBatch(KiWiConnection con) throws SQLException {
-        if(commitLock.tryEnter()) {
+        if(commitLock.enterIf(commitGuard)) {
             try {
-                if(batchCommit && nodeBatch.size() > 0) {
-                    con.startNodeBatch();
+                con.startNodeBatch();
 
-                    synchronized (nodeBatch) {
-                        for(KiWiNode n : nodeBatch) {
-                            con.storeNode(n,true);
-                        }
-                        nodeBatch.clear();
-
-                        batchLiteralLookup.clear();
-                        batchUriLookup.clear();
-                        batchBNodeLookup.clear();
+                synchronized (nodeBatch) {
+                    for(KiWiNode n : nodeBatch) {
+                        con.storeNode(n,true);
                     }
+                    nodeBatch.clear();
 
-                    con.commitNodeBatch();
-
+                    batchLiteralLookup.clear();
+                    batchUriLookup.clear();
+                    batchBNodeLookup.clear();
                 }
+
+                con.commitNodeBatch();
             } finally {
                 commitLock.leave();
             }
         }
-
     }
 
     public void close() {
@@ -803,4 +804,5 @@ public class KiWiValueFactory implements ValueFactory {
             return new Monitor();
         }
     }
+
 }
