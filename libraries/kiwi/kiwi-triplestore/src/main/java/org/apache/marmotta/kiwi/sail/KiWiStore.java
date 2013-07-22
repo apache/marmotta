@@ -92,19 +92,19 @@ public class KiWiStore extends NotifyingSailBase {
     protected ConcurrentMap<IntArray,Statement> tripleRegistry;
 
     public KiWiStore(KiWiPersistence persistence, String defaultContext, String inferredContext) {
-    	this.persistence    = persistence;
-    	this.defaultContext = defaultContext;
+        this.persistence    = persistence;
+        this.defaultContext = defaultContext;
         this.nodeLock       = new ReentrantLock();
         this.tripleLock     = new ReentrantLock();
         this.inferredContext = inferredContext;
-    	
-    	tripleRegistry  = new MapMaker().weakValues().makeMap();
+
+        tripleRegistry  = new MapMaker().weakValues().makeMap();
 
     }
 
     @Deprecated
     public KiWiStore(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect, String defaultContext, String inferredContext) {
-    	this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect, defaultContext, inferredContext));
+        this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect, defaultContext, inferredContext));
     }
 
     public KiWiStore(KiWiConfiguration configuration) {
@@ -221,6 +221,15 @@ public class KiWiStore extends NotifyingSailBase {
             persistence.garbageCollect();
         } catch (SQLException e) {
             throw new SailException("error calling garbage collector",e);
+        }
+    }
+
+
+    public boolean checkConsistency() throws SailException {
+        try {
+            return persistence.checkConsistency();
+        } catch (SQLException e) {
+            throw new SailException("error calling consistency check",e);
         }
     }
 }

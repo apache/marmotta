@@ -20,6 +20,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,8 @@ import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 import com.google.code.tempusfugit.concurrency.annotations.Repeating;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,
@@ -112,7 +115,8 @@ public class MySQLConcurrencyTest {
     }
 
     @AfterClass
-    public static void dropDatabase() throws RepositoryException, SQLException {
+    public static void dropDatabase() throws RepositoryException, SQLException, SailException {
+        assertTrue(store.checkConsistency());
     	if (store != null) {
 	        store.closeValueFactory(); // release all connections before dropping the database
 	        store.getPersistence().dropDatabase();

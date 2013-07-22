@@ -22,6 +22,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,
@@ -115,7 +118,8 @@ public class H2ConcurrencyTest {
     }
 
     @AfterClass
-    public static void dropDatabase() throws RepositoryException, SQLException {
+    public static void dropDatabase() throws RepositoryException, SQLException, SailException {
+        assertTrue(store.checkConsistency());
         store.closeValueFactory(); // release all connections before dropping the database
         store.getPersistence().dropDatabase();
         repository.shutDown();
