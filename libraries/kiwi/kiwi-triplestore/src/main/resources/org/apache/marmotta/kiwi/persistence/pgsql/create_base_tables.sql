@@ -29,8 +29,7 @@ CREATE TABLE nodes (
   ltype     bigint     REFERENCES nodes(id),
   lang      varchar(5),
   createdAt timestamp  NOT NULL DEFAULT now(),
-  PRIMARY KEY(id),
-  UNIQUE(ntype,svalue)
+  PRIMARY KEY(id)
 );
 
 CREATE TABLE triples (
