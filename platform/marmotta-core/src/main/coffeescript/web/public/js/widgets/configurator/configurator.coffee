@@ -71,8 +71,8 @@ class Model
       else if value.type.match /java.lang.String.*/ then clazz = StringProperty
       else if value.type.match /java.net.URL.*/ then clazz = URIProperty
       else if value.type.match /java.util.List.*/ then clazz = ListProperty
-      else if value.type.match /org.marmotta.†ype.Program/ then clazz = ProgramProperty
-      else if value.type.match /org.marmotta.†ype.Text/ then clazz = TextProperty
+      else if value.type.match /org.marmotta.type.Program/ then clazz = ProgramProperty
+      else if value.type.match /org.marmotta.type.Text/ then clazz = TextProperty
       else clazz = Property
 
       @properties.push new clazz property,value
