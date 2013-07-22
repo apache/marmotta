@@ -109,7 +109,7 @@ public class KiWiValueFactory implements ValueFactory {
         this.defaultContext = defaultContext;
 
         // batch commits
-        this.nodeBatch      = new ArrayList<KiWiNode>(batchSize);
+        this.nodeBatch      = Collections.synchronizedList(new ArrayList<KiWiNode>(batchSize));
 
         this.batchCommit    = store.getPersistence().getConfiguration().isBatchCommit();
         this.batchSize      = store.getPersistence().getConfiguration().getBatchSize();
@@ -188,14 +188,17 @@ public class KiWiValueFactory implements ValueFactory {
 
                         if(result.getId() == null) {
                             if(batchCommit) {
-                                result.setId(connection.getNodeId());
-                                synchronized (nodeBatch) {
+                                commitLock.enter();
+                                try {
+                                    result.setId(connection.getNodeId());
                                     nodeBatch.add(result);
                                     batchUriLookup.put(uri,result);
 
                                     if(nodeBatch.size() >= batchSize) {
                                         flushBatch(connection);
                                     }
+                                } finally {
+                                    commitLock.leave();
                                 }
                             } else {
                                 connection.storeNode(result, false);
@@ -267,13 +270,16 @@ public class KiWiValueFactory implements ValueFactory {
 
                         if(result.getId() == null) {
                             if(batchCommit) {
-                                result.setId(connection.getNodeId());
-                                synchronized (nodeBatch) {
+                                commitLock.enter();
+                                try {
+                                    result.setId(connection.getNodeId());
                                     nodeBatch.add(result);
                                     batchBNodeLookup.put(nodeID,result);
-                                }
-                                if(nodeBatch.size() >= batchSize) {
-                                    flushBatch(connection);
+                                    if(nodeBatch.size() >= batchSize) {
+                                        flushBatch(connection);
+                                    }
+                                } finally {
+                                    commitLock.leave();
                                 }
                             } else {
                                 connection.storeNode(result, false);
@@ -478,14 +484,18 @@ public class KiWiValueFactory implements ValueFactory {
 
                     if(result.getId() == null) {
                         if(batchCommit) {
-                            result.setId(connection.getNodeId());
-                            synchronized (nodeBatch) {
+                            commitLock.enter();
+                            try {
+                                result.setId(connection.getNodeId());
                                 nodeBatch.add(result);
                                 batchLiteralLookup.put(LiteralCommons.createCacheKey(value.toString(),locale,type), result);
 
                                 if(nodeBatch.size() >= batchSize) {
                                     flushBatch(connection);
                                 }
+
+                            } finally {
+                                commitLock.leave();
                             }
                         } else {
                             connection.storeNode(result, false);
@@ -679,7 +689,7 @@ public class KiWiValueFactory implements ValueFactory {
      * @return The created statement.
      */
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context, KiWiConnection connection) {
-        IntArray cacheKey = IntArray.createSPOCKey(subject,predicate,object,context);
+        IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
         KiWiTriple result = (KiWiTriple)tripleRegistry.get(cacheKey);
         try {
             if(result == null || ((KiWiTriple)result).isDeleted()) {
@@ -766,16 +776,14 @@ public class KiWiValueFactory implements ValueFactory {
             try {
                 con.startNodeBatch();
 
-                synchronized (nodeBatch) {
-                    for(KiWiNode n : nodeBatch) {
-                        con.storeNode(n,true);
-                    }
-                    nodeBatch.clear();
-
-                    batchLiteralLookup.clear();
-                    batchUriLookup.clear();
-                    batchBNodeLookup.clear();
+                for(KiWiNode n : nodeBatch) {
+                    con.storeNode(n,true);
                 }
+                nodeBatch.clear();
+
+                batchLiteralLookup.clear();
+                batchUriLookup.clear();
+                batchBNodeLookup.clear();
 
                 con.commitNodeBatch();
             } finally {
