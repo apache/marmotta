@@ -30,6 +30,8 @@ import java.util.Date;
  */
 public class ClientResponse {
 
+	private static final int DEFAULT_HTTP_CODE = 200;
+	
     private static final int DEFAULT_EXPIRATION_IN_DAYS = 7;
 
     /**
@@ -40,11 +42,15 @@ public class ClientResponse {
     private Repository triples;
 
     private Date expires;
+    
+    public ClientResponse(Repository triples) {
+    	this(DEFAULT_HTTP_CODE, triples);
+    }
 
     public ClientResponse(int httpStatus, Repository triples) {
         this.triples = triples;
         this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
-        this.httpStatus = this.httpStatus;
+        this.httpStatus = httpStatus;
     }
 
     public Repository getTriples() {
