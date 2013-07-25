@@ -585,6 +585,89 @@ public class PersistenceTest {
      * @throws SQLException
      */
     @Test
+    public void testStoreBigStringLiteral() throws SQLException {
+        KiWiConnection connection = persistence.getConnection();
+        try {
+            KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+
+            // add a new URI to the triple store and check if it exists afterwards, before and after commit
+            KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(16384), null, uri);
+            connection.storeNode(literal, false);
+
+            // check if it then has a database ID
+            Assert.assertNotNull(literal.getId());
+
+            KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
+
+            // needs to be equal, and should also be the identical object!
+            Assert.assertEquals(literal,testLiteral1);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral1).getType());
+            Assert.assertTrue(literal == testLiteral1);
+
+            connection.commit();
+
+            KiWiNode testLiteral2 = connection.loadNodeById(literal.getId());
+
+            // needs to be equal, and should also be the identical object!
+            Assert.assertEquals(literal,testLiteral2);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral2).getType());
+            Assert.assertTrue(literal == testLiteral2);
+
+            KiWiNode testLiteral3 = connection.loadLiteral(literal.stringValue(),null,uri);
+
+            // needs to be equal, and should also be the identical object!
+            Assert.assertEquals(literal,testLiteral3);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
+            Assert.assertTrue(literal == testLiteral3);
+
+            connection.commit();
+
+
+            // clear cache and test again
+            persistence.clearCache();
+            KiWiNode testLiteral4 = connection.loadNodeById(literal.getId());
+
+            // needs to be equal, but now it should not be the same object!
+            Assert.assertEquals(literal,testLiteral4);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral4).getType());
+            Assert.assertTrue(literal != testLiteral4);
+
+            KiWiNode testLiteral5 = connection.loadLiteral(literal.stringValue(),null,uri);
+
+            // needs to be equal, but now it should not be the same object!
+            Assert.assertEquals(literal,testLiteral5);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
+            Assert.assertTrue(literal != testLiteral5);
+
+            connection.commit();
+
+            // finally do a test on the nodes table, it should contain exactly one entry
+            PreparedStatement checkNodeStmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM nodes WHERE ntype='string'");
+            ResultSet result = checkNodeStmt.executeQuery();
+
+            Assert.assertTrue(result.next());
+            Assert.assertEquals((long)literal.getId(),result.getLong("id"));
+            Assert.assertEquals(literal.stringValue(),result.getString("svalue"));
+            Assert.assertEquals("string",result.getString("ntype"));
+            Assert.assertNull(result.getString("lang"));
+            Assert.assertEquals((long) uri.getId(), result.getLong("ltype"));
+
+            result.close();
+            connection.commit();
+        } finally {
+            connection.close();
+        }
+
+    }
+
+
+
+    /**
+     * Test storing and loading string literals (with type and without language).
+     *
+     * @throws SQLException
+     */
+    @Test
     public void testStoreIntLiteral() throws SQLException {
         KiWiConnection connection = persistence.getConnection();
         try {
@@ -995,6 +1078,7 @@ public class PersistenceTest {
         }
 
     }
+
 
 
     /**

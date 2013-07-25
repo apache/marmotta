@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -102,25 +103,98 @@ public class KiWiGarbageCollector extends Thread {
     protected boolean checkConsistency() throws SQLException {
         boolean consistent = true;
 
-        String checkNodeDuplicatesQuery = "SELECT svalue, count(id) FROM nodes WHERE ntype='uri' group by svalue having count(id) > 1";
+        String checkNodeDuplicatesQuery = "SELECT svalue, ntype, count(id) FROM nodes group by svalue, ntype having count(id) > 1";
 
         try(Connection con = persistence.getJDBCConnection()) {
             PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(checkNodeDuplicatesQuery);
 
-            ResultSet result = checkNodeDuplicatesStatement.executeQuery();
-            if(result.next()) {
-                log.warn("DATABASE INCONSISTENCY: duplicate node entries found, manual repair required!");
-                do {
-                    log.warn(" - inconsistent resource: {}", result.getString("svalue"));
-                } while(result.next());
+            try(ResultSet result = checkNodeDuplicatesStatement.executeQuery()) {
+                if(result.next()) {
+                    log.warn("DATABASE INCONSISTENCY: duplicate node entries found, please try to fix the consistency with fixConsistency()!");
+                    do {
+                        if(result.getString("ntype").equals("uri")) {
+                            log.warn(" - inconsistent resource: {}", result.getString("svalue"));
+                        }
+                    } while(result.next());
 
-                consistent = false;
+                    consistent = false;
+                }
             }
 
         }
 
+        if(!consistent) {
+            log.warn("DATABASE INCONSISTENCY: attempting to auto-fix inconsistencies where possible");
+            try {
+                fixConsistency();
+            } catch (SQLException ex) {
+                log.error("DATABASE INCONSISTENCY: auto-fixing inconsistencies failed ({})", ex.getMessage());
+            }
+        }
+
         return consistent;
     }
+
+
+    protected void fixConsistency() throws SQLException {
+        String checkNodeDuplicatesQuery = "SELECT svalue, ntype, count(id), max(id) FROM nodes group by svalue, ntype having count(id) > 1";
+        String getNodeIdsQuery = "SELECT id FROM nodes WHERE svalue = ? AND ntype = ? AND id != ?";
+
+        try(Connection con = persistence.getJDBCConnection(true)) {
+            PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(checkNodeDuplicatesQuery);
+            PreparedStatement getNodeIdsStatement = con.prepareStatement(getNodeIdsQuery);
+
+            ResultSet result = checkNodeDuplicatesStatement.executeQuery();
+            while(result.next()) {
+                if(result.getString("ntype").equals("uri")) {
+                    log.warn("DATABASE INCONSISTENCY: attempting to fix references for resource {}", result.getString("svalue"));
+                } else {
+                    log.warn("DATABASE INCONSISTENCY: attempting to fix references for literal or anonymous node");
+                }
+
+                long latest_id = result.getLong(4);
+
+                // first we collect all ids of nodes that have the same svalue and ntype
+                getNodeIdsStatement.clearParameters();
+                getNodeIdsStatement.setString(1, result.getString("svalue"));
+                getNodeIdsStatement.setString(2,result.getString("ntype"));
+                getNodeIdsStatement.setLong(3, latest_id);
+
+                ArrayList<Long> ids = new ArrayList<>();
+                try(ResultSet idResult = getNodeIdsStatement.executeQuery()) {
+                    while(idResult.next()) {
+                        ids.add(idResult.getLong(1));
+                    }
+                }
+                getNodeIdsStatement.close();
+
+                // then we "fix" the triples table by making sure that all subjects, predicates, objects and contexts point to
+                // the latest version only; we use the nodes dependency table for this purpose
+                for(TableDependency dep : nodeTableDependencies) {
+                    String fixNodeIdsQuery = "UPDATE " + dep.table + " SET " + dep.column + " = " + latest_id + " WHERE " + dep.column + " = ?";
+                    PreparedStatement fixNodeIdsStatement = con.prepareStatement(fixNodeIdsQuery);
+                    for(Long id : ids) {
+                        fixNodeIdsStatement.setLong(1, id);
+                        fixNodeIdsStatement.addBatch();
+                    }
+                    fixNodeIdsStatement.executeBatch();
+                    fixNodeIdsStatement.close();
+                }
+
+                // finally we clean up all now unused node ids
+                String deleteDuplicatesQuery = "DELETE FROM nodes WHERE id = ?";
+                PreparedStatement deleteDuplicatesStatement = con.prepareStatement(deleteDuplicatesQuery);
+                for(Long id : ids) {
+                    deleteDuplicatesStatement.setLong(1, id);
+                    deleteDuplicatesStatement.addBatch();
+                }
+                deleteDuplicatesStatement.executeBatch();
+                deleteDuplicatesStatement.close();
+            }
+            checkNodeDuplicatesStatement.close();
+        }
+    }
+
 
     protected int garbageCollect() throws SQLException {
         round++;
