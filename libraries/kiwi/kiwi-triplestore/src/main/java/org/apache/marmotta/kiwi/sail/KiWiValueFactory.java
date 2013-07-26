@@ -17,11 +17,9 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.Monitor;
 import org.apache.commons.lang3.LocaleUtils;
+import org.apache.marmotta.commons.locking.StringLocks;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -69,8 +67,8 @@ public class KiWiValueFactory implements ValueFactory {
     private KiWiStore store;
 
 
-    private LoadingCache<String,Monitor> resourceLocks;
-    private LoadingCache<String,Monitor> literalLocks;
+    private StringLocks resourceLocks;
+    private StringLocks literalLocks;
 
     private String defaultContext;
 
@@ -99,8 +97,8 @@ public class KiWiValueFactory implements ValueFactory {
     };
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
-        resourceLocks = CacheBuilder.newBuilder().weakValues().build(new LockCacheLoader());
-        literalLocks  = CacheBuilder.newBuilder().weakValues().build(new LockCacheLoader());
+        resourceLocks = new StringLocks();
+        literalLocks  = new StringLocks();
 
         anonIdGenerator = new Random();
         tripleRegistry  = store.tripleRegistry;
@@ -167,8 +165,7 @@ public class KiWiValueFactory implements ValueFactory {
     @Override
     public URI createURI(String uri) {
 
-        Monitor lock = resourceLocks.getUnchecked(uri);
-        lock.enter();
+        resourceLocks.lock(uri);
 
         try {
             KiWiUriResource result = batchUriLookup.get(uri);
@@ -219,7 +216,7 @@ public class KiWiValueFactory implements ValueFactory {
                 }
             }
         } finally {
-            lock.leave();
+            resourceLocks.unlock(uri);
         }
     }
 
@@ -250,8 +247,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode(String nodeID) {
-        Monitor lock = resourceLocks.getUnchecked(nodeID);
-        lock.enter();
+        resourceLocks.lock(nodeID);
 
         try {
             KiWiAnonResource result = batchBNodeLookup.get(nodeID);
@@ -296,7 +292,7 @@ public class KiWiValueFactory implements ValueFactory {
                 }
             }
         } finally {
-            lock.leave();
+            resourceLocks.unlock(nodeID);
         }
     }
 
@@ -392,8 +388,7 @@ public class KiWiValueFactory implements ValueFactory {
         }
         String key = LiteralCommons.createCacheKey(value.toString(),locale,type);
 
-        Monitor lock = literalLocks.getUnchecked(key);
-        lock.enter();
+        literalLocks.lock(key);
 
         try {
             KiWiLiteral result = batchLiteralLookup.get(key);
@@ -512,7 +507,7 @@ public class KiWiValueFactory implements ValueFactory {
                 }
             }
         } finally {
-            lock.leave();
+            literalLocks.unlock(key);
         }
     }
 
@@ -803,14 +798,5 @@ public class KiWiValueFactory implements ValueFactory {
         }
     }
 
-    /**
-     * A simple Guava cache loader implementation for generating object-based locks
-     */
-    private static class LockCacheLoader extends CacheLoader<Object,Monitor> {
-        @Override
-        public Monitor load(Object key) throws Exception {
-            return new Monitor();
-        }
-    }
 
 }
