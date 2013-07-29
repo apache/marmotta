@@ -141,6 +141,9 @@ public class SparqlServiceImpl implements SparqlService {
                         }
 
                         connection.commit();
+                    } catch (Exception ex) {
+                        connection.rollback();
+                        throw ex;
                     } finally {
                         connection.close();
                     }
@@ -204,6 +207,9 @@ public class SparqlServiceImpl implements SparqlService {
                         }
 
                         connection.commit();
+                    } catch (Exception ex) {
+                        connection.rollback();
+                        throw ex;
                     } finally {
                         connection.close();
                     }

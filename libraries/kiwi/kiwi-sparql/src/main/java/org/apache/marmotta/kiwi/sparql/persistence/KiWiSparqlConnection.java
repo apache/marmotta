@@ -334,10 +334,10 @@ public class KiWiSparqlConnection {
 
             // materialize result to avoid having more than one result set open at the same time
             return new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator());
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | CancellationException e) {
             log.info("SPARQL query execution cancelled");
             queryStatement.cancel();
-            throw e;
+            throw new InterruptedException("SPARQL query execution cancelled");
         } catch (ExecutionException e) {
             log.error("error executing SPARQL query",e);
             throw new SQLException("error executing SPARQL query",e);
