@@ -66,6 +66,10 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Join join, BindingSet bindings) throws QueryEvaluationException {
+        if(Thread.currentThread().isInterrupted()) {
+            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
+        }
+
         if(isSupported(join)) {
             log.debug("applying KiWi JOIN optimizations on SPARQL query ...");
 
