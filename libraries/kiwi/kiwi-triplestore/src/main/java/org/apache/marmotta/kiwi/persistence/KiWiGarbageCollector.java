@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a garbage collector for the database that cleans up deleted triples and nodes when they
@@ -44,7 +45,7 @@ public class KiWiGarbageCollector extends Thread {
     private Set<TableDependency> tripleTableDependencies;
     private Set<TableDependency>  nodeTableDependencies;
 
-    private long interval = 60 * 60 * 1000;
+    private long interval = TimeUnit.MILLISECONDS.convert(24L, TimeUnit.HOURS);
 
     private long round = 0;
 
@@ -141,8 +142,8 @@ public class KiWiGarbageCollector extends Thread {
         String getNodeIdsQuery = "SELECT id FROM nodes WHERE svalue = ? AND ntype = ? AND id != ?";
 
         try(Connection con = persistence.getJDBCConnection(true)) {
-            PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(checkNodeDuplicatesQuery);
-            PreparedStatement getNodeIdsStatement = con.prepareStatement(getNodeIdsQuery);
+            PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(persistence.getDialect().getStatement("gc.check_consistency"));
+            PreparedStatement getNodeIdsStatement = con.prepareStatement(persistence.getDialect().getStatement("gc.list_node_ids"));
 
             ResultSet result = checkNodeDuplicatesStatement.executeQuery();
             while(result.next()) {
@@ -201,7 +202,7 @@ public class KiWiGarbageCollector extends Thread {
 
         long start = System.currentTimeMillis();
 
-        Connection con = persistence.getJDBCConnection(true);
+        Connection con = persistence.getJDBCConnection(false);
         try {
             int count = 0;
 
