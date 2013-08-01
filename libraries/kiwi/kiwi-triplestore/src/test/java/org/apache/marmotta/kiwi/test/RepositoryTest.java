@@ -43,6 +43,10 @@ import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -546,8 +550,119 @@ public class RepositoryTest {
             connection4.close();
         }
 
+        // test repeated adding/removing inside the same transaction
+        Literal object5 = repository.getValueFactory().createLiteral(RandomStringUtils.randomAlphanumeric(8));
+        RepositoryConnection connection5 = repository.getConnection();
+        try {
+            Assert.assertFalse(connection5.hasStatement(subject, predicate, object5, true));
+
+            connection5.add(subject,predicate,object5);
+            Assert.assertTrue(connection5.hasStatement(subject,predicate,object5,true));
+
+            connection5.remove(subject,predicate,object5);
+            Assert.assertFalse(connection5.hasStatement(subject,predicate,object5,true));
+
+            connection5.add(subject,predicate,object5);
+            Assert.assertTrue(connection5.hasStatement(subject,predicate,object5,true));
+            connection5.commit();
+        } finally {
+            connection5.close();
+        }
+
+        RepositoryConnection connection6 = repository.getConnection();
+        try {
+            Assert.assertTrue(connection6.hasStatement(subject, predicate, object5, true));
+
+            connection6.commit();
+        } finally {
+            connection6.close();
+        }
 
     }
+
+    @Test
+    public void testRepeatedAddRemoveCrossTransaction() throws RepositoryException {
+        String value = RandomStringUtils.randomAlphanumeric(8);
+
+        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        Literal object1 = repository.getValueFactory().createLiteral(value);
+
+        RepositoryConnection connection1 = repository.getConnection();
+        try {
+            connection1.add(subject,predicate,object1);
+            connection1.commit();
+
+            Assert.assertTrue(connection1.hasStatement(subject,predicate,object1,true));
+
+            connection1.commit();
+        } finally {
+            connection1.close();
+        }
+
+        RepositoryConnection connection2 = repository.getConnection();
+        try {
+            connection2.remove(subject, predicate, object1);
+            Assert.assertFalse(connection2.hasStatement(subject, predicate, object1, true));
+
+            connection2.add(subject,predicate,object1);
+            Assert.assertTrue(connection2.hasStatement(subject, predicate, object1, true));
+
+            connection2.commit();
+        } finally {
+            connection2.close();
+        }
+
+        RepositoryConnection connection3 = repository.getConnection();
+        try {
+            Assert.assertTrue(connection3.hasStatement(subject, predicate, object1, true));
+            connection3.commit();
+        } finally {
+            connection3.close();
+        }
+    }
+
+    @Test
+    public void testRepeatedAddRemoveSPARQL() throws RepositoryException, MalformedQueryException, UpdateExecutionException {
+        String value = RandomStringUtils.randomAlphanumeric(8);
+
+        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        Literal object1 = repository.getValueFactory().createLiteral(value);
+
+        RepositoryConnection connection1 = repository.getConnection();
+        try {
+            connection1.add(subject,predicate,object1);
+            connection1.commit();
+
+            Assert.assertTrue(connection1.hasStatement(subject,predicate,object1,true));
+
+            connection1.commit();
+        } finally {
+            connection1.close();
+        }
+
+        RepositoryConnection connection2 = repository.getConnection();
+        try {
+            String query = String.format("DELETE { <%s> <%s> ?v } INSERT { <%s> <%s> ?v . } WHERE { <%s> <%s> ?v }", subject.stringValue(), predicate.stringValue(), subject.stringValue(), predicate.stringValue(), subject.stringValue(), predicate.stringValue());
+
+            Update u = connection2.prepareUpdate(QueryLanguage.SPARQL, query);
+            u.execute();
+
+            connection2.commit();
+        } finally {
+            connection2.close();
+        }
+
+        RepositoryConnection connection3 = repository.getConnection();
+        try {
+            Assert.assertTrue(connection3.hasStatement(subject, predicate, object1, true));
+            connection3.commit();
+        } finally {
+            connection3.close();
+        }
+    }
+
 
     /**
      * Test the rollback functionality of the triple store by adding a triple, rolling back, adding the triple again.

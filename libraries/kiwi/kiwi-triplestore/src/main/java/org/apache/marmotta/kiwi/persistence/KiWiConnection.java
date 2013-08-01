@@ -1197,7 +1197,6 @@ public class KiWiConnection {
         synchronized (triple) {
             if(!triple.isDeleted()) {
                 log.warn("attemting to undelete triple that was not deleted: {}",triple);
-                return;
             }
 
             PreparedStatement undeleteTriple = getPreparedStatement("undelete.triple");
