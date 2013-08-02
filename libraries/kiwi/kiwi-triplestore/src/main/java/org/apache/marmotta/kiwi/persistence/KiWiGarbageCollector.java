@@ -223,12 +223,7 @@ public class KiWiGarbageCollector extends Thread {
             if(count > 0 && round % 10 == 1) {
                 // flush all nodes from the value factory first
                 if(persistence.getValueFactory() != null) {
-                    KiWiConnection vfConnection = persistence.getConnection();
-                    try {
-                        persistence.getValueFactory().flushBatch(vfConnection);
-                    } finally {
-                        vfConnection.close();
-                    }
+                    persistence.getValueFactory().flushBatch();
                 }
 
 

@@ -183,28 +183,27 @@ public class KiWiValueFactory implements ValueFactory {
                     if(result == null) {
                         result = new KiWiUriResource(uri);
 
-                        if(result.getId() == null) {
-                            if(batchCommit) {
-                                commitLock.enter();
-                                try {
-                                    result.setId(connection.getNodeId());
-                                    nodeBatch.add(result);
-                                    batchUriLookup.put(uri,result);
+                        if(batchCommit) {
+                            result.setId(connection.getNodeId());
+                            batchUriLookup.put(uri,result);
 
-                                    if(nodeBatch.size() >= batchSize) {
-                                        flushBatch(connection);
-                                    }
-                                } finally {
-                                    commitLock.leave();
+                            commitLock.enter();
+                            try {
+                                nodeBatch.add(result);
+
+                                if(nodeBatch.size() >= batchSize) {
+                                    flushBatch(connection);
                                 }
-                            } else {
-                                connection.storeNode(result, false);
+                            } finally {
+                                commitLock.leave();
                             }
+                        } else {
+                            connection.storeNode(result, false);
                         }
 
-                        if(result.getId() == null) {
-                            log.error("node ID is null!");
-                        }
+                    }
+                    if(result.getId() == null) {
+                        log.error("node ID is null!");
                     }
 
                     return result;
@@ -264,23 +263,24 @@ public class KiWiValueFactory implements ValueFactory {
                     if(result == null) {
                         result = new KiWiAnonResource(nodeID);
 
-                        if(result.getId() == null) {
-                            if(batchCommit) {
-                                commitLock.enter();
-                                try {
-                                    result.setId(connection.getNodeId());
-                                    nodeBatch.add(result);
-                                    batchBNodeLookup.put(nodeID,result);
-                                    if(nodeBatch.size() >= batchSize) {
-                                        flushBatch(connection);
-                                    }
-                                } finally {
-                                    commitLock.leave();
+                        if(batchCommit) {
+                            commitLock.enter();
+                            try {
+                                result.setId(connection.getNodeId());
+                                nodeBatch.add(result);
+                                batchBNodeLookup.put(nodeID,result);
+                                if(nodeBatch.size() >= batchSize) {
+                                    flushBatch(connection);
                                 }
-                            } else {
-                                connection.storeNode(result, false);
+                            } finally {
+                                commitLock.leave();
                             }
+                        } else {
+                            connection.storeNode(result, false);
                         }
+                    }
+                    if(result.getId() == null) {
+                        log.error("node ID is null!");
                     }
 
                     return result;
@@ -479,11 +479,12 @@ public class KiWiValueFactory implements ValueFactory {
 
                     if(result.getId() == null) {
                         if(batchCommit) {
+                            result.setId(connection.getNodeId());
+                            batchLiteralLookup.put(LiteralCommons.createCacheKey(value.toString(),locale,type), result);
+
                             commitLock.enter();
                             try {
-                                result.setId(connection.getNodeId());
                                 nodeBatch.add(result);
-                                batchLiteralLookup.put(LiteralCommons.createCacheKey(value.toString(),locale,type), result);
 
                                 if(nodeBatch.size() >= batchSize) {
                                     flushBatch(connection);
@@ -635,41 +636,6 @@ public class KiWiValueFactory implements ValueFactory {
     @Override
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
         return new ContextStatementImpl(subject,predicate,object,context);
-        /*
-        tripleLock.lock();
-        KiWiConnection connection = aqcuireConnection();
-        try {
-            IntArray cacheKey = IntArray.createSPOCKey(subject,predicate,object,context);
-            Statement result = tripleRegistry.get(cacheKey);
-            if(result == null || ((KiWiTriple)result).isDeleted()) {
-                KiWiResource ksubject   = convert(subject);
-                KiWiUriResource kpredicate = convert(predicate);
-                KiWiNode kobject    = convert(object);
-                KiWiResource    kcontext   = convert(context);
-
-                // test if the triple already exists in the database; if yes, return it
-                List<Statement> triples = connection.listTriples(ksubject,kpredicate,kobject,kcontext,true).asList();
-                if(triples.size() == 1) {
-                    result = triples.get(0);
-                } else {
-                    result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
-                    ((KiWiTriple)result).setMarkedForReasoning(true);
-                }
-
-                tripleRegistry.put(cacheKey,result);
-            }
-            return result;
-        } catch (SQLException e) {
-            log.error("database error, could not load triple", e);
-            throw new IllegalStateException("database error, could not load triple",e);
-        } catch (RepositoryException e) {
-            log.error("database error, could not load triple", e);
-            throw new IllegalStateException("database error, could not load triple",e);
-        } finally {
-            releaseConnection(connection);
-            tripleLock.unlock();
-        }
-        */
     }
 
     /**

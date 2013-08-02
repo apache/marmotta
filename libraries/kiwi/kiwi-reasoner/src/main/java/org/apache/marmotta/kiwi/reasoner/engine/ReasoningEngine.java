@@ -483,34 +483,6 @@ public class ReasoningEngine implements TransactionListener {
 
     }
 
-    /**
-     * Store new justifications in the database. The method performs a batched operation to avoid
-     * excessive resource use.
-     *
-     * @param justifications
-     */
-    private void storeJustifications(Iterable<Justification> justifications) {
-        // persist the justifications that have been created in the rule processing
-        long counter = 0;
-        updateTaskStatus("storing new justifications ...");
-
-        try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            try {
-                connection.storeJustifications(justifications);
-                connection.commit();
-            } catch (SQLException ex) {
-                connection.rollback();
-                throw ex;
-            } finally {
-                connection.close();
-            }
-        } catch (SQLException ex) {
-            log.error("DATABASE ERROR: could not add new justifications for triples, database state will be inconsistent! Message: {}",ex.getMessage());
-            log.debug("Exception details:",ex);
-        }
-    }
-
 
     /**
      * This method iterates over all triples that are passed as argument and
