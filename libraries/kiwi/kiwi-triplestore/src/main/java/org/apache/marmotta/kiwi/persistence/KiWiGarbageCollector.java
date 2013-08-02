@@ -150,7 +150,7 @@ public class KiWiGarbageCollector extends Thread {
                 if(result.getString("ntype").equals("uri")) {
                     log.warn("DATABASE INCONSISTENCY: attempting to fix references for resource {}", result.getString("svalue"));
                 } else {
-                    log.warn("DATABASE INCONSISTENCY: attempting to fix references for literal or anonymous node");
+                    log.warn("DATABASE INCONSISTENCY: attempting to fix references for literal or anonymous node {}", result.getString("svalue"));
                 }
 
                 long latest_id = result.getLong(4);

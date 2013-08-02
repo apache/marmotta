@@ -127,6 +127,13 @@ public class KiWiConnection {
     private ReentrantLock uriLock;
     private ReentrantLock bnodeLock;
 
+
+    // this set keeps track of all statements that have been deleted in the active transaction of this connection
+    // this is needed to be able to determine if adding the triple again will merely undo a deletion or is a
+    // completely new addition to the triple store
+    private HashSet<Long> deletedStatementsLog;
+
+
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
@@ -136,6 +143,7 @@ public class KiWiConnection {
         this.uriLock   = new ReentrantLock();
         this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
+        this.deletedStatementsLog = new HashSet<Long>();
 
         initCachePool();
         initStatementCache();
@@ -1060,45 +1068,62 @@ public class KiWiConnection {
 
         boolean hasId = triple.getId() != null;
 
-        // retrieve a new triple ID and set it in the object
-        if(triple.getId() == null) {
-            triple.setId(getNextSequence("seq.triples"));
-        }
 
-        if(batchCommit) {
-            cacheTriple(triple);
-            synchronized (tripleBatch) {
-                tripleBatch.add(triple);
-                if(tripleBatch.size() >= batchSize) {
-                    flushBatch();
-                }
+        if(hasId && deletedStatementsLog.contains(triple.getId())) {
+            // this is a hack for a concurrency problem that may occur in case the triple is removed in the
+            // transaction and then added again; in these cases the createStatement method might return
+            // an expired state of the triple because it uses its own database connection
+
+            //deletedStatementsLog.remove(triple.getId());
+            undeleteTriple(triple);
+
+            return true;
+        } else {
+            // retrieve a new triple ID and set it in the object
+            if(triple.getId() == null) {
+                triple.setId(getNextSequence("seq.triples"));
             }
-            return !hasId;
-        }  else {
-            Preconditions.checkNotNull(triple.getSubject().getId());
-            Preconditions.checkNotNull(triple.getPredicate().getId());
-            Preconditions.checkNotNull(triple.getObject().getId());
-            Preconditions.checkNotNull(triple.getContext().getId());
+
+            if(batchCommit) {
+                commitLock.lock();
+                try {
+                    cacheTriple(triple);
+                    synchronized (tripleBatch) {
+                        tripleBatch.add(triple);
+                        if(tripleBatch.size() >= batchSize) {
+                            flushBatch();
+                        }
+                    }
+                } finally {
+                    commitLock.unlock();
+                }
+                return !hasId;
+            }  else {
+                Preconditions.checkNotNull(triple.getSubject().getId());
+                Preconditions.checkNotNull(triple.getPredicate().getId());
+                Preconditions.checkNotNull(triple.getObject().getId());
+                Preconditions.checkNotNull(triple.getContext().getId());
 
 
-            try {
-                PreparedStatement insertTriple = getPreparedStatement("store.triple");
-                insertTriple.setLong(1,triple.getId());
-                insertTriple.setLong(2,triple.getSubject().getId());
-                insertTriple.setLong(3,triple.getPredicate().getId());
-                insertTriple.setLong(4,triple.getObject().getId());
-                insertTriple.setLong(5,triple.getContext().getId());
-                insertTriple.setBoolean(6,triple.isInferred());
-                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-                int count = insertTriple.executeUpdate();
+                try {
+                    PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                    insertTriple.setLong(1,triple.getId());
+                    insertTriple.setLong(2,triple.getSubject().getId());
+                    insertTriple.setLong(3,triple.getPredicate().getId());
+                    insertTriple.setLong(4,triple.getObject().getId());
+                    insertTriple.setLong(5,triple.getContext().getId());
+                    insertTriple.setBoolean(6,triple.isInferred());
+                    insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+                    int count = insertTriple.executeUpdate();
 
-                cacheTriple(triple);
+                    cacheTriple(triple);
 
-                return count > 0;
-            } catch(SQLException ex) {
-                // this is an ugly hack to catch duplicate key errors in some databases (H2)
-                // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
-                return false;
+                    return count > 0;
+                } catch(SQLException ex) {
+                    // this is an ugly hack to catch duplicate key errors in some databases (H2)
+                    // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
+                    return false;
+                }
             }
         }
     }
@@ -1161,20 +1186,19 @@ public class KiWiConnection {
 
         if(triple.getId() == null) {
             log.warn("attempting to remove non-persistent triple: {}", triple);
-        } else {
+        } else if(tripleBatch == null || !tripleBatch.contains(triple)) {
             requireJDBCConnection();
 
             PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
             deleteTriple.setLong(1,triple.getId());
             deleteTriple.executeUpdate();
+
+            deletedStatementsLog.add(triple.getId());
+        } else {
+            tripleBatch.remove(triple);
         }
         removeCachedTriple(triple);
 
-        if(tripleBatch != null) {
-            synchronized (tripleBatch) {
-                tripleBatch.remove(triple);
-            }
-        }
     }
 
     /**
@@ -1210,15 +1234,6 @@ public class KiWiConnection {
             cacheTriple(triple);
         }
 
-    }
-
-
-    /**
-     * Remove from the database all triples that have been marked as deleted and are not referenced by any other
-     * entity.
-     */
-    public void cleanupTriples() {
-        throw new UnsupportedOperationException("garbage collection of triples is not yet supported!");
     }
 
 
@@ -1910,6 +1925,8 @@ public class KiWiConnection {
             flushBatch();
         }
 
+        deletedStatementsLog.clear();
+
         if(connection != null) {
             connection.commit();
         }
@@ -1936,6 +1953,7 @@ public class KiWiConnection {
                 tripleBatch.clear();
             }
         }
+        deletedStatementsLog.clear();
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
@@ -2007,7 +2025,7 @@ public class KiWiConnection {
             commitLock.lock();
             try {
                 if(persistence.getValueFactory() != null) {
-                    persistence.getValueFactory().flushBatch(this);
+                    persistence.getValueFactory().flushBatch();
                 }
 
                 PreparedStatement insertTriple = getPreparedStatement("store.triple");
@@ -2032,6 +2050,8 @@ public class KiWiConnection {
                             insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
 
                             insertTriple.addBatch();
+                        } else {
+                            log.error("triple batch contained a triple marked as deleted, this should not happen (triple: {})", triple);
                         }
                     }
                     tripleBatch.clear();

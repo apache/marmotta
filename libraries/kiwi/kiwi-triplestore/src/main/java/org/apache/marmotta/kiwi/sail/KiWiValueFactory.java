@@ -687,22 +687,12 @@ public class KiWiValueFactory implements ValueFactory {
         IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
         KiWiTriple result = (KiWiTriple)tripleRegistry.get(cacheKey);
         try {
-            if(result == null || ((KiWiTriple)result).isDeleted()) {
+            if(result == null || result.isDeleted()) {
                 KiWiResource ksubject   = convert(subject);
                 KiWiUriResource kpredicate = convert(predicate);
                 KiWiNode kobject    = convert(object);
                 KiWiResource    kcontext   = convert(context);
 
-                // test if the triple already exists in the database; if yes, return it
-                /*
-                List<Statement> triples = Iterations.asList(connection.listTriples(ksubject,kpredicate,kobject,kcontext,true));
-                if(triples.size() == 1) {
-                    result = triples.get(0);
-                } else {
-                    result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
-                    ((KiWiTriple)result).setMarkedForReasoning(true);
-                }
-                */
                 result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
                 result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext,true));
                 if(result.getId() == null) {
@@ -718,6 +708,15 @@ public class KiWiValueFactory implements ValueFactory {
         }
     }
 
+    /**
+     * Remove a statement from the triple registry. Called when the statement is deleted and the transaction commits.
+     * @param triple
+     */
+    protected void removeStatement(KiWiTriple triple) {
+        IntArray cacheKey = IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext());
+        tripleRegistry.remove(cacheKey);
+        triple.setDeleted(true);
+    }
 
 
     public KiWiResource convert(Resource r) {
@@ -761,6 +760,22 @@ public class KiWiValueFactory implements ValueFactory {
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
     }
+
+
+    /**
+     * Immediately flush the batch to the database using the value factory's connection. The method expects the
+     * underlying connection to start and commit the node batch.
+     */
+    public void flushBatch() throws SQLException {
+        KiWiConnection con = aqcuireConnection();
+        try {
+            flushBatch(con);
+        } finally {
+            releaseConnection(con);
+        }
+
+    }
+
 
     /**
      * Immediately flush the batch to the database. The method expects the underlying connection to start and commit
