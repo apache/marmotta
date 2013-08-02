@@ -33,36 +33,33 @@ public class StringLocks {
 
     private LoadingCache<String,Monitor> stringLocks;
 
-    // keeps strong references for locks that are in use
-    private HashSet<Monitor> activeLocks;
-
     public StringLocks() {
-        stringLocks = CacheBuilder.newBuilder().weakValues().build(new LockCacheLoader());
-        activeLocks = new HashSet<>();
+        stringLocks = CacheBuilder.newBuilder().build(new LockCacheLoader());
     }
 
 
     public void lock(String name) {
-        Monitor lock = stringLocks.getUnchecked(name);
+        Monitor lock;
+        synchronized (stringLocks) {
+            lock = stringLocks.getUnchecked(name);
+        }
         lock.enter();
-        activeLocks.add(lock);
     }
 
     public void unlock(String name) {
-        Monitor lock = stringLocks.getUnchecked(name);
-        lock.leave();
-        if(lock.getOccupiedDepth() == 0) {
-            activeLocks.remove(lock);
+        Monitor lock;
+        synchronized (stringLocks) {
+            lock = stringLocks.getUnchecked(name);
         }
+        lock.leave();
     }
 
     public boolean tryLock(String name) {
-        Monitor lock = stringLocks.getUnchecked(name);
-        boolean result = lock.tryEnter();
-        if(result) {
-            activeLocks.add(lock);
+        Monitor lock;
+        synchronized (stringLocks) {
+            lock = stringLocks.getUnchecked(name);
         }
-        return result;
+        return lock.tryEnter();
     }
 
     /**

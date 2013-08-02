@@ -138,8 +138,8 @@ public class PostgreSQLConcurrencyTest {
     long tripleCount = 0;
 
     @Test
-    @Concurrent(count = 10)
-    @Repeating(repetition = 10)
+    @Concurrent(count = 15)
+    @Repeating(repetition = 10000)
     public void testConcurrency() throws Exception {
         runs++;
 
