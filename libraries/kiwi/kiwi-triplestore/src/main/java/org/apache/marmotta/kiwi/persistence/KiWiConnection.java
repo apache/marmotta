@@ -1900,6 +1900,22 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void commit() throws SQLException {
+        if(persistence.getConfiguration().isCommitSequencesOnCommit()) {
+            commitMemorySequences();
+        }
+
+        deletedStatementsLog.clear();
+
+        if(connection != null) {
+            connection.commit();
+        }
+    }
+
+    /**
+     * Store the values of all memory sequences back into the database. Should be called at least on repository shutdown
+     * but possibly even when a transaction commits.
+     */
+    public void commitMemorySequences() throws SQLException {
         if(persistence.getMemorySequences() != null) {
             requireJDBCConnection();
 
@@ -1925,11 +1941,6 @@ public class KiWiConnection {
             flushBatch();
         }
 
-        deletedStatementsLog.clear();
-
-        if(connection != null) {
-            connection.commit();
-        }
     }
 
     /**

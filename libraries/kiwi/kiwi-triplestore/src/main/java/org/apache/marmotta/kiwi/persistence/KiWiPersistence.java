@@ -536,6 +536,22 @@ public class KiWiPersistence {
     }
 
     public void shutdown() {
+        if(!configuration.isCommitSequencesOnCommit()) {
+            log.info("storing in-memory sequences in database ...");
+            try {
+                KiWiConnection connection = getConnection();
+                try {
+                    connection.commitMemorySequences();
+                    connection.commit();
+                } finally {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                log.error("could not store back values of in-memory sequences", e);
+            }
+        }
+
+
         garbageCollector.shutdown();
         cacheManager.shutdown();
         connectionPool.close();

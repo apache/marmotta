@@ -34,7 +34,7 @@ public class StringLocks {
     private LoadingCache<String,Monitor> stringLocks;
 
     public StringLocks() {
-        stringLocks = CacheBuilder.newBuilder().build(new LockCacheLoader());
+        stringLocks = CacheBuilder.newBuilder().weakKeys().build(new LockCacheLoader());
     }
 
 

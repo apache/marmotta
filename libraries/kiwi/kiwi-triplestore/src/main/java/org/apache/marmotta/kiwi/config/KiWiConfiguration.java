@@ -88,6 +88,10 @@ public class KiWiConfiguration {
      */
     private boolean memorySequences = true;
 
+
+    private boolean commitSequencesOnCommit = false;
+
+
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
     }
@@ -209,5 +213,20 @@ public class KiWiConfiguration {
      */
     public void setMemorySequences(boolean memorySequences) {
         this.memorySequences = memorySequences;
+    }
+
+
+    public boolean isCommitSequencesOnCommit() {
+        return commitSequencesOnCommit;
+    }
+
+    /**
+     * This flag determines whether memory sequences should be stored back into the database on every commit or only
+     * when the repository shuts down. Saving back on every commit is safer, but has less performance.
+     *
+     * @param commitSequencesOnCommit
+     */
+    public void setCommitSequencesOnCommit(boolean commitSequencesOnCommit) {
+        this.commitSequencesOnCommit = commitSequencesOnCommit;
     }
 }
