@@ -9,16 +9,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -39,6 +37,8 @@ public abstract class ConcurrencyTestBase {
 
     private List<Value> objects = new ArrayList<>();
 
+    private Set<Statement> allAddedTriples = new HashSet<>();
+
     @Rule
     public ConcurrentRule concurrently = new ConcurrentRule();
 
@@ -54,33 +54,70 @@ public abstract class ConcurrencyTestBase {
         protected void starting(Description description) {
             logger.info("{} being run...", description.getMethodName());
         }
+
+        /**
+         * Invoked when a test method finishes (whether passing or failing)
+         */
+        @Override
+        protected void finished(Description description) {
+            logger.info("{}: {} added triples, {} removed triples, {} resources reused, {} objects reused", description.getMethodName(), tripleAddCount, tripleRemoveCount, resourcesReused, objectsReused);
+        }
     };
 
-    long tripleCount = 0;
+    long tripleAddCount = 0;
+    long tripleRemoveCount = 0;
+
+    long resourcesReused = 0;
+    long objectsReused = 0;
 
     @Test
     @Concurrent(count = 10)
     @Repeating(repetition = 10)
     public void testConcurrency() throws Exception {
-        runs++;
+        long run = runs++;
+        long removed = 0;
+
+        Set<Statement> addedTriples = new HashSet<>();
 
         // generate random nodes and triples and add them
         RepositoryConnection con = repository.getConnection();
         try {
             for(int i=0; i< rnd.nextInt(1000); i++) {
-                URI subject = randomURI();
-                URI predicate = randomURI();
-                Value object = randomObject();
-                con.add(subject,predicate,object);
-                tripleCount++;
+                // there is a random chance of deleting a previously added triple, either from this session or from
+                // a previous session
+                if(allAddedTriples.size() + addedTriples.size() > 0 && rnd.nextInt(10) == 0) {
+                    List<Statement> statements = new ArrayList<>();
+                    synchronized (allAddedTriples) {
+                        statements.addAll(allAddedTriples);
+                    }
+                    statements.addAll(addedTriples);
+
+                    con.remove(statements.get(rnd.nextInt(statements.size())));
+
+                    removed ++;
+                    tripleRemoveCount++;
+                } else {
+                    URI subject = randomURI();
+                    URI predicate = randomURI();
+                    Value object = randomObject();
+                    Statement stmt = con.getValueFactory().createStatement(subject,predicate,object);
+                    con.add(stmt);
+                    addedTriples.add(stmt);
+                    tripleAddCount++;
+                }
             }
             con.commit();
+
+            // commit also all added triples
+            synchronized (allAddedTriples) {
+                allAddedTriples.addAll(addedTriples);
+            }
         } finally {
             con.close();
         }
 
 
-        logger.info("triple count: {}", tripleCount);
+        logger.info("run {}: triples added: {}; triples removed: {}", run, addedTriples.size(), removed);
     }
 
 
@@ -90,6 +127,7 @@ public abstract class ConcurrencyTestBase {
      */
     protected URI randomURI() {
         if(resources.size() > 0 && rnd.nextInt(10) == 0) {
+            resourcesReused++;
             // return a resource that was already used
             return resources.get(rnd.nextInt(resources.size()));
         } else {
@@ -105,6 +143,7 @@ public abstract class ConcurrencyTestBase {
      */
     protected Value randomObject() {
         if(objects.size() > 0 && rnd.nextInt(10) == 0) {
+            objectsReused++;
             return objects.get(rnd.nextInt(objects.size()));
         } else {
             Value object;
