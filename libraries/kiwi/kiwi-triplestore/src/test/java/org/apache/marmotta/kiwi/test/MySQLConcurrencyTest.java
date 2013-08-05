@@ -65,22 +65,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class MySQLConcurrencyTest {
-
-
-    @Rule public ConcurrentRule concurrently = new ConcurrentRule();
-    @Rule public RepeatingRule repeatedly = new RepeatingRule();
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
+public class MySQLConcurrencyTest extends ConcurrencyTestBase {
 
     private static KiWiDialect dialect;
 
@@ -90,16 +75,12 @@ public class MySQLConcurrencyTest {
 
     private static String jdbcPass;
 
-    private static Repository repository;
-
     private static KiWiStore store;
-
-    private static Random rnd;
-
-    private static long runs = 0;
 
     @BeforeClass
     public static void setup() throws RepositoryException {
+        logger = LoggerFactory.getLogger(MySQLConcurrencyTest.class);
+
         jdbcPass = System.getProperty("mysql.pass","lmf");
         jdbcUrl = System.getProperty("mysql.url");
         jdbcUser = System.getProperty("mysql.user","lmf");
@@ -122,58 +103,5 @@ public class MySQLConcurrencyTest {
 	        store.getPersistence().dropDatabase();
 	        repository.shutDown();
     	}
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
-
-    final Logger logger =
-            LoggerFactory.getLogger(MySQLConcurrencyTest.class);
-
-
-    long tripleCount = 0;
-
-    @Test
-    @Concurrent(count = 10)
-    @Repeating(repetition = 10)
-    public void testConcurrency() throws Exception {
-        runs++;
-
-        // generate random nodes and triples and add them
-        RepositoryConnection con = repository.getConnection();
-        try {
-            for(int i=0; i< rnd.nextInt(1000); i++) {
-                URI subject = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                URI predicate = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                Value object;
-                switch(rnd.nextInt(6)) {
-                    case 0: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                        break;
-                    case 1: object = repository.getValueFactory().createBNode();
-                        break;
-                    case 2: object = repository.getValueFactory().createLiteral(RandomStringUtils.randomAscii(40)); // MySQL often has UTF problems
-                        break;
-                    case 3: object = repository.getValueFactory().createLiteral(rnd.nextInt());
-                        break;
-                    case 4: object = repository.getValueFactory().createLiteral(rnd.nextDouble());
-                        break;
-                    case 5: object = repository.getValueFactory().createLiteral(rnd.nextBoolean());
-                        break;
-                    default: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                        break;
-
-                }
-                con.add(subject,predicate,object);
-                tripleCount++;
-            }
-            con.commit();
-        } finally {
-            con.close();
-        }
-
-
-        logger.info("triple count: {}", tripleCount);
     }
 }

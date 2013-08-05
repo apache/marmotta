@@ -3,8 +3,6 @@ package org.apache.marmotta.kiwi.test;
 import java.sql.SQLException;
 import java.util.Random;
 
-import junit.framework.Assert;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -12,23 +10,15 @@ import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.SailException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
 import com.google.code.tempusfugit.concurrency.RepeatingRule;
-import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
-import com.google.code.tempusfugit.concurrency.annotations.Repeating;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
 
@@ -66,22 +56,8 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class PostgreSQLConcurrencyTest {
+public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
 
-
-    @Rule public ConcurrentRule concurrently = new ConcurrentRule();
-    @Rule public RepeatingRule repeatedly = new RepeatingRule();
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
     private static KiWiDialect dialect;
 
@@ -91,16 +67,12 @@ public class PostgreSQLConcurrencyTest {
 
     private static String jdbcPass;
 
-    private static Repository repository;
-
     private static KiWiStore store;
-
-    private static Random rnd;
-
-    private static long runs = 0;
 
     @BeforeClass
     public static void setup() throws RepositoryException {
+        logger = LoggerFactory.getLogger(PostgreSQLConcurrencyTest.class);
+
         jdbcPass = System.getProperty("postgresql.pass","lmf");
         jdbcUrl = System.getProperty("postgresql.url");
         jdbcUser = System.getProperty("postgresql.user","lmf");
@@ -126,56 +98,5 @@ public class PostgreSQLConcurrencyTest {
     	}
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
 
-    final Logger logger =
-            LoggerFactory.getLogger(PostgreSQLConcurrencyTest.class);
-
-
-    long tripleCount = 0;
-
-    @Test
-    @Concurrent(count = 10)
-    @Repeating(repetition = 10)
-    public void testConcurrency() throws Exception {
-        runs++;
-
-        // generate random nodes and triples and add them
-        RepositoryConnection con = repository.getConnection();
-        try {
-            for(int i=0; i< rnd.nextInt(1000); i++) {
-                URI subject = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                URI predicate = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                Value object;
-                switch(rnd.nextInt(6)) {
-                    case 0: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                        break;
-                    case 1: object = repository.getValueFactory().createBNode();
-                        break;
-                    case 2: object = repository.getValueFactory().createLiteral(RandomStringUtils.randomAscii(40));
-                        break;
-                    case 3: object = repository.getValueFactory().createLiteral(rnd.nextInt());
-                        break;
-                    case 4: object = repository.getValueFactory().createLiteral(rnd.nextDouble());
-                        break;
-                    case 5: object = repository.getValueFactory().createLiteral(rnd.nextBoolean());
-                        break;
-                    default: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                        break;
-
-                }
-                con.add(subject,predicate,object);
-                tripleCount++;
-            }
-            con.commit();
-        } finally {
-            con.close();
-        }
-
-
-        logger.info("triple count: {}", tripleCount);
-    }
 }
