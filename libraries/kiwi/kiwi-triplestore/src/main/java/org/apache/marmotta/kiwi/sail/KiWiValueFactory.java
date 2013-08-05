@@ -17,10 +17,11 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import com.google.common.util.concurrent.Monitor;
+import com.google.common.collect.Queues;
 import org.apache.commons.lang3.LocaleUtils;
-import org.apache.marmotta.commons.locking.StringLocks;
+import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.commons.sesame.model.LiteralKey;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
@@ -34,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Add file description here!
@@ -67,8 +70,8 @@ public class KiWiValueFactory implements ValueFactory {
     private KiWiStore store;
 
 
-    private StringLocks resourceLocks;
-    private StringLocks literalLocks;
+    private ObjectLocks resourceLocks;
+    private ObjectLocks literalLocks;
 
     private String defaultContext;
 
@@ -84,21 +87,18 @@ public class KiWiValueFactory implements ValueFactory {
     private Map<String,KiWiAnonResource> batchBNodeLookup;
     private Map<String,KiWiLiteral> batchLiteralLookup;
 
-    // this connection is kept open and never closed when releaseConnection is called; it will only be
-    // used for generating sequence numbers for RDF nodes
-    private KiWiConnection batchConnection;
+    private int poolSize = 4;
+    private int poolPosition = 0;
 
-    private Monitor       commitLock  = new Monitor();
-    private Monitor.Guard commitGuard = new Monitor.Guard(commitLock) {
-        @Override
-        public boolean isSatisfied() {
-            return batchCommit && nodeBatch.size() > 0;
-        }
-    };
+    private ArrayList<KiWiConnection> pooledConnections;
+
+
+    private ReentrantReadWriteLock commitLock = new ReentrantReadWriteLock();
+
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
-        resourceLocks = new StringLocks();
-        literalLocks  = new StringLocks();
+        resourceLocks = new ObjectLocks();
+        literalLocks  = new ObjectLocks();
 
         anonIdGenerator = new Random();
         tripleRegistry  = store.tripleRegistry;
@@ -115,21 +115,26 @@ public class KiWiValueFactory implements ValueFactory {
         this.batchUriLookup     = new ConcurrentHashMap<String,KiWiUriResource>();
         this.batchBNodeLookup   = new ConcurrentHashMap<String, KiWiAnonResource>();
         this.batchLiteralLookup = new ConcurrentHashMap<String,KiWiLiteral>();
+
+        this.pooledConnections = new ArrayList<>(poolSize);
+        try {
+            for(int i = 0; i<poolSize ; i++) {
+                pooledConnections.add(store.getPersistence().getConnection());
+            }
+        } catch (SQLException e) {
+            log.error("error initialising value factory connection pool",e);
+        }
     }
 
     protected KiWiConnection aqcuireConnection() {
         try {
             if(batchCommit) {
-                if(batchConnection == null) {
-                    batchConnection = store.getPersistence().getConnection();
-                }
-                return batchConnection;
+                return pooledConnections.get(poolPosition++ % poolSize);
             } else {
-                KiWiConnection connection = store.getPersistence().getConnection();
-                return connection;
+                return store.getPersistence().getConnection();
             }
         } catch(SQLException ex) {
-            log.error("could not acquire database connection",ex);
+            log.error("could not acquire database connection", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -164,6 +169,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public URI createURI(String uri) {
+        commitLock.readLock().lock();
 
         resourceLocks.lock(uri);
 
@@ -185,18 +191,10 @@ public class KiWiValueFactory implements ValueFactory {
 
                         if(batchCommit) {
                             result.setId(connection.getNodeId());
-                            batchUriLookup.put(uri,result);
+                            batchUriLookup.put(uri, result);
 
-                            commitLock.enter();
-                            try {
-                                nodeBatch.add(result);
+                            nodeBatch.add(result);
 
-                                if(nodeBatch.size() >= batchSize) {
-                                    flushBatch(connection);
-                                }
-                            } finally {
-                                commitLock.leave();
-                            }
                         } else {
                             connection.storeNode(result, false);
                         }
@@ -216,7 +214,18 @@ public class KiWiValueFactory implements ValueFactory {
             }
         } finally {
             resourceLocks.unlock(uri);
+            commitLock.readLock().unlock();
+
+            try {
+                if(nodeBatch.size() >= batchSize) {
+                    flushBatch();
+                }
+            } catch (SQLException e) {
+                log.error("database error, could not load URI resource",e);
+                throw new IllegalStateException("database error, could not load URI resource",e);
+            }
         }
+
     }
 
     /**
@@ -246,6 +255,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode(String nodeID) {
+        commitLock.readLock().lock();
         resourceLocks.lock(nodeID);
 
         try {
@@ -264,17 +274,9 @@ public class KiWiValueFactory implements ValueFactory {
                         result = new KiWiAnonResource(nodeID);
 
                         if(batchCommit) {
-                            commitLock.enter();
-                            try {
-                                result.setId(connection.getNodeId());
-                                nodeBatch.add(result);
-                                batchBNodeLookup.put(nodeID,result);
-                                if(nodeBatch.size() >= batchSize) {
-                                    flushBatch(connection);
-                                }
-                            } finally {
-                                commitLock.leave();
-                            }
+                            result.setId(connection.getNodeId());
+                            nodeBatch.add(result);
+                            batchBNodeLookup.put(nodeID,result);
                         } else {
                             connection.storeNode(result, false);
                         }
@@ -293,6 +295,16 @@ public class KiWiValueFactory implements ValueFactory {
             }
         } finally {
             resourceLocks.unlock(nodeID);
+            commitLock.readLock().unlock();
+
+            try {
+                if(nodeBatch.size() >= batchSize) {
+                    flushBatch();
+                }
+            } catch (SQLException e) {
+                log.error("database error, could not load URI resource",e);
+                throw new IllegalStateException("database error, could not load URI resource",e);
+            }
         }
     }
 
@@ -375,6 +387,7 @@ public class KiWiValueFactory implements ValueFactory {
      * @return
      */
     private <T> KiWiLiteral createLiteral(T value, String lang, String type) {
+        commitLock.readLock().lock();
         final Locale locale;
         if(lang != null) {
             locale = LocaleUtils.toLocale(lang.replace("-","_"));
@@ -387,8 +400,9 @@ public class KiWiValueFactory implements ValueFactory {
             type = LiteralCommons.getXSDType(value.getClass());
         }
         String key = LiteralCommons.createCacheKey(value.toString(),locale,type);
+        LiteralKey lkey = new LiteralKey(value,type,lang);
 
-        literalLocks.lock(key);
+        literalLocks.lock(lkey);
 
         try {
             KiWiLiteral result = batchLiteralLookup.get(key);
@@ -480,19 +494,9 @@ public class KiWiValueFactory implements ValueFactory {
                     if(result.getId() == null) {
                         if(batchCommit) {
                             result.setId(connection.getNodeId());
-                            batchLiteralLookup.put(LiteralCommons.createCacheKey(value.toString(),locale,type), result);
+                            batchLiteralLookup.put(key, result);
 
-                            commitLock.enter();
-                            try {
-                                nodeBatch.add(result);
-
-                                if(nodeBatch.size() >= batchSize) {
-                                    flushBatch(connection);
-                                }
-
-                            } finally {
-                                commitLock.leave();
-                            }
+                            nodeBatch.add(result);
                         } else {
                             connection.storeNode(result, false);
                         }
@@ -508,7 +512,17 @@ public class KiWiValueFactory implements ValueFactory {
                 }
             }
         } finally {
-            literalLocks.unlock(key);
+            literalLocks.unlock(lkey);
+            commitLock.readLock().unlock();
+
+            try {
+                if(nodeBatch.size() >= batchSize) {
+                    flushBatch();
+                }
+            } catch (SQLException e) {
+                log.error("database error, could not load URI resource",e);
+                throw new IllegalStateException("database error, could not load URI resource",e);
+            }
         }
     }
 
@@ -748,34 +762,38 @@ public class KiWiValueFactory implements ValueFactory {
      * the node batch.
      */
     public void flushBatch(KiWiConnection con) throws SQLException {
-        if(commitLock.enterIf(commitGuard)) {
-            try {
+        commitLock.writeLock().lock();
+        try {
+            if(batchCommit && nodeBatch.size() > 0) {
+                List<KiWiNode> processed = this.nodeBatch;
+                this.nodeBatch      = Collections.synchronizedList(new ArrayList<KiWiNode>(batchSize));
+
                 con.startNodeBatch();
 
-                for(KiWiNode n : nodeBatch) {
+                for(KiWiNode n : processed) {
                     con.storeNode(n,true);
                 }
-                nodeBatch.clear();
-
                 batchLiteralLookup.clear();
                 batchUriLookup.clear();
                 batchBNodeLookup.clear();
 
                 con.commitNodeBatch();
-            } finally {
-                commitLock.leave();
             }
+        } finally {
+            commitLock.writeLock().unlock();
         }
     }
 
     public void close() {
-        try {
-            if(batchConnection != null && !batchConnection.isClosed()) {
-                batchConnection.commit();
-                batchConnection.close();
+        for(KiWiConnection con : pooledConnections) {
+            try {
+                if(!con.isClosed()) {
+                    con.commit();
+                    con.close();
+                }
+            } catch (SQLException e) {
+                log.warn("could not close value factory connection: {}",e.getMessage());
             }
-        } catch (SQLException e) {
-            log.warn("could not close value factory connection: {}",e.getMessage());
         }
     }
 

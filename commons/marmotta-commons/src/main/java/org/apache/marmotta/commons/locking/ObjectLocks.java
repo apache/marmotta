@@ -29,16 +29,16 @@ import java.util.HashSet;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class StringLocks {
+public class ObjectLocks {
 
-    private LoadingCache<String,Monitor> stringLocks;
+    private LoadingCache<Object,Monitor> stringLocks;
 
-    public StringLocks() {
-        stringLocks = CacheBuilder.newBuilder().weakKeys().build(new LockCacheLoader());
+    public ObjectLocks() {
+        stringLocks = CacheBuilder.newBuilder().build(new LockCacheLoader());
     }
 
 
-    public void lock(String name) {
+    public void lock(Object name) {
         Monitor lock;
         synchronized (stringLocks) {
             lock = stringLocks.getUnchecked(name);
@@ -46,7 +46,7 @@ public class StringLocks {
         lock.enter();
     }
 
-    public void unlock(String name) {
+    public void unlock(Object name) {
         Monitor lock;
         synchronized (stringLocks) {
             lock = stringLocks.getUnchecked(name);
@@ -54,7 +54,7 @@ public class StringLocks {
         lock.leave();
     }
 
-    public boolean tryLock(String name) {
+    public boolean tryLock(Object name) {
         Monitor lock;
         synchronized (stringLocks) {
             lock = stringLocks.getUnchecked(name);

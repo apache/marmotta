@@ -133,6 +133,7 @@ public class KiWiConnection {
     // completely new addition to the triple store
     private HashSet<Long> deletedStatementsLog;
 
+    private static long numberOfCommits = 0;
 
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
@@ -861,7 +862,7 @@ public class KiWiConnection {
 
 
 
-    public synchronized long getNodeId() throws SQLException {
+    public long getNodeId() throws SQLException {
         long result = getNextSequence("seq.nodes");
 
         return result;
@@ -1900,9 +1901,17 @@ public class KiWiConnection {
      * @see #setAutoCommit
      */
     public void commit() throws SQLException {
-        if(persistence.getConfiguration().isCommitSequencesOnCommit()) {
+        numberOfCommits++;
+
+        if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
             commitMemorySequences();
         }
+
+
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
+
 
         deletedStatementsLog.clear();
 
@@ -1919,9 +1928,12 @@ public class KiWiConnection {
         if(persistence.getMemorySequences() != null) {
             requireJDBCConnection();
 
+            Set<String> updated = persistence.getSequencesUpdated();
+            persistence.setSequencesUpdated(new HashSet<String>());
+
             try {
                 for(Map.Entry<String,Long> entry : persistence.getMemorySequences().asMap().entrySet()) {
-                    if( entry.getValue() > 0) {
+                    if( updated.contains(entry.getKey()) && entry.getValue() > 0) {
                         PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
                         updateSequence.setLong(1, entry.getValue());
                         if(updateSequence.execute()) {
@@ -1935,10 +1947,6 @@ public class KiWiConnection {
                 log.error("SQL exception:",ex);
                 throw ex;
             }
-        }
-
-        if(tripleBatch != null && tripleBatch.size() > 0) {
-            flushBatch();
         }
 
     }
@@ -2029,7 +2037,7 @@ public class KiWiConnection {
     }
 
 
-    public void flushBatch() throws SQLException {
+    public synchronized void flushBatch() throws SQLException {
         if(batchCommit && tripleBatch != null) {
             requireJDBCConnection();
 

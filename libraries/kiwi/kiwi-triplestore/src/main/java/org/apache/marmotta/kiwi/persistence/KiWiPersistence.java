@@ -39,6 +39,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,6 +96,10 @@ public class KiWiPersistence {
      */
     private boolean         maintenance;
 
+    private boolean         droppedDatabase = false;
+
+    // keep track which memory sequences have been updated and need to be written back
+    private Set<String>     sequencesUpdated;
 
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
@@ -105,6 +110,7 @@ public class KiWiPersistence {
         this.configuration = configuration;
         this.maintenance = false;
         this.sequencesLock = new ReentrantLock();
+        this.sequencesUpdated = new HashSet<>();
 
         // init JDBC connection pool
         initConnectionPool();
@@ -373,6 +379,8 @@ public class KiWiPersistence {
         } catch(SQLException ex) {
             log.error("SQL exception while acquiring database connection");
         }
+
+        droppedDatabase = true;
     }
 
     /**
@@ -536,7 +544,7 @@ public class KiWiPersistence {
     }
 
     public void shutdown() {
-        if(!configuration.isCommitSequencesOnCommit()) {
+        if(!droppedDatabase && !configuration.isCommitSequencesOnCommit()) {
             log.info("storing in-memory sequences in database ...");
             try {
                 KiWiConnection connection = getConnection();
@@ -585,6 +593,8 @@ public class KiWiPersistence {
     }
 
     public long incrementAndGetMemorySequence(String name) {
+        sequencesUpdated.add(name);
+
         if(memorySequences != null) {
             return memorySequences.incrementAndGet(name);
         } else {
@@ -599,5 +609,13 @@ public class KiWiPersistence {
 
     public boolean checkConsistency() throws SQLException {
         return garbageCollector.checkConsistency();
+    }
+
+    public Set<String> getSequencesUpdated() {
+        return sequencesUpdated;
+    }
+
+    public void setSequencesUpdated(Set<String> sequencesUpdated) {
+        this.sequencesUpdated = sequencesUpdated;
     }
 }

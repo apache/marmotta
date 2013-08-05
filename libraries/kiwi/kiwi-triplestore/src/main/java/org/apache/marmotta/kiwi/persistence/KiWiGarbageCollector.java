@@ -179,7 +179,6 @@ public class KiWiGarbageCollector extends Thread {
                         fixNodeIdsStatement.addBatch();
                     }
                     fixNodeIdsStatement.executeBatch();
-                    fixNodeIdsStatement.close();
                 }
 
                 // finally we clean up all now unused node ids

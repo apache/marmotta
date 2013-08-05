@@ -89,7 +89,7 @@ public class KiWiConfiguration {
     private boolean memorySequences = true;
 
 
-    private boolean commitSequencesOnCommit = false;
+    private boolean commitSequencesOnCommit = true;
 
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {

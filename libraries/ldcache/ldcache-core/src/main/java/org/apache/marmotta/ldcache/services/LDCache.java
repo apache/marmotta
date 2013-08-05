@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.services;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.marmotta.commons.locking.StringLocks;
+import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.api.LDCachingConnection;
 import org.apache.marmotta.ldcache.api.LDCachingService;
@@ -52,7 +52,7 @@ public class LDCache implements LDCachingService {
 
 
     // lock a resource while refreshing it so that not several threads trigger a refresh at the same time
-    private StringLocks resourceLocks;
+    private ObjectLocks resourceLocks;
 
     private LDClientService  ldclient;
 
@@ -71,7 +71,7 @@ public class LDCache implements LDCachingService {
     public LDCache(CacheConfiguration config, LDCachingBackend backend) {
         log.info("Linked Data Caching Service initialising ...");
 
-        this.resourceLocks = new StringLocks();
+        this.resourceLocks = new ObjectLocks();
         this.backend  = backend;
         this.ldclient = new LDClient(config.getClientConfiguration());
         this.config   = config;

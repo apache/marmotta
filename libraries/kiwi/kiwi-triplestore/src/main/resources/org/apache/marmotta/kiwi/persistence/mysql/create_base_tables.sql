@@ -12,13 +12,13 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE TABLE seq_nodes (id BIGINT NOT NULL);
+CREATE TABLE seq_nodes (id BIGINT NOT NULL) ENGINE=InnoDB;
 INSERT INTO seq_nodes(id) VALUES (0);
 
-CREATE TABLE seq_triples (id BIGINT NOT NULL);
+CREATE TABLE seq_triples (id BIGINT NOT NULL) ENGINE=InnoDB;
 INSERT INTO seq_triples VALUES (0);
 
-CREATE TABLE seq_namespaces (id BIGINT NOT NULL);
+CREATE TABLE seq_namespaces (id BIGINT NOT NULL) ENGINE=InnoDB;
 INSERT INTO seq_namespaces(id) VALUES (0);
 
 -- Sequences in MySQL:
@@ -38,7 +38,7 @@ CREATE TABLE nodes (
   lang      varchar(5),
   createdAt timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(id)
-) CHARACTER SET utf8 COLLATE utf8_bin;
+) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=InnoDB;
 
 CREATE TABLE triples (
   id        bigint     NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE triples (
   createdAt timestamp  NOT NULL DEFAULT now(),
   deletedAt timestamp,
   PRIMARY KEY(id)
-) CHARACTER SET utf8 COLLATE utf8_bin;
+) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=InnoDB;
 
 CREATE TABLE namespaces (
   id        bigint        NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE namespaces (
   uri       varchar(2048) NOT NULL,
   createdAt timestamp     NOT NULL DEFAULT now(),
   PRIMARY KEY(id)
-) CHARACTER SET utf8 COLLATE utf8_bin;
+) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=InnoDB;
 
 
 -- A table for storing metadata about the current database, e.g. version numbers for each table
@@ -69,7 +69,7 @@ CREATE TABLE metadata (
   mkey      varchar(16)   NOT NULL,
   mvalue    varchar(256)  NOT NULL,
   PRIMARY KEY(id)
-) CHARACTER SET utf8 COLLATE utf8_bin;
+) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=InnoDB;
 
 -- Indexes for accessing nodes and triples efficiently
 CREATE INDEX idx_node_content ON nodes(svalue(256));
