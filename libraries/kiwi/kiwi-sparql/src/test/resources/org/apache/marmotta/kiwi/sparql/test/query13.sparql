@@ -1,0 +1,11 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+
+SELECT ?p1 ?fn ?friends WHERE {
+    ?p1 foaf:name ?fn .
+    {
+        SELECT (COUNT(?friend) as ?friends) WHERE {
+            ?p1 foaf:knows ?friend
+        } GROUP BY ?p1
+    }
+}

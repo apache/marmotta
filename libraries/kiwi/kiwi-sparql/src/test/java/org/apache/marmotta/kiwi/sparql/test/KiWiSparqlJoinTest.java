@@ -269,6 +269,17 @@ public class KiWiSparqlJoinTest {
         testQuery("query12.sparql");
     }
 
+    // nested query
+    @Test
+    public void testQuery13() throws Exception {
+        testQuery("query13.sparql");
+    }
+
+    // boolean filter
+    @Test
+    public void testQuery14() throws Exception {
+        testQuery("query14.sparql");
+    }
 
     private void testQuery(String filename) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
