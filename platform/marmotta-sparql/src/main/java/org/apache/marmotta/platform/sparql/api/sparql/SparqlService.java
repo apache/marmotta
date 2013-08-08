@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.sparql.api.sparql;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
@@ -31,8 +32,10 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
+import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFHandler;
 
 /**
  * Add file description here!
@@ -51,35 +54,28 @@ public interface SparqlService {
 	 * @throws MalformedQueryException
 	 */
 	Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException ;
-
-    /**
-     * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
-     * to the output stream passed as argument on in the output format specified 
-     * as argument outputFormat.
-     *
-     * see http://www.w3.org/TR/sparql11-query/
-     *
-     *
-     * @param queryLanguage the query language to use
-     * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
-     * @param tupleWriter   the writer to use to write tuple query results
-     * @param booleanWriter the writer to use to write boolean query results
-     * @param graphWriter
-     * @throws InvalidArgumentException if the output format or query language are undefined
-     * @throws org.apache.marmotta.platform.core.exception.MarmottaException if the query evaluation fails
-     */
-	void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter) throws InvalidArgumentException, MarmottaException, MalformedQueryException, QueryEvaluationException;
+	
+	/**
+	 * Parse and return the concrete query type
+	 * 
+	 * @param language
+	 * @param query
+	 * @return
+	 */
+	QueryType getQueryType(QueryLanguage language, String query) throws MalformedQueryException;
 
 	/**
 	 * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
      * to the stream passed in the format requested.
      * 
-	 * @param query query
-	 * @param output strem to write 
-	 * @param format mimetype
-	 * @throws MarmottaException
+	 *
+     * @param query query
+     * @param output strem to write
+     * @param format mimetype
+     * @param timeoutInSeconds
+     * @throws MarmottaException
 	 */
-	void query(QueryLanguage language, String query, OutputStream output, String format) throws MarmottaException;
+	void query(QueryLanguage language, String query, OutputStream output, String format, int timeoutInSeconds) throws MarmottaException, TimeoutException, MalformedQueryException;
 	
     /**
      * Evaluate a SPARQL ASK query on the KiWi TripleStore
@@ -115,4 +111,34 @@ public interface SparqlService {
      */
     void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
 
+    /**
+     * Evaluate a SPARQL query, writing the results on the required writer.
+     * 
+     * @param queryLanguage
+     * @param query
+     * @param tupleWriter
+     * @param booleanWriter
+     * @param graphWriter
+     * @param timeoutInSeconds
+     * @throws MarmottaException
+     * @throws MalformedQueryException
+     * @throws QueryEvaluationException
+     * @throws TimeoutException
+     * @deprecated Use {@link #query(QueryLanguage, String, OutputStream, String, int)} instead
+     */
+    @Deprecated
+    void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
+    
+    /**
+     * Evaluate a SPARQL query, writing the results on the writer.
+     * 
+     * @param queryLanguage
+     * @param query
+     * @param writer
+     * @param timeoutInSeconds
+     * @deprecated Use {@link #query(QueryLanguage, String, OutputStream, String, int)} instead
+     */
+    @Deprecated
+    void query(QueryLanguage queryLanguage, String query, QueryResultWriter writer, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
+    
 }

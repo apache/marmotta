@@ -17,52 +17,68 @@
  */
 package org.apache.marmotta.platform.sparql.webservices;
 
-import org.apache.marmotta.platform.core.api.templating.TemplatingService;
-import org.apache.marmotta.platform.core.exception.MarmottaException;
-import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
-import org.apache.marmotta.platform.sparql.services.sparql.SparqlWritersHelper;
-import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLResultsHTMLWriter;
-import com.google.common.collect.Lists;
-import com.google.common.io.CharStreams;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
-import org.apache.marmotta.platform.core.util.WebServiceUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
-import org.openrdf.query.resultio.BooleanQueryResultWriter;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriBuilder;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.UriBuilder;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.exporter.ExportService;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
+import org.apache.marmotta.platform.core.util.WebServiceUtil;
+import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
+import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
+import org.apache.marmotta.platform.sparql.services.sparql.SparqlWritersHelper;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.resultio.BooleanQueryResultFormat;
+import org.openrdf.query.resultio.BooleanQueryResultWriter;
+import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
+import org.openrdf.query.resultio.QueryResultFormat;
+import org.openrdf.query.resultio.QueryResultIO;
+import org.openrdf.query.resultio.QueryResultWriter;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
+import org.openrdf.query.resultio.TupleQueryResultWriter;
+import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
+import org.openrdf.rio.RDFParserRegistry;
+import org.slf4j.Logger;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 
 /**
  * Execute SPARQL query (both query and update) on the LMF triple store
@@ -77,7 +93,7 @@ import java.util.regex.Pattern;
 @Path("/" + SparqlWebService.PATH)
 public class SparqlWebService {
 	
-    public final static String PATH = "sparql";
+    public static final String PATH = "sparql";
     public static final String SELECT = "/select";
     public static final String UPDATE = "/update";
     public static final String SNORQL = "/snorql";
@@ -90,6 +106,9 @@ public class SparqlWebService {
 
     @Inject
     private ConfigurationService configurationService;
+    
+    @Inject
+    private ExportService exportService;
 
     @Inject
     private TemplatingService templatingService;
@@ -148,38 +167,111 @@ public class SparqlWebService {
      */
     @GET
     @Path(SELECT)
-    public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        if(resultType == null) {
-            List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-            List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
+    public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {  
+    	return select(query, resultType, request);
+    }
+    
+    /**
+     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
+     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
+     * <p/>
+     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
+     *
+     * @param query       the SPARQL 1.1 Query as a string parameter
+     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
+     * @HTTP 200 in case the query was executed successfully
+     * @HTTP 500 in case there was an error during the query evaluation
+     * @return the query result in the format passed as argument
+     */
+    @POST
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    @Path(SELECT)
+    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    	return select(query, resultType, request);
+    }    
+    
+    /**
+     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed in the body of the
+     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
+     * <p/>
+     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
+     *
+     * @param request     the servlet request (to retrieve the SPARQL 1.1 Query passed in the body of the POST request)
+     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
+     * @HTTP 200 in case the query was executed successfully
+     * @HTTP 500 in case there was an error during the query evaluation
+     * @return the query result in the format passed as argument
+     */
+    @POST
+    @Path(SELECT)
+    public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
+		try {
+			String query = CharStreams.toString(request.getReader());
+			return select(query, resultType, request);
+		} catch (IOException e) {
+			log.error("body not found", e);
+			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+    }    
 
-            ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
-
-            if(bestType != null) {
-                resultType = bestType.getMime();
-            }
-        }
-
-        try {
-            if(resultType != null) {
-                if (StringUtils.isNotBlank(query))
-                    return buildQueryResponse(resultType, query);
-                else {
-                    if (parseSubType(resultType).equals("html"))
-                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/snorql/snorql.html")).build();
-                    else
-                        return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
-                }
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-        } catch (InvalidArgumentException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
+    /**
+     * Actual SELECT implementation
+     * 
+     * @param query
+     * @param resultType
+     * @param request
+     * @return
+     */
+	private Response select(String query, String resultType, HttpServletRequest request) {
+		try {
+	    	String acceptHeader = StringUtils.defaultString(request.getHeader("Accept"), "");
+	    	if (StringUtils.isBlank(query)) { //empty query
+	            if (acceptHeader.contains("html")) {
+	                return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/snorql.html")).build();
+	            } else {
+	            	return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
+	            }
+	    	} else {
+	    		//query duck typing
+	        	QueryType queryType = sparqlService.getQueryType(QueryLanguage.SPARQL, query);
+	        	List<ContentType> acceptedTypes;
+	        	List<ContentType> offeredTypes;
+	        	if (resultType != null) {
+	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(resultType);
+	        	} else {
+	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
+	        	}
+	        	if (QueryType.TUPLE.equals(queryType)) {
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(getTypes(TupleQueryResultWriterRegistry.getInstance().getKeys()));
+	        	} else if (QueryType.BOOL.equals(queryType)) {
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(getTypes(BooleanQueryResultWriterRegistry.getInstance().getKeys()));
+	        	} else if (QueryType.GRAPH.equals(queryType)) {
+	        		Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
+	        		producedTypes.remove("application/xml");
+	        		producedTypes.remove("application/xml");
+	        		producedTypes.remove("text/plain");
+	        		producedTypes.remove("text/html");
+	        		producedTypes.remove("application/xhtml+xml");
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(producedTypes);
+	        	} else {
+	        		return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
+	        	}
+	            ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+	            if (bestType == null) {
+	            	return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).entity("no result format specified or unsupported result format").build();
+	            } else {
+	        		//return buildQueryResponse(resultType, query);
+	            	return buildQueryResponse(bestType, query, queryType);
+	            }
+	    	}
+        } catch (InvalidArgumentException e) {
+            log.error("query parsing threw an exception", e);
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         } catch(Exception e) {
-            log.error("query execution threw an exception",e);
-
+            log.error("query execution threw an exception", e);
             return Response.serverError().entity("query not supported").build();
         }
-    }
+	}
 
     /**
      * For CORS operations TODO: make it more fine grained (maybe user dependent)
@@ -203,93 +295,6 @@ public class SparqlWebService {
 
     }
     */
-    
-    /**
-     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
-     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
-     * <p/>
-     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
-     *
-     * @param query       the SPARQL 1.1 Query as a string parameter
-     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
-     * @HTTP 200 in case the query was executed successfully
-     * @HTTP 500 in case there was an error during the query evaluation
-     * @return the query result in the format passed as argument
-     */
-    @POST
-    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
-    @Path(SELECT)
-    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        try {
-            if(resultType == null) {
-                List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-                List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
-
-                ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
-
-                if(bestType != null) {
-                    resultType = bestType.getMime();
-                }
-            }
-            if(resultType != null) {
-                if (StringUtils.isNotBlank(query))
-                    return buildQueryResponse(resultType, query);
-                else
-                    return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-        } catch (InvalidArgumentException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        } catch(Exception e) {
-            log.error("query execution threw an exception",e);
-
-            return Response.serverError().entity("query not supported").build();
-        }
-    }
-
-    /**
-     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed in the body of the
-     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
-     * <p/>
-     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
-     *
-     * @param request     the servlet request (to retrieve the SPARQL 1.1 Query passed in the body of the POST request)
-     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
-     * @HTTP 200 in case the query was executed successfully
-     * @HTTP 500 in case there was an error during the query evaluation
-     * @return the query result in the format passed as argument
-     */
-    @POST
-    @Path(SELECT)
-    public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        try {
-            if(resultType == null) {
-                List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-                List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
-
-                ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
-
-                if(bestType != null) {
-                    resultType = bestType.getMime();
-                }
-            }
-
-            if(resultType != null) {
-                String query = CharStreams.toString(request.getReader());
-                if (query != null && !query.equals(""))
-                    return buildQueryResponse(resultType, query);
-                else
-                    return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-        } catch (InvalidArgumentException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        } catch(Exception e) {
-            log.error("query execution threw an exception",e);
-
-            return Response.serverError().entity("query not supported").build();
-        }
-    }
 
     /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
@@ -310,7 +315,6 @@ public class SparqlWebService {
             return buildQueryResponse(resultType, query);
         } catch(Exception e) {
             log.error("query execution threw an exception",e);
-
             return Response.serverError().entity("query not supported").build();
         }
     }
@@ -330,18 +334,75 @@ public class SparqlWebService {
      */
     @GET
     @Path(UPDATE)
-    public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType,
-            @Context HttpServletRequest request) {
-        try {
-            String q = getUpdateQuery(update, query);
-            if (StringUtils.isNotBlank(q)) {
-                sparqlService.update(QueryLanguage.SPARQL, q);
+    public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    	String q = getUpdateQuery(update, query);
+        return update(q, resultType, request);
+    }
+    
+    /**
+     * Execute a SPARQL 1.1 Update request using update via POST directly; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
+     * 
+     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
+     *            body of the POST request)
+     * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
+     * @HTTP 500 in case the update was not successful
+     * @return empty content in case the update was successful, the error message in case an error
+     *         occurred
+     */
+    @POST
+    @Path(UPDATE)
+    @Consumes("application/sparql-update")
+    public Response updatePostDirectly(@Context HttpServletRequest request, @QueryParam("output") String resultType) {
+		try {
+			String q = CharStreams.toString(request.getReader());
+	        return update(q, resultType, request);
+		} catch (IOException e) {
+			return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+		}
+    }
+    
+    /**
+     * Execute a SPARQL 1.1 Update request using update via URL-encoded POST; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
+     * 
+     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
+     *            body of the POST request)
+     * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
+     * @HTTP 500 in case the update was not successful
+     * @return empty content in case the update was successful, the error message in case an error
+     *         occurred
+     */
+    @POST
+    @Path(UPDATE)
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
+    	try {
+	    	Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));  
+			String q = StringUtils.defaultString(params.get("update"));
+			String resultType = StringUtils.defaultString(params.get("output"));
+	        return update(q, resultType, request);
+    	} catch (IOException e) {
+			return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+		}
+    }    
+
+    /**
+     * Actual update implementation
+     * 
+     */
+	private Response update(String update, String resultType, HttpServletRequest request) {
+		try {
+            if (StringUtils.isNotBlank(update)) {
+                sparqlService.update(QueryLanguage.SPARQL, update);
                 return Response.ok().build();
             } else {
                 if (resultType == null) {
-                    List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-                    List<ContentType> offeredTypes = LMFHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
-                    ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
+                    List<ContentType> offeredTypes = MarmottaHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
+                    ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
                     if (bestType != null) {
                         resultType = bestType.getMime();
                     }
@@ -361,7 +422,7 @@ public class SparqlWebService {
         } catch (URISyntaxException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         }
-    }
+	}
 
     /**
      * Get right update query from both possible parameters, for keeping
@@ -379,83 +440,13 @@ public class SparqlWebService {
             return query;
         } else
             return null;
-    }
-
-    /**
-     * Execute a SPARQL 1.1 Update request using update via POST directly; 
-     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
-     * 
-     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
-     *            body of the POST request)
-     * @HTTP 200 in case the update was carried out successfully
-     * @HTTP 400 in case the update query is missing or invalid
-     * @HTTP 500 in case the update was not successful
-     * @return empty content in case the update was successful, the error message in case an error
-     *         occurred
-     */
-    @POST
-    @Path(UPDATE)
-    @Consumes("application/sparql-update")
-    public Response updatePostDirectly(@Context HttpServletRequest request) {
-        try {
-            String query = CharStreams.toString(request.getReader());
-            if (StringUtils.isNotBlank(query)) {
-                sparqlService.update(QueryLanguage.SPARQL, query);
-                return Response.ok().build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
-        } catch (MalformedQueryException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch(UpdateExecutionException e) {
-            log.error("update execution threw an exception", e);
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (MarmottaException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (IOException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        }
-    }
-    
-    /**
-     * Execute a SPARQL 1.1 Update request using update via URL-encoded POST; 
-     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
-     * 
-     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
-     *            body of the POST request)
-     * @HTTP 200 in case the update was carried out successfully
-     * @HTTP 400 in case the update query is missing or invalid
-     * @HTTP 500 in case the update was not successful
-     * @return empty content in case the update was successful, the error message in case an error
-     *         occurred
-     */
-    @POST
-    @Path(UPDATE)
-    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
-    public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
-        try {
-            Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));           
-            if (params.containsKey("update") && StringUtils.isNotBlank(params.get("update"))) {
-                sparqlService.update(QueryLanguage.SPARQL, params.get("update"));
-                return Response.ok().build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
-        } catch (MalformedQueryException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch(UpdateExecutionException e) {
-            log.error("update execution threw an exception", e);
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (MarmottaException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (IOException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        }
     }    
 
     /**
      * Parse the encoded query parameters
      * 
      * @todo this should be somewhere already implemented
-     * @param string
+     * @param body
      * @return parameters
      */
     private Map<String,String> parseEncodedQueryParameters(String body) {
@@ -478,26 +469,45 @@ public class SparqlWebService {
         }
 		return params;
 	}
+    
+	private Response buildQueryResponse(final ContentType format, final String query, final QueryType queryType) throws Exception {		
+        StreamingOutput entity = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                try {
+                	sparqlService.query(QueryLanguage.SPARQL, query, output, format.getMime(), configurationService.getIntConfiguration("sparql.timeout", 60));
+                } catch (MarmottaException ex) {
+                    throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
+                } catch (MalformedQueryException e) {
+                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+                } catch (TimeoutException e) {
+                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.GATEWAY_TIMEOUT).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+                }
+            }
+        };
+        return Response.ok().entity(entity).header("Content-Type", format.getMime()).build();
+	}
 
+    @Deprecated
 	private Response buildQueryResponse(final String resultType, final String query) throws Exception {
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    sparqlService.query(QueryLanguage.SPARQL,query,getTupleResultWriter(resultType,output),getBooleanResultWriter(resultType,output), getGraphResultWriter(resultType,output));
+                    sparqlService.query(QueryLanguage.SPARQL,query,output,resultType, configurationService.getIntConfiguration("sparql.timeout", 60));
                 } catch (MarmottaException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
-                } catch (QueryEvaluationException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (MalformedQueryException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+                } catch (TimeoutException e) {
+                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.GATEWAY_TIMEOUT).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 }
             }
         };
 
         //set returntype
         String s = "";
-        if(resultType ==null) {
+        if(resultType == null) {
             s = "application/sparql-results+xml;charset=utf-8";
         } else if(parseSubType(resultType).equals("html") ) {
             s = "text/html;charset=utf-8";
@@ -519,6 +529,19 @@ public class SparqlWebService {
         return r;
     }
 
+    /**
+     * Build a set of mime types based on the given formats
+     * @param types
+     * @return
+     */
+    private Set<String> getTypes(Collection<? extends QueryResultFormat> types) {
+        Set<String> results = new LinkedHashSet<String>();
+        for(QueryResultFormat type : types) {
+            results.addAll(type.getMIMETypes());
+        }
+        return results;
+    }
+    
     private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
     private String parseSubType(String mimeType) {
         Matcher matcher = subTypePattern.matcher(mimeType);
@@ -527,44 +550,4 @@ public class SparqlWebService {
         else
             return mimeType;
     }
-
-
-    private TupleQueryResultWriter getTupleResultWriter(String format, OutputStream os) {
-        //build outputwriter
-        final TupleQueryResultWriter out;
-        if(format == null) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("html")) {
-            out = new SPARQLResultsHTMLWriter(os, templatingService);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("json")) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.JSON, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("xml")) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("csv")) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.CSV, os);
-        } else throw new InvalidArgumentException("could not produce format "+format);
-        return out;
-    }
-
-    private BooleanQueryResultWriter getBooleanResultWriter(String format, OutputStream os) {
-        //build outputwriter
-        final BooleanQueryResultWriter out;
-        if(format == null) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("html")) {
-            out = new SPARQLBooleanHTMLWriter(os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("json")) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.JSON, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("xml")) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("csv")) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.TEXT, os);
-        } else throw new InvalidArgumentException("could not produce format "+format);
-        return out;
-    }
-
-    protected SPARQLGraphResultWriter getGraphResultWriter(String format, OutputStream os) {
-        return new SPARQLGraphResultWriter(os,format);
-    }
-
 }

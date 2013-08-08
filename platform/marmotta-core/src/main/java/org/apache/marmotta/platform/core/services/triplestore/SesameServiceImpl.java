@@ -43,6 +43,7 @@ import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
+import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 
 import javax.annotation.PreDestroy;
@@ -301,6 +302,17 @@ public class SesameServiceImpl implements SesameService {
     @Produces
     public ValueFactory getValueFactory() {
         return repository.getValueFactory();
+    }
+
+    /**
+     * Run the triple store garbage collector manually and clean up unreferenced nodes and triples.
+     * @throws SailException
+     */
+    @Override
+    public void garbageCollect() throws SailException {
+        if(store != null) {
+            store.garbageCollect();
+        }
     }
 
     private class LMFTransactionEventProxy implements TransactionListener {

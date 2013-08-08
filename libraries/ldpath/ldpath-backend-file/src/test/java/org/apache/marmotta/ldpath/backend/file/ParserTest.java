@@ -30,7 +30,7 @@ import org.apache.marmotta.ldpath.model.selectors.TestingSelector;
 import org.apache.marmotta.ldpath.model.selectors.UnionSelector;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -83,7 +83,7 @@ public class ParserTest {
     }
 
     private NodeSelector<Value> parseSelector(String selector, Map<String,String> namespaces) throws ParseException {
-        return new RdfPathParser<Value>(backend,new StringReader(selector)).parseSelector(namespaces);
+        return new LdPathParser<Value>(backend,new StringReader(selector)).parseSelector(namespaces);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ParserTest {
     }
 
     private Program<Value> parseProgram(String selector) throws ParseException {
-        return new RdfPathParser<Value>(backend,new StringReader(selector)).parseProgram();
+        return new LdPathParser<Value>(backend,new StringReader(selector)).parseProgram();
     }
 
 

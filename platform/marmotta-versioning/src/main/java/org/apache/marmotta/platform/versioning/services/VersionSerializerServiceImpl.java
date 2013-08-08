@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.versioning.services;
 import org.apache.marmotta.platform.versioning.api.VersionSerializerService;
 import org.apache.marmotta.platform.versioning.io.VersionSerializer;
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
@@ -49,7 +49,7 @@ public class VersionSerializerServiceImpl implements VersionSerializerService {
     @Override
     public VersionSerializer getSerializer(List<ContentType> type) throws IOException {
         for(VersionSerializer serializer : serializers) {
-            if(LMFHttpUtils.bestContentType(serializer.getContentTypes(),type) != null) return serializer;
+            if(MarmottaHttpUtils.bestContentType(serializer.getContentTypes(),type) != null) return serializer;
         }
         throw new IOException("Cannot find serializer for " + type);
     }

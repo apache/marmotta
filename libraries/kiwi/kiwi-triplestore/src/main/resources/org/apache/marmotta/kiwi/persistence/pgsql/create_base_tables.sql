@@ -37,7 +37,7 @@ CREATE TABLE triples (
   subject   bigint     NOT NULL REFERENCES nodes(id),
   predicate bigint     NOT NULL REFERENCES nodes(id),
   object    bigint     NOT NULL REFERENCES nodes(id),
-  context   bigint     NOT NULL REFERENCES nodes(id),
+  context   bigint     REFERENCES nodes(id),
   creator   bigint     REFERENCES nodes(id),
   inferred  boolean    DEFAULT false,
   deleted   boolean    DEFAULT false,
@@ -77,7 +77,7 @@ CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 
 -- a rule to ignore duplicate inserts into triple table
-CREATE RULE "triples_ignore_duplicates" AS
+CREATE OR REPLACE RULE "triples_ignore_duplicates" AS
 ON INSERT TO triples
   WHERE EXISTS(
       SELECT 1 FROM triples

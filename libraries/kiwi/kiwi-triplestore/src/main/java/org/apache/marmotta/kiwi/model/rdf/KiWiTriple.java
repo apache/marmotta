@@ -98,7 +98,6 @@ public class KiWiTriple  implements Statement, Serializable {
         assert(subject  != null);
         assert(predicate != null);
         assert(object   != null);
-        assert(context  != null);
 	}
 
    /**
@@ -221,7 +220,7 @@ public class KiWiTriple  implements Statement, Serializable {
      * @param deletedAt
      */
     public void setDeletedAt(Date deletedAt) {
-        this.deletedAt = new Date(deletedAt.getTime());
+        this.deletedAt = deletedAt != null ? new Date(deletedAt.getTime()) : null;
     }
 
     /**
@@ -259,12 +258,10 @@ public class KiWiTriple  implements Statement, Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-//        if (!(o instanceof KiWiTriple)) return false;
 
-
-        KiWiTriple triple = (KiWiTriple) o;
-
-        if (!getContext().equals(triple.getContext())) return false;
+        Statement triple = (Statement) o;
+//        changed according to https://openrdf.atlassian.net/browse/SES-1924
+//        if (!getContext().equals(triple.getContext())) return false;
         if (!getObject().equals(triple.getObject())) return false;
         if (!getPredicate().equals(triple.getPredicate())) return false;
         return getSubject().equals(triple.getSubject());
@@ -273,11 +270,7 @@ public class KiWiTriple  implements Statement, Serializable {
 
     @Override
     public int hashCode() {
-        int result = getSubject().hashCode();
-        result = 31 * result + getPredicate().hashCode();
-        result = 31 * result + getObject().hashCode();
-        result = 31 * result + getContext().hashCode();
-        return result;
+        return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode();
     }
 
 

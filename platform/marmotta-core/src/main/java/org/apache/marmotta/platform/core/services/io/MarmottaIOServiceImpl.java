@@ -21,6 +21,7 @@ import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriterRegistry;
+import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Thomas Kurz
@@ -40,36 +43,13 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private RDFParserRegistry parserRegistry;
-    private RDFWriterRegistry writerRegistry;
-
-    private List<String> acceptTypes;
-    private List<String> producedTypes;
-
     @PostConstruct
     public void initialise() {
         log.info("initialising Apache Marmotta I/O service ...");
 
-        parserRegistry = RDFParserRegistry.getInstance();
-
-        acceptTypes = new ArrayList<String>();
-        for(RDFFormat format : parserRegistry.getKeys()) {
-            acceptTypes.addAll(format.getMIMETypes());
-        }
-        log.info(" - available parsers: {}", Arrays.toString(acceptTypes.toArray()));
-
-        writerRegistry = RDFWriterRegistry.getInstance();
-
-        producedTypes = new ArrayList<String>();
-        for(RDFFormat format : writerRegistry.getKeys()) {
-            producedTypes.addAll(format.getMIMETypes());
-        }
-        log.info(" - available writers: {}", Arrays.toString(producedTypes.toArray()));
-
-
-
+        log.info(" - available parsers: {}", Arrays.toString(getAcceptTypes().toArray()));
+        log.info(" - available writers: {}", Arrays.toString(getProducedTypes().toArray()));
     }
-
 
 	/**
 	 * returns a list of all mimetypes which can be parsed by implemented parsers
@@ -77,7 +57,11 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public List<String> getAcceptTypes() {
-		return acceptTypes;
+        Set<String> acceptTypes = new LinkedHashSet<String>();
+        for(RDFFormat format : RDFParserRegistry.getInstance().getKeys()) {
+            acceptTypes.addAll(format.getMIMETypes());
+        }
+        return new ArrayList<String>(acceptTypes);
 	}
 
 	/**
@@ -86,7 +70,11 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public List<String> getProducedTypes() {
-		return producedTypes;
+	    Set<String> producedTypes = new LinkedHashSet<String>();
+        for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
+            producedTypes.addAll(format.getMIMETypes());
+        }
+        return new ArrayList<String>(producedTypes);
 	}
 
 	/**
@@ -96,7 +84,7 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public RDFFormat getSerializer(String mimetype) {
-		return writerRegistry.getFileFormatForMIMEType(mimetype);
+		return Rio.getWriterFormatForMIMEType(mimetype);
 	}
 
 	/**
@@ -106,6 +94,7 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public RDFFormat getParser(String mimetype) {
-		return parserRegistry.getFileFormatForMIMEType(mimetype);
+		return Rio.getParserFormatForMIMEType(mimetype);
 	}
+	
 }

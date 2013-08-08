@@ -21,12 +21,58 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.2.0-incubating-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
     <artifactId>marmotta-commons</artifactId>
     <name>Apache Marmotta: Common Utilities</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>add-ext</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/ext/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-ext-test</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <sources>
+                                <source>src/ext-test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/ext/resources</directory>
+            </resource>
+        </resources>
+    </build>
+
 
     <dependencies>
         <dependency>
@@ -83,6 +129,16 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- for fast hash sets and maps with custom equivalence relations -->
+
+        <!-- TODO: for now we use the source code in ext/ because it contains some bug fixes -->
+        <!--
+        <dependency>
+            <groupId>org.javolution</groupId>
+            <artifactId>javolution-core-java</artifactId>
+            <version>6.0.1-SNAPSHOT</version>
+        </dependency>
+        -->
 
     </dependencies>
     

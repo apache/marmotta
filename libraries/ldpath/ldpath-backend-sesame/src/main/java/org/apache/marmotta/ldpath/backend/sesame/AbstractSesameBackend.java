@@ -26,11 +26,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -65,8 +61,10 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 
 	protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.URI property)
 			throws RepositoryException {
+        ValueFactory valueFactory = connection.getValueFactory();
+
 		Set<Value> result = new HashSet<Value>();
-		RepositoryResult<Statement> qResult = connection.getStatements(subject, property, null, true);
+		RepositoryResult<Statement> qResult = connection.getStatements(merge(subject, connection.getValueFactory()), merge(property, connection.getValueFactory()), null, true);
 		try {
 			while(qResult.hasNext()) {
 				result.add(qResult.next().getObject());
@@ -80,7 +78,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 	protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.URI property, Value object)
 			throws RepositoryException {
 		Set<Value> result = new HashSet<Value>();
-		RepositoryResult<Statement> qResult = connection.getStatements(null, property, object, true);
+		RepositoryResult<Statement> qResult = connection.getStatements(null, merge(property, connection.getValueFactory()), merge(object, connection.getValueFactory()), true);
 		try {
 			while(qResult.hasNext()) {
 				result.add(qResult.next().getSubject());
@@ -90,6 +88,23 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 		}
 		return  result;
 	}
+
+    /**
+     * Merge the value given as argument into the value factory given as argument
+     * @param value
+     * @param vf
+     * @param <T>
+     * @return
+     */
+    protected <T extends Value> T merge(T value, ValueFactory vf) {
+        if(value instanceof org.openrdf.model.URI) {
+            return (T)vf.createURI(value.stringValue());
+        } else if(value instanceof BNode) {
+            return (T)vf.createBNode(((BNode) value).getID());
+        } else {
+            return value;
+        }
+    }
 
 	@Override
 	public abstract Literal createLiteral(String content);

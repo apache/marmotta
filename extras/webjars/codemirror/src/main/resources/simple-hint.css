@@ -1,0 +1,20 @@
+/* CodeMirror version 2.24
+ *
+ * License: MIT-License <http://codemirror.net/LICENSE>
+*/
+#center .CodeMirror-completions, .CodeMirror-completions {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+}
+#center .CodeMirror-completions select, .CodeMirror-completions select {
+  background: #fafafa;
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
+}

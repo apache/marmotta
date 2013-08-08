@@ -127,6 +127,17 @@ public class PrefixServiceImpl implements PrefixService {
     public Map<String, String> getMappings() {
         return Collections.unmodifiableMap(cache);
     }
+    
+	@Override
+	public boolean remove(String prefix) {
+		if (cache.containsKey(prefix)) {
+			cache.remove(prefix);
+			configurationService.removeConfiguration(CONFIGURATION_PREFIX + "." + prefix);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
     @Override
     public boolean containsPrefix(String prefix) {

@@ -27,7 +27,7 @@ import java.util.Collection;
 
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -50,7 +50,7 @@ public class HtmlFunctionsTest extends AbstractTestBase {
     public void testCleanHtmlFunction() throws ParseException {
         URI uri = repository.getValueFactory().createURI(NSS.get("ex") + "Simple");
 
-        final RdfPathParser<Value> parser = createParserFromString("fn:cleanHtml(foo:html) :: xsd:string");
+        final LdPathParser<Value> parser = createParserFromString("fn:cleanHtml(foo:html) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
 
         final Collection<Object> result = rule.getValues(backend, uri);
@@ -67,7 +67,7 @@ public class HtmlFunctionsTest extends AbstractTestBase {
     public void testCssSelectFunction() throws ParseException {
         URI uri = repository.getValueFactory().createURI(NSS.get("ex") + "Simple");
 
-        final RdfPathParser<Value> parser = createParserFromString("fn:css(\"p\", foo:html) :: xsd:string");
+        final LdPathParser<Value> parser = createParserFromString("fn:css(\"p\", foo:html) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
 
         final Collection<Object> result = rule.getValues(backend, uri);
@@ -79,7 +79,7 @@ public class HtmlFunctionsTest extends AbstractTestBase {
             assertThat("String end", s, CoreMatchers.endsWith("</p>"));
         }
 
-        final RdfPathParser<Value> parser2 = createParserFromString("fn:css(\"p#p2\", foo:html) :: xsd:string");
+        final LdPathParser<Value> parser2 = createParserFromString("fn:css(\"p#p2\", foo:html) :: xsd:string");
         final FieldMapping<Object, Value> rule2 = parser2.parseRule(NSS);
 
         final Collection<Object> result2 = rule2.getValues(backend, uri);

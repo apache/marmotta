@@ -20,7 +20,7 @@ CREATE SEQUENCE seq_namespaces;
 CREATE TABLE nodes (
   id        bigint     NOT NULL,
   ntype     char(8)    NOT NULL,
-  svalue    varchar(65536) NOT NULL,
+  svalue    varchar(2147483647) NOT NULL,
   dvalue    double precision,
   ivalue    bigint,
   tvalue    timestamp,
@@ -36,7 +36,7 @@ CREATE TABLE triples (
   subject   bigint     NOT NULL REFERENCES nodes(id),
   predicate bigint     NOT NULL REFERENCES nodes(id),
   object    bigint     NOT NULL REFERENCES nodes(id),
-  context   bigint     NOT NULL REFERENCES nodes(id),
+  context   bigint     REFERENCES nodes(id),
   creator   bigint     REFERENCES nodes(id),
   inferred  boolean    DEFAULT false,
   deleted   boolean    DEFAULT false,

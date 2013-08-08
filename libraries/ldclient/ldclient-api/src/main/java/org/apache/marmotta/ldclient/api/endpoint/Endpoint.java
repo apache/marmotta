@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import static org.apache.marmotta.commons.http.LMFHttpUtils.parseAcceptHeader;
+import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseAcceptHeader;
 
 /**
  * Definition of a Linked Data Endpoint. Contains information how to query the

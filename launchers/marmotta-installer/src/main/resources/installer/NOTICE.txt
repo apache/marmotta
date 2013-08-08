@@ -10,295 +10,33 @@ Portions of this software were originally based on the following:
 
 These have been licensed to the Apache Software Foundation under a software grant.
 
-This product also includes the following third-party components:
+This product also includes some third-party binary components:
 
-* Apache Tomcat, http://tomcat.apache.org
+ * H2 Database, Copyright (c) 2013 H2 Group, is licensed under the Eclipse Public 
+   License (EPL) 1.0. The original software is available from http://www.h2database.com
 
-  Copyright (c) 2013 The Apache Software Foundation
+ * Logback, Copyright (C) 2012 QOS.ch, is licensed under the Eclipse Public 
+   License (EPL) 1.0. The original software is available from http://logback.qos.ch
 
-  Java compilation software for JSP pages is provided by Eclipse,
-  which is open source software.  The original software and
-  related information is available at http://www.eclipse.org.
+ * Javassist, Copyright (c) 2013 Shigeru Chiba, is licensed under the Mozilla 
+   Public License (MPL) 1.1. The original software is available from 
+   http://www.jboss.org/javassist
 
-  The bayeux implementation is derivative work originating at 
-  the Dojo Foundation
-    * Copyright 2007-2008 Guy Molinari
-    * Copyright 2007-2008 Filip Hanik
-    * Copyright 2007 Dojo Foundation
-    * Copyright 2007 Mort Bay Consulting Pty. Ltd.
+ * Java Activation, Copyright (c) 2012 Oracle Corporation, is licensed under the
+   Common Development and Distribution License (CDDL) v1.0. The original software 
+   is available from http://www.oracle.com
 
-  The original XML Schemas for Java EE Deployment Descriptors:
-    - javaee_5.xsd
-    - javaee_web_services_1_2.xsd
-    - javaee_web_services_client_1_2.xsd
-    - javaee_6.xsd
-    - javaee_web_services_1_3.xsd
-    - javaee_web_services_client_1_3.xsd
-    - jsp_2_2.xsd
-    - web-app_3_0.xsd
-    - web-common_3_0.xsd
-    - web-fragment_3_0.xsd
-  may be obtained from http://java.sun.com/xml/ns/javaee/
+ * Java Servlet API, Copyright (c) 2012 Oracle Corporation, is licensed under the
+   Common Development and Distribution License (CDDL) v1.0. The original software 
+   is available from http://www.oracle.com
 
-* H2, http://www.h2database.com
+ * Common Annotations (JSR-250), Copyright (c) 2012 Oracle Corporation, is licensed 
+   under the Common Development and Distribution License (CDDL) v1.0. The original 
+   software is available from http://www.oracle.com
 
-  Copyright (c) 2013 H2 Group
+ * Expression Language, Copyright (c) 2012 Oracle Corporation, is licensed under
+   the Common Development and Distribution License (CDDL) v1.0. The original 
+   software is available from http://www.oracle.com
 
-* Logback, http://logback.qos.ch
-
-  Copyright (C) 2012 QOS.ch
-
-* JDOM, http://www.jdom.org
-
-  Copyright (c) 2012 Jason Hunter & Brett McLaughlin
-
-* Freemarker, http://freemarker.org
-
-  Copyright (c) 2003 The Visigoth Software Society
-
-* CAL10N, http://cal10n.qos.ch
-
-  Copyright (c) 2009 QOS.ch
-
-* Guava, http://guava-libraries.googlecode.com
-
-  Copyright (c) 2013 Google Inc.
-
-* Jackson, http://jackson.codehaus.org
-
-  Copyright (c) 2010 FasterXML LLC.
-
-* MimeUtil, http://mime-util.sourceforge.net
-
-  Copyright (c) 2010 Medsea Business Solutions S.L.
-
-* IzPack, http://izpack.org
-
-  Copyright (c) 2012 Julien Ponge
-
-* Apache Ant, http://ant.apache.org
-
-  Copyright (c) 2012 The Apache Software Foundation
-
-  This product includes also software developed by:
-    - the W3C consortium, http://www.w3.org
-    - the SAX project, http://www.saxproject.org
-
-  Please read the different LICENSE files present in the 
-  root directory of this distribution.
-
-* OpenCSV, http://opencsv.sourceforge.net
-
-  Copyright (c) 2005 Bytecode Pty Ltd.
-
-* OpenRDF Sesame, http://www.openrdf.org
-
-  Copyright (c) 2013 Aduna
-
-  This software includes code developed by Aduna
-  (http://www.aduna-software.com/).
-
-  This software includes code developed by Ontotext AD
-  (http://www.ontotext.com/).
-
-  This software includes code developed by 3 Round Stones
-  (http://www.3roundstones.com/).
-
-  This software includes code developed by Fluid Operations
-  (http://www.fluidops.com/).
-
-  This software includes code developed by the Information Management Group at
-  Food & Biobased Research, Wageningen University (http://www.fbr.wur.nl/).
-
-  This software includes code developed by Clark & Parsia
-  (http://clarkparsia.com/).
-
-  This software includes code developed by the Institute for Defense Analyses
-  (IDA) (http://www.ida.org/).
-
-  This software includes code developed by Atos (http://www.atos.net/).
-
-  This software includes code developed by Peter Ansell.
-
-  The above parties have licensed their code contributions to Aduna under the
-  terms of a contributor license agreement (CLA).
-
-  This product includes software developed by the JUnit project
-  (http://www.junit.org). License: http://junit.sourceforge.net/cpl-v10.html
-
-  Parts of this product use software developed by JSON.org
-  (http://www.json.org). License: http://www.json.org/license.html
-
-  Parts of this product use software developed by the Mockito project
-  (http://mockito.googlecode.com). License: https://github.com/mockito/mockito/blob/master/LICENSE
-
-* PostgreSQL JDBC, http://jdbc.postgresql.org
-
-  Copyright (c) 2011 PostgreSQL Global Development Group
-
-* Scannotation, http://scannotation.sourceforge.net
-
-  Copyright (c) 2011 Bill Burke
-
-* SLF4J, http://www.slf4j.org
-
-  Copyright (c) 2013 QOS.ch
-
-* Semargl, http://semarglproject.org
-
-  Copyright (c) 2012 Lev Khomich
-
-  This product uses software developed by The Apache Software Foundation:
-  Clerezza, Jena, IO Commons (http://www.apache.org/).
-
-  This product includes/uses test suite developed by Hewlett-Packard
-  (http://hp.com/). Copyright (c) 2002, Hewlett-Packard Company.
-
-  This product includes/uses test suite developed by W3C Consortium.
-
-  This product includes/uses RDFa test harness developed by RDF Web Applications
-  Working Group (http://www.w3.org/2010/02/rdfa/).
-
-* Janino, http://janino.codehaus.org
-
-  Copyright (c) 2010 Arno Unkrig
-
-* Java Injection API, http://atinject.googlecode.com
-
-  Copyright (c) 2009 The JSR-330 Expert Group
-
-* Javassist, http://www.jboss.org/javassist
-
-  Copyright (c) 2013 Shigeru Chiba
-
-* Jaxen, http://jaxen.codehaus.org
-
-  Copyright (c) 2006 The Werken Company
-
-* JSoup, http://jsoup.org
-
-  Copyright (c) 2013 Jonathan Hedley
-
-* EHCache, http://ehcache.org
-
-  Copyright (c) 2010 Terracotta, Inc.
-
-* CDI, http://github.com/jboss/cdi
-
-  Copyright (c) 2012 Red Hat Middleware, LLC
-
-* Weld, http://github.com/weld
-
-  Copyright (c) 2012 Red Hat Middleware, LLC
-
-* Bean Validation, http://github.com/hibernate/hibernate-validator
-
-  Copyright (c) 2012 Red Hat Middleware, LLC
-
-* JBoss EJB Common Interceptor, http://github.com/jbossinterceptors/jbossinterceptors
-
-  Copyright (c) 2012 Red Hat Middleware, LLC
-
-* RESTEasy, http://www.jboss.org/resteasy
-
-  Copyright (c) 2012 Red Hat Middleware, LLC
-
-* Java Activation, http://www.oracle.com
-
-  Copyright (c) 2012 Oracle Corporation
-
-* Java Servlet API, http://www.oracle.com
-
-  Copyright (c) 2012 Oracle Corporation
-
-* Common Annotations (JSR-250), http://www.oracle.com
-
-  Copyright (c) 2012 Oracle Corporation
-
-* Expression Language, http://www.oracle.com
-
-  Copyright (c) 2012 Oracle Corporation
-
-* Apache Xerces, http://xerces.apache.org
-
-  Copyright (c) 2013 The Apache Software Foundation
-
-  Portions of this software were originally based on the following:
-   - software copyright (c) 1999, IBM Corporation, http://www.ibm.com.
-   - software copyright (c) 1999, Sun Microsystems, http://www.sun.com.
-   - voluntary contributions made by Paul Eng on behalf of the
-     Apache Software Foundation that were originally developed at
-     iClick, Inc., software copyright (c) 1999.
-
-* "Java Concurrency in Practice" book annotations component, http://jcip.net
-
-  Copyright (c) 2005 Brian Goetz and Tim Peierls
-
-* Hamcrest, http://www.hamcrest.org
-
-  Copyright (c) 2000-2006 Joe Walnes, Nat Pryce, Steve Freeman
-
-* D3.js, http://d3js.org
-
-  Copyright (c) 2013 Michael Bostock
-
-* Dracula Graph Library, http://www.graphdracula.net
-
-  Copyright (c) 2013 Johann Philipp Strathausen
-
-* strftime, http://hacks.bluesmoon.info/strftime
-
-  Copyright (c) 2008 Philip S Tellis
-
-* jQuery, http://jquery.com
-
-  Copyright (c) 2013 jQuery Foundation
-
-* CodeMirror, http://codemirror.net
-
-  Copyright (c) 2013 Marijn Haverbeke
-
-* D2R Snorql, http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/,
-
-  Copyright (c) 2007 Richard Cyganiak
-
-* script.aculo.us, http://script.aculo.us
-
-  Copyright (c) 2010 Thomas Fuchs
-
-* Prototype, http://prototypejs.org
-
-  Copyright (c) 2010 Sam Stephenson
-
-* SPARQL Flint Editor, http://github.com/TSO-Openup/FlintSparqlEditor
-
-  Copyright (c) 2011 TSO Ltd
-
-* Sgvizler, http://sgvizler.googlecode.com
-
-  Copyright (c) 2011 Martin G. Skjæveland
-
-* MigLayout, http://www.migcalendar.com/miglayout
-
-  Copyright (c) 2004 MiG InfoCom AB
-
-* SwingBits, http://swingbits.sourceforge.net
-
-  Copyright (c) 2006 EzWare
-
-* ROME, http://rometools.jira.com
-
-  Copyright (c) 2004 Sun Microsystems
-
-* JSONLD-Java, http://github.com/tristan/jsonld-java
-
-  Copyright (c) 2012, Deutsches Forschungszentrum für Künstliche Intelligenz GmbH
-
-* JSON-LD Test Suite, http://json-ld.org/test-suite
-
-  Public Domain (Creative Commons Zero license) without copyright
-
-* ical4j test suite, http://ical4j.googlecode.com
-
-  Copyright (c) 2011 Ben Fortuna
-
+ * Javolution, Copyright (c) 2012 Javolution, is licensed under BSD license. The
+   original source code is available from http://javolution.org

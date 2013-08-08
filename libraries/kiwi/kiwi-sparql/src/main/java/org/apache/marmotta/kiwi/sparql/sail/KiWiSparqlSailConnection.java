@@ -32,6 +32,7 @@ import org.openrdf.query.algebra.QueryRoot;
 import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
 import org.openrdf.query.algebra.evaluation.impl.*;
+import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
@@ -86,10 +87,10 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
 
             log.debug("evaluating SPARQL query:\n {}", tupleExpr);
 
-            return strategy.evaluate(tupleExpr, bindings);
+            return strategy.evaluate(tupleExpr, EmptyBindingSet.getInstance());
 
         } catch (QueryEvaluationException e) {
-            throw new SailException(e);
+            throw new SailException(e.getMessage(),e);
         }
     }
 

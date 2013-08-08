@@ -75,10 +75,22 @@ public class KiWiConfiguration {
     private int batchSize = 10000;
 
     /**
+     * Size of the database cursor for pre-fetching rows on database supporting this feature. If the size is set to 0,
+     * no cursor is used and all rows are retrieved in one batch.
+     *
+     * @see java.sql.PreparedStatement#setFetchSize(int)
+     */
+    private int cursorSize = 1000;
+
+    /**
      * If enabled, and batchCommit is also true, load sequence values into static memory fields once and increment
      * values purely in-memory. The last value is then written back on batch commits.
      */
     private boolean memorySequences = true;
+
+
+    private boolean commitSequencesOnCommit = true;
+
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
@@ -169,6 +181,26 @@ public class KiWiConfiguration {
         this.batchSize = batchSize;
     }
 
+    /**
+     * Size of the database cursor for pre-fetching rows on database supporting this feature. If the size is set to 0,
+     * no cursor is used and all rows are retrieved in one batch.
+     *
+     * @see java.sql.PreparedStatement#setFetchSize(int)
+     */
+    public int getCursorSize() {
+        return cursorSize;
+    }
+
+    /**
+     * Size of the database cursor for pre-fetching rows on database supporting this feature. If the size is set to 0,
+     * no cursor is used and all rows are retrieved in one batch.
+     *
+     * @see java.sql.PreparedStatement#setFetchSize(int)
+     */
+    public void setCursorSize(int cursorSize) {
+        this.cursorSize = cursorSize;
+    }
+
     public boolean isMemorySequences() {
         return memorySequences;
     }
@@ -181,5 +213,20 @@ public class KiWiConfiguration {
      */
     public void setMemorySequences(boolean memorySequences) {
         this.memorySequences = memorySequences;
+    }
+
+
+    public boolean isCommitSequencesOnCommit() {
+        return commitSequencesOnCommit;
+    }
+
+    /**
+     * This flag determines whether memory sequences should be stored back into the database on every commit or only
+     * when the repository shuts down. Saving back on every commit is safer, but has less performance.
+     *
+     * @param commitSequencesOnCommit
+     */
+    public void setCommitSequencesOnCommit(boolean commitSequencesOnCommit) {
+        this.commitSequencesOnCommit = commitSequencesOnCommit;
     }
 }

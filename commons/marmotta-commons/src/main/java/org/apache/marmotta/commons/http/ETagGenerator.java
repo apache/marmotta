@@ -18,12 +18,13 @@
 package org.apache.marmotta.commons.http;
 
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
@@ -73,12 +74,25 @@ public class ETagGenerator {
         return hasher.hash().toString();
     }
     
-    public static String getWeakETag(RepositoryConnection conn, String uri) throws RepositoryException {
-        URI resource = ResourceUtils.getUriResource(conn, uri);
-        return getWeakETag(conn, resource);
+    public static String getWeakETag(RepositoryConnection conn, String resource) throws RepositoryException {
+        if (resource.startsWith("http://")) {
+        	return getWeakETag(conn, ResourceUtils.getUriResource(conn, resource));
+        } else {
+        	return getWeakETag(conn, ResourceUtils.getAnonResource(conn, resource));
+        }
     }   
     
-    public static String getWeakETag(RepositoryConnection conn, URI resource) throws RepositoryException {
+//    public static String getWeakETag(RepositoryConnection conn, Resource resource) throws RepositoryException {
+//    	if (resource instanceof URI) {
+//    		return getWeakETag(conn, (URI)resource);
+//    	} else if (resource instanceof BNode) {
+//    		return getWeakETag(conn, (BNode)resource);
+//    	} else {
+//    		return null;
+//    	}
+//    }
+    
+    public static String getWeakETag(RepositoryConnection conn, Resource resource) throws RepositoryException {
     	if (resource == null) return "";
     	
         Hasher hasher = buildHasher();

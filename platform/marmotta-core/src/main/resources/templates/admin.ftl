@@ -47,7 +47,62 @@
     </#if>
 
     ${HEAD}
+    <style type="text/css">
+        div.menu_heading {
+            color: white;
+            font-weight: bold;
+        }
+        ul.center_submenu {
+            margin:0;
+            padding:0;
+        }
+        ul.center_submenu li {
+            list-style: none;
+            display: list-item;
+            float: left;
+            padding: 5px;
+            margin-right: 4px;
+        }
+        ul.center_submenu li.active {
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            background-color: white;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+        }
+        ul.center_submenu a {
+            text-decoration: underline;
+            font-weight: bold;
+            color: #0B61A4;
+        }
 
+        ul.center_submenu li.active a {
+            text-decoration: none;
+        }
+        #content {
+            border-top-left-radius: 0;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            border-left: 1px solid #ccc;
+        }
+        #login_logout {
+            float: right;
+            margin-right: 5px;
+            margin-top: -3px;
+            border: 1px solid #aaa;
+            padding: 4px 10px 2px;
+            background-color: white;
+            border-radius: 3px;
+            -webkit-border-radius: 3px;
+            box-shadow: 0px 0px 8px #555;
+        }
+        #login_logout a {
+            color: #0B61A4;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
@@ -57,7 +112,6 @@
         <a id="logo" href="${SERVER_URL}" title="${PROJECT}">
             <img src="${SERVER_URL}${LOGO}" alt="${PROJECT} logo" />
         </a>
-        <h1>${CURRENT_MODULE} - ${CURRENT_TITLE}</h1>
         <#if USER_MODULE_IS_ACTIVE>
             <div id="login_logout"></div>
         </#if>
@@ -65,29 +119,49 @@
     <div class="clear"></div>
     <div id="left">
         <ul id="menu">
-            <#list MODULE_MENU as menu>
-            <li
-                <#if menu.properties["active"]>
-                        class="menu_item active"
-                <#else>
-                        class="menu_item"
-                </#if>
-            >
-                <div class="menu_heading"><a href="${menu.submenu[0].properties["path"]}">${menu.properties["title"]}</a></div>
+        <#list MENU["items"] as menu>
+            <li class="menu_item">
+                <div class="menu_heading">${menu.label}</div>
                 <ul class="submenu">
-                <#list menu.submenu as submenu>
-                    <li
-                        <#if submenu.properties["active"]> class="active" </#if>
-                    >
-                    <a href="${submenu.properties["path"]}">${submenu.properties["title"]}</a>
-                    </li>
-                </#list>
+                    <#list menu["items"] as submenu>
+                        <li
+                            <#if submenu["isActive"]> class="menu_item active" </#if>
+                                >
+                            <#if submenu["items"]?has_content>
+                            <a href="${SERVER_URL}${submenu["items"][0]["path"]?substring(1)}">
+                            <#else>
+                            <a href="${SERVER_URL}doc/rest/index.html">
+                            </#if>
+                            <!-- <i class="${submenu["icon"]}"></i>  <!-- TODO icon -->
+                            <span>${submenu["label"]}</span>
+                        </a>
+                        </li>
+                    </#list>
                 </ul>
             </li>
-            </#list>
+        </#list>
+
         </ul>
     </div>
     <div id="center">
+        <ul class="center_submenu">
+        <#list MENU["items"] as menu>
+            <#if menu["isActive"]>
+                <#list menu["items"] as submenu>
+                    <#if submenu["isActive"]>
+                        <#list submenu["items"] as pages>
+                            <li
+                                <#if pages["isActive"]> class="active" </#if>
+                                    >
+                                <a href="${SERVER_URL}${pages["path"]?substring(1)}">${pages["label"]}</a>
+                            </li>
+                        </#list>
+                    </#if>
+                </#list>
+            </#if>
+        </#list>
+        </ul>
+        <div class="clear"></div>
         <div id="content">
         ${CONTENT}
         </div>

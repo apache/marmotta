@@ -30,6 +30,7 @@ public abstract  class BinaryNumericTest<Node> extends TestFunction<Node> {
     protected final DoubleTransformer<Node> transformer = new DoubleTransformer<Node>();
 
     @Override
+    @SafeVarargs
     public final Boolean apply(RDFBackend<Node> backend, Node context,
             Collection<Node>... args) throws IllegalArgumentException {
 

@@ -21,7 +21,7 @@ import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointServi
 import com.google.common.base.Joiner;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -191,7 +191,7 @@ public class LinkedDataEndpointServiceImpl implements LinkedDataEndpointService 
         endpoint.setDefaultExpiry(configurationService.getLongConfiguration("ldcache.endpoint." + label + ".expiry"));
         endpoint.setActive(configurationService.getBooleanConfiguration("ldcache.endpoint." + label + ".active"));
         endpoint.setContentTypes(new HashSet<ContentType>(
-                LMFHttpUtils.parseAcceptHeader(
+                MarmottaHttpUtils.parseAcceptHeader(
                         configurationService.getStringConfiguration("ldcache.endpoint." + label + ".contenttype",""))
         ));
 

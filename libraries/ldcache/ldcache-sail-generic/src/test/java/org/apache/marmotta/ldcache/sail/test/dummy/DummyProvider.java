@@ -69,7 +69,7 @@ public class DummyProvider implements DataProvider {
                 con.close();
             }
 
-            ClientResponse response = new ClientResponse(triples);
+            ClientResponse response = new ClientResponse(200, triples);
 
             return response;
         } catch (RepositoryException e) {

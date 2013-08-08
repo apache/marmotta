@@ -20,24 +20,15 @@ package org.apache.marmotta.kiwi.sail;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.DelayedIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.Iterations;
-import info.aduna.iteration.UnionIteration;
+import info.aduna.iteration.*;
+import org.apache.marmotta.commons.sesame.repository.ResourceConnection;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -49,7 +40,9 @@ import org.openrdf.query.algebra.Var;
 import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.*;
+import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailChangedEvent;
 import org.openrdf.sail.SailException;
@@ -70,7 +63,7 @@ import java.util.Set;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiSailConnection extends NotifyingSailConnectionBase implements InferencerConnection {
+public class KiWiSailConnection extends NotifyingSailConnectionBase implements InferencerConnection, ResourceConnection {
 
     private static final Logger log = LoggerFactory.getLogger(KiWiSailConnection.class);
 
@@ -89,7 +82,6 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
 
     private boolean triplesAdded, triplesRemoved;
 
-    private HashSet<Long> deletedStatementsLog;
 
     public KiWiSailConnection(KiWiStore sailBase) throws SailException {
         super(sailBase);
@@ -149,9 +141,13 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 }
             }
             if(contextSet.size() == 0) {
-                contextSet.add(valueFactory.createURI(defaultContext));
+                if(defaultContext != null) {
+                    contextSet.add(valueFactory.createURI(defaultContext));
+                } else {
+                    contextSet.add(null);
+                }
             }
-            if(inferred) {
+            if(inferred && inferredContext != null) {
                 contextSet.add(valueFactory.createURI(inferredContext));
             }
 
@@ -167,19 +163,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(ksubj,kpred,kobj,kcontext, databaseConnection);
                 triple.setInferred(inferred);
 
-                if(triple.getId() != null && deletedStatementsLog.contains(triple.getId())) {
-                    // this is a hack for a concurrency problem that may occur in case the triple is removed in the
-                    // transaction and then added again; in these cases the createStatement method might return
-                    // an expired state of the triple because it uses its own database connection
-
-                    databaseConnection.undeleteTriple(triple);
+                if(databaseConnection.storeTriple(triple)) {
                     triplesAdded = true;
                     notifyStatementAdded(triple);
-                } else {
-                    if(databaseConnection.storeTriple(triple)) {
-                        triplesAdded = true;
-                        notifyStatementAdded(triple);
-                    }
                 }
 
                 added.add(triple);
@@ -242,7 +228,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
             new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
 
-            return strategy.evaluate(tupleExpr, bindings);
+            return strategy.evaluate(tupleExpr, EmptyBindingSet.getInstance());
 
         } catch (QueryEvaluationException e) {
             throw new SailException(e);
@@ -253,10 +239,15 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     protected CloseableIteration<? extends Resource, SailException> getContextIDsInternal() throws SailException {
         try {
-            return new ExceptionConvertingIteration<Resource, SailException>(databaseConnection.listContexts()) {
+            return  new FilterIteration<Resource, SailException>(new ExceptionConvertingIteration<Resource, SailException>(databaseConnection.listContexts()) {
                 @Override
                 protected SailException convert(Exception e) {
                     return new SailException("database error while iterating over result set",e);
+                }
+            }) {
+                @Override
+                protected boolean accept(Resource object) throws SailException {
+                    return !object.stringValue().equals(defaultContext);
                 }
             };
         } catch (SQLException e) {
@@ -274,7 +265,16 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         contextSet.addAll(Lists.transform(Arrays.asList(contexts), new Function<Resource, KiWiResource>() {
             @Override
             public KiWiResource apply(Resource input) {
-                return valueFactory.convert(input);
+                if(input == null) {
+                    if(defaultContext != null) {
+                        // null value for context means statements without context; in KiWi, this means "default context"
+                        return (KiWiUriResource)valueFactory.createURI(defaultContext);
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return valueFactory.convert(input);
+                }
             }
         }));
 
@@ -285,7 +285,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     @Override
                     protected Iteration<? extends Statement, ? extends RepositoryException> createIteration() throws RepositoryException {
                         try {
-                            return databaseConnection.listTriples(rsubj, rpred, robj, context, includeInferred);
+                            return databaseConnection.listTriples(rsubj, rpred, robj, context, includeInferred, false);
                         } catch (SQLException e) {
                             throw new RepositoryException("database error while listing triples",e);
                         }
@@ -297,7 +297,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 @Override
                 protected Iteration<? extends Statement, ? extends RepositoryException> createIteration() throws RepositoryException {
                     try {
-                        return databaseConnection.listTriples(rsubj, rpred, robj, null, includeInferred);
+                        return databaseConnection.listTriples(rsubj, rpred, robj, null, includeInferred, true);
                     } catch (SQLException e) {
                         throw new RepositoryException("database error while listing triples",e);
                     }
@@ -347,7 +347,6 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         // nothing to do, the database transaction is started automatically
         triplesAdded = false;
         triplesRemoved = false;
-        deletedStatementsLog = new HashSet<Long>();
     }
 
     @Override
@@ -358,7 +357,6 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             throw new SailException("database error while committing transaction",e);
         }
         if(triplesAdded || triplesRemoved) {
-            deletedStatementsLog.clear();
 
             store.notifySailChanged(new SailChangedEvent() {
                 @Override
@@ -383,7 +381,6 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     protected void rollbackInternal() throws SailException {
         try {
             databaseConnection.rollback();
-            deletedStatementsLog.clear();
         } catch (SQLException e) {
             throw new SailException("database error while rolling back transaction",e);
         }
@@ -398,9 +395,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 if(triple.getId() != null) {
                     databaseConnection.deleteTriple(triple);
                     triplesRemoved = true;
-                    deletedStatementsLog.add(triple.getId());
                     notifyStatementRemoved(triple);
                 }
+                valueFactory.removeStatement(triple);
             }
             triples.close();
         } catch(SQLException ex) {
@@ -429,9 +426,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 if(triple.getId() != null && triple.isInferred()) {
                     databaseConnection.deleteTriple(triple);
                     triplesRemoved = true;
-                    deletedStatementsLog.add(triple.getId());
                     notifyStatementRemoved(triple);
                 }
+                valueFactory.removeStatement(triple);
             }
             triples.close();
         } catch(SQLException ex) {
@@ -451,7 +448,6 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             if(triple.getId() != null && triple.isInferred()) {
                 databaseConnection.deleteTriple(triple);
                 triplesRemoved = true;
-                deletedStatementsLog.add(triple.getId());
                 notifyStatementRemoved(triple);
             }
         } catch(SQLException ex) {
@@ -608,7 +604,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                             throw new IllegalArgumentException("e must not be null");
                         }
                         else {
-                            throw new IllegalArgumentException("Unexpected exception type: " + e.getClass());
+                            throw new IllegalArgumentException("Unexpected exception type: " + e.getClass(),e);
                         }
                     }
                 };
@@ -629,6 +625,83 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         }
     }
 
+    /**
+     * Return an iterator over the resources contained in this repository.
+     *
+     * @return
+     */
+    @Override
+    public RepositoryResult<Resource> getResources() throws RepositoryException {
+        try {
+            return new RepositoryResult<Resource>(new ExceptionConvertingIteration<Resource,RepositoryException>(databaseConnection.listResources()) {
+                @Override
+                protected RepositoryException convert(Exception e) {
+                    return new RepositoryException(e);
+                }
+            });
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    /**
+     * Return an iterator over the resources contained in this repository matching the given prefix.
+     *
+     * @return
+     */
+    @Override
+    public RepositoryResult<URI> getResources(String prefix) throws RepositoryException {
+        try {
+            return new RepositoryResult<URI>(new ExceptionConvertingIteration<URI,RepositoryException>(databaseConnection.listResources(prefix)) {
+                @Override
+                protected RepositoryException convert(Exception e) {
+                    return new RepositoryException(e);
+                }
+            });
+        } catch (SQLException e) {
+            throw new RepositoryException(e);
+        }
+    }
+
+    /**
+     * Return the Sesame URI with the given uri identifier if it exists, or null if it does not exist.
+     *
+     * @param uri
+     * @return
+     */
+    @Override
+    public URI getURI(String uri) {
+        try {
+            return databaseConnection.loadUriResource(uri);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return the Sesame BNode with the given anonymous ID if it exists, or null if it does not exist.
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public BNode getBNode(String id) {
+        try {
+            return databaseConnection.loadAnonResource(id);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Remove the resource given as argument from the triple store and the resource repository.
+     *
+     * @param resource
+     */
+    @Override
+    public void removeResource(Resource resource) {
+        // handled by garbage collection
+    }
 
     protected static class KiWiEvaluationStatistics extends EvaluationStatistics {
 

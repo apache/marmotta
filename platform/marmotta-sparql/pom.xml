@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.2.0-incubating-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -156,6 +156,19 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <!-- these are "extras", so they come from 3rd parties, no RAT check! -->
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- known 3rd party -->
+                        <exclude>src/main/resources/web/admin/sgvizler.html</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -164,6 +177,22 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>codemirror</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>snorql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>sgvizler</artifactId>
         </dependency>
 
         <dependency>

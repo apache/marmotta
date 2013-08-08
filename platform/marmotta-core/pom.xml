@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.2.0-incubating-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -311,6 +311,14 @@
             <artifactId>jquery</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>sgvizler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>strftime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-client-js</artifactId>
         </dependency>
@@ -545,6 +553,10 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
         </dependency>
 
         <dependency>

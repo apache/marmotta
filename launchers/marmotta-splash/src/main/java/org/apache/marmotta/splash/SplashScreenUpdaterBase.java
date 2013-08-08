@@ -33,9 +33,10 @@ public abstract class SplashScreenUpdaterBase {
     protected static Log log = LogFactory.getLog(SplashScreenUpdaterBase.class);
 
     private static final int status_pos_x = 25;
-    private static final int status_pos_y = 470;
+    private static final int status_pos_y = 467;
 
-    private static final int progress_bar_y = 483;
+    private static final int splash_border = 3;
+    private static final int progress_bar_y = 480;
     private static final int progress_bar_height = 3;
 
     private static final Color color_background = new Color(245,244,230);
@@ -57,12 +58,12 @@ public abstract class SplashScreenUpdaterBase {
         // clear existing area
         Rectangle splashBounds = splash.getBounds();
         g.setColor(color_background);
-        g.fillRect(0,status_pos_y-40,splashBounds.width,50);
+        g.fillRect(splash_border+0,splash_border+status_pos_y-40,splashBounds.width-2*splash_border,50);
 
         // draw string on splash screen
         g.setColor(Color.GRAY);
         g.setFont(new Font("ARIAL",Font.BOLD,14));
-        g.drawString(text,status_pos_x,status_pos_y);
+        g.drawString(text,splash_border+status_pos_x,splash_border+status_pos_y);
 
         splash.update();
 
@@ -88,11 +89,11 @@ public abstract class SplashScreenUpdaterBase {
         // clear existing area
         Rectangle splashBounds = splash.getBounds();
         g.setColor(color_progress_bg);
-        g.fillRect(0,progress_bar_y,splashBounds.width,progress_bar_height);
+        g.fillRect(splash_border+0,splash_border+progress_bar_y,splashBounds.width-2*splash_border,progress_bar_height);
 
         // fill with new color_progress
         g.setColor(color_progress_fg);
-        g.fillRect(0,progress_bar_y,(int)(splashBounds.width * progress / 100),progress_bar_height);
+        g.fillRect(splash_border+0,splash_border+progress_bar_y,(int)((splashBounds.width-2*splash_border) * progress / 100),progress_bar_height);
 
         splash.update();
     }

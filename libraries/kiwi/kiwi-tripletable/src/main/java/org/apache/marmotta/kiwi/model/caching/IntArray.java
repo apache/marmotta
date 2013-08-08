@@ -44,12 +44,16 @@ public final class IntArray implements Comparable<IntArray> {
 
     public IntArray(int[] data) {
         this.data = data;
+    }
 
-        Hasher hasher = hashFunction.newHasher();
-        for(int i : data) {
-            hasher.putInt(i);
+    private void ensureHashCode() {
+        if(goodHashCode == null) {
+            Hasher hasher = hashFunction.newHasher();
+            for(int i : data) {
+                hasher.putInt(i);
+            }
+            goodHashCode = hasher.hash();
         }
-        goodHashCode = hasher.hash();
     }
 
     public static final IntArray createSPOCKey(Resource subject, URI property, Value object, Resource context){
@@ -165,6 +169,7 @@ public final class IntArray implements Comparable<IntArray> {
 
     @Override
     public int hashCode() {
+        ensureHashCode();
         return goodHashCode.hashCode();
     }
 }

@@ -18,34 +18,33 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import info.aduna.iteration.*;
+
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
+
 import com.google.common.base.Preconditions;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import org.apache.commons.lang3.LocaleUtils;
+
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -128,6 +127,14 @@ public class KiWiConnection {
     private ReentrantLock uriLock;
     private ReentrantLock bnodeLock;
 
+
+    // this set keeps track of all statements that have been deleted in the active transaction of this connection
+    // this is needed to be able to determine if adding the triple again will merely undo a deletion or is a
+    // completely new addition to the triple store
+    private HashSet<Long> deletedStatementsLog;
+
+    private static long numberOfCommits = 0;
+
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
@@ -137,6 +144,7 @@ public class KiWiConnection {
         this.uriLock   = new ReentrantLock();
         this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
+        this.deletedStatementsLog = new HashSet<Long>();
 
         initCachePool();
         initStatementCache();
@@ -202,6 +210,10 @@ public class KiWiConnection {
 
     public KiWiDialect getDialect() {
         return dialect;
+    }
+
+    public KiWiConfiguration getConfiguration() {
+        return persistence.getConfiguration();
     }
 
     /**
@@ -366,9 +378,9 @@ public class KiWiConnection {
         ResultSet result = querySize.executeQuery();
         try {
             if(result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context, false).size() : 0);
             } else {
-                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
+                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context, false).size() : 0);
             }
         } finally {
             result.close();
@@ -850,10 +862,8 @@ public class KiWiConnection {
 
 
 
-    public synchronized long getNodeId() throws SQLException {
-        long result = getNextSequence("seq.nodes");
-
-        return result;
+    public long getNodeId() throws SQLException {
+        return getNextSequence("seq.nodes");
     }
 
     /**
@@ -1050,52 +1060,83 @@ public class KiWiConnection {
      * @throws NullPointerException in case the subject, predicate, object or context have not been persisted
      * @return true in case the update added a new triple to the database, false in case the triple already existed
      */
-    public synchronized boolean storeTriple(KiWiTriple triple) throws SQLException {
+    public synchronized boolean storeTriple(final KiWiTriple triple) throws SQLException {
+        // mutual exclusion: prevent parallel adding and removing of the same triple
+        synchronized (triple) {
 
+            requireJDBCConnection();
 
-        requireJDBCConnection();
+            boolean hasId = triple.getId() != null;
 
-        boolean hasId = triple.getId() != null;
+            if(hasId && deletedStatementsLog.contains(triple.getId())) {
+                // this is a hack for a concurrency problem that may occur in case the triple is removed in the
+                // transaction and then added again; in these cases the createStatement method might return
+                // an expired state of the triple because it uses its own database connection
 
-        // retrieve a new triple ID and set it in the object
-        if(triple.getId() == null) {
-            triple.setId(getNextSequence("seq.triples"));
-        }
+                //deletedStatementsLog.remove(triple.getId());
+                undeleteTriple(triple);
 
-        if(batchCommit) {
-            cacheTriple(triple);
-            synchronized (tripleBatch) {
-                tripleBatch.add(triple);
-                if(tripleBatch.size() >= batchSize) {
-                    flushBatch();
+                return true;
+            } else {
+                // retrieve a new triple ID and set it in the object
+                if(triple.getId() == null) {
+                    triple.setId(getNextSequence("seq.triples"));
                 }
-            }
-            return !hasId;
-        }  else {
-            Preconditions.checkNotNull(triple.getSubject().getId());
-            Preconditions.checkNotNull(triple.getPredicate().getId());
-            Preconditions.checkNotNull(triple.getObject().getId());
-            Preconditions.checkNotNull(triple.getContext().getId());
+
+                if(batchCommit) {
+                    commitLock.lock();
+                    try {
+                        cacheTriple(triple);
+                        tripleBatch.add(triple);
+                        if(tripleBatch.size() >= batchSize) {
+                            flushBatch();
+                        }
+                    } finally {
+                        commitLock.unlock();
+                    }
+                    return !hasId;
+                }  else {
+                    Preconditions.checkNotNull(triple.getSubject().getId());
+                    Preconditions.checkNotNull(triple.getPredicate().getId());
+                    Preconditions.checkNotNull(triple.getObject().getId());
 
 
-            try {
-                PreparedStatement insertTriple = getPreparedStatement("store.triple");
-                insertTriple.setLong(1,triple.getId());
-                insertTriple.setLong(2,triple.getSubject().getId());
-                insertTriple.setLong(3,triple.getPredicate().getId());
-                insertTriple.setLong(4,triple.getObject().getId());
-                insertTriple.setLong(5,triple.getContext().getId());
-                insertTriple.setBoolean(6,triple.isInferred());
-                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-                int count = insertTriple.executeUpdate();
+                    try {
+                        RetryExecution<Boolean> execution = new RetryExecution<>("STORE");
+                        execution.setUseSavepoint(true);
+                        execution.execute(connection, new RetryCommand<Boolean>() {
+                            @Override
+                            public Boolean run() throws SQLException {
+                                PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                                insertTriple.setLong(1,triple.getId());
+                                insertTriple.setLong(2,triple.getSubject().getId());
+                                insertTriple.setLong(3,triple.getPredicate().getId());
+                                insertTriple.setLong(4,triple.getObject().getId());
+                                if(triple.getContext() != null) {
+                                    insertTriple.setLong(5,triple.getContext().getId());
+                                } else {
+                                    insertTriple.setNull(5, Types.BIGINT);
+                                }
+                                insertTriple.setBoolean(6,triple.isInferred());
+                                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+                                int count = insertTriple.executeUpdate();
 
-                cacheTriple(triple);
+                                cacheTriple(triple);
 
-                return count > 0;
-            } catch(SQLException ex) {
-                // this is an ugly hack to catch duplicate key errors in some databases (H2)
-                // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
-                return false;
+                                return count > 0;
+                            }
+                        });
+
+                        return !hasId;
+
+                    } catch(SQLException ex) {
+                        if("HYT00".equals(ex.getSQLState())) { // H2 table locking timeout
+                            throw new ConcurrentModificationException("the same triple was modified in concurrent transactions (triple="+triple+")");
+                        } else {
+                            throw ex;
+                        }
+                    }
+                }
             }
         }
     }
@@ -1114,11 +1155,9 @@ public class KiWiConnection {
      */
     public synchronized Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
-            synchronized (tripleBatch) {
-                Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context);
-                if(batched.size() > 0) {
-                    return batched.iterator().next().getId();
-                }
+            Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context, false);
+            if(batched.size() > 0) {
+                return batched.iterator().next().getId();
             }
         }
 
@@ -1127,7 +1166,11 @@ public class KiWiConnection {
         loadTripleId.setLong(1, subject.getId());
         loadTripleId.setLong(2, predicate.getId());
         loadTripleId.setLong(3, object.getId());
-        loadTripleId.setLong(4, context.getId());
+        if(context != null) {
+            loadTripleId.setLong(4, context.getId());
+        } else {
+            loadTripleId.setNull(4, Types.BIGINT);
+        }
 
         ResultSet result = loadTripleId.executeQuery();
         try {
@@ -1151,27 +1194,62 @@ public class KiWiConnection {
      *
      * @param triple
      */
-    public void deleteTriple(KiWiTriple triple) throws SQLException {
-        // make sure the triple is marked as deleted in case some service still holds a reference
-        triple.setDeleted(true);
-        triple.setDeletedAt(new Date());
+    public void deleteTriple(final KiWiTriple triple) throws SQLException {
+        requireJDBCConnection();
 
-        if(triple.getId() == null) {
-            log.warn("attempting to remove non-persistent triple: {}", triple);
-        } else {
-            requireJDBCConnection();
+        RetryExecution execution = new RetryExecution("DELETE");
+        execution.setUseSavepoint(true);
+        execution.execute(connection, new RetryCommand<Void>() {
+            @Override
+            public Void run() throws SQLException {
+                // mutual exclusion: prevent parallel adding and removing of the same triple
+                synchronized (triple) {
 
-            PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
-            deleteTriple.setLong(1,triple.getId());
-            deleteTriple.executeUpdate();
-        }
-        removeCachedTriple(triple);
+                    // make sure the triple is marked as deleted in case some service still holds a reference
+                    triple.setDeleted(true);
+                    triple.setDeletedAt(new Date());
 
-        if(tripleBatch != null) {
-            synchronized (tripleBatch) {
-                tripleBatch.remove(triple);
+                    if (triple.getId() == null) {
+                        log.warn("attempting to remove non-persistent triple: {}", triple);
+                        removeCachedTriple(triple);
+                    } else {
+                        if (batchCommit) {
+                            // need to remove from triple batch and from database
+                            commitLock.lock();
+                            try {
+                                if (tripleBatch == null || !tripleBatch.remove(triple)) {
+
+                                    PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
+                                    synchronized (deleteTriple) {
+                                        deleteTriple.setLong(1, triple.getId());
+                                        deleteTriple.executeUpdate();
+                                    }
+                                    deletedStatementsLog.add(triple.getId());
+                                }
+                            } finally {
+                                commitLock.unlock();
+                            }
+                        } else {
+                            requireJDBCConnection();
+
+                            PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
+                            synchronized (deleteTriple) {
+                                deleteTriple.setLong(1, triple.getId());
+                                deleteTriple.executeUpdate();
+                            }
+                            deletedStatementsLog.add(triple.getId());
+
+
+                        }
+                        removeCachedTriple(triple);
+                    }
+                }
+
+                return null;
             }
-        }
+        });
+
+
     }
 
     /**
@@ -1191,32 +1269,23 @@ public class KiWiConnection {
 
         requireJDBCConnection();
 
+        // make sure the triple is not marked as deleted in case some service still holds a reference
+        triple.setDeleted(false);
+        triple.setDeletedAt(null);
+
+
         synchronized (triple) {
             if(!triple.isDeleted()) {
                 log.warn("attemting to undelete triple that was not deleted: {}",triple);
-                return;
             }
 
             PreparedStatement undeleteTriple = getPreparedStatement("undelete.triple");
             undeleteTriple.setLong(1, triple.getId());
             undeleteTriple.executeUpdate();
 
-            // make sure the triple is marked as deleted in case some service still holds a reference
-            triple.setDeleted(false);
-            triple.setDeletedAt(null);
-
             cacheTriple(triple);
         }
 
-    }
-
-
-    /**
-     * Remove from the database all triples that have been marked as deleted and are not referenced by any other
-     * entity.
-     */
-    public void cleanupTriples() {
-        throw new UnsupportedOperationException("garbage collection of triples is not yet supported!");
     }
 
 
@@ -1232,10 +1301,74 @@ public class KiWiConnection {
 
         final ResultSet result = queryContexts.executeQuery();
 
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            return new DistinctIteration<KiWiResource, SQLException>(
+                    new UnionIteration<KiWiResource, SQLException>(
+                            new ConvertingIteration<Resource,KiWiResource,SQLException>(new IteratorIteration<Resource, SQLException>(tripleBatch.listContextIDs().iterator())) {
+                                @Override
+                                protected KiWiResource convert(Resource sourceObject) throws SQLException {
+                                    return (KiWiResource)sourceObject;
+                                }
+                            },
+                            new ResultSetIteration<KiWiResource>(result, new ResultTransformerFunction<KiWiResource>() {
+                                @Override
+                                public KiWiResource apply(ResultSet row) throws SQLException {
+                                    return (KiWiResource)loadNodeById(result.getLong("context"));
+                                }
+                            })
+                    )
+            );
+
+
+        } else {
+            return new ResultSetIteration<KiWiResource>(result, new ResultTransformerFunction<KiWiResource>() {
+                @Override
+                public KiWiResource apply(ResultSet row) throws SQLException {
+                    return (KiWiResource)loadNodeById(result.getLong("context"));
+                }
+            });
+        }
+
+    }
+
+    /**
+     * List all contexts used in this triple store. See query.contexts .
+     * @return
+     * @throws SQLException
+     */
+    public CloseableIteration<KiWiResource, SQLException> listResources() throws SQLException {
+        requireJDBCConnection();
+
+        PreparedStatement queryContexts = getPreparedStatement("query.resources");
+
+        final ResultSet result = queryContexts.executeQuery();
+
         return new ResultSetIteration<KiWiResource>(result, new ResultTransformerFunction<KiWiResource>() {
             @Override
             public KiWiResource apply(ResultSet row) throws SQLException {
-                return (KiWiResource)loadNodeById(result.getLong("context"));
+                return (KiWiResource)constructNodeFromDatabase(row);
+            }
+        });
+
+    }
+
+    /**
+     * List all contexts used in this triple store. See query.contexts .
+     * @return
+     * @throws SQLException
+     */
+    public CloseableIteration<KiWiUriResource, SQLException> listResources(String prefix) throws SQLException {
+        requireJDBCConnection();
+
+        PreparedStatement queryContexts = getPreparedStatement("query.resources_prefix");
+        queryContexts.setString(1, prefix+"%");
+
+        final ResultSet result = queryContexts.executeQuery();
+
+        return new ResultSetIteration<KiWiUriResource>(result, new ResultTransformerFunction<KiWiUriResource>() {
+            @Override
+            public KiWiUriResource apply(ResultSet row) throws SQLException {
+                return (KiWiUriResource)constructNodeFromDatabase(row);
             }
         });
 
@@ -1275,10 +1408,11 @@ public class KiWiConnection {
      * @param object     the object to query for, or null for a wildcard query
      * @param context    the context to query for, or null for a wildcard query
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
+     * @param wildcardContext if true, a null context will be interpreted as a wildcard, if false, a null context will be interpreted as "no context"
      * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
      *         by the caller
      */
-    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred, final boolean wildcardContext) throws SQLException {
 
 
         if(tripleBatch != null && tripleBatch.size() > 0) {
@@ -1286,11 +1420,11 @@ public class KiWiConnection {
                 return new RepositoryResult<Statement>(
                         new ExceptionConvertingIteration<Statement, RepositoryException>(
                                 new UnionIteration<Statement, SQLException>(
-                                        new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
+                                        new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context, wildcardContext).iterator()),
                                         new DelayedIteration<Statement, SQLException>() {
                                             @Override
                                             protected Iteration<? extends Statement, ? extends SQLException> createIteration() throws SQLException {
-                                                return listTriplesInternal(subject,predicate,object,context,inferred);
+                                                return listTriplesInternal(subject,predicate,object,context,inferred, wildcardContext);
                                             }
                                         }
 
@@ -1306,7 +1440,7 @@ public class KiWiConnection {
             }
         }  else {
             return new RepositoryResult<Statement>(
-                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
+                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred, wildcardContext)) {
                         @Override
                         protected RepositoryException convert(Exception e) {
                             return new RepositoryException("database error while iterating over result set",e);
@@ -1326,10 +1460,11 @@ public class KiWiConnection {
      * @param object     the object to query for, or null for a wildcard query
      * @param context    the context to query for, or null for a wildcard query
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
+     * @param wildcardContext if true, a null context will be interpreted as a wildcard, if false, a null context will be interpreted as "no context"
      * @return a ClosableIteration that wraps the database ResultSet; needs to be closed explicitly by the caller
      * @throws SQLException
      */
-    private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) throws SQLException {
+    private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, final boolean wildcardContext) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
         if(subject != null && subject.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
@@ -1349,11 +1484,15 @@ public class KiWiConnection {
         // otherwise we need to create an appropriate SQL query and execute it, the repository result will be read-only
         // and only allow forward iteration, so we can limit the query using the respective flags
         PreparedStatement query = connection.prepareStatement(
-                constructTripleQuery(subject,predicate,object,context,inferred),
+                constructTripleQuery(subject,predicate,object,context,inferred, wildcardContext),
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY
         );
         query.clearParameters();
+
+        if(persistence.getDialect().isCursorSupported()) {
+            query.setFetchSize(persistence.getConfiguration().getCursorSize());
+        }
 
         // set query parameters
         int position = 1;
@@ -1390,7 +1529,7 @@ public class KiWiConnection {
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
      * @return an SQL query string representing the triple pattern
      */
-    protected String constructTripleQuery(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) {
+    protected String constructTripleQuery(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, boolean wildcardContext) {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt FROM triples WHERE deleted = false");
         if(subject != null) {
@@ -1404,6 +1543,8 @@ public class KiWiConnection {
         }
         if(context != null) {
             builder.append(" AND context = ?");
+        } else if(!wildcardContext) {
+            builder.append(" AND context IS NULL");
         }
         if(!inferred) {
             builder.append(" AND inferred = false");
@@ -1466,7 +1607,7 @@ public class KiWiConnection {
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
             } else {
-                log.warn("Loaded literal without type: '{}' (id:{}).", result.getContent(), result.getId());
+                log.debug("Loaded literal without type: '{}' (id:{}).", result.getContent(), result.getId());
             }
 
             cacheNode(result);
@@ -1562,7 +1703,7 @@ public class KiWiConnection {
             result.setCreator((KiWiResource)loadNodeById(row.getLong("creator")));
         }
         result.setDeleted(row.getBoolean("deleted"));
-        result.setInferred(row.getBoolean("deleted"));
+        result.setInferred(row.getBoolean("inferred"));
         result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
         try {
             if(row.getDate("deletedAt") != null) {
@@ -1582,9 +1723,14 @@ public class KiWiConnection {
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
         if(locale == null && language != null) {
-            locale = LocaleUtils.toLocale(language.replace("-","_"));
-            localeMap.put(language,locale);
-
+            try {
+                Locale.Builder builder = new Locale.Builder();
+                builder.setLanguageTag(language);
+                locale = builder.build();
+                localeMap.put(language, locale);
+            } catch (IllformedLocaleException ex) {
+                throw new IllegalArgumentException("Language was not a valid BCP47 language: " + language, ex);
+            }
         }
         return locale;
     }
@@ -1606,6 +1752,9 @@ public class KiWiConnection {
             statementCache.put(key,statement);
         }
         statement.clearParameters();
+        if(persistence.getDialect().isCursorSupported()) {
+            statement.setFetchSize(persistence.getConfiguration().getCursorSize());
+        }
         return statement;
     }
 
@@ -1618,9 +1767,8 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        if(batchCommit && persistence.getConfiguration().isMemorySequences() && persistence.getMemorySequences().containsKey(sequenceName)) {
-            AtomicLong sequence = persistence.getMemorySequences().get(sequenceName);
-            return sequence.incrementAndGet();
+        if(batchCommit && persistence.getConfiguration().isMemorySequences()) {
+            return persistence.incrementAndGetMemorySequence(sequenceName);
         } else {
             requireJDBCConnection();
 
@@ -1650,7 +1798,7 @@ public class KiWiConnection {
 
     private void cacheNode(KiWiNode node) {
         if(node.getId() != null) {
-            nodeCache.put(new Element(node.getId(),node));
+            nodeCache.put(new Element(node.getId(), node));
         }
         if(node instanceof KiWiUriResource) {
             uriCache.put(new Element(node.stringValue(), node));
@@ -1833,35 +1981,68 @@ public class KiWiConnection {
      *            <code>Connection</code> object is in auto-commit mode
      * @see #setAutoCommit
      */
-    public void commit() throws SQLException {
-        if(persistence.getMemorySequences() != null) {
-            requireJDBCConnection();
+    public synchronized void commit() throws SQLException {
+        numberOfCommits++;
 
-            try {
-                for(Map.Entry<String,AtomicLong> entry : persistence.getMemorySequences().entrySet()) {
-                    if( entry.getValue().get() > 0) {
-                        PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
-                        updateSequence.setLong(1, entry.getValue().get());
-                        if(updateSequence.execute()) {
-                            updateSequence.getResultSet().close();
-                        } else {
-                            updateSequence.getUpdateCount();
+        RetryExecution execution = new RetryExecution("COMMIT");
+        execution.execute(connection, new RetryCommand<Void>() {
+            @Override
+            public Void run() throws SQLException {
+                if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
+                    commitMemorySequences();
+                }
+
+
+                if(tripleBatch != null && tripleBatch.size() > 0) {
+                    flushBatch();
+                }
+
+
+                deletedStatementsLog.clear();
+
+                if(connection != null) {
+                    connection.commit();
+                }
+
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Store the values of all memory sequences back into the database. Should be called at least on repository shutdown
+     * but possibly even when a transaction commits.
+     */
+    public void commitMemorySequences() throws SQLException {
+        if(persistence.getMemorySequences() != null) {
+            synchronized (persistence.getMemorySequences()) {
+                requireJDBCConnection();
+
+                Set<String> updated = persistence.getSequencesUpdated();
+                persistence.setSequencesUpdated(new HashSet<String>());
+
+                try {
+                    for(Map.Entry<String,Long> entry : persistence.getMemorySequences().asMap().entrySet()) {
+                        if( updated.contains(entry.getKey()) && entry.getValue() > 0) {
+                            PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
+                            updateSequence.setLong(1, entry.getValue());
+                            if(updateSequence.execute()) {
+                                updateSequence.getResultSet().close();
+                            } else {
+                                updateSequence.getUpdateCount();
+                            }
                         }
                     }
+                } catch(SQLException ex) {
+                    // MySQL deadlock state, in this case we retry anyways
+                    if(!"40001".equals(ex.getSQLState())) {
+                        log.error("SQL exception:",ex);
+                    }
+                    throw ex;
                 }
-            } catch(SQLException ex) {
-                log.error("SQL exception:",ex);
-                throw ex;
             }
         }
 
-        if(tripleBatch != null && tripleBatch.size() > 0) {
-            flushBatch();
-        }
-
-        if(connection != null) {
-            connection.commit();
-        }
     }
 
     /**
@@ -1885,6 +2066,7 @@ public class KiWiConnection {
                 tripleBatch.clear();
             }
         }
+        deletedStatementsLog.clear();
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
@@ -1944,58 +2126,190 @@ public class KiWiConnection {
                 log.debug("database system does not allow closing statements");
             }
 
-            connection.close();
+            persistence.releaseJDBCConnection(connection);
         }
     }
 
 
-    public void flushBatch() throws SQLException {
+    int retry = 0;
+
+    public synchronized void flushBatch() throws SQLException {
         if(batchCommit && tripleBatch != null) {
             requireJDBCConnection();
 
             commitLock.lock();
             try {
                 if(persistence.getValueFactory() != null) {
-                    persistence.getValueFactory().flushBatch(this);
+                    persistence.getValueFactory().flushBatch();
                 }
 
-                PreparedStatement insertTriple = getPreparedStatement("store.triple");
-                insertTriple.clearParameters();
-                insertTriple.clearBatch();
 
-                synchronized (tripleBatch) {
-                    for(KiWiTriple triple : tripleBatch) {
-                        // retrieve a new triple ID and set it in the object
-                        if(!triple.isDeleted()) {
-                            if(triple.getId() == null) {
-                                triple.setId(getNextSequence("seq.triples"));
-                                log.warn("the batched triple did not have an ID");
+                RetryExecution execution = new RetryExecution("FLUSH BATCH");
+                execution.setUseSavepoint(true);
+                execution.execute(connection, new RetryCommand<Void>() {
+                    @Override
+                    public Void run() throws SQLException {
+                        PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                        insertTriple.clearParameters();
+                        insertTriple.clearBatch();
+
+                        synchronized (tripleBatch) {
+                            for(KiWiTriple triple : tripleBatch) {
+                                // if the triple has been marked as deleted, this can only have been done by another connection
+                                // in this case the triple id is no longer usable (might result in key conflicts), so we set it to
+                                // a new id
+                                if(triple.isDeleted()) {
+                                    triple.setId(getNextSequence("seq.triples"));
+                                    triple.setDeleted(false);
+                                    triple.setDeletedAt(null);
+                                }
+
+                                // retrieve a new triple ID and set it in the object
+                                if(triple.getId() == null) {
+                                    triple.setId(getNextSequence("seq.triples"));
+                                }
+
+                                insertTriple.setLong(1,triple.getId());
+                                insertTriple.setLong(2,triple.getSubject().getId());
+                                insertTriple.setLong(3,triple.getPredicate().getId());
+                                insertTriple.setLong(4,triple.getObject().getId());
+                                if(triple.getContext() != null) {
+                                    insertTriple.setLong(5,triple.getContext().getId());
+                                } else {
+                                    insertTriple.setNull(5, Types.BIGINT);
+                                }
+                                insertTriple.setBoolean(6,triple.isInferred());
+                                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+
+                                insertTriple.addBatch();
                             }
-
-                            insertTriple.setLong(1,triple.getId());
-                            insertTriple.setLong(2,triple.getSubject().getId());
-                            insertTriple.setLong(3,triple.getPredicate().getId());
-                            insertTriple.setLong(4,triple.getObject().getId());
-                            insertTriple.setLong(5,triple.getContext().getId());
-                            insertTriple.setBoolean(6,triple.isInferred());
-                            insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-
-                            insertTriple.addBatch();
                         }
-                    }
-                    tripleBatch.clear();
-                }
-                insertTriple.executeBatch();
+                        insertTriple.executeBatch();
 
-            } catch (SQLException ex) {
-                System.err.println("main exception:");
-                ex.printStackTrace();
-                System.err.println("next exception:");
-                ex.getNextException().printStackTrace();
-                throw ex;
+                        tripleBatch.clear();
+
+                        return null;
+                    }
+                });
+
             }  finally {
                 commitLock.unlock();
             }
+
+        }
+
+    }
+
+
+    protected static interface RetryCommand<T> {
+
+        public T run() throws SQLException;
+    }
+
+    /**
+     * A generic implementation of an SQL command that might fail (e.g. because of a timeout or concurrency situation)
+     * and should be retried several times before giving up completely.
+     *
+     */
+    protected static class RetryExecution<T>  {
+
+        // counter for current number of retries
+        private int retries = 0;
+
+        // how often to reattempt the operation
+        private int maxRetries = 10;
+
+        // how long to wait before retrying
+        private long retryInterval = 1000;
+
+        // use an SQL savepoint and roll back in case a retry is needed?
+        private boolean useSavepoint = false;
+
+        private String name;
+
+        // if non-empty: only retry on the SQL states contained in this set
+        private Set<String> sqlStates;
+
+        public RetryExecution(String name) {
+            this.name = name;
+            this.sqlStates = new HashSet<>();
+        }
+
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getMaxRetries() {
+            return maxRetries;
+        }
+
+        public void setMaxRetries(int maxRetries) {
+            this.maxRetries = maxRetries;
+        }
+
+        public long getRetryInterval() {
+            return retryInterval;
+        }
+
+        public void setRetryInterval(long retryInterval) {
+            this.retryInterval = retryInterval;
+        }
+
+        public boolean isUseSavepoint() {
+            return useSavepoint;
+        }
+
+        public void setUseSavepoint(boolean useSavepoint) {
+            this.useSavepoint = useSavepoint;
+        }
+
+        public Set<String> getSqlStates() {
+            return sqlStates;
+        }
+
+        public T execute(Connection connection, RetryCommand<T> command) throws SQLException {
+            Savepoint savepoint = null;
+            if(useSavepoint) {
+                savepoint = connection.setSavepoint();
+            }
+            try {
+                T result = command.run();
+
+                if(useSavepoint && savepoint != null) {
+                    connection.releaseSavepoint(savepoint);
+                }
+
+                return result;
+            } catch (SQLException ex) {
+                if(retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
+                    if(useSavepoint && savepoint != null) {
+                        connection.rollback(savepoint);
+                    }
+                    Random rnd = new Random();
+                    long sleep = retryInterval - 250 + rnd.nextInt(500);
+                    log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, sleep, Thread.currentThread().getName(), retries);
+                    try {
+                        Thread.sleep(sleep);
+                    } catch (InterruptedException e) {}
+                    retries++;
+                    T result = execute(connection, command);
+                    retries--;
+
+                    return result;
+                } else {
+                    log.error("{}: temporary conflict could not be solved! (error: {})", name, ex.getMessage());
+
+                    log.debug("main exception:",ex);
+                    log.debug("next exception:",ex.getNextException());
+                    throw ex;
+                }
+            }
+
 
         }
 

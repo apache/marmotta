@@ -56,7 +56,12 @@ public class CachingServiceImpl implements CachingService {
 
     @PostConstruct
     public void initialize() {
-        URL url = this.getClass().getClassLoader().getResource("ehcache-lmf.xml");
+        URL url = this.getClass().getClassLoader().getResource("ehcache-marmotta.xml");
+
+        // backwards compatibility
+        if(url == null) {
+            url = this.getClass().getClassLoader().getResource("ehcache-lmf.xml");
+        }
 
         log.info("Apache Marmotta Caching Service starting up (configuration at {}) ...",url);
         manager = CacheManager.create(url);

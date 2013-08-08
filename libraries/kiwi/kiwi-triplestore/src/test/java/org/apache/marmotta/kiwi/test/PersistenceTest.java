@@ -1,13 +1,12 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,134 +17,68 @@
 package org.apache.marmotta.kiwi.test;
 
 import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
-
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.util.DateUtils;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import info.aduna.iteration.Iterations;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.openrdf.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openrdf.model.Statement;
 
 /**
- * This test verifies the persistence functionality of the KiWi triple store. It will try running over all
- * available databases. Except for in-memory databases like H2 or Derby, database URLs must be passed as
- * system property, or otherwise the test is skipped for this database. Available system properties:
- * <ul>
- *     <li>PostgreSQL:
- *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
- *         <li>postgresql.user (default: lmf)</li>
- *         <li>postgresql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>MySQL:
- *     <ul>
- *         <li>mysql.url, e.g. jdbc:mysql://localhost:3306/kiwitest?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull</li>
- *         <li>mysql.user (default: lmf)</li>
- *         <li>mysql.pass (default: lmf</li>
- *     </ul>
- *     </li>
- *     <li>H2:
- *     <ul>
- *         <li>h2.url, e.g. jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10</li>
- *         <li>h2.user (default: lmf)</li>
- *         <li>h2.pass (default: lmf</li>
- *     </ul>
- *     </li>
- * </ul>
+ * This test verifies the persistence functionality of the KiWi triple store. 
  *
  * @see org.apache.marmotta.kiwi.persistence.KiWiConnection
  * @see org.apache.marmotta.kiwi.persistence.KiWiPersistence
- * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class PersistenceTest {
 
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name, url, user, password)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0} at {1}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-            if(System.getProperty(database.toLowerCase()+".url") != null) {
-                result.add(new Object[] {
-                        database,
-                        System.getProperty(database.toLowerCase()+".url"),
-                        System.getProperty(database.toLowerCase()+".user","lmf"),
-                        System.getProperty(database.toLowerCase()+".pass","lmf")
-                });
-            }
-        }
-        return result;
-    }
-
-
-    private KiWiDialect dialect;
-
-    private String jdbcUrl;
-
-    private String jdbcUser;
-
-    private String jdbcPass;
 
     private KiWiPersistence persistence;
 
-    public PersistenceTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
-        this.jdbcPass = jdbcPass;
-        this.jdbcUrl = jdbcUrl;
-        this.jdbcUser = jdbcUser;
+    private final KiWiConfiguration kiwiConfig;
 
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
-        
-        DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
+    public PersistenceTest(KiWiConfiguration kiwiConfig) {
+        this.kiwiConfig = kiwiConfig;
     }
 
 
     @Before
     public void initDatabase() throws SQLException {
-        persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
+        persistence = new KiWiPersistence(kiwiConfig);
+        persistence.initialise();
         persistence.initDatabase();
     }
 
@@ -154,21 +87,6 @@ public class PersistenceTest {
         persistence.dropDatabase();
         persistence.shutdown();
     }
-
-
-    final Logger logger =
-            LoggerFactory.getLogger(PersistenceTest.class);
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
 
     @Test
@@ -225,6 +143,8 @@ public class PersistenceTest {
 
 
             connection.commit();
+
+            Assert.assertEquals(1,Iterations.asList(connection.listResources()).size());
 
 
             // clear cache and test again
@@ -301,6 +221,7 @@ public class PersistenceTest {
 
             connection.commit();
 
+            Assert.assertEquals(1,Iterations.asList(connection.listResources()).size());
 
             // clear cache and test again
             persistence.clearCache();
@@ -574,6 +495,89 @@ public class PersistenceTest {
         }
 
     }
+
+
+    /**
+     * Test storing and loading string literals (with type and without language).
+     *
+     * @throws SQLException
+     */
+    @Test
+    public void testStoreBigStringLiteral() throws SQLException {
+        KiWiConnection connection = persistence.getConnection();
+        try {
+            KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+
+            // add a new URI to the triple store and check if it exists afterwards, before and after commit
+            KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(16384), null, uri);
+            connection.storeNode(literal, false);
+
+            // check if it then has a database ID
+            Assert.assertNotNull(literal.getId());
+
+            KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
+
+            // needs to be equal, and should also be the identical object!
+            Assert.assertEquals(literal,testLiteral1);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral1).getType());
+            Assert.assertTrue(literal == testLiteral1);
+
+            connection.commit();
+
+            KiWiNode testLiteral2 = connection.loadNodeById(literal.getId());
+
+            // needs to be equal, and should also be the identical object!
+            Assert.assertEquals(literal,testLiteral2);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral2).getType());
+            Assert.assertTrue(literal == testLiteral2);
+
+            KiWiNode testLiteral3 = connection.loadLiteral(literal.stringValue(),null,uri);
+
+            // needs to be equal, and should also be the identical object!
+            Assert.assertEquals(literal,testLiteral3);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
+            Assert.assertTrue(literal == testLiteral3);
+
+            connection.commit();
+
+
+            // clear cache and test again
+            persistence.clearCache();
+            KiWiNode testLiteral4 = connection.loadNodeById(literal.getId());
+
+            // needs to be equal, but now it should not be the same object!
+            Assert.assertEquals(literal,testLiteral4);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral4).getType());
+            Assert.assertTrue(literal != testLiteral4);
+
+            KiWiNode testLiteral5 = connection.loadLiteral(literal.stringValue(),null,uri);
+
+            // needs to be equal, but now it should not be the same object!
+            Assert.assertEquals(literal,testLiteral5);
+            Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
+            Assert.assertTrue(literal != testLiteral5);
+
+            connection.commit();
+
+            // finally do a test on the nodes table, it should contain exactly one entry
+            PreparedStatement checkNodeStmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM nodes WHERE ntype='string'");
+            ResultSet result = checkNodeStmt.executeQuery();
+
+            Assert.assertTrue(result.next());
+            Assert.assertEquals((long)literal.getId(),result.getLong("id"));
+            Assert.assertEquals(literal.stringValue(),result.getString("svalue"));
+            Assert.assertEquals("string",result.getString("ntype"));
+            Assert.assertNull(result.getString("lang"));
+            Assert.assertEquals((long) uri.getId(), result.getLong("ltype"));
+
+            result.close();
+            connection.commit();
+        } finally {
+            connection.close();
+        }
+
+    }
+
 
 
     /**
@@ -994,6 +998,7 @@ public class PersistenceTest {
     }
 
 
+
     /**
      * Test storing, querying and deleting triples
      */
@@ -1024,7 +1029,7 @@ public class PersistenceTest {
                 connection.storeTriple(triple2);
 
                 // check querying within transaction
-                List<Statement> result1 = connection.listTriples(subject,null,null,null,false).asList();
+                List<Statement> result1 = connection.listTriples(subject,null,null,null,false, true).asList();
                 Assert.assertThat(result1,hasItems((Statement)triple1,(Statement)triple2));
 
                 Assert.assertEquals(2, connection.getSize());
@@ -1033,7 +1038,7 @@ public class PersistenceTest {
 
                 connection.commit();
 
-                List<Statement> result2 = connection.listTriples(subject,null,null,null,false).asList();
+                List<Statement> result2 = connection.listTriples(subject,null,null,null,false, true).asList();
                 Assert.assertThat(result2,hasItems((Statement)triple1,(Statement)triple2));
 
                 Assert.assertEquals(2, connection.getSize());
@@ -1045,7 +1050,7 @@ public class PersistenceTest {
                 // clear cache and test again
                 persistence.clearCache();
 
-                List<Statement> result3 = connection.listTriples(subject,null,null,null,false).asList();
+                List<Statement> result3 = connection.listTriples(subject,null,null,null,false, true).asList();
                 Assert.assertThat(result3,hasItems((Statement)triple1,(Statement)triple2));
 
 

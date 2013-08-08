@@ -46,10 +46,6 @@ public class KiWiVersioningPersistence {
 
     public KiWiVersioningPersistence(KiWiPersistence persistence) {
         this.persistence = persistence;
-
-        persistence.addNodeTableDependency("versions", "creator");
-        persistence.addTripleTableDependency("versions_added","triple_id");
-        persistence.addTripleTableDependency("versions_removed","triple_id");
     }
 
     /**
@@ -58,6 +54,10 @@ public class KiWiVersioningPersistence {
      */
     public void initDatabase() throws SQLException {
         persistence.initDatabase("versioning", new String[] {"versions", "versions_added", "versions_removed"});
+
+        persistence.addNodeTableDependency("versions", "creator");
+        persistence.addTripleTableDependency("versions_added","triple_id");
+        persistence.addTripleTableDependency("versions_removed","triple_id");
     }
 
     /**

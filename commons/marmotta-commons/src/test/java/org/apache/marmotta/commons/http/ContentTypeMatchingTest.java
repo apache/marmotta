@@ -18,7 +18,7 @@
 package org.apache.marmotta.commons.http;
 
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -100,7 +100,7 @@ public class ContentTypeMatchingTest {
         accepted.add(accepted1);
         accepted.add(accepted2);
 
-        Assert.assertEquals(offered2, LMFHttpUtils.bestContentType(offered,accepted));
+        Assert.assertEquals(offered2, MarmottaHttpUtils.bestContentType(offered,accepted));
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ContentTypeMatchingTest {
         accepted.add(accepted1);
         accepted.add(accepted2);
 
-        Assert.assertEquals(offered1, LMFHttpUtils.bestContentType(offered,accepted));
+        Assert.assertEquals(offered1, MarmottaHttpUtils.bestContentType(offered,accepted));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class ContentTypeMatchingTest {
         accepted.add(accepted1);
         accepted.add(accepted2);
 
-        Assert.assertEquals(offered3, LMFHttpUtils.bestContentType(offered,accepted));
+        Assert.assertEquals(offered3, MarmottaHttpUtils.bestContentType(offered,accepted));
     }
 
 }

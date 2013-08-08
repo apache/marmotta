@@ -65,7 +65,7 @@ public class MarmottaOptionsFilter implements Filter {
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        ResteasyProviderFactory.getInstance().addExceptionMapper(new OptionsMapper());
+        ResteasyProviderFactory.getInstance().registerProviderInstance(new OptionsMapper());
     }
 
     /**

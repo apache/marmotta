@@ -25,7 +25,7 @@ import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -97,13 +97,13 @@ public class ExportWebService {
     public Response downloadData(@HeaderParam("Accept") String types, @QueryParam("format") String qFormat, @QueryParam("context") String context_string) throws IOException {
         List<ContentType> acceptedTypes;
         if(qFormat != null) {
-            acceptedTypes = LMFHttpUtils.parseAcceptHeader(qFormat);
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(qFormat);
         } else {
-            acceptedTypes = LMFHttpUtils.parseAcceptHeader(types);
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(types);
         }
-        List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(exportService.getProducedTypes());
+        List<ContentType> offeredTypes  = MarmottaHttpUtils.parseStringList(exportService.getProducedTypes());
 
-        final ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
+        final ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes,acceptedTypes);
 
         // create a file name for the export, preferrably with a good extension ...
         String fileName;

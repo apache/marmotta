@@ -17,6 +17,9 @@
  */
 package org.apache.marmotta.platform.ldpath.services;
 
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.ldpath.model.fields.FieldMapping;
+import org.apache.marmotta.ldpath.model.programs.Program;
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -41,10 +44,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -188,5 +188,49 @@ public class LDPathServiceImpl implements LDPathService {
         } catch (RepositoryException e) {
             throw new LDPathParseException("LDPath evaluation failed", e);
         }
+    }
+
+    /**
+     * Run a path program over all resources in the triplestore matching the program's filter and return the result for
+     * each respurce. Since this query can potentially return many results and take long, it is recommended to define
+     * appropriate program filters for the query.
+     *
+     * @param program
+     * @return
+     * @throws org.apache.marmotta.ldpath.exception.LDPathParseException
+     *
+     */
+    @Override
+    public Map<Value, Map<String, Collection<?>>> programQuery(String program) throws LDPathParseException {
+        Map<Value,  Map<String, Collection<?>>> result = new HashMap<>();
+        try {
+            RepositoryConnection conn = sesameService.getConnection();
+            try {
+                conn.begin();
+                SesameConnectionBackend backend = SesameConnectionBackend.withConnection(conn);
+                LDPath<Value> ldpath = new LDPath<Value>(backend, config);
+
+                Program<Value> p = ldpath.parseProgram(new StringReader(program));
+
+                // TODO: not very efficient, LDPath should support more efficient listing of resources based on filter
+                for(Value context : ResourceUtils.listResources(conn)) {
+                    if(p.getFilter().apply(backend, context, Collections.singleton(context))) {
+
+                        Map<String,Collection<?>> binding = new HashMap<String, Collection<?>>();
+
+                        for(FieldMapping<?,Value> mapping : p.getFields()) {
+                            binding.put(mapping.getFieldName(),mapping.getValues(backend,context));
+                        }
+                        result.put(context,binding);
+                    }
+                }
+            } finally {
+                conn.commit();
+                conn.close();
+            }
+        } catch (RepositoryException e) {
+            throw new LDPathParseException("LDPath evaluation failed", e);
+        }
+        return result;
     }
 }

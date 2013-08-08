@@ -1,7 +1,23 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.marmotta.kiwi.model.caching;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
@@ -52,19 +68,19 @@ public class TripleTableTest {
         // tests
 
         // 1. test existence and non-existence of a triple
-        assertEquals(1, table.listTriples(subject2,predicate2,object1,null).size());
-        assertEquals(0, table.listTriples(subject2,predicate2,object2,null).size());
+        assertEquals(1, table.listTriples(subject2,predicate2,object1,null, true).size());
+        assertEquals(0, table.listTriples(subject2,predicate2,object2,null, true).size());
 
         // 2. test listing with wildcards
-        assertEquals(7, table.listTriples(null,null,null,null).size());
-        assertEquals(4, table.listTriples(subject1,null,null,null).size());
-        assertEquals(3, table.listTriples(subject2,null,null,null).size());
-        assertEquals(4, table.listTriples(null,predicate1,null,null).size());
-        assertEquals(3, table.listTriples(null,predicate2,null,null).size());
-        assertEquals(4, table.listTriples(null,null,object1,null).size());
-        assertEquals(3, table.listTriples(null,null,object2,null).size());
-        assertEquals(2, table.listTriples(subject1,predicate1,null,null).size());
-        assertEquals(1, table.listTriples(subject2,predicate2,null,null).size());
+        assertEquals(7, table.listTriples(null,null,null,null, true).size());
+        assertEquals(4, table.listTriples(subject1,null,null,null, true).size());
+        assertEquals(3, table.listTriples(subject2,null,null,null, true).size());
+        assertEquals(4, table.listTriples(null,predicate1,null,null, true).size());
+        assertEquals(3, table.listTriples(null,predicate2,null,null, true).size());
+        assertEquals(4, table.listTriples(null,null,object1,null, true).size());
+        assertEquals(3, table.listTriples(null,null,object2,null, true).size());
+        assertEquals(2, table.listTriples(subject1,predicate1,null,null, true).size());
+        assertEquals(1, table.listTriples(subject2,predicate2,null,null, true).size());
     }
 
     @Test
@@ -98,14 +114,14 @@ public class TripleTableTest {
         // tests
 
         // 1. test existence and non-existence of a triple
-        assertEquals(1, table.listTriples(subject2,predicate2,object1,null).size());
-        assertEquals(1, table.listTriples(subject2,predicate2,object2,null).size());
+        assertEquals(1, table.listTriples(subject2,predicate2,object1,null, true).size());
+        assertEquals(1, table.listTriples(subject2,predicate2,object2,null, true).size());
 
 
         table.remove(stmt8);
 
-        assertEquals(1, table.listTriples(subject2,predicate2,object1,null).size());
-        assertEquals(0, table.listTriples(subject2,predicate2,object2,null).size());
+        assertEquals(1, table.listTriples(subject2,predicate2,object1,null, true).size());
+        assertEquals(0, table.listTriples(subject2,predicate2,object2,null, true).size());
     }
 
 }

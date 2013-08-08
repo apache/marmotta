@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.2.0-incubating-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -153,6 +153,12 @@
             <artifactId>marmotta-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>codemirror</artifactId>
+        </dependency>
+
+
         <dependency>
            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>

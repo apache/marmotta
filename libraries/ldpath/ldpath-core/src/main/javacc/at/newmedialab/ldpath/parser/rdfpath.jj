@@ -26,7 +26,7 @@ options
 //  DEBUG_LOOKAHEAD=true;
 }
 
-PARSER_BEGIN(RdfPathParser)
+PARSER_BEGIN(LdPathParser)
 package org.apache.marmotta.ldpath.parser;
 
 import org.apache.marmotta.ldpath.model.Constants;
@@ -65,12 +65,12 @@ import org.slf4j.LoggerFactory;
 
 
 @SuppressWarnings("all")
-public class RdfPathParser<Node> {
+public class LdPathParser<Node> {
 
         private enum Mode { RULE, SELECTOR, TEST, PROGRAM, PREFIX };
 
 
-        private static final Logger log = LoggerFactory.getLogger(RdfPathParser.class);
+        private static final Logger log = LoggerFactory.getLogger(LdPathParser.class);
 
         /**
          * A map mapping from namespace prefix to namespace URI
@@ -83,11 +83,11 @@ public class RdfPathParser<Node> {
 
         private Mode mode = Mode.PROGRAM;
 
-        public RdfPathParser(NodeBackend<Node> backend, Reader in) {
+        public LdPathParser(NodeBackend<Node> backend, Reader in) {
             this(backend,null,in);
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
+        public LdPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -99,11 +99,11 @@ public class RdfPathParser<Node> {
             initialise();
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, InputStream in) {
+        public LdPathParser(NodeBackend<Node> backend, InputStream in) {
             this(backend,null,in);
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
+        public LdPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -115,11 +115,11 @@ public class RdfPathParser<Node> {
             initialise();
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
+        public LdPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
             this(backend,null,in,encoding);
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
+        public LdPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
             this(in,encoding);
             this.backend = backend;
             if(config == null) {
@@ -212,10 +212,15 @@ public class RdfPathParser<Node> {
             }
         }
 
+        public Node resolveURI(URI uri) {            return backend.createURI(uri.toString());
+        }
 
-        public Node resolveResource(String uri) {
+        public Node resolveResource(String uri) throws ParseException {
             return backend.createURI(uri);
         }
+
+        public Node resolveResource(String prefix, String local) throws ParseException {
+            return resolveResource(resolveNamespace(prefix)+local);        }
 
 
         public String resolveNamespace(String prefix) throws ParseException {
@@ -241,6 +246,14 @@ public class RdfPathParser<Node> {
             } else {
                 throw new ParseException("test function with URI "+uri+" does not exist");
             }
+        }
+
+        public NodeTransformer<?,Node> getTransformer(URI type) throws ParseException {
+            return getTransformer(type.toString());
+        }
+
+        public NodeTransformer<?,Node> getTransformer(Node node) throws ParseException {
+            return getTransformer(backend.stringValue(node));
         }
 
         public NodeTransformer<?,Node> getTransformer(String uri) throws ParseException {
@@ -290,7 +303,7 @@ public class RdfPathParser<Node> {
 
 
         private Map<String, SelectorFunction<Node>> xsdNodeFunctionMap;
-    private Map<String, TestFunction<Node>> xsdNodeTestMap;
+        private Map<String, TestFunction<Node>> xsdNodeTestMap;
         private void initFunctionMappings() {
             Map<String, SelectorFunction<Node>> functionMap = new HashMap<String, SelectorFunction<Node>>();
 
@@ -334,7 +347,7 @@ public class RdfPathParser<Node> {
         }
 
 }
-PARSER_END(RdfPathParser)
+PARSER_END(LdPathParser)
 
 SKIP :
 {
@@ -417,7 +430,7 @@ TOKEN : /* BRACKETS */
 }
 TOKEN :
 {
-    < URI: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","+","-","."])* "://"  (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+ ("#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])*)? | "#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+> |
+    < URI: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ ">" > |
     < IDENTIFIER: ["a"-"z","A"-"Z","0"-"9","_"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])* > |
     < #URICHAR: ["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"] >
 }
@@ -445,9 +458,9 @@ Entry<String, String> Namespace() :
 }
 {
   ( 
-    <K_PREFIX> id = <IDENTIFIER> <COLON> <B_XO> uri = <URI> <B_XC> (<SCOLON> )? {
+    <K_PREFIX> id = <IDENTIFIER> <COLON> uri = <URI> (<SCOLON> )? {
     }
-  ) { return new Namespace(id.image, uri.image); }
+  ) { return new Namespace(id.image, uri.image.substring(1,uri.image.length()-1)); }
 }
 
 Program Program() :
@@ -472,7 +485,8 @@ Program Program() :
   (
     <K_GRAPH> graphs = UriList() <SCOLON> {
       program.setGraphs(graphs);
-    }  )?
+    }
+  )?
 
   (
     <K_FILTER> filter = NodeTest() <SCOLON> {
@@ -483,7 +497,7 @@ Program Program() :
   (
     <K_BOOST> boostSelector = Selector() <SCOLON> {
     	NodeTransformer transformer = getTransformer(Program.DOCUMENT_BOOST_TYPE);
-		FieldMapping booster = new FieldMapping("@boost", Program.DOCUMENT_BOOST_TYPE, boostSelector, transformer, null);
+		FieldMapping booster = new FieldMapping("@boost", java.net.URI.create(Program.DOCUMENT_BOOST_TYPE), boostSelector, transformer, null);
 		program.setBooster(booster);  
     }
   )?
@@ -500,13 +514,16 @@ Program Program() :
   }
 }
 
-LinkedList<Node> UriList() :{
-    LinkedList<Node> rest = null;
-    String uri;}
+LinkedList<Node> UriList() :
 {
-    uri = Uri() ( <COMMA> rest = UriList() )?    {
+    LinkedList<Node> rest = null;
+    URI uri;
+}
+{
+    uri = Uri() ( <COMMA> rest = UriList() )?
+    {
       if (rest == null) rest = new LinkedList<Node>();
-      rest.addFirst(resolveResource(uri));
+      rest.addFirst(resolveURI(uri));
       return rest;
     }
 }
@@ -515,8 +532,8 @@ FieldMapping Rule() :
 {
     FieldMapping<?,Node> rule;
     Token name;
-    String uri;
-    String type = null;
+    URI uri;
+    URI type = null;
     NodeSelector<Node> selector;
     NodeTransformer<?,Node> transformer;
     Map<String, String> conf = null;
@@ -596,16 +613,16 @@ String ConfVal() : {
 |	id = <IDENTIFIER> { return id.image; }
 }
 
-String Uri() : {
+URI Uri() : {
     Token uri, prefix, localName;
 
 }
 {
-    "<" uri = <URI> ">" {
-       return uri.image;
+    uri = <URI> {
+       return java.net.URI.create(uri.image.substring(1,uri.image.length()-1));
     }
 |   prefix = <IDENTIFIER> ":" localName = <IDENTIFIER> {
-        return resolveNamespace(prefix.image)+localName.image;
+        return java.net.URI.create(resolveNamespace(prefix.image)+localName.image);
     }
 }
 
@@ -817,13 +834,11 @@ TestingSelector TestingSelector() :
 ReversePropertySelector ReversePropertySelector() :
 {
 	ReversePropertySelector result = null;
-	Node property;
-    String uri;
+	URI uri;
 }
 {
 	<INVERSE> uri = Uri() {
-        property = resolveResource(uri);
-        result   = new ReversePropertySelector(property);
+        result   = new ReversePropertySelector(resolveURI(uri));
         return result;
 	}
 }
@@ -831,13 +846,11 @@ ReversePropertySelector ReversePropertySelector() :
 PropertySelector PropertySelector() :
 {
     PropertySelector result = null;
-    Node property;
-    String uri;
+    URI uri;
 }
 {
     uri = Uri() {
-        property = resolveResource(uri);
-        result   = new PropertySelector(property);
+        result   = new PropertySelector(resolveURI(uri));
         return result;
     }
 }
@@ -993,7 +1006,7 @@ LiteralLanguageTest LiteralLanguageTest():
 
 LiteralTypeTest LiteralTypeTest():
 {
-    String type;
+    URI type;
 }
 {
     <TYPE> type = Uri() {
@@ -1056,19 +1069,15 @@ PathEqualityTest PathEqualityTest():
 
 Node Node():
 {
-    String uri, type = null;
+    URI uri, type = null;
     Token literal, language;
 }
 {
     uri = Uri() {
-        return resolveResource(uri);
+        return resolveURI(uri);
     }
 |   literal = <STRLIT>  (<TYPE> type = Uri() )? {
-        try {
-            return backend.createLiteral(literal.image.substring(1, literal.image.length()-1),null,type == null ? null : new URI(type));
-        } catch(java.net.URISyntaxException ex) {
-            throw new ParseException("could not parse type URI "+type+": "+ex.getMessage());
-	    }
+        return backend.createLiteral(literal.image.substring(1, literal.image.length()-1),null,type);
     }
 |   literal = <STRLIT>  <LANG> language = <IDENTIFIER> {
         return backend.createLiteral(literal.image.substring(1, literal.image.length()-1),new Locale(language.image),null);

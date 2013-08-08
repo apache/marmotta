@@ -71,8 +71,8 @@ class Model
       else if value.type.match /java.lang.String.*/ then clazz = StringProperty
       else if value.type.match /java.net.URL.*/ then clazz = URIProperty
       else if value.type.match /java.util.List.*/ then clazz = ListProperty
-      else if value.type.match /org.marmotta.†ype.Program/ then clazz = ProgramProperty
-      else if value.type.match /org.marmotta.†ype.Text/ then clazz = TextProperty
+      else if value.type.match /org.marmotta.type.Program/ then clazz = ProgramProperty
+      else if value.type.match /org.marmotta.type.Text/ then clazz = TextProperty
       else clazz = Property
 
       @properties.push new clazz property,value
@@ -544,10 +544,21 @@ class Client
 
         str = "{"
         for value,index in data
-          str += '"'+value.key + '":"'+value.getValue() + '"'
+          v = '"'+value.getValue()+'"'
+          if (value.getValue().split(",").length > 1)
+            x = value.getValue().split(",")
+            v = "["
+            for val,i in x
+              v += '"'+val+'"'
+              if i < x.length-1
+                v += ','
+
+            v += "]"
+
+          str += '"'+value.key + '":'+v
           str += "," if index < data.length-1
         str += "}"
-
+        console.log str
         $.ajax data =
           type : 'POST'
           contentType: "application/json"

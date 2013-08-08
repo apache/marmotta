@@ -30,10 +30,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-
 import org.slf4j.Logger;
 
 /**
@@ -48,9 +46,6 @@ public class MarmottaPostStartupFilter implements Filter {
 
     @Inject
     private ConfigurationService configurationService;
-
-    @Inject
-    private UserService userService;
 
     @Inject
     private ModuleConfiguration moduleConfiguration;

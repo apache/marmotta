@@ -104,12 +104,12 @@ public class SparqlWebServiceTest {
     		get("/sparql/select");
     }
     
-    /*
     @Test
     public void testConstruct() throws IOException, InterruptedException {
         expect().
     	log().ifError().
     		statusCode(200).
+    		contentType("application/rdf+xml").
     	given().
     		param("query", "CONSTRUCT { <http://www.wikier.org/foaf#wikier> ?p ?o } WHERE { <http://www.wikier.org/foaf#wikier> ?p ?o }").
 		when().
@@ -133,11 +133,23 @@ public class SparqlWebServiceTest {
     public void testConstructContentNegotiationPlain() throws IOException, InterruptedException {
         expect().
         	log().ifError().
+    		statusCode(415).
+    	given().
+    		header("Accept", "text/plain").
+    		param("query", "CONSTRUCT { <http://www.wikier.org/foaf#wikier2> ?p ?o } WHERE { <http://www.wikier.org/foaf#wikier> ?p ?o }").
+		when().
+    		get("/sparql/select");
+    }
+    
+    @Test
+    public void testConstructContentNegotiationTurtle() throws IOException, InterruptedException {
+        expect().
+        	log().ifError().
     		statusCode(200).
     		contentType("text/turtle").
     	given().
-    		header("Accept", "plain/text").
-    		param("query", "CONSTRUCT { <http://www.wikier.org/foaf#wikier> ?p ?o } WHERE { <http://www.wikier.org/foaf#wikier> ?p ?o }").
+    		header("Accept", "text/turtle").
+    		param("query", "CONSTRUCT { <http://www.wikier.org/foaf#wikier2> ?p ?o } WHERE { <http://www.wikier.org/foaf#wikier> ?p ?o }").
 		when().
     		get("/sparql/select");
     }
@@ -147,6 +159,7 @@ public class SparqlWebServiceTest {
         expect().
     	log().ifError().
     		statusCode(200).
+    		contentType("application/rdf+xml").
     	given().
     		param("query", "DESCRIBE <http://www.wikier.org/foaf#wikier>").
 		when().
@@ -170,14 +183,12 @@ public class SparqlWebServiceTest {
     public void testDescribeContentNegotiationPlain() throws IOException, InterruptedException {
         expect().
         	log().ifError().
-    		statusCode(200).
-    		contentType("text/turle").
+    		statusCode(415).
     	given().
     		header("Accept", "plain/text").
     		param("query", "DESCRIBE <http://www.wikier.org/foaf#wikier>").
 		when().
     		get("/sparql/select");
     }
-    */
 
 }
