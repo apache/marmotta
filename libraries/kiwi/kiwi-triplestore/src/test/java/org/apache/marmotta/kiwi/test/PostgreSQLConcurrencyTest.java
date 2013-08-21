@@ -82,11 +82,11 @@ public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
 
     @AfterClass
     public static void dropDatabase() throws RepositoryException, SQLException, SailException {
-        assertTrue(store.checkConsistency());
     	if (store != null && store.isInitialized()) {
-	        store.closeValueFactory(); // release all connections before dropping the database
-	        store.getPersistence().dropDatabase();
-	        repository.shutDown();
+            assertTrue(store.checkConsistency());
+            store.closeValueFactory(); // release all connections before dropping the database
+            store.getPersistence().dropDatabase();
+            repository.shutDown();
     	}
     }
 
