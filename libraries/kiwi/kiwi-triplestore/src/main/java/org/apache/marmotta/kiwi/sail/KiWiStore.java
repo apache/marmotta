@@ -111,7 +111,6 @@ public class KiWiStore extends NotifyingSailBase {
         this(new KiWiPersistence(configuration), configuration.getDefaultContext(), configuration.getInferredContext());
     }
 
-
     /**
      * Do store-specific operations to initialize the store. The default
      * implementation of this method does nothing.

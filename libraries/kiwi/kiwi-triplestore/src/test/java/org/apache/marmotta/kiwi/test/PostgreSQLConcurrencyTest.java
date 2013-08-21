@@ -9,15 +9,11 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.SailException;
 
-import com.google.code.tempusfugit.concurrency.ConcurrentRule;
-import com.google.code.tempusfugit.concurrency.RepeatingRule;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertTrue;
@@ -51,13 +47,10 @@ import static org.junit.Assert.assertTrue;
  *     </li>
  * </ul>
  * <p/>
- * Author: Sebastian Schaffert
-
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
-
 
     private static KiWiDialect dialect;
 
@@ -90,8 +83,7 @@ public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
     @AfterClass
     public static void dropDatabase() throws RepositoryException, SQLException, SailException {
         assertTrue(store.checkConsistency());
-
-    	if (store != null) {
+    	if (store != null && store.isInitialized()) {
 	        store.closeValueFactory(); // release all connections before dropping the database
 	        store.getPersistence().dropDatabase();
 	        repository.shutDown();
