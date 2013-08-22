@@ -1146,6 +1146,11 @@
                 <artifactId>sesame-queryresultio-text</artifactId>
                 <version>${sesame.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-sparql-testsuite</artifactId>
+                <version>${sesame.version}</version>
+            </dependency>
 
             <!-- RDFa Parser -->
             <dependency>
