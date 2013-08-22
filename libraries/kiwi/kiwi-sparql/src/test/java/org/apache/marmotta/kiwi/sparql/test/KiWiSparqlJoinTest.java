@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -143,7 +144,7 @@ public class KiWiSparqlJoinTest {
 
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException {
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
+        store = new KiWiStore(new KiWiConfiguration("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred"));
         ssail = new KiWiSparqlSail(store);
         repository = new SailRepository(ssail);
         repository.initialize();
@@ -363,8 +364,8 @@ public class KiWiSparqlJoinTest {
 
             Pair pair = (Pair) o;
 
-            if (!key.equals(pair.key)) return false;
-            if (value != null ? !value.equals(pair.value) : pair.value != null) return false;
+            if (!key.equals(pair.getKey())) return false;
+            if (value != null ? !value.equals(pair.getValue()) : pair.getValue() != null) return false;
 
             return true;
         }
