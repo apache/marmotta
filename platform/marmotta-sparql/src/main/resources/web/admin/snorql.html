@@ -124,7 +124,7 @@
                 firstLineNumber: Object.keys(D2R_namespacePrefixes).length + 1
             });
 
-            jQuery.getJSON("../../../prefix", function(data) {
+            jQuery.getJSON("../../prefix", function(data) {
                 var ns = {};
                 jQuery.each(data, function(prefix, namespace) {
                     ns[prefix] = namespace;
