@@ -1,37 +1,21 @@
 package org.apache.marmotta.kiwi.test;
 
-import com.google.code.tempusfugit.concurrency.ConcurrentRule;
-import com.google.code.tempusfugit.concurrency.RepeatingRule;
-import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
-import com.google.code.tempusfugit.concurrency.annotations.Repeating;
-import org.apache.commons.lang3.RandomStringUtils;
+import static org.junit.Assert.assertTrue;
+
+import java.sql.SQLException;
+import java.util.Random;
+
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.junit.*;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.SailException;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,
@@ -92,7 +76,7 @@ public class H2ConcurrencyTest extends ConcurrencyTestBase {
 
         DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
 
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" );
+        store = new KiWiStore(new KiWiConfiguration("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" ));
         repository = new SailRepository(store);
         repository.initialize();
     }

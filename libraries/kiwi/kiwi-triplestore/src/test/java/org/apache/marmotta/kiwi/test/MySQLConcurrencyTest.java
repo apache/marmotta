@@ -1,35 +1,21 @@
 package org.apache.marmotta.kiwi.test;
 
+import static org.junit.Assert.assertTrue;
+
 import java.sql.SQLException;
 import java.util.Random;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.SailException;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.code.tempusfugit.concurrency.ConcurrentRule;
-import com.google.code.tempusfugit.concurrency.RepeatingRule;
-import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
-import com.google.code.tempusfugit.concurrency.annotations.Repeating;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,
@@ -90,7 +76,7 @@ public class MySQLConcurrencyTest extends ConcurrencyTestBase {
 
         DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
 
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" );
+        store = new KiWiStore(new KiWiConfiguration("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" ));
         repository = new SailRepository(store);
         repository.initialize();
     }

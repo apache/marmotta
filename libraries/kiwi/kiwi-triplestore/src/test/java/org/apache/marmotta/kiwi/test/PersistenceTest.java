@@ -18,134 +18,67 @@
 package org.apache.marmotta.kiwi.test;
 
 import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
-
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.util.DateUtils;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import info.aduna.iteration.Iterations;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.openrdf.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openrdf.model.Statement;
 
 /**
- * This test verifies the persistence functionality of the KiWi triple store. It will try running over all
- * available databases. Except for in-memory databases like H2 or Derby, database URLs must be passed as
- * system property, or otherwise the test is skipped for this database. Available system properties:
- * <ul>
- *     <li>PostgreSQL:
- *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
- *         <li>postgresql.user (default: lmf)</li>
- *         <li>postgresql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>MySQL:
- *     <ul>
- *         <li>mysql.url, e.g. jdbc:mysql://localhost:3306/kiwitest?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull</li>
- *         <li>mysql.user (default: lmf)</li>
- *         <li>mysql.pass (default: lmf</li>
- *     </ul>
- *     </li>
- *     <li>H2:
- *     <ul>
- *         <li>h2.url, e.g. jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10</li>
- *         <li>h2.user (default: lmf)</li>
- *         <li>h2.pass (default: lmf</li>
- *     </ul>
- *     </li>
- * </ul>
+ * This test verifies the persistence functionality of the KiWi triple store. 
  *
  * @see org.apache.marmotta.kiwi.persistence.KiWiConnection
  * @see org.apache.marmotta.kiwi.persistence.KiWiPersistence
- * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class PersistenceTest {
 
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name, url, user, password)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0} at {1}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-            if(System.getProperty(database.toLowerCase()+".url") != null) {
-                result.add(new Object[] {
-                        database,
-                        System.getProperty(database.toLowerCase()+".url"),
-                        System.getProperty(database.toLowerCase()+".user","lmf"),
-                        System.getProperty(database.toLowerCase()+".pass","lmf")
-                });
-            }
-        }
-        return result;
-    }
-
-
-    private KiWiDialect dialect;
-
-    private String jdbcUrl;
-
-    private String jdbcUser;
-
-    private String jdbcPass;
 
     private KiWiPersistence persistence;
 
-    public PersistenceTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
-        this.jdbcPass = jdbcPass;
-        this.jdbcUrl = jdbcUrl;
-        this.jdbcUser = jdbcUser;
+    private final KiWiConfiguration kiwiConfig;
 
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
-        
-        DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
+    public PersistenceTest(KiWiConfiguration kiwiConfig) {
+        this.kiwiConfig = kiwiConfig;
     }
 
 
     @Before
     public void initDatabase() throws SQLException {
-        persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
+        persistence = new KiWiPersistence(kiwiConfig);
         persistence.initDatabase();
     }
 
@@ -154,21 +87,6 @@ public class PersistenceTest {
         persistence.dropDatabase();
         persistence.shutdown();
     }
-
-
-    final Logger logger =
-            LoggerFactory.getLogger(PersistenceTest.class);
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
 
     @Test

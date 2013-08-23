@@ -15,34 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.test.sesame;
+package org.apache.marmotta.kiwi.test.junit;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.sail.RDFStoreTest;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
 
-/**
- * Run the Sesame {@link RDFStoreTest} suite.
- * @author Jakob Frank <jakob@apache.org>
- */
 @RunWith(KiWiDatabaseRunner.class)
-public class KiWiStoreTest extends RDFStoreTest {
+public class DatabaseRunnerTest1 {
 
-    private final KiWiConfiguration kiwiConfig;
-    
-    public KiWiStoreTest(KiWiConfiguration kiwiConfig) {
-        this.kiwiConfig = kiwiConfig;
+    private final KiWiConfiguration dbConfig;
+
+    public DatabaseRunnerTest1(KiWiConfiguration dbConfig) {
+        this.dbConfig = dbConfig;
     }
     
-    @Override
-    protected Sail createSail() throws SailException {
-        KiWiStore store = new KiWiStore(kiwiConfig);
-        store.initialize();
-        return store;
+    @Test
+    public void testDatabase() {
+        Assert.assertNotNull(dbConfig);
+        System.out.println("Running test with " + dbConfig.getName());
     }
-
 }

@@ -17,66 +17,32 @@
  */
 package org.apache.marmotta.kiwi.test;
 
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestWatcher;
-import org.junit.rules.TestWatchman;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.model.FrameworkMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.hamcrest.Matchers.hasItem;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItem;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test if the dialects returns correct values
  * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class DialectTest {
 
-    public KiWiDialect dialect;
+    public final KiWiDialect dialect;
 
 
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-                result.add(new Object[] {
-                        database
-                });
-        }
-        return result;
-    }
-
-    public DialectTest(String database) {
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
+    public DialectTest(KiWiConfiguration configuration) {
+        this.dialect = configuration.getDialect();
     }
 
     @Test
@@ -122,15 +88,5 @@ public class DialectTest {
     final Logger logger =
             LoggerFactory.getLogger(DialectTest.class);
 
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
 }

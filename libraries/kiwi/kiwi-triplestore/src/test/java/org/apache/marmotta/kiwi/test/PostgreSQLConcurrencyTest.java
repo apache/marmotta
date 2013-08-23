@@ -3,6 +3,7 @@ package org.apache.marmotta.kiwi.test;
 import java.sql.SQLException;
 import java.util.Random;
 
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -75,7 +76,7 @@ public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
 
         DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
 
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" );
+        store = new KiWiStore(new KiWiConfiguration("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" ));
         repository = new SailRepository(store);
         repository.initialize();
     }

@@ -17,27 +17,31 @@
  */
 package org.apache.marmotta.kiwi.test;
 
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assume.assumeThat;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
@@ -56,18 +60,9 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assume.assumeThat;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 /**
  * Test the Sesame repository functionality backed by the KiWi triple store. It will try running over all
@@ -99,66 +94,25 @@ import static org.junit.Assume.assumeThat;
  * <p/>
  * Author: Sebastian Schaffert
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class RepositoryTest {
 
     private static Logger log = LoggerFactory.getLogger(RepositoryTest.class);
-
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name, url, user, password)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0} at {1}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-            if(System.getProperty(database.toLowerCase()+".url") != null) {
-                result.add(new Object[] {
-                        database,
-                        System.getProperty(database.toLowerCase()+".url"),
-                        System.getProperty(database.toLowerCase()+".user","lmf"),
-                        System.getProperty(database.toLowerCase()+".pass","lmf")
-                });
-            }
-        }
-        return result;
-    }
-
-
-    private KiWiDialect dialect;
-
-    private String jdbcUrl;
-
-    private String jdbcUser;
-
-    private String jdbcPass;
 
     private Repository repository;
 
 	private KiWiStore store;
 
-    public RepositoryTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
-        this.jdbcPass = jdbcPass;
-        this.jdbcUrl = jdbcUrl;
-        this.jdbcUser = jdbcUser;
+    private final KiWiConfiguration kiwiConfiguration;
 
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
-        
-        DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, this.dialect);
+    public RepositoryTest(KiWiConfiguration kiwiConfiguration) {
+        this.kiwiConfiguration = kiwiConfiguration;
+
     }
 
 	@Before
     public void initDatabase() throws RepositoryException {
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred" );
+        store = new KiWiStore(kiwiConfiguration);
 		repository = new SailRepository(store);
         repository.initialize();
     }
@@ -170,19 +124,6 @@ public class RepositoryTest {
         repository.shutDown();
     }
 
-    final Logger logger =
-            LoggerFactory.getLogger(RepositoryTest.class);
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
     /**
      * Test importing data; the test will load a small sample RDF file and check whether the expected resources are

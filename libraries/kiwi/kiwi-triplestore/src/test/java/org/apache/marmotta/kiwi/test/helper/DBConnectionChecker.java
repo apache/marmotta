@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,33 +17,84 @@
  */
 package org.apache.marmotta.kiwi.test.helper;
 
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.junit.Assume;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.junit.Assume;
+import org.junit.internal.AssumptionViolatedException;
+
 public class DBConnectionChecker {
 
-	private DBConnectionChecker() {
-		// static only
-	}
-	
-	public static void checkDatabaseAvailability(String jdbcUrl, String jdbcUser,
-			String jdbcPass, KiWiDialect dialect) {
-		try {
-	    	Class.forName(dialect.getDriverClass());
-			Connection conn = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPass);
+    private DBConnectionChecker() {
+        // static only
+    }
+
+    /**
+     * Check availability of the Database.
+     * @param jdbcUrl - the jdbcURL
+     * @param jdbcUser - the user
+     * @param jdbcPass - the password
+     * @param dialect - the {@link KiWiDialect}
+     * @throws AssumptionViolatedException if the database is not available.
+     */
+    public static void checkDatabaseAvailability(String jdbcUrl, String jdbcUser,
+            String jdbcPass, KiWiDialect dialect) throws AssumptionViolatedException {
+        try {
+            Class.forName(dialect.getDriverClass());
+            Connection conn = DriverManager.getConnection(jdbcUrl, jdbcUser, jdbcPass);
             conn.setAutoCommit(false);
-			Assume.assumeTrue("Database not available", conn.isValid(1000));
-			conn.commit();
-			conn.close();
-		} catch (SQLException e) {
-			Assume.assumeNoException("Database not available", e);
-		} catch (ClassNotFoundException e) {
-			Assume.assumeNoException("Missing DB driver", e);
-		}
-	}
+            Assume.assumeTrue("Database not available", conn.isValid(1000));
+            conn.commit();
+            conn.close();
+        } catch (SQLException e) {
+            Assume.assumeNoException("Database not available", e);
+        } catch (ClassNotFoundException e) {
+            Assume.assumeNoException("Missing DB driver", e);
+        }
+    }
+
+    /**
+     * Check availability of the Database.
+     * @param config the {@link KiWiConfiguration} to test
+     * @throws AssumptionViolatedException if the database is not available.
+     */
+    public static void checkDatabaseAvailability(KiWiConfiguration config) throws AssumptionViolatedException {
+        checkDatabaseAvailability(config.getJdbcUrl(), config.getDbUser(), config.getDbPassword(), config.getDialect());
+    }
+
+    /**
+     * Check the availability of the Database.
+     * @param jdbcUrl - the jdbcURL
+     * @param jdbcUser - the user
+     * @param jdbcPass - the password
+     * @param dialect - the {@link KiWiDialect}
+     * @return {@code true} if the database is available, {@code false} if not
+     */
+    public static boolean isDatabaseAvailable(String jdbcUrl, String jdbcUser,
+            String jdbcPass, KiWiDialect dialect) {
+        try {
+            checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
+            return true;
+        } catch (AssumptionViolatedException ave) {
+            return false;
+        }
+    }
+
+    /**
+     * Check availability of the Database.
+     * @param config the {@link KiWiConfiguration} to test
+     * @return {@code true} if the database is available, {@code false} if not
+     */
+    public static boolean isDatabaseAvailable(KiWiConfiguration config) {
+        try {
+            checkDatabaseAvailability(config);
+            return true;
+        } catch (AssumptionViolatedException ave) {
+            return false;
+        }
+    }
 
 }
