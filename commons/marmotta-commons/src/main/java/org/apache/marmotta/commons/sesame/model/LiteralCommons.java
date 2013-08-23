@@ -170,7 +170,8 @@ public class LiteralCommons {
         } else if(Boolean.class.isAssignableFrom(javaClass) || boolean.class.isAssignableFrom(javaClass)) {
             return Namespaces.NS_XSD+"boolean";
         } else {
-            return Namespaces.NS_XSD+"string";
+            // FIXME: MARMOTTA-39 (no default datatype before RDF-1.1)
+            return null; //Namespaces.NS_XSD+"string";
         }
     }
     

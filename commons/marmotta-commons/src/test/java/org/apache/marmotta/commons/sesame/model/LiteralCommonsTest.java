@@ -133,6 +133,7 @@ public class LiteralCommonsTest {
 
     }
     
+    @Test
     public void testGetRDFLangStringType() throws Exception {
     	Assert.assertEquals(RDF.LANGSTRING.stringValue(), LiteralCommons.getRDFLangStringType());
 	}

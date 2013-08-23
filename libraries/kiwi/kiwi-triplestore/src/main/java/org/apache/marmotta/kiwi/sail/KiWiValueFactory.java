@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import com.google.common.collect.Queues;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -337,7 +335,7 @@ public class KiWiValueFactory implements ValueFactory {
         if(object instanceof XMLGregorianCalendar) {
             return createLiteral((XMLGregorianCalendar)object);
         } else {
-            return createLiteral(object,null,null);
+            return createLiteral(object,null,LiteralCommons.getXSDType(object.getClass()));
         }
     }
 
@@ -348,7 +346,9 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(String label) {
-        return createLiteral(label, null, LiteralCommons.getXSDType(String.class));
+        // FIXME: MARMOTTA-39 (no default datatype before RDF-1.1)
+        // return createLiteral(label, null, LiteralCommons.getXSDType(String.class));
+        return createLiteral(label, null, null);
     }
 
     /**
@@ -360,7 +360,9 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(String label, String language) {
-        return createLiteral(label,language,LiteralCommons.getRDFLangStringType());
+        // FIXME: MARMOTTA-39 (no rdf:langString before RDF-1.1)
+        // return createLiteral(label,language,LiteralCommons.getRDFLangStringType());
+        return createLiteral(label, language, null);
     }
 
     /**
@@ -395,9 +397,11 @@ public class KiWiValueFactory implements ValueFactory {
             locale  = null;
 
         if (lang != null) {
-            type = LiteralCommons.getRDFLangStringType();
-        } else if(type == null) {
-            type = LiteralCommons.getXSDType(value.getClass());
+            // FIXME: MARMOTTA-39 (no rdf:langString)
+            // type = LiteralCommons.getRDFLangStringType();
+        } else if (type == null) {
+            // FIXME: MARMOTTA-39 (no default datatype before RDF-1.1)
+            // type = LiteralCommons.getXSDType(value.getClass());
         }
         String key = LiteralCommons.createCacheKey(value.toString(),locale,type);
         LiteralKey lkey = new LiteralKey(value,type,lang);
@@ -411,14 +415,21 @@ public class KiWiValueFactory implements ValueFactory {
             if(result != null) {
                 return result;
             } else {
-                final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
+                final KiWiUriResource rtype = type==null?null:(KiWiUriResource)createURI(type);
 
-                KiWiConnection connection = aqcuireConnection();
+                final KiWiConnection connection = aqcuireConnection();
                 try {
 
 
                     // differentiate between the different types of the value
-                    if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
+                    if (type == null) {
+                        // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
+                        result = connection.loadLiteral(value.toString(), lang, rtype);
+
+                        if(result == null) {
+                            result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                        }
+                    } else if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
                         // parse if necessary
                         final Date dvalue;
                         if(value instanceof Date) {
