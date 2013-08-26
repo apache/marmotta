@@ -81,15 +81,41 @@ import org.slf4j.LoggerFactory;
  */
 public class KiWiDatabaseRunner extends Suite {
 
+    /**
+     * Assign the {@link KiWiConfiguration} to all member fields with {@link KiWiConfig}-Annotation.
+     * If this annotation is used, the class must only have the default constructor.
+     */
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     public static @interface KiWiConfig {     
     }
     
+    /**
+     * Only execute with {@link KiWiConfiguration}s for these {@link KiWiDialect}s.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public static @interface ForDialects {
+        Class<? extends KiWiDialect>[] dialect();
+    }
+    
     private final ArrayList<Runner> runners = new ArrayList<Runner>();
+    
+    private final List<Class<? extends KiWiDialect>> forDialects;
     
     public KiWiDatabaseRunner(Class<?> klass) throws Throwable {
         super(klass, Collections.<Runner>emptyList());
+        
+        ForDialects d = klass.getAnnotation(ForDialects.class);
+        if (d != null) {
+            ArrayList<Class<? extends KiWiDialect>> forDialects = new ArrayList<>();
+            for (Class<? extends KiWiDialect> dialect : d.dialect()) {
+                forDialects.add(dialect);
+            }
+            this.forDialects = Collections.unmodifiableList(forDialects);
+        } else {
+            forDialects = null;
+        }
         
         createRunners();
     }
@@ -107,11 +133,14 @@ public class KiWiDatabaseRunner extends Suite {
     }
 
     private void createKiWiConfig(String database, KiWiDialect dialect, List<KiWiConfiguration> configs) {
+        if (forDialects != null && !forDialects.contains(dialect.getClass())) {
+            return;
+        }
         KiWiConfiguration c = createKiWiConfig(database, dialect);
         if (c!=null) configs.add(c);
     }
     
-    private KiWiConfiguration createKiWiConfig(String database, KiWiDialect dialect) {
+    public static KiWiConfiguration createKiWiConfig(String database, KiWiDialect dialect) {
         final KiWiConfiguration config;
         if(System.getProperty(database.toLowerCase()+".url") != null) {
             config = new KiWiConfiguration(

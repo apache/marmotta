@@ -65,34 +65,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 /**
- * Test the Sesame repository functionality backed by the KiWi triple store. It will try running over all
- * available databases. Except for in-memory databases like H2 or Derby, database URLs must be passed as
- * system property, or otherwise the test is skipped for this database. Available system properties:
- * <ul>
- *     <li>PostgreSQL:
- *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
- *         <li>postgresql.user (default: lmf)</li>
- *         <li>postgresql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>MySQL:
- *     <ul>
- *         <li>mysql.url, e.g. jdbc:mysql://localhost:3306/kiwitest?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull</li>
- *         <li>mysql.user (default: lmf)</li>
- *         <li>mysql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>H2:
- *     <ul>
- *         <li>h2.url, e.g. jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10</li>
- *         <li>h2.user (default: lmf)</li>
- *         <li>h2.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- * </ul>
- * <p/>
- * Author: Sebastian Schaffert
+ * Test the Sesame repository functionality backed by the KiWi triple store. 
+ * 
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @RunWith(KiWiDatabaseRunner.class)
 public class RepositoryTest {
