@@ -56,7 +56,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
                 <executions>
                     <execution>
                         <id>add-source</id>
@@ -208,6 +207,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-store-testsuite</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
