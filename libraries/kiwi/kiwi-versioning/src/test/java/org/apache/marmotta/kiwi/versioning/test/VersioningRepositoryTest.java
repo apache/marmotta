@@ -17,13 +17,19 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assume.assumeThat;
 import info.aduna.iteration.Iterations;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
+
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
@@ -35,7 +41,6 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -46,81 +51,14 @@ import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assume.assumeThat;
-
 /**
  * This test checks if the versioning functionality itself works, i.e. the system properly creates versions on
- * transaction commits. It will try running over all available databases. Except for in-memory databases like
- * H2 or Derby, database URLs must be passed as system property, or otherwise the test is skipped for this database.
- * Available system properties:
- * <ul>
- *     <li>PostgreSQL:
- *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
- *         <li>postgresql.user (default: lmf)</li>
- *         <li>postgresql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>MySQL:
- *     <ul>
- *         <li>mysql.url, e.g. jdbc:mysql://localhost:3306/kiwitest?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull</li>
- *         <li>mysql.user (default: lmf)</li>
- *         <li>mysql.pass (default: lmf</li>
- *     </ul>
- *     </li>
- *     <li>H2:
- *     <ul>
- *         <li>h2.url, e.g. jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10</li>
- *         <li>h2.user (default: lmf)</li>
- *         <li>h2.pass (default: lmf</li>
- *     </ul>
- *     </li>
- * </ul>
- *
- * <p/>
- * Author: Sebastian Schaffert
+ * transaction commits. 
+ * 
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class VersioningRepositoryTest {
-
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name, url, user, password)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0} at {1}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-            if(System.getProperty(database.toLowerCase()+".url") != null) {
-                result.add(new Object[] {
-                        database,
-                        System.getProperty(database.toLowerCase()+".url"),
-                        System.getProperty(database.toLowerCase()+".user","lmf"),
-                        System.getProperty(database.toLowerCase()+".pass","lmf")
-                });
-            }
-        }
-        return result;
-    }
-
-
-    private KiWiDialect dialect;
-
-    private String jdbcUrl;
-
-    private String jdbcUser;
-
-    private String jdbcPass;
 
     private KiWiStore store;
 
@@ -130,26 +68,16 @@ public class VersioningRepositoryTest {
 
     private Repository repository;
 
-    public VersioningRepositoryTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
-        this.jdbcPass = jdbcPass;
-        this.jdbcUrl = jdbcUrl;
-        this.jdbcUser = jdbcUser;
+    private final KiWiConfiguration dbConfig;
 
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
-        
-        DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
+    public VersioningRepositoryTest(KiWiConfiguration dbConfig) {
+        this.dbConfig = dbConfig;
     }
 
 
     @Before
     public void initDatabase() throws RepositoryException {
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
+        store = new KiWiStore(dbConfig);
         tsail = new KiWiTransactionalSail(store);
         vsail = new KiWiVersioningSail(tsail);
         repository = new SailRepository(vsail);
@@ -165,18 +93,6 @@ public class VersioningRepositoryTest {
 
     final Logger logger =
             LoggerFactory.getLogger(this.getClass());
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
-
 
     /**
      * This test imports three small RDF files in sequence and checks afterwards that the number of versions
@@ -343,7 +259,7 @@ public class VersioningRepositoryTest {
      * MYSQL rounds timestamps to the second, so it is sometimes necessary to sleep before doing a test
      */
     private  void mysqlSleep() {
-        if(this.dialect instanceof MySQLDialect) {
+        if(this.dbConfig.getDialect() instanceof MySQLDialect) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
