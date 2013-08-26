@@ -17,14 +17,15 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.persistence;
 
-import com.google.common.collect.ImmutableSet;
 import info.aduna.iteration.CloseableIteration;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
 import org.apache.marmotta.kiwi.reasoner.model.program.Pattern;
 import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
@@ -33,7 +34,7 @@ import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +43,6 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -52,46 +52,17 @@ import org.openrdf.repository.sail.SailRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * This test verifies the persistence functionality of the reasoning component regarding storing, loading and deleting
  * reasoning programs.
  *
- * It will try running over all available databases. Except for in-memory databases like H2 or Derby, database
- * URLs must be passed as system property, or otherwise the test is skipped for this database. Available system properties:
- * <ul>
- *     <li>PostgreSQL:
- *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
- *         <li>postgresql.user (default: lmf)</li>
- *         <li>postgresql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>MySQL:
- *     <ul>
- *         <li>mysql.url, e.g. jdbc:mysql://localhost:3306/kiwitest?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull</li>
- *         <li>mysql.user (default: lmf)</li>
- *         <li>mysql.pass (default: lmf</li>
- *     </ul>
- *     </li>
- *     <li>H2:
- *     <ul>
- *         <li>h2.url, e.g. jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10</li>
- *         <li>h2.user (default: lmf)</li>
- *         <li>h2.pass (default: lmf</li>
- *     </ul>
- *     </li>
- * </ul>
- *
  * @see org.apache.marmotta.kiwi.persistence.KiWiConnection
  * @see org.apache.marmotta.kiwi.persistence.KiWiPersistence
- * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert (sebastian.schaffert@apache.org)
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class PatternQueryTest {
 
     // string constants for RDF values
@@ -106,67 +77,21 @@ public class PatternQueryTest {
     private static final String OBJECT4  = "Literal Value 2";
     private static final String OBJECT5  = "Literal Value 3";
 
-
-
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name, url, user, password)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0} at {1}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-            if(System.getProperty(database.toLowerCase()+".url") != null) {
-                result.add(new Object[] {
-                        database,
-                        System.getProperty(database.toLowerCase()+".url"),
-                        System.getProperty(database.toLowerCase()+".user","lmf"),
-                        System.getProperty(database.toLowerCase()+".pass","lmf")
-                });
-            }
-        }
-        return result;
-    }
-
-
-    private KiWiDialect dialect;
-
-    private String jdbcUrl;
-
-    private String jdbcUser;
-
-    private String jdbcPass;
-
     private KiWiPersistence persistence;
     private KiWiReasoningPersistence rpersistence;
 
     private Repository repository;
+    private final KiWiConfiguration config;
 
 
-    public PatternQueryTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
-        this.jdbcPass = jdbcPass;
-        this.jdbcUrl = jdbcUrl;
-        this.jdbcUser = jdbcUser;
-
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
-
-        DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
+    public PatternQueryTest(KiWiConfiguration config) {
+        this.config = config;
     }
 
 
     @Before
     public void initDatabase() throws Exception {
-
-        KiWiStore store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
+        KiWiStore store = new KiWiStore(config);
 
         repository = new SailRepository(store);
         repository.initialize();
@@ -205,16 +130,6 @@ public class PatternQueryTest {
     final Logger logger =
             LoggerFactory.getLogger(PatternQueryTest.class);
 
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
     // test the method for querying patterns by:
     // - evaluating a single pattern without variables (no bindings but justifications non-empty)
