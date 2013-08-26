@@ -58,7 +58,7 @@ import com.google.common.collect.Iterables;
 /**
  * Test the Sesame repository functionality backed by the KiWi triple store. 
  * 
- * @author Sebastian Schaffert (sebastian.schaffert@apache.org)
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @RunWith(KiWiDatabaseRunner.class)
 public class TransactionTest {

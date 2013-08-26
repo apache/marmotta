@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see org.apache.marmotta.kiwi.persistence.KiWiConnection
  * @see org.apache.marmotta.kiwi.persistence.KiWiPersistence
- * @author Sebastian Schaffert (sebastian.schaffert@apache.org)
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @RunWith(KiWiDatabaseRunner.class)
 public class JustificationPersistenceTest {
