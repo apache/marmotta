@@ -253,6 +253,7 @@ public class MarmottaStartupService {
             configurationService.setInitialising(false);
 
             startupEvent.fire(new SystemStartupEvent());
+            
         } finally {
             lock.unlock();
         }
@@ -270,4 +271,5 @@ public class MarmottaStartupService {
     public boolean isHostStarted() {
         return hostStarted;
     }
+    
 }

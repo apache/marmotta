@@ -62,7 +62,6 @@ public class RDFImporterImpl implements Importer {
     @Inject
     private Logger log;
 
-
     @Inject
     private ConfigurationService configurationService;
 
@@ -75,9 +74,6 @@ public class RDFImporterImpl implements Importer {
     private static long taskCounter = 0;
 
     private List<String> acceptTypes;
-
-
-
 
     /**
      * Get a collection of all mime types accepted by this io. Used for automatically

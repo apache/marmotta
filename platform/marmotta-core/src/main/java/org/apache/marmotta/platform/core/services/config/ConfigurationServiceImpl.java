@@ -79,7 +79,7 @@ import com.google.common.io.Resources;
 @ApplicationScoped
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-    private String home;
+	private String home;
 
     private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
 
@@ -181,16 +181,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     f1.mkdirs();
                 }
                 // ensure directory for user configuration files
-                File f2 = new File(getHome() + File.separator + "config");
+                File f2 = new File(getHome() + File.separator + DIR_CONFIG);
                 if(!f2.exists()) {
                     f2.mkdirs();
                 }
 
                 // ensure directory for logging messages
-                File f3 = new File(getHome() + File.separator + "log");
+                File f3 = new File(getHome() + File.separator + DIR_LOG);
                 if(!f3.exists()) {
                     f3.mkdirs();
                 }
+                
+                // ensure directory for importing data
+                File f4 = new File(getHome() + File.separator + DIR_IMPORT);
+                if(!f4.exists()) {
+                    f4.mkdirs();
+                }
+                
             }
 
             // the save configuration will be in the  home directory
@@ -308,6 +315,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.info("Apache Marmotta Configuration Service: initialisation completed");
 
             configurationInitEvent.fire(new ConfigurationServiceInitEvent());
+            
         } finally {
             lock.writeLock().unlock();
         }
