@@ -104,16 +104,18 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 							if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) { // TODO: is it necessary?
 								@SuppressWarnings("unchecked")
 								Path item = dir.resolve(((WatchEvent<Path>) event).context());
-								log.debug("Importing '{}'...", item.toString());
-								task.updateMessage("importing...");
-								task.updateDetailMessage("path", item.toString());
-								if (execImport(item)) {
-									log.info("Sucessfully imported file '{}'!", item.toString());
-									Files.delete(item);
+								if (!Files.isDirectory(item)) {
+									log.debug("Importing '{}'...", item.toString());
+									task.updateMessage("importing...");
+									task.updateDetailMessage("path", item.toString());
+									if (execImport(item)) {
+										log.info("Sucessfully imported file '{}'!", item.toString());
+										Files.delete(item);
+									}
+									task.updateProgress(++count);
+									task.updateMessage("watching...");
+									task.updateDetailMessage("path", import_watch_path);
 								}
-								task.updateProgress(++count);
-								task.updateMessage("watching...");
-								task.updateDetailMessage("path", import_watch_path);
 							}
 						}
 						if (!key.reset()) {
