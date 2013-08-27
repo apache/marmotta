@@ -410,6 +410,13 @@
                             <exclude>**/src/main/java/solr2155/**</exclude>
                             <exclude>**/src/main/java/net/miginfocom/**</exclude>
                             <exclude>**/src/main/java/org/oxbow/**</exclude>
+                            
+                            <!-- codemirror -->
+                            <exclude>**/codemirror.js</exclude>
+                            <exclude>**/codemirror.css</exclude>
+                            <exclude>**/simple-hint.js</exclude>
+                            <exclude>**/simple-hint.css</exclude>
+                            <exclude>**/sparql.js</exclude>
                         </excludes>
                     </configuration>
                 </plugin>

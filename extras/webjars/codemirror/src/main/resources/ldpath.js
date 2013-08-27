@@ -18,6 +18,7 @@
 if (CodeMirror && CodeMirror.defineMode) {
 CodeMirror.defineMode("ldpath", function(config, parserConfig) {
     var token = {
+        COMMENT: "comment",
         OP: "operator",
         KWD: "keyword",
         PREFIX: "qualifier",
@@ -92,6 +93,12 @@ CodeMirror.defineMode("ldpath", function(config, parserConfig) {
     }
     
     function tokenDefault(stream, state) {
+        // /* ... */
+        if (stream.match('/*')) {
+            state.push('comment');
+            return token.COMMENT;
+        }
+    
         // @...
         var kw = stream.match(/^@(\w+)/, true);
         if (kw) {
@@ -134,7 +141,7 @@ CodeMirror.defineMode("ldpath", function(config, parserConfig) {
                 px = stream.current();
                 stream.eat(':');
                 if (state.getNamespace(px))
-                return token.PREFIX;
+                    return token.PREFIX;
                 else return token.WARNING;
             }
         }
@@ -207,6 +214,9 @@ CodeMirror.defineMode("ldpath", function(config, parserConfig) {
         if (stream.match(/@\w+/, true) || stream.match("^^", true)) {
             return token.TEST;
         }
+        if (stream.match("is-a", true)) {
+            return token.TEST;
+        }
         if (stream.match("is ", false)) {
             stream.match("is", true);
             return token.TEST;
@@ -232,8 +242,21 @@ CodeMirror.defineMode("ldpath", function(config, parserConfig) {
             return state1.stack == state2.stack && state1.namespaces == state2.namespaces;
         },
         token: function(stream, state) {
+            // parse comments
+            if (state.current() == "comment") {
+                stream.skipTo('*') || stream.skipToEnd();
+                if (stream.match('*/')) {
+                    state.pop();
+                } else stream.eat('*');
+                return token.COMMENT;
+            } else if (stream.match('/*')) {
+                state.tmp.commentStart = stream.column();
+                state.push("comment");
+                return this.token(stream, state);
+            }
             // ignore spaces
             if (stream.eatSpace()) return null;
+            // ; starts parsing from scratch
             if (stream.eat(';')) {
                 if (state.current() == "prefix") {
                     state.addPrefix(state.tmp['prefix'], state.tmp['ns']); 
@@ -246,9 +269,12 @@ CodeMirror.defineMode("ldpath", function(config, parserConfig) {
             log(stream, state, result);
             return result;
         },
-        electricChars: "@=[];",
+        electricChars: "/@=[];",
         indent: function(state, textAfter) {
             switch (state.current()) {
+            case 'comment':
+                return state.tmp.commentStart +(textAfter.search(/^\s*\*\//)==0?1:3);
+                break;
             case 'test':
             case 'filter':
                 return 2 * config.indentUnit;
