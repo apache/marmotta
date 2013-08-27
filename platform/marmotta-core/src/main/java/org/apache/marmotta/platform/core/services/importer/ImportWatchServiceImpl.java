@@ -118,7 +118,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 							if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
 								if (file.isDirectory()) {
 									//recursive registration of sub-directories
-									register(Paths.get(path, item.toString()), watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+									register(Paths.get(dir.toString(), item.toString()), watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
 									task.updateProgress(++count);
 								} else {
 									log.debug("Importing '{}'...", file.getAbsolutePath());
