@@ -1,0 +1,250 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!doctype html>
+<html>
+<head>
+<title>CodeMirror: SKWRL Demo</title>
+<link rel="stylesheet" href="codemirror.css">
+<link rel="stylesheet" href="simple-hint.css">
+
+<script type="text/javascript" src="../../../webjars/jquery/1.8.2/jquery.min.js"></script>
+
+<script src="codemirror.js"></script>
+<script src="simple-hint.js"></script>
+<script src="skwrl.js"></script>
+
+<link rel="stylesheet" href="skwrl.css">
+
+<style type="text/css">
+.CodeMirror {
+    border: 1px solid #eee;
+}
+
+td {
+    padding-right: 20px;
+}
+body {
+  font-family: Droid Sans, Arial, sans-serif;
+  line-height: 1.5;
+  max-width: 64.3em;
+  margin: 3em auto;
+  padding: 0 1em;
+}
+
+h1 {
+  letter-spacing: -3px;
+  font-size: 3.23em;
+  font-weight: bold;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.23em;
+  font-weight: bold;
+  margin: .5em 0;
+  letter-spacing: -1px;
+}
+
+h3 {
+  font-size: 1em;
+  font-weight: bold;
+  margin: .4em 0;
+}
+
+pre {
+  background-color: #eee;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  padding: 1em;
+}
+
+pre.code {
+  margin: 0 1em;
+}
+
+.grey {
+  font-size: 2.2em;
+  padding: .5em 1em;
+  line-height: 1.2em;
+  margin-top: .5em;
+  position: relative;
+}
+
+img.logo {
+  position: absolute;
+  right: -25px;
+  bottom: 4px;
+}
+
+a:link, a:visited, .quasilink {
+  color: #df0019;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+a:hover, .quasilink:hover {
+  color: #800004;
+}
+
+h1 a:link, h1 a:visited, h1 a:hover {
+  color: black;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+a.download {
+  color: white;
+  background-color: #df0019;
+  width: 100%;
+  display: block;
+  text-align: center;
+  font-size: 1.23em;
+  font-weight: bold;
+  text-decoration: none;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  padding: .5em 0;
+  margin-bottom: 1em;
+}
+
+a.download:hover {
+  background-color: #bb0010;
+}
+
+.rel {
+  margin-bottom: 0;
+}
+
+.rel-note {
+  color: #777;
+  font-size: .9em;
+  margin-top: .1em;
+}
+
+.logo-braces {
+  color: #df0019;
+  position: relative;
+  top: -4px;
+}
+
+.blk {
+  float: left;
+}
+
+.left {
+  width: 37em;
+  padding-right: 6.53em;
+  padding-bottom: 1em;
+}
+
+.left1 {
+  width: 15.24em;
+  padding-right: 6.45em;
+}
+
+.left2 {
+  width: 15.24em;
+}
+
+.right {
+  width: 20.68em;
+}
+
+.leftbig {
+  width: 42.44em;
+  padding-right: 6.53em;
+}
+
+.rightsmall {
+  width: 15.24em;
+}
+
+.clear:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+.clear { display: inline-block; }
+/* start commented backslash hack \*/
+* html .clear { height: 1%; }
+.clear { display: block; }
+/* close commented backslash hack */
+</style>
+</head>
+<body>
+  <h1>CodeMirror: LDPath demo</h1>
+  <div>
+    <button onclick="javascript:createEditor()">Editor</button>
+    <button onclick="javascript:removeEditor()">Plain</button>
+  </div>
+  <form>
+<textarea id="code" name="code">
+/* rules taken from http://www.w3.org/TR/2004/REC-rdf-mt-20040210/#RDFRules */
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt;
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt;
+@prefix foaf: &lt;http://xmlns.com/foaf/0.1/&gt;
+
+rdf1: ($u $a $y) -&gt; ($a rdf:type rdf:Property)
+rdfs2: ($a rdfs:domain $x), ($u $a $y) -&gt; ($u rdf:type $x)
+rdfs3: ($a rdfs:range $x),  ($u $a $v) -&gt; ($v rdf:type $x)
+rdfs4a: ($u $a $x) -&gt; ($u rdf:type rdfs:Resource)
+rdfs5: ($u rdfs:subPropertyOf $v), ($v rdfs:subPropertyOf $x) -&gt; ($u rdfs:subPropertyOf $x)
+rdfs6: ($u rdf:type rdf:Property) -&gt; ($u rdfs:subPropertyOf $u)
+rdfs7: ($a rdfs:subPropertyOf $b), ($u $a $y) -&gt; ($u $b $y)
+rdfs8: ($u rdf:type rdfs:Class) -&gt; ($u rdfs:subClassOf rdfs:Resource)
+rdfs9: ($u rdfs:subClassOf $x), ($v rdf:type $u) -&gt; ($v rdf:type $x)
+rdfs10: ($u rdf:type rdfs:Class) -&gt; ($u rdfs:subClassOf $u)
+rdfs11: ($u rdfs:subClassOf $v), ($v rdfs:subClassOf $x) -&gt; ($u rdfs:subClassOf $x)
+rdfs12: ($u rdf:type rdfs:ContainerMembershipProperty) -&gt; ($u rdfs:subPropertyOf rdfs:member)
+rdfs13: ($u rdf:type rdfs:Datatype) -&gt; ($u rdfs:subClassOf rdfs:Literal)
+
+</textarea>
+  </form>
+  <script>
+            var editor = null;
+            function createEditor() {
+                if (editor === null) {
+                    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                        lineNumbers : true,
+                        matchBrackets : true,
+                        extraKeys: {"Ctrl-Space": "skwrlAutocomplete"},
+                        mode : "skwrl"
+                    });
+                }
+            }
+            function removeEditor() {
+                if (editor) {
+                    editor.toTextArea();
+                    editor = null;
+                }
+            }
+            createEditor();
+        </script>
+</body>
+</html>
