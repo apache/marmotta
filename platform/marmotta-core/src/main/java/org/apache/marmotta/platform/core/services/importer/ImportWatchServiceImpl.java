@@ -26,6 +26,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.Date;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -34,6 +35,8 @@ import javax.inject.Inject;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.importer.ImportWatchService;
+import org.apache.marmotta.platform.core.api.task.Task;
+import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
@@ -50,8 +53,13 @@ import org.slf4j.Logger;
 @ApplicationScoped
 public class ImportWatchServiceImpl implements ImportWatchService {
 	
+	private static final String TASK_GROUP = "ImportWatch";
+	
 	@Inject
     private Logger log;
+	
+	@Inject
+	private TaskManagerService taskManagerService;
 	
 	@Inject
     private ConfigurationService configurationService;
@@ -73,33 +81,55 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 	
 	@Override
     public void initialize(@Observes SystemStartupEvent event) {
-		this.path = configurationService.getHome() + File.separator + ConfigurationService.DIR_IMPORT;
-        try {
-        	Path path = Paths.get(this.path);
-        	WatchService watchService = path.getFileSystem().newWatchService();
-			path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-			while (true) {
-				final WatchKey key = watchService.take();
-				for (WatchEvent<?> watchEvent : key.pollEvents()) {
-					if (StandardWatchEventKinds.ENTRY_CREATE.equals(watchEvent.kind())) { //TODO: is it necessary?
-						@SuppressWarnings("unchecked") final Path item = ((WatchEvent<Path>) watchEvent).context();
-						if (execImport(item)) {
-							log.info("Sucessfully imported file '{}'!", item.toString());
-							Files.delete(item);
-						}
-					}
-				}
-				if (!key.reset()) {
-					// exit loop if the key is not valid
-					// e.g. if the directory was deleted
-					break;
-				}
-			}
-		} catch (IOException e) {
-			log.error("Error registering the import watch service over '{}': {}", this.path, e.getMessage());
-		} catch (InterruptedException e) {
-			log.error("Import watch service has been interrupted");
-		}
+		final String import_watch_path =  configurationService.getHome() + File.separator + ConfigurationService.DIR_IMPORT;
+		this.path = import_watch_path;
+        	
+        Runnable r = new Runnable() {
+
+            @Override
+            public void run() {
+                final Task task = taskManagerService.createTask("Directory import watch", TASK_GROUP);
+                task.updateMessage("watching...");
+                task.updateDetailMessage("path", import_watch_path);
+                
+                try {
+	                Path path = Paths.get(import_watch_path);
+	            	WatchService watchService = path.getFileSystem().newWatchService();
+	    			path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+	    			while (true) {
+	    				final WatchKey key = watchService.take();
+	    				for (WatchEvent<?> watchEvent : key.pollEvents()) {
+	    					if (StandardWatchEventKinds.ENTRY_CREATE.equals(watchEvent.kind())) { //TODO: is it necessary?
+	    						@SuppressWarnings("unchecked") final Path item = ((WatchEvent<Path>) watchEvent).context();
+	    	                    task.updateMessage("importing...");
+	    	                    task.updateDetailMessage("path", item.toString());
+	    						if (execImport(item)) {
+	    							log.info("Sucessfully imported file '{}'!", item.toString());
+	    							Files.delete(item);
+	    						}
+	    	                    task.updateMessage("watching...");
+	    	                    task.updateDetailMessage("path", import_watch_path);
+	    					}
+	    				}
+	    				if (!key.reset()) {
+	    					// exit loop if the key is not valid
+	    					// e.g. if the directory was deleted
+	    					break;
+	    				}
+	    			}
+        		} catch (IOException e) {
+        			log.error("Error registering the import watch service over '{}': {}", import_watch_path, e.getMessage());
+        		} catch (InterruptedException e) {
+        			log.error("Import watch service has been interrupted");
+        		}
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.setName(TASK_GROUP+"(start:" + new Date() + ",path:" + this.path + ")");
+        t.setDaemon(true);
+        t.start();
+        
     }
 	
 	@Override
