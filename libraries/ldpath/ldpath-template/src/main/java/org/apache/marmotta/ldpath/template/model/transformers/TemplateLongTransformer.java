@@ -33,10 +33,10 @@ import java.util.Map;
  */
 public class TemplateLongTransformer<Node> implements NodeTransformer<TemplateNumberModel,Node> {
 
-    private LongTransformer delegate;
+    private LongTransformer<Node> delegate;
 
     public TemplateLongTransformer() {
-        delegate = new LongTransformer();
+        delegate = new LongTransformer<>();
     }
 
     /**

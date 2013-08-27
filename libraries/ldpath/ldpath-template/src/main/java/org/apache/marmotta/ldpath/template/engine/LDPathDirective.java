@@ -116,8 +116,9 @@ public class LDPathDirective<Node> implements TemplateDirectiveModel {
      *
      * @throws java.io.IOException
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
+    public void execute(Environment env, @SuppressWarnings("rawtypes") Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
         TemplateStackModel contextStack = (TemplateStackModel)env.getVariable("context");
         if(contextStack == null || contextStack.empty()) {
             throw new TemplateModelException("error; no context node available");
@@ -147,7 +148,7 @@ public class LDPathDirective<Node> implements TemplateDirectiveModel {
                 path = path + ":: xsd:string";
             }
             try {
-                Collection results = ldpath.pathTransform(context.getNode(),path,namespaces);
+                Collection<?> results = ldpath.pathTransform(context.getNode(),path,namespaces);
 
                 if(results.size() > 0) {
                     Object result = results.iterator().next();
