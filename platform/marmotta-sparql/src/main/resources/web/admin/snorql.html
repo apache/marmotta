@@ -28,6 +28,15 @@
     <style type="text/css">
         .CodeMirror {
             background-color: #fff;
+            border: 1px solid #eee;
+            height: auto;
+        }
+        .CodeMirror-scroll {
+            overflow-y: hidden;
+            overflow-x: auto;
+        }
+        #content .CodeMirror pre {
+            border-style: none !important;
         }
     </style>
     <!--###END_HEAD###-->
@@ -104,6 +113,7 @@
     <script type="text/javascript" src="../../webjars/snorql/1.0/snorql.js"></script>
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript" src="../../webjars/codemirror/3.16/codemirror.js"></script>
+    <script type="text/javascript" src="../../webjars/codemirror/3.16/matchbrackets.js"></script>
     <script type="text/javascript">
         jQuery.noConflict();
     </script>
