@@ -34,7 +34,7 @@ CodeMirror.defineMode("skwrl", function(config, parserConfig) {
         baseURL = parserConfig.baseURL || null;
     
     function log(stream, status, result) {
-        //return;
+        return;
         if (console && console.log) {
             console.log(stream.current() + " := " + result + " (-> " + status.current() + ")");
         }
