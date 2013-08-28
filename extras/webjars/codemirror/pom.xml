@@ -36,6 +36,7 @@
                             <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/codemirror.js</output>
                             <includes>
                                 <include>codemirror.js</include>
+                                <include>matchbrackets.js</include>
                                 <include>sparql.js</include>
                                 <include>ldpath.js</include>
                             </includes>
