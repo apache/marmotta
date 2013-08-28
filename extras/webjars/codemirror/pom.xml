@@ -12,7 +12,7 @@
     </parent>
 
     <properties>
-        <webjar.version>2.24</webjar.version>
+        <webjar.version>3.16</webjar.version>
     </properties>
 
     <groupId>org.apache.marmotta.webjars</groupId>
