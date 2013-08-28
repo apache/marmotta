@@ -39,8 +39,8 @@ import java.util.*;
  * Utility methods for simplifying certain common tasks. All methods are static and take as first argument a
  * RepositoryConnection that needs to be managed by the caller (i.e. requested from the repository and closed after use).
  *
- * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert (sschaffert@apache.org)
+ * @author Jakob Frank <jakob@apache.org>
  */
 public class ResourceUtils {
 
@@ -1061,8 +1061,8 @@ public class ResourceUtils {
      */
     public static String getLabel(RepositoryConnection con, Resource r, Locale loc, URI context) throws RepositoryException {
         String label = null;
-        // check kiwi:title, rdfs:label, dc:title in this order ...
-        String[] properties = { Namespaces.NS_RDFS+"label", Namespaces.NS_DC+"title", Namespaces.NS_DC_TERMS+"title", Namespaces.NS_SKOS+"prefLabel" };
+        // check rdfs:label, dct:title, dc:title, skos:prefLabel in this order ...
+        String[] properties = { Namespaces.NS_RDFS+"label", Namespaces.NS_DC_TERMS+"title", Namespaces.NS_DC+"title", Namespaces.NS_SKOS+"prefLabel" };
 
         for(String property : properties) {
             label = getProperty(con, r,property,loc,context);
