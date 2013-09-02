@@ -20,6 +20,8 @@ package org.apache.marmotta.platform.core.services.importer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -194,7 +196,17 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 		if (StringUtils.isBlank(subdir)) {
 			return contextService.getDefaultContext();
 		} else {
-			return contextService.createContext(configurationService.getBaseContext() + subdir.substring(1));
+			subdir = subdir.substring(1); //remove initial slash
+			if (StringUtils.startsWith(subdir, "http%3A%2F%2F")) {
+				try {
+					return contextService.createContext(URLDecoder.decode(subdir, "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					log.error("Error url-decoding context name '{}', so using the default one: {}", subdir, e.getMessage());
+					return contextService.getDefaultContext();
+				}
+			} else {
+				return contextService.createContext(configurationService.getBaseContext() + subdir);
+			}
 		}
 	}
 	
