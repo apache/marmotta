@@ -173,6 +173,7 @@ public class KiWiStore extends NotifyingSailBase {
     protected void shutDownInternal() throws SailException {
         closeValueFactory();
         persistence.shutdown();
+        initialized = false;
     }
 
     /**

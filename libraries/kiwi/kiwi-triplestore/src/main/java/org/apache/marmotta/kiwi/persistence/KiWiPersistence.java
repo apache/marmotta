@@ -246,8 +246,12 @@ public class KiWiPersistence {
     }
 
     public void logPoolInfo() throws SQLException {
-        log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
-        log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
+        if(connectionPool != null) {
+            log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
+            log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
+        } else {
+            log.debug("connection pool not initialized");
+        }
 
     }
 
@@ -390,16 +394,23 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
-        if(connectionPool != null) {
-            KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
-            if(getDialect().isBatchSupported()) {
-                con.setBatchCommit(configuration.isBatchCommit());
-                con.setBatchSize(configuration.getBatchSize());
-            }
-            return con;
-        } else {
-            throw new SQLException("connection pool is closed, database connections not available");
+        if(connectionPool == null) {
+            // init JDBC connection pool
+            initConnectionPool();
+
+            // init EHCache caches
+            initCachePool();
+
+            // init garbage collector thread
+            initGarbageCollector();
         }
+
+        KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
+        if(getDialect().isBatchSupported()) {
+            con.setBatchCommit(configuration.isBatchCommit());
+            con.setBatchSize(configuration.getBatchSize());
+        }
+        return con;
     }
 
     /**

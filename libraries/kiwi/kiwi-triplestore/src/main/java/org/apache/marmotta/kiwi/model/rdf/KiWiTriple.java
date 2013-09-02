@@ -262,7 +262,7 @@ public class KiWiTriple  implements Statement, Serializable {
 //        if (!(o instanceof KiWiTriple)) return false;
 
 
-        KiWiTriple triple = (KiWiTriple) o;
+        Statement triple = (Statement) o;
 
         if (!getContext().equals(triple.getContext())) return false;
         if (!getObject().equals(triple.getObject())) return false;
