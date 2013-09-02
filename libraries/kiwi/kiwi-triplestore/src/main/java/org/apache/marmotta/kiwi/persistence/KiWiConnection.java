@@ -1942,20 +1942,35 @@ public class KiWiConnection {
     public void commit() throws SQLException {
         numberOfCommits++;
 
-        if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
-            commitMemorySequences();
-        }
+        try {
+            if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
+                commitMemorySequences();
+            }
 
 
-        if(tripleBatch != null && tripleBatch.size() > 0) {
-            flushBatch();
-        }
+            if(tripleBatch != null && tripleBatch.size() > 0) {
+                flushBatch();
+            }
 
 
-        deletedStatementsLog.clear();
+            deletedStatementsLog.clear();
 
-        if(connection != null) {
-            connection.commit();
+            if(connection != null) {
+                connection.commit();
+            }
+        } catch(SQLException ex) {
+            if(retry < 10) {
+                log.warn("COMMIT: temporary concurrency conflict, retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {}
+                retry++;
+                flushBatch();
+                retry--;
+            } else {
+                log.error("COMMIT: concurrency conflict could not be solved!");
+                throw ex;
+            }
         }
     }
 
@@ -2132,7 +2147,7 @@ public class KiWiConnection {
             } catch (SQLException ex) {
                 if(retry < 10) {
                     connection.rollback(savepoint);
-                    log.warn("temporary concurrency conflict, retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
+                    log.warn("BATCH: temporary concurrency conflict, retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {}
@@ -2140,7 +2155,7 @@ public class KiWiConnection {
                     flushBatch();
                     retry--;
                 } else {
-                    log.error("concurrency conflict could not be solved!");
+                    log.error("BATCH: concurrency conflict could not be solved!");
 
                     System.err.println("main exception:");
                     ex.printStackTrace();
