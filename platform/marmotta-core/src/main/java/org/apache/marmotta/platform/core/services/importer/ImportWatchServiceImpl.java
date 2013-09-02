@@ -50,6 +50,7 @@ import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.URI;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 
@@ -195,9 +196,9 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 		String fileName = file.getName();
 		
 		//mimetype detection
-		String mimetype = Rio.getParserFormatForFileName(fileName).getDefaultMIMEType();
-		if (mimetype != null && importService.getAcceptTypes().contains(mimetype)) {
-			format = mimetype;
+		RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName);
+		if (rdfFormat != null && importService.getAcceptTypes().contains(rdfFormat.getDefaultMIMEType())) {
+			format = rdfFormat.getDefaultMIMEType();
 		} else {
 			throw new MarmottaImportException("Suitable RDF parser not found");
 		}
