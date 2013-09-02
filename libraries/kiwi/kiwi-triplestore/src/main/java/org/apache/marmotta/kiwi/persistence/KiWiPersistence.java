@@ -394,23 +394,16 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
-        if(connectionPool == null) {
-            // init JDBC connection pool
-            initConnectionPool();
-
-            // init EHCache caches
-            initCachePool();
-
-            // init garbage collector thread
-            initGarbageCollector();
+        if(connectionPool != null) {
+            KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
+            if(getDialect().isBatchSupported()) {
+                con.setBatchCommit(configuration.isBatchCommit());
+                con.setBatchSize(configuration.getBatchSize());
+            }
+            return con;
+        } else {
+            throw new SQLException("connection pool is closed, database connections not available");
         }
-
-        KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
-        if(getDialect().isBatchSupported()) {
-            con.setBatchCommit(configuration.isBatchCommit());
-            con.setBatchSize(configuration.getBatchSize());
-        }
-        return con;
     }
 
     /**
