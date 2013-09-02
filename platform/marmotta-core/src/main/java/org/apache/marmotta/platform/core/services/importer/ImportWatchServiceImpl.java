@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.importer;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -51,6 +52,9 @@ import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.URI;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
+
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 /**
  * Implementation for watching import directory
@@ -172,9 +176,10 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 	@Override
 	public boolean execImport(File file, URI context) {
 		try {
-			importService.importData(new FileInputStream(file),
-					Rio.getParserFormatForFileName(file.getName()).getDefaultMIMEType(), 
-					userService.getAdminUser(), context);
+			String format = detectFormat(file);
+			FileInputStream is = new FileInputStream(file);
+			URI user = userService.getAdminUser();
+			importService.importData(is, format, user, context);
 			return true;
 		} catch (MarmottaImportException e) {
 			log.error("Error importing file {} from the local directory: {}", file.getAbsolutePath(), e.getMessage());
@@ -183,6 +188,34 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 			log.error("Error retrieving file {} from the local directory: {}", file.getAbsolutePath(), e.getMessage());
 			return false;
 		}
+	}
+
+	private String detectFormat(File file) throws MarmottaImportException {
+		String format = null;
+		String fileName = file.getName();
+		
+		//mimetype detection
+		String mimetype = Rio.getParserFormatForFileName(fileName).getDefaultMIMEType();
+		if (mimetype != null && importService.getAcceptTypes().contains(mimetype)) {
+			format = mimetype;
+		} else {
+			throw new MarmottaImportException("Suitable RDF parser not found");
+		}
+
+	    //encoding detection
+		try {
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+			CharsetDetector cd = new CharsetDetector();
+			cd.setText(bis);
+			CharsetMatch cm = cd.detect();
+			if (cm != null) {
+				format += "; charset=" + cm.getName();
+			}
+		} catch (IOException e) {
+			log.error("Error detecting charset for '{}': {}", fileName, e.getMessage());
+		}
+
+		return format;
 	}
 	
 	/**
