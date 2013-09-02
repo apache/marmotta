@@ -66,8 +66,12 @@ import com.ibm.icu.text.CharsetMatch;
 @ApplicationScoped
 public class ImportWatchServiceImpl implements ImportWatchService {
 
-	private static final String TASK_GROUP = "ImportWatch";
+	private static final String TASK_GROUP = "Import Watch";
 
+	private static final String TASK_DETAIL_PATH = "path";
+	
+	private static final String TASK_DETAIL_CONTEXT = "context";
+	
 	@Inject
 	private Logger log;
 
@@ -107,7 +111,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 			public void run() {
 				final Task task = taskManagerService.createTask("Directory import watch", TASK_GROUP);
 				task.updateMessage("watching...");
-				task.updateDetailMessage("path", path);
+				task.updateDetailMessage(TASK_DETAIL_PATH, path);
 
 				try {
 					Path root = Paths.get(path);
@@ -128,10 +132,11 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 									register(Paths.get(dir.toString(), item.toString()), watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
 									task.updateProgress(++count);
 								} else {
+									URI context = getTargetContext(file);
 									log.debug("Importing '{}'...", file.getAbsolutePath());
 									task.updateMessage("importing...");
-									task.updateDetailMessage("path", file.getAbsolutePath());
-									URI context = getTargetContext(file);
+									task.updateDetailMessage(TASK_DETAIL_PATH, file.getAbsolutePath());
+									task.updateDetailMessage(TASK_DETAIL_CONTEXT, context.stringValue());
 									if (execImport(file, context)) {
 										log.info("Sucessfully imported file '{}' into {}", file.getAbsolutePath(), context.stringValue());
 										try {
@@ -144,7 +149,8 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 									}
 									task.updateProgress(++count);
 									task.updateMessage("watching...");
-									task.updateDetailMessage("path", path);
+									task.updateDetailMessage(TASK_DETAIL_PATH, path);
+									task.removeDetailMessage(TASK_DETAIL_CONTEXT);
 								}
 							} else if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind()) && Files.isDirectory(item)) {
 								//TODO: unregister deleted directories?
