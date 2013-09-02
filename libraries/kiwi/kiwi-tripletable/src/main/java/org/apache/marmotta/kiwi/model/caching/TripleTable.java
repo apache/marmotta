@@ -83,7 +83,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @return the number of elements in this set (its cardinality)
      */
     @Override
-    public int size() {
+    public synchronized int size() {
         return data.size();
     }
 
@@ -93,7 +93,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @return <tt>true</tt> if this set contains no elements
      */
     @Override
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return data.isEmpty();
     }
 
@@ -111,7 +111,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      *         set does not permit null elements (optional)
      */
     @Override
-    public boolean contains(Object o) {
+    public synchronized boolean contains(Object o) {
         return data.contains(o);
     }
 
@@ -144,7 +144,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @return an array containing all the elements in this set
      */
     @Override
-    public Object[] toArray() {
+    public synchronized Object[] toArray() {
         return data.toArray();
     }
 
@@ -191,7 +191,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @throws NullPointerException if the specified array is null
      */
     @Override
-    public <T> T[] toArray(T[] a) {
+    public synchronized <T> T[] toArray(T[] a) {
         return data.toArray(a);
     }
 
@@ -226,7 +226,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      *         prevents it from being added to this set
      */
     @Override
-    public boolean add(Triple triple) {
+    public synchronized boolean add(Triple triple) {
         indexSPOC.put(IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext()),triple);
         indexCSPO.put(IntArray.createCSPOKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext()),triple);
         return data.add(triple);
@@ -252,7 +252,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      *         is not supported by this set
      */
     @Override
-    public boolean remove(Object o) {
+    public synchronized boolean remove(Object o) {
         if(o instanceof Statement) {
             Statement triple = (Statement)o;
             indexSPOC.remove(IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext()));
@@ -278,7 +278,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @see    #contains(Object)
      */
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public synchronized boolean containsAll(Collection<?> c) {
         return data.containsAll(c);
     }
 
@@ -305,7 +305,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @see #add(Object)
      */
     @Override
-    public boolean addAll(Collection<? extends Triple> c) {
+    public synchronized boolean addAll(Collection<? extends Triple> c) {
         boolean modified = false;
         for(Triple t : c) {
             modified = add(t) || modified;
@@ -333,7 +333,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @see #remove(Object)
      */
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public synchronized boolean retainAll(Collection<?> c) {
         Iterator<Map.Entry<IntArray,Triple>> it = indexSPOC.entrySet().iterator();
         while(it.hasNext()) {
             if(!c.contains(it.next().getValue())) {
@@ -369,7 +369,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @see #contains(Object)
      */
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public synchronized boolean removeAll(Collection<?> c) {
         boolean modified = false;
         for(Object o : c) {
             modified = remove(o) || modified;
@@ -385,7 +385,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      *         is not supported by this set
      */
     @Override
-    public void clear() {
+    public synchronized void clear() {
         data.clear();
         indexSPOC.clear();
         indexCSPO.clear();
@@ -400,7 +400,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @param context
      * @return
      */
-    public Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final Resource context) {
+    public synchronized Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final Resource context) {
         // in special cases we can make use of the index
         if(subject != null && property != null && object != null && context != null) {
             IntArray key = IntArray.createSPOCKey(subject, property, object, context);
@@ -450,9 +450,16 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
         }
     }
 
+    public synchronized Collection<Resource> listContextIDs() {
+        Set<Resource> result = new HashSet<>();
+        for(Statement stmt : data) {
+            result.add(stmt.getContext());
+        }
+        return result;
+    }
 
     @Override
-    public boolean equals(Object o) {
+    public synchronized boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -465,7 +472,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
     }
 
     @Override
-    public int hashCode() {
+    public synchronized int hashCode() {
         return data.hashCode();
     }
 }

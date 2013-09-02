@@ -24,6 +24,13 @@ import org.junit.runner.RunWith;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryTest;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.Sail;
+import org.openrdf.sail.SailException;
+import org.openrdf.sail.helpers.SailWrapper;
+
+import java.sql.SQLException;
+
+import static org.junit.Assert.fail;
 
 /**
  * Run the {@link RepositoryTest}s.
@@ -38,13 +45,24 @@ public class KiWiRepositoryTest extends RepositoryTest {
     public KiWiRepositoryTest(KiWiConfiguration config) {
         this.config = config;
     }
-    
+
     /* (non-Javadoc)
      * @see org.openrdf.repository.RepositoryTest#createRepository()
      */
     @Override
     protected Repository createRepository() throws Exception {
-        KiWiStore store = new KiWiStore(config);
+        Sail store = new SailWrapper(new KiWiStore(config)) {
+            @Override
+            public void shutDown() throws SailException {
+                try {
+                    ((KiWiStore)getBaseSail()).getPersistence().dropDatabase();
+                } catch (SQLException e) {
+                    fail("SQL exception while deleting database");
+                }
+
+                super.shutDown();
+            }
+        };
         return new SailRepository(store);
     }
 

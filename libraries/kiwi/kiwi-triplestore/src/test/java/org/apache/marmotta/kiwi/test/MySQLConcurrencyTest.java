@@ -28,7 +28,7 @@ public class MySQLConcurrencyTest extends ConcurrencyTestBase {
 
     @BeforeClass
     public static void setup() throws RepositoryException {
-        logger = LoggerFactory.getLogger(H2ConcurrencyTest.class);
+        logger = LoggerFactory.getLogger(MySQLConcurrencyTest.class);
 
         KiWiConfiguration mysqlConfig = KiWiDatabaseRunner.createKiWiConfig("MySQL", new MySQLDialect());
         DBConnectionChecker.checkDatabaseAvailability(mysqlConfig);

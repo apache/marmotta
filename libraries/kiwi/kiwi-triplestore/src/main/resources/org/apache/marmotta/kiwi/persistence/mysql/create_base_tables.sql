@@ -29,7 +29,7 @@ INSERT INTO seq_namespaces(id) VALUES (0);
 CREATE TABLE nodes (
   id        bigint     NOT NULL,
   ntype     char(8)    NOT NULL,
-  svalue    text       NOT NULL,
+  svalue    longtext   NOT NULL,
   dvalue    double precision,
   ivalue    bigint,
   tvalue    datetime   DEFAULT NULL,

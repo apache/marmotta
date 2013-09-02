@@ -20,12 +20,7 @@ package org.apache.marmotta.kiwi.sail;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.DelayedIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.Iterations;
-import info.aduna.iteration.UnionIteration;
+import info.aduna.iteration.*;
 import org.apache.marmotta.commons.sesame.repository.ResourceConnection;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
@@ -45,6 +40,7 @@ import org.openrdf.query.algebra.Var;
 import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.*;
+import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.Sail;
@@ -228,7 +224,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
             new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
 
-            return strategy.evaluate(tupleExpr, bindings);
+            return strategy.evaluate(tupleExpr, EmptyBindingSet.getInstance());
 
         } catch (QueryEvaluationException e) {
             throw new SailException(e);
@@ -239,10 +235,15 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     protected CloseableIteration<? extends Resource, SailException> getContextIDsInternal() throws SailException {
         try {
-            return new ExceptionConvertingIteration<Resource, SailException>(databaseConnection.listContexts()) {
+            return  new FilterIteration<Resource, SailException>(new ExceptionConvertingIteration<Resource, SailException>(databaseConnection.listContexts()) {
                 @Override
                 protected SailException convert(Exception e) {
                     return new SailException("database error while iterating over result set",e);
+                }
+            }) {
+                @Override
+                protected boolean accept(Resource object) throws SailException {
+                    return !object.stringValue().equals(defaultContext);
                 }
             };
         } catch (SQLException e) {
@@ -260,7 +261,12 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         contextSet.addAll(Lists.transform(Arrays.asList(contexts), new Function<Resource, KiWiResource>() {
             @Override
             public KiWiResource apply(Resource input) {
-                return valueFactory.convert(input);
+                if(input == null) {
+                    // null value for context means statements without context; in KiWi, this means "default context"
+                    return (KiWiUriResource)valueFactory.createURI(defaultContext);
+                } else {
+                    return valueFactory.convert(input);
+                }
             }
         }));
 
@@ -383,6 +389,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     triplesRemoved = true;
                     notifyStatementRemoved(triple);
                 }
+                valueFactory.removeStatement(triple);
             }
             triples.close();
         } catch(SQLException ex) {
@@ -413,6 +420,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     triplesRemoved = true;
                     notifyStatementRemoved(triple);
                 }
+                valueFactory.removeStatement(triple);
             }
             triples.close();
         } catch(SQLException ex) {

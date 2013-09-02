@@ -540,7 +540,7 @@ public class KiWiPersistence {
 
 
     public void initialise() {
-        garbageCollector.start();
+        //garbageCollector.start();
     }
 
     public void shutdown() {
