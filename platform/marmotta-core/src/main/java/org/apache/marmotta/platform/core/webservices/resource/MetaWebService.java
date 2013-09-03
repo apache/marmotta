@@ -53,7 +53,6 @@ import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
 import org.apache.marmotta.platform.core.services.sesame.ResourceSubjectMetadata;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.event.InterceptingRepositoryConnection;

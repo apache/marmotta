@@ -33,6 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.io.RDFHtmlWriter;
@@ -129,17 +130,26 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
     public void endRDF() throws RDFHandlerException {
 
         List<Map<String, Object>> resources = new ArrayList<Map<String, Object>>();
-        for (Map.Entry<Resource, SortedSet<Statement>> entry : tripleMap
-                .entrySet()) {
+        for (Map.Entry<Resource, SortedSet<Statement>> entry : tripleMap.entrySet()) {
             SortedSet<Statement> ts = entry.getValue();
             Map<String, Object> resource = new HashMap<String, Object>();
-            String uri = ts.first().getSubject().stringValue();
-            resource.put("uri", uri);
-            try {
-                resource.put("encoded_uri", URLEncoder.encode(uri, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                log.error("Error trying to encode '{}': {}", uri, e.getMessage());
-                resource.put("encoded_uri", uri);
+            String subject = ts.first().getSubject().stringValue();
+            if (UriUtil.validate(subject)) {
+            	resource.put("uri", subject);
+	            try {
+	                resource.put("encoded_uri", URLEncoder.encode(subject, "UTF-8"));
+	            } catch (UnsupportedEncodingException e) {
+	                log.error("Error trying to encode '{}': {}", subject, e.getMessage());
+	                resource.put("encoded_uri", subject);
+	            }
+            } else {
+            	resource.put("genid", subject);
+	            try {
+	                resource.put("encoded_genid", URLEncoder.encode(subject, "UTF-8"));
+	            } catch (UnsupportedEncodingException e) {
+	                log.error("Error trying to encode '{}': {}", subject, e.getMessage());
+	                resource.put("encoded_genid", subject);
+	            }
             }
 
             List<Map<String, Object>> triples = new ArrayList<Map<String, Object>>();
@@ -169,7 +179,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                     try {
                     	object.put("encoded_genid", URLEncoder.encode(objectValue, "UTF-8"));
                     } catch (UnsupportedEncodingException e) {
-                        log.error("Error trying to encode '{}': {}", uri, e.getMessage());
+                        log.error("Error trying to encode '{}': {}", subject, e.getMessage());
                         object.put("encoded_genid", objectValue);
                     }                 
                 } else if (value instanceof Literal) { //literal
