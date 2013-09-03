@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandlerException;
@@ -57,13 +56,14 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
     private OutputStream out;
     
     private List<String> vars;
-
+    
     private TemplatingService templatingService;
     
     private WriterConfig config;
     
     public SPARQLResultsHTMLWriter(OutputStream out, TemplatingService templatingService) {
         this.out = out;
+        this.templatingService = templatingService;
     }
 
 	@Override
