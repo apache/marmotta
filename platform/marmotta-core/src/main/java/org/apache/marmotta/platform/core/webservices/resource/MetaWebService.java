@@ -40,6 +40,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
@@ -112,8 +113,14 @@ public class MetaWebService {
      */
     @GET
     @Path(ResourceWebService.MIME_PATTERN)
-    public Response getMetaRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException {
-        return getMeta(URLDecoder.decode(uri, "utf-8"), mimetype);
+    public Response getMetaRemote(@QueryParam("uri") String uri, @QueryParam("genid") String genid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException {
+    	if (StringUtils.isNotBlank(uri)) {
+    		return getMeta(URLDecoder.decode(uri, "utf-8"), mimetype);
+    	} else if (StringUtils.isNotBlank(genid)) {
+    		return getMeta(URLDecoder.decode(genid, "utf-8"), mimetype);
+    	} else {
+    		return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.BAD_REQUEST, "Invalid Request", configurationService, templatingService);
+    	}
     }
 
     /**
@@ -240,19 +247,24 @@ public class MetaWebService {
         return deleteMetaRemote(uri);
     }
 
-    private Response getMeta(String uri, String mimetype) throws UnsupportedEncodingException {
+    private Response getMeta(String resource, String mimetype) throws UnsupportedEncodingException {
         try {
             RepositoryConnection conn = sesameService.getConnection();
-            
-            if (!ResourceUtils.existsResource(conn, uri)) {
-            	return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
-            }
 
             try {
                 conn.begin();
-                // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
-                // "/" + uuid;
-                URI resource = conn.getValueFactory().createURI(uri);
+                
+                Resource r = null;
+            	if (resource.startsWith("http://")) {
+                    r = ResourceUtils.getUriResource(conn, resource);
+            	} else {
+            		r = ResourceUtils.getAnonResource(conn, resource);
+            	}
+            	
+                if (r == null || !ResourceUtils.isUsed(conn, r)) {
+                	return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
+                }
+            	
                 // create parser
                 final RDFFormat serializer = kiWiIOService.getSerializer(mimetype);
                 if (serializer == null) {
@@ -261,9 +273,9 @@ public class MetaWebService {
                     return response;
                 }
 
-                if(resource != null) {
+                if(r != null) {
 
-                    final Resource subject = resource;
+                    final Resource subject = r;
 
                     StreamingOutput entity = new StreamingOutput() {
                         @Override
@@ -289,15 +301,15 @@ public class MetaWebService {
                     };
 
                     // build response
-                    Response response = Response.ok(entity).lastModified(KiWiSesameUtil.lastModified(resource, conn)).build();
-                    response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, resource) + "\"");
+                    Response response = Response.ok(entity).lastModified(KiWiSesameUtil.lastModified(r, conn)).build();
+                    response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
                     
                     if (!mimetype.contains("html")) { // then create a proper filename
 	                    String[] components;
-	                    if (uri.contains("#")) {
-	                    	components = uri.split("#");	                    	
+	                    if (resource.contains("#")) {
+	                    	components = resource.split("#");	                    	
 	                    } else {
-	                    	components = uri.split("/");
+	                    	components = resource.split("/");
 	                    }
 	                    final String fileName = components[components.length-1] + "." + serializer.getDefaultFileExtension();   
 	                    response.getMetadata().add("Content-Disposition", "attachment; filename=\""+fileName+"\"");
@@ -314,7 +326,7 @@ public class MetaWebService {
                     List<String> links = new LinkedList<String>();
 
                     // build the link to the human readable content of this resource (if it exists)
-                    String contentLink = ResourceWebServiceHelper.buildContentLink(resource, contentService.getContentType(resource), configurationService);
+                    String contentLink = ResourceWebServiceHelper.buildContentLink(r, contentService.getContentType(r), configurationService);
                     if(!"".equals(contentLink)) {
                         links.add(contentLink);
                     }
@@ -324,7 +336,7 @@ public class MetaWebService {
                     }
                     return response;
                 } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity("resource with URI "+uri+" does not exist").build();
+                    return Response.status(Response.Status.NOT_FOUND).entity("resource with URI "+resource+" does not exist").build();
                 }
             } finally {
                 if (conn.isOpen()) {
@@ -333,7 +345,7 @@ public class MetaWebService {
                 }
             }
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService, templatingService);
+            return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService, templatingService);
         }
     }
 

@@ -20,10 +20,12 @@ package org.apache.marmotta.platform.core.webservices.resource;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.commons.http.ContentType;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -78,7 +80,7 @@ public class ResourceWebServiceHelper {
         return buildContentLink(resource, mime, configurationService);
     }
 
-    public static String buildContentLink(URI resource, String mime, ConfigurationService configurationService) {
+    public static String buildContentLink(Resource resource, String mime, ConfigurationService configurationService) {
         //TODO: test if there is content
         StringBuffer b = new StringBuffer();
         if (mime != null) {
@@ -124,25 +126,23 @@ public class ResourceWebServiceHelper {
                 cType.getMime(), configurationService);
     }
 
-    public static String buildResourceLink(URI resource, String rel, String mime, ConfigurationService configurationService) {
-        final String src = configurationService.getServerUri(), base = configurationService
-                .getBaseUri();
-
-        if (src.equals(base)
-                && resource.stringValue().startsWith(base + ConfigurationService.RESOURCE_PATH + "/")) {
+    public static String buildResourceLink(Resource resource, String rel, String mime, ConfigurationService configurationService) {
+        final String src = configurationService.getServerUri();
+        final String base = configurationService.getBaseUri();
+        if (src.equals(base) && resource.stringValue().startsWith(base + ConfigurationService.RESOURCE_PATH + "/")) {
             final String uuid;
-            uuid = resource.stringValue().substring(
-                    (base + "resource/").length());
+            uuid = resource.stringValue().substring((base + "resource/").length());
             return String.format("%s%s/%s/%s", base, rel, mime, uuid);
-
         } else {
-            try {
-                return String.format("%s%s/%s?uri=%s", src, rel, mime,
-                        URLEncoder.encode(resource.stringValue(), ResourceWebService.CHARSET));
-            } catch (UnsupportedEncodingException e) {
-                return String.format("%s%s/%s?uri=%s", src, rel, mime,
-                        resource.stringValue());
-            }
+	    	if (resource instanceof URI) {
+	            try {  
+	                return String.format("%s%s/%s?uri=%s", src, rel, mime, URLEncoder.encode(resource.stringValue(), ResourceWebService.CHARSET));
+	            } catch (UnsupportedEncodingException e) {
+	                return String.format("%s%s/%s?uri=%s", src, rel, mime, resource.stringValue());
+	            }                    
+	    	} else {
+	    		return String.format("%s%s/%s?genid=%s", src, rel, mime, resource.stringValue());
+	    	}      
         }
     }
     
