@@ -227,9 +227,8 @@ public class MetaWebService {
     /**
      * Delete metadata of local resource with given uuid
      *
-     * @param uuid
-     *            , a unique identifier (must not contain url specific
-     *            characters like /,# etc.)
+     * @param uuid a unique identifier (must not contain url specific
+     *             characters like /,# etc.)
      * @return HTTP response (success or error)
      * @HTTP 200 resource content deleted
      * @HTTP 404 resource or resource metadata not found

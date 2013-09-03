@@ -40,6 +40,7 @@ import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.util.CDIContext;
+import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -137,8 +138,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             try {
                 resource.put("encoded_uri", URLEncoder.encode(uri, "UTF-8"));
             } catch (UnsupportedEncodingException e) {
-                log.error("Error trying to encode '" + uri + "': "
-                        + e.getMessage());
+                log.error("Error trying to encode '{}': {}", uri, e.getMessage());
                 resource.put("encoded_uri", uri);
             }
 
@@ -146,49 +146,52 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             for (Statement t : ts) {
                 Map<String, Object> triple = new HashMap<String, Object>();
 
+                //predicate
                 Map<String, String> predicate = new HashMap<String, String>();
                 String predicateUri = t.getPredicate().stringValue();
                 predicate.put("uri", predicateUri);
                 String predicateCurie = prefixService.getCurie(predicateUri);
-                predicate.put("curie",
-                        StringUtils.isNotBlank(predicateCurie) ? predicateCurie
-                                : predicateUri);
+                predicate.put("curie", StringUtils.isNotBlank(predicateCurie) ? predicateCurie : predicateUri);
                 triple.put("predicate", predicate);
                 predicate = null;
 
+                //object
                 Map<String, String> object = new HashMap<String, String>();
                 Value value = t.getObject();
                 String objectValue = value.stringValue();
-                if (value instanceof URI) {
+                if (value instanceof URI) { //http uri
                     object.put("uri", objectValue);
                     String objectCurie = prefixService.getCurie(objectValue);
-                    object.put("curie",
-                            StringUtils.isNotBlank(objectCurie) ? objectCurie
-                                    : objectValue);
+                    object.put("curie", StringUtils.isNotBlank(objectCurie) ? objectCurie : objectValue);
                     object.put("cache", "true");
-                } else if (value instanceof Literal) {
+                } else if (value instanceof BNode) { //blank node
+                    object.put("genid", objectValue);
+                    try {
+                    	object.put("encoded_genid", URLEncoder.encode(objectValue, "UTF-8"));
+                    } catch (UnsupportedEncodingException e) {
+                        log.error("Error trying to encode '{}': {}", uri, e.getMessage());
+                        object.put("encoded_genid", objectValue);
+                    }                 
+                } else if (value instanceof Literal) { //literal
                     Literal literal = (Literal) t.getObject();
                     String lang = literal.getLanguage();
                     if (StringUtils.isNotBlank(lang)) {
                         object.put("lang", lang);
                         objectValue = "\"" + objectValue + "\"@" + lang;
                         if (literal.getDatatype() != null) {
-                            String datatype = prefixService.getCurie(literal
-                                    .getDatatype().stringValue());
+                            String datatype = prefixService.getCurie(literal.getDatatype().stringValue());
                             object.put("datatype", datatype);
                             objectValue += "^^" + datatype;
                         }
                     } else {
                         if (literal.getDatatype() != null) {
-                            String datatype = prefixService.getCurie(literal
-                                    .getDatatype().stringValue());
+                            String datatype = prefixService.getCurie(literal.getDatatype().stringValue());
                             object.put("datatype", datatype);
-                            objectValue = "\"" + objectValue + "\"^^"
-                                    + datatype;
+                            objectValue = "\"" + objectValue + "\"^^"  + datatype;
                         }
                     }
                     object.put("value", objectValue);
-                } else {
+                } else { //should not arrive here...
                     object.put("value", objectValue);
                 }
                 triple.put("object", object);
@@ -198,9 +201,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 String contextUri = t.getContext().stringValue();
                 context.put("uri", contextUri);
                 String contextCurie = prefixService.getCurie(contextUri);
-                context.put("curie",
-                        StringUtils.isNotBlank(contextCurie) ? contextCurie
-                                : contextUri);
+                context.put("curie", StringUtils.isNotBlank(contextCurie) ? contextCurie : contextUri);
                 triple.put("context", context);
                 context = null;
 

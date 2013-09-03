@@ -228,10 +228,14 @@
                         </tr>
                         <#list resource.triples as triple>
                             <tr class="${zebra(triple_index)}">
-                                <td><a href="${triple.predicate.uri}" class="ldcache">${triple.predicate.curie}</a></td>
+                                <td>
+                                    <a href="${triple.predicate.uri}" class="ldcache">${triple.predicate.curie}</a>
+                                </td>
                                 <td about="${resource.uri}">
                                     <#if triple.object.uri?has_content>
-                                        <a rel="${triple.predicate.curie}" href="${triple.object.uri}" class="${cacheClass(triple.object)}">${triple.object.curie}</a>
+                                    	<a rel="${triple.predicate.curie}" href="${triple.object.uri}" class="${cacheClass(triple.object)}">${triple.object.curie}</a>
+                                    <#elseif triple.object.genid?has_content>	
+                                        <a rel="${triple.predicate.curie}" href="${SERVER_URL}resource?genid=${triple.object.encoded_genid}">${triple.object.genid}</a>
                                     <#else>
                                         <span property="${triple.predicate.curie}" ${rdfaAttributes(triple.object)}>${triple.object.value}</span>
                                     </#if>
