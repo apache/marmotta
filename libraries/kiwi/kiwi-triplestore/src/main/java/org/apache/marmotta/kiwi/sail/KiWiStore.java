@@ -98,7 +98,6 @@ public class KiWiStore extends NotifyingSailBase {
         this.tripleLock     = new ReentrantLock();
         this.inferredContext = inferredContext;
 
-        tripleRegistry  = new MapMaker().weakValues().makeMap();
 
     }
 
@@ -117,9 +116,11 @@ public class KiWiStore extends NotifyingSailBase {
      */
     @Override
     protected void initializeInternal() throws SailException {
+        tripleRegistry  = new MapMaker().weakValues().makeMap();
+
         try {
-            persistence.initDatabase();
             persistence.initialise();
+            persistence.initDatabase();
 
             initialized = true;
         } catch (SQLException e) {
@@ -173,6 +174,7 @@ public class KiWiStore extends NotifyingSailBase {
     protected void shutDownInternal() throws SailException {
         closeValueFactory();
         persistence.shutdown();
+        tripleRegistry = null;
         initialized = false;
     }
 

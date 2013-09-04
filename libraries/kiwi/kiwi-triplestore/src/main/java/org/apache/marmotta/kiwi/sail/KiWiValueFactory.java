@@ -390,9 +390,15 @@ public class KiWiValueFactory implements ValueFactory {
      */
     private <T> KiWiLiteral createLiteral(T value, String lang, String type) {
         commitLock.readLock().lock();
-        final Locale locale;
+        Locale locale;
         if(lang != null) {
-            locale = LocaleUtils.toLocale(lang.replace("-","_"));
+            try {
+                locale = LocaleUtils.toLocale(lang.replace("-","_"));
+            } catch (IllegalArgumentException ex) {
+                log.warn("malformed language literal (language: {})", lang);
+                locale = null;
+                lang   = null;
+            }
         } else
             locale  = null;
 
@@ -420,86 +426,98 @@ public class KiWiValueFactory implements ValueFactory {
                 final KiWiConnection connection = aqcuireConnection();
                 try {
 
+                    try {
+                        // differentiate between the different types of the value
+                        if (type == null) {
+                            // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
+                            result = connection.loadLiteral(value.toString(), lang, rtype);
 
-                    // differentiate between the different types of the value
-                    if (type == null) {
-                        // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                        result = connection.loadLiteral(value.toString(), lang, rtype);
+                            if(result == null) {
+                                result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                            }
+                        } else if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
+                            // parse if necessary
+                            final Date dvalue;
+                            if(value instanceof Date) {
+                                dvalue = (Date)value;
+                            } else {
+                                dvalue = DateUtils.parseDate(value.toString());
+                            }
 
-                        if(result == null) {
-                            result = new KiWiStringLiteral(value.toString(), locale, rtype);
-                        }
-                    } else if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
-                        // parse if necessary
-                        final Date dvalue;
-                        if(value instanceof Date) {
-                            dvalue = (Date)value;
+                            result = connection.loadLiteral(dvalue);
+
+                            if(result == null) {
+                                result= new KiWiDateLiteral(dvalue, rtype);
+                            }
+                        } else if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())  ||
+                                Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
+                                type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
+                            long ivalue = 0;
+                            if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
+                                ivalue = (Integer)value;
+                            } else if(Long.class.equals(value.getClass()) || long.class.equals(value.getClass())) {
+                                ivalue = (Long)value;
+                            } else {
+                                ivalue = Long.parseLong(value.toString());
+                            }
+
+
+                            result = connection.loadLiteral(ivalue);
+
+                            if(result == null) {
+                                result= new KiWiIntLiteral(ivalue, rtype);
+                            }
+                        } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
+                                Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
+                                type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
+                            double dvalue = 0.0;
+                            if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
+                                dvalue = (Float)value;
+                            } else if(Double.class.equals(value.getClass()) || double.class.equals(value.getClass())) {
+                                dvalue = (Double)value;
+                            } else {
+                                dvalue = Double.parseDouble(value.toString());
+                            }
+
+
+                            result = connection.loadLiteral(dvalue);
+
+                            if(result == null) {
+                                result= new KiWiDoubleLiteral(dvalue, rtype);
+                            }
+                        } else if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())  ||
+                                type.equals(Namespaces.NS_XSD+"boolean")) {
+                            boolean bvalue = false;
+                            if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())) {
+                                bvalue = (Boolean)value;
+                            } else {
+                                bvalue = Boolean.parseBoolean(value.toString());
+                            }
+
+
+                            result = connection.loadLiteral(bvalue);
+
+                            if(result == null) {
+                                result= new KiWiBooleanLiteral(bvalue, rtype);
+                            }
                         } else {
-                            dvalue = DateUtils.parseDate(value.toString());
-                        }
+                            result = connection.loadLiteral(value.toString(), lang, rtype);
 
-                        result = connection.loadLiteral(dvalue);
+                            if(result == null) {
+                                result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                            }
+                        }
+                    } catch(IllegalArgumentException ex) {
+                        // malformed number or date
+                        log.warn("malformed argument for typed literal of type {}: {}", rtype.stringValue(), value);
+                        KiWiUriResource mytype = (KiWiUriResource)createURI(Namespaces.NS_XSD+"string");
+
+                        result = connection.loadLiteral(value.toString(), lang, mytype);
 
                         if(result == null) {
-                            result= new KiWiDateLiteral(dvalue, rtype);
-                        }
-                    } else if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())  ||
-                            Long.class.equals(value.getClass())    || long.class.equals(value.getClass()) ||
-                            type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
-                        long ivalue = 0;
-                        if(Integer.class.equals(value.getClass()) || int.class.equals(value.getClass())) {
-                            ivalue = (Integer)value;
-                        } else if(Long.class.equals(value.getClass()) || long.class.equals(value.getClass())) {
-                            ivalue = (Long)value;
-                        } else {
-                            ivalue = Long.parseLong(value.toString());
+                            result = new KiWiStringLiteral(value.toString(), locale, mytype);
                         }
 
-
-                        result = connection.loadLiteral(ivalue);
-
-                        if(result == null) {
-                            result= new KiWiIntLiteral(ivalue, rtype);
-                        }
-                    } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
-                            Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
-                            type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
-                        double dvalue = 0.0;
-                        if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
-                            dvalue = (Float)value;
-                        } else if(Double.class.equals(value.getClass()) || double.class.equals(value.getClass())) {
-                            dvalue = (Double)value;
-                        } else {
-                            dvalue = Double.parseDouble(value.toString());
-                        }
-
-
-                        result = connection.loadLiteral(dvalue);
-
-                        if(result == null) {
-                            result= new KiWiDoubleLiteral(dvalue, rtype);
-                        }
-                    } else if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())  ||
-                            type.equals(Namespaces.NS_XSD+"boolean")) {
-                        boolean bvalue = false;
-                        if(Boolean.class.equals(value.getClass())   || boolean.class.equals(value.getClass())) {
-                            bvalue = (Boolean)value;
-                        } else {
-                            bvalue = Boolean.parseBoolean(value.toString());
-                        }
-
-
-                        result = connection.loadLiteral(bvalue);
-
-                        if(result == null) {
-                            result= new KiWiBooleanLiteral(bvalue, rtype);
-                        }
-                    } else {
-                        result = connection.loadLiteral(value.toString(), lang, rtype);
-
-                        if(result == null) {
-                            result = new KiWiStringLiteral(value.toString(), locale, rtype);
-                        }
                     }
 
                     if(result.getId() == null) {
@@ -514,6 +532,7 @@ public class KiWiValueFactory implements ValueFactory {
                     }
 
                     return result;
+
 
                 } catch (SQLException e) {
                     log.error("database error, could not load literal",e);

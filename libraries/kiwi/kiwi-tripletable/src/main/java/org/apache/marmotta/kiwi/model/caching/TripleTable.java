@@ -17,11 +17,10 @@
  */
 package org.apache.marmotta.kiwi.model.caching;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterators;
+import org.apache.marmotta.commons.collections.EquivalenceHashSet;
+import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -40,7 +39,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
 
 	private static final long serialVersionUID = 1L;
 
-	private Set<StatementWrapper> data;
+	private Set<Triple> data;
 
     /**
      * A set that orders triples orderd in a way that the subject is the most significant, while the context is the
@@ -57,14 +56,14 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
     private NavigableMap<IntArray,Triple> indexCSPO;
 
     public TripleTable() {
-        data = new HashSet<StatementWrapper>();
+        data = new EquivalenceHashSet<Triple>(StatementCommons.quadrupleEquivalence());
         indexSPOC = new TreeMap<IntArray, Triple>();
         indexCSPO = new TreeMap<IntArray, Triple>();
     }
 
 
     public TripleTable(Collection<Triple> triples) {
-        data = new HashSet<StatementWrapper>(triples.size());
+        data = new EquivalenceHashSet<Triple>(StatementCommons.quadrupleEquivalence());
         indexSPOC = new TreeMap<IntArray, Triple>();
         indexCSPO = new TreeMap<IntArray, Triple>();
         addAll(triples);
@@ -120,7 +119,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      */
     @Override
     public Iterator<Triple> iterator() {
-        return Iterators.transform(data.iterator(), new UnwrapperFunction());
+        return data.iterator();
     }
 
     /**
@@ -225,7 +224,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
     public synchronized boolean add(Triple triple) {
         indexSPOC.put(IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext()),triple);
         indexCSPO.put(IntArray.createCSPOKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext()),triple);
-        return data.add(new StatementWrapper(triple));
+        return data.add(triple);
     }
 
     /**
@@ -442,14 +441,14 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
                 }
             };
 
-            return Collections2.filter(Collections2.transform(data, new UnwrapperFunction()), p);
+            return Collections2.filter(data, p);
         }
     }
 
     public synchronized Collection<Resource> listContextIDs() {
         Set<Resource> result = new HashSet<>();
-        for(StatementWrapper stmt : data) {
-            result.add(stmt.delegate.getContext());
+        for(Triple t : data) {
+            result.add(t.getContext());
         }
         return result;
     }
@@ -473,47 +472,4 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
     }
 
 
-    private class StatementWrapper {
-        Triple delegate;
-
-        private StatementWrapper(Triple delegate) {
-            this.delegate = delegate;
-        }
-
-        private Triple getDelegate() {
-            return delegate;
-        }
-
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(delegate,delegate.getContext());
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-
-            Statement triple = ((StatementWrapper)o).delegate;
-            if (!Objects.equal(delegate.getContext(), triple.getContext())) return false;
-            if (!Objects.equal(delegate.getObject(),triple.getObject())) return false;
-            if (!Objects.equal(delegate.getPredicate(),triple.getPredicate())) return false;
-            return Objects.equal(delegate.getSubject(),triple.getSubject());
-        }
-    }
-
-
-    private class WrapperFunction implements Function<Triple, StatementWrapper> {
-        @Override
-        public StatementWrapper apply(Triple input) {
-            return new StatementWrapper(input);
-        }
-    }
-
-    private class UnwrapperFunction implements Function<StatementWrapper, Triple> {
-        @Override
-        public Triple apply(StatementWrapper input) {
-            return input.delegate;
-        }
-    }
 }

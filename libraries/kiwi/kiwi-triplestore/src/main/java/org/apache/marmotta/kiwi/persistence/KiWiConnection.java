@@ -1959,8 +1959,9 @@ public class KiWiConnection {
                 connection.commit();
             }
         } catch(SQLException ex) {
-            if(retry < 10) {
-                log.warn("COMMIT: temporary concurrency conflict, retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
+            // MySQL deadlock, wait and retry
+            if(retry < 10 && ("40001".equals(ex.getSQLState()) || "40P01".equals(ex.getSQLState()))) {
+                log.warn("COMMIT: temporary concurrency conflict (deadlock), retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {}
@@ -1999,7 +2000,10 @@ public class KiWiConnection {
                         }
                     }
                 } catch(SQLException ex) {
-                    log.error("SQL exception:",ex);
+                    // MySQL deadlock state, in this case we retry anyways
+                    if(!"40001".equals(ex.getSQLState())) {
+                        log.error("SQL exception:",ex);
+                    }
                     throw ex;
                 }
             }

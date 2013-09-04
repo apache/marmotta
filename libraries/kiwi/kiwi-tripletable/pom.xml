@@ -46,6 +46,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-commons</artifactId>
+        </dependency>
 
         <dependency>
             <artifactId>junit</artifactId>

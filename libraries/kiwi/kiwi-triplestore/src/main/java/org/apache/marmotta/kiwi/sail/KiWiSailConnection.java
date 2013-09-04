@@ -596,7 +596,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                             throw new IllegalArgumentException("e must not be null");
                         }
                         else {
-                            throw new IllegalArgumentException("Unexpected exception type: " + e.getClass());
+                            throw new IllegalArgumentException("Unexpected exception type: " + e.getClass(),e);
                         }
                     }
                 };

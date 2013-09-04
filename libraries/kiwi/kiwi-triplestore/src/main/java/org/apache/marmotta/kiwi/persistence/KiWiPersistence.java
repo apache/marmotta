@@ -98,6 +98,8 @@ public class KiWiPersistence {
 
     private boolean         droppedDatabase = false;
 
+    private boolean         initialized = false;
+
     // keep track which memory sequences have been updated and need to be written back
     private Set<String>     sequencesUpdated;
 
@@ -111,7 +113,9 @@ public class KiWiPersistence {
         this.maintenance = false;
         this.sequencesLock = new ReentrantLock();
         this.sequencesUpdated = new HashSet<>();
+    }
 
+    public void initialise() {
         // init JDBC connection pool
         initConnectionPool();
 
@@ -127,7 +131,11 @@ public class KiWiPersistence {
 
         }
 
+        //garbageCollector.start();
+
+        initialized = true;
     }
+
 
     public KiWiDialect getDialect() {
         return configuration.getDialect();
@@ -394,6 +402,10 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
+        if(!initialized) {
+            throw new SQLException("persistence backend not initialized; call initialise before acquiring a connection");
+        }
+
         if(connectionPool != null) {
             KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
             if(getDialect().isBatchSupported()) {
@@ -543,9 +555,6 @@ public class KiWiPersistence {
     }
 
 
-    public void initialise() {
-        //garbageCollector.start();
-    }
 
     public void shutdown() {
         if(!droppedDatabase && !configuration.isCommitSequencesOnCommit()) {
@@ -570,6 +579,8 @@ public class KiWiPersistence {
 
         connectionPool = null;
         memorySequences = null;
+
+        initialized = false;
     }
 
     /**

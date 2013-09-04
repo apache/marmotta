@@ -79,6 +79,7 @@ public class PersistenceTest {
     @Before
     public void initDatabase() throws SQLException {
         persistence = new KiWiPersistence(kiwiConfig);
+        persistence.initialise();
         persistence.initDatabase();
     }
 
