@@ -43,6 +43,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
+import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
@@ -254,7 +255,7 @@ public class MetaWebService {
                 conn.begin();
                 
                 Resource r = null;
-            	if (resource.startsWith("http://")) {
+            	if (UriUtil.validate(resource)) {
                     r = ResourceUtils.getUriResource(conn, resource);
             	} else {
             		r = ResourceUtils.getAnonResource(conn, resource);

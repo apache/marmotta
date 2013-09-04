@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
@@ -366,7 +367,7 @@ public class ResourceWebService {
             try {
                 conn.begin();
                 Resource r;
-            	if (resource.startsWith("http://")) {
+            	if (UriUtil.validate(resource)) {
                     try {
                     	r = ResourceUtils.getUriResource(conn, resource);
                     } catch (Exception e) {
