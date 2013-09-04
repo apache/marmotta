@@ -142,7 +142,7 @@ public class KiWiDatabaseRunner extends Suite {
     
     public static KiWiConfiguration createKiWiConfig(String database, KiWiDialect dialect) {
         final KiWiConfiguration config;
-        if(System.getProperty(database.toLowerCase()+".url") != null) {
+        if(!(dialect instanceof H2Dialect) && System.getProperty(database.toLowerCase()+".url") != null) {
             config = new KiWiConfiguration(
                     database,
                     System.getProperty(database.toLowerCase()+".url"),
@@ -152,7 +152,7 @@ public class KiWiDatabaseRunner extends Suite {
         } else if (dialect instanceof H2Dialect) {
             config = new KiWiConfiguration(
                     "default-H2", 
-                    "jdbc:h2:mem:kiwitest;MVCC=true;DB_CLOSE_ON_EXIT=TRUE", 
+                    "jdbc:h2:mem:kiwitest;MVCC=true;DB_CLOSE_ON_EXIT=TRUE;DB_CLOSE_DELAY=-1",
                     "kiwi", "kiwi", 
                     dialect);
         } else {

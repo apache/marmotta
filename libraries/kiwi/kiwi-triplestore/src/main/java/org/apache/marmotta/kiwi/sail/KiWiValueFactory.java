@@ -815,9 +815,18 @@ public class KiWiValueFactory implements ValueFactory {
     }
 
     public void close() {
+
         for(KiWiConnection con : pooledConnections) {
             try {
                 if(!con.isClosed()) {
+                    if(batchCommit && nodeBatch.size() > 0) {
+                        try {
+                            flushBatch(con);
+                        } catch (SQLException e) {
+                            log.error("error while flushing node batch",e);
+                        }
+                    }
+
                     con.commit();
                     con.close();
                 }

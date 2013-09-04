@@ -64,10 +64,6 @@
                     <version>2.13</version>
                     <configuration>
                         <systemPropertyVariables>
-                            <h2.url>jdbc:h2:mem:test;MVCC=true;DB_CLOSE_ON_EXIT=TRUE</h2.url>
-                            <h2.user>sa</h2.user>
-                            <h2.pass />
-
                             <!-- enable or pass on command line for testing local PostgreSQL -->
                             <postgresql.url>jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</postgresql.url>
                             <postgresql.user>lmf</postgresql.user>

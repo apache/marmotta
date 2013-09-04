@@ -42,6 +42,8 @@ public class KiWiRepositoryTest extends RepositoryTest {
 
     private final KiWiConfiguration config;
 
+    private KiWiStore store;
+
     public KiWiRepositoryTest(KiWiConfiguration config) {
         this.config = config;
     }
@@ -51,19 +53,13 @@ public class KiWiRepositoryTest extends RepositoryTest {
      */
     @Override
     protected Repository createRepository() throws Exception {
-        Sail store = new SailWrapper(new KiWiStore(config)) {
-            @Override
-            public void shutDown() throws SailException {
-                try {
-                    ((KiWiStore)getBaseSail()).getPersistence().dropDatabase();
-                } catch (SQLException e) {
-                    fail("SQL exception while deleting database");
-                }
-
-                super.shutDown();
-            }
-        };
+        store = new KiWiStore(config);
         return new SailRepository(store);
     }
 
+    @Override
+    public void tearDown() throws Exception {
+        store.getPersistence().dropDatabase();
+        super.tearDown();
+    }
 }
