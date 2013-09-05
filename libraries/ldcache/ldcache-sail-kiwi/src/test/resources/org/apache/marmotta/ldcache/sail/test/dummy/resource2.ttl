@@ -16,5 +16,5 @@
 # limitations under the License.
 #
 @prefix ex: <http://remote/> .
-ex:resource2 ex:property1 "Value 2" ;
+ex:resource2 ex:property1 "Value 2"^^xsd:string ;
              ex:property2 ex:resource3 .

@@ -37,7 +37,7 @@ CREATE TABLE triples (
   subject   bigint     NOT NULL REFERENCES nodes(id),
   predicate bigint     NOT NULL REFERENCES nodes(id),
   object    bigint     NOT NULL REFERENCES nodes(id),
-  context   bigint     NOT NULL REFERENCES nodes(id),
+  context   bigint     REFERENCES nodes(id),
   creator   bigint     REFERENCES nodes(id),
   inferred  boolean    DEFAULT false,
   deleted   boolean    DEFAULT false,

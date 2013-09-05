@@ -36,8 +36,15 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.base.RepositoryWrapper;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.Sail;
+import org.openrdf.sail.SailException;
+import org.openrdf.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+
+import static org.junit.Assert.fail;
 
 /**
  * Run the {@link KiWiRDFSchemaRepositoryConnectionTest}s.
@@ -61,12 +68,28 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
      */
     @Override
     protected Repository createRepository() throws Exception {
-        KiWiStore sail = new KiWiStore(config);
+        config.setDefaultContext(null);
+
+        final KiWiStore sail = new KiWiStore(config);
         KiWiTransactionalSail tsail = new KiWiTransactionalSail(sail);
         rsail = new KiWiReasoningSail(tsail, new ReasoningConfiguration());
-        
-        
-        return new RepositoryWrapper(new SailRepository(rsail)) {
+
+        Sail wsail = new SailWrapper(rsail) {
+            @Override
+            public void shutDown() throws SailException {
+
+                try {
+                    rsail.getPersistence().dropDatabase();
+                    sail.getPersistence().dropDatabase();
+                } catch (SQLException e) {
+                    fail("SQL exception while deleting database");
+                }
+
+                super.shutDown();
+            }
+        };
+
+        return new RepositoryWrapper(new SailRepository(wsail)) {
             @Override
             public RepositoryConnection getConnection()
                     throws RepositoryException {
@@ -122,5 +145,11 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     @Test
     @Ignore("in KiWi, inferencing is triggered on commit")
     public void testInferencerTransactionIsolation() throws Exception {
+    }
+
+    @Override
+    @Test
+    @Ignore("in KiWi, inferencing is persisted and not just a view")
+    public void testSizeCommit() throws Exception {
     }
 }

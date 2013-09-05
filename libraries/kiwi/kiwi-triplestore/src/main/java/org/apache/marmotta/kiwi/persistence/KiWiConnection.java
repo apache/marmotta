@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -376,9 +375,9 @@ public class KiWiConnection {
         ResultSet result = querySize.executeQuery();
         try {
             if(result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
+                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context, false).size() : 0);
             } else {
-                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context).size() : 0);
+                return 0 + (tripleBatch != null ? tripleBatch.listTriples(null,null,null,context, false).size() : 0);
             }
         } finally {
             result.close();
@@ -1097,7 +1096,6 @@ public class KiWiConnection {
                     Preconditions.checkNotNull(triple.getSubject().getId());
                     Preconditions.checkNotNull(triple.getPredicate().getId());
                     Preconditions.checkNotNull(triple.getObject().getId());
-                    Preconditions.checkNotNull(triple.getContext().getId());
 
 
                     try {
@@ -1106,7 +1104,11 @@ public class KiWiConnection {
                         insertTriple.setLong(2,triple.getSubject().getId());
                         insertTriple.setLong(3,triple.getPredicate().getId());
                         insertTriple.setLong(4,triple.getObject().getId());
-                        insertTriple.setLong(5,triple.getContext().getId());
+                        if(triple.getContext() != null) {
+                            insertTriple.setLong(5,triple.getContext().getId());
+                        } else {
+                            insertTriple.setNull(5, Types.BIGINT);
+                        }
                         insertTriple.setBoolean(6,triple.isInferred());
                         insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
                         int count = insertTriple.executeUpdate();
@@ -1138,7 +1140,7 @@ public class KiWiConnection {
      */
     public synchronized Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
-            Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context);
+            Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context, false);
             if(batched.size() > 0) {
                 return batched.iterator().next().getId();
             }
@@ -1149,7 +1151,11 @@ public class KiWiConnection {
         loadTripleId.setLong(1, subject.getId());
         loadTripleId.setLong(2, predicate.getId());
         loadTripleId.setLong(3, object.getId());
-        loadTripleId.setLong(4, context.getId());
+        if(context != null) {
+            loadTripleId.setLong(4, context.getId());
+        } else {
+            loadTripleId.setNull(4, Types.BIGINT);
+        }
 
         ResultSet result = loadTripleId.executeQuery();
         try {
@@ -1375,10 +1381,11 @@ public class KiWiConnection {
      * @param object     the object to query for, or null for a wildcard query
      * @param context    the context to query for, or null for a wildcard query
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
+     * @param wildcardContext if true, a null context will be interpreted as a wildcard, if false, a null context will be interpreted as "no context"
      * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
      *         by the caller
      */
-    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+    public RepositoryResult<Statement> listTriples(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred, final boolean wildcardContext) throws SQLException {
 
 
         if(tripleBatch != null && tripleBatch.size() > 0) {
@@ -1386,11 +1393,11 @@ public class KiWiConnection {
                 return new RepositoryResult<Statement>(
                         new ExceptionConvertingIteration<Statement, RepositoryException>(
                                 new UnionIteration<Statement, SQLException>(
-                                        new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context).iterator()),
+                                        new IteratorIteration<Statement, SQLException>(tripleBatch.listTriples(subject,predicate,object,context, wildcardContext).iterator()),
                                         new DelayedIteration<Statement, SQLException>() {
                                             @Override
                                             protected Iteration<? extends Statement, ? extends SQLException> createIteration() throws SQLException {
-                                                return listTriplesInternal(subject,predicate,object,context,inferred);
+                                                return listTriplesInternal(subject,predicate,object,context,inferred, wildcardContext);
                                             }
                                         }
 
@@ -1406,7 +1413,7 @@ public class KiWiConnection {
             }
         }  else {
             return new RepositoryResult<Statement>(
-                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred)) {
+                    new ExceptionConvertingIteration<Statement, RepositoryException>(listTriplesInternal(subject,predicate,object,context,inferred, wildcardContext)) {
                         @Override
                         protected RepositoryException convert(Exception e) {
                             return new RepositoryException("database error while iterating over result set",e);
@@ -1426,10 +1433,11 @@ public class KiWiConnection {
      * @param object     the object to query for, or null for a wildcard query
      * @param context    the context to query for, or null for a wildcard query
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
+     * @param wildcardContext if true, a null context will be interpreted as a wildcard, if false, a null context will be interpreted as "no context"
      * @return a ClosableIteration that wraps the database ResultSet; needs to be closed explicitly by the caller
      * @throws SQLException
      */
-    private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) throws SQLException {
+    private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, final boolean wildcardContext) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
         if(subject != null && subject.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
@@ -1449,7 +1457,7 @@ public class KiWiConnection {
         // otherwise we need to create an appropriate SQL query and execute it, the repository result will be read-only
         // and only allow forward iteration, so we can limit the query using the respective flags
         PreparedStatement query = connection.prepareStatement(
-                constructTripleQuery(subject,predicate,object,context,inferred),
+                constructTripleQuery(subject,predicate,object,context,inferred, wildcardContext),
                 ResultSet.TYPE_FORWARD_ONLY,
                 ResultSet.CONCUR_READ_ONLY
         );
@@ -1494,7 +1502,7 @@ public class KiWiConnection {
      * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
      * @return an SQL query string representing the triple pattern
      */
-    protected String constructTripleQuery(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) {
+    protected String constructTripleQuery(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, boolean wildcardContext) {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt FROM triples WHERE deleted = false");
         if(subject != null) {
@@ -1508,6 +1516,8 @@ public class KiWiConnection {
         }
         if(context != null) {
             builder.append(" AND context = ?");
+        } else if(!wildcardContext) {
+            builder.append(" AND context IS NULL");
         }
         if(!inferred) {
             builder.append(" AND inferred = false");
@@ -2136,7 +2146,11 @@ public class KiWiConnection {
                         insertTriple.setLong(2,triple.getSubject().getId());
                         insertTriple.setLong(3,triple.getPredicate().getId());
                         insertTriple.setLong(4,triple.getObject().getId());
-                        insertTriple.setLong(5,triple.getContext().getId());
+                        if(triple.getContext() != null) {
+                            insertTriple.setLong(5,triple.getContext().getId());
+                        } else {
+                            insertTriple.setNull(5, Types.BIGINT);
+                        }
                         insertTriple.setBoolean(6,triple.isInferred());
                         insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
 

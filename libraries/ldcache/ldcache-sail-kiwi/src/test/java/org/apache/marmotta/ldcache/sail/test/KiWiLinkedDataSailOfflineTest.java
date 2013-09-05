@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasToString;
 
@@ -182,9 +183,9 @@ public class KiWiLinkedDataSailOfflineTest {
             List<Statement> list1 = asList(con.getStatements(con.getValueFactory().createURI(uri1), null, null, true));
 
             Assert.assertEquals(3,list1.size());
-            Assert.assertThat(list1, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 1\"^^xsd:string"))),
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value X\"^^xsd:string")))
+            Assert.assertThat(list1, CoreMatchers.<Statement>hasItems(
+                    hasProperty("object", hasToString("\"Value 1\"^^xsd:string")),
+                    hasProperty("object", hasToString("\"Value X\"^^xsd:string"))
             ));
 
 

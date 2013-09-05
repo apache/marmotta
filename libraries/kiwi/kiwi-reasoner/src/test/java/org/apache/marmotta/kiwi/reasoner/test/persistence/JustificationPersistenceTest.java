@@ -166,8 +166,8 @@ public class JustificationPersistenceTest {
         connection = rpersistence.getConnection();
         try {
             // retrieve the persisted triples and put them into two sets to build justifications
-            List<Statement> baseTriples = asList(connection.listTriples(null,null,null,v.convert(ctxb),false));
-            List<Statement> infTriples = asList(connection.listTriples(null,null,null,v.convert(ctxi),true));
+            List<Statement> baseTriples = asList(connection.listTriples(null,null,null,v.convert(ctxb),false, true));
+            List<Statement> infTriples = asList(connection.listTriples(null,null,null,v.convert(ctxi),true, true));
 
             Assert.assertEquals("number of base triples was not 3", 3, baseTriples.size());
             Assert.assertEquals("number of inferred triples was not 3", 3, infTriples.size());

@@ -389,13 +389,15 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
     /**
      * Return a subset of the triples matching the filter criteria. Arguments with null value are treated as wildcards.
      *
+     *
      * @param subject
      * @param property
      * @param object
      * @param context
+     * @param wildcardContext
      * @return
      */
-    public synchronized Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final Resource context) {
+    public synchronized Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final Resource context, boolean wildcardContext) {
         // in special cases we can make use of the index
         if(subject != null && property != null && object != null && context != null) {
             IntArray key = IntArray.createSPOCKey(subject, property, object, context);
@@ -405,9 +407,10 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
             } else {
                 return Collections.emptyList();
             }
-        } else if(  (subject != null && property != null && object != null)
+        } else if(wildcardContext &&
+                (  (subject != null && property != null && object != null)
                  || (subject != null && property != null)
-                 || subject != null) {
+                 || subject != null)) {
             IntArray fromKey = IntArray.createSPOCKey(subject, property, object, context);
             IntArray toKey   = IntArray.createSPOCMaxKey(subject, property, object, context);
 

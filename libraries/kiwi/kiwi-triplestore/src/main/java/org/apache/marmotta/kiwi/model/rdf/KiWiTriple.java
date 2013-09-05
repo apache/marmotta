@@ -98,7 +98,6 @@ public class KiWiTriple  implements Statement, Serializable {
         assert(subject  != null);
         assert(predicate != null);
         assert(object   != null);
-        assert(context  != null);
 	}
 
    /**

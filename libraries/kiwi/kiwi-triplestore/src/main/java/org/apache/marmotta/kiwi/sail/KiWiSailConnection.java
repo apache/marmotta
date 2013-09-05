@@ -141,9 +141,13 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 }
             }
             if(contextSet.size() == 0) {
-                contextSet.add(valueFactory.createURI(defaultContext));
+                if(defaultContext != null) {
+                    contextSet.add(valueFactory.createURI(defaultContext));
+                } else {
+                    contextSet.add(null);
+                }
             }
-            if(inferred) {
+            if(inferred && inferredContext != null) {
                 contextSet.add(valueFactory.createURI(inferredContext));
             }
 
@@ -262,8 +266,12 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             @Override
             public KiWiResource apply(Resource input) {
                 if(input == null) {
-                    // null value for context means statements without context; in KiWi, this means "default context"
-                    return (KiWiUriResource)valueFactory.createURI(defaultContext);
+                    if(defaultContext != null) {
+                        // null value for context means statements without context; in KiWi, this means "default context"
+                        return (KiWiUriResource)valueFactory.createURI(defaultContext);
+                    } else {
+                        return null;
+                    }
                 } else {
                     return valueFactory.convert(input);
                 }
@@ -277,7 +285,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     @Override
                     protected Iteration<? extends Statement, ? extends RepositoryException> createIteration() throws RepositoryException {
                         try {
-                            return databaseConnection.listTriples(rsubj, rpred, robj, context, includeInferred);
+                            return databaseConnection.listTriples(rsubj, rpred, robj, context, includeInferred, false);
                         } catch (SQLException e) {
                             throw new RepositoryException("database error while listing triples",e);
                         }
@@ -289,7 +297,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 @Override
                 protected Iteration<? extends Statement, ? extends RepositoryException> createIteration() throws RepositoryException {
                     try {
-                        return databaseConnection.listTriples(rsubj, rpred, robj, null, includeInferred);
+                        return databaseConnection.listTriples(rsubj, rpred, robj, null, includeInferred, true);
                     } catch (SQLException e) {
                         throw new RepositoryException("database error while listing triples",e);
                     }

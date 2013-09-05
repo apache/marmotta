@@ -506,55 +506,6 @@ public class KiWiPersistence {
         garbageCollector.addTripleTableDependency(tableName, columnName);
     }
 
-    /**
-     * Return a Sesame RepositoryResult of statements according to the query pattern given in the arguments. Each of
-     * the parameters subject, predicate, object and context may be null, indicating a wildcard query. If the boolean
-     * parameter "inferred" is set to true, the result will also include inferred triples, if it is set to false only
-     * base triples.
-     * <p/>
-     * The RepositoryResult holds a direct connection to the database and needs to be closed properly, or otherwise
-     * the system might run out of resources. The returned RepositoryResult will try its best to clean up when the
-     * iteration has completed or the garbage collector calls the finalize() method, but this can take longer than
-     * necessary.
-     * <p/>
-     * This method will create a new database connection for running the query which is only released when the
-     * result is closed.
-     *
-     *
-     * @param subject    the subject to query for, or null for a wildcard query
-     * @param predicate  the predicate to query for, or null for a wildcard query
-     * @param object     the object to query for, or null for a wildcard query
-     * @param context    the context to query for, or null for a wildcard query
-     * @param inferred   if true, the result will also contain triples inferred by the reasoner, if false not
-     * @return a new RepositoryResult with a direct connection to the database; the result should be properly closed
-     *         by the caller
-     */
-    public RepositoryResult<Statement> listTriples(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred) throws SQLException {
-        final KiWiConnection conn = getConnection();
-
-        return new RepositoryResult<Statement>(conn.listTriples(subject,predicate,object,context,inferred)) {
-            @Override
-            protected void handleClose() throws RepositoryException {
-                super.handleClose();
-                try {
-                    if(!conn.isClosed()) {
-                        conn.commit();
-                        conn.close();
-                    }
-                } catch (SQLException ex) {
-                    throw new RepositoryException("SQL error when closing database connection",ex);
-                }
-            }
-
-            @Override
-            protected void finalize() throws Throwable {
-                handleClose();
-                super.finalize();
-            }
-        };
-    }
-
-
 
     public void shutdown() {
         if(!droppedDatabase && !configuration.isCommitSequencesOnCommit()) {

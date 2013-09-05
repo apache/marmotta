@@ -664,7 +664,11 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Statement createStatement(Resource subject, URI predicate, Value object) {
-        return createStatement(subject, predicate, object, createURI(defaultContext));
+        if(defaultContext != null) {
+            return createStatement(subject, predicate, object, createURI(defaultContext));
+        } else {
+            return createStatement(subject, predicate, object, null);
+        }
     }
 
     /**

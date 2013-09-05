@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.test.sesame.repository;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.runner.RunWith;
@@ -51,6 +52,7 @@ public class KiWiRepositoryConnectionTest extends RepositoryConnectionTest {
      */
     @Override
     protected Repository createRepository() throws Exception {
+        config.setDefaultContext(null);
         Sail store = new SailWrapper(new KiWiStore(config)) {
             @Override
             public void shutDown() throws SailException {

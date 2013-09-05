@@ -136,6 +136,7 @@ public class LDCachePersistenceTest {
     @Before
     public void initDatabase() throws SQLException {
         persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
+        persistence.initialise();
         persistence.initDatabase();
 
         vpersistence = new LDCachingKiWiPersistence(persistence);
