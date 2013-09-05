@@ -18,6 +18,8 @@
 package org.apache.marmotta.kiwi.reasoner.model.program;
 
 
+import org.apache.marmotta.commons.collections.EquivalenceHashSet;
+import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 
 import java.util.Date;
@@ -64,7 +66,7 @@ public class Justification  {
     private Date createdAt;
 
     public Justification() {
-        supportingTriples = new HashSet<KiWiTriple>();
+        supportingTriples = new EquivalenceHashSet<>(StatementCommons.quadrupleEquivalence());
         supportingRules   = new HashSet<Rule>();
     }
 

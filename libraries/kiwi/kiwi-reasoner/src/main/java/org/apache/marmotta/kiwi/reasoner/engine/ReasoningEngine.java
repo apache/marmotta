@@ -17,10 +17,15 @@
  */
 package org.apache.marmotta.kiwi.reasoner.engine;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.Iterations;
 import info.aduna.iteration.SingletonIteration;
+import org.apache.marmotta.commons.collections.EquivalenceHashMap;
+import org.apache.marmotta.commons.collections.EquivalenceHashSet;
+import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
@@ -121,7 +126,7 @@ public class ReasoningEngine implements TransactionListener {
      * In-memory cache to store all patterns that are candidates for matching triples and accessing the rules
      * they belong to.
      */
-    private Map<Pattern,Rule> patternRuleMap;
+    private Multimap<Pattern,Rule> patternRuleMap;
 
     /**
      * Internal counter to count executions of the reasoner (informational purposes only)
@@ -153,7 +158,7 @@ public class ReasoningEngine implements TransactionListener {
 
     public void loadPrograms() {
         log.info("program configuration changed, reloading ...");
-        patternRuleMap = new HashMap<Pattern, Rule>();
+        patternRuleMap = HashMultimap.<Pattern,Rule>create();
 
         try {
             KiWiReasoningConnection connection = persistence.getConnection();
@@ -311,7 +316,6 @@ public class ReasoningEngine implements TransactionListener {
 
     /**
      * Stop the currently active reasoning task. Informational purposes only.
-     * @param name
      */
     protected void endTask() {
 
@@ -345,7 +349,7 @@ public class ReasoningEngine implements TransactionListener {
 
     private void executeReasoner(TransactionData data) {
         updateTaskStatus("fetching worklist");
-        Set<KiWiTriple> newTriples = new HashSet<KiWiTriple>();
+        Set<KiWiTriple> newTriples = new EquivalenceHashSet<>(StatementCommons.quadrupleEquivalence());
         for(Statement stmt : data.getAddedTriples()) {
             KiWiTriple t = (KiWiTriple)stmt;
             if(t.isMarkedForReasoning()) {
@@ -360,7 +364,7 @@ public class ReasoningEngine implements TransactionListener {
             long start2 = System.currentTimeMillis();
             updateTaskStatus("reasoning over " + newTriples.size() + " new triples");
             processRules(newTriples);
-            log.debug("REASONER: reasoning for {} new triples took {} ms overall",newTriples.size(),System.currentTimeMillis()-start2);
+            log.debug("REASONER: reasoning for {} new triples took {} ms overall", newTriples.size(), System.currentTimeMillis() - start2);
         }
 
         if(data.getRemovedTriples().size() > 0) {
@@ -488,7 +492,7 @@ public class ReasoningEngine implements TransactionListener {
      * This method iterates over all triples that are passed as argument and
      * checks whether they are used as supporting triples justifications. All
      * such justifications are removed. Triples that are no longer supported
-     * will later be cleaned up by {@link #cleanupUnsupported()}
+     * will later be cleaned up by {@link #cleanupUnsupported(org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection)}
      *
      * @param removedTriples
      */
@@ -549,8 +553,10 @@ public class ReasoningEngine implements TransactionListener {
                 for(KiWiTriple triple : addedTriples) {
                     QueryResult match = matches(pattern,triple);
                     if(match != null) {
-                        log.debug("pattern {} matched with triple {}", pattern.toString(), triple.toString());
-                        processRule(patternRuleMap.get(pattern), match, pattern);
+                        for(Rule rule : patternRuleMap.get(pattern)) {
+                            log.debug("REASONER(rule '{}'): pattern {} matched with triple {}", rule.getName(), pattern.toString(), triple.toString());
+                            processRule(rule, match, pattern);
+                        }
                     }
                 }
                 // TODO: for parallel reasoning, the problem is that we should only create one thread per rule and not
@@ -590,7 +596,7 @@ public class ReasoningEngine implements TransactionListener {
     private void processRule(Rule rule, QueryResult match, Pattern p) {
 
         // get the variable bindings for the rule evaluation
-        log.debug("REASONER: evaluating rule body for rule {} ...", rule);
+        log.debug("REASONER(rule '{}'): evaluating rule body {} ...", rule.getName() != null ? rule.getName() : rule.getId(), rule);
 
         // create a collection consisting of the body minus the pattern that already matched
         Set<Pattern> body = new HashSet<Pattern>(rule.getBody());
@@ -836,7 +842,7 @@ public class ReasoningEngine implements TransactionListener {
      */
     private void removeDuplicateJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
         // remove duplicate justifications
-        HashMap<KiWiTriple,Collection<Justification>> justificationCache = new HashMap<KiWiTriple, Collection<Justification>>();
+        Map<KiWiTriple,Collection<Justification>> justificationCache = new EquivalenceHashMap<KiWiTriple, Collection<Justification>>(StatementCommons.quadrupleEquivalence());
         for(Iterator<Justification> it = justifications.iterator(); it.hasNext(); ) {
             Justification j = it.next();
 
@@ -922,6 +928,14 @@ public class ReasoningEngine implements TransactionListener {
     }
 
     public void shutdown() {
+        for(int i = 0; i<10 && isRunning(); i++) {
+            log.warn("reasoner not yet finished, waiting for 10 seconds (try={})", i+1);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+            }
+        }
+
         log.info("shutting down reasoning service ...");
         reasonerThread.shutdown();
     }

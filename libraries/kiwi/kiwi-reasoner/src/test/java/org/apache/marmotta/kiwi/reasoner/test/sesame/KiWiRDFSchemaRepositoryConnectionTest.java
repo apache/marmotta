@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.reasoner.test.sesame;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -52,6 +53,7 @@ import static org.junit.Assert.fail;
  *
  */
 @RunWith(KiWiDatabaseRunner.class)
+@KiWiDatabaseRunner.ForDialects(dialect = H2Dialect.class)
 public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryConnectionTest {
 
     public Logger log = LoggerFactory.getLogger(this.getClass());
@@ -147,9 +149,4 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     public void testInferencerTransactionIsolation() throws Exception {
     }
 
-    @Override
-    @Test
-    @Ignore("in KiWi, inferencing is persisted and not just a view")
-    public void testSizeCommit() throws Exception {
-    }
 }

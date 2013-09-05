@@ -49,6 +49,16 @@ public class StatementCommons {
             protected int doHash(Statement statement) {
                 return Objects.hashCode(statement.getSubject(), statement.getPredicate(), statement.getObject());
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                return this.getClass().equals(obj.getClass());
+            }
+
+            @Override
+            public int hashCode() {
+                return this.getClass().hashCode();
+            }
         };
     }
 
@@ -73,6 +83,16 @@ public class StatementCommons {
             @Override
             protected int doHash(Statement statement) {
                 return Objects.hashCode(statement.getSubject(), statement.getPredicate(), statement.getObject(), statement.getContext());
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return this.getClass().equals(obj.getClass());
+            }
+
+            @Override
+            public int hashCode() {
+                return this.getClass().hashCode();
             }
         };
 

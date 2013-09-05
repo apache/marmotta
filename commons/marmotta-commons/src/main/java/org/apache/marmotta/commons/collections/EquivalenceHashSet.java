@@ -36,6 +36,10 @@ public class EquivalenceHashSet<E> implements Set<E> {
     private HashSet<ElementWrapper> delegate;
 
 
+    private UnwrapFunction unwrapper = new UnwrapFunction();
+    private WrapFunction   wrapper   = new WrapFunction();
+
+
     public EquivalenceHashSet() {
         this.equivalence = Equivalence.equals();
         this.delegate    = new HashSet<>();
@@ -133,7 +137,7 @@ public class EquivalenceHashSet<E> implements Set<E> {
      */
     @Override
     public Iterator<E> iterator() {
-        return Iterators.transform(delegate.iterator(), new UnwrapFunction());
+        return Iterators.transform(delegate.iterator(), unwrapper);
     }
 
     /**
@@ -316,7 +320,7 @@ public class EquivalenceHashSet<E> implements Set<E> {
      */
     @Override
     public boolean containsAll(Collection<?> c) {
-        return delegate.containsAll(Collections2.transform(c,new WrapFunction()));
+        return delegate.containsAll(Collections2.transform(c,wrapper));
     }
 
     /**
@@ -342,7 +346,7 @@ public class EquivalenceHashSet<E> implements Set<E> {
      */
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        return delegate.addAll(Collections2.transform(c, new WrapFunction()));
+        return delegate.addAll(Collections2.transform(c, wrapper));
     }
 
     /**
@@ -368,7 +372,7 @@ public class EquivalenceHashSet<E> implements Set<E> {
      */
     @Override
     public boolean retainAll(Collection<?> c) {
-        return delegate.retainAll(Collections2.transform(c, new WrapFunction()));
+        return delegate.retainAll(Collections2.transform(c, wrapper));
     }
 
     /**
@@ -394,7 +398,7 @@ public class EquivalenceHashSet<E> implements Set<E> {
      */
     @Override
     public boolean removeAll(Collection<?> c) {
-        return delegate.removeAll(Collections2.transform(c, new WrapFunction()));
+        return delegate.removeAll(Collections2.transform(c, wrapper));
     }
 
     /**
@@ -407,6 +411,26 @@ public class EquivalenceHashSet<E> implements Set<E> {
     @Override
     public void clear() {
         delegate.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EquivalenceHashSet that = (EquivalenceHashSet) o;
+
+        if (!delegate.equals(that.delegate)) return false;
+        if (!equivalence.equals(that.equivalence)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = equivalence.hashCode();
+        result = 31 * result + delegate.hashCode();
+        return result;
     }
 
     private class ElementWrapper {
