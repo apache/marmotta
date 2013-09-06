@@ -11,9 +11,7 @@ import org.junit.Test;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Test critical functionality of justification objects, primarily equals and similar
@@ -30,12 +28,6 @@ public class JustificationTest {
     private Rule r1, r2;
 
     private KiWiUriResource ctx_inferred;
-
-
-    private List<KiWiUriResource> resources = new ArrayList<>();
-
-    private List<KiWiNode> objects = new ArrayList<>();
-
 
     @Before
     public void setup() {
@@ -99,19 +91,63 @@ public class JustificationTest {
     }
 
 
+    @Test
+    public void testJustificationSet() {
+        Set<Justification> set = new HashSet<>();
+
+        Justification j1 = new Justification();
+        j1.setTriple(i1);
+        j1.getSupportingTriples().add(t1);
+        j1.getSupportingTriples().add(t4);
+        set.add(j1);
+
+        Justification j2 = new Justification();
+        j2.setTriple(i4);
+        j2.getSupportingTriples().add(t4);
+        j2.getSupportingTriples().add(t1);
+
+        Assert.assertTrue(set.contains(j2));
+
+        set.add(j2);
+
+        Assert.assertEquals(1, set.size());
+
+
+        // j3 differs in the inferred triple
+        Justification j3 = new Justification();
+        j3.setTriple(i2);
+        j3.getSupportingTriples().add(t4);
+        j3.getSupportingTriples().add(t1);
+
+        Assert.assertFalse(set.contains(j3));
+
+        set.add(j3);
+
+        Assert.assertEquals(2, set.size());
+
+
+        // j4 differs in the supporting triples
+        Justification j4 = new Justification();
+        j4.setTriple(i1);
+        j4.getSupportingTriples().add(t2);
+        j4.getSupportingTriples().add(t4);
+
+        Assert.assertFalse(set.contains(j4));
+
+        set.add(j4);
+
+        Assert.assertEquals(3, set.size());
+    }
+
+
+
     /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
      * @return
      */
     protected KiWiUriResource randomURI() {
-        if(resources.size() > 0 && rnd.nextInt(10) == 0) {
-            // return a resource that was already used
-            return resources.get(rnd.nextInt(resources.size()));
-        } else {
-            KiWiUriResource resource = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-            resources.add(resource);
-            return resource;
-        }
+        KiWiUriResource resource = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        return resource;
     }
 
     /**
@@ -119,31 +155,25 @@ public class JustificationTest {
      * @return
      */
     protected KiWiNode randomObject() {
-        if(objects.size() > 0 && rnd.nextInt(10) == 0) {
-            return objects.get(rnd.nextInt(objects.size()));
-        } else {
-            KiWiNode object;
-            switch(rnd.nextInt(6)) {
-                case 0: object = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-                    break;
-                case 1: object = new KiWiAnonResource();
-                    break;
-                case 2: object = new KiWiStringLiteral(RandomStringUtils.randomAscii(40));
-                    break;
-                case 3: object = new KiWiIntLiteral(rnd.nextLong(), new KiWiUriResource(Namespaces.NS_XSD + "integer"));
-                    break;
-                case 4: object = new KiWiDoubleLiteral(rnd.nextDouble(), new KiWiUriResource(Namespaces.NS_XSD + "double"));
-                    break;
-                case 5: object = new KiWiBooleanLiteral(rnd.nextBoolean(), new KiWiUriResource(Namespaces.NS_XSD + "boolean"));
-                    break;
-                default: object = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-                    break;
+        KiWiNode object;
+        switch(rnd.nextInt(6)) {
+            case 0: object = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+                break;
+            case 1: object = new KiWiAnonResource(RandomStringUtils.randomAscii(8));
+                break;
+            case 2: object = new KiWiStringLiteral(RandomStringUtils.randomAscii(40));
+                break;
+            case 3: object = new KiWiIntLiteral(rnd.nextLong(), new KiWiUriResource(Namespaces.NS_XSD + "integer"));
+                break;
+            case 4: object = new KiWiDoubleLiteral(rnd.nextDouble(), new KiWiUriResource(Namespaces.NS_XSD + "double"));
+                break;
+            case 5: object = new KiWiBooleanLiteral(rnd.nextBoolean(), new KiWiUriResource(Namespaces.NS_XSD + "boolean"));
+                break;
+            default: object = new KiWiUriResource("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+                break;
 
-            }
-            objects.add(object);
-            return object;
         }
-
+        return object;
     }
 
 }
