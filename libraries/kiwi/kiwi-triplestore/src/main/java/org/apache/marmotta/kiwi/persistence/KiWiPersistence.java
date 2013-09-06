@@ -444,7 +444,7 @@ public class KiWiPersistence {
             }
         }
 
-        if(connectionPool != null) {
+        if(initialized && connectionPool != null) {
             Connection conn = connectionPool.getConnection();
             conn.setAutoCommit(false);
 
@@ -508,6 +508,8 @@ public class KiWiPersistence {
 
 
     public void shutdown() {
+        initialized = false;
+
         if(!droppedDatabase && !configuration.isCommitSequencesOnCommit()) {
             log.info("storing in-memory sequences in database ...");
             try {
@@ -531,7 +533,6 @@ public class KiWiPersistence {
         connectionPool = null;
         memorySequences = null;
 
-        initialized = false;
     }
 
     /**

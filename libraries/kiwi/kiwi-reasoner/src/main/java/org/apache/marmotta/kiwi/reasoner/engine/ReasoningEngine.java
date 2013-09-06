@@ -17,27 +17,20 @@
  */
 package org.apache.marmotta.kiwi.reasoner.engine;
 
+import com.google.common.base.Equivalence;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.Iterations;
 import info.aduna.iteration.SingletonIteration;
-import org.apache.marmotta.commons.collections.EquivalenceHashMap;
-import org.apache.marmotta.commons.collections.EquivalenceHashSet;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
-import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
-import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
-import org.apache.marmotta.kiwi.reasoner.model.program.Pattern;
-import org.apache.marmotta.kiwi.reasoner.model.program.Program;
-import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
-import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
-import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
+import org.apache.marmotta.kiwi.reasoner.model.program.*;
 import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
@@ -56,14 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -138,6 +124,8 @@ public class ReasoningEngine implements TransactionListener {
      * The worker thread for the reasoner.
      */
     private SKWRLReasoner reasonerThread;
+
+    private static Equivalence<Statement> equivalence = StatementCommons.quadrupleEquivalence();
 
     /**
      * A lock to ensure that only once thread at a time is carrying out persistence
@@ -349,7 +337,7 @@ public class ReasoningEngine implements TransactionListener {
 
     private void executeReasoner(TransactionData data) {
         updateTaskStatus("fetching worklist");
-        Set<KiWiTriple> newTriples = new EquivalenceHashSet<>(StatementCommons.quadrupleEquivalence());
+        Set<KiWiTriple> newTriples = StatementCommons.newQuadrupleSet();
         for(Statement stmt : data.getAddedTriples()) {
             KiWiTriple t = (KiWiTriple)stmt;
             if(t.isMarkedForReasoning()) {
@@ -517,24 +505,30 @@ public class ReasoningEngine implements TransactionListener {
         updateTaskStatus("loading unsupported triples");
 
         CloseableIteration<KiWiTriple,SQLException> tripleIterator = connection.listUnsupportedTriples();
-
-        updateTaskStatus("deleting unsupported triples");
-        SailConnection tc = store.getConnection();
-        KiWiSailConnection ic = getWrappedConnection(tc);
         try {
-            tc.begin();
-            while(tripleIterator.hasNext()) {
-                ic.removeInferredStatement(tripleIterator.next());
-                count++;
+            if(tripleIterator.hasNext()) {
+
+                updateTaskStatus("deleting unsupported triples");
+                SailConnection tc = store.getConnection();
+                KiWiSailConnection ic = getWrappedConnection(tc);
+                try {
+                    tc.begin();
+                    while(tripleIterator.hasNext()) {
+                        ic.removeInferredStatement(tripleIterator.next());
+                        count++;
+                    }
+                    log.debug("removed {} unsupported triples",count);
+                    tc.commit();
+                } catch(SailException ex) {
+                    ic.rollback();
+                    throw ex;
+                } finally {
+                    ic.close();
+                }
             }
-            log.debug("removed {} unsupported triples",count);
-            tc.commit();
-        } catch(SailException ex) {
-            ic.rollback();
-            throw ex;
         } finally {
             Iterations.closeCloseable(tripleIterator);
-            ic.close();
+
         }
     }
 
@@ -768,7 +762,7 @@ public class ReasoningEngine implements TransactionListener {
         HashSet<Justification> justifications = new HashSet<Justification>();
         Iterations.addAll(connection.listJustificationsForTriple(t), justifications);
         for(Justification j : transactionJustifications) {
-            if(j.getTriple().equals(t)) {
+            if(equivalence.equivalent(j.getTriple(), t)) {
                 justifications.add(j);
             }
         }
@@ -784,7 +778,7 @@ public class ReasoningEngine implements TransactionListener {
      */
     private Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
         Set<Justification> baseJustifications = new HashSet<Justification>();
-        Map<KiWiTriple,Collection<Justification>> justificationCache = new HashMap<KiWiTriple, Collection<Justification>>();
+        Map<KiWiTriple,Collection<Justification>> justificationCache = StatementCommons.newQuadrupleMap();
 
         for(Justification justification : justifications) {
             KiWiTriple triple = justification.getTriple();
@@ -842,7 +836,7 @@ public class ReasoningEngine implements TransactionListener {
      */
     private void removeDuplicateJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
         // remove duplicate justifications
-        Map<KiWiTriple,Collection<Justification>> justificationCache = new EquivalenceHashMap<KiWiTriple, Collection<Justification>>(StatementCommons.quadrupleEquivalence());
+        Map<KiWiTriple,Collection<Justification>> justificationCache = StatementCommons.newQuadrupleMap();
         for(Iterator<Justification> it = justifications.iterator(); it.hasNext(); ) {
             Justification j = it.next();
 
@@ -928,6 +922,8 @@ public class ReasoningEngine implements TransactionListener {
     }
 
     public void shutdown() {
+        log.info("shutting down reasoning service ...");
+
         for(int i = 0; i<10 && isRunning(); i++) {
             log.warn("reasoner not yet finished, waiting for 10 seconds (try={})", i+1);
             try {
@@ -936,7 +932,6 @@ public class ReasoningEngine implements TransactionListener {
             }
         }
 
-        log.info("shutting down reasoning service ...");
         reasonerThread.shutdown();
     }
 
@@ -970,6 +965,7 @@ public class ReasoningEngine implements TransactionListener {
         }
 
         public void shutdown() {
+            log.info("REASONER: signalling shutdown to reasoner thread");
             shutdown = true;
             this.interrupt();
         }

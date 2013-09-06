@@ -326,6 +326,9 @@ public class ReasoningEngineTest {
                 log.debug("sleeping for 100ms to let engine finish processing ... ");
                 Thread.sleep(100);
             }
+
+            log.debug("reasoning finished, running tests");
+
             con.begin();
 
             List<Statement> inferred4 = Iterations.asList(con.getStatements(a,property,d, true));

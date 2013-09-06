@@ -56,7 +56,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
     private NavigableMap<IntArray,Triple> indexCSPO;
 
     public TripleTable() {
-        data = new EquivalenceHashSet<Triple>(StatementCommons.quadrupleEquivalence());
+        data = StatementCommons.newQuadrupleSet();
         indexSPOC = new TreeMap<IntArray, Triple>();
         indexCSPO = new TreeMap<IntArray, Triple>();
     }

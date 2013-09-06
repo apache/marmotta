@@ -1195,7 +1195,7 @@ public class KiWiConnection {
                     // need to remove from triple batch and from database
                     commitLock.lock();
                     try {
-                        if(!tripleBatch.remove(triple)) {
+                        if(tripleBatch == null || !tripleBatch.remove(triple)) {
                             requireJDBCConnection();
 
                             PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
