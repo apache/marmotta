@@ -107,10 +107,12 @@ public class EquivalenceHashSetTest {
 
         // test sets with elements, insertion order different
         Assert.assertEquals(set1,set2);
+        Assert.assertEquals(set1.hashCode(), set2.hashCode());
 
         set1.add(c1);
 
         Assert.assertNotEquals(set1,set2);
+        Assert.assertNotEquals(set1.hashCode(), set2.hashCode());
 
 
     }

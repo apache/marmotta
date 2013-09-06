@@ -924,10 +924,10 @@ public class ReasoningEngine implements TransactionListener {
     public void shutdown() {
         log.info("shutting down reasoning service ...");
 
-        for(int i = 0; i<10 && isRunning(); i++) {
-            log.warn("reasoner not yet finished, waiting for 10 seconds (try={})", i+1);
+        for(int i = 0; i<20 && isRunning(); i++) {
+            log.warn("reasoner not yet finished, waiting for 1 seconds (try={})", i+1);
             try {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
         }

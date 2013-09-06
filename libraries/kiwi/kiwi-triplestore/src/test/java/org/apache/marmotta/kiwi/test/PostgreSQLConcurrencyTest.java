@@ -30,6 +30,8 @@ public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
     public static void setup() throws RepositoryException {
         logger = LoggerFactory.getLogger(PostgreSQLConcurrencyTest.class);
 
+        logger.info("creating test setup...");
+
         KiWiConfiguration psql = KiWiDatabaseRunner.createKiWiConfig("PostgreSQL", new PostgreSQLDialect());
         DBConnectionChecker.checkDatabaseAvailability(psql);
         
@@ -42,6 +44,7 @@ public class PostgreSQLConcurrencyTest extends ConcurrencyTestBase {
 
     @AfterClass
     public static void dropDatabase() throws RepositoryException, SQLException, SailException {
+        logger.info("cleaning up test setup...");
     	if (store != null && store.isInitialized()) {
             assertTrue(store.checkConsistency());
             store.closeValueFactory(); // release all connections before dropping the database
