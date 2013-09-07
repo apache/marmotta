@@ -132,6 +132,11 @@ public class ReasoningEngine implements TransactionListener {
      */
     private Lock persistenceLock;
 
+    // for mocking
+    protected ReasoningEngine() {
+
+    }
+
     public ReasoningEngine(KiWiReasoningPersistence persistence, TransactionalSail store, ReasoningConfiguration config) {
         this.persistence = persistence;
         this.store = store;
@@ -757,7 +762,7 @@ public class ReasoningEngine implements TransactionListener {
      * @param t
      * @return
      */
-    private Collection<Justification> getJustifications(KiWiReasoningConnection connection, KiWiTriple t, Set<Justification> transactionJustifications) throws SQLException {
+    protected Collection<Justification> getJustifications(KiWiReasoningConnection connection, KiWiTriple t, Set<Justification> transactionJustifications) throws SQLException {
         // TODO: transactionJustifications are ignored
         HashSet<Justification> justifications = new HashSet<Justification>();
         Iterations.addAll(connection.listJustificationsForTriple(t), justifications);
@@ -776,7 +781,7 @@ public class ReasoningEngine implements TransactionListener {
      * @param justifications
      * @return
      */
-    private Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
+    protected Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
         Set<Justification> baseJustifications = new HashSet<Justification>();
         Map<KiWiTriple,Collection<Justification>> justificationCache = StatementCommons.newQuadrupleMap();
 
