@@ -36,9 +36,7 @@ import org.openrdf.model.Statement;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.*;
 
 /**
  * Test if the ReasoningEngine's way of resolving base justifications works. Mocks the lookup for base justifications.
@@ -55,9 +53,9 @@ public class JustificationResolutionTest {
     protected static Random rnd = new Random();
 
 
-    private KiWiTriple t1, t2, t3, t4; // base
-    private KiWiTriple i1, i2, i3, i4; // inferred
-    private Justification j1, j2, j3, j4;
+    private KiWiTriple t1, t2, t3, t4, t5; // base
+    private KiWiTriple i1, i2, i3, i4, i5, i6; // inferred
+    private Justification j1, j2, j3, j4, j5, tj1, tj2, tj3;
     private Rule r1, r2;
 
     private KiWiUriResource ctx_inferred;
@@ -86,12 +84,14 @@ public class JustificationResolutionTest {
         t2 = new KiWiTriple(s1,p1,o2, null);
         t3 = new KiWiTriple(s2,p1,o3, null);
         t4 = new KiWiTriple(s1,p1,o1, randomURI());
+        t5 = new KiWiTriple(s3,p1,o1, randomURI());
 
 
         i1 = new KiWiTriple(s1,p2,o1, ctx_inferred); i1.setInferred(true);
         i2 = new KiWiTriple(s1,p1,o2, ctx_inferred); i2.setInferred(true);
         i3 = new KiWiTriple(s3,p1,o3, ctx_inferred); i3.setInferred(true);
         i4 = new KiWiTriple(s1,p2,o1, ctx_inferred); i4.setInferred(true);
+        i5 = new KiWiTriple(s1,p2,o3, ctx_inferred); i5.setInferred(true);
 
         // assume i1 is justified by t1 and t2;
         j1 = new Justification();
@@ -115,18 +115,52 @@ public class JustificationResolutionTest {
 
         baseJustifications.put(i2, Sets.newHashSet(j2,j3));
 
+        // assume that i5 as well is justified by two justifications
+        j4 = new Justification();
+        j4.setTriple(i5);
+        j4.getSupportingTriples().add(t1);
+        j4.getSupportingTriples().add(t4);
 
 
-    }
+        j5 = new Justification();
+        j5.setTriple(i5);
+        j5.getSupportingTriples().add(t2);
+        j5.getSupportingTriples().add(t5);
 
 
-    @Test
-    public void testResolveBaseTriples() throws Exception {
+        baseJustifications.put(i5, Sets.newHashSet(j4,j5));
+
         // i3 justified by i1 and t3
-        Justification tj1 = new Justification();
+        tj1 = new Justification();
         tj1.setTriple(i3);
         tj1.getSupportingTriples().add(i1);
         tj1.getSupportingTriples().add(t3);
+
+
+        // i4 justified by i1 and i2
+        tj2 = new Justification();
+        tj2.setTriple(i4);
+        tj2.getSupportingTriples().add(i1);
+        tj2.getSupportingTriples().add(i2);
+
+
+        // i6 is justified by i2 and i5 (so multiplexing needed)
+        tj3 = new Justification();
+        tj3.setTriple(i6);
+        tj3.getSupportingTriples().add(i2);
+        tj3.getSupportingTriples().add(i5);
+
+    }
+
+    /**
+     * Test substitution of a single inferred triple supporting the triple by a single justification, so
+     * the number of new justifications will be the same as before, but the new justification will only
+     * contain base triples.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testResolveBaseTriplesSingle() throws Exception {
 
         Collection<Justification> r1 = engine.getBaseJustifications(null,Collections.singleton(tj1));
         Assert.assertEquals(1, r1.size());
@@ -138,12 +172,16 @@ public class JustificationResolutionTest {
         Assert.assertTrue(tj1r.getSupportingTriples().contains(t3));
 
 
-        // i4 justified by i1 and i2
-        Justification tj2 = new Justification();
-        tj2.setTriple(i4);
-        tj2.getSupportingTriples().add(i1);
-        tj2.getSupportingTriples().add(i2);
 
+    }
+
+    /**
+     * Test the substitution of an inferred triple that has several justifications itself; in this case the
+     * result will be split according to the number of justifications of the inferred triple
+     * @throws Exception
+     */
+    @Test
+    public void testResolveBaseTriplesMulti() throws Exception {
         Collection<Justification> r2 = engine.getBaseJustifications(null,Collections.singleton(tj2));
 
         // since i2 is justified by two justifications, the result for i4 also needs to have two
@@ -151,6 +189,41 @@ public class JustificationResolutionTest {
 
         Assert.assertThat(r2,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1,t2,t3,t4))));
         Assert.assertThat(r2,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1,t2,t4))));
+    }
+
+    /**
+     * Test the substitution of more than one justification, the result should include the new base justificatoins for
+     * all justifications in the set
+     * @throws Exception
+     */
+    @Test
+    public void testResolveBaseTriplesSet() throws Exception {
+        Collection<Justification> r3 = engine.getBaseJustifications(null,Sets.newHashSet(tj1, tj2));
+
+        // since i2 is justified by two justifications, the result for i4 also needs to have two
+        Assert.assertEquals(3, r3.size());
+
+        Assert.assertThat(r3,Matchers.<Justification>hasItem(allOf(hasProperty("triple", is(i3)),hasProperty("supportingTriples", hasItems(t1, t2, t3)))));
+        Assert.assertThat(r3,Matchers.<Justification>hasItem(allOf(hasProperty("triple", is(i4)),hasProperty("supportingTriples", hasItems(t1, t2, t3, t4)))));
+        Assert.assertThat(r3,Matchers.<Justification>hasItem(allOf(hasProperty("triple", is(i4)),hasProperty("supportingTriples", hasItems(t1,t2,t4)))));
+    }
+
+    /**
+     * Test the substitution of several inferred triple that have several justifications itself; the result needs to be
+     * multiplexed.
+     * @throws Exception
+     */
+    @Test
+    public void testResolveBaseTriplesMultiplex() throws Exception {
+        Collection<Justification> r4 = engine.getBaseJustifications(null,Collections.singleton(tj3));
+
+        // since i2 is justified by two justifications, the result for i4 also needs to have two
+        Assert.assertEquals(4, r4.size());
+
+        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1,t3,t4))));
+        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t2,t3,t4,t5))));
+        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1,t2,t4))));
+        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", allOf(hasItems(t2,t4,t5), not(hasItem(t3))))));
     }
 
 
