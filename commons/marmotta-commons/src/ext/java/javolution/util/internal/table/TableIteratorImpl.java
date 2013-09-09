@@ -8,10 +8,10 @@
  */
 package javolution.util.internal.table;
 
+import javolution.util.service.TableService;
+
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-
-import javolution.util.service.TableService;
 
 /**
  * A generic iterator over a table.

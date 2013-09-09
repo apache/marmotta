@@ -115,6 +115,11 @@ The SwingBits library is copyright (C) 2006 Michael Hjembaek, and licensed
 under a New BSD License. The source code is available at
 http://swingbits.sourceforge.net/
 
+The module commons/marmotta-commons contains a modified and reduced version
+of the javolution library. Javolution has copyright (c) 2012, Javolution and
+ is licensed under BSD license. The original source code is available at
+http://javolution.org/
+
 
 The module commons/sesame-tools-rio-rss contains source code from the
 orphaned ROME project. ROME has copyright 2004 Sun Microsystems, Inc.

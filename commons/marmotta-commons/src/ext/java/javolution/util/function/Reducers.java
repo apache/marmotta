@@ -8,7 +8,9 @@
  */
 package javolution.util.function;
 
-import static javolution.lang.Realtime.Limit.LINEAR;
+import javolution.lang.Parallelizable;
+import javolution.lang.Realtime;
+import javolution.util.FastCollection;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,9 +18,7 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javolution.lang.Parallelizable;
-import javolution.lang.Realtime;
-import javolution.util.FastCollection;
+import static javolution.lang.Realtime.Limit.LINEAR;
 
 /**
  * <p> A set of useful {@link Reducer reducers} of collection elements.</p>

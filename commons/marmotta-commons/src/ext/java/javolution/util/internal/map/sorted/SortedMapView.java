@@ -8,13 +8,13 @@
  */
 package javolution.util.internal.map.sorted;
 
-import java.util.Comparator;
-import java.util.Map;
-
 import javolution.util.internal.map.MapView;
 import javolution.util.internal.set.sorted.SubSortedSetImpl;
 import javolution.util.service.SortedMapService;
 import javolution.util.service.SortedSetService;
+
+import java.util.Comparator;
+import java.util.Map;
 
 /**
  * Sorted map view implementation; can be used as root class for implementations 

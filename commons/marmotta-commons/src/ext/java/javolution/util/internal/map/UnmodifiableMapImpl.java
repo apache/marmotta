@@ -8,10 +8,10 @@
  */
 package javolution.util.internal.map;
 
-import java.util.Iterator;
-
 import javolution.util.function.Equality;
 import javolution.util.service.MapService;
+
+import java.util.Iterator;
 
 /**
  *  * An unmodifiable view over a map.

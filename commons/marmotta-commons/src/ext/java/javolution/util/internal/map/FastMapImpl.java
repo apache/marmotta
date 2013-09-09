@@ -8,10 +8,10 @@
  */
 package javolution.util.internal.map;
 
+import javolution.util.function.Equality;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import javolution.util.function.Equality;
 
 /**
  * The default {@link javolution.util.FastMap FastMap} implementation 

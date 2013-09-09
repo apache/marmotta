@@ -8,10 +8,6 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.CONSTANT;
-
-import java.util.Set;
-
 import javolution.lang.Realtime;
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
@@ -22,6 +18,10 @@ import javolution.util.internal.set.FilteredSetImpl;
 import javolution.util.internal.set.SharedSetImpl;
 import javolution.util.internal.set.UnmodifiableSetImpl;
 import javolution.util.service.SetService;
+
+import java.util.Set;
+
+import static javolution.lang.Realtime.Limit.CONSTANT;
 
 /**
  * <p> A high-performance hash set with {@link Realtime real-time} behavior.</p>

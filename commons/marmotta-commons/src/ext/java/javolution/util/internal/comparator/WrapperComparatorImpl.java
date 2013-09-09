@@ -8,9 +8,9 @@
  */
 package javolution.util.internal.comparator;
 
-import java.util.Comparator;
-
 import javolution.util.function.Equality;
+
+import java.util.Comparator;
 
 /**
  * A comparator service wrapping a {@ link Comparator}, since 

@@ -8,10 +8,6 @@
  */
 package javolution.util.internal.map;
 
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.Map;
-
 import javolution.util.function.Consumer;
 import javolution.util.function.Equality;
 import javolution.util.function.Function;
@@ -21,6 +17,10 @@ import javolution.util.internal.set.SetView;
 import javolution.util.service.CollectionService;
 import javolution.util.service.MapService;
 import javolution.util.service.SetService;
+
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Map view implementation; can be used as root class for implementations 

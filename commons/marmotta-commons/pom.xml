@@ -140,18 +140,6 @@
         </dependency>
         -->
 
-        <!-- OSGi dependencies for Javolution -->
-        <dependency> <!-- OSGI Core Library -->
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>4.3.1</version>
-        </dependency>
-        <dependency> <!-- OSGI Compendium (log service) -->
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <version>4.3.1</version>
-        </dependency>
-
     </dependencies>
     
 </project>

@@ -8,12 +8,12 @@
  */
 package javolution.util.internal.table;
 
+import javolution.util.internal.collection.AtomicCollectionImpl;
+import javolution.util.service.TableService;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
-
-import javolution.util.internal.collection.AtomicCollectionImpl;
-import javolution.util.service.TableService;
 
 /**
  * An atomic view over a table.

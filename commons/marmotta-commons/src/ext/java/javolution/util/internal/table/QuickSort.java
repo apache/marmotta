@@ -8,9 +8,9 @@
  */
 package javolution.util.internal.table;
 
-import java.util.Comparator;
-
 import javolution.util.service.TableService;
+
+import java.util.Comparator;
 
 /**
  * A quick sort utility class.

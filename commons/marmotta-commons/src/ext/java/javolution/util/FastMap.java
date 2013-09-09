@@ -8,29 +8,23 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.CONSTANT;
-import static javolution.lang.Realtime.Limit.LINEAR;
+import javolution.lang.Immutable;
+import javolution.lang.Parallelizable;
+import javolution.lang.Realtime;
+import javolution.util.function.Consumer;
+import javolution.util.function.Equalities;
+import javolution.util.function.Equality;
+import javolution.util.internal.map.*;
+import javolution.util.service.CollectionService;
+import javolution.util.service.MapService;
 
 import java.io.Serializable;
 import java.util.ConcurrentModificationException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import javolution.lang.Immutable;
-import javolution.lang.Parallelizable;
-import javolution.lang.Realtime;
-import javolution.text.TextContext;
-import javolution.util.function.Consumer;
-import javolution.util.function.Equalities;
-import javolution.util.function.Equality;
-import javolution.util.internal.map.AtomicMapImpl;
-import javolution.util.internal.map.FastMapImpl;
-import javolution.util.internal.map.ParallelMapImpl;
-import javolution.util.internal.map.SequentialMapImpl;
-import javolution.util.internal.map.SharedMapImpl;
-import javolution.util.internal.map.UnmodifiableMapImpl;
-import javolution.util.service.CollectionService;
-import javolution.util.service.MapService;
+import static javolution.lang.Realtime.Limit.CONSTANT;
+import static javolution.lang.Realtime.Limit.LINEAR;
 
 /**
  * <p> A high-performance hash map with {@link Realtime real-time} behavior. 
@@ -161,20 +155,6 @@ public class FastMap<K, V> implements Map<K, V>, ConcurrentMap<K, V>,
     @Parallelizable(mutexFree = false, comment = "Use multiple-readers/single-writer lock.")
     public FastMap<K, V> shared() {
         return new FastMap<K, V>(new SharedMapImpl<K, V>(service));
-    }
-
-    /** 
-     * Returns a parallel map. Parallel maps affect closure-based operations
-     * over the map or any of its views (entry, key, values, etc.), all others 
-     * operations behaving the same. Parallel maps do not require this map 
-     * to be thread-safe (internal synchronization).
-     * 
-     * @see #perform(Consumer)
-     * @see #update(Consumer)
-     * @see FastCollection#parallel()
-     */
-    public FastMap<K, V> parallel() {
-        return new FastMap<K, V>(new ParallelMapImpl<K, V>(service));
     }
 
     /** 
@@ -409,7 +389,7 @@ public class FastMap<K, V> implements Map<K, V>, ConcurrentMap<K, V>,
     @Override
     @Realtime(limit = LINEAR)
     public String toString() {
-        return TextContext.getFormat(FastCollection.class).format(entrySet());
+        return entrySet().toString();
     }
 
     /**

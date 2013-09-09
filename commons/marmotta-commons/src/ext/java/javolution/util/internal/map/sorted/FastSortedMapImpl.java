@@ -8,10 +8,10 @@
  */
 package javolution.util.internal.map.sorted;
 
-import java.util.Iterator;
-
 import javolution.util.function.Equality;
 import javolution.util.internal.table.sorted.FastSortedTableImpl;
+
+import java.util.Iterator;
 
 /**
  * A map view over a sorted table of entries.

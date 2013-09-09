@@ -8,11 +8,6 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.LOG_N;
-
-import java.util.Comparator;
-import java.util.SortedMap;
-
 import javolution.lang.Realtime;
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
@@ -21,6 +16,11 @@ import javolution.util.internal.map.sorted.FastSortedMapImpl;
 import javolution.util.internal.map.sorted.SharedSortedMapImpl;
 import javolution.util.internal.map.sorted.UnmodifiableSortedMapImpl;
 import javolution.util.service.SortedMapService;
+
+import java.util.Comparator;
+import java.util.SortedMap;
+
+import static javolution.lang.Realtime.Limit.LOG_N;
 
 /**
  * <p> A high-performance sorted map with {@link Realtime real-time} behavior.</p>

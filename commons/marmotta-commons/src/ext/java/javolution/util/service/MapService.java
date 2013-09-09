@@ -8,13 +8,13 @@
  */
 package javolution.util.service;
 
+import javolution.util.function.Equality;
+import javolution.util.function.Splittable;
+
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-
-import javolution.util.function.Equality;
-import javolution.util.function.Splittable;
 
 /**
  * The set of related map functionalities required to implement fast maps.

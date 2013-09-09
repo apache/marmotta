@@ -8,12 +8,12 @@
  */
 package javolution.util.internal.collection;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import javolution.util.function.Consumer;
 import javolution.util.function.Equality;
 import javolution.util.service.CollectionService;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * An atomic view over a collection (copy-on-write).

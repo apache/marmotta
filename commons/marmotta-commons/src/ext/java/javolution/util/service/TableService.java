@@ -8,8 +8,8 @@
  */
 package javolution.util.service;
 
-import java.util.List;
 import java.util.Deque;
+import java.util.List;
 import java.util.RandomAccess;
 
 /**

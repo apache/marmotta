@@ -8,11 +8,11 @@
  */
 package javolution.util.service;
 
-import java.io.Serializable;
-import java.util.Collection;
-
 import javolution.util.function.Equality;
 import javolution.util.function.Splittable;
+
+import java.io.Serializable;
+import java.util.Collection;
 
 /**
  * The fundamental set of related functionalities required to implement 

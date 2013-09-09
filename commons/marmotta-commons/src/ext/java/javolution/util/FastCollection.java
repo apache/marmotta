@@ -8,42 +8,20 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.CONSTANT;
-import static javolution.lang.Realtime.Limit.LINEAR;
-import static javolution.lang.Realtime.Limit.N_SQUARE;
+import javolution.lang.Immutable;
+import javolution.lang.Parallelizable;
+import javolution.lang.Realtime;
+import javolution.util.function.*;
+import javolution.util.internal.collection.*;
+import javolution.util.service.CollectionService;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
-import javolution.lang.Immutable;
-import javolution.lang.Parallelizable;
-import javolution.lang.Realtime;
-import javolution.text.Cursor;
-import javolution.text.DefaultTextFormat;
-import javolution.text.TextContext;
-import javolution.text.TextFormat;
-import javolution.util.function.Consumer;
-import javolution.util.function.Equalities;
-import javolution.util.function.Equality;
-import javolution.util.function.Function;
-import javolution.util.function.Predicate;
-import javolution.util.function.Reducer;
-import javolution.util.function.Reducers;
-import javolution.util.internal.collection.AtomicCollectionImpl;
-import javolution.util.internal.collection.DistinctCollectionImpl;
-import javolution.util.internal.collection.FilteredCollectionImpl;
-import javolution.util.internal.collection.MappedCollectionImpl;
-import javolution.util.internal.collection.ParallelCollectionImpl;
-import javolution.util.internal.collection.ReversedCollectionImpl;
-import javolution.util.internal.collection.SequentialCollectionImpl;
-import javolution.util.internal.collection.SharedCollectionImpl;
-import javolution.util.internal.collection.SortedCollectionImpl;
-import javolution.util.internal.collection.UnmodifiableCollectionImpl;
-import javolution.util.service.CollectionService;
+import static javolution.lang.Realtime.Limit.*;
 
 /**
  * <p> A closure-based collection supporting numerous views which can be chained.
@@ -165,7 +143,6 @@ import javolution.util.service.CollectionService;
  * @version 6.0, July 21, 2013
  */
 @Realtime
-@DefaultTextFormat(FastCollection.Format.class)
 public abstract class FastCollection<E> implements Collection<E>, Serializable {
 
     private static final long serialVersionUID = 0x600L; // Version.
@@ -203,24 +180,6 @@ public abstract class FastCollection<E> implements Collection<E>, Serializable {
     @Parallelizable(mutexFree = false, comment = "Use multiple-readers/single-writer lock.")
     public FastCollection<E> shared() {
         return new SharedCollectionImpl<E>(service());
-    }
-
-    /** 
-     * Returns a parallel collection. Closure-based operations are 
-     * performed {@link javolution.context.ConcurrentContext in parallel} 
-     * on {@link CollectionService#split sub-views} of this collection.
-     * The number of parallel views is equals to  
-     * {@link javolution.context.ConcurrentContext#getConcurrency() 
-     * concurrency}{@code + 1}.
-     * 
-     * @see #perform(Consumer)
-     * @see #update(Consumer)
-     * @see #forEach(Consumer)
-     * @see #removeIf(Predicate)
-     * @see #reduce(Reducer)
-     */
-    public FastCollection<E> parallel() {
-        return new ParallelCollectionImpl<E>(service());
     }
 
     /** 
@@ -640,16 +599,21 @@ public abstract class FastCollection<E> implements Collection<E>, Serializable {
         return service().hashCode();
     }
 
-    /** 
-     * Returns the string representation of this collection using its 
-     * default {@link TextFormat format}.
-     * 
-     * @see TextContext
-     */
     @Override
     @Realtime(limit = LINEAR)
     public String toString() {
-        return TextContext.getFormat(FastCollection.class).format(this);
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+
+        Iterator<E> it = this.iterator();
+        while(it.hasNext()) {
+            builder.append(it.next().toString());
+            if(it.hasNext()) {
+                builder.append(",");
+            }
+        }
+        builder.append("]");
+        return builder.toString();
     }
 
     /**
@@ -666,50 +630,5 @@ public abstract class FastCollection<E> implements Collection<E>, Serializable {
         return collection.service();
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Textual format.
-    //
-
-    /**
-     * Default text format for fast collections (parsing not supported). 
-     * It is the format used when printing standard {@code java.util.Collection} 
-     * instances except that elements are written using 
-     * their current {@link TextContext TextContext} format.
-     */
-    @Parallelizable
-    public static class Format extends TextFormat<FastCollection<?>> {
-
-        @Override
-        public FastCollection<Object> parse(CharSequence csq, Cursor cursor)
-                throws IllegalArgumentException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Appendable format(FastCollection<?> that, final Appendable dest)
-                throws IOException {
-            dest.append('[');
-            Class<?> elementType = null;
-            TextFormat<Object> format = null;
-            for (Object element : that) {
-                if (elementType == null) elementType = Void.class; 
-                else dest.append(", "); // Not the first.
-                if (element == null) {
-                    dest.append("null");
-                    continue;
-                }
-                Class<?> cls = element.getClass();
-                if (elementType.equals(cls)) {
-                    format.format(element, dest);
-                    continue;
-                }
-                elementType = cls;
-                format = TextContext.getFormat(cls);
-                format.format(element, dest);
-            }
-            return dest.append(']');
-        }
-
-    }
 
 }

@@ -8,7 +8,6 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.LOG_N;
 import javolution.lang.Realtime;
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
@@ -17,6 +16,8 @@ import javolution.util.internal.table.sorted.FastSortedTableImpl;
 import javolution.util.internal.table.sorted.SharedSortedTableImpl;
 import javolution.util.internal.table.sorted.UnmodifiableSortedTableImpl;
 import javolution.util.service.SortedTableService;
+
+import static javolution.lang.Realtime.Limit.LOG_N;
 
 /**
  * <p> A high-performance sorted table with {@link Realtime real-time} behavior.

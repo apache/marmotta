@@ -8,12 +8,12 @@
  */
 package javolution.util.internal.collection;
 
-import java.util.Iterator;
-
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
 import javolution.util.function.Function;
 import javolution.util.service.CollectionService;
+
+import java.util.Iterator;
 
 /**
  * A mapped view over a collection.

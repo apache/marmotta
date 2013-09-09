@@ -8,13 +8,13 @@
  */
 package javolution.util.internal.table;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.ListIterator;
-
 import javolution.util.internal.ReadWriteLockImpl;
 import javolution.util.internal.collection.SharedCollectionImpl;
 import javolution.util.service.TableService;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 /**
  * A shared view over a table allowing concurrent access and sequential updates.

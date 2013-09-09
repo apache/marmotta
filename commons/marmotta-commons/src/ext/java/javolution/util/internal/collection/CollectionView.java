@@ -8,16 +8,16 @@
  */
 package javolution.util.internal.collection;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import javolution.util.FastCollection;
 import javolution.util.function.Consumer;
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
 import javolution.util.service.CollectionService;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Collection view implementation; can be used as root class for implementations 

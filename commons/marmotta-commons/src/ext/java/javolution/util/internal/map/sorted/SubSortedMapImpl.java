@@ -8,11 +8,11 @@
  */
 package javolution.util.internal.map.sorted;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import javolution.util.function.Equality;
 import javolution.util.service.SortedMapService;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A view over a portion of a sorted map. 

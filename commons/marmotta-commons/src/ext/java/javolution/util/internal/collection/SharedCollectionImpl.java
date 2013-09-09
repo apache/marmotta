@@ -8,13 +8,13 @@
  */
 package javolution.util.internal.collection;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import javolution.util.function.Consumer;
 import javolution.util.function.Equality;
 import javolution.util.internal.ReadWriteLockImpl;
 import javolution.util.service.CollectionService;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A shared view over a collection (reads-write locks). 

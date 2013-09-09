@@ -8,10 +8,6 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.LOG_N;
-
-import java.util.SortedSet;
-
 import javolution.lang.Realtime;
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
@@ -20,6 +16,10 @@ import javolution.util.internal.set.sorted.AtomicSortedSetImpl;
 import javolution.util.internal.set.sorted.SharedSortedSetImpl;
 import javolution.util.internal.set.sorted.UnmodifiableSortedSetImpl;
 import javolution.util.service.SortedSetService;
+
+import java.util.SortedSet;
+
+import static javolution.lang.Realtime.Limit.LOG_N;
 
 /**
  * <p> A high-performance sorted set with {@link Realtime real-time} behavior.</p>

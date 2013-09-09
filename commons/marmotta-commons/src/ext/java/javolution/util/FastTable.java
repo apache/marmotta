@@ -8,31 +8,16 @@
  */
 package javolution.util;
 
-import static javolution.lang.Realtime.Limit.CONSTANT;
-import static javolution.lang.Realtime.Limit.LINEAR;
-import static javolution.lang.Realtime.Limit.LOG_N;
-import static javolution.lang.Realtime.Limit.N_LOG_N;
-import static javolution.lang.Realtime.Limit.N_SQUARE;
-
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.RandomAccess;
-
 import javolution.lang.Realtime;
 import javolution.util.function.Consumer;
 import javolution.util.function.Equalities;
 import javolution.util.function.Equality;
-import javolution.util.internal.table.AtomicTableImpl;
-import javolution.util.internal.table.FastTableImpl;
-import javolution.util.internal.table.QuickSort;
-import javolution.util.internal.table.ReversedTableImpl;
-import javolution.util.internal.table.SharedTableImpl;
-import javolution.util.internal.table.SubTableImpl;
-import javolution.util.internal.table.UnmodifiableTableImpl;
+import javolution.util.internal.table.*;
 import javolution.util.service.TableService;
+
+import java.util.*;
+
+import static javolution.lang.Realtime.Limit.*;
 
 /**
  * <p> A high-performance table (fractal-based) with {@link Realtime real-time}

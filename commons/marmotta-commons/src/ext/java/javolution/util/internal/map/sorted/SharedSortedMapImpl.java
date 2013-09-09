@@ -8,13 +8,13 @@
  */
 package javolution.util.internal.map.sorted;
 
-import java.util.Comparator;
-import java.util.Map;
-
 import javolution.util.internal.ReadWriteLockImpl;
 import javolution.util.internal.map.SharedMapImpl;
 import javolution.util.service.SortedMapService;
 import javolution.util.service.SortedSetService;
+
+import java.util.Comparator;
+import java.util.Map;
 
 /**
  * A shared view over a sorted map.

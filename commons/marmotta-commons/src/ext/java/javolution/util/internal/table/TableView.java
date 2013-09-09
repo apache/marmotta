@@ -8,14 +8,14 @@
  */
 package javolution.util.internal.table;
 
+import javolution.util.function.Equality;
+import javolution.util.internal.collection.CollectionView;
+import javolution.util.service.TableService;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-
-import javolution.util.function.Equality;
-import javolution.util.internal.collection.CollectionView;
-import javolution.util.service.TableService;
 
 /**
  * Table view implementation; can be used as root class for implementations 

@@ -8,12 +8,12 @@
  */
 package javolution.util.internal.map;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import javolution.util.function.Consumer;
 import javolution.util.function.Equality;
 import javolution.util.service.MapService;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * An atomic view over a map  (copy-on-write).

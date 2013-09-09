@@ -8,11 +8,11 @@
  */
 package javolution.util.internal.collection;
 
-import java.util.Iterator;
-
 import javolution.util.function.Equality;
 import javolution.util.function.Predicate;
 import javolution.util.service.CollectionService;
+
+import java.util.Iterator;
 
 /**
  * A filtered view over a collection.

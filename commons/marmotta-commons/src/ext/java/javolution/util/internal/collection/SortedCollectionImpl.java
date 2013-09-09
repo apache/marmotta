@@ -8,13 +8,13 @@
  */
 package javolution.util.internal.collection;
 
-import java.util.Comparator;
-import java.util.Iterator;
-
 import javolution.util.FastTable;
 import javolution.util.function.Equality;
 import javolution.util.internal.comparator.WrapperComparatorImpl;
 import javolution.util.service.CollectionService;
+
+import java.util.Comparator;
+import java.util.Iterator;
 
 /**
  * A sorted view over a collection.
