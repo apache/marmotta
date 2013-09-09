@@ -641,7 +641,7 @@ public class RepositoryTest {
         }
 
 
-        String update = "DELETE { ?s ?p ?o } INSERT { <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/name> \"Hans Meier\" . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/based_near> <http://dbpedia.org/resource/Traunstein> } WHERE { ?s ?p ?o . FILTER ( ?s = <http://localhost:8080/LMF/resource/hans_meier> ) }";
+        String update = "DELETE { ?s ?p ?o } INSERT { <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/name> \"Hans Meier\" . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/based_near> <http://dbpedia.org/resource/Traunstein> . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/interest> <http://rdf.freebase.com/ns/en.linux> } WHERE { ?s ?p ?o . FILTER ( ?s = <http://localhost:8080/LMF/resource/hans_meier> ) }";
 
         RepositoryConnection connectionUpdate = repository.getConnection();
         try {
@@ -658,10 +658,13 @@ public class RepositoryTest {
             URI hans_meier = repository.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
             URI foaf_name  = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/name");
             URI foaf_based_near = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/based_near");
+            URI foaf_interest = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/interest");
+            URI freebase_linux = repository.getValueFactory().createURI("http://rdf.freebase.com/ns/en.linux");
             URI traunstein = repository.getValueFactory().createURI("http://dbpedia.org/resource/Traunstein");
 
             Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_name,null, true));
             Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_based_near,traunstein, true));
+            Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_interest,freebase_linux, true));
 
             connectionVerify.commit();
         } finally {
