@@ -66,7 +66,7 @@ import com.google.common.collect.Iterables;
 
 /**
  * Test the Sesame repository functionality backed by the KiWi triple store. 
- * 
+ *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @RunWith(KiWiDatabaseRunner.class)
@@ -76,7 +76,7 @@ public class RepositoryTest {
 
     private Repository repository;
 
-	private KiWiStore store;
+    private KiWiStore store;
 
     private final KiWiConfiguration kiwiConfiguration;
 
@@ -85,10 +85,10 @@ public class RepositoryTest {
 
     }
 
-	@Before
+    @Before
     public void initDatabase() throws RepositoryException {
         store = new KiWiStore(kiwiConfiguration);
-		repository = new SailRepository(store);
+        repository = new SailRepository(store);
         repository.initialize();
     }
 
@@ -620,6 +620,53 @@ public class RepositoryTest {
             connection2.close();
         }
 
+    }
+
+    /**
+     * This test is for a strange bug that happens when running SPARQL updates that delete and reinsert a triple in
+     * the same transaction. See https://issues.apache.org/jira/browse/MARMOTTA-283
+     */
+    @Test
+    public void testMARMOTTA283() throws RepositoryException, RDFParseException, IOException, MalformedQueryException, UpdateExecutionException {
+
+        InputStream rdfXML = this.getClass().getResourceAsStream("demo-data.foaf");
+        assumeThat("Could not load test-data: demo-data.foaf", rdfXML, notNullValue(InputStream.class));
+
+        RepositoryConnection connectionRDF = repository.getConnection();
+        try {
+            connectionRDF.add(rdfXML, "http://localhost/foaf/", RDFFormat.RDFXML);
+            connectionRDF.commit();
+        } finally {
+            connectionRDF.close();
+        }
+
+
+        String update = "DELETE { ?s ?p ?o } INSERT { <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/name> \"Hans Meier\" . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/based_near> <http://dbpedia.org/resource/Traunstein> } WHERE { ?s ?p ?o . FILTER ( ?s = <http://localhost:8080/LMF/resource/hans_meier> ) }";
+
+        RepositoryConnection connectionUpdate = repository.getConnection();
+        try {
+            Update u = connectionUpdate.prepareUpdate(QueryLanguage.SPARQL, update);
+            u.execute();
+            connectionUpdate.commit();
+        } finally {
+            connectionUpdate.close();
+        }
+
+        // now there should be two triples
+        RepositoryConnection connectionVerify = repository.getConnection();
+        try {
+            URI hans_meier = repository.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            URI foaf_name  = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/name");
+            URI foaf_based_near = repository.getValueFactory().createURI("http://xmlns.com/foaf/0.1/based_near");
+            URI traunstein = repository.getValueFactory().createURI("http://dbpedia.org/resource/Traunstein");
+
+            Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_name,null, true));
+            Assert.assertTrue(connectionVerify.hasStatement(hans_meier,foaf_based_near,traunstein, true));
+
+            connectionVerify.commit();
+        } finally {
+            connectionVerify.close();
+        }
     }
 
 }
