@@ -167,7 +167,7 @@ public class SparqlWebService {
                     return buildQueryResponse(resultType, query);
                 else {
                     if (parseSubType(resultType).equals("html"))
-                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/snorql/snorql.html")).build();
+                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/snorql.html")).build();
                     else
                         return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
                 }
