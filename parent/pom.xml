@@ -36,10 +36,10 @@
     <url>http://marmotta.incubator.apache.org</url>
 
     <properties>
-        <sesame.version>2.7.5</sesame.version>
+        <sesame.version>2.7.6</sesame.version>
         <junit.version>4.11</junit.version>
         <weld.version>2.0.SP1</weld.version>
-        <weld.core.version>2.0.3.Final</weld.core.version>
+        <weld.core.version>2.0.4.Final</weld.core.version>
         <rest.assured.version>1.7.1</rest.assured.version>
         <hamcrest.version>1.3</hamcrest.version>
         <tempus.fugit.version>1.1</tempus.fugit.version>
@@ -50,7 +50,7 @@
         <postgresql.version>9.2-1003-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.0.3.v20130506</jetty.version>
-        <resteasy.version>3.0.2.Final</resteasy.version>
+        <resteasy.version>3.0.4.Final</resteasy.version>
     </properties>
 
     <prerequisites>
@@ -622,7 +622,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -633,7 +633,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -644,7 +644,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -655,7 +655,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient-cache</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>

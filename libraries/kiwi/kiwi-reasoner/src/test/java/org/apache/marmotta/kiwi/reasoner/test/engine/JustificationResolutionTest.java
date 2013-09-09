@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.reasoner.test.engine;
 
 import com.google.common.collect.Sets;
+import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
@@ -222,8 +223,20 @@ public class JustificationResolutionTest {
 
         Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1,t3,t4))));
         Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t2,t3,t4,t5))));
-        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1,t2,t4))));
-        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", allOf(hasItems(t2,t4,t5), not(hasItem(t3))))));
+        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", hasItems(t1, t2, t4))));
+        Assert.assertThat(r4,Matchers.<Justification>hasItem(hasProperty("supportingTriples", allOf(hasItems(t2, t4, t5), not(hasItem(t3))))));
+    }
+
+
+    // TODO: a test taking into account transaction justifications
+
+    /**
+     * Test resolution against justifications that are not yet "persisted" but are taken from the current transaction
+     * @throws Exception
+     */
+    @Test
+    public void testTransactionJustifications() throws Exception {
+
     }
 
 
@@ -277,7 +290,14 @@ public class JustificationResolutionTest {
          */
         @Override
         protected Collection<Justification> getJustifications(KiWiReasoningConnection connection, KiWiTriple t, Set<Justification> transactionJustifications) throws SQLException {
-            return baseJustifications.get(t);
+            HashSet<Justification> justifications = new HashSet<Justification>();
+            justifications.addAll(baseJustifications.get(t));
+            for(Justification j : transactionJustifications) {
+                if(equivalence.equivalent(j.getTriple(), t)) {
+                    justifications.add(j);
+                }
+            }
+            return justifications;
         }
 
         /**

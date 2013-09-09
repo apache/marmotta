@@ -125,7 +125,7 @@ public class ReasoningEngine implements TransactionListener {
      */
     private SKWRLReasoner reasonerThread;
 
-    private static Equivalence<Statement> equivalence = StatementCommons.quadrupleEquivalence();
+    protected static Equivalence<Statement> equivalence = StatementCommons.quadrupleEquivalence();
 
     /**
      * A lock to ensure that only once thread at a time is carrying out persistence
@@ -763,7 +763,6 @@ public class ReasoningEngine implements TransactionListener {
      * @return
      */
     protected Collection<Justification> getJustifications(KiWiReasoningConnection connection, KiWiTriple t, Set<Justification> transactionJustifications) throws SQLException {
-        // TODO: transactionJustifications are ignored
         HashSet<Justification> justifications = new HashSet<Justification>();
         Iterations.addAll(connection.listJustificationsForTriple(t), justifications);
         for(Justification j : transactionJustifications) {
@@ -859,7 +858,7 @@ public class ReasoningEngine implements TransactionListener {
     }
 
 
-    private QueryResult matches(Pattern pattern, KiWiTriple triple) {
+    protected static QueryResult matches(Pattern pattern, KiWiTriple triple) {
         boolean result = true;
 
         QueryResult match = new QueryResult();

@@ -50,10 +50,11 @@ import static org.junit.Assert.fail;
 /**
  * Run the {@link KiWiRDFSchemaRepositoryConnectionTest}s.
  * @author Jakob Frank <jakob@apache.org>
+ * @author Sebastian Schaffert <sschaffert@apache.org>
  *
  */
 @RunWith(KiWiDatabaseRunner.class)
-@KiWiDatabaseRunner.ForDialects(dialect = H2Dialect.class)
+//@KiWiDatabaseRunner.ForDialects(dialect = H2Dialect.class)
 public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryConnectionTest {
 
     public Logger log = LoggerFactory.getLogger(this.getClass());
@@ -148,6 +149,25 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     @Test
     @Ignore("in KiWi, inferencing is triggered on commit")
     public void testInferencerTransactionIsolation() throws Exception {
+    }
+
+
+    @Override
+    @Test
+    @Ignore("in KiWi, inferencing is triggered on commit")
+    public void testClear() throws Exception {
+    }
+
+    @Override
+    @Test
+    @Ignore("in KiWi, inferencing is triggered on commit")
+    public void testDeleteDefaultGraph() throws Exception {
+    }
+
+    @Override
+    @Test
+    @Ignore("asynchronous reasoning takes too long for this test")
+    public void testOrderByQueriesAreInterruptable() throws Exception {
     }
 
 }
