@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -85,6 +86,23 @@ public class PrefixWebService {
             return Response.status(Response.Status.NOT_FOUND).entity("prefix " + prefix + " mapping not found").build();
         }
     }
+    
+    /**
+     * Removes a prefix
+     * 
+     * @param prefix prefix
+     * @return Response with the result of the operation
+     */
+    @DELETE
+    @Path("/" + PREFIX_PATTERN)
+    @Produces("application/json")
+    public Response deleteMapping(@PathParam("prefix") String prefix) {
+        if (prefixService.remove(prefix)) {
+            return Response.ok().entity(prefix + " deleted").build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("prefix " + prefix + " mapping not found").build();
+        }
+    }    
 
     /**
      * Add new mapping
