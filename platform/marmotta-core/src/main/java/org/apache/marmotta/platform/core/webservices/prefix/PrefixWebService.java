@@ -32,6 +32,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -95,10 +96,9 @@ public class PrefixWebService {
      */
     @DELETE
     @Path("/" + PREFIX_PATTERN)
-    @Produces("application/json")
     public Response deleteMapping(@PathParam("prefix") String prefix) {
         if (prefixService.remove(prefix)) {
-            return Response.ok().entity(prefix + " deleted").build();
+            return Response.status(Status.NO_CONTENT).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("prefix " + prefix + " mapping not found").build();
         }
