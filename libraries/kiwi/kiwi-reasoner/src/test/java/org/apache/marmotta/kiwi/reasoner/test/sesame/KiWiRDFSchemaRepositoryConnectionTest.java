@@ -170,4 +170,10 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
 
+    @Override
+    @Test
+    @Ignore("KiWi creates a separate context for inferred statements")
+    public void testGetContextIDs() throws Exception {
+    }
+
 }

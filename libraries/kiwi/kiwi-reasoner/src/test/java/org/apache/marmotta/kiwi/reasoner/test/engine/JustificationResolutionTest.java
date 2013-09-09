@@ -24,6 +24,7 @@ import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningEngine;
+import org.apache.marmotta.kiwi.reasoner.model.exception.ReasoningException;
 import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
@@ -308,7 +309,7 @@ public class JustificationResolutionTest {
          * @return
          */
         @Override
-        public Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
+        public Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException, ReasoningException {
             return super.getBaseJustifications(connection, justifications);
         }
     }

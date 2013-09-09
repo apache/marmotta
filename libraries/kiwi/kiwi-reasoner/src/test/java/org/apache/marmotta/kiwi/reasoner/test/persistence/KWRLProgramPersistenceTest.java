@@ -78,6 +78,7 @@ public class KWRLProgramPersistenceTest {
         repository.initialize();
 
         persistence = new KiWiPersistence(config);
+        persistence.initialise();
         persistence.initDatabase();
 
         rpersistence = new KiWiReasoningPersistence(persistence, repository.getValueFactory());

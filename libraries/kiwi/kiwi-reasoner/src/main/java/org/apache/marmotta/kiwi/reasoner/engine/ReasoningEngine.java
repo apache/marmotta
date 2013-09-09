@@ -30,6 +30,8 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.reasoner.model.exception.ReasoningException;
+import org.apache.marmotta.kiwi.reasoner.model.exception.UnjustifiedTripleException;
 import org.apache.marmotta.kiwi.reasoner.model.program.*;
 import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
@@ -341,58 +343,59 @@ public class ReasoningEngine implements TransactionListener {
     }
 
     private void executeReasoner(TransactionData data) {
-        updateTaskStatus("fetching worklist");
-        Set<KiWiTriple> newTriples = StatementCommons.newQuadrupleSet();
-        for(Statement stmt : data.getAddedTriples()) {
-            KiWiTriple t = (KiWiTriple)stmt;
-            if(t.isMarkedForReasoning()) {
-                newTriples.add(t);
-                t.setMarkedForReasoning(false);
-            }
-        }
-
-        //taskManagerService.setTaskSteps(newTriples.size() + data.getRemovedTriples().size());
-        // evaluate the rules for all added triples
-        if(newTriples.size() > 0) {
-            long start2 = System.currentTimeMillis();
-            updateTaskStatus("reasoning over " + newTriples.size() + " new triples");
-            processRules(newTriples);
-            log.debug("REASONER: reasoning for {} new triples took {} ms overall", newTriples.size(), System.currentTimeMillis() - start2);
-        }
-
-        if(data.getRemovedTriples().size() > 0) {
-            log.debug("cleaning up justifications and inferences for {} triples",data.getRemovedTriples().size());
-            try {
-                KiWiReasoningConnection connection = persistence.getConnection();
-                try {
-                    // first clean up justifications that are no longer supported
-                    cleanupJustifications(connection, data.getRemovedTriples());
-
-
-                    // then remove all inferred triples that are no longer supported
-                    cleanupUnsupported(connection);
-
-                    // and finally garbage collect those triples that are inferred and deleted
-                    // garbage collection is now carried out by a thread in the triple store
-                    //garbageCollectTriples();
-                    connection.commit();
-                } catch (SQLException ex) {
-                    connection.rollback();
-                    throw ex;
-                } finally {
-                    connection.close();
+        try {
+            updateTaskStatus("fetching worklist");
+            Set<KiWiTriple> newTriples = StatementCommons.newQuadrupleSet();
+            for(Statement stmt : data.getAddedTriples()) {
+                KiWiTriple t = (KiWiTriple)stmt;
+                if(t.isMarkedForReasoning()) {
+                    newTriples.add(t);
+                    t.setMarkedForReasoning(false);
                 }
-            } catch (SailException ex) {
-                log.error("REPOSITORY ERROR: could not clean up unsupported triples, database state will be inconsistent! Message: {}", ex.getMessage());
-                log.debug("Exception details:", ex);
-            } catch (SQLException ex) {
-                log.error("DATABASE ERROR: could not clean up justifications for triples, database state will be inconsistent! Message: {}", ex.getMessage());
-                log.debug("Exception details:", ex);
             }
 
+            //taskManagerService.setTaskSteps(newTriples.size() + data.getRemovedTriples().size());
+            // evaluate the rules for all added triples
+            if(newTriples.size() > 0) {
+                long start2 = System.currentTimeMillis();
+                updateTaskStatus("reasoning over " + newTriples.size() + " new triples");
+                processRules(newTriples);
+                log.debug("REASONER: reasoning for {} new triples took {} ms overall", newTriples.size(), System.currentTimeMillis() - start2);
+            }
 
+            if(data.getRemovedTriples().size() > 0) {
+                log.debug("cleaning up justifications and inferences for {} triples",data.getRemovedTriples().size());
+                try {
+                    KiWiReasoningConnection connection = persistence.getConnection();
+                    try {
+                        // first clean up justifications that are no longer supported
+                        cleanupJustifications(connection, data.getRemovedTriples());
+
+
+                        // then remove all inferred triples that are no longer supported
+                        cleanupUnsupported(connection);
+
+                        // and finally garbage collect those triples that are inferred and deleted
+                        // garbage collection is now carried out by a thread in the triple store
+                        //garbageCollectTriples();
+                        connection.commit();
+                    } catch (SQLException ex) {
+                        connection.rollback();
+                        throw ex;
+                    } finally {
+                        connection.close();
+                    }
+                } catch (SailException | SQLException ex) {
+                    log.error("REASONING ERROR: could not clean up unsupported triples, database state will be inconsistent! Message: {}", ex.getMessage());
+                    log.debug("Exception details:", ex);
+                    throw ex;
+                }
+
+
+            }
+        } catch (SQLException | SailException | ReasoningException ex) {
+            log.error("REASONER: processing of transaction data with ID {} aborted; reason: {}", data.getTransactionId(), ex.getMessage());
         }
-
     }
 
     /**
@@ -542,45 +545,20 @@ public class ReasoningEngine implements TransactionListener {
      *
      * @param addedTriples
      */
-    private void processRules(final Set<KiWiTriple> addedTriples) {
-        try {
-            updateTaskStatus("processing rules ...");
-            // select the rules that have at least one matching pattern; the match method will
-            // return a set of variable bindings that we will be used to prepopulate the bindings
-//            Set<Callable<Boolean>> tasks = new HashSet<Callable<Boolean>>();
-            for(final Pattern pattern : patternRuleMap.keySet()) {
-                for(KiWiTriple triple : addedTriples) {
-                    QueryResult match = matches(pattern,triple);
-                    if(match != null) {
-                        for(Rule rule : patternRuleMap.get(pattern)) {
-                            log.debug("REASONER(rule '{}'): pattern {} matched with triple {}", rule.getName(), pattern.toString(), triple.toString());
-                            processRule(rule, match, pattern);
-                        }
+    private void processRules(final Set<KiWiTriple> addedTriples) throws SQLException, SailException, ReasoningException {
+        updateTaskStatus("processing rules ...");
+        // select the rules that have at least one matching pattern; the match method will
+        // return a set of variable bindings that we will be used to prepopulate the bindings
+        for(final Pattern pattern : patternRuleMap.keySet()) {
+            for(KiWiTriple triple : addedTriples) {
+                QueryResult match = matches(pattern,triple);
+                if(match != null) {
+                    for(Rule rule : patternRuleMap.get(pattern)) {
+                        log.debug("REASONER(rule '{}'): pattern {} matched with triple {}", rule.getName(), pattern.toString(), triple.toString());
+                        processRule(rule, match, pattern);
                     }
                 }
-                // TODO: for parallel reasoning, the problem is that we should only create one thread per rule and not
-                // one per pattern, otherwise we can get duplicates because the same rule is evaluated twice
-/*
-                tasks.add(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() throws Exception {
-                        for(KiWiTriple triple : addedTriples) {
-                            QueryResult match = matches(pattern,triple);
-                            if(match != null) {
-                                log.debug("pattern {} matched with triple {}", pattern.toString(), triple.toString());
-                                processRule(patternRuleMap.get(pattern), match, pattern);
-                            }
-                        }
-
-                        return Boolean.TRUE;
-                    }
-                });
-*/
             }
-            //workers.invokeAll(tasks);
-
-        } catch(Exception ex) {
-            log.error("error while processing rules",ex);
         }
     }
 
@@ -592,7 +570,7 @@ public class ReasoningEngine implements TransactionListener {
      * @param rule
      * @param match
      */
-    private void processRule(Rule rule, QueryResult match, Pattern p) {
+    private void processRule(Rule rule, QueryResult match, Pattern p) throws SQLException, SailException, ReasoningException {
 
         // get the variable bindings for the rule evaluation
         log.debug("REASONER(rule '{}'): evaluating rule body {} ...", rule.getName() != null ? rule.getName() : rule.getId(), rule);
@@ -606,153 +584,143 @@ public class ReasoningEngine implements TransactionListener {
 
         CloseableIteration<QueryResult, SQLException> bodyResult;
 
+        KiWiReasoningConnection connection = persistence.getConnection();
+        SailConnection     sail = store.getConnection();
+        KiWiSailConnection isail = getWrappedConnection(sail);
         try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            SailConnection     sail = store.getConnection();
-            KiWiSailConnection isail = getWrappedConnection(sail);
-            try {
 
-                // if there are further patterns, evaluate them; if the matched pattern was the only pattern, then
-                // simply take the match as binding
-                if(body.size() > 0) {
-                    bodyResult = connection.query(body,match,null,null,true);
-                } else if(match != null) {
-                    bodyResult = new SingletonIteration<QueryResult, SQLException>(match);
-                } else {
-                    bodyResult = new EmptyIteration<QueryResult, SQLException>();
-                }
-
-                // construct triples out of the bindings and the rule heads
-                long counter = 0;
-
-                // initialise a new set of justifications
-                Set<Justification> justifications = new HashSet<Justification>();
-
-                sail.begin();
-                while(bodyResult.hasNext()) {
-                    QueryResult row = bodyResult.next();
-                    Map<VariableField,KiWiNode> binding = row.getBindings();
-
-                    Resource subject = null;
-                    URI property = null;
-                    Value object;
-
-                    if(rule.getHead().getSubject() != null && rule.getHead().getSubject().isVariableField()) {
-                        if(!binding.get(rule.getHead().getSubject()).isUriResource() && !binding.get(rule.getHead().getSubject()).isAnonymousResource()) {
-                            log.info("cannot use value {} as subject, because it is not a resource",binding.get(rule.getHead().getSubject()));
-                            continue;
-                        }
-                        subject = (KiWiResource)binding.get(rule.getHead().getSubject());
-                    } else if(rule.getHead().getSubject() != null && rule.getHead().getSubject().isResourceField()) {
-                        subject = ((ResourceField)rule.getHead().getSubject()).getResource();
-                    } else
-                        throw new IllegalArgumentException("Subject of rule head may only be a variable or a resource; rule: "+rule);
-
-                    if(rule.getHead().getProperty() != null && rule.getHead().getProperty().isVariableField()) {
-                        if(!binding.get(rule.getHead().getProperty()).isUriResource()) {
-                            log.info("cannot use value {} as property, because it is not a URI resource",binding.get(rule.getHead().getProperty()));
-                            continue;
-                        }
-                        property = (KiWiUriResource)binding.get(rule.getHead().getProperty());
-                    } else if(rule.getHead().getProperty() != null && rule.getHead().getProperty().isResourceField()) {
-                        property = (KiWiUriResource)((ResourceField)rule.getHead().getProperty()).getResource();
-                    } else
-                        throw new IllegalArgumentException("Property of rule head may only be a variable or a resource; rule: "+rule);
-
-                    if(rule.getHead().getObject() != null && rule.getHead().getObject().isVariableField()) {
-                        object = binding.get(rule.getHead().getObject());
-                    } else if(rule.getHead().getObject() != null && rule.getHead().getObject().isResourceField()) {
-                        object = ((ResourceField)rule.getHead().getObject()).getResource();
-                    } else if(rule.getHead().getObject() != null && rule.getHead().getObject().isLiteralField()) {
-                        object = ((LiteralField)rule.getHead().getObject()).getLiteral();
-                    } else
-                        throw new IllegalArgumentException("Object of rule head may only be a variable, a literal, or a resource; rule: "+rule);
-
-
-                    KiWiTriple triple = isail.addInferredStatement(subject, property, object);
-
-                    Justification justification = new Justification();
-                    justification.setTriple(triple);
-                    justification.getSupportingRules().add(rule);
-                    justification.getSupportingTriples().addAll(row.getJustifications());
-                    justifications.add(justification);
-
-                    // when the batch size is reached, commit the transaction, save the justifications, and start a new
-                    // transaction and new justification set
-                    if(++counter % config.getBatchSize() == 0) {
-                        persistenceLock.lock();
-
-                        try {
-
-                            sail.commit();
-
-                            log.debug("adding {} justifications",justifications.size());
-
-                            updateTaskStatus("storing justifications ...");
-                            Set<Justification> baseJustifications = getBaseJustifications(connection,justifications);
-
-                            if(config.isRemoveDuplicateJustifications()) {
-                                removeDuplicateJustifications(connection,baseJustifications);
-                            }
-
-                            log.debug("{} justifications added after resolving inferred triples", baseJustifications.size());
-
-                            // persist the justifications that have been created in the rule processing
-                            if(baseJustifications.size() > 0) {
-                                connection.storeJustifications(baseJustifications);
-                            }
-                            connection.commit();
-                            sail.begin();
-                        } finally {
-                            persistenceLock.unlock();
-                        }
-                        justifications.clear();
-                    }
-                }
-
-                persistenceLock.lock();
-                try {
-                    sail.commit();
-
-                    log.debug("adding {} justifications",justifications.size());
-                    updateTaskStatus("storing justifications ...");
-                    Set<Justification> baseJustifications = getBaseJustifications(connection,justifications);
-
-                    if(config.isRemoveDuplicateJustifications()) {
-                        removeDuplicateJustifications(connection,baseJustifications);
-                    }
-
-                    // persist the justifications that have been created in the rule processing
-                    if(baseJustifications.size() > 0) {
-                        connection.storeJustifications(baseJustifications);
-                    }
-
-                    log.debug("{} justifications added after resolving inferred triples", baseJustifications.size());
-
-                    Iterations.closeCloseable(bodyResult);
-                    connection.commit();
-                } finally {
-                    persistenceLock.unlock();
-                }
-            } catch(SailException ex) {
-                connection.rollback();
-                sail.rollback();
-                throw ex;
-            } catch(SQLException ex) {
-                sail.rollback();
-                connection.rollback();
-                throw ex;
-            } finally {
-                connection.close();
-                sail.close();
+            // if there are further patterns, evaluate them; if the matched pattern was the only pattern, then
+            // simply take the match as binding
+            if(body.size() > 0) {
+                bodyResult = connection.query(body,match,null,null,true);
+            } else if(match != null) {
+                bodyResult = new SingletonIteration<QueryResult, SQLException>(match);
+            } else {
+                bodyResult = new EmptyIteration<QueryResult, SQLException>();
             }
 
-        } catch(SQLException ex) {
-            log.error("DATABASE ERROR: could not process rule, database state will be inconsistent! Message: {}",ex.getMessage());
+            // construct triples out of the bindings and the rule heads
+            long counter = 0;
+
+            // initialise a new set of justifications
+            Set<Justification> justifications = new HashSet<Justification>();
+
+            sail.begin();
+            while(bodyResult.hasNext()) {
+                QueryResult row = bodyResult.next();
+                Map<VariableField,KiWiNode> binding = row.getBindings();
+
+                Resource subject = null;
+                URI property = null;
+                Value object;
+
+                if(rule.getHead().getSubject() != null && rule.getHead().getSubject().isVariableField()) {
+                    if(!binding.get(rule.getHead().getSubject()).isUriResource() && !binding.get(rule.getHead().getSubject()).isAnonymousResource()) {
+                        log.info("cannot use value {} as subject, because it is not a resource",binding.get(rule.getHead().getSubject()));
+                        continue;
+                    }
+                    subject = (KiWiResource)binding.get(rule.getHead().getSubject());
+                } else if(rule.getHead().getSubject() != null && rule.getHead().getSubject().isResourceField()) {
+                    subject = ((ResourceField)rule.getHead().getSubject()).getResource();
+                } else
+                    throw new IllegalArgumentException("Subject of rule head may only be a variable or a resource; rule: "+rule);
+
+                if(rule.getHead().getProperty() != null && rule.getHead().getProperty().isVariableField()) {
+                    if(!binding.get(rule.getHead().getProperty()).isUriResource()) {
+                        log.info("cannot use value {} as property, because it is not a URI resource",binding.get(rule.getHead().getProperty()));
+                        continue;
+                    }
+                    property = (KiWiUriResource)binding.get(rule.getHead().getProperty());
+                } else if(rule.getHead().getProperty() != null && rule.getHead().getProperty().isResourceField()) {
+                    property = (KiWiUriResource)((ResourceField)rule.getHead().getProperty()).getResource();
+                } else
+                    throw new IllegalArgumentException("Property of rule head may only be a variable or a resource; rule: "+rule);
+
+                if(rule.getHead().getObject() != null && rule.getHead().getObject().isVariableField()) {
+                    object = binding.get(rule.getHead().getObject());
+                } else if(rule.getHead().getObject() != null && rule.getHead().getObject().isResourceField()) {
+                    object = ((ResourceField)rule.getHead().getObject()).getResource();
+                } else if(rule.getHead().getObject() != null && rule.getHead().getObject().isLiteralField()) {
+                    object = ((LiteralField)rule.getHead().getObject()).getLiteral();
+                } else
+                    throw new IllegalArgumentException("Object of rule head may only be a variable, a literal, or a resource; rule: "+rule);
+
+
+                KiWiTriple triple = isail.addInferredStatement(subject, property, object);
+
+                Justification justification = new Justification();
+                justification.setTriple(triple);
+                justification.getSupportingRules().add(rule);
+                justification.getSupportingTriples().addAll(row.getJustifications());
+                justifications.add(justification);
+
+                // when the batch size is reached, commit the transaction, save the justifications, and start a new
+                // transaction and new justification set
+                if(++counter % config.getBatchSize() == 0) {
+                    persistenceLock.lock();
+
+                    try {
+
+                        sail.commit();
+
+                        log.debug("adding {} justifications",justifications.size());
+
+                        updateTaskStatus("storing justifications ...");
+                        Set<Justification> baseJustifications = getBaseJustifications(connection,justifications);
+
+                        if(config.isRemoveDuplicateJustifications()) {
+                            removeDuplicateJustifications(connection,baseJustifications);
+                        }
+
+                        log.debug("{} justifications added after resolving inferred triples", baseJustifications.size());
+
+                        // persist the justifications that have been created in the rule processing
+                        if(baseJustifications.size() > 0) {
+                            connection.storeJustifications(baseJustifications);
+                        }
+                        connection.commit();
+                        sail.begin();
+                    } finally {
+                        persistenceLock.unlock();
+                    }
+                    justifications.clear();
+                }
+            }
+
+            persistenceLock.lock();
+            try {
+                sail.commit();
+
+                log.debug("adding {} justifications",justifications.size());
+                updateTaskStatus("storing justifications ...");
+                Set<Justification> baseJustifications = getBaseJustifications(connection,justifications);
+
+                if(config.isRemoveDuplicateJustifications()) {
+                    removeDuplicateJustifications(connection,baseJustifications);
+                }
+
+                // persist the justifications that have been created in the rule processing
+                if(baseJustifications.size() > 0) {
+                    connection.storeJustifications(baseJustifications);
+                }
+
+                log.debug("{} justifications added after resolving inferred triples", baseJustifications.size());
+
+                Iterations.closeCloseable(bodyResult);
+                connection.commit();
+            } finally {
+                persistenceLock.unlock();
+            }
+        } catch(SailException | SQLException | ReasoningException ex) {
+            log.error("REASONING ERROR: could not process rule, database state will be inconsistent! Message: {}",ex.getMessage());
             log.debug("Exception details:",ex);
-        } catch (SailException ex) {
-            log.error("REPOSITORY ERROR: could not process rule, database state will be inconsistent! Message: {}",ex.getMessage());
-            log.debug("Exception details:", ex);
+
+            connection.rollback();
+            sail.rollback();
+            throw ex;
+        } finally {
+            connection.close();
+            sail.close();
         }
 
     }
@@ -780,7 +748,7 @@ public class ReasoningEngine implements TransactionListener {
      * @param justifications
      * @return
      */
-    protected Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException {
+    protected Set<Justification> getBaseJustifications(KiWiReasoningConnection connection, Set<Justification> justifications) throws SQLException, ReasoningException {
         Set<Justification> baseJustifications = new HashSet<Justification>();
         Map<KiWiTriple,Collection<Justification>> justificationCache = StatementCommons.newQuadrupleMap();
 
@@ -804,7 +772,7 @@ public class ReasoningEngine implements TransactionListener {
                     }
 
                     if(supportJustifications.size() == 0) {
-                        log.error("error: inferred triple {} is not justified!",support);
+                        throw new UnjustifiedTripleException("error: inferred triple is not justified!", support);
                     }
 
                     // mix the two sets

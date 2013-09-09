@@ -1181,6 +1181,8 @@ public class KiWiConnection {
      * @param triple
      */
     public void deleteTriple(final KiWiTriple triple) throws SQLException {
+        requireJDBCConnection();
+
         RetryExecution execution = new RetryExecution("DELETE");
         execution.setUseSavepoint(true);
         execution.execute(connection, new RetryCommand() {
@@ -1202,7 +1204,6 @@ public class KiWiConnection {
                             commitLock.lock();
                             try {
                                 if(tripleBatch == null || !tripleBatch.remove(triple)) {
-                                    requireJDBCConnection();
 
                                     PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
                                     synchronized (deleteTriple) {
@@ -1959,7 +1960,7 @@ public class KiWiConnection {
      *            <code>Connection</code> object is in auto-commit mode
      * @see #setAutoCommit
      */
-    public void commit() throws SQLException {
+    public synchronized void commit() throws SQLException {
         numberOfCommits++;
 
         RetryExecution execution = new RetryExecution("COMMIT");
