@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -1179,23 +1180,41 @@ public class KiWiConnection {
      *
      * @param triple
      */
-    public void deleteTriple(KiWiTriple triple) throws SQLException {
-        // mutual exclusion: prevent parallel adding and removing of the same triple
-        synchronized (triple) {
+    public void deleteTriple(final KiWiTriple triple) throws SQLException {
+        RetryExecution execution = new RetryExecution("DELETE");
+        execution.setUseSavepoint(true);
+        execution.execute(connection, new RetryCommand() {
+            @Override
+            public void run() throws SQLException {
+                // mutual exclusion: prevent parallel adding and removing of the same triple
+                synchronized (triple) {
 
-            // make sure the triple is marked as deleted in case some service still holds a reference
-            triple.setDeleted(true);
-            triple.setDeletedAt(new Date());
+                    // make sure the triple is marked as deleted in case some service still holds a reference
+                    triple.setDeleted(true);
+                    triple.setDeletedAt(new Date());
 
-            if(triple.getId() == null) {
-                log.warn("attempting to remove non-persistent triple: {}", triple);
-                removeCachedTriple(triple);
-            } else {
-                if(batchCommit) {
-                    // need to remove from triple batch and from database
-                    commitLock.lock();
-                    try {
-                        if(tripleBatch == null || !tripleBatch.remove(triple)) {
+                    if(triple.getId() == null) {
+                        log.warn("attempting to remove non-persistent triple: {}", triple);
+                        removeCachedTriple(triple);
+                    } else {
+                        if(batchCommit) {
+                            // need to remove from triple batch and from database
+                            commitLock.lock();
+                            try {
+                                if(tripleBatch == null || !tripleBatch.remove(triple)) {
+                                    requireJDBCConnection();
+
+                                    PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
+                                    synchronized (deleteTriple) {
+                                        deleteTriple.setLong(1,triple.getId());
+                                        deleteTriple.executeUpdate();
+                                    }
+                                    deletedStatementsLog.add(triple.getId());
+                                }
+                            } finally {
+                                commitLock.unlock();
+                            }
+                        } else {
                             requireJDBCConnection();
 
                             PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
@@ -1204,25 +1223,16 @@ public class KiWiConnection {
                                 deleteTriple.executeUpdate();
                             }
                             deletedStatementsLog.add(triple.getId());
+
+
                         }
-                    } finally {
-                        commitLock.unlock();
+                        removeCachedTriple(triple);
                     }
-                } else {
-                    requireJDBCConnection();
-
-                    PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
-                    synchronized (deleteTriple) {
-                        deleteTriple.setLong(1,triple.getId());
-                        deleteTriple.executeUpdate();
-                    }
-                    deletedStatementsLog.add(triple.getId());
-
-
                 }
-                removeCachedTriple(triple);
             }
-        }
+        });
+
+
     }
 
     /**
@@ -1952,37 +1962,27 @@ public class KiWiConnection {
     public void commit() throws SQLException {
         numberOfCommits++;
 
-        try {
-            if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
-                commitMemorySequences();
+        RetryExecution execution = new RetryExecution("COMMIT");
+        execution.execute(connection, new RetryCommand() {
+            @Override
+            public void run() throws SQLException {
+                if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
+                    commitMemorySequences();
+                }
+
+
+                if(tripleBatch != null && tripleBatch.size() > 0) {
+                    flushBatch();
+                }
+
+
+                deletedStatementsLog.clear();
+
+                if(connection != null) {
+                    connection.commit();
+                }
             }
-
-
-            if(tripleBatch != null && tripleBatch.size() > 0) {
-                flushBatch();
-            }
-
-
-            deletedStatementsLog.clear();
-
-            if(connection != null) {
-                connection.commit();
-            }
-        } catch(SQLException ex) {
-            // MySQL deadlock, wait and retry
-            if(retry < 10 && ("40001".equals(ex.getSQLState()) || "40P01".equals(ex.getSQLState()))) {
-                log.warn("COMMIT: temporary concurrency conflict (deadlock), retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {}
-                retry++;
-                flushBatch();
-                retry--;
-            } else {
-                log.error("COMMIT: concurrency conflict could not be solved!");
-                throw ex;
-            }
-        }
+        });
     }
 
     /**
@@ -2114,66 +2114,164 @@ public class KiWiConnection {
             requireJDBCConnection();
 
             commitLock.lock();
+            try {
+                if(persistence.getValueFactory() != null) {
+                    persistence.getValueFactory().flushBatch();
+                }
 
-            if(persistence.getValueFactory() != null) {
-                persistence.getValueFactory().flushBatch();
+
+                RetryExecution execution = new RetryExecution("FLUSH BATCH");
+                execution.setUseSavepoint(true);
+                execution.execute(connection, new RetryCommand() {
+                    @Override
+                    public void run() throws SQLException {
+                        PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                        insertTriple.clearParameters();
+                        insertTriple.clearBatch();
+
+                        synchronized (tripleBatch) {
+                            for(KiWiTriple triple : tripleBatch) {
+                                // if the triple has been marked as deleted, this can only have been done by another connection
+                                // in this case the triple id is no longer usable (might result in key conflicts), so we set it to
+                                // a new id
+                                if(triple.isDeleted()) {
+                                    triple.setId(getNextSequence("seq.triples"));
+                                    triple.setDeleted(false);
+                                    triple.setDeletedAt(null);
+                                }
+
+                                // retrieve a new triple ID and set it in the object
+                                if(triple.getId() == null) {
+                                    triple.setId(getNextSequence("seq.triples"));
+                                }
+
+                                insertTriple.setLong(1,triple.getId());
+                                insertTriple.setLong(2,triple.getSubject().getId());
+                                insertTriple.setLong(3,triple.getPredicate().getId());
+                                insertTriple.setLong(4,triple.getObject().getId());
+                                if(triple.getContext() != null) {
+                                    insertTriple.setLong(5,triple.getContext().getId());
+                                } else {
+                                    insertTriple.setNull(5, Types.BIGINT);
+                                }
+                                insertTriple.setBoolean(6,triple.isInferred());
+                                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+
+                                insertTriple.addBatch();
+                            }
+                        }
+                        insertTriple.executeBatch();
+
+                        tripleBatch.clear();
+
+                    }
+                });
+
+            }  finally {
+                commitLock.unlock();
             }
 
-            Savepoint savepoint = connection.setSavepoint();
+        }
+
+    }
+
+
+    protected static interface RetryCommand {
+
+        public void run() throws SQLException;
+    }
+
+    /**
+     * A generic implementation of an SQL command that might fail (e.g. because of a timeout or concurrency situation)
+     * and should be retried several times before giving up completely.
+     *
+     */
+    protected static class RetryExecution  {
+
+        // counter for current number of retries
+        private int retries = 0;
+
+        // how often to reattempt the operation
+        private int maxRetries = 10;
+
+        // how long to wait before retrying
+        private long retryInterval = 1000;
+
+        // use an SQL savepoint and roll back in case a retry is needed?
+        private boolean useSavepoint = false;
+
+        private String name;
+
+        // if non-empty: only retry on the SQL states contained in this set
+        private Set<String> sqlStates;
+
+        public RetryExecution(String name) {
+            this.name = name;
+            this.sqlStates = new HashSet<>();
+        }
+
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getMaxRetries() {
+            return maxRetries;
+        }
+
+        public void setMaxRetries(int maxRetries) {
+            this.maxRetries = maxRetries;
+        }
+
+        public long getRetryInterval() {
+            return retryInterval;
+        }
+
+        public void setRetryInterval(long retryInterval) {
+            this.retryInterval = retryInterval;
+        }
+
+        public boolean isUseSavepoint() {
+            return useSavepoint;
+        }
+
+        public void setUseSavepoint(boolean useSavepoint) {
+            this.useSavepoint = useSavepoint;
+        }
+
+        public Set<String> getSqlStates() {
+            return sqlStates;
+        }
+
+        public void execute(Connection connection, RetryCommand command) throws SQLException {
+            Savepoint savepoint = null;
+            if(useSavepoint) {
+                savepoint = connection.setSavepoint();
+            }
             try {
+                command.run();
 
-                PreparedStatement insertTriple = getPreparedStatement("store.triple");
-                insertTriple.clearParameters();
-                insertTriple.clearBatch();
-
-                synchronized (tripleBatch) {
-                    for(KiWiTriple triple : tripleBatch) {
-                        // if the triple has been marked as deleted, this can only have been done by another connection
-                        // in this case the triple id is no longer usable (might result in key conflicts), so we set it to
-                        // a new id
-                        if(triple.isDeleted()) {
-                            triple.setId(getNextSequence("seq.triples"));
-                            triple.setDeleted(false);
-                            triple.setDeletedAt(null);
-                        }
-
-                        // retrieve a new triple ID and set it in the object
-                        if(triple.getId() == null) {
-                            triple.setId(getNextSequence("seq.triples"));
-                        }
-
-                        insertTriple.setLong(1,triple.getId());
-                        insertTriple.setLong(2,triple.getSubject().getId());
-                        insertTriple.setLong(3,triple.getPredicate().getId());
-                        insertTriple.setLong(4,triple.getObject().getId());
-                        if(triple.getContext() != null) {
-                            insertTriple.setLong(5,triple.getContext().getId());
-                        } else {
-                            insertTriple.setNull(5, Types.BIGINT);
-                        }
-                        insertTriple.setBoolean(6,triple.isInferred());
-                        insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-
-                        insertTriple.addBatch();
-                    }
+                if(useSavepoint && savepoint != null) {
+                    connection.releaseSavepoint(savepoint);
                 }
-                insertTriple.executeBatch();
-
-                tripleBatch.clear();
-
-                connection.releaseSavepoint(savepoint);
             } catch (SQLException ex) {
-                if(retry < 10) {
-                    connection.rollback(savepoint);
-                    log.warn("BATCH: temporary concurrency conflict, retrying in 1000 ms ... (thread={}, retry={})", Thread.currentThread().getName(), retry);
+                if(retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
+                    if(useSavepoint && savepoint != null) {
+                        connection.rollback(savepoint);
+                    }
+                    log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, retryInterval, Thread.currentThread().getName(), retries);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {}
-                    retry++;
-                    flushBatch();
-                    retry--;
+                    retries++;
+                    execute(connection, command);
+                    retries--;
                 } else {
-                    log.error("BATCH: concurrency conflict could not be solved!");
+                    log.error("{}: temporary conflict could not be solved!", name);
 
                     System.err.println("main exception:");
                     ex.printStackTrace();
@@ -2181,8 +2279,6 @@ public class KiWiConnection {
                     ex.getNextException().printStackTrace();
                     throw ex;
                 }
-            }  finally {
-                commitLock.unlock();
             }
 
         }

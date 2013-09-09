@@ -24,11 +24,6 @@ public class StatementCommonsTest {
 
     ValueFactory valueFactory;
 
-    private List<URI> resources = new ArrayList<>();
-
-    private List<Value> objects = new ArrayList<>();
-
-
     @Before
     public void setup() {
         valueFactory = new ValueFactoryImpl();
@@ -179,14 +174,8 @@ public class StatementCommonsTest {
      * @return
      */
     protected URI randomURI() {
-        if(resources.size() > 0 && rnd.nextInt(10) == 0) {
-            // return a resource that was already used
-            return resources.get(rnd.nextInt(resources.size()));
-        } else {
-            URI resource = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-            resources.add(resource);
-            return resource;
-        }
+        URI resource = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        return resource;
     }
 
     /**
@@ -194,32 +183,26 @@ public class StatementCommonsTest {
      * @return
      */
     protected Value randomObject() {
-        if(objects.size() > 0 && rnd.nextInt(10) == 0) {
-            return objects.get(rnd.nextInt(objects.size()));
-        } else {
-            Value object;
-            switch(rnd.nextInt(6)) {
-                case 0: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-                    break;
-                case 1: object = valueFactory.createBNode();
-                    break;
-                case 2: object = valueFactory.createLiteral(RandomStringUtils.randomAscii(40));
-                    break;
-                case 3: object = valueFactory.createLiteral(rnd.nextInt());
-                    break;
-                case 4: object = valueFactory.createLiteral(rnd.nextDouble());
-                    break;
-                case 5: object = valueFactory.createLiteral(rnd.nextBoolean());
-                    break;
-                default: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-                    break;
+        Value object;
+        switch(rnd.nextInt(6)) {
+            case 0: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+                break;
+            case 1: object = valueFactory.createBNode();
+                break;
+            case 2: object = valueFactory.createLiteral(RandomStringUtils.randomAscii(40));
+                break;
+            case 3: object = valueFactory.createLiteral(rnd.nextInt());
+                break;
+            case 4: object = valueFactory.createLiteral(rnd.nextDouble());
+                break;
+            case 5: object = valueFactory.createLiteral(rnd.nextBoolean());
+                break;
+            default: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+                break;
 
-            }
-            objects.add(object);
-            return object;
         }
+        return object;
+
 
     }
-
-
 }
