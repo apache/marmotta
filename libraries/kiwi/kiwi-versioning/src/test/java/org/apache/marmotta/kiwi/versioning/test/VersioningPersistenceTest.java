@@ -67,6 +67,7 @@ public class VersioningPersistenceTest {
     @Before
     public void initDatabase() throws SQLException {
         persistence = new KiWiPersistence(dbConfig);
+        persistence.initialise();
         persistence.initDatabase();
 
         vpersistence = new KiWiVersioningPersistence(persistence);
