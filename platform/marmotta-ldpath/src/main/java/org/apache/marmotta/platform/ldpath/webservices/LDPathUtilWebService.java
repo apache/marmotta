@@ -25,8 +25,10 @@ import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.services.prefix.PrefixCC;
@@ -370,6 +372,11 @@ public class LDPathUtilWebService {
         public void forceAdd(String prefix, String namespace) {
             // nop;
         }
+        
+		@Override
+		public boolean remove(String prefix) {
+			return false; // nop;
+		}
 
         @Override
         public String serializePrefixMapping() {
