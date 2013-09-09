@@ -39,7 +39,7 @@ public class ProgramTest {
 
         expr = IOUtils.toString(resource);
         
-        RdfPathParser<String> rdfPathParser = new RdfPathParser<String>(backend,new StringReader(expr));
+        LdPathParser<String> rdfPathParser = new LdPathParser<String>(backend,new StringReader(expr));
         rdfPathParser.registerTransformer("http://example.com/type", new NodeTransformer<String, String>() {
             @Override
             public String transform(RDFBackend<String> backend, String node, Map<String,String> configuration)

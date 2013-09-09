@@ -26,7 +26,7 @@ options
 //  DEBUG_LOOKAHEAD=true;
 }
 
-PARSER_BEGIN(RdfPathParser)
+PARSER_BEGIN(LdPathParser)
 package org.apache.marmotta.ldpath.parser;
 
 import org.apache.marmotta.ldpath.model.Constants;
@@ -65,12 +65,12 @@ import org.slf4j.LoggerFactory;
 
 
 @SuppressWarnings("all")
-public class RdfPathParser<Node> {
+public class LdPathParser<Node> {
 
         private enum Mode { RULE, SELECTOR, TEST, PROGRAM, PREFIX };
 
 
-        private static final Logger log = LoggerFactory.getLogger(RdfPathParser.class);
+        private static final Logger log = LoggerFactory.getLogger(LdPathParser.class);
 
         /**
          * A map mapping from namespace prefix to namespace URI
@@ -83,11 +83,11 @@ public class RdfPathParser<Node> {
 
         private Mode mode = Mode.PROGRAM;
 
-        public RdfPathParser(NodeBackend<Node> backend, Reader in) {
+        public LdPathParser(NodeBackend<Node> backend, Reader in) {
             this(backend,null,in);
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
+        public LdPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -99,11 +99,11 @@ public class RdfPathParser<Node> {
             initialise();
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, InputStream in) {
+        public LdPathParser(NodeBackend<Node> backend, InputStream in) {
             this(backend,null,in);
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
+        public LdPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -115,11 +115,11 @@ public class RdfPathParser<Node> {
             initialise();
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
+        public LdPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
             this(backend,null,in,encoding);
         }
 
-        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
+        public LdPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
             this(in,encoding);
             this.backend = backend;
             if(config == null) {
@@ -290,7 +290,7 @@ public class RdfPathParser<Node> {
 
 
         private Map<String, SelectorFunction<Node>> xsdNodeFunctionMap;
-    private Map<String, TestFunction<Node>> xsdNodeTestMap;
+        private Map<String, TestFunction<Node>> xsdNodeTestMap;
         private void initFunctionMappings() {
             Map<String, SelectorFunction<Node>> functionMap = new HashMap<String, SelectorFunction<Node>>();
 
@@ -334,7 +334,7 @@ public class RdfPathParser<Node> {
         }
 
 }
-PARSER_END(RdfPathParser)
+PARSER_END(LdPathParser)
 
 SKIP :
 {

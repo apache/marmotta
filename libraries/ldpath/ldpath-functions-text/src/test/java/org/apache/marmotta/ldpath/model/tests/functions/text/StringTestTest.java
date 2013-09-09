@@ -24,7 +24,7 @@ import java.util.UUID;
 
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -101,7 +101,7 @@ public class StringTestTest extends AbstractTestBase {
     }
     
     private boolean checkTest(String ldPathTest, URI context) throws ParseException {
-        final RdfPathParser<Value> parser = createParserFromString(ldPathTest);
+        final LdPathParser<Value> parser = createParserFromString(ldPathTest);
         final NodeTest<Value> test = parser.parseTest(NSS);
         return test.accept(backend, context, context);
     }
