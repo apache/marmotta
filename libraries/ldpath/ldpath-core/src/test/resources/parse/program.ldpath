@@ -32,3 +32,6 @@ group = (test:p1 / test:p2) :: test:type ;
 inverse = ^test:incoming :: test:type ;
 
 config = test:foo :: test:type(c1="true", c2="false", c3="1.234") ;
+
+foo:bar = test:foo :: test:type ;
+<http://test/> = test:test :: test:type ;
