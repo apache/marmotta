@@ -18,12 +18,16 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import info.aduna.iteration.*;
+
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
+
 import com.google.common.base.Preconditions;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
@@ -1707,9 +1711,8 @@ public class KiWiConnection {
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
         if(locale == null && language != null) {
-            locale = LocaleUtils.toLocale(language.replace("-","_"));
-            localeMap.put(language,locale);
-
+            locale = Locale.forLanguageTag(language);
+            localeMap.put(language, locale);
         }
         return locale;
     }
