@@ -261,13 +261,21 @@ public class FacadingImpl implements Facading {
                 String[] rdfTypes = FacadeUtils.getFacadeAnnotation(type, RDFType.class).value();
                 boolean facadeable = true;
                 for (String s_type : rdfTypes) {
-                    facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true, context);
+                    if(context != null) {
+                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true, context);
+                    } else {
+                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true);
+                    }
                 }
                 // also check for @RDFFilter
                 if (FacadeUtils.isFacadeAnnotationPresent(type, RDFFilter.class)) {
                     String[] filterTypes = FacadeUtils.getFacadeAnnotation(type, RDFFilter.class).value();
                     for (String s_type : filterTypes) {
-                        facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true, context);
+                        if(context != null) {
+                            facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true, context);
+                        } else {
+                            facadeable &= connection.hasStatement(r, RDF_TYPE, connection.getValueFactory().createURI(s_type), true);
+                        }
                     }
                 }
                 return facadeable;

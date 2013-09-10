@@ -31,7 +31,8 @@ public class CountFunction<Node> extends SelectorFunction<Node> {
     private final URI dataType = URI.create("http://www.w3.org/2001/XMLSchema#integer");
 
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    @SafeVarargs
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
 
         LinkedList<Node> result = new LinkedList<Node>();
         for (Collection<Node> coll : args) {

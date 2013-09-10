@@ -82,7 +82,7 @@ public class ResourceUtils {
      * @return true if the {@link Resource} is ever used as subject.
      */
     public static boolean isSubject(RepositoryConnection conn, final Resource rsc) {
-        return existsStatement(conn, rsc, null, null, null);
+        return existsStatement(conn, rsc, null, null);
     }
 
     /**
@@ -102,7 +102,7 @@ public class ResourceUtils {
      * @return true if the {@link URI} is ever used as predicate.
      */
     public static boolean isPredicate(RepositoryConnection conn, final URI uri) {
-        return existsStatement(conn, null, uri, null, null);
+        return existsStatement(conn, null, uri, null);
     }
 
     /**
@@ -122,7 +122,7 @@ public class ResourceUtils {
      * @return true if the {@link Value} is ever used as predicate.
      */
     public static boolean isObject(RepositoryConnection conn, final Value val) {
-        return existsStatement(conn, null, null, val, null);
+        return existsStatement(conn, null, null, val);
     }
 
 
@@ -143,7 +143,7 @@ public class ResourceUtils {
      * @return true if the {@link Resource} is ever used as context.
      */
     public static boolean isContext(RepositoryConnection conn, Resource rsc) {
-        return existsStatement(conn, null, null, null, rsc);
+        return existsStatement(conn, null, null, null);
     }
 
     /**
@@ -168,16 +168,16 @@ public class ResourceUtils {
     /**
      * Check for the existence of a {@link Statement} with the provided constraints. <code>null</code> is a wildcard.
      * <br>This is a convenience method and does not really fit whith <em>Resource</em>Utils.
-     * @param conn the {@link ResourceConnection} to check on
-     * @param subj the subject of the {@link Statement} or <code>null</code> for a wildcard.
-     * @param pred the predicate of the {@link Statement} or <code>null</code> for a wildcard.
-     * @param object the object of the {@link Statement} or <code>null</code> for a wildcard.
-     * @param ctx the context of the {@link Statement} or <code>null</code> for a wildcard.
+     *
+     * @param conn the {@link org.apache.marmotta.commons.sesame.repository.ResourceConnection} to check on
+     * @param subj the subject of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
+     * @param pred the predicate of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
+     * @param object the object of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
      * @return true if a {@link Statement} with the provided constraints exists.
      */
-    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ctx) {
+    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object) {
         try {
-            return conn.hasStatement(subj,pred,object,true,ctx);
+            return conn.hasStatement(subj,pred,object,true);
         } catch (RepositoryException e) {
             log.error(e.getMessage());
             return false;
@@ -1233,7 +1233,11 @@ public class ResourceUtils {
             URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
 
             if(rdf_type != null) {
-                return con.hasStatement(r,rdf_type,type,true,context);
+                if(context != null) {
+                    return con.hasStatement(r,rdf_type,type,true,context);
+                } else {
+                    return con.hasStatement(r,rdf_type,type,true);
+                }
             }
         }
         return false;

@@ -53,7 +53,7 @@ public class TestsTest {
     
     @Before
     public void before() throws ParseException {
-        RdfPathParser<String> rdfPathParser = new RdfPathParser<String>(backend,new StringReader(expr));
+        LdPathParser<String> rdfPathParser = new LdPathParser<String>(backend,new StringReader(expr));
         test = rdfPathParser.parseTest(Collections.<String,String>emptyMap());
     }
     
