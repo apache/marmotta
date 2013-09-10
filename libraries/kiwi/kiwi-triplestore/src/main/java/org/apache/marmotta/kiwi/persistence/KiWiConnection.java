@@ -1591,7 +1591,7 @@ public class KiWiConnection {
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
             } else {
-                log.warn("Loaded literal without type: '{}' (id:{}).", result.getContent(), result.getId());
+                log.debug("Loaded literal without type: '{}' (id:{}).", result.getContent(), result.getId());
             }
 
             cacheNode(result);
@@ -1687,7 +1687,7 @@ public class KiWiConnection {
             result.setCreator((KiWiResource)loadNodeById(row.getLong("creator")));
         }
         result.setDeleted(row.getBoolean("deleted"));
-        result.setInferred(row.getBoolean("deleted"));
+        result.setInferred(row.getBoolean("inferred"));
         result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
         try {
             if(row.getDate("deletedAt") != null) {
