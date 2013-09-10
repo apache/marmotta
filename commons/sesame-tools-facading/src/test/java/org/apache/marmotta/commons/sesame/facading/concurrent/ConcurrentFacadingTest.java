@@ -99,8 +99,11 @@ public class ConcurrentFacadingTest extends AbstractFacadingTest {
         }
     }
 
+    /**
+     * Test for MARMOTTA-236
+     * @throws RepositoryException
+     */
     @Test
-    @Ignore("Not a proper solution yet")
     public void testParallelFacadingType() throws RepositoryException {
         final RepositoryConnection mainCon = repositoryRDF.getConnection();
         try {

@@ -1233,7 +1233,11 @@ public class ResourceUtils {
             URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
 
             if(rdf_type != null) {
-                return con.hasStatement(r,rdf_type,type,true,context);
+                if(context != null) {
+                    return con.hasStatement(r,rdf_type,type,true,context);
+                } else {
+                    return con.hasStatement(r,rdf_type,type,true);
+                }
             }
         }
         return false;
