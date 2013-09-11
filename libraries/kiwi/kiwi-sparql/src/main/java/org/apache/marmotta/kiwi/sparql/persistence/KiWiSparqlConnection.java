@@ -304,11 +304,19 @@ public class KiWiSparqlConnection {
                 executorService.submit(new Callable<ResultSet>() {
                     @Override
                     public ResultSet call() throws Exception {
-                        return queryStatement.executeQuery();
+                        try {
+                            return queryStatement.executeQuery();
+                        } catch (SQLException ex) {
+                            if(Thread.interrupted()) {
+                                log.info("SQL query execution cancelled; not returning result (Thread={})", Thread.currentThread());
+                                throw new InterruptedException("SPARQL query execution cancelled");
+                            } else {
+                                throw ex;
+                            }
+                        }
                     }
                 }
                 );
-
 
         try {
             ResultSet result = queryFuture.get();
@@ -336,11 +344,20 @@ public class KiWiSparqlConnection {
             return new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator());
         } catch (InterruptedException | CancellationException e) {
             log.info("SPARQL query execution cancelled");
+            queryFuture.cancel(true);
             queryStatement.cancel();
+            queryStatement.close();
+
             throw new InterruptedException("SPARQL query execution cancelled");
         } catch (ExecutionException e) {
-            log.error("error executing SPARQL query",e);
-            throw new SQLException("error executing SPARQL query",e);
+            log.error("error executing SPARQL query",e.getCause());
+            if(e.getCause() instanceof SQLException) {
+                throw (SQLException)e.getCause();
+            } else if(e.getCause() instanceof InterruptedException) {
+                throw (InterruptedException)e.getCause();
+            } else {
+                throw new SQLException("error executing SPARQL query",e);
+            }
         }
     }
 

@@ -151,7 +151,7 @@ public class SparqlServiceImpl implements SparqlService {
                     log.error("error while getting repository connection: {}", e);
                     throw new MarmottaException("error while getting repository connection", e);
                 } catch (QueryEvaluationException e) {
-                    log.error("error while evaluating query: {}", e);
+                    log.error("error while evaluating query: {}", e.getMessage());
                     throw new MarmottaException("error while writing query result in format ", e);
                 }
 
