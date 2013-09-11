@@ -289,7 +289,12 @@ function Snorql() {
 
     this.displayErrorMessage = function(message) {
         var pre = document.createElement('pre');
-        pre.innerHTML = message;
+        var json = JSON.parse(message);
+        if(json.message) {
+            pre.innerHTML = '<strong style="color: #ff0000">' + json.message; + "</strong>";
+        } else {
+            pre.innerHTML = message;
+        }
         this._display(pre, 'result');
     }
 
