@@ -74,6 +74,16 @@ public class KiWiLocaleTest  {
     	Assert.assertEquals("war", warLiteral.getLanguage());
     }
 
+    /** 
+     * Tests creating invalid BCP47 literals (see MARMOTTA-115 for further details)
+     */
+    @Test
+    public void createBCP47LiteralsInvalidTests() {
+    	Literal invalidLangLiteral = vf.createLiteral("Hungary", "invalid");
+    	Assert.assertEquals("Hungary", invalidLangLiteral.getLabel());
+    	Assert.assertNull(invalidLangLiteral.getLanguage());
+    }
+
 //    /** 
 //     * Tests adding BCP47 literals (see MARMOTTA-115 for further details)
 //     */

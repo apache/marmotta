@@ -1711,8 +1711,14 @@ public class KiWiConnection {
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
         if(locale == null && language != null) {
-            locale = Locale.forLanguageTag(language);
-            localeMap.put(language, locale);
+            try {
+                Locale.Builder builder = new Locale.Builder();
+                builder.setLanguageTag(language);
+                locale = builder.build();
+                localeMap.put(language, locale);
+            } catch (IllformedLocaleException ex) {
+                throw new IllegalArgumentException("Language was not a valid BCP47 language: " + language, ex);
+            }
         }
         return locale;
     }

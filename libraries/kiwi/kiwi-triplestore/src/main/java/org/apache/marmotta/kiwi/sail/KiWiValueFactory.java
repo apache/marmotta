@@ -392,8 +392,10 @@ public class KiWiValueFactory implements ValueFactory {
         Locale locale;
         if(lang != null) {
             try {
-                locale = Locale.forLanguageTag(lang);
-            } catch (IllegalArgumentException ex) {
+                Locale.Builder builder = new Locale.Builder();
+                builder.setLanguageTag(lang);
+                locale = builder.build(); 
+            } catch (IllformedLocaleException ex) {
                 log.warn("malformed language literal (language: {})", lang);
                 locale = null;
                 lang = null;
