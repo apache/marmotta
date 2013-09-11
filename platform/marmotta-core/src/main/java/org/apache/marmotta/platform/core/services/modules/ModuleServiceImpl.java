@@ -37,13 +37,7 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -53,16 +47,29 @@ import java.util.Set;
 @ApplicationScoped
 public class ModuleServiceImpl implements ModuleService {
 
+    private String default_container_name = "Others";
+
     private Logger log = LoggerFactory.getLogger(ModuleServiceImpl.class);
 
     private Set<String> modules;
+
+    private HashMap<String,ArrayList<String>> containers;
+
+    private HashMap<String,Integer> container_weight;
 
     private Map<String,Configuration> configurationMap;
     private Map<String, Configuration> jarURLs;
 
     @PostConstruct
     public void initialize() {
+
+        //default_container_name = configurationService.getStringConfiguration("kiwi.pages.default_container.name",default_container_name);
+        //default_container_number = configurationService.getIntConfiguration("kiwi.pages.default_container.number",default_container_number);
+
         modules = new HashSet<String>();
+        containers = new HashMap<String,ArrayList<String>>();
+        container_weight = new HashMap<String, Integer>();
+
         configurationMap = new HashMap<String, Configuration>();
         jarURLs = new HashMap<String, Configuration>();
 
@@ -83,6 +90,20 @@ public class ModuleServiceImpl implements ModuleService {
                     String moduleName = moduleProperties.getString("name");
                     modules.add(moduleName);
 
+                    String c_name = moduleProperties.getString("container") != null ? moduleProperties.getString("container") : default_container_name;
+
+                    if(containers.get(c_name) == null) {
+                        containers.put(c_name, new ArrayList<String>());
+                    }
+                    containers.get(c_name).add(moduleName);
+
+                    if(container_weight.get(c_name) == null ) {
+                        container_weight.put(c_name,-1);
+                    }
+
+                    if(moduleProperties.getString("container.weight") != null) {
+                        container_weight.put(c_name,Math.max(container_weight.get(c_name),moduleProperties.getInt("container.weight",-1)));
+                    }
 
                     URLConnection urlConnection = moduleUrl.openConnection();
                     URL jarUrl;
@@ -112,8 +133,6 @@ public class ModuleServiceImpl implements ModuleService {
                     } catch(ConfigurationException ex) {
                     }
 
-
-
                     // create runtime configuration
                     MapConfiguration runtimeConfiguration = new MapConfiguration(new HashMap<String, Object>());
                     runtimeConfiguration.setProperty("runtime.jarfile", jarUrl.toString());
@@ -130,6 +149,7 @@ public class ModuleServiceImpl implements ModuleService {
 
 
             }
+            //TODO container should be sortable
         } catch (IOException ex) {
             log.error("I/O error while trying to retrieve kiwi-module.properties file",ex);
         }
@@ -173,6 +193,7 @@ public class ModuleServiceImpl implements ModuleService {
      * @param moduleName
      * @return
      */
+    @Deprecated
     @Override
     public Collection<String> getEntities(String moduleName) {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
@@ -189,6 +210,64 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Collection<String> listModules() {
         return modules;
+    }
+
+    public List<String> listSortedModules() {
+        return sortModules(modules);
+    }
+
+    /**
+     * returns all modules within a container
+     * @param container
+     * @return
+     */
+    public Collection<String> listModules(String container) {
+        if(containers.containsKey(container)) {
+            return containers.get(container);
+        } else return null;
+    }
+
+    @Override
+    public List<String> listSortedModules(String container) {
+        if(containers.containsKey(container)) {
+            return sortModules(containers.get(container));
+        } else return null;
+    }
+
+    /**
+     * sort modules
+     * @param m
+     * @return
+     */
+    private List<String> sortModules(Collection<String> m) {
+        List<String> sorted = new ArrayList<String>(m);
+        Collections.sort(sorted,new Comparator<String>() {
+            @Override
+            public int compare(String o, String o2) {
+                return ((Integer) getWeight(o)).compareTo(getWeight(o2));
+            }
+        });
+        return sorted;
+    }
+
+    /**
+     * Lists containers and underlying modules
+     * @return
+     */
+    public Collection<String> listContainers() {
+        return containers.keySet();
+    }
+
+    @Override
+    public List<String> listSortedContainers() {
+        List sorted = new ArrayList(containers.keySet());
+        Collections.sort(sorted,new Comparator<String>() {
+            @Override
+            public int compare(String o, String o2) {
+                return container_weight.get(o2).compareTo(container_weight.get(o));
+            }
+        });
+        return sorted;
     }
 
     /**
@@ -269,15 +348,70 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     /**
-     * Return a list of admin pages (paths)
+     * returns the icon (if set), null otherwise
+     * @param moduleName
+     * @return
+     */
+    @Override
+    public String getIcon(String moduleName) {
+        Configuration config = getModuleConfiguration(moduleName).getConfiguration();
+        if(config != null) return config.getString("icon");
+        else
+            return null;
+    }
+
+    /**
+     * Return a list of admin pages (links)
      * @param moduleName
      * @return
      */
     @Override
     public List<String> getAdminPages(String moduleName) {
         Configuration config = getModuleConfiguration(moduleName).getConfiguration();
-        if(config != null) return ImmutableList.copyOf(config.getStringArray("adminpages"));
-        else
+        if(config != null) {
+            if(!config.subset("adminpage.").isEmpty()) {
+                ArrayList<String> l = new ArrayList<String>();
+                while(config.getString("adminpage."+l.size()+".link") != null) {
+                    l.add(config.getString("adminpage."+l.size()+".link"));
+                }
+                return l;
+            } else return ImmutableList.copyOf(config.getStringArray("adminpages"));
+        } else
+            return null;
+    }
+
+    /**
+     * returns  more complex admin page description
+     * @param moduleName
+     * @return
+     */
+    @Override
+    public List<HashMap<String,String>> getAdminPageObjects(String moduleName) {
+        Configuration config = getModuleConfiguration(moduleName).getConfiguration();
+        if(config != null) {
+            ArrayList<HashMap<String,String>> l = new ArrayList<HashMap<String,String>>();
+            if(!config.subset("adminpage").isEmpty()) {
+                while(config.getString("adminpage."+l.size()+".link") != null) {
+                    HashMap<String,String> map = new HashMap<String, String>();
+                    map.put("link",config.getString("baseurl")+config.getString("adminpage."+l.size()+".link"));
+                    map.put("title",config.getString("adminpage."+l.size()+".title"));
+                    l.add(map);
+                }
+            } else {
+                for(String path : config.getStringArray("adminpages")) {
+                    HashMap<String,String> map = new HashMap<String, String>();
+                    map.put("link",config.getString("baseurl")+path);
+                    String title;
+                    if(path.lastIndexOf(".") > path.lastIndexOf("/")+1)
+                        title = path.substring(path.lastIndexOf("/")+1,path.lastIndexOf(".")).replaceAll("_"," ");
+                    else
+                        title = path.substring(path.lastIndexOf("/")+1);
+                    map.put("title",title);
+                    l.add(map);
+                }
+            }
+            return l;
+        } else
             return null;
     }
 
