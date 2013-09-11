@@ -17,19 +17,16 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.datatypes.XMLDatatypeUtil;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
+import org.openrdf.model.datatypes.XMLDatatypeUtil;
 
 /**
  * KiWiLiterals store literal information from the knowledge base. They directly

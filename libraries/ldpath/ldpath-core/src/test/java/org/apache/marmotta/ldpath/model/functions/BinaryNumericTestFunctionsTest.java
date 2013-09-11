@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,7 +96,7 @@ public class BinaryNumericTestFunctionsTest extends AbstractTestBase {
         }
 
 
-        final RdfPathParser<Value> parser = createParserFromString("ex:hasItem[" + fkt + "(foo:left, foo:right)]");
+        final LdPathParser<Value> parser = createParserFromString("ex:hasItem[" + fkt + "(foo:left, foo:right)]");
         final NodeSelector<Value> sel = parser.parseSelector(NSS);
 
         final Collection<Value> result = sel.select(backend, start, null, null);

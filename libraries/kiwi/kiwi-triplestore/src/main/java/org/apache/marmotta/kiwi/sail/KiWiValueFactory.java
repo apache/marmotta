@@ -49,7 +49,6 @@ public class KiWiValueFactory implements ValueFactory {
 
     private Random anonIdGenerator;
 
-
     /**
      * This is a hash map for storing references to resources that have not yet been persisted. It is used e.g. when
      * one or more transactions are currently active and request the creation of same resource several times
@@ -393,14 +392,17 @@ public class KiWiValueFactory implements ValueFactory {
         Locale locale;
         if(lang != null) {
             try {
-                locale = LocaleUtils.toLocale(lang.replace("-","_"));
-            } catch (IllegalArgumentException ex) {
+                Locale.Builder builder = new Locale.Builder();
+                builder.setLanguageTag(lang);
+                locale = builder.build(); 
+            } catch (IllformedLocaleException ex) {
                 log.warn("malformed language literal (language: {})", lang);
                 locale = null;
-                lang   = null;
+                lang = null;
             }
-        } else
-            locale  = null;
+        } else {
+            locale = null;
+        }
 
         if (lang != null) {
             // FIXME: MARMOTTA-39 (no rdf:langString)

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -94,9 +95,9 @@ public class KiWiDatabaseRunner extends Suite {
      * Only execute with {@link KiWiConfiguration}s for these {@link KiWiDialect}s.
      */
     @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.TYPE)
+    @Target({ElementType.TYPE, ElementType.METHOD})
     public static @interface ForDialects {
-        Class<? extends KiWiDialect>[] dialect();
+        Class<? extends KiWiDialect>[] value();
     }
     
     private final ArrayList<Runner> runners = new ArrayList<Runner>();
@@ -109,7 +110,7 @@ public class KiWiDatabaseRunner extends Suite {
         ForDialects d = klass.getAnnotation(ForDialects.class);
         if (d != null) {
             ArrayList<Class<? extends KiWiDialect>> forDialects = new ArrayList<>();
-            for (Class<? extends KiWiDialect> dialect : d.dialect()) {
+            for (Class<? extends KiWiDialect> dialect : d.value()) {
                 forDialects.add(dialect);
             }
             this.forDialects = Collections.unmodifiableList(forDialects);
@@ -185,6 +186,21 @@ public class KiWiDatabaseRunner extends Suite {
             
             checkDB = new CheckDBRule(config);
             loggerRule = new ExecutionLogger();
+        }
+        
+        @Override
+        protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+            final ForDialects forD = method.getAnnotation(ForDialects.class);
+            if (forD != null) {
+                if (ArrayUtils.contains(forD.value(), config.getDialect().getClass())) {
+                    super.runChild(method, notifier);
+                } else {
+                    notifier.fireTestIgnored(describeChild(method));
+                }
+            } else {
+                super.runChild(method, notifier);
+            }
+
         }
         
         @Override
@@ -312,7 +328,7 @@ public class KiWiDatabaseRunner extends Suite {
         }
         
     }
-
+    
     private boolean fieldAnnotated() {
         return !getFieldsAnnotatedByKiWiConfig().isEmpty();
     }

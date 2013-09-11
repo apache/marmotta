@@ -674,6 +674,86 @@ public class RepositoryTest {
     }
 
     /**
+     * This test is for a strange bug that happens when running SPARQL updates that delete and reinsert a triple in
+     * the same transaction. It is similar to #testMARMOTTA283, but simulates the issue in more detail.
+     * See https://issues.apache.org/jira/browse/MARMOTTA-283
+     */
+    @Test
+    public void testMARMOTTA283_2() throws RepositoryException, RDFParseException, IOException, MalformedQueryException, UpdateExecutionException {
+
+        //insert quadruples
+        String insert =
+                "WITH <http://resource.org/video>" +
+                "INSERT {" +
+                "   <http://resource.org/video> <http://ontology.org#hasFragment> <http://resource.org/fragment1>." +
+                "   <http://resource.org/annotation1> <http://ontology.org#hasTarget> <http://resource.org/fragment1>." +
+                "   <http://resource.org/annotation1> <http://ontology.org#hasBody> <http://resource.org/subject1>." +
+                "   <http://resource.org/fragment1> <http://ontology.org#shows> <http://resource.org/subject1>." +
+                "} WHERE {}";
+
+        RepositoryConnection connectionInsert = repository.getConnection();
+        try {
+            Update u = connectionInsert.prepareUpdate(QueryLanguage.SPARQL, insert);
+            u.execute();
+            connectionInsert.commit();
+        } finally {
+            connectionInsert.close();
+        }
+
+        //update quadruples
+        String update =
+                "WITH <http://resource.org/video>" +
+                "DELETE { " +
+                "   ?annotation ?p ?v." +
+                "   ?fragment ?r ?s." +
+                "   <http://resource.org/video> <http://ontology.org#hasFragment> ?fragment." +
+                "} INSERT {" +
+                "   <http://resource.org/video> <http://ontology.org#hasFragment> <http://resource.org/fragment1>." +
+                "   <http://resource.org/annotation1> <http://ontology.org#hasTarget> <http://resource.org/fragment1>." +
+                "   <http://resource.org/annotation1> <http://ontology.org#hasBody> <http://resource.org/subject1>." +
+                "   <http://resource.org/fragment1> <http://ontology.org#shows> <http://resource.org/subject1>." +
+                "} WHERE {" +
+                "   ?annotation <http://ontology.org#hasTarget> ?fragment." +
+                "   ?annotation ?p ?v." +
+                "   OPTIONAL {" +
+                "       ?fragment ?r ?s" +
+                "   }" +
+                "   FILTER (?fragment = <http://resource.org/fragment1>)" +
+                "} ";
+
+        RepositoryConnection connectionUpdate = repository.getConnection();
+        try {
+            Update u = connectionUpdate.prepareUpdate(QueryLanguage.SPARQL, update);
+            u.execute();
+            connectionUpdate.commit();
+        } finally {
+            connectionUpdate.close();
+        }
+
+        //check quadruples
+        RepositoryConnection connectionVerify = repository.getConnection();
+        try {
+            URI video = repository.getValueFactory().createURI("http://resource.org/video");
+            URI hasFragment  = repository.getValueFactory().createURI("http://ontology.org#hasFragment");
+            URI fragment = repository.getValueFactory().createURI("http://resource.org/fragment1");
+            URI annotation = repository.getValueFactory().createURI("http://resource.org/annotation1");
+            URI hasTarget = repository.getValueFactory().createURI("http://ontology.org#hasTarget");
+            URI hasBody = repository.getValueFactory().createURI("http://ontology.org#hasBody");
+            URI subject = repository.getValueFactory().createURI("http://resource.org/subject1");
+            URI shows = repository.getValueFactory().createURI("http://ontology.org#shows");
+
+            Assert.assertTrue(connectionVerify.hasStatement(video,hasFragment,fragment,true,video));
+            Assert.assertTrue(connectionVerify.hasStatement(annotation,hasTarget,fragment,true,video));
+            Assert.assertTrue(connectionVerify.hasStatement(annotation,hasBody,subject,true,video));
+            Assert.assertTrue(connectionVerify.hasStatement(fragment,shows,subject,true,video));
+
+            connectionVerify.commit();
+        } finally {
+            connectionVerify.close();
+        }
+    }
+
+    /**
      * Test the concurrent connection problem reported in MARMOTTA-236 for facading:
      * - get two parallel connections
      * - add triple in connection 1; should be available in connection 1 and not in connection 2

@@ -34,6 +34,7 @@ public class Collections {
      * @param lists
      * @return
      */
+    @SafeVarargs
     public static <T> List<T> concat(final Collection<T>... lists) {
         List<T> result = new ArrayList<T>();
         for(Collection<T> list : lists) {
@@ -46,6 +47,7 @@ public class Collections {
      * @param lists the array with the lists
      * @return the plain iterator over all elements of the lists
      */
+    @SafeVarargs
     public static <T> Iterator<T> iterator(final Collection<T>...lists){
         return iterator(0,lists);
     }
@@ -57,6 +59,7 @@ public class Collections {
      * @return the plain iterator over all elements of the lists starting from
      * index offset
      */
+    @SafeVarargs
     public static <T> Iterator<T> iterator(final int offset,final Collection<T>...lists){
         if(offset < 0){
             throw new IllegalArgumentException("The parsed Offest MUST NOT be < 0!");

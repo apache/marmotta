@@ -44,7 +44,7 @@ public interface NodeFunction<T,Node> extends LDPathConstruct<Node> {
      * @param args a nested list of KiWiNodes
      * @return
      */
-    public T apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException;
+    public T apply(RDFBackend<Node> backend, Node context, @SuppressWarnings("unchecked") Collection<Node>... args) throws IllegalArgumentException;
 
     /**
      * A string describing the signature of this node function, e.g. "fn:content(uris : Nodes) : Nodes". The

@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.ldpath.api.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-
 import java.util.Map;
+
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 
 /**
  * Implementations of this interface allow to transform KiWiNode objects into the type T. This is

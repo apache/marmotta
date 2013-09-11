@@ -544,10 +544,21 @@ class Client
 
         str = "{"
         for value,index in data
-          str += '"'+value.key + '":"'+value.getValue() + '"'
+          v = '"'+value.getValue()+'"'
+          if (value.getValue().split(",").length > 1)
+            x = value.getValue().split(",")
+            v = "["
+            for val,i in x
+              v += '"'+val+'"'
+              if i < x.length-1
+                v += ','
+
+            v += "]"
+
+          str += '"'+value.key + '":'+v
           str += "," if index < data.length-1
         str += "}"
-
+        console.log str
         $.ajax data =
           type : 'POST'
           contentType: "application/json"

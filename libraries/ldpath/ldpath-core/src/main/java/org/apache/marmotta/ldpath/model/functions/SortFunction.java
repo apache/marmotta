@@ -65,7 +65,8 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
      * @return
      */
     @Override
-    public Collection<Node> apply(final RDFBackend<Node> nodeRDFBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    @SafeVarargs
+    public final Collection<Node> apply(final RDFBackend<Node> nodeRDFBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         String order     = "string";
         String direction = "asc";
 

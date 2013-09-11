@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.ldpath.model.tests;
 
+import java.net.URI;
+
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
@@ -35,10 +37,14 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class LiteralTypeTest<Node> extends NodeTest<Node> {
 
-    private String typeUri;
+    private URI typeUri;
 
     public LiteralTypeTest(String typeUri) {
-        this.typeUri = typeUri;
+        this.typeUri = URI.create(typeUri);
+    }
+    
+    public LiteralTypeTest(URI uri) {
+        this.typeUri = uri;
     }
 
     /**
@@ -55,9 +61,10 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
         if(rdfBackend.isLiteral(node)) {
 
             if(typeUri != null) {
-                return typeUri.equals(rdfBackend.getLiteralType(node).toString());
+                return typeUri.equals(rdfBackend.getLiteralType(node));
             } else {
-                return null == rdfBackend.getLiteralType(node).toString();
+                // FIXME: MARMOTTA-39
+                return null == rdfBackend.getLiteralType(node);
             }
         } else {
             return false;

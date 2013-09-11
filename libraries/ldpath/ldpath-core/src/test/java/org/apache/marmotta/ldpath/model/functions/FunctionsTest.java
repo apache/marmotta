@@ -29,7 +29,7 @@ import java.util.Collection;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class FunctionsTest extends AbstractTestBase {
     @Test
     public void testConcat() throws ParseException {
 
-        RdfPathParser<Value> parser = createParserFromString("fn:concat(foo:title, \" \", foo:subtitle) :: xsd:string; ");
+        LdPathParser<Value> parser = createParserFromString("fn:concat(foo:title, \" \", foo:subtitle) :: xsd:string; ");
         final URI context = repository.getValueFactory().createURI("http://www.example.com/1");
 
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
@@ -67,7 +67,7 @@ public class FunctionsTest extends AbstractTestBase {
         final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
         final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
 
-        RdfPathParser<Value> parser = createParserFromString("fn:first(foo:not_valid, foo:title, foo:subtitle, foo:not_valid2) :: xsd:string; ");
+        LdPathParser<Value> parser = createParserFromString("fn:first(foo:not_valid, foo:title, foo:subtitle, foo:not_valid2) :: xsd:string; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
 
         final Collection<Object> result = field.getValues(backend, ctx1);
@@ -84,7 +84,7 @@ public class FunctionsTest extends AbstractTestBase {
         final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
         final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
 
-        RdfPathParser<Value> parser = createParserFromString("fn:first(foo:i) :: xsd:int; ");
+        LdPathParser<Value> parser = createParserFromString("fn:first(foo:i) :: xsd:int; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
 
         final Collection<Object> result = field.getValues(backend, ctx1);
@@ -101,7 +101,7 @@ public class FunctionsTest extends AbstractTestBase {
         final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
         final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
 
-        RdfPathParser<Value> parser = createParserFromString("fn:last(foo:not_valid, foo:title, foo:subtitle, foo:not_valid2) :: xsd:string; ");
+        LdPathParser<Value> parser = createParserFromString("fn:last(foo:not_valid, foo:title, foo:subtitle, foo:not_valid2) :: xsd:string; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
 
         final Collection<Object> result = field.getValues(backend, ctx1);
@@ -118,7 +118,7 @@ public class FunctionsTest extends AbstractTestBase {
         final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
         final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
 
-        RdfPathParser<Value> parser = createParserFromString("fn:last(foo:i, ex:not_here) :: xsd:int; ");
+        LdPathParser<Value> parser = createParserFromString("fn:last(foo:i, ex:not_here) :: xsd:int; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
 
         final Collection<Object> result = field.getValues(backend, ctx1);
@@ -136,14 +136,14 @@ public class FunctionsTest extends AbstractTestBase {
         final URI ex1 = repository.getValueFactory().createURI("http://www.example.com/1");
         final URI ex2 = repository.getValueFactory().createURI("http://www.example.com/2");
 
-        final RdfPathParser<Value> parser = createParserFromString("ex:hasItem[fn:eq(foo:i, foo:j)]");
+        final LdPathParser<Value> parser = createParserFromString("ex:hasItem[fn:eq(foo:i, foo:j)]");
         final NodeSelector<Value> sel = parser.parseSelector(NSS);
 
         final Collection<Value> result = sel.select(backend, start, null, null);
         assertEquals(1, result.size());
         assertThat(result, allOf(hasItem(ex2), not(hasItem(ex1))));
 
-        final RdfPathParser<Value> parseri = createParserFromString("ex:hasItem[! fn:eq(foo:i, foo:j)]");
+        final LdPathParser<Value> parseri = createParserFromString("ex:hasItem[! fn:eq(foo:i, foo:j)]");
         final NodeSelector<Value> seli = parseri.parseSelector(NSS);
 
         final Collection<Value> resulti = seli.select(backend, start, null, null);

@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,7 +73,7 @@ public class XPathFunctionTest extends AbstractTestBase {
     public void testXpathFunction() throws ParseException {
         final URI ctx = repository.getValueFactory().createURI(NSS.get("ex") + "Quiz");
 
-        final RdfPathParser<Value> parser = createParserFromString("fn:xpath(\"/quiz/question[" +
+        final LdPathParser<Value> parser = createParserFromString("fn:xpath(\"/quiz/question[" +
                 index +
                 "]/answers/answer[@correct='true']/text()\", foo:xml) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);

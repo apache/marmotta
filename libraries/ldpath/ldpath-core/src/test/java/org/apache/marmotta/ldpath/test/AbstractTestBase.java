@@ -35,7 +35,7 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.RdfPathParser;
+import org.apache.marmotta.ldpath.parser.LdPathParser;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -108,18 +108,18 @@ public abstract class AbstractTestBase {
     };
 
 
-    protected RdfPathParser<Value> createParserFromResource(String input) throws IOException {
+    protected LdPathParser<Value> createParserFromResource(String input) throws IOException {
         final URL resource = this.getClass().getResource(input);
         assertThat("Could not load test input data '" + input + "'", resource, CoreMatchers.notNullValue());
 
-        RdfPathParser<Value> parser = new RdfPathParser<Value>(backend, resource.openStream());
+        LdPathParser<Value> parser = new LdPathParser<Value>(backend, resource.openStream());
         assertThat("Could not parse ldPath", parser, CoreMatchers.notNullValue());
 
         return parser;
     }
 
-    protected RdfPathParser<Value> createParserFromString(String program) {
-        final RdfPathParser<Value> parser = new RdfPathParser<Value>(backend, new StringReader(program));
+    protected LdPathParser<Value> createParserFromString(String program) {
+        final LdPathParser<Value> parser = new LdPathParser<Value>(backend, new StringReader(program));
         assertThat("Could not parse ldPath", parser, CoreMatchers.notNullValue());
 
         return parser;
@@ -146,7 +146,7 @@ public abstract class AbstractTestBase {
     }
 
     protected Collection<Object> evaluateRule(final String ldPath, URI context) throws ParseException {
-        final RdfPathParser<Value> parser = createParserFromString(ldPath);
+        final LdPathParser<Value> parser = createParserFromString(ldPath);
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
         final Collection<Object> values = rule.getValues(backend, context);
         return values;
@@ -166,7 +166,7 @@ public abstract class AbstractTestBase {
     }
 
     protected Collection<Value> evaluateSelector(final String ldPath, URI context) throws ParseException {
-        final RdfPathParser<Value> parser = createParserFromString(ldPath);
+        final LdPathParser<Value> parser = createParserFromString(ldPath);
         final NodeSelector<Value> sel = parser.parseSelector(NSS);
         final Collection<Value> nodes = sel.select(backend, context, null, null);
         return nodes;
