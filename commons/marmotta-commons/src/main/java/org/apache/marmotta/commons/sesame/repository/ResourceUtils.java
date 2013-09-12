@@ -143,7 +143,7 @@ public class ResourceUtils {
      * @return true if the {@link Resource} is ever used as context.
      */
     public static boolean isContext(RepositoryConnection conn, Resource rsc) {
-        return existsStatement(conn, null, null, null);
+        return existsStatement(conn, null, null, null, rsc);
     }
 
     /**
@@ -175,9 +175,9 @@ public class ResourceUtils {
      * @param object the object of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
      * @return true if a {@link Statement} with the provided constraints exists.
      */
-    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object) {
+    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ... context) {
         try {
-            return conn.hasStatement(subj,pred,object,true);
+            return conn.hasStatement(subj,pred,object,true,context);
         } catch (RepositoryException e) {
             log.error(e.getMessage());
             return false;

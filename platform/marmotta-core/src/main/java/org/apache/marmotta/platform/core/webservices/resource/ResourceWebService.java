@@ -366,10 +366,12 @@ public class ResourceWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource r;
+                Resource r = null;
             	if (UriUtil.validate(resource)) {
                     try {
-                    	r = ResourceUtils.getUriResource(conn, resource);
+                    	if(ResourceUtils.isSubject(conn, resource)) {  //tests if a resource is used as subject
+                            r = ResourceUtils.getUriResource(conn, resource);
+                        }
                     } catch (Exception e) {
                     	log.error("Error retrieving the resource <{}>: {}", resource, e.getMessage());
                     	log.debug("So redirecting directly to it...");
