@@ -58,18 +58,49 @@
         }
         ul.center_submenu li {
             list-style: none;
-            display: inline;
-            margin-bottom: -1px;
-            padding: 5px 0 0;
-            margin-bottom: 10px;
-            background-color: white;
-            border: 1px solid black;
+            display: list-item;
+            float: left;
+            padding: 5px;
+            margin-right: 4px;
         }
         ul.center_submenu li.active {
-            margin-bottom:-1px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            background-color: white;
+            border-left: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            border-top: 1px solid #ccc;
         }
         ul.center_submenu a {
-            padding:10px;
+            text-decoration: underline;
+            font-weight: bold;
+            color: #0B61A4;
+        }
+
+        ul.center_submenu li.active a {
+            text-decoration: none;
+        }
+        #content {
+            border-top-left-radius: 0;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            border-left: 1px solid #ccc;
+        }
+        #login_logout {
+            float: right;
+            margin-right: 5px;
+            margin-top: -3px;
+            border: 1px solid #aaa;
+            padding: 4px 10px 2px;
+            background-color: white;
+            border-radius: 3px;
+            -webkit-border-radius: 3px;
+            box-shadow: 0px 0px 8px #555;
+        }
+        #login_logout a {
+            color: #0B61A4;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -130,6 +161,7 @@
             </#if>
         </#list>
         </ul>
+        <div class="clear"></div>
         <div id="content">
         ${CONTENT}
         </div>
