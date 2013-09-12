@@ -113,6 +113,9 @@ public class FacadingImpl implements Facading {
                             final URI r_type = connection.getValueFactory().createURI(s_type);
                             connection.add(r, RDF_TYPE, r_type, context);
                             log.trace("added type {} to {} because of RDFType-Annotation", r_type, r);
+                            if(!connection.hasStatement(r, RDF_TYPE, r_type,true,context)) {
+                                log.error("error adding type for facade!");
+                            }
                         }
                     }
 

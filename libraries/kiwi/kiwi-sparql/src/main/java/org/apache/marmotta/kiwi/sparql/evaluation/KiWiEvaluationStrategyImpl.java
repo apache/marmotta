@@ -23,6 +23,7 @@ import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryInterruptedException;
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
@@ -81,11 +82,11 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
                     }
                 };
             } catch (SQLException e) {
-                throw new QueryEvaluationException(e);
+                throw new QueryEvaluationException(e.getMessage(),e);
             } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e);
+                throw new QueryEvaluationException(e.getMessage(),e);
             } catch (InterruptedException e) {
-                throw new QueryEvaluationException(e);
+                throw new QueryInterruptedException(e.getMessage());
             }
         } else {
             return super.evaluate(join, bindings);
@@ -109,7 +110,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             } catch (IllegalArgumentException e) {
                 throw new QueryEvaluationException(e);
             } catch (InterruptedException e) {
-                throw new QueryEvaluationException(e);
+                throw new QueryInterruptedException(e);
             }
         } else {
             return super.evaluate(join, bindings);

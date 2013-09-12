@@ -29,6 +29,7 @@ import static org.junit.Assume.assumeThat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -752,4 +753,45 @@ public class RepositoryTest {
         }
     }
 
+    /**
+     * Test the concurrent connection problem reported in MARMOTTA-236 for facading:
+     * - get two parallel connections
+     * - add triple in connection 1; should be available in connection 1 and not in connection 2
+     * - add same triple in connection 2; should be available in both, connection 1 and connection 2 or
+     *   fail-fast by throwing a ConcurrentModificationException
+     * @throws Exception
+     */
+    @Test
+    public void testMARMOTTA236() throws Exception {
+        RepositoryConnection con1 = repository.getConnection();
+        RepositoryConnection con2 = repository.getConnection();
+
+        try {
+            URI r1 = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            URI r2 = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+            URI r3 = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+
+            con1.begin();
+            con1.add(r1,r2,r3);
+
+            Assert.assertTrue(con1.hasStatement(r1,r2,r3,true));
+
+            con2.begin();
+            Assert.assertFalse(con2.hasStatement(r1,r2,r3,true));
+
+            con2.add(r1,r2,r3);
+
+            Assert.assertTrue(con2.hasStatement(r1,r2,r3,true));
+
+            con2.rollback();
+            con1.commit();
+        } catch (ConcurrentModificationException ex) {
+
+        } finally {
+            con1.close();
+            con2.close();
+        }
+
+
+    }
 }

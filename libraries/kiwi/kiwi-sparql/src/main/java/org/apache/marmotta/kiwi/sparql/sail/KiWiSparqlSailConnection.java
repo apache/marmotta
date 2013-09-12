@@ -90,7 +90,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             return strategy.evaluate(tupleExpr, EmptyBindingSet.getInstance());
 
         } catch (QueryEvaluationException e) {
-            throw new SailException(e);
+            throw new SailException(e.getMessage(),e);
         }
     }
 

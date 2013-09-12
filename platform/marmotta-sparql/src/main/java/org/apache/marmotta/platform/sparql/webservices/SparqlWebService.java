@@ -493,7 +493,7 @@ public class SparqlWebService {
                 } catch (MalformedQueryException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (TimeoutException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.REQUEST_TIMEOUT).entity(WebServiceUtil.jsonErrorResponse(e)).build());
+                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.GATEWAY_TIMEOUT).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 }
             }
         };

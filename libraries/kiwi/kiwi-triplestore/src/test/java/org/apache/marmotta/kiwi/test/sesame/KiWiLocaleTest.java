@@ -79,7 +79,7 @@ public class KiWiLocaleTest  {
      */
     @Test
     public void createBCP47LiteralsInvalidTests() {
-    	Literal invalidLangLiteral = vf.createLiteral("Hungary", "invalid");
+    	Literal invalidLangLiteral = vf.createLiteral("Hungary", "invalid-bcp47-languagetag");
     	Assert.assertEquals("Hungary", invalidLangLiteral.getLabel());
     	Assert.assertNull(invalidLangLiteral.getLanguage());
     }

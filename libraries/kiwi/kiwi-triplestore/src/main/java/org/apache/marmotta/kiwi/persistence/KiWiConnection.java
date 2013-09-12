@@ -1122,6 +1122,9 @@ public class KiWiConnection {
 
                         return count > 0;
                     } catch(SQLException ex) {
+                        if("HYT00".equals(ex.getSQLState())) { // H2 table locking timeout
+                            throw new ConcurrentModificationException("the same triple was modified in concurrent transactions (triple="+triple+")");
+                        }
                         // this is an ugly hack to catch duplicate key errors in some databases (H2)
                         // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
                         return false;
