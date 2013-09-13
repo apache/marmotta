@@ -905,6 +905,7 @@ public class ReasoningEngine implements TransactionListener {
         if(force) {
             log.warn("forced shutdown of reasoning service initiated, state will be inconsistent ...");
 
+            reasoningQueue.clear();
             reasonerThread.shutdown(true);
 
             for(int i = 0; i<3 && isRunning(); i++) {
