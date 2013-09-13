@@ -80,7 +80,7 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
         Sail wsail = new SailWrapper(rsail) {
             @Override
             public void shutDown() throws SailException {
-                rsail.getEngine().shutdown();
+                rsail.getEngine().shutdown(true);
 
                 try {
                     rsail.getPersistence().dropDatabase();

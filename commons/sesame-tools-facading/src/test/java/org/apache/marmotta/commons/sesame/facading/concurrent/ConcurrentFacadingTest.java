@@ -1,5 +1,6 @@
 package org.apache.marmotta.commons.sesame.facading.concurrent;
 
+import java.util.ConcurrentModificationException;
 import java.util.UUID;
 
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
@@ -169,6 +170,8 @@ public class ConcurrentFacadingTest extends AbstractFacadingTest {
                     subCon_2.close();
                 }
             }
+        } catch (ConcurrentModificationException ex) {
+            // do nothing, H2 locking
         } finally {
             if (mainCon.isActive()) mainCon.rollback();
             mainCon.close();

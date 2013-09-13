@@ -129,7 +129,7 @@ public class ReasoningEngineTest {
 
     @After
     public void dropDatabase() throws Exception {
-        engine.shutdown();
+        engine.shutdown(true);
 
         rpersistence.dropDatabase();
         persistence.dropDatabase();

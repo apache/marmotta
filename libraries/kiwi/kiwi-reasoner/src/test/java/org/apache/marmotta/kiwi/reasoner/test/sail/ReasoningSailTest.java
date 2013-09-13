@@ -88,6 +88,7 @@ public class ReasoningSailTest {
 
     @After
     public void dropDatabase() throws Exception {
+        rsail.getEngine().shutdown(true);
         rsail.getPersistence().dropDatabase();
         store.getPersistence().dropDatabase();
         repository.shutDown();

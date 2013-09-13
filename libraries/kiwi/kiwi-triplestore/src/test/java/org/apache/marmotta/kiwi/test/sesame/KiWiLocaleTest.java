@@ -30,6 +30,8 @@ import org.openrdf.model.Literal;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 
+import java.sql.SQLException;
+
 /**
  * Tests for testing locales against the KiWi Triple store 
  * (and its implementation of the ValueFactory)
@@ -55,7 +57,8 @@ public class KiWiLocaleTest  {
     }
     
     @After
-    public void shutdown() throws SailException {
+    public void shutdown() throws SailException, SQLException {
+        store.getPersistence().dropDatabase();
     	store.shutDown();
     	store = null;
     	vf = null;

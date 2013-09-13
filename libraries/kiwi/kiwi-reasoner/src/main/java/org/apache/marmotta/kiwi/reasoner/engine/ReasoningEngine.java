@@ -121,6 +121,7 @@ public class ReasoningEngine implements TransactionListener {
      */
     private static long taskCounter = 0;
 
+    private boolean isshutdown = false;
 
     /**
      * The worker thread for the reasoner.
@@ -894,17 +895,44 @@ public class ReasoningEngine implements TransactionListener {
     }
 
     public void shutdown() {
-        log.info("shutting down reasoning service ...");
+        shutdown(false);
+    }
 
-        for(int i = 0; i<20 && isRunning(); i++) {
-            log.warn("reasoner not yet finished, waiting for 1 seconds (try={})", i+1);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+    public void shutdown(boolean force) {
+        if(isshutdown)
+            return;
+
+        if(force) {
+            log.warn("forced shutdown of reasoning service initiated, state will be inconsistent ...");
+
+            reasonerThread.shutdown();
+
+            for(int i = 0; i<3 && isRunning(); i++) {
+                log.warn("reasoner not yet finished, waiting for 1 seconds (try={})", i+1);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
             }
+
+            // yes, I know it is unsafe; it is only used when forcefully shutting down on test ends before the database is deleted...
+            reasonerThread.stop();
+
+        } else {
+            log.info("graceful shutdown of reasoning service initiated ...");
+
+            for(int i = 0; i<20 && isRunning(); i++) {
+                log.warn("reasoner not yet finished, waiting for 1 seconds (try={})", i+1);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            reasonerThread.shutdown();
         }
 
-        reasonerThread.shutdown();
+        isshutdown = true;
     }
 
     /**

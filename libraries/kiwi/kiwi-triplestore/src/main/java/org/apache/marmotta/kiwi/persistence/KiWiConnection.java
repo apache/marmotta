@@ -28,7 +28,6 @@ import com.google.common.base.Preconditions;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
@@ -46,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
-import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -1062,7 +1060,7 @@ public class KiWiConnection {
      * @throws NullPointerException in case the subject, predicate, object or context have not been persisted
      * @return true in case the update added a new triple to the database, false in case the triple already existed
      */
-    public synchronized boolean storeTriple(KiWiTriple triple) throws SQLException {
+    public synchronized boolean storeTriple(final KiWiTriple triple) throws SQLException {
         // mutual exclusion: prevent parallel adding and removing of the same triple
         synchronized (triple) {
 
@@ -1104,30 +1102,39 @@ public class KiWiConnection {
 
 
                     try {
-                        PreparedStatement insertTriple = getPreparedStatement("store.triple");
-                        insertTriple.setLong(1,triple.getId());
-                        insertTriple.setLong(2,triple.getSubject().getId());
-                        insertTriple.setLong(3,triple.getPredicate().getId());
-                        insertTriple.setLong(4,triple.getObject().getId());
-                        if(triple.getContext() != null) {
-                            insertTriple.setLong(5,triple.getContext().getId());
-                        } else {
-                            insertTriple.setNull(5, Types.BIGINT);
-                        }
-                        insertTriple.setBoolean(6,triple.isInferred());
-                        insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
-                        int count = insertTriple.executeUpdate();
+                        RetryExecution<Boolean> execution = new RetryExecution<>("STORE");
+                        execution.setUseSavepoint(true);
+                        execution.execute(connection, new RetryCommand<Boolean>() {
+                            @Override
+                            public Boolean run() throws SQLException {
+                                PreparedStatement insertTriple = getPreparedStatement("store.triple");
+                                insertTriple.setLong(1,triple.getId());
+                                insertTriple.setLong(2,triple.getSubject().getId());
+                                insertTriple.setLong(3,triple.getPredicate().getId());
+                                insertTriple.setLong(4,triple.getObject().getId());
+                                if(triple.getContext() != null) {
+                                    insertTriple.setLong(5,triple.getContext().getId());
+                                } else {
+                                    insertTriple.setNull(5, Types.BIGINT);
+                                }
+                                insertTriple.setBoolean(6,triple.isInferred());
+                                insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
+                                int count = insertTriple.executeUpdate();
 
-                        cacheTriple(triple);
+                                cacheTriple(triple);
 
-                        return count > 0;
+                                return count > 0;
+                            }
+                        });
+
+                        return !hasId;
+
                     } catch(SQLException ex) {
                         if("HYT00".equals(ex.getSQLState())) { // H2 table locking timeout
                             throw new ConcurrentModificationException("the same triple was modified in concurrent transactions (triple="+triple+")");
+                        } else {
+                            throw ex;
                         }
-                        // this is an ugly hack to catch duplicate key errors in some databases (H2)
-                        // better option could be http://stackoverflow.com/questions/6736518/h2-java-insert-ignore-allow-exception
-                        return false;
                     }
                 }
             }
@@ -1192,9 +1199,9 @@ public class KiWiConnection {
 
         RetryExecution execution = new RetryExecution("DELETE");
         execution.setUseSavepoint(true);
-        execution.execute(connection, new RetryCommand() {
+        execution.execute(connection, new RetryCommand<Void>() {
             @Override
-            public void run() throws SQLException {
+            public Void run() throws SQLException {
                 // mutual exclusion: prevent parallel adding and removing of the same triple
                 synchronized (triple) {
 
@@ -1202,19 +1209,19 @@ public class KiWiConnection {
                     triple.setDeleted(true);
                     triple.setDeletedAt(new Date());
 
-                    if(triple.getId() == null) {
+                    if (triple.getId() == null) {
                         log.warn("attempting to remove non-persistent triple: {}", triple);
                         removeCachedTriple(triple);
                     } else {
-                        if(batchCommit) {
+                        if (batchCommit) {
                             // need to remove from triple batch and from database
                             commitLock.lock();
                             try {
-                                if(tripleBatch == null || !tripleBatch.remove(triple)) {
+                                if (tripleBatch == null || !tripleBatch.remove(triple)) {
 
                                     PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
                                     synchronized (deleteTriple) {
-                                        deleteTriple.setLong(1,triple.getId());
+                                        deleteTriple.setLong(1, triple.getId());
                                         deleteTriple.executeUpdate();
                                     }
                                     deletedStatementsLog.add(triple.getId());
@@ -1227,7 +1234,7 @@ public class KiWiConnection {
 
                             PreparedStatement deleteTriple = getPreparedStatement("delete.triple");
                             synchronized (deleteTriple) {
-                                deleteTriple.setLong(1,triple.getId());
+                                deleteTriple.setLong(1, triple.getId());
                                 deleteTriple.executeUpdate();
                             }
                             deletedStatementsLog.add(triple.getId());
@@ -1237,6 +1244,8 @@ public class KiWiConnection {
                         removeCachedTriple(triple);
                     }
                 }
+
+                return null;
             }
         });
 
@@ -1789,7 +1798,7 @@ public class KiWiConnection {
 
     private void cacheNode(KiWiNode node) {
         if(node.getId() != null) {
-            nodeCache.put(new Element(node.getId(),node));
+            nodeCache.put(new Element(node.getId(), node));
         }
         if(node instanceof KiWiUriResource) {
             uriCache.put(new Element(node.stringValue(), node));
@@ -1976,9 +1985,9 @@ public class KiWiConnection {
         numberOfCommits++;
 
         RetryExecution execution = new RetryExecution("COMMIT");
-        execution.execute(connection, new RetryCommand() {
+        execution.execute(connection, new RetryCommand<Void>() {
             @Override
-            public void run() throws SQLException {
+            public Void run() throws SQLException {
                 if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
                     commitMemorySequences();
                 }
@@ -1994,6 +2003,8 @@ public class KiWiConnection {
                 if(connection != null) {
                     connection.commit();
                 }
+
+                return null;
             }
         });
     }
@@ -2135,9 +2146,9 @@ public class KiWiConnection {
 
                 RetryExecution execution = new RetryExecution("FLUSH BATCH");
                 execution.setUseSavepoint(true);
-                execution.execute(connection, new RetryCommand() {
+                execution.execute(connection, new RetryCommand<Void>() {
                     @Override
-                    public void run() throws SQLException {
+                    public Void run() throws SQLException {
                         PreparedStatement insertTriple = getPreparedStatement("store.triple");
                         insertTriple.clearParameters();
                         insertTriple.clearBatch();
@@ -2177,6 +2188,7 @@ public class KiWiConnection {
 
                         tripleBatch.clear();
 
+                        return null;
                     }
                 });
 
@@ -2189,9 +2201,9 @@ public class KiWiConnection {
     }
 
 
-    protected static interface RetryCommand {
+    protected static interface RetryCommand<T> {
 
-        public void run() throws SQLException;
+        public T run() throws SQLException;
     }
 
     /**
@@ -2199,7 +2211,7 @@ public class KiWiConnection {
      * and should be retried several times before giving up completely.
      *
      */
-    protected static class RetryExecution  {
+    protected static class RetryExecution<T>  {
 
         // counter for current number of retries
         private int retries = 0;
@@ -2260,36 +2272,40 @@ public class KiWiConnection {
             return sqlStates;
         }
 
-        public void execute(Connection connection, RetryCommand command) throws SQLException {
+        public T execute(Connection connection, RetryCommand<T> command) throws SQLException {
             Savepoint savepoint = null;
             if(useSavepoint) {
                 savepoint = connection.setSavepoint();
             }
             try {
-                command.run();
+                T result = command.run();
 
                 if(useSavepoint && savepoint != null) {
                     connection.releaseSavepoint(savepoint);
                 }
+
+                return result;
             } catch (SQLException ex) {
                 if(retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
                     if(useSavepoint && savepoint != null) {
                         connection.rollback(savepoint);
                     }
-                    log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, retryInterval, Thread.currentThread().getName(), retries);
+                    Random rnd = new Random();
+                    long sleep = retryInterval - 250 + rnd.nextInt(500);
+                    log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, sleep, Thread.currentThread().getName(), retries);
                     try {
-                        Thread.sleep(retryInterval);
+                        Thread.sleep(sleep);
                     } catch (InterruptedException e) {}
                     retries++;
-                    execute(connection, command);
+                    T result = execute(connection, command);
                     retries--;
-                } else {
-                    log.error("{}: temporary conflict could not be solved!", name);
 
-                    System.err.println("main exception:");
-                    ex.printStackTrace();
-                    System.err.println("next exception:");
-                    ex.getNextException().printStackTrace();
+                    return result;
+                } else {
+                    log.error("{}: temporary conflict could not be solved! (error: {})", name, ex.getMessage());
+
+                    log.debug("main exception:",ex);
+                    log.debug("next exception:",ex.getNextException());
                     throw ex;
                 }
             }
