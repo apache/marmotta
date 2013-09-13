@@ -908,10 +908,10 @@ public class ReasoningEngine implements TransactionListener {
             reasoningQueue.clear();
             reasonerThread.shutdown(true);
 
-            for(int i = 0; i<3 && isRunning(); i++) {
-                log.warn("reasoner not yet finished, waiting for 1 seconds (try={})", i+1);
+            for(int i = 0; i<5 && isRunning(); i++) {
+                log.warn("reasoner not yet finished, waiting for 100 ms (try={})", i+1);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                 }
             }
