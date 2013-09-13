@@ -17,22 +17,17 @@
 
 package org.apache.marmotta.platform.core.test.ld;
 
-import com.google.common.collect.Sets;
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
-import org.apache.marmotta.platform.core.webservices.config.ConfigurationWebService;
 import org.apache.marmotta.platform.core.webservices.resource.ContentWebService;
 import org.apache.marmotta.platform.core.webservices.resource.MetaWebService;
 import org.apache.marmotta.platform.core.webservices.resource.ResourceWebService;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
@@ -42,10 +37,13 @@ import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
 import org.openrdf.sail.memory.MemoryStore;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Random;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.form;
@@ -60,14 +58,18 @@ public class LinkedDataTest {
 
     private static JettyMarmotta marmotta;
     private static SesameService sesameService;
+    private static ContextService contextService;
 
     private static ObjectMapper mapper = new ObjectMapper();
+
+    private static Random rnd = new Random();
 
 
     @BeforeClass
     public static void setUp() throws RepositoryException, IOException, RDFParseException {
         marmotta = new JettyMarmotta("/marmotta", ResourceWebService.class, MetaWebService.class, ContentWebService.class);
         sesameService = marmotta.getService(SesameService.class);
+        contextService = marmotta.getService(ContextService.class);
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
@@ -109,13 +111,24 @@ public class LinkedDataTest {
     }
 
     /**
-     * Test if we can retrieve Linked Data resources as RDF/XML.
+     * Test if we can retrieve Linked Data resources as Turtle
      *
      * @throws Exception
      */
     @Test
     public void testGetTurtle() throws Exception {
         testGetBase(RDFFormat.TURTLE);
+    }
+
+    /**
+     * Test if we can retrieve Linked Data resources as Turtle
+     *
+     * @throws Exception
+     */
+    @Ignore("JSON-LD Parser currently does not parse the result properly")
+    @Test
+    public void testGetJSONLD() throws Exception {
+        testGetBase(RDFFormat.JSONLD);
     }
 
 
@@ -136,7 +149,8 @@ public class LinkedDataTest {
 
             RepositoryResult<Statement> statements = icon.getStatements(createResourceURI("sepp_huber"), null,null,true);
             while(statements.hasNext()) {
-                Assert.assertTrue(con.hasStatement(statements.next(),true));
+                Statement stmt = statements.next();
+                Assert.assertTrue("statement "+stmt+" not found in results",con.hasStatement(stmt,true));
             }
 
             con.commit();
@@ -148,7 +162,106 @@ public class LinkedDataTest {
 
 
         String invalid = given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(404).when().get(createResourceURI("xyz").stringValue()).asString();
-        System.err.println(invalid);
+    }
+
+
+    /**
+     * Test if we can write Linked Data resources as RDF/XML.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testPostRDFXML() throws Exception {
+        testPostPutDeleteBase(RDFFormat.RDFXML);
+    }
+
+    /**
+     * Test if we can write Linked Data resources as Turtle
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testPostTurtle() throws Exception {
+        testPostPutDeleteBase(RDFFormat.TURTLE);
+    }
+
+    /**
+     * Test if we can write Linked Data resources as JSON-LD
+     *
+     * @throws Exception
+     */
+    @Ignore("JSON-LD Parser currently does not parse the result properly")
+    @Test
+    public void testPostJSONLD() throws Exception {
+        testPostPutDeleteBase(RDFFormat.JSONLD);
+    }
+
+
+    private void testPostPutDeleteBase(RDFFormat format) throws Exception {
+        URI resource1 = randomResource();
+
+        // create resource 1 with empty body and expect that we can afterwards retrieve it (even if empty triples)
+        expect().statusCode(201).when().post(resource1.stringValue());
+        // TODO: at the moment we will return 404 because we have no way to check for existance of a resource without triples
+        given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(404).when().get(resource1.stringValue());
+
+
+        // create resource 2 with some triples that we generate randomly in a temporary repository
+        Repository mem = new SailRepository(new MemoryStore());
+        mem.initialize();
+
+        RepositoryConnection con = mem.getConnection();
+        RepositoryConnection mcon = sesameService.getConnection();
+        try {
+            for(int i=0; i < rnd.nextInt(20); i++ ) {
+                con.add(resource1, randomResource(), randomResource(), contextService.getDefaultContext());
+            }
+
+
+            // send the post to the resource with the triples serialized in the given format
+            StringWriter data = new StringWriter();
+            con.export(Rio.createWriter(format,data));
+            String body = data.toString();
+
+            given()
+                    .header("Content-Type", format.getDefaultMIMEType())
+                    .body(body)
+            .expect()
+                    .statusCode(200)
+            .when()
+                    .put(resource1.stringValue());
+
+
+
+
+            // now check in the Marmotta triple store if all triples are there
+            RepositoryResult<Statement> statements = con.getStatements(resource1,null,null,true);
+            while(statements.hasNext()) {
+                Statement stmt = statements.next();
+                Assert.assertTrue("statement "+stmt+" not found in triple store",mcon.hasStatement(stmt,true));
+            }
+
+
+            con.commit();
+            mcon.commit();
+        } finally {
+            con.close();
+            mcon.close();
+        }
+
+        given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(200).when().get(resource1.stringValue());
+
+
+        // test if we can delete the resource and then it is no longer there
+        expect().statusCode(200).when().delete(resource1.stringValue());
+        given().header("Accept",format.getDefaultMIMEType()).expect().statusCode(404).when().get(resource1.stringValue());
+
+        RepositoryConnection mcon2 = sesameService.getConnection();
+        try {
+            Assert.assertFalse("resource was not properly deleted", mcon2.hasStatement(resource1,null,null,true));
+        } finally {
+            mcon2.close();
+        }
     }
 
 
@@ -158,6 +271,10 @@ public class LinkedDataTest {
 
     private static URI createURI(String id) {
         return sesameService.getRepository().getValueFactory().createURI(id);
+    }
+
+    private static URI randomResource() {
+        return sesameService.getRepository().getValueFactory().createURI(RestAssured.baseURI + ":" + RestAssured.port + RestAssured.basePath + "/resource/" + RandomStringUtils.randomAlphanumeric(8));
     }
 
 }
