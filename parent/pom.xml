@@ -427,8 +427,8 @@
                     <configuration>
                         <excludeSubProjects>false</excludeSubProjects>
                         <excludes>
-                            <!-- everything in extras is contributed 3rd party -->
-                            <exclude>**/extras/**</exclude>
+                            <!-- 3rd party libraries -->
+                            <exclude>extras/**</exclude>
 
                             <!-- auto-generated files -->
                             <exclude>**/*.txt</exclude>
@@ -442,6 +442,7 @@
                             <exclude>.git/**</exclude>
                             <exclude>.idea/**</exclude>
                             <exclude>.eclipse/**</exclude>
+                            <exclude>**/*.ids</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/*.ipr</exclude>
                             <exclude>**/*.iws</exclude>
@@ -451,20 +452,10 @@
 
 
                             <!-- known 3rd-party source code -->
-                            <exclude>**/jquery*.js</exclude>
-                            <exclude>**/jquery*.css</exclude>
-                            <exclude>**/foundation.js</exclude>
-                            <exclude>**/strftime.js</exclude>
-                            <exclude>**/customforms.js</exclude>
-                            <exclude>**/pageguide.js</exclude>
-                            <exclude>**/raphael-dracula.pack.min.js</exclude>
-                            <exclude>**/dygraph/**</exclude>
-                            <exclude>**/sgvizler/**</exclude>
-                            <exclude>**/js/lib/**</exclude>
                             <exclude>**/src/ext/**</exclude>
                             <exclude>**/src/main/resources/task-dialog*.properties</exclude>
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/jsonld/**</exclude>
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
+                            <exclude>platform/marmotta-sparql/src/main/resources/web/admin/sgvizler.html</exclude>
 
                             <!-- META-INF files don't take a license header -->
                             <exclude>**/META-INF/**</exclude>
@@ -472,7 +463,6 @@
                             <!-- some parsers don't support comments, they are covered by the general LICENSE.txt
                                  similar to binaries -->
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/ical/*.ics</exclude>
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/rdfjson/*.json</exclude>
                         </excludes>
                     </configuration>
                 </plugin>

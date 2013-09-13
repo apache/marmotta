@@ -156,6 +156,19 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <!-- these are "extras", so they come from 3rd parties, no RAT check! -->
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- known 3rd party -->
+                        <exclude>src/main/resources/web/admin/sgvizler.html</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
