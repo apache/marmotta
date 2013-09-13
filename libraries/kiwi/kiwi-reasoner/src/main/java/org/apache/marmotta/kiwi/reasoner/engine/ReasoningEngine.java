@@ -905,7 +905,7 @@ public class ReasoningEngine implements TransactionListener {
         if(force) {
             log.warn("forced shutdown of reasoning service initiated, state will be inconsistent ...");
 
-            reasonerThread.shutdown();
+            reasonerThread.shutdown(true);
 
             for(int i = 0; i<3 && isRunning(); i++) {
                 log.warn("reasoner not yet finished, waiting for 1 seconds (try={})", i+1);
@@ -929,7 +929,7 @@ public class ReasoningEngine implements TransactionListener {
                 }
             }
 
-            reasonerThread.shutdown();
+            reasonerThread.shutdown(false);
         }
 
         isshutdown = true;
@@ -957,6 +957,7 @@ public class ReasoningEngine implements TransactionListener {
     private class SKWRLReasoner extends Thread {
         private boolean shutdown = false;
         private boolean running  = false;
+        private boolean forceshutdown = false;
 
         private SKWRLReasoner() {
             super("SKWRL Reasoner " + ++indexerCounter);
@@ -964,9 +965,10 @@ public class ReasoningEngine implements TransactionListener {
             start();
         }
 
-        public void shutdown() {
+        public void shutdown(boolean force) {
             log.info("REASONER: signalling shutdown to reasoner thread");
             shutdown = true;
+            forceshutdown = force;
             this.interrupt();
         }
 
@@ -980,7 +982,7 @@ public class ReasoningEngine implements TransactionListener {
 
             startTask(getName(), TASK_GROUP);
 
-            while (!shutdown || reasoningQueue.size() > 0) {
+            while (!forceshutdown && (!shutdown || reasoningQueue.size() > 0)) {
                 running = false;
                 try {
                     updateTaskStatus("idle");
@@ -993,10 +995,13 @@ public class ReasoningEngine implements TransactionListener {
                     executeReasoner(data);
                 } catch (InterruptedException ex) {
 
+                } catch (RuntimeException ex) {
+                    // can happen on forced shutdown
                 } catch (Exception ex) {
                     log.warn("reasoning task threw an exception",ex);
                 }
             }
+            running = false;
             try {
                 endTask();
             } catch (Exception ex) {
