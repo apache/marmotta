@@ -58,14 +58,14 @@ import static org.junit.Assert.fail;
 public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryConnectionTest {
 
     public Logger log = LoggerFactory.getLogger(this.getClass());
-    
+
     private final KiWiConfiguration config;
     private KiWiReasoningSail rsail;
 
     public KiWiRDFSchemaRepositoryConnectionTest(KiWiConfiguration config) {
         this.config = config;
     }
-    
+
     /* (non-Javadoc)
      * @see org.openrdf.repository.RepositoryConnectionTest#createRepository()
      */
@@ -101,15 +101,15 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
                     @Override
                     public void commit() throws RepositoryException {
                         super.commit();
-                        
+
                         // wait for the reasoner to finish
                         try {
-                                while(rsail.getEngine().isRunning()) {
-                                    log.info("sleeping for 100ms to let engine finish processing ... ");
-                                    Thread.sleep(100);
-                                }
-                                Thread.sleep(100);
-                                log.info("sleeping for 100ms to let engine finish processing ... ");
+                            while(rsail.getEngine().isRunning()) {
+                                log.info("sleeping for 500ms to let engine finish processing ... ");
+                                Thread.sleep(500);
+                            }
+                            log.info("sleeping for 100ms to let engine finish processing ... ");
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             throw new RepositoryException("Could not finish reasoning", e);
                         }
@@ -118,7 +118,7 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
             }
         };
     }
-    
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -127,7 +127,7 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
         log.info("Setting up reasoning for RDFS");
         rsail.addProgram("rdfs", this.getClass().getResourceAsStream("rdfs.skwrl"));
     }
-    
+
     @Override
     @Test
     public void testExplicitFlag() throws Exception {
@@ -135,7 +135,7 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
         testCon.begin();
         testCon.add(bob, RDF.TYPE, RDFS.RESOURCE);
         testCon.commit();
-        
+
         super.testExplicitFlag();
     }
 
@@ -144,7 +144,7 @@ public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryCo
     @Ignore("in KiWi, inferencing is triggered on commit")
     public void testInferencerQueryDuringTransaction() throws Exception {
     }
-    
+
     @Override
     @Test
     @Ignore("in KiWi, inferencing is triggered on commit")
