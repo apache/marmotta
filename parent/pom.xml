@@ -455,7 +455,7 @@
                             <exclude>**/src/ext/**</exclude>
                             <exclude>**/src/main/resources/task-dialog*.properties</exclude>
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
-                            <exclude>platform/marmotta-sparql/src/main/resources/web/admin/sgvizler.html</exclude>
+                            <exclude>**/src/main/resources/web/admin/sgvizler.html</exclude>
 
                             <!-- META-INF files don't take a license header -->
                             <exclude>**/META-INF/**</exclude>
