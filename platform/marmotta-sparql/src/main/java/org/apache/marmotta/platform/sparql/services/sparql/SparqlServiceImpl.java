@@ -23,7 +23,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -34,10 +41,12 @@ import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
+import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLResultsHTMLWriter;
+import org.apache.marmotta.platform.sparql.webservices.SparqlWebService;
 import org.openrdf.model.Value;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -52,9 +61,16 @@ import org.openrdf.query.TupleQueryResult;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.Update;
 import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.parser.ParsedBooleanQuery;
+import org.openrdf.query.parser.ParsedGraphQuery;
+import org.openrdf.query.parser.ParsedQuery;
+import org.openrdf.query.parser.ParsedTupleQuery;
+import org.openrdf.query.parser.QueryParser;
+import org.openrdf.query.parser.QueryParserUtil;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.QueryResultIO;
+import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryConnection;
@@ -112,12 +128,27 @@ public class SparqlServiceImpl implements SparqlService {
         }
         return sparqlQuery;
     }
+    
+    @Override
+    public QueryType getQueryType(QueryLanguage language, String query) throws MalformedQueryException {
+    	QueryParser parser = QueryParserUtil.createParser(language); 
+    	ParsedQuery parsedQuery = parser.parseQuery(query, configurationService.getServerUri() + SparqlWebService.PATH + "/" + SparqlWebService.SELECT);
+        if (parsedQuery instanceof ParsedTupleQuery) {
+            return QueryType.TUPLE;
+        } else if (parsedQuery instanceof ParsedBooleanQuery) {
+        	return QueryType.BOOL;
+        } else if (parsedQuery instanceof ParsedGraphQuery) {
+        	return QueryType.GRAPH;
+        } else {
+            return null;
+        }
+    }
 
     @Override
+    @Deprecated
     public void query(final QueryLanguage queryLanguage, final String query, final TupleQueryResultWriter tupleWriter, final BooleanQueryResultWriter booleanWriter, final SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
 
         log.debug("executing SPARQL query:\n{}", query);
-
 
         Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
             @Override
@@ -162,11 +193,10 @@ public class SparqlServiceImpl implements SparqlService {
         });
 
         try {
-            Boolean result = future.get(timeoutInSeconds, TimeUnit.SECONDS);
+            future.get(timeoutInSeconds, TimeUnit.SECONDS);
         } catch (InterruptedException | TimeoutException e) {
             log.info("SPARQL query execution aborted due to timeout");
             future.cancel(true);
-
             throw new TimeoutException("SPARQL query execution aborted due to timeout (" + configurationService.getIntConfiguration("sparql.timeout",60)+"s)");
         } catch (ExecutionException e) {
             log.info("SPARQL query execution aborted due to exception");
@@ -179,13 +209,73 @@ public class SparqlServiceImpl implements SparqlService {
             }
         }
     }
-
+    
     @Override
+    public  void query(final QueryLanguage queryLanguage, final String query, final QueryResultWriter writer, final int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
+        log.debug("executing SPARQL query:\n{}", query);
+        Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                long start = System.currentTimeMillis();
+                try {
+	                RepositoryConnection connection = sesameService.getConnection();
+	                try {
+	                    connection.begin();
+	                    Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+	
+	                    if (sparqlQuery instanceof TupleQuery) {
+	                        query((TupleQuery) sparqlQuery, (TupleQueryResultWriter)writer);
+	                    } else if (sparqlQuery instanceof BooleanQuery) {
+	                        query((BooleanQuery) sparqlQuery, (BooleanQueryResultWriter)writer);
+	                    } else if (sparqlQuery instanceof GraphQuery) {
+	                        query((GraphQuery) sparqlQuery, (SPARQLGraphResultWriter)writer);
+	                    } else {
+	                        connection.rollback();
+	                        throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+	                    }
+	
+	                    connection.commit();
+	                } catch (Exception ex) {
+	                    connection.rollback();
+	                    throw ex;
+	                } finally {
+	                    connection.close();
+	                }
+                } catch(RepositoryException e) {
+                    log.error("error while getting repository connection: {}", e);
+                    throw new MarmottaException("error while getting repository connection", e);
+                } catch (QueryEvaluationException e) {
+                    log.error("error while evaluating query: {}", e.getMessage());
+                    throw new MarmottaException("error while writing query result in format ", e);
+                }
+
+                log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
+
+                return Boolean.TRUE;
+            }
+        });
+
+        try {
+            future.get(timeoutInSeconds, TimeUnit.SECONDS);
+        } catch (InterruptedException | TimeoutException e) {
+            log.info("SPARQL query execution aborted due to timeout");
+            future.cancel(true);
+            throw new TimeoutException("SPARQL query execution aborted due to timeout (" + timeoutInSeconds+"s)");
+        } catch (ExecutionException e) {
+            log.info("SPARQL query execution aborted due to exception");
+            if(e.getCause() instanceof MarmottaException) {
+                throw (MarmottaException)e.getCause();
+            } else if(e.getCause() instanceof MalformedQueryException) {
+                throw (MalformedQueryException)e.getCause();
+            } else {
+                throw new MarmottaException("unknown exception while evaluating SPARQL query",e.getCause());
+            }
+        }    	
+    }
+
+	@Override
     public void query(final QueryLanguage language, final String query, final OutputStream output, final String format, int timeoutInSeconds) throws MarmottaException, TimeoutException, MalformedQueryException {
         log.debug("executing SPARQL query:\n{}", query);
-
-
-
         Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
@@ -230,11 +320,10 @@ public class SparqlServiceImpl implements SparqlService {
         });
 
         try {
-            Boolean result = future.get(timeoutInSeconds, TimeUnit.SECONDS);
+            future.get(timeoutInSeconds, TimeUnit.SECONDS);
         } catch (InterruptedException | TimeoutException e) {
             log.info("SPARQL query execution aborted due to timeout");
             future.cancel(true);
-
             throw new TimeoutException("SPARQL query execution aborted due to timeout (" + configurationService.getIntConfiguration("sparql.timeout",60)+"s)");
         } catch (ExecutionException e) {
             log.info("SPARQL query execution aborted due to exception");

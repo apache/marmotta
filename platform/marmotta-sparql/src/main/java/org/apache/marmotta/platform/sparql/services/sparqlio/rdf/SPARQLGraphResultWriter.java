@@ -19,31 +19,38 @@ package org.apache.marmotta.platform.sparql.services.sparqlio.rdf;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.List;
 
+import org.openrdf.query.BindingSet;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryResultHandlerException;
+import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
-import org.openrdf.sail.memory.MemoryStore;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
- * SPARQL grapg result writer for Sesam RIO
+ * SPARQL graph result writer for Sesame RIO
  * 
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
-public class SPARQLGraphResultWriter {
+public class SPARQLGraphResultWriter implements QueryResultWriter {
 
     private OutputStream outputStream;
 
     private RDFFormat format;
+    
+    private WriterConfig config;
 
     public SPARQLGraphResultWriter(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -55,21 +62,93 @@ public class SPARQLGraphResultWriter {
         this.format = RDFFormat.forMIMEType(mimeType, RDFFormat.RDFXML);
     }
 
+    @Deprecated
     public void write(GraphQueryResult result) throws IOException {
-
         try {
-            QueryResultIO.write(result,format,outputStream);
-
+            QueryResultIO.write(result, format, outputStream);
             outputStream.flush();
             outputStream.close();
-
         } catch (QueryEvaluationException e) {
             throw new IOException("query result writing failed because query evaluation had a problem", e);
         } catch (RDFHandlerException e) {
             throw new IOException("query result writing failed because writer could not handle rdf data", e);
         }
-
-
     }
+
+	@Override
+	public void endQueryResult() throws TupleQueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleBoolean(boolean arg0) throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLinks(List<String> arg0) throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleSolution(BindingSet arg0) throws TupleQueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startQueryResult(List<String> arg0) throws TupleQueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public QueryResultFormat getQueryResultFormat() {
+		return new QueryResultFormat("QueryResultFormat", format.getDefaultMIMEType(), Charset.defaultCharset(), format.getDefaultFileExtension());
+	}
+
+	@Override
+	public void handleNamespace(String prefix, String uri) throws QueryResultHandlerException {
+		
+	}
+
+	@Override
+	public void startDocument() throws QueryResultHandlerException {
+		
+	}
+
+	@Override
+	public void handleStylesheet(String stylesheetUrl) throws QueryResultHandlerException {
+		
+	}
+
+	@Override
+	public void startHeader() throws QueryResultHandlerException {
+		
+	}
+
+	@Override
+	public void endHeader() throws QueryResultHandlerException {
+		
+	}
+
+	@Override
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
+	}
+
+	@Override
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return Collections.emptyList();
+	}
     
 }

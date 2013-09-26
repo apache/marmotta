@@ -32,6 +32,7 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
+import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryException;
 
@@ -52,7 +53,15 @@ public interface SparqlService {
 	 * @throws MalformedQueryException
 	 */
 	Query parseQuery(QueryLanguage language, String query) throws RepositoryException, MalformedQueryException ;
-
+	
+	/**
+	 * Parse and return the concrete query type
+	 * 
+	 * @param language
+	 * @param query
+	 * @return
+	 */
+	QueryType getQueryType(QueryLanguage language, String query) throws MalformedQueryException;
 
 	/**
 	 * Evaluate a SPARQL query on the KiWi TripleStore. Writes the query results 
@@ -101,5 +110,31 @@ public interface SparqlService {
      */
     void update(QueryLanguage queryLanguage, String query) throws InvalidArgumentException, MarmottaException, MalformedQueryException, UpdateExecutionException;
 
+    /**
+     * Evaluate a SPARQL query, writing the results on the required writer.
+     * 
+     * @param queryLanguage
+     * @param query
+     * @param tupleWriter
+     * @param booleanWriter
+     * @param graphWriter
+     * @param timeoutInSeconds
+     * @throws MarmottaException
+     * @throws MalformedQueryException
+     * @throws QueryEvaluationException
+     * @throws TimeoutException
+     */
+    @Deprecated
     void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
+    
+    /**
+     * Evaluate a SPARQL query, writing the results on the writer.
+     * 
+     * @param queryLanguage
+     * @param query
+     * @param writer
+     * @param timeoutInSeconds
+     */
+    void query(QueryLanguage queryLanguage, String query, QueryResultWriter writer, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
+    
 }
