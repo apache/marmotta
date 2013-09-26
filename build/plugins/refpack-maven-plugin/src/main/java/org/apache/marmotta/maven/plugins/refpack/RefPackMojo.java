@@ -42,6 +42,7 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingResult;
 import org.jdom2.Element;
+import org.jdom2.Text;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.sonatype.aether.RepositorySystem;
@@ -284,7 +285,7 @@ public class RefPackMojo extends AbstractMojo {
 
         if(pom != null && pom.getDescription() != null) {
             Element description = new Element("description");
-            description.addContent(pom.getDescription());
+            description.setText(Text.normalizeString(pom.getDescription()));
             pack.addContent(description);
         }
 
