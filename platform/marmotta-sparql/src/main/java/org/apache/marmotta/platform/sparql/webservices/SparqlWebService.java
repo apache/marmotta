@@ -219,8 +219,7 @@ public class SparqlWebService {
      * @param request
      * @return
      */
-	private Response select(String query, String resultType,
-			HttpServletRequest request) {
+	private Response select(String query, String resultType, HttpServletRequest request) {
 		try {
 	    	String acceptHeader = StringUtils.defaultString(request.getHeader("Accept"), "");
 	    	if (StringUtils.isBlank(query)) { //empty query
