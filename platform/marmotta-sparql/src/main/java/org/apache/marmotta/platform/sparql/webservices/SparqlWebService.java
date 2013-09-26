@@ -165,7 +165,63 @@ public class SparqlWebService {
     @GET
     @Path(SELECT)
     public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {  
-    	try {
+    	return select(query, resultType, request);
+    }
+    
+    /**
+     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
+     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
+     * <p/>
+     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
+     *
+     * @param query       the SPARQL 1.1 Query as a string parameter
+     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
+     * @HTTP 200 in case the query was executed successfully
+     * @HTTP 500 in case there was an error during the query evaluation
+     * @return the query result in the format passed as argument
+     */
+    @POST
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    @Path(SELECT)
+    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    	return select(query, resultType, request);
+    }    
+    
+    /**
+     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed in the body of the
+     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
+     * <p/>
+     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
+     *
+     * @param request     the servlet request (to retrieve the SPARQL 1.1 Query passed in the body of the POST request)
+     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
+     * @HTTP 200 in case the query was executed successfully
+     * @HTTP 500 in case there was an error during the query evaluation
+     * @return the query result in the format passed as argument
+     */
+    @POST
+    @Path(SELECT)
+    public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
+		try {
+			String query = CharStreams.toString(request.getReader());
+			return select(query, resultType, request);
+		} catch (IOException e) {
+			log.error("body not found", e);
+			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+    }    
+
+    /**
+     * Actual SELECT implementation
+     * 
+     * @param query
+     * @param resultType
+     * @param request
+     * @return
+     */
+	private Response select(String query, String resultType,
+			HttpServletRequest request) {
+		try {
 	    	String acceptHeader = StringUtils.defaultString(request.getHeader("Accept"), "");
 	    	if (StringUtils.isBlank(query)) { //empty query
 	            if (acceptHeader.contains("html")) {
@@ -213,7 +269,7 @@ public class SparqlWebService {
             log.error("query execution threw an exception", e);
             return Response.serverError().entity("query not supported").build();
         }
-    }
+	}
 
     /**
      * For CORS operations TODO: make it more fine grained (maybe user dependent)
@@ -237,93 +293,6 @@ public class SparqlWebService {
 
     }
     */
-    
-    /**
-     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
-     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
-     * <p/>
-     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
-     *
-     * @param query       the SPARQL 1.1 Query as a string parameter
-     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
-     * @HTTP 200 in case the query was executed successfully
-     * @HTTP 500 in case there was an error during the query evaluation
-     * @return the query result in the format passed as argument
-     */
-    @POST
-    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
-    @Path(SELECT)
-    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        try {
-            if(resultType == null) {
-                List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-                List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
-
-                ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes, acceptedTypes);
-
-                if(bestType != null) {
-                    resultType = bestType.getMime();
-                }
-            }
-            if(resultType != null) {
-                if (StringUtils.isNotBlank(query))
-                    return buildQueryResponse(resultType, query);
-                else
-                    return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-        } catch (InvalidArgumentException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        } catch(Exception e) {
-            log.error("query execution threw an exception",e);
-
-            return Response.serverError().entity("query not supported").build();
-        }
-    }
-
-    /**
-     * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed in the body of the
-     * POST request. Result will be formatted using the result type passed as argument (either "html", "json" or "xml").
-     * <p/>
-     * see SPARQL 1.1 Query syntax at http://www.w3.org/TR/sparql11-query/
-     *
-     * @param request     the servlet request (to retrieve the SPARQL 1.1 Query passed in the body of the POST request)
-     * @param resultType  the format for serializing the query results ("html", "json", or "xml")
-     * @HTTP 200 in case the query was executed successfully
-     * @HTTP 500 in case there was an error during the query evaluation
-     * @return the query result in the format passed as argument
-     */
-    @POST
-    @Path(SELECT)
-    public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        try {
-            if(resultType == null) {
-                List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-                List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json","text/html", "application/rdf+xml", "text/csv"));
-
-                ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
-
-                if(bestType != null) {
-                    resultType = bestType.getMime();
-                }
-            }
-
-            if(resultType != null) {
-                String query = CharStreams.toString(request.getReader());
-                if (query != null && !query.equals(""))
-                    return buildQueryResponse(resultType, query);
-                else
-                    return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-        } catch (InvalidArgumentException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
-        } catch(Exception e) {
-            log.error("query execution threw an exception",e);
-
-            return Response.serverError().entity("query not supported").build();
-        }
-    }
 
     /**
      * Execute a SPARQL 1.1 tuple query on the LMF triple store using the query passed as form parameter to the
