@@ -36,7 +36,7 @@
     <url>http://marmotta.incubator.apache.org</url>
 
     <properties>
-        <sesame.version>2.7.6</sesame.version>
+        <sesame.version>2.7.7</sesame.version>
         <junit.version>4.11</junit.version>
         <weld.version>2.0.SP1</weld.version>
         <weld.core.version>2.0.4.Final</weld.core.version>
