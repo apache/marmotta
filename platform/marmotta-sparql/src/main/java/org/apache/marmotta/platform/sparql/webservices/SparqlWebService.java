@@ -332,12 +332,69 @@ public class SparqlWebService {
      */
     @GET
     @Path(UPDATE)
-    public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType,
-            @Context HttpServletRequest request) {
-        try {
-            String q = getUpdateQuery(update, query);
-            if (StringUtils.isNotBlank(q)) {
-                sparqlService.update(QueryLanguage.SPARQL, q);
+    public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+    	String q = getUpdateQuery(update, query);
+        return update(q, resultType, request);
+    }
+    
+    /**
+     * Execute a SPARQL 1.1 Update request using update via POST directly; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
+     * 
+     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
+     *            body of the POST request)
+     * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
+     * @HTTP 500 in case the update was not successful
+     * @return empty content in case the update was successful, the error message in case an error
+     *         occurred
+     */
+    @POST
+    @Path(UPDATE)
+    @Consumes("application/sparql-update")
+    public Response updatePostDirectly(@Context HttpServletRequest request, @QueryParam("output") String resultType) {
+		try {
+			String q = CharStreams.toString(request.getReader());
+	        return update(q, resultType, request);
+		} catch (IOException e) {
+			return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+		}
+    }
+    
+    /**
+     * Execute a SPARQL 1.1 Update request using update via URL-encoded POST; 
+     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
+     * 
+     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
+     *            body of the POST request)
+     * @HTTP 200 in case the update was carried out successfully
+     * @HTTP 400 in case the update query is missing or invalid
+     * @HTTP 500 in case the update was not successful
+     * @return empty content in case the update was successful, the error message in case an error
+     *         occurred
+     */
+    @POST
+    @Path(UPDATE)
+    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
+    public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
+    	try {
+	    	Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));  
+			String q = StringUtils.defaultString(params.get("update"));
+			String resultType = StringUtils.defaultString(params.get("output"));
+	        return update(q, resultType, request);
+    	} catch (IOException e) {
+			return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+		}
+    }    
+
+    /**
+     * Actual update implementation
+     * 
+     */
+	private Response update(String update, String resultType, HttpServletRequest request) {
+		try {
+            if (StringUtils.isNotBlank(update)) {
+                sparqlService.update(QueryLanguage.SPARQL, update);
                 return Response.ok().build();
             } else {
                 if (resultType == null) {
@@ -363,7 +420,7 @@ public class SparqlWebService {
         } catch (URISyntaxException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         }
-    }
+	}
 
     /**
      * Get right update query from both possible parameters, for keeping
@@ -381,76 +438,6 @@ public class SparqlWebService {
             return query;
         } else
             return null;
-    }
-
-    /**
-     * Execute a SPARQL 1.1 Update request using update via POST directly; 
-     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
-     * 
-     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
-     *            body of the POST request)
-     * @HTTP 200 in case the update was carried out successfully
-     * @HTTP 400 in case the update query is missing or invalid
-     * @HTTP 500 in case the update was not successful
-     * @return empty content in case the update was successful, the error message in case an error
-     *         occurred
-     */
-    @POST
-    @Path(UPDATE)
-    @Consumes("application/sparql-update")
-    public Response updatePostDirectly(@Context HttpServletRequest request) {
-        try {
-            String query = CharStreams.toString(request.getReader());
-            if (StringUtils.isNotBlank(query)) {
-                sparqlService.update(QueryLanguage.SPARQL, query);
-                return Response.ok().build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
-        } catch (MalformedQueryException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch(UpdateExecutionException e) {
-            log.error("update execution threw an exception", e);
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (MarmottaException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (IOException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        }
-    }
-    
-    /**
-     * Execute a SPARQL 1.1 Update request using update via URL-encoded POST; 
-     * see details at http://www.w3.org/TR/sparql11-protocol/\#update-operation
-     * 
-     * @param request the servlet request (to retrieve the SPARQL 1.1 Update query passed in the
-     *            body of the POST request)
-     * @HTTP 200 in case the update was carried out successfully
-     * @HTTP 400 in case the update query is missing or invalid
-     * @HTTP 500 in case the update was not successful
-     * @return empty content in case the update was successful, the error message in case an error
-     *         occurred
-     */
-    @POST
-    @Path(UPDATE)
-    @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
-    public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
-        try {
-            Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));           
-            if (params.containsKey("update") && StringUtils.isNotBlank(params.get("update"))) {
-                sparqlService.update(QueryLanguage.SPARQL, params.get("update"));
-                return Response.ok().build();
-            } else
-                return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query given").build();
-        } catch (MalformedQueryException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch(UpdateExecutionException e) {
-            log.error("update execution threw an exception", e);
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (MarmottaException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        } catch (IOException e) {
-            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-        }
     }    
 
     /**
