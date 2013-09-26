@@ -46,7 +46,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
@@ -198,13 +198,13 @@ public class ContextWebService {
     private URI buildExportUri(String uri, String accept, String format) throws URISyntaxException {
         List<ContentType> acceptedTypes;
         if(format != null) {
-            acceptedTypes = LMFHttpUtils.parseAcceptHeader(format);
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(format);
         } else {
-            acceptedTypes = LMFHttpUtils.parseAcceptHeader(accept);
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(accept);
         }
-        List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(exportService.getProducedTypes());
+        List<ContentType> offeredTypes  = MarmottaHttpUtils.parseStringList(exportService.getProducedTypes());
         offeredTypes.removeAll(Collections.unmodifiableList(Arrays.asList(new ContentType("text", "html"), new ContentType("application", "xhtml+xml"))));
-        final ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+        final ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
         return new URI(configurationService.getBaseUri() + "export/download?context=" + uri + "&format=" + bestType.getMime());
     }
 

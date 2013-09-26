@@ -28,11 +28,7 @@ import java.util.List;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class LMFHttpUtils {
-
-
-
-
+public class MarmottaHttpUtils {
 
     /**
      * A utility method for parsing HTTP Content-Type and Accept header, taking into account different parameters that
@@ -142,6 +138,7 @@ public class LMFHttpUtils {
                 }
             }
         }
+        
         return null;
     }
 

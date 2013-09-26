@@ -46,7 +46,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.ETagGenerator;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -389,13 +389,13 @@ public class ResourceWebService {
                 // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
                 // "/" + uuid;
 
-                List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(kiWiIOService.getProducedTypes());
+                List<ContentType> offeredTypes  = MarmottaHttpUtils.parseStringList(kiWiIOService.getProducedTypes());
                 for(ContentType t : offeredTypes) {
                 	t.setParameter("rel", "meta");
                 }
                 String contentmime = contentService.getContentType(r);
                 if(contentmime != null) {
-                	ContentType tContent = LMFHttpUtils.parseContentType(contentmime);
+                	ContentType tContent = MarmottaHttpUtils.parseContentType(contentmime);
                 	tContent.setParameter("rel", "content");
                 	offeredTypes.add(0,tContent);
                 }
@@ -404,8 +404,8 @@ public class ResourceWebService {
                 	return build406(Collections.<ContentType>emptyList(), offeredTypes);
                 }
 
-                List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(types);
-                ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
+                List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(types);
+                ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes,acceptedTypes);
 
                 log.debug("identified best type: {}",bestType);
 
@@ -516,7 +516,7 @@ public class ResourceWebService {
 
             // the offered types are those sent by the client in the Content-Type header; if the rel attribute is not
             // given, we add the default rel value
-            List<ContentType> types = LMFHttpUtils.parseAcceptHeader(mimetype);
+            List<ContentType> types = MarmottaHttpUtils.parseAcceptHeader(mimetype);
             for(ContentType type : types) {
                 if(type.getParameter("rel") == null) {
                     type.setParameter("rel",configurationService.getStringConfiguration("linkeddata.mime.rel.default", "meta"));
@@ -525,7 +525,7 @@ public class ResourceWebService {
 
             // the acceptable types are all types for content and the meta types we have parsers for; we do not care so
             // much about the order ...
-            List<ContentType> acceptable = LMFHttpUtils.parseStringList(kiWiIOService.getProducedTypes());
+            List<ContentType> acceptable = MarmottaHttpUtils.parseStringList(kiWiIOService.getProducedTypes());
             for(ContentType a : acceptable) {
                 a.setParameter("rel", "meta");
             }
@@ -534,7 +534,7 @@ public class ResourceWebService {
             acceptable.add(0,allContent);
 
             // determine the best match between the offered types and the acceptable types
-            ContentType bestType = LMFHttpUtils.bestContentType(types,acceptable);
+            ContentType bestType = MarmottaHttpUtils.bestContentType(types,acceptable);
 
             if (bestType != null) {
                 if (configurationService.getBooleanConfiguration("linkeddata.redirect.put", true)) {

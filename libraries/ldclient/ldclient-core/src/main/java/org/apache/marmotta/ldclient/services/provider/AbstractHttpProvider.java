@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import static org.apache.marmotta.commons.http.LMFHttpUtils.parseContentType;
+import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseContentType;
 
 /**
  * Add file description here!

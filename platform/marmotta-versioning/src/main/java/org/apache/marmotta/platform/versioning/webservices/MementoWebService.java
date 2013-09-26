@@ -38,7 +38,7 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -263,7 +263,7 @@ public class MementoWebService {
 
                 final URI resource = ResourceUtils.getUriResource(conn, resource_string);
 
-                List<ContentType> types = LMFHttpUtils.parseAcceptHeader(types_string);
+                List<ContentType> types = MarmottaHttpUtils.parseAcceptHeader(types_string);
 
                 //get versions
                 final RepositoryResult<Version> versions = versioningService.listVersions(resource);
@@ -315,9 +315,9 @@ public class MementoWebService {
      * @throws IllegalArgumentException if no type is supported
      */
     private ContentType getContentType(String types) throws IllegalArgumentException {
-        List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(types);
-        List<ContentType> offeredTypes  = LMFHttpUtils.parseStringList(lmfIOService.getProducedTypes());
-        ContentType type = LMFHttpUtils.bestContentType(offeredTypes,acceptedTypes);
+        List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(types);
+        List<ContentType> offeredTypes  = MarmottaHttpUtils.parseStringList(lmfIOService.getProducedTypes());
+        ContentType type = MarmottaHttpUtils.bestContentType(offeredTypes,acceptedTypes);
         if(type == null) throw new IllegalArgumentException("Requested type is not supported");
         return type;
     }

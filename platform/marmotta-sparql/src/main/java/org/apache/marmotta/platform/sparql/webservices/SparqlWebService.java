@@ -49,7 +49,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
@@ -234,14 +234,14 @@ public class SparqlWebService {
 	        	List<ContentType> acceptedTypes;
 	        	List<ContentType> offeredTypes;
 	        	if (resultType != null) {
-	        		acceptedTypes = LMFHttpUtils.parseAcceptHeader(resultType);
+	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(resultType);
 	        	} else {
-	        		acceptedTypes = LMFHttpUtils.parseAcceptHeader(acceptHeader);
+	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
 	        	}
 	        	if (QueryType.TUPLE.equals(queryType)) {
-	        		offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
 	        	} else if (QueryType.BOOL.equals(queryType)) {
-	        		offeredTypes  = LMFHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
 	        	} else if (QueryType.GRAPH.equals(queryType)) {
 	        		Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
 	        		producedTypes.remove("application/xml");
@@ -249,13 +249,13 @@ public class SparqlWebService {
 	        		producedTypes.remove("text/plain");
 	        		producedTypes.remove("text/html");
 	        		producedTypes.remove("application/xhtml+xml");
-	        		offeredTypes  = LMFHttpUtils.parseStringList(producedTypes);
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(producedTypes);
 	        	} else {
 	        		return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
 	        	}
-	            ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+	            ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
 	            if (bestType == null) {
-	            	return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
+	            	return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).entity("no result format specified or unsupported result format").build();
 	            } else {
 	        		//return buildQueryResponse(resultType, query);
 	            	return buildQueryResponse(bestType, query, queryType);
@@ -397,9 +397,9 @@ public class SparqlWebService {
                 return Response.ok().build();
             } else {
                 if (resultType == null) {
-                    List<ContentType> acceptedTypes = LMFHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
-                    List<ContentType> offeredTypes = LMFHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
-                    ContentType bestType = LMFHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
+                    List<ContentType> offeredTypes = MarmottaHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
+                    ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
                     if (bestType != null) {
                         resultType = bestType.getMime();
                     }
