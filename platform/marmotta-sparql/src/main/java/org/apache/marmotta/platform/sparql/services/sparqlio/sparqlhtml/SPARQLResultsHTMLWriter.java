@@ -19,7 +19,6 @@ package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +28,7 @@ import java.util.Map;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandlerException;
+import org.openrdf.query.TupleQueryResultHandlerBase;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sergio Fernández
  */
-public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
+public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase implements TupleQueryResultWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(SPARQLResultsHTMLWriter.class);
     
@@ -52,7 +52,7 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
 	private static final String RESULT_TEMPLATE = "sparql_select_result.ftl";
 
 	private static final String END_TEMPLATE = "sparql_select_end.ftl";
-	
+
     private OutputStream out;
     
     private List<String> vars;
@@ -61,18 +61,28 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
     
     private WriterConfig config;
     
-    public SPARQLResultsHTMLWriter(OutputStream out, TemplatingService templatingService) {
+    public SPARQLResultsHTMLWriter(OutputStream out) {
         this.out = out;
+    }
+    
+    public SPARQLResultsHTMLWriter(OutputStream out, TemplatingService templatingService) {
+        this(out);
         this.templatingService = templatingService;
     }
-
-	@Override
+    
+    @Override
 	public TupleQueryResultFormat getTupleQueryResultFormat() {
-		return new TupleQueryResultFormat("SPARQL/HTML", "text/html", Charset.forName("UTF-8"), "html");
+		return SPARQLResultsHTMLFormat.SPARQL_RESULTS_HTML;
 	}
 
 	@Override
 	public void startQueryResult(List<String> vars) throws TupleQueryResultHandlerException {
+	    if(templatingService == null) {
+	        templatingService = getWriterConfig().get(SPARQLHTMLSettings.TEMPLATING_SERVICE);
+	        if(templatingService == null) {
+	            throw new IllegalStateException("Templating service was not setup");
+	        }
+	    }
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("vars", vars);
         this.vars = vars;
@@ -117,22 +127,14 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
 	}
 
 	@Override
-	public void handleBoolean(boolean arg0) throws QueryResultHandlerException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void handleLinks(List<String> arg0)
 			throws QueryResultHandlerException {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public QueryResultFormat getQueryResultFormat() {
-		// TODO Auto-generated method stub
-		return null;
+	    return getTupleQueryResultFormat();
 	}
 
 	@Override
