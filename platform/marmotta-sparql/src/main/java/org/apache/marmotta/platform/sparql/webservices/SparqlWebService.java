@@ -59,9 +59,6 @@ import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparql.SparqlWritersHelper;
-import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLBooleanHTMLWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLResultsHTMLWriter;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
@@ -471,23 +468,10 @@ public class SparqlWebService {
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
-        		QueryResultWriter writer = null;
-            	if (QueryType.TUPLE.equals(queryType)) {
-            		writer = getTupleResultWriter(format.getMime(), output);
-            	} else if (QueryType.BOOL.equals(queryType)) {
-            		writer = getBooleanResultWriter(format.getMime(), output);
-            	} else if (QueryType.GRAPH.equals(queryType)) {
-            		writer = getGraphResultWriter(format.getMime(), output);
-            	} else {
-            		throw new RuntimeException("Unknown result writer for query type '" + queryType + "'");
-            	}
-            	
                 try {
-                	sparqlService.query(QueryLanguage.SPARQL, query, writer, configurationService.getIntConfiguration("sparql.timeout", 60));
+                	sparqlService.query(QueryLanguage.SPARQL, query, output, format.getMime(), configurationService.getIntConfiguration("sparql.timeout", 60));
                 } catch (MarmottaException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
-                } catch (QueryEvaluationException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (MalformedQueryException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (TimeoutException e) {
@@ -504,11 +488,9 @@ public class SparqlWebService {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
-                    sparqlService.query(QueryLanguage.SPARQL,query,getTupleResultWriter(resultType,output),getBooleanResultWriter(resultType,output), getGraphResultWriter(resultType,output), configurationService.getIntConfiguration("sparql.timeout", 60));
+                    sparqlService.query(QueryLanguage.SPARQL,query,output,resultType, configurationService.getIntConfiguration("sparql.timeout", 60));
                 } catch (MarmottaException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
-                } catch (QueryEvaluationException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (MalformedQueryException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (TimeoutException e) {
@@ -549,44 +531,4 @@ public class SparqlWebService {
         else
             return mimeType;
     }
-
-
-    private TupleQueryResultWriter getTupleResultWriter(String format, OutputStream os) {
-        //build outputwriter
-        final TupleQueryResultWriter out;
-        if(format == null) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("html")) {
-            out = new SPARQLResultsHTMLWriter(os, templatingService);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("json")) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.JSON, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("xml")) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("csv")) {
-            out = QueryResultIO.createWriter(TupleQueryResultFormat.CSV, os);
-        } else throw new InvalidArgumentException("could not produce format "+format);
-        return out;
-    }
-
-    private BooleanQueryResultWriter getBooleanResultWriter(String format, OutputStream os) {
-        //build outputwriter
-        final BooleanQueryResultWriter out;
-        if(format == null) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("html")) {
-            out = new SPARQLBooleanHTMLWriter(os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("json")) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.JSON, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("xml")) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.SPARQL, os);
-        } else if(SparqlWritersHelper.parseSubType(format).equals("csv")) {
-            out = QueryResultIO.createWriter(BooleanQueryResultFormat.TEXT, os);
-        } else throw new InvalidArgumentException("could not produce format "+format);
-        return out;
-    }
-
-    protected SPARQLGraphResultWriter getGraphResultWriter(String format, OutputStream os) {
-        return new SPARQLGraphResultWriter(os, format);
-    }
-
 }

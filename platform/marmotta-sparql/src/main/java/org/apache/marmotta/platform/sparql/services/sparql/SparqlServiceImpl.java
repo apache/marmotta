@@ -76,6 +76,11 @@ import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.Rio;
+import org.openrdf.rio.UnsupportedRDFormatException;
 import org.slf4j.Logger;
 
 /**
@@ -166,7 +171,7 @@ public class SparqlServiceImpl implements SparqlService {
                         } else if (sparqlQuery instanceof BooleanQuery) {
                             query((BooleanQuery) sparqlQuery, booleanWriter);
                         } else if (sparqlQuery instanceof GraphQuery) {
-                            query((GraphQuery) sparqlQuery, graphWriter);
+                            query((GraphQuery) sparqlQuery, graphWriter.getOutputStream(), graphWriter.getFormat());
                         } else {
                             connection.rollback();
                             throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
@@ -212,9 +217,10 @@ public class SparqlServiceImpl implements SparqlService {
     }
     
     @Override
-    public  void query(final QueryLanguage queryLanguage, final String query, final QueryResultWriter writer, final int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
+    public void query(final QueryLanguage queryLanguage, final String query, final QueryResultWriter writer, final int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
         log.debug("executing SPARQL query:\n{}", query);
         Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
+            @SuppressWarnings("deprecation")
             @Override
             public Boolean call() throws Exception {
                 long start = System.currentTimeMillis();
@@ -229,7 +235,7 @@ public class SparqlServiceImpl implements SparqlService {
 	                    } else if (sparqlQuery instanceof BooleanQuery) {
 	                        query((BooleanQuery) sparqlQuery, (BooleanQueryResultWriter)writer);
 	                    } else if (sparqlQuery instanceof GraphQuery) {
-	                        query((GraphQuery) sparqlQuery, (SPARQLGraphResultWriter)writer);
+	                        query((GraphQuery) sparqlQuery, ((SPARQLGraphResultWriter)writer).getOutputStream(), ((SPARQLGraphResultWriter)writer).getFormat());
 	                    } else {
 	                        connection.rollback();
 	                        throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
@@ -309,10 +315,10 @@ public class SparqlServiceImpl implements SparqlService {
                     throw new MarmottaException("error while getting repository connection", e);
                 } catch (QueryEvaluationException e) {
                     log.error("error while evaluating query: {}", e);
-                    throw new MarmottaException("error while writing query result in format ", e);
+                    throw new MarmottaException("error while evaluating query ", e);
                 } catch (MalformedQueryException e) {
                     log.error("error because malformed query: {}", e);
-                    throw new MarmottaException("error because malformed query result in format ", e);
+                    throw new MarmottaException("error because malformed query", e);
                 }
 
                 log.debug("SPARQL execution took {}ms", System.currentTimeMillis()-start);
@@ -363,16 +369,22 @@ public class SparqlServiceImpl implements SparqlService {
         query(query, getBooleanResultWriter(format, output));
     }
 
-    private void query(GraphQuery query, SPARQLGraphResultWriter writer) throws QueryEvaluationException {
+    private void query(GraphQuery query, OutputStream output, String format) throws QueryEvaluationException {
+        query(query, output, Rio.getWriterFormatForMIMEType(format, RDFFormat.RDFXML));
+    }
+
+    private void query(GraphQuery query, OutputStream output, RDFFormat format) throws QueryEvaluationException {
         try {
-            writer.write(query.evaluate());
+            QueryResultIO.write(query.evaluate(), format, output);
         } catch (IOException e) {
             throw new QueryEvaluationException("error while writing query graph result: ",e);
         }
-    }
-
-    private void query(GraphQuery query, OutputStream output, String format) throws QueryEvaluationException {
-        query(query, getGraphResultWriter(format, output));
+        catch(RDFHandlerException e) {
+            throw new QueryEvaluationException("error while writing query graph result: ",e);
+        }
+        catch(UnsupportedRDFormatException e) {
+            throw new QueryEvaluationException("Could not find requested output RDF format for results of query: ",e);
+        }
     }
 
     /**
@@ -526,9 +538,4 @@ public class SparqlServiceImpl implements SparqlService {
         } 
         return QueryResultIO.createWriter(resultFormat, os);
     }
-
-    private SPARQLGraphResultWriter getGraphResultWriter(String format, OutputStream os) {
-        return new SPARQLGraphResultWriter(os, format);
-    }
-
 }

@@ -35,6 +35,7 @@ import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFHandler;
 
 /**
  * Add file description here!
@@ -123,6 +124,7 @@ public interface SparqlService {
      * @throws MalformedQueryException
      * @throws QueryEvaluationException
      * @throws TimeoutException
+     * @deprecated Use {@link #query(QueryLanguage, String, OutputStream, String, int)} instead
      */
     @Deprecated
     void query(QueryLanguage queryLanguage, String query, TupleQueryResultWriter tupleWriter, BooleanQueryResultWriter booleanWriter, SPARQLGraphResultWriter graphWriter, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
@@ -134,7 +136,9 @@ public interface SparqlService {
      * @param query
      * @param writer
      * @param timeoutInSeconds
+     * @deprecated Use {@link #query(QueryLanguage, String, OutputStream, String, int)} instead
      */
+    @Deprecated
     void query(QueryLanguage queryLanguage, String query, QueryResultWriter writer, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
     
 }

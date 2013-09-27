@@ -44,7 +44,9 @@ import edu.emory.mathcs.backport.java.util.Collections;
  * 
  * @author Sebastian Schaffert
  * @author Sergio Fernández
+ * @deprecated Only the getFormat and getOutputStream methods are used. Use alternative non-deprecated API methods to avoid using this class.
  */
+@Deprecated
 public class SPARQLGraphResultWriter implements QueryResultWriter {
 
     private OutputStream outputStream;
@@ -63,6 +65,14 @@ public class SPARQLGraphResultWriter implements QueryResultWriter {
         this.format = Rio.getWriterFormatForMIMEType(mimeType, RDFFormat.RDFXML);
     }
 
+    public RDFFormat getFormat() {
+        return format;
+    }
+    
+    public OutputStream getOutputStream() {
+        return outputStream;
+    }
+    
     @Deprecated
     public void write(GraphQueryResult result) throws IOException {
         try {
