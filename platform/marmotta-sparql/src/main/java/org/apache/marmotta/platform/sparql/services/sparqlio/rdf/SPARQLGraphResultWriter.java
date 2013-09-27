@@ -33,6 +33,7 @@ import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.Rio;
 import org.openrdf.rio.RioSetting;
 import org.openrdf.rio.WriterConfig;
 
@@ -59,7 +60,7 @@ public class SPARQLGraphResultWriter implements QueryResultWriter {
 
     public SPARQLGraphResultWriter(OutputStream outputStream, String mimeType) {
         this.outputStream = outputStream;
-        this.format = RDFFormat.forMIMEType(mimeType, RDFFormat.RDFXML);
+        this.format = Rio.getWriterFormatForMIMEType(mimeType, RDFFormat.RDFXML);
     }
 
     @Deprecated
