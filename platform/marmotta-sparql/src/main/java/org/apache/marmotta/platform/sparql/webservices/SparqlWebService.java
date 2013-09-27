@@ -23,8 +23,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,10 +67,14 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
+import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
+import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
+import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
+import org.openrdf.rio.RDFParserRegistry;
 import org.slf4j.Logger;
 
 import com.google.common.collect.Lists;
@@ -236,9 +242,9 @@ public class SparqlWebService {
 	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
 	        	}
 	        	if (QueryType.TUPLE.equals(queryType)) {
-	        		offeredTypes  = MarmottaHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(getTypes(TupleQueryResultWriterRegistry.getInstance().getKeys()));
 	        	} else if (QueryType.BOOL.equals(queryType)) {
-	        		offeredTypes  = MarmottaHttpUtils.parseStringList(Lists.newArrayList("application/sparql-results+xml","application/sparql-results+json", "text/html", "application/rdf+xml", "text/csv"));
+	        		offeredTypes  = MarmottaHttpUtils.parseStringList(getTypes(BooleanQueryResultWriterRegistry.getInstance().getKeys()));
 	        	} else if (QueryType.GRAPH.equals(queryType)) {
 	        		Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
 	        		producedTypes.remove("application/xml");
@@ -523,6 +529,19 @@ public class SparqlWebService {
         return r;
     }
 
+    /**
+     * Build a set of mime types based on the given formats
+     * @param types
+     * @return
+     */
+    private Set<String> getTypes(Collection<? extends QueryResultFormat> types) {
+        Set<String> results = new LinkedHashSet<String>();
+        for(QueryResultFormat type : types) {
+            results.addAll(type.getMIMETypes());
+        }
+        return results;
+    }
+    
     private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
     private String parseSubType(String mimeType) {
         Matcher matcher = subTypePattern.matcher(mimeType);
