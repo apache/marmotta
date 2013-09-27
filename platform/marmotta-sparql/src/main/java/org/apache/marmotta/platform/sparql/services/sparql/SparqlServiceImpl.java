@@ -217,6 +217,7 @@ public class SparqlServiceImpl implements SparqlService {
     }
     
     @Override
+    @Deprecated
     public void query(final QueryLanguage queryLanguage, final String query, final QueryResultWriter writer, final int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
         log.debug("executing SPARQL query:\n{}", query);
         Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
