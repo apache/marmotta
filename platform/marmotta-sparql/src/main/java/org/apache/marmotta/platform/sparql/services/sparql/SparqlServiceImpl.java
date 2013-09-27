@@ -508,7 +508,7 @@ public class SparqlServiceImpl implements SparqlService {
             }
         } 
         TupleQueryResultWriter writer = QueryResultIO.createWriter(resultFormat, os);
-        if(resultFormat.equals(SPARQLResultsHTMLFormat.SPARQL_RESULTS_HTML)) {
+        if(writer.getSupportedSettings().contains(SPARQLHTMLSettings.TEMPLATING_SERVICE)) {
             writer.getWriterConfig().set(SPARQLHTMLSettings.TEMPLATING_SERVICE, templatingService);
         }
         return writer;

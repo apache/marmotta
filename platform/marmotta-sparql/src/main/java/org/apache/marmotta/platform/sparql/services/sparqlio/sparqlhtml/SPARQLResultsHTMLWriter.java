@@ -22,6 +22,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,9 @@ import org.openrdf.rio.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
+
 /**
  * SPARQL results to HTML writer usong Freemarker
  * 
@@ -53,6 +57,15 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
 
 	private static final String END_TEMPLATE = "sparql_select_end.ftl";
 
+	private static final Collection<RioSetting<?>> SUPPORTED_SETTINGS;
+
+	static
+	{
+	    HashSet<RioSetting<?>> tempSettings = new HashSet<RioSetting<?>>();
+	    tempSettings.add(SPARQLHTMLSettings.TEMPLATING_SERVICE);
+	    SUPPORTED_SETTINGS = Collections.unmodifiableSet(tempSettings);
+	}
+	
     private OutputStream out;
     
     private List<String> vars;
@@ -176,7 +189,7 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
      */
 	@Override
 	public Collection<RioSetting<?>> getSupportedSettings() {
-		return new ArrayList<RioSetting<?>>();
+		return SUPPORTED_SETTINGS;
 	}
 
     /**
