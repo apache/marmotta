@@ -21,7 +21,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -58,7 +58,7 @@ public class DurationTransformer<Node> implements NodeTransformer<Duration,Node>
         return xmlDatatypeFactory;
     }
     @Override
-    public Duration transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Duration transform(NodeBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(backend.isLiteral(node)) {
             return toDuration(backend.stringValue(node), false);
         } else {

@@ -14,19 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.marmotta.commons.sesame.facading;
 
-import java.io.IOException;
-
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.sail.memory.MemoryStore;
+
+import java.io.IOException;
 
 public abstract class AbstractFacadingTest {
 
@@ -34,13 +32,7 @@ public abstract class AbstractFacadingTest {
 
     @Before
     public void setup() throws RepositoryException, IOException, RDFParseException {
-        // jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10
-        repositoryRDF = new SailRepository(
-                new KiWiStore(
-                        "kiwiTest",
-                        "jdbc:h2:mem:facading;MVCC=true;DB_CLOSE_ON_EXIT=TRUE;DB_CLOSE_DELAY=10",
-                        "", "", new H2Dialect(),
-                        "http://example.com/ctx/default", "http://example.com/ctx/inferred"));
+        repositoryRDF = new SailRepository(new MemoryStore());
         repositoryRDF.initialize();
     }
 

@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.marmotta.commons.sesame.facading.locale;
 
-import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+
 
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
@@ -34,11 +33,13 @@ import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
+import java.util.Locale;
+
 public class LocaleFacadingTest extends AbstractFacadingTest {
 
     @Test
     public void testWithLocale() throws RepositoryException {
-        final Locale de = Locale.GERMAN, en = Locale.ENGLISH, fr = Locale.FRENCH, none = new Locale("xx", "none");
+        final Locale de = Locale.GERMAN, en = Locale.ENGLISH, fr = Locale.FRENCH, none = new Locale("none");
 
         final String lbl = "Label",
                 lbl_de = lbl + ": " + de.toString(),
@@ -48,7 +49,6 @@ public class LocaleFacadingTest extends AbstractFacadingTest {
 
         final RepositoryConnection connection = repositoryRDF.getConnection();
         try {
-            connection.begin();
             final Facading facading = FacadingFactory.createFacading(connection);
 
             final URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/locale");
@@ -101,7 +101,6 @@ public class LocaleFacadingTest extends AbstractFacadingTest {
             assertNull(f.getLabel(fr));
             assertNull(f.getLabel(none));
 
-            connection.commit();
         } finally {
             connection.close();
         }

@@ -46,8 +46,7 @@ public class ConcatenateFunction<Node> extends SelectorFunction<Node> {
      * @return
      */
     @Override
-    @SafeVarargs
-    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         Iterator<Node> it = org.apache.marmotta.ldpath.util.Collections.iterator(args);
         StringBuilder result = new StringBuilder();
         while (it.hasNext()) {

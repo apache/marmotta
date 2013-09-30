@@ -237,29 +237,25 @@ public class UserWebService {
     @GET
     @Path("/{login:[^#?]+}")
     public Response getUser(@PathParam("login") String login, @HeaderParam("Accept") String types) {
-        if(login.equals("me")) {
-            return get();
-        } else {
+        try {
+            RepositoryConnection conn = sesameService.getConnection();
             try {
-                RepositoryConnection conn = sesameService.getConnection();
-                try {
-                    final URI user = userService.getUser(login);
-                    if (user == null) return Response.status(Status.NOT_FOUND).entity(String.format("User %s not found", login)).build();
+                final URI user = userService.getUser(login);
+                if (user == null) return Response.status(Status.NOT_FOUND).entity(String.format("User %s not found", login)).build();
 
-                    java.net.URI u = new java.net.URI(configurationService.getServerUri() + "resource?uri=" + URLEncoder.encode(user.stringValue(), "utf-8"));
+                java.net.URI u = new java.net.URI(configurationService.getServerUri() + "resource?uri=" + URLEncoder.encode(user.stringValue(), "utf-8"));
 
-                    return Response.seeOther(u).header("Accept", types).build();
-                } finally {
-                    conn.commit();
-                    conn.commit();
-                }
-            } catch (URISyntaxException e) {
-                return Response.status(Status.BAD_REQUEST).entity(String.format("Invalid URI: %s", e.getMessage())).build();
-            } catch (UnsupportedEncodingException e) {
-                return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
-            } catch (RepositoryException e) {
-                return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+                return Response.seeOther(u).header("Accept", types).build();
+            } finally {
+                conn.commit();
+                conn.commit();
             }
+        } catch (URISyntaxException e) {
+            return Response.status(Status.BAD_REQUEST).entity(String.format("Invalid URI: %s", e.getMessage())).build();
+        } catch (UnsupportedEncodingException e) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (RepositoryException e) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
     }
 

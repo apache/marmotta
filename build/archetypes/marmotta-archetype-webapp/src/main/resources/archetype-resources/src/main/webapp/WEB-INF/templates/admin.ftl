@@ -17,88 +17,65 @@
     limitations under the License.
 
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
-
-<head>
-
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="${SERVER_URL}${DEFAULT_STYLE}javadoc.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/img/icon/lmf.ico" rel="SHORTCUT ICON">
-    <script type="text/javascript">
-        var _BASIC_URL = "${BASIC_URL}";
-        //use _SERVER_URL for webservice calls
-        var _SERVER_URL = "${SERVER_URL}";
-
-        var _CURRENT_STYLE = "${DEFAULT_STYLE}";
-
-    </script>
-    <#if USER_MODULE_IS_ACTIVE>
-        <link href="${SERVER_URL}user/admin/style/style.css" rel="stylesheet" type="text/css">
-        <script type="text/javascript" src="${SERVER_URL}user/admin/widgets/user.js"></script>
+<!DOCTYPE html>
+<html>
+    <head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}">
+        <link href="${SERVER_URL}core/public/style/javadoc.css" rel="stylesheet" type="text/css" />
+	    <link href="${SERVER_URL}core/public/style/style1.css" title="screen" rel="stylesheet" type="text/css" />
+        <link href="${SERVER_URL}core/public/style/style2.css" title="beamer" rel="alternate stylesheet" type="text/css" />
+        <link href="${SERVER_URL}core/public/img/icon-small.ico" rel="SHORTCUT ICON">
         <script type="text/javascript">
-            window.onload = function () {
-                    LoginLogout.draw(_SERVER_URL,"login_logout");
-            }
+            var _BASIC_URL = "${BASIC_URL}";
+            //use _SERVER_URL for webservice calls
+            var _SERVER_URL = "${SERVER_URL}";
         </script>
-    </#if>
-
-    ${HEAD}
-
-</head>
-
-<body>
-
-<div id="wrapper">
-    <div id="header">
-        <a id="logo" href="${SERVER_URL}" title="${PROJECT}">
-            <img src="${SERVER_URL}${LOGO}" alt="${PROJECT} logo" />
-        </a>
-        <h1>${CURRENT_MODULE} - ${CURRENT_TITLE}</h1>
-        <#if USER_MODULE_IS_ACTIVE>
-            <div id="login_logout"></div>
-        </#if>
-    </div>
-    <div class="clear"></div>
-    <div id="left">
-        <ul id="menu">
-            <#list MODULE_MENU as menu>
-            <li
-                <#if menu.properties["active"]>
-                        class="menu_item active"
-                <#else>
-                        class="menu_item"
-                </#if>
-            >
-                <div class="menu_heading"><a href="${menu.submenu[0].properties["path"]}">${menu.properties["title"]}</a></div>
-                <ul class="submenu">
-                <#list menu.submenu as submenu>
-                    <li
-                        <#if submenu.properties["active"]> class="active" </#if>
-                    >
-                    <a href="${submenu.properties["path"]}">${submenu.properties["title"]}</a>
-                    </li>
-                </#list>
-                </ul>
-            </li>
-            </#list>
-        </ul>
-    </div>
-    <div id="center">
-        <div id="content">
-        ${CONTENT}
+        <script type="text/javascript" src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
+        <script type="text/javascript" src="${SERVER_URL}core/public/js/widgets/current-user.js"></script>
+        <script type="text/javascript">
+            $(function() {
+        	  new LMF.currentUserWidget(_SERVER_URL, document.getElementById("login_logout")).init();
+        	});
+        </script>
+        ${HEAD}
+        <title>LMF - The Linked Media Server</title>
+        <style type="text/css">
+        	#login_logout {
+				float: right;
+				margin: 5px;
+        	}
+        </style>
+    </head>
+    <body>
+        <a id="top-link" href="${SERVER_URL}">TOPLINK</a>
+        <div id="wrapper">
+            <div id="header">
+                <div id="logo">
+                    <a href="${SERVER_URL}"><img src="${SERVER_URL}core/public/img/lmf-white.png" /></a>
+                </div>
+                <div id="header_text">
+                	<h1>${CURRENT_TITLE}</h1>
+                	<div id="topnav">
+    	            	<div id="login_logout"></div>
+    	            </div>
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div id="left">
+                ${MODULE_MENU}
+            </div>
+            <div id="center">
+                ${CONTENT}
+            </div>
+            <div class="clear"></div>
+            <div id="footer">
+                <span>
+                    <a href="http://lmf.googlecode.com">LMF</a> 
+                    is a project of 
+                    <a href="http://www.newmedialab.at/">SNML-TNG</a>
+                </span>
+            </div>
         </div>
-    </div>
-    <div class="clear"></div>
-    <div id="footer">
-        <div id="footer_line">
-            <span>
-                ${FOOTER}
-            </span>
-        </div>
-    </div>
-</div>
-
+    </body>
+</html>

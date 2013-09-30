@@ -33,11 +33,10 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
 	private static final long serialVersionUID = -6399293877969640084L;
 
-    /**
-     * The MemURI's hash code, 0 if not yet initialized.
-     */
-    private int hashCode = 0;
+	private static HashFunction hasher = Hashing.goodFastHash(16);
 
+    //@Transient
+    private HashCode goodHashCode;
 
     private String uri;
 
@@ -135,11 +134,11 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = toString().hashCode();
+        if(goodHashCode == null) {
+            goodHashCode = hasher.newHasher().putChar('U').putString(getUri()).hash();
         }
 
-        return hashCode;
+        return goodHashCode.hashCode();
     }
 
 

@@ -62,7 +62,7 @@ public class CssDateLiteralMapper extends CssTextLiteralMapper {
 
     @Override
     public List<Value> map(String resourceUri, Element elem, ValueFactory factory) {
-        final String value = cleanValue(elem.text());
+        final String value = elem.text().trim();
         Date date = parseDate(value);
 
         final String dateString;

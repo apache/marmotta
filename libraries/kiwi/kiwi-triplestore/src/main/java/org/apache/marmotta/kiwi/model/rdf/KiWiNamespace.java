@@ -57,6 +57,7 @@ public class KiWiNamespace implements Namespace, Serializable {
 
     public String getPrefix() {
         return prefix;
+        
     }
 
     public void setPrefix(String prefix) {
@@ -158,10 +159,4 @@ public class KiWiNamespace implements Namespace, Serializable {
         result = 31 * result + (deleted != null ? deleted.hashCode() : 0);
         return result;
     }
-
-	@Override
-	public int compareTo(Namespace other) {
-		return uri.compareTo(other.getName());
-	}
-	
 }

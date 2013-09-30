@@ -271,32 +271,29 @@ public class UserServiceImpl implements UserService {
 
                 try {
                     RepositoryConnection conn = sesameService.getConnection();
-                    try {
-                        conn.begin();
-                        URI webId = conn.getValueFactory().createURI(webId_str);
 
-                        log.info("creating user with webId: {} ", webId.stringValue());
+                    URI webId = conn.getValueFactory().createURI(webId_str);
 
-                        if (!login.equals(ANONYMOUS_LOGIN) && !login.equals(ADMIN_LOGIN)) {
-                            MarmottaUser u = FacadingFactory.createFacading(conn).createFacade(webId, MarmottaUser.class);
-                            u.setFirstName(firstName);
-                            u.setLastName(lastName);
-                            u.setNick(login);
-                        }
+                    log.info("creating user with webId: {} ", webId.stringValue());
 
-                        if(login.equals(ANONYMOUS_LOGIN)) {
-                            anonUser = webId;
-                        }
-                        if(login.equals(ADMIN_LOGIN)) {
-                            adminUser = webId;
-                        }
-
-                        conn.commit();
-                        
-                        return webId;
-                    } finally {
-                        conn.close();
+                    if (!login.equals(ANONYMOUS_LOGIN) && !login.equals(ADMIN_LOGIN)) {
+                        MarmottaUser u = FacadingFactory.createFacading(conn).createFacade(webId, MarmottaUser.class);
+                        u.setFirstName(firstName);
+                        u.setLastName(lastName);
+                        u.setNick(login);
                     }
+
+                    if(login.equals(ANONYMOUS_LOGIN)) {
+                        anonUser = webId;
+                    }
+                    if(login.equals(ADMIN_LOGIN)) {
+                        adminUser = webId;
+                    }
+
+                    conn.commit();
+                    conn.close();
+
+                    return webId;
                 } catch(RepositoryException ex) {
                     handleRepositoryException(ex);
                     return null;

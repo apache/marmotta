@@ -19,7 +19,7 @@
 <!--
 CacheManager Configuration
 ==========================
-An ehcache-marmotta.xml corresponds to a single CacheManager.
+An ehcache-lmf.xml corresponds to a single CacheManager.
 
 See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
 
@@ -107,7 +107,7 @@ are "on" and "off".  The default is "autodetect".
     Specifies a CacheManagerPeerProviderFactory which will be used to create a
     CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
 
-    One or more providers can be configured. The first one in the ehcache-marmotta.xml is the default, which is used
+    One or more providers can be configured. The first one in the ehcache-lmf.xml is the default, which is used
     for replication and bootstrapping.
 
     The attributes of cacheManagerPeerProviderFactory are:

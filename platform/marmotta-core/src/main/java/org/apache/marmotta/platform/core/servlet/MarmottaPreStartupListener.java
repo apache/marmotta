@@ -17,13 +17,8 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
 import org.apache.marmotta.platform.core.util.CDIContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -33,8 +28,6 @@ import javax.servlet.ServletContextListener;
  * starts up the configuration service.
  */
 public class MarmottaPreStartupListener implements ServletContextListener {
-
-    private static Logger log = LoggerFactory.getLogger(MarmottaPreStartupListener.class);
 
     private MarmottaStartupService lmfStartupService;
 
@@ -52,19 +45,7 @@ public class MarmottaPreStartupListener implements ServletContextListener {
             lmfStartupService = CDIContext.getInstance(MarmottaStartupService.class);
         }
 
-        // we check for the presence of the configuration.override init parameter; if it exists, we load this
-        // configuration file and pass it as configuration override to the startup
-        PropertiesConfiguration override = null;
-
-        if(sce.getServletContext().getInitParameter("configuration.override") != null) {
-            try {
-                override = new PropertiesConfiguration(sce.getServletContext().getInitParameter("configuration.override"));
-            } catch (ConfigurationException e) {
-                log.warn("could not load configuration override file from {}", sce.getServletContext().getInitParameter("configuration.override"));
-            }
-        }
-
-        lmfStartupService.startupConfiguration(null,override,sce.getServletContext());
+        lmfStartupService.startupConfiguration(null,null,sce.getServletContext());
 
     }
 

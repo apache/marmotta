@@ -18,7 +18,6 @@
 package org.apache.marmotta.kiwi.sail;
 
 import com.google.common.collect.MapMaker;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.IntArray;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
@@ -92,23 +91,20 @@ public class KiWiStore extends NotifyingSailBase {
     protected ConcurrentMap<IntArray,Statement> tripleRegistry;
 
     public KiWiStore(KiWiPersistence persistence, String defaultContext, String inferredContext) {
-        this.persistence    = persistence;
-        this.defaultContext = defaultContext;
+    	this.persistence    = persistence;
+    	this.defaultContext = defaultContext;
         this.nodeLock       = new ReentrantLock();
         this.tripleLock     = new ReentrantLock();
         this.inferredContext = inferredContext;
-
+    	
+    	tripleRegistry  = new MapMaker().weakValues().makeMap();
 
     }
 
-    @Deprecated
     public KiWiStore(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect, String defaultContext, String inferredContext) {
-        this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect, defaultContext, inferredContext));
+    	this(new KiWiPersistence(name,jdbcUrl,db_user,db_password,dialect), defaultContext, inferredContext);
     }
 
-    public KiWiStore(KiWiConfiguration configuration) {
-        this(new KiWiPersistence(configuration), configuration.getDefaultContext(), configuration.getInferredContext());
-    }
 
     /**
      * Do store-specific operations to initialize the store. The default
@@ -116,11 +112,9 @@ public class KiWiStore extends NotifyingSailBase {
      */
     @Override
     protected void initializeInternal() throws SailException {
-        tripleRegistry  = new MapMaker().weakValues().makeMap();
-
         try {
-            persistence.initialise();
             persistence.initDatabase();
+            persistence.initialise();
 
             initialized = true;
         } catch (SQLException e) {
@@ -174,19 +168,15 @@ public class KiWiStore extends NotifyingSailBase {
     protected void shutDownInternal() throws SailException {
         closeValueFactory();
         persistence.shutdown();
-        tripleRegistry = null;
-        initialized = false;
     }
 
     /**
      * In case there is a value factory managed by this repository directly, close it (and the underlying database
      * connection)
      */
-    public synchronized void closeValueFactory() {
+    public void closeValueFactory() {
         if(repositoryValueFactory != null) {
-            repositoryValueFactory.close();
             repositoryValueFactory = null;
-            persistence.setValueFactory(null);
         }
 
     }
@@ -207,31 +197,11 @@ public class KiWiStore extends NotifyingSailBase {
      * @return a ValueFactory object for this Sail object.
      */
     @Override
-    public synchronized ValueFactory getValueFactory() {
+    public ValueFactory getValueFactory() {
         if(repositoryValueFactory == null) {
             repositoryValueFactory = new KiWiValueFactory(this,  defaultContext);
-            persistence.setValueFactory(repositoryValueFactory);
         }
         return repositoryValueFactory;
     }
 
-    /**
-     * Manually call the garbage collector for the triple store. Otherwise it will run every hour.
-     */
-    public void garbageCollect() throws SailException {
-        try {
-            persistence.garbageCollect();
-        } catch (SQLException e) {
-            throw new SailException("error calling garbage collector",e);
-        }
-    }
-
-
-    public boolean checkConsistency() throws SailException {
-        try {
-            return persistence.checkConsistency();
-        } catch (SQLException e) {
-            throw new SailException("error calling consistency check",e);
-        }
-    }
 }

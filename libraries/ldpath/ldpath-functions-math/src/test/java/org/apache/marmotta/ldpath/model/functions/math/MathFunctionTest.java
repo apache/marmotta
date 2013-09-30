@@ -22,7 +22,7 @@ import java.util.Random;
 
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.RdfPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -100,7 +100,7 @@ public class MathFunctionTest extends AbstractTestBase {
             dMin = Math.min(dMin, dData[i]);
         }
 
-        final LdPathParser<Value> intParser = createParserFromString("fn:min(<" + iProp.stringValue() + ">) :: xsd:int");
+        final RdfPathParser<Value> intParser = createParserFromString("fn:min(<" + iProp.stringValue() + ">) :: xsd:int");
         final FieldMapping<Object, Value> intRule = intParser.parseRule(NSS);
         final Collection<Object> intResult = intRule.getValues(backend, subject);
 
@@ -109,7 +109,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Integer (type)", intNext instanceof Integer);
         Assert.assertEquals("Integer (result)", iMin, intNext);
 
-        final LdPathParser<Value> longParser = createParserFromString("fn:min(<" + lProp.stringValue() + ">) :: xsd:long");
+        final RdfPathParser<Value> longParser = createParserFromString("fn:min(<" + lProp.stringValue() + ">) :: xsd:long");
         final FieldMapping<Object, Value> longRule = longParser.parseRule(NSS);
         final Collection<Object> longResult = longRule.getValues(backend, subject);
 
@@ -118,7 +118,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Long (type)", longNext instanceof Long);
         Assert.assertEquals("Long (result)", lMin, longNext);
 
-        final LdPathParser<Value> floatParser = createParserFromString("fn:min(<" + fProp.stringValue() + ">) :: xsd:float");
+        final RdfPathParser<Value> floatParser = createParserFromString("fn:min(<" + fProp.stringValue() + ">) :: xsd:float");
         final FieldMapping<Object, Value> floatRule = floatParser.parseRule(NSS);
         final Collection<Object> floatResult = floatRule.getValues(backend, subject);
 
@@ -127,7 +127,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Float (type)", floatNext instanceof Float);
         Assert.assertEquals("Float (result)", fMin, floatNext);
 
-        final LdPathParser<Value> doubleParser = createParserFromString("fn:min(<" + dProp.stringValue() + ">) :: xsd:double");
+        final RdfPathParser<Value> doubleParser = createParserFromString("fn:min(<" + dProp.stringValue() + ">) :: xsd:double");
         final FieldMapping<Object, Value> doubleRule = doubleParser.parseRule(NSS);
         final Collection<Object> doubleResult = doubleRule.getValues(backend, subject);
 
@@ -150,7 +150,7 @@ public class MathFunctionTest extends AbstractTestBase {
             dMax = Math.max(dMax, dData[i]);
         }
 
-        final LdPathParser<Value> intParser = createParserFromString("fn:max(<" + iProp.stringValue() + ">) :: xsd:int");
+        final RdfPathParser<Value> intParser = createParserFromString("fn:max(<" + iProp.stringValue() + ">) :: xsd:int");
         final FieldMapping<Object, Value> intRule = intParser.parseRule(NSS);
         final Collection<Object> intResult = intRule.getValues(backend, subject);
 
@@ -159,7 +159,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Integer (type)", intNext instanceof Integer);
         Assert.assertEquals("Integer (result)", iMax, intNext);
 
-        final LdPathParser<Value> longParser = createParserFromString("fn:max(<" + lProp.stringValue() + ">) :: xsd:long");
+        final RdfPathParser<Value> longParser = createParserFromString("fn:max(<" + lProp.stringValue() + ">) :: xsd:long");
         final FieldMapping<Object, Value> longRule = longParser.parseRule(NSS);
         final Collection<Object> longResult = longRule.getValues(backend, subject);
 
@@ -168,7 +168,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Long (type)", longNext instanceof Long);
         Assert.assertEquals("Long (result)", lMax, longNext);
 
-        final LdPathParser<Value> floatParser = createParserFromString("fn:max(<" + fProp.stringValue() + ">) :: xsd:float");
+        final RdfPathParser<Value> floatParser = createParserFromString("fn:max(<" + fProp.stringValue() + ">) :: xsd:float");
         final FieldMapping<Object, Value> floatRule = floatParser.parseRule(NSS);
         final Collection<Object> floatResult = floatRule.getValues(backend, subject);
 
@@ -177,7 +177,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Float (type)", floatNext instanceof Float);
         Assert.assertEquals("Float (result)", fMax, floatNext);
 
-        final LdPathParser<Value> doubleParser = createParserFromString("fn:max(<" + dProp.stringValue() + ">) :: xsd:double");
+        final RdfPathParser<Value> doubleParser = createParserFromString("fn:max(<" + dProp.stringValue() + ">) :: xsd:double");
         final FieldMapping<Object, Value> doubleRule = doubleParser.parseRule(NSS);
         final Collection<Object> doubleResult = doubleRule.getValues(backend, subject);
 
@@ -196,7 +196,7 @@ public class MathFunctionTest extends AbstractTestBase {
             dMin = Math.min(dMin, dData[i]);
         }
 
-        final LdPathParser<Value> floatParser = createParserFromString("fn:round(<" + fProp.stringValue() + ">) :: xsd:int");
+        final RdfPathParser<Value> floatParser = createParserFromString("fn:round(<" + fProp.stringValue() + ">) :: xsd:int");
         final FieldMapping<Object, Value> floatRule = floatParser.parseRule(NSS);
         final Collection<Object> floatResult = floatRule.getValues(backend, subject);
 
@@ -205,7 +205,7 @@ public class MathFunctionTest extends AbstractTestBase {
             Assert.assertThat("round[Float] (result)", floatResult, CoreMatchers.hasItem(Math.round(element)));
         }
 
-        final LdPathParser<Value> doubleParser = createParserFromString("fn:round(<" + dProp.stringValue() + ">) :: xsd:long");
+        final RdfPathParser<Value> doubleParser = createParserFromString("fn:round(<" + dProp.stringValue() + ">) :: xsd:long");
         final FieldMapping<Object, Value> doubleRule = doubleParser.parseRule(NSS);
         final Collection<Object> doubleResult = doubleRule.getValues(backend, subject);
 
@@ -230,7 +230,7 @@ public class MathFunctionTest extends AbstractTestBase {
             dSum += dData[i];
         }
 
-        final LdPathParser<Value> intParser = createParserFromString("fn:sum(<" + iProp.stringValue() + ">) :: xsd:int");
+        final RdfPathParser<Value> intParser = createParserFromString("fn:sum(<" + iProp.stringValue() + ">) :: xsd:int");
         final FieldMapping<Object, Value> intRule = intParser.parseRule(NSS);
         final Collection<Object> intResult = intRule.getValues(backend, subject);
 
@@ -239,7 +239,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Integer (type)", intNext instanceof Integer);
         Assert.assertEquals("Integer (result)", iSum, intNext);
 
-        final LdPathParser<Value> longParser = createParserFromString("fn:sum(<" + lProp.stringValue() + ">) :: xsd:long");
+        final RdfPathParser<Value> longParser = createParserFromString("fn:sum(<" + lProp.stringValue() + ">) :: xsd:long");
         final FieldMapping<Object, Value> longRule = longParser.parseRule(NSS);
         final Collection<Object> longResult = longRule.getValues(backend, subject);
 
@@ -248,7 +248,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Long (type)", longNext instanceof Long);
         Assert.assertEquals("Long (result)", lSum, longNext);
 
-        final LdPathParser<Value> floatParser = createParserFromString("fn:sum(<" + fProp.stringValue() + ">) :: xsd:float");
+        final RdfPathParser<Value> floatParser = createParserFromString("fn:sum(<" + fProp.stringValue() + ">) :: xsd:float");
         final FieldMapping<Object, Value> floatRule = floatParser.parseRule(NSS);
         final Collection<Object> floatResult = floatRule.getValues(backend, subject);
 
@@ -257,7 +257,7 @@ public class MathFunctionTest extends AbstractTestBase {
         Assert.assertTrue("Float (type)", floatNext instanceof Float);
         Assert.assertEquals("Float (result)", fSum, floatNext);
 
-        final LdPathParser<Value> doubleParser = createParserFromString("fn:sum(<" + dProp.stringValue() + ">) :: xsd:double");
+        final RdfPathParser<Value> doubleParser = createParserFromString("fn:sum(<" + dProp.stringValue() + ">) :: xsd:double");
         final FieldMapping<Object, Value> doubleRule = doubleParser.parseRule(NSS);
         final Collection<Object> doubleResult = doubleRule.getValues(backend, subject);
 

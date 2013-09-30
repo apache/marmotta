@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<configuration>
+    <!-- Configure the database connection here -->
+    <jdbc>
+        <driver>org.postgresql.Driver</driver>
+        <url>jdbc:postgresql://localhost:5433/lmf</url>
+        <user>lmf</user>
+        <password>lmf</password>
+        <!-- You can also pass user/password and other JDBC properties in the optional properties tag: -->
+ <!--       <properties>
+            <property><key>user</key><value>[db-user]</value></property>
+            <property><key>password</key><value>[db-password]</value></property>
+        </properties>
+-->    </jdbc>
+
+    <generator>
+        <database>
+            <!-- The database dialect from jooq-meta. Available dialects are
+    named org.util.[database].[database]Database. Known values are:
+
+    org.jooq.util.ase.ASEDatabase
+    org.jooq.util.db2.DB2Database
+    org.jooq.util.derby.DerbyDatabase
+    org.jooq.util.h2.H2Database
+    org.jooq.util.hsqldb.HSQLDBDatabase
+    org.jooq.util.ingres.IngresDatabase
+    org.jooq.util.mysql.MySQLDatabase
+    org.jooq.util.oracle.OracleDatabase
+    org.jooq.util.postgres.PostgresDatabase
+    org.jooq.util.sqlite.SQLiteDatabaes
+    org.jooq.util.sqlserver.SQLServerDatabase
+    org.jooq.util.sybase.SybaseDatabase
+
+    You can also provide your own org.jooq.util.Database implementation
+    here, if your database is currently not supported -->
+            <name>org.jooq.util.postgres.PostgresDatabase</name>
+
+            <!-- All elements that are generated from your schema (several Java
+           regular expressions, separated by comma) Watch out for
+           case-sensitivity. Depending on your database, this might be
+           important! You can create case-insensitive regular expressions
+           using this syntax: (?i:expr)A comma-separated list of regular
+           expressions -->
+            <includes>(?i:KIWINODE),(?i:TRIPLES)</includes>
+
+            <!-- All elements that are excluded from your schema (several Java
+           regular expressions, separated by comma). Excludes match before
+           includes -->
+            <excludes></excludes>
+
+            <!-- The schema that is used locally as a source for meta information.
+    This could be your development schema or the production schema, etc
+    This cannot be combined with the schemata element. -->
+            <inputSchema>public</inputSchema>
+        </database>
+
+        <generate>
+            <!-- See advanced configuration properties -->
+        </generate>
+
+        <target>
+            <!-- The destination package of your generated classes (within the
+          destination directory) -->
+            <packageName>org.apache.marmotta.platform.sparql.model</packageName>
+
+            <!-- The destination directory of your generated classes -->
+            <directory>/Users/sschaffe/Documents/projects/LMF/lmf-sparql/src/main/java</directory>
+        </target>
+    </generator>
+</configuration>

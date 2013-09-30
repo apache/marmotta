@@ -85,7 +85,6 @@ public class LDCachingKiWiPersistenceConnection  {
         entry.setExpiryDate(new Date(row.getTimestamp("expires_at").getTime()));
         entry.setUpdateCount(row.getInt("update_count"));
         entry.setResource((URI) connection.loadNodeById(row.getLong("resource_id")));
-        entry.setTripleCount(row.getInt("triple_count"));
 
         entryIdCache.put(new Element(id,entry));
         entryResourceCache.put(new Element(entry.getResource().stringValue(),entry));
@@ -146,15 +145,11 @@ public class LDCachingKiWiPersistenceConnection  {
             kEntry.setLastRetrieved(entry.getLastRetrieved());
             kEntry.setUpdateCount(entry.getUpdateCount());
             kEntry.setResource(entry.getResource());
-            kEntry.setTripleCount(entry.getTripleCount());
         }
 
         if(! (entry.getResource() instanceof KiWiResource) || ((KiWiResource) entry.getResource()).getId() == null) {
             throw new IllegalStateException("the resource contained in the cache entry is not a KiWiResource!");
         }
-
-        // needed before the entry can be inserted
-        connection.flushBatch();
 
         kEntry.setId(connection.getNextSequence("seq.ldcache"));
 
@@ -164,7 +159,6 @@ public class LDCachingKiWiPersistenceConnection  {
         insertEntry.setTimestamp(3,new Timestamp(kEntry.getExpiryDate().getTime()));
         insertEntry.setLong(4,((KiWiNode)kEntry.getResource()).getId());
         insertEntry.setInt(5, kEntry.getUpdateCount());
-        insertEntry.setInt(6, kEntry.getTripleCount());
         insertEntry.executeUpdate();
 
         log.debug("persisted ld-cache entry with id {}", kEntry.getId());
@@ -332,7 +326,7 @@ public class LDCachingKiWiPersistenceConnection  {
      * @throws java.sql.SQLException
      */
     public void storeNode(KiWiNode node) throws SQLException {
-        connection.storeNode(node, false);
+        connection.storeNode(node);
     }
 
     /**

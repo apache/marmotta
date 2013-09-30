@@ -149,7 +149,7 @@ are "on" and "off".  The default is "autodetect".
        a cache from database ID to KiWiNode; should be very large since this kind of lookup is a very frequent operation
     -->
     <cache name="node-cache"
-           maxElementsInMemory="5000000"
+           maxElementsInMemory="500000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU"/>
@@ -159,7 +159,7 @@ are "on" and "off".  The default is "autodetect".
         from the database by avoiding reconstructing each triple from the database result
     -->
     <cache name="triple-cache"
-           maxElementsInMemory="500000"
+           maxElementsInMemory="100000"
            overflowToDisk="false"
            timeToLiveSeconds="3600"
            memoryStoreEvictionPolicy="LFU"/>
@@ -176,7 +176,7 @@ are "on" and "off".  The default is "autodetect".
 
     <!-- a cache from URI to KiWiUriResource -->
     <cache name="uri-cache"
-           maxElementsInMemory="500000"
+           maxElementsInMemory="50000"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU"/>

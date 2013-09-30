@@ -18,13 +18,12 @@
 package org.apache.marmotta.platform.core.webservices.prefix;
 
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -32,7 +31,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -87,22 +85,6 @@ public class PrefixWebService {
             return Response.status(Response.Status.NOT_FOUND).entity("prefix " + prefix + " mapping not found").build();
         }
     }
-    
-    /**
-     * Removes a prefix
-     * 
-     * @param prefix prefix
-     * @return Response with the result of the operation
-     */
-    @DELETE
-    @Path("/" + PREFIX_PATTERN)
-    public Response deleteMapping(@PathParam("prefix") String prefix) {
-        if (prefixService.remove(prefix)) {
-            return Response.status(Status.NO_CONTENT).build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("prefix " + prefix + " mapping not found").build();
-        }
-    }    
 
     /**
      * Add new mapping

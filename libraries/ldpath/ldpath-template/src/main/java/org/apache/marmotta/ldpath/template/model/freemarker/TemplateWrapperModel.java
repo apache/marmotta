@@ -50,7 +50,7 @@ public class TemplateWrapperModel<T> implements AdapterTemplateModel {
      *         class.
      */
     @Override
-    public T getAdaptedObject(@SuppressWarnings("rawtypes") Class hint) {
+    public T getAdaptedObject(Class hint) {
         return object;
     }
 }

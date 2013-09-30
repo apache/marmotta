@@ -29,8 +29,11 @@ import org.apache.marmotta.client.clients.SPARQLClient;
  * Author: Sebastian Schaffert
  */
 public class MarmottaClient {
+    
+    public static final String VERSION = "0.1.0";
 
-    protected ClientConfiguration config;
+    private ClientConfiguration config;
+
 
     public MarmottaClient(ClientConfiguration config) {
         this.config = config;

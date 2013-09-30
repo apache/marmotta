@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <title>Sgvizler</title>
+      <meta charset="UTF-8">
+      <link rel="shortcut icon" href="http://sgvizler.googlecode.com/svn/www/favicon.ico">
+      <link rel="stylesheet" type="text/css" href="http://sgvizler.googlecode.com/svn/www/sgvizler.css">
+      <link rel="stylesheet" type="text/css" href="examples.css"><script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script><script type="text/javascript" src="https://www.google.com/jsapi"></script><script type="text/javascript" id="sgvzlr_script" src="../sgvizler.js"></script><script type="text/javascript">sgvizler.option.namespace.wd = 'http://sws.ifi.uio.no/d2rq/resource/';
+      sgvizler.option.namespace.w = 'http://sws.ifi.uio.no/ont/world.owl#';
+      
+	$(document).ready(sgvizler.go());
+      </script></head>
+   <body>
+      <div id="logo"><a href="http://code.google.com/p/sgvizler/"><img src="http://sgvizler.googlecode.com/svn/www/mr.sgvizler.png" alt="mr.sgvizler.png"></a><br>Mr. Sgvizler
+         
+      </div>
+      <h3><code>gMap</code>: The 10 largest cities by population on a map
+      </h3>
+      <p></p>
+      <div id="sgvzl_example_query" data-sgvizler-endpoint="http://sws.ifi.uio.no/sparql/world" data-sgvizler-query="SELECT ?Name ?Name WHERE{ [] a w:City ; w:hasName ?Name ; w:hasCityPopulation ?Population ; } ORDER BY DESC(?Population) LIMIT 10" data-sgvizler-chart="gMap" data-sgvizler-chart-options="showTip=true" data-sgvizler-loglevel="2" style="width:800px; height:400px;"></div>
+      <p>The element which draws the above chart:</p><pre id="sgvzl_example_pre">&lt;div id="sgvzl_example_query" 
+   data-sgvizler-endpoint="http://sws.ifi.uio.no/sparql/world" 
+   data-sgvizler-query="SELECT ?Name ?Name WHERE{ [] a w:City ; w:hasName ?Name ; w:hasCityPopulation ?Population ; } ORDER BY DESC(?Population) LIMIT 10" 
+   data-sgvizler-chart="gMap" 
+   data-sgvizler-chart-options="showTip=true" 
+   data-sgvizler-loglevel="2" 
+   style="width:800px; height:400px;"/&gt;</pre><h3>The results of the query in <code>gTable</code></h3>
+      <div id="sgvzl_example_table" data-sgvizler-endpoint="http://sws.ifi.uio.no/sparql/world" data-sgvizler-query="SELECT ?Name ?Name WHERE{ [] a w:City ; w:hasName ?Name ; w:hasCityPopulation ?Population ; } ORDER BY DESC(?Population) LIMIT 10" data-sgvizler-chart="gTable" data-sgvizler-loglevel="2" style="width:800px; height:200px;"></div>
+      <div id="footer">
+         <!--Please leave a link to the Sgvizler homepage.-->
+         <p>
+            	Sgvizler visualizes the result of SPARQL SELECT queries using
+            	javascript and the Google Visualization API. For more
+            	information, see the <a href="http://code.google.com/p/sgvizler/">Sgvizler</a>
+            	homepage. (c) 2011--2012 Martin G. Skjæveland.
+            
+         </p>
+      </div>
+   </body>
+</html>

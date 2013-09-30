@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -46,34 +46,6 @@
          further details: http://maven.apache.org/guides/mini/guide-attached-tests.html
     -->
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin> <!-- generate JRebel Configuration -->
-                    <groupId>org.zeroturnaround</groupId>
-                    <artifactId>jrebel-maven-plugin</artifactId>
-                    <version>1.1.3</version>
-                    <executions>
-                        <execution>
-                            <id>generate-rebel-xml</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <relativePath>../../</relativePath>
-                        <rootPath>$${rebel.root}</rootPath>
-                        <classpath>
-                            <resources>
-                                <resource><!-- default resource --></resource>
-                                <resource><directory>src/main/resources</directory></resource>
-                            </resources>
-                        </classpath>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -250,8 +222,8 @@
             <artifactId>commons-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-net</groupId>
@@ -276,8 +248,7 @@
 
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.api.version}</version>
+            <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -311,14 +282,6 @@
             <artifactId>jquery</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>sgvizler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>strftime</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-client-js</artifactId>
         </dependency>
@@ -350,15 +313,9 @@
 
         <!-- Test Support -->
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-embedded</artifactId>
+            <version>6.1.26</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -369,12 +326,6 @@
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -462,10 +413,6 @@
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-rdfjson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-rdfxml</artifactId>
         </dependency>
         <dependency>
@@ -523,11 +470,15 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
+            <artifactId>sesame-tools-rio-rdfjson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-tools-rio-rss</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.jsonld-java</groupId>
-            <artifactId>jsonld-java-sesame</artifactId>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>sesame-tools-rio-jsonld</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -553,10 +504,6 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.icu</groupId>
-            <artifactId>icu4j</artifactId>
         </dependency>
 
         <dependency>

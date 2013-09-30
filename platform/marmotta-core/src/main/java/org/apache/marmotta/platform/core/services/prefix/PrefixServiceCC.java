@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.core.services.prefix;
 import java.net.URISyntaxException;
 
 import org.apache.marmotta.platform.core.api.prefix.PrefixProvider;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;

@@ -30,7 +30,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
@@ -45,8 +45,6 @@ import org.apache.marmotta.platform.core.qualifiers.kspace.InferredKnowledgeSpac
 import org.apache.marmotta.platform.core.qualifiers.kspace.SystemKnowledgeSpace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.util.Literals;
 import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -180,10 +178,9 @@ public class ContextServiceImpl implements ContextService {
             try {
                 conn.begin();
                 checkConnectionNamespace(conn);
-                ValueFactory valueFactory = conn.getValueFactory();
-				URI ctx = valueFactory.createURI(uri);
+                URI ctx = conn.getValueFactory().createURI(uri);
                 if (StringUtils.isNotBlank(label)) {
-                    conn.add(ctx, RDFS.LABEL, Literals.createLiteral(valueFactory, label), ctx);
+                    conn.add(ctx, RDFS.LABEL, conn.getValueFactory().createLiteral(label), ctx);
                 }
                 return ctx;
             } finally {

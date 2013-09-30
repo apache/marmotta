@@ -17,11 +17,6 @@
  */
 package org.apache.marmotta.platform.ldcache.services.ldcache;
 
-import com.google.common.collect.Lists;
-import org.apache.marmotta.commons.sesame.filter.OneOfFilter;
-import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
-import org.apache.marmotta.commons.sesame.filter.statement.StatementFilter;
 import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -36,7 +31,6 @@ import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
-import org.apache.marmotta.platform.ldcache.model.filter.LDCacheIgnoreFilter;
 import org.openrdf.model.Resource;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.helpers.NotifyingSailWrapper;
@@ -45,13 +39,8 @@ import org.slf4j.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * A sail provider service that allows wrapping a transparent Linked Data caching component around the
@@ -75,14 +64,9 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
     @Inject
     private SesameService sesameService;
-
+    
     @Inject
     private HttpClientService         httpClientService;
-
-    @Inject
-    private Instance<LDCacheIgnoreFilter> ignoreFilters;
-
-    private Set<Endpoint> volatileEndpoints;
 
     private ClientConfiguration ldclientConfig;
 
@@ -111,28 +95,21 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(LDCACHE_ENABLED)) {
-            sesameService.restart();
-
-            if(!isEnabled()) {
-                sail = null;
-            }
+        	// FIXME: (jf) i don't like this dependency - i think it would be better to fire an event here
+            sesameService.shutdown();
+            sesameService.initialise();
         }
     }
 
 
     @PostConstruct
     public void initialize() {
-        volatileEndpoints = new HashSet<Endpoint>();
         ldclientConfig = new ClientConfiguration();
         updateConfig();
     }
 
     public void updateEndpoints() {
-        HashSet<Endpoint> endpoints = new HashSet<Endpoint>();
-        endpoints.addAll(endpointService.listEndpoints());
-        endpoints.addAll(volatileEndpoints);
-
-        ldclientConfig.setEndpoints(endpoints);
+        ldclientConfig.setEndpoints(new HashSet<Endpoint>(endpointService.listEndpoints()));
 
         if(sail != null &&  sail.getLDCache() != null) {
             sail.getLDCache().reload();
@@ -146,11 +123,7 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
         ldclientConfig.setSocketTimeout(configurationService.getIntConfiguration("ldcache.so_timeout", 60000));
         ldclientConfig.setConnectionTimeout(configurationService.getIntConfiguration("ldcache.connection_timeout", 10000));
         ldclientConfig.setMaxParallelRequests(configurationService.getIntConfiguration("ldcache.max_parallel_requests",10));
-
-        HashSet<Endpoint> endpoints = new HashSet<Endpoint>();
-        endpoints.addAll(endpointService.listEndpoints());
-        endpoints.addAll(volatileEndpoints);
-        ldclientConfig.setEndpoints(endpoints);
+        ldclientConfig.setEndpoints(new HashSet<Endpoint>(endpointService.listEndpoints()));
 
         ldclientConfig.setHttpClient(httpClientService.getHttpClient());
 
@@ -167,14 +140,8 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
      */
     @Override
     public NotifyingSailWrapper createSail(NotifyingSail parent) {
-        Set<SesameFilter<Resource>> filters = new HashSet<SesameFilter<Resource>>();
-        filters.add(MarmottaLocalFilter.getInstance());
-        filters.addAll(Lists.newArrayList(ignoreFilters));
-
-        SesameFilter<Resource> cacheFilters = new OneOfFilter<Resource>(filters);
-
         String cache_context = configurationService.getCacheContext();
-        sail = new KiWiLinkedDataSail(parent, new NotFilter<Resource>(cacheFilters), cache_context, ldclientConfig);
+        sail = new KiWiLinkedDataSail(parent, new NotFilter<Resource>(MarmottaLocalFilter.getInstance()), cache_context, ldclientConfig);
         return sail;
     }
 
@@ -184,11 +151,7 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
      * @return
      */
     public LDClientService getLDClient() {
-        if(sail != null) {
-            return sail.getLDCache().getLDClient();
-        } else {
-            return null;
-        }
+        return sail.getLDCache().getLDClient();
     }
 
     /**
@@ -196,44 +159,7 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
      * @return
      */
     public LDCache getLDCache() {
-        if(sail != null) {
-            return sail.getLDCache();
-        } else {
-            return null;
-        }
+        return sail.getLDCache();
     }
 
-
-    /**
-     * Add a volatile (in-memory) endpoint to the LDClient configuration. Can be used by other services for auto-registering
-     * LDClient endpoints for special endpoints.
-     *
-     * @param endpoint
-     */
-    public void addVolatileEndpoint(Endpoint endpoint) {
-        if(!volatileEndpoints.contains(endpoint)) {
-            volatileEndpoints.add(endpoint);
-            updateEndpoints();
-        }
-    }
-
-
-    /**
-     * Remove a volatile (in-memory) endpoint from the LDClient configuration.
-     * @param endpoint
-     */
-    public void removeVolatileEndpoint(Endpoint endpoint) {
-        if(volatileEndpoints.contains(endpoint)) {
-            volatileEndpoints.remove(endpoint);
-            updateEndpoints();
-        }
-    }
-
-    /**
-     * Return all configured volatile endpoints.
-     * @return
-     */
-    public Set<Endpoint> getVolatileEndpoints() {
-        return new HashSet<Endpoint>(volatileEndpoints);
-    }
 }

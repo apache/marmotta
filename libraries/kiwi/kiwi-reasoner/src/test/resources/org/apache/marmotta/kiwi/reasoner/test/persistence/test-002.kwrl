@@ -13,6 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-($1 <http://www.w3.org/2000/01/rdf-schema#subClassOf> $2), ($2 <http://www.w3.org/2000/01/rdf-schema#subClassOf> $3) -> ($1 <http://www.w3.org/2000/01/rdf-schema#subClassOf> $3)
-($1 <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> $2), ($2 <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> $3) -> ($1 <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> $3)
-($1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> $2), ($2 <http://www.w3.org/2000/01/rdf-schema#subClassOf> $3) -> ($1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> $3)
+($1 http://www.w3.org/2000/01/rdf-schema#subClassOf $2), ($2 http://www.w3.org/2000/01/rdf-schema#subClassOf $3) -> ($1 http://www.w3.org/2000/01/rdf-schema#subClassOf $3)
+($1 http://www.w3.org/2000/01/rdf-schema#subPropertyOf $2), ($2 http://www.w3.org/2000/01/rdf-schema#subPropertyOf $3) -> ($1 http://www.w3.org/2000/01/rdf-schema#subPropertyOf $3)
+($1 http://www.w3.org/1999/02/22-rdf-syntax-ns#type $2), ($2 http://www.w3.org/2000/01/rdf-schema#subClassOf $3) -> ($1 http://www.w3.org/1999/02/22-rdf-syntax-ns#type $3)

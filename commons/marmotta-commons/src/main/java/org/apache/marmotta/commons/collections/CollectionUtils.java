@@ -17,8 +17,6 @@
  */
 package org.apache.marmotta.commons.collections;
 
-import com.google.common.base.Equivalence;
-
 import java.text.Format;
 import java.util.ArrayList;
 import java.util.Collection;

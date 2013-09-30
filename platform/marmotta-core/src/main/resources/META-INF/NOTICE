@@ -6,8 +6,25 @@ The Apache Software Foundation (http://www.apache.org/).
 
 Apache Marmotta, Copyright 2012-2013 The Apache Software Foundation
 
-Portions of this software were originally based on the following:
+This product also includes the following third-party components:
 
-    Copyright 2008-2012 Salzburg Research Forschungsgesellschaft mbH
+* D3.js, http://d3js.org
 
-These have been licensed to the Apache Software Foundation under a software grant.
+  Copyright (c) 2013 Michael Bostock
+
+* Dracula Graph Library, http://www.graphdracula.net
+
+  Copyright (c) 2013 Johann Philipp Strathausen
+
+* strftime, http://hacks.bluesmoon.info/strftime
+
+  Copyright (c) 2008 Philip S Tellis
+
+* jQuery, http://jquery.com
+
+  Copyright (c) 2013 jQuery Foundation
+
+* Sgvizler, http://sgvizler.googlecode.com
+
+  Copyright (c) 2011 Martin G. Skjæveland
+

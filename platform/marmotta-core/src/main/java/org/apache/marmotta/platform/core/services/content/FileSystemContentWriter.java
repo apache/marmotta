@@ -93,7 +93,6 @@ public class FileSystemContentWriter implements ContentWriter {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
-                conn.begin();
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
@@ -165,7 +164,6 @@ public class FileSystemContentWriter implements ContentWriter {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
-                conn.begin();
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();

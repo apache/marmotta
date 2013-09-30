@@ -30,8 +30,7 @@ import org.apache.marmotta.ldpath.model.selectors.TestingSelector;
 import org.apache.marmotta.ldpath.model.selectors.UnionSelector;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.LdPathParser;
-import org.hamcrest.CoreMatchers;
+import org.apache.marmotta.ldpath.parser.RdfPathParser;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,7 +60,7 @@ public class ParserTest {
         String path1 = "rdfs:label";
 
         NodeSelector<Value> s1 = parseSelector(path1, null);
-        Assert.assertThat(s1, CoreMatchers.instanceOf(PropertySelector.class));
+        Assert.assertTrue(s1 instanceof PropertySelector);
         Assert.assertEquals("<http://www.w3.org/2000/01/rdf-schema#label>",s1.getPathExpression(backend));
 
 
@@ -71,19 +70,21 @@ public class ParserTest {
         );
         String path2 = "(*[rdf:type is dbp-ont:Person]) | (dct:subject/^dct:subject[rdf:type is dbp-ont:Person]) | (dct:subject/^skos:broader/^dct:subject[rdf:type is dbp-ont:Person])";
         NodeSelector<Value> s2 = parseSelector(path2,namespaces2);
-        Assert.assertThat(s2, CoreMatchers.instanceOf(UnionSelector.class));
+        Assert.assertTrue(s2 instanceof UnionSelector);
 
         String path3 = "*[rdf:type is dbp-ont:Person] | dct:subject/^dct:subject[rdf:type is dbp-ont:Person] | dct:subject/^skos:broader/^dct:subject[rdf:type is dbp-ont:Person]";
         NodeSelector<Value> s3 = parseSelector(path3,namespaces2);
-        Assert.assertThat(s3, CoreMatchers.instanceOf(UnionSelector.class));
+        Assert.assertTrue(s3 instanceof UnionSelector);
         
+        Assert.assertEquals(s2,s3);
+
         String path4 = "(* | dct:subject/^dct:subject | dct:subject/^skos:broader/^dct:subject)[rdf:type is dbp-ont:Person]";
         NodeSelector<Value> s4 = parseSelector(path4,namespaces2);
-        Assert.assertThat(s4, CoreMatchers.instanceOf(TestingSelector.class));
+        Assert.assertTrue(s4 instanceof TestingSelector);
     }
 
     private NodeSelector<Value> parseSelector(String selector, Map<String,String> namespaces) throws ParseException {
-        return new LdPathParser<Value>(backend,new StringReader(selector)).parseSelector(namespaces);
+        return new RdfPathParser<Value>(backend,new StringReader(selector)).parseSelector(namespaces);
     }
 
     @Test
@@ -108,13 +109,13 @@ public class ParserTest {
         Assert.assertNotNull(p3.getFilter());
         Assert.assertEquals(5, p3.getNamespaces().size());
         Assert.assertNotNull(p3.getField("person"));
-        Assert.assertThat(p3.getField("person").getSelector() , CoreMatchers.instanceOf(PathSelector.class));
-        Assert.assertThat(p3.getField("person").getTransformer(), CoreMatchers.instanceOf( StringTransformer.class));
+        Assert.assertTrue(p3.getField("person").getSelector() instanceof PathSelector);
+        Assert.assertTrue(p3.getField("person").getTransformer() instanceof StringTransformer);
 
     }
 
     private Program<Value> parseProgram(String selector) throws ParseException {
-        return new LdPathParser<Value>(backend,new StringReader(selector)).parseProgram();
+        return new RdfPathParser<Value>(backend,new StringReader(selector)).parseProgram();
     }
 
 

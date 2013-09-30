@@ -167,7 +167,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
 
                     return;
                 } catch(TemplatingException e) {
-                    log.error("templating did not work: {}", e.getMessage());
+                    log.error("templating did not work");
                 }
 
             }

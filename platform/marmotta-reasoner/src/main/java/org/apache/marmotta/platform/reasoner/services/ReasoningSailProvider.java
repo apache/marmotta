@@ -98,11 +98,8 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(REASONING_ENABLED)) {
-            sesameService.restart();
-
-            if(!isEnabled()) {
-                sail = null;
-            }
+            sesameService.shutdown();
+            sesameService.initialise();
         } else if(e.containsChangedKeyWithPrefix("reasoning")) {
             ReasoningConfiguration config = sail.getConfig();
             config.setBatchSize(configurationService.getIntConfiguration("reasoning.batchsize",1000));
@@ -128,11 +125,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.apache.marmotta.kiwi.reasoner.parser.ParseException in case the program cannot be parsed
      */
     public void addProgram(String name, InputStream data) throws IOException, SailException, ParseException {
-        if(isEnabled()) {
-            sail.addProgram(name, data);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        sail.addProgram(name, data);
     }
 
     /**
@@ -148,11 +141,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.openrdf.sail.SailException  in case the program already exists
      */
     public void addProgram(Program program) throws SailException {
-        if(isEnabled()) {
-            sail.addProgram(program);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        sail.addProgram(program);
     }
 
     /**
@@ -165,11 +154,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.openrdf.sail.SailException
      */
     public void deleteProgram(String name) throws SailException {
-        if(isEnabled()) {
-            sail.deleteProgram(name);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        sail.deleteProgram(name);
     }
 
     /**
@@ -181,11 +166,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.openrdf.sail.SailException  in case an error occurs
      */
     public Program getProgram(String name) throws SailException {
-        if(isEnabled()) {
-            return sail.getProgram(name);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        return sail.getProgram(name);
     }
 
     /**
@@ -194,20 +175,14 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @return
      */
     public CloseableIteration<Program, SailException> listPrograms() throws SailException {
-        if(isEnabled()) {
-            return sail.listPrograms();
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        return sail.listPrograms();
     }
 
     /**
      * Clean all inferred triples and re-run all reasoning rules.
      */
     public void reRunPrograms() {
-        if(isEnabled()) {
-            sail.reRunPrograms();
-        }
+        sail.reRunPrograms();
     }
 
     /**
@@ -221,11 +196,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.apache.marmotta.kiwi.reasoner.parser.ParseException in case the program cannot be parsed
      */
     public void updateProgram(String name, InputStream data) throws IOException, SailException, ParseException {
-        if(isEnabled()) {
-            sail.updateProgram(name, data);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        sail.updateProgram(name, data);
     }
 
     /**
@@ -237,11 +208,7 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.openrdf.sail.SailException in case a database error occurs
      */
     public void updateProgram(Program program) throws SailException {
-        if(isEnabled()) {
-            sail.updateProgram(program);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        sail.updateProgram(program);
     }
 
     /**
@@ -252,10 +219,6 @@ public class ReasoningSailProvider implements TransactionalSailProvider {
      * @throws org.openrdf.sail.SailException
      */
     public CloseableIteration<Justification, SailException> justify(long tripleId) throws SailException {
-        if(isEnabled()) {
-            return sail.justify(tripleId);
-        } else {
-            throw new SailException("reasoning is disabled");
-        }
+        return sail.justify(tripleId);
     }
 }

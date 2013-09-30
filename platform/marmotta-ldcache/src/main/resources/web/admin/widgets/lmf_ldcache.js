@@ -213,17 +213,15 @@
             }
 
             for ( var i = 0; i < ps.length; i++) {
-                if(!ps[i].volatile) {
-                    var delBtn = $("<button/>").text("delete");
-                    delBtn.attr('data-id', ps[i].id);
-                    delBtn.click(function() {
-                        removeProgram($(this));
-                    });
-                    var modBtn = $("<button>", {text: (ps[i].active?"deactivate":"activate"), 'data-id': ps[i].id, 'data-active':ps[i].active})
-                    modBtn.click(function() {
-                        activateProgram($(this));
-                    });
-                }
+                var delBtn = $("<button/>").text("delete");
+                delBtn.attr('data-id', ps[i].id);
+                delBtn.click(function() {
+                    removeProgram($(this));
+                });
+                var modBtn = $("<button>", {text: (ps[i].active?"deactivate":"activate"), 'data-id': ps[i].id, 'data-active':ps[i].active})
+                modBtn.click(function() { 
+                    activateProgram($(this)); 
+                });
                 var col = "";
                 if (i % 2) {
                     col = "even";
@@ -238,11 +236,7 @@
                 $("<td/>").text(ps[i].endpoint || '').appendTo(tr);
                 $("<td/>").text(ps[i].mimetype != undefined ? ctToString(ps[i].mimetype) : '').appendTo(tr);
                 $("<td/>").text(ps[i].expiry || '').appendTo(tr);
-                if(!ps[i].volatile) {
-                    $("<td/>").append(modBtn).append(delBtn).appendTo(tr);
-                } else {
-                    $("<td>autoregistered</td>").appendTo(tr);
-                }
+                $("<td/>").append(modBtn).append(delBtn).appendTo(tr);
                 table.append(tr);
             }
             programs.empty().append(table);

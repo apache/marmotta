@@ -28,8 +28,6 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepositoryConnection;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +37,8 @@ import java.util.*;
  * Utility methods for simplifying certain common tasks. All methods are static and take as first argument a
  * RepositoryConnection that needs to be managed by the caller (i.e. requested from the repository and closed after use).
  *
- * @author Sebastian Schaffert (sschaffert@apache.org)
- * @author Jakob Frank <jakob@apache.org>
+ * <p/>
+ * Author: Sebastian Schaffert
  */
 public class ResourceUtils {
 
@@ -49,12 +47,12 @@ public class ResourceUtils {
     // *****************************************************************************************************
     // methods for retrieving resources
     // *****************************************************************************************************
-
+    
     /**
      * Check whenever the uri actually exists. 
      * Existence of a URI (Resource) is bound to the existence of a
      * Statement referencing the Resource, so this method simply delegates to {@link #isUsed(RepositoryConnection, String)}.
-     *
+     * 
      * @param conn connection with the repository
      * @param uri uri of the resource to check
      * @return resource exists or not
@@ -62,9 +60,9 @@ public class ResourceUtils {
      */
     @Deprecated
     public static boolean existsResource(RepositoryConnection conn, String uri) {
-        return isUsed(conn, conn.getValueFactory().createURI(uri));
+    	return isUsed(conn, conn.getValueFactory().createURI(uri));
     }
-
+    
     /**
      * Check whether the uri is ever used as subject. 
      * @param conn connection with the repository
@@ -72,7 +70,7 @@ public class ResourceUtils {
      * @return true if the uri is ever used as subject.
      */
     public static boolean isSubject(RepositoryConnection conn, String uri) {
-        return isSubject(conn, conn.getValueFactory().createURI(uri));
+    	return isSubject(conn, conn.getValueFactory().createURI(uri));
     }
 
     /**
@@ -81,9 +79,9 @@ public class ResourceUtils {
      * @param uri the {@link Resource} to check
      * @return true if the {@link Resource} is ever used as subject.
      */
-    public static boolean isSubject(RepositoryConnection conn, final Resource rsc) {
-        return existsStatement(conn, rsc, null, null);
-    }
+	public static boolean isSubject(RepositoryConnection conn, final Resource rsc) {
+		return existsStatement(conn, rsc, null, null, null);
+	}
 
     /**
      * Check whether the uri is ever used as predicate. 
@@ -91,41 +89,41 @@ public class ResourceUtils {
      * @param uri uri of the resource to check
      * @return true if the uri is ever used as predicate.
      */
-    public static boolean isPredicate(RepositoryConnection conn, final String uri) {
-        return isPredicate(conn, conn.getValueFactory().createURI(uri));
-    }
-
+	public static boolean isPredicate(RepositoryConnection conn, final String uri) {
+		return isPredicate(conn, conn.getValueFactory().createURI(uri));
+	}
+	
     /**
      * Check whether the {@link URI} is ever used as predicate. 
      * @param conn connection with the repository
      * @param uri the {@link URI} to check
      * @return true if the {@link URI} is ever used as predicate.
      */
-    public static boolean isPredicate(RepositoryConnection conn, final URI uri) {
-        return existsStatement(conn, null, uri, null);
-    }
+	public static boolean isPredicate(RepositoryConnection conn, final URI uri) {
+		return existsStatement(conn, null, uri, null, null);
+	}
 
-    /**
+	   /**
      * Check whether the uri is ever used as object. 
      * @param conn connection with the repository
      * @param uri uri of the resource to check
      * @return true if the uri is ever used as predicate.
      */
-    public static boolean isObject(RepositoryConnection conn, final String uri) {
-        return isObject(conn, conn.getValueFactory().createURI(uri));
-    }
-
+	public static boolean isObject(RepositoryConnection conn, final String uri) {
+		return isObject(conn, conn.getValueFactory().createURI(uri));
+	}
+	
     /**
      * Check whether the {@link Value} is ever used as object. 
      * @param conn connection with the repository
      * @param val {@link Value} to check
      * @return true if the {@link Value} is ever used as predicate.
      */
-    public static boolean isObject(RepositoryConnection conn, final Value val) {
-        return existsStatement(conn, null, null, val);
-    }
+	public static boolean isObject(RepositoryConnection conn, final Value val) {
+		return existsStatement(conn, null, null, val, null);
+	}
 
-
+	
     /**
      * Check whether the uri is ever used as context. 
      * @param conn connection with the repository
@@ -133,7 +131,7 @@ public class ResourceUtils {
      * @return true if the uri is ever used as context.
      */
     public static boolean isContext(RepositoryConnection conn, String uri) {
-        return isContext(conn, conn.getValueFactory().createURI(uri));
+    	return isContext(conn, conn.getValueFactory().createURI(uri));
     }
 
     /**
@@ -142,46 +140,51 @@ public class ResourceUtils {
      * @param rsc the {@link Resource} to check
      * @return true if the {@link Resource} is ever used as context.
      */
-    public static boolean isContext(RepositoryConnection conn, Resource rsc) {
-        return existsStatement(conn, null, null, null, rsc);
-    }
-
-    /**
-     * Check whether the {@link Resource} is used in any statement.
-     * Checks if the provided {@link Resource} is used as
-     * <ol>
-     * <li>subject
-     * <li>context
-     * <li>object
-     * <li>predicate (if the resource is a {@link URI})
-     * </ol>
-     * @param conn {@link ResourceConnection} to check on
-     * @param rsc the {@link Resource} to check
-     * @return true if the {@link Resource} is ever used in a {@link Statement}
-     */
-    public static boolean isUsed(RepositoryConnection conn, Resource rsc) {
-        if (isSubject(conn, rsc) || isContext(conn, rsc) || isObject(conn, rsc)) return true;
-        if (rsc instanceof URI && isPredicate(conn, (URI) rsc)) return true;
-        return false;
-    }
-
-    /**
-     * Check for the existence of a {@link Statement} with the provided constraints. <code>null</code> is a wildcard.
-     * <br>This is a convenience method and does not really fit whith <em>Resource</em>Utils.
-     *
-     * @param conn the {@link org.apache.marmotta.commons.sesame.repository.ResourceConnection} to check on
-     * @param subj the subject of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @param pred the predicate of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @param object the object of the {@link org.openrdf.model.Statement} or <code>null</code> for a wildcard.
-     * @return true if a {@link Statement} with the provided constraints exists.
-     */
-    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ... context) {
-        try {
-            return conn.hasStatement(subj,pred,object,true,context);
-        } catch (RepositoryException e) {
-            log.error(e.getMessage());
-            return false;
-        }
+	public static boolean isContext(RepositoryConnection conn, Resource rsc) {
+		return existsStatement(conn, null, null, null, rsc);
+	}
+	
+	/**
+	 * Check whether the {@link Resource} is used in any statement.
+	 * Checks if the provided {@link Resource} is used as
+	 * <ol>
+	 * <li>subject
+	 * <li>context
+	 * <li>object
+	 * <li>predicate (if the resource is a {@link URI})
+	 * </ol>
+	 * @param conn {@link ResourceConnection} to check on
+	 * @param rsc the {@link Resource} to check
+	 * @return true if the {@link Resource} is ever used in a {@link Statement}
+	 */
+	public static boolean isUsed(RepositoryConnection conn, Resource rsc) {
+		if (isSubject(conn, rsc) || isContext(conn, rsc) || isObject(conn, rsc)) return true;
+		if (rsc instanceof URI && isPredicate(conn, (URI) rsc)) return true;
+		return false;
+	}
+    
+	/**
+	 * Check for the existence of a {@link Statement} with the provided constraints. <code>null</code> is a wildcard.
+	 * <br>This is a convenience method and does not really fit whith <em>Resource</em>Utils. 
+	 * @param conn the {@link ResourceConnection} to check on
+	 * @param subj the subject of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @param pred the predicate of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @param object the object of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @param ctx the context of the {@link Statement} or <code>null</code> for a wildcard.
+	 * @return true if a {@link Statement} with the provided constraints exists.
+	 */
+    public static boolean existsStatement(RepositoryConnection conn, Resource subj, URI pred, Value object, Resource ctx) {
+    	try {
+    		RepositoryResult<Statement> stmts = conn.getStatements(subj, pred, object, true, ctx);
+    		try {
+    			return stmts.hasNext();
+    		} finally {
+    			stmts.close();
+    		}
+    	} catch (RepositoryException e) {
+    		log.error(e.getMessage());
+    		return false;
+    	}
     }
 
     /**
@@ -195,12 +198,12 @@ public class ResourceUtils {
      */
     @Deprecated
     public static URI getUriResource(RepositoryConnection con, String uri) {
-        URI rsc = con.getValueFactory().createURI(uri);
-        if (isUsed(con, rsc)) {
-            return rsc;
-        } else {
-            return null;
-        }
+    	URI rsc = con.getValueFactory().createURI(uri);
+    	if (isUsed(con, rsc)) {
+    		return rsc;
+    	} else {
+    		return null;
+    	}
     }
 
     /**
@@ -209,12 +212,12 @@ public class ResourceUtils {
      * @return
      */
     public static BNode getAnonResource(RepositoryConnection con, String id) {
-        final BNode bNode = con.getValueFactory().createBNode(id);
-        if (isUsed(con, bNode)) {
-            return bNode;
-        } else {
-            return null;
-        }
+    	final BNode bNode = con.getValueFactory().createBNode(id);
+    	if (isUsed(con, bNode)) {
+    		return bNode;
+    	} else {
+    		return null;
+    	}
     }
 
     /**
@@ -225,12 +228,16 @@ public class ResourceUtils {
      * @param resource
      */
     public static void removeResource(RepositoryConnection con, Resource resource) throws RepositoryException {
-        con.remove(resource,null,null);
-        if(resource instanceof URI) {
-            con.remove((Resource)null,(URI)resource,null);
+        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
+            ((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).removeResource(resource);
+        } else {
+            con.remove(resource,null,null);
+            if(resource instanceof URI) {
+                con.remove((Resource)null,(URI)resource,null);
+            }
+            con.remove((Resource)null,null,resource);
+            con.remove((Resource)null,null,null,resource);
         }
-        con.remove((Resource)null,null,resource);
-        con.remove((Resource)null,null,null,resource);
     }
 
     /**
@@ -241,15 +248,13 @@ public class ResourceUtils {
      *
      * @return
      */
-    public static Iterable<Resource> listResources(RepositoryConnection con) {
-        final ResourceConnection rcon = getWrappedResourceConnection(con);
-
-        if(rcon != null) {
+    public static Iterable<Resource> listResources(final RepositoryConnection con) {
+        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
             return new Iterable<Resource>() {
                 @Override
                 public Iterator<Resource> iterator() {
                     try {
-                        return ResultUtils.unwrap(rcon.getResources());
+                        return ResultUtils.unwrap(((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).getResources());
                     } catch (RepositoryException e) {
                         ExceptionUtils.handleRepositoryException(e,ResourceUtils.class);
                         return Iterators.emptyIterator();
@@ -257,22 +262,9 @@ public class ResourceUtils {
                 }
             };
         } else {
-            return listSubjectsInternal(con, null, null, null);
+            return listResourcesInternal(con,null,null,null);
         }
     }
-
-    /**
-     * List all resources contained in the KiWi System, regardless of knowledge space or type. Since this
-     * operation works directly on the triple store, there is no guarantee the result is free of duplicates.
-     * In case the underlying connection does not directly support listing resources (i.e. is not an instance of
-     * ResourceConnection), the method will iterate over all triples and return their subjects
-     *
-     * @return
-     */
-    public static Iterable<Resource> listSubjects(RepositoryConnection con) {
-        return listSubjectsInternal(con, null, null, null);
-    }
-
 
     /**
      * List all resources of a specific type in the KiWi system.
@@ -294,7 +286,37 @@ public class ResourceUtils {
     public static Iterable<Resource> listResources(final RepositoryConnection con, final Resource type, final URI context) {
         URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
 
-        return listSubjectsInternal(con, rdf_type, type, context);
+        return listResourcesInternal(con,rdf_type,type,context);
+    }
+
+    /**
+     * List all resources that have a specific property set to the given value
+     *
+     * @param propertyUri
+     * @param value  the literal value to query for
+     * @return
+     */
+    public static Iterable<Resource> listResourcesByProperty(final RepositoryConnection con, String propertyUri, String value) {
+        return listResourcesByProperty(con,propertyUri,value,null);
+    }
+
+    /**
+     * List all resources that have a specific property set to the given value and context
+     *
+     * @param propertyUri
+     * @param value  the literal value to query for
+     * @return
+     */
+    public static Iterable<Resource> listResourcesByProperty(final RepositoryConnection con, String propertyUri, String value, URI context) {
+        URI property = getUriResource(con,propertyUri);
+        Value object = con.getValueFactory().createLiteral(value);
+
+        if(property != null) {
+            return listResourcesInternal(con,property,object,context);
+        } else {
+            return Collections.emptySet();
+        }
+
     }
 
     /**
@@ -305,14 +327,12 @@ public class ResourceUtils {
      * @param limit
      */
     public static Iterable<URI> listResourcesByPrefix(final RepositoryConnection con, final String prefix, final int offset, final int limit) {
-        final ResourceConnection rcon = getWrappedResourceConnection(con);
-
-        if(rcon != null) {
+        if(con instanceof SailRepositoryConnection && ((SailRepositoryConnection)con).getSailConnection() instanceof ResourceConnection) {
             return new Iterable<URI>() {
                 @Override
                 public Iterator<URI> iterator() {
                     try {
-                        Iterator<URI> result = ResultUtils.unwrap(rcon.getResources(prefix));
+                        Iterator<URI> result = ResultUtils.unwrap(((ResourceConnection) ((SailRepositoryConnection) con).getSailConnection()).getResources(prefix));
 
                         Iterators.advance(result,offset);
 
@@ -342,14 +362,14 @@ public class ResourceUtils {
                                             return input instanceof URI && input.stringValue().startsWith(prefix);
                                         }
                                     }
-                            ),
-                            new Function<Resource, URI>() {
+                                    ),
+                                    new Function<Resource, URI>() {
                                 @Override
                                 public URI apply(Resource input) {
                                     return (URI)input;
                                 }
                             }
-                    );
+                            );
 
                     Iterators.advance(result,offset);
 
@@ -372,7 +392,7 @@ public class ResourceUtils {
         return listResourcesByPrefix(con,prefix,0,0);
     }
 
-    private static Iterable<Resource> listSubjectsInternal(final RepositoryConnection con, final URI property, final Value value, final URI context) {
+    private static Iterable<Resource> listResourcesInternal(final RepositoryConnection con, final URI property, final Value value, final URI context) {
         final Resource[] contexts;
         if(context != null) {
             contexts = new Resource[] { context };
@@ -393,7 +413,7 @@ public class ResourceUtils {
                                             return input.getSubject();
                                         }
                                     }),
-                            new Predicate<Resource>() {
+                                    new Predicate<Resource>() {
                                 // filter duplicates by remembering hash codes of visited resources
                                 private HashSet<Integer> visited = new HashSet<Integer>();
 
@@ -512,6 +532,31 @@ public class ResourceUtils {
 
     /**
      * Generic method to query for literal values related to this resource with the property
+     * identified by "propLabel" (SeRQL/SPARQL short or long notation) and the given locale. Just for the given space !!
+     *
+     * @param propLabel label of the property; either RDF short form (e.g. "foaf:mbox") or long form (e.g. <http://xmlns.com/foaf/0.1/mbox>)
+     * @return
+     *
+     */
+    public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel, URI context) throws RepositoryException {
+        return getProperties(con, r, propLabel, null, context);
+    }
+
+    /**
+     * Generic method to query for literal values related to this resource with the property
+     * identified by "propLabel" (SeRQL/SPARQL short or long notation) and the given locale.
+     *
+     * @param propLabel label of the property; either RDF short form (e.g. "foaf:mbox") or long
+     *                  form (e.g. <http://xmlns.com/foaf/0.1/mbox>)
+     * @param loc
+     * @return
+     */
+    public static Iterable<String> getProperties(RepositoryConnection con, Resource r, String propLabel, Locale loc) throws RepositoryException {
+        return getProperties(con, r, propLabel, loc, null);
+    }
+
+    /**
+     * Generic method to query for literal values related to this resource with the property
      * identified by "propLabel" (SeRQL/SPARQL short or long notation) and the given locale.
      * Just for the given space !!
      *
@@ -547,7 +592,7 @@ public class ResourceUtils {
                                 input.getLanguage() != null && input.getLanguage().equals(loc.getLanguage().toLowerCase());
                     }
                 }
-        );
+                );
     }
 
     /**
@@ -817,7 +862,7 @@ public class ResourceUtils {
                         return input.getObject();
                     }
                 }
-        );
+                );
     }
 
 
@@ -1005,7 +1050,7 @@ public class ResourceUtils {
                         return input.getSubject();
                     }
                 }
-        );
+                );
     }
 
 
@@ -1061,8 +1106,8 @@ public class ResourceUtils {
      */
     public static String getLabel(RepositoryConnection con, Resource r, Locale loc, URI context) throws RepositoryException {
         String label = null;
-        // check rdfs:label, dct:title, dc:title, skos:prefLabel in this order ...
-        String[] properties = { Namespaces.NS_RDFS+"label", Namespaces.NS_DC_TERMS+"title", Namespaces.NS_DC+"title", Namespaces.NS_SKOS+"prefLabel" };
+        // check kiwi:title, rdfs:label, dc:title in this order ...
+        String[] properties = { Namespaces.NS_RDFS+"label", Namespaces.NS_DC+"title", Namespaces.NS_DC_TERMS+"title", Namespaces.NS_SKOS+"prefLabel" };
 
         for(String property : properties) {
             label = getProperty(con, r,property,loc,context);
@@ -1188,14 +1233,14 @@ public class ResourceUtils {
                                     return input.getObject() instanceof Resource;
                                 }
                             }
-                    ),
-                    new Function<Statement, Resource>() {
+                            ),
+                            new Function<Statement, Resource>() {
                         @Override
                         public Resource apply(Statement input) {
                             return (Resource)input.getObject();
                         }
                     }
-            );
+                    );
         } else {
             return Collections.emptyList();
         }
@@ -1233,11 +1278,7 @@ public class ResourceUtils {
             URI rdf_type = con.getValueFactory().createURI(Namespaces.NS_RDF + "type");
 
             if(rdf_type != null) {
-                if(context != null) {
-                    return con.hasStatement(r,rdf_type,type,true,context);
-                } else {
-                    return con.hasStatement(r,rdf_type,type,true);
-                }
+                return con.hasStatement(r,rdf_type,type,true,context);
             }
         }
         return false;
@@ -1251,7 +1292,7 @@ public class ResourceUtils {
      * in all provided contexts.
      * <p/>
      * If no context is provided, the type is added without context information.
-     *
+     * 
      * @param con the Connection to use
      * @param r the Resource
      * @param type the Type (the Object of the triple)
@@ -1300,7 +1341,7 @@ public class ResourceUtils {
      * Check whether the provided argument is a Resource (an URI or BNode).
      * <p/>
      * Equivalent to <code>(v instanceof Resource)</code>.
-     *
+     * 
      * @param v
      *            the Value to check.
      * @return <code>true</code> if it is a {@link Resource}
@@ -1313,7 +1354,7 @@ public class ResourceUtils {
      * Check whether the provided argument is an URI.
      * <p/>
      * Equivalent to <code>(v instanceof URI)</code>.
-     *
+     * 
      * @param v
      *            the Value to check.
      * @return <code>true</code> if it is a {@link URI}
@@ -1326,7 +1367,7 @@ public class ResourceUtils {
      * Check whether the provided argument is a BNode.
      * <p/>
      * Equivalent to <code>(v instanceof BNode)</code>.
-     *
+     * 
      * @param v
      *            the Value to check.
      * @return <code>true</code> if it is a {@link BNode}
@@ -1339,7 +1380,7 @@ public class ResourceUtils {
      * Check whether the provided argument is a Literal.
      * <p/>
      * Equivalent to <code>(v instanceof Literal)</code>.
-     *
+     * 
      * @param v
      *            the Value to check.
      * @return <code>true</code> if it is a {@link Literal}
@@ -1347,25 +1388,5 @@ public class ResourceUtils {
     public static boolean isLiteral(Value v) {
         return v instanceof Literal;
     }
-
-
-    private static ResourceConnection getWrappedResourceConnection(SailConnection connection) {
-        if(connection instanceof ResourceConnection) {
-            return (ResourceConnection)connection;
-        } else if(connection instanceof SailConnectionWrapper) {
-            return getWrappedResourceConnection(((SailConnectionWrapper) connection).getWrappedConnection());
-        } else {
-            return null;
-        }
-
-    }
-
-    private static ResourceConnection getWrappedResourceConnection(RepositoryConnection connection) {
-        if(connection instanceof SailRepositoryConnection) {
-            return getWrappedResourceConnection(((SailRepositoryConnection) connection).getSailConnection());
-        } else {
-            return null;
-        }
-    }
-
+    
 }

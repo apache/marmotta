@@ -184,7 +184,7 @@ public class LdapFoafProvider implements DataProvider {
 
                 }
 
-                final ClientResponse resp = new ClientResponse(200, rep);
+                final ClientResponse resp = new ClientResponse(rep);
                 resp.setExpires(new Date());
                 return resp;
 

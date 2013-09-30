@@ -139,18 +139,17 @@ public class Endpoint implements Comparable<Endpoint> {
     private Map<String,String> properties;
 
     public Endpoint() {
-        this.active = true;
-        this.contentTypes = new HashSet<ContentType>();
-        this.properties = new HashMap<String, String>();    	
     }
 
     public Endpoint(String name, String type, String uriPattern, String endpointUrl, Long defaultExpiry) {
-    	this();
         this.name = name;
         this.type = type;
         this.uriPattern = uriPattern;
         this.endpointUrl = endpointUrl;
+        this.contentTypes = new HashSet<ContentType>();
         this.defaultExpiry = defaultExpiry;
+        this.active = true;
+        this.properties = new HashMap<String, String>();
     }
 
     public Endpoint(String name, String type, String uriPattern, String endpointUrl, String contentType, Long defaultExpiry) {

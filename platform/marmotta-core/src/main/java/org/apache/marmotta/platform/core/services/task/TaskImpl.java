@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.core.services.task;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 
+
 class TaskImpl extends Task {
 
     private static final String WAITING_DETAIL = "Waiting in status";
@@ -48,5 +49,4 @@ class TaskImpl extends Task {
     public void subTaskEnded() {
         updateMessage(detailMessages.remove(WAITING_DETAIL));
     }
-    
 }

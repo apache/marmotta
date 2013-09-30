@@ -37,15 +37,21 @@ import java.util.TimeZone;
 public class DateUtils {
 
 
-    public static final SimpleDateFormat ISO8601FORMAT = createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", "UTC");
+    public static final SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-    public static final SimpleDateFormat ISO8601FORMAT_TIME = createDateFormat("HH:mm:ss.SSS'Z'", "UTC");
-    public static final SimpleDateFormat ISO8601FORMAT_DATE  = createDateFormat("yyyy-MM-dd", "UTC");
+    public static final SimpleDateFormat ISO8601FORMAT_TIME = new SimpleDateFormat("HH:mm:ss.SSS'Z'");
+    public static final SimpleDateFormat ISO8601FORMAT_DATE  = new SimpleDateFormat("yyyy-MM-dd");
 
-    public static final SimpleDateFormat FILENAME_FORMAT     = createDateFormat("yyyyMMdd-HHmmss", null);
+    public static final SimpleDateFormat FILENAME_FORMAT     = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
 
-    public static final SimpleDateFormat GMTFORMAT = createDateFormat("EEE, dd MMM yyyy HH:mm:ss z", "GMT");
+    public static final SimpleDateFormat GMTFORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", new DateFormatSymbols(Locale.US));
+    static {
+        ISO8601FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+        ISO8601FORMAT_TIME.setTimeZone(TimeZone.getTimeZone("UTC"));
+        ISO8601FORMAT_DATE.setTimeZone(TimeZone.getTimeZone("UTC"));
+        GMTFORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     /**
      * Some parsers will have the date as a ISO-8601 string
@@ -56,36 +62,29 @@ public class DateUtils {
      *  property.
      */
     private static final DateFormat[] iso8601InputFormats = new DateFormat[] {
+        // GMT
+        createDateFormat("EEE, dd MMM yyyy HH:mm:ss'Z'","GMT"),
+        GMTFORMAT,
 
         // yyyy-mm-ddThh...
-        ISO8601FORMAT,
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", null),
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC"),
+        createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ",null),
+        createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", "UTF"),
         createDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", null),    // With timezone
         createDateFormat("yyyy-MM-dd'T'HH:mm:ss", null),     // Without timezone
         // yyyy-mm-dd hh...
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'", "UTC"), // UTC/Zulu
+        createDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'", "UTF"), // UTC/Zulu
         createDateFormat("yyyy-MM-dd' 'HH:mm:ssZ", null),    // With timezone
         createDateFormat("yyyy-MM-dd' 'HH:mm:ss.SZ", null),    // With timezone
         createDateFormat("yyyy-MM-dd' 'HH:mm:ss", null),     // Without timezone
-        
-        // GMT
-        GMTFORMAT,
-        createDateFormat("EEE, dd MMM yyyy HH:mm:ss'Z'", "GMT"),
-        
-        // Some more date formats
         createDateFormat("EEE MMM dd HH:mm:ss z yyyy", null),     // Word documents
         createDateFormat("EEE MMM d HH:mm:ss z yyyy", null),     // Word documents
         createDateFormat("dd.MM.yyy' 'HH:mm:ss", null),     // German
         createDateFormat("dd.MM.yyy' 'HH:mm", null),     // German
-        
-        // SES-711 (see https://openrdf.atlassian.net/browse/SES-711)
-        ISO8601FORMAT_DATE,
     };
 
-    private static SimpleDateFormat createDateFormat(String format, String timezone) {
+    private static DateFormat createDateFormat(String format, String timezone) {
         SimpleDateFormat sdf =
-                new SimpleDateFormat(format, DateFormatSymbols.getInstance(Locale.US));
+                new SimpleDateFormat(format, new DateFormatSymbols(Locale.US));
         if (timezone != null) {
             sdf.setTimeZone(TimeZone.getTimeZone(timezone));
         }

@@ -34,8 +34,6 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.sail.SailRepositoryConnection;
-import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.StackableSail;
 import org.slf4j.Logger;
@@ -74,33 +72,33 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
 
     private SesameFilter<Statement> filter;
 
-    /**
-     * Build a new {@link KiWiVersioningSail} based on the provided parent
-     * {@link TransactionalSail}.
-     *
-     * @param parent
-     *            the {@link TransactionalSail} to base the
-     *            {@link KiWiVersioningSail} on.
-     */
+	/**
+	 * Build a new {@link KiWiVersioningSail} based on the provided parent
+	 * {@link TransactionalSail}.
+	 * 
+	 * @param parent
+	 *            the {@link TransactionalSail} to base the
+	 *            {@link KiWiVersioningSail} on.
+	 */
     public KiWiVersioningSail(TransactionalSail parent) {
         this(parent,new AlwaysTrueFilter<Statement>());
     }
 
-    /**
-     * Build a new selective {@link KiWiVersioningSail} based on the provided
-     * parent {@link TransactionalSail}. Only {@link Statement}s that are
-     * accepted by the filter are included in versioning.
-     *
-     * @param parent
-     *            the {@link TransactionalSail} to base the
-     *            {@link KiWiVersioningSail} on.
-     * @param filter
-     *            a {@link SesameFilter} to filter out {@link Statement}s that
-     *            should not be versioned. Only a {@link Statement} that is
-     *            accepted by this filter will be versioned.
-     *
-     * @see SesameFilter#accept(Object)
-     */
+	/**
+	 * Build a new selective {@link KiWiVersioningSail} based on the provided
+	 * parent {@link TransactionalSail}. Only {@link Statement}s that are
+	 * accepted by the filter are included in versioning.
+	 * 
+	 * @param parent
+	 *            the {@link TransactionalSail} to base the
+	 *            {@link KiWiVersioningSail} on.
+	 * @param filter
+	 *            a {@link SesameFilter} to filter out {@link Statement}s that
+	 *            should not be versioned. Only a {@link Statement} that is
+	 *            accepted by this filter will be versioned.
+	 * 
+	 * @see SesameFilter#accept(Object)
+	 */
     public KiWiVersioningSail(TransactionalSail parent, SesameFilter<Statement> filter) {
         super(parent);
         this.persistence = new KiWiVersioningPersistence(getBaseStore().getPersistence());
@@ -318,80 +316,12 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         }
     }
 
-
-    /**
-     * Remove the version with the id passed as argument, including all references to added and removed triples. The
-     * triples themselves are not deleted immediately, we let the garbage collector carry this out periodically.
-     * @param id  the database ID of the version (see {@link Version#getId()})
-     * @throws SailException
-     */
-    public void removeVersion(Long id) throws SailException {
-        try {
-            final KiWiVersioningConnection connection = persistence.getConnection();
-            try {
-                connection.removeVersion(id);
-                connection.commit();
-            } finally {
-                connection.close();
-            }
-
-        } catch(SQLException ex) {
-            throw new SailException("database error while listing versions",ex);
-        }
-    }
-
-    /**
-     * Remove all versions until the date given as argument. Iterates over all versions and deletes them individually.
-     * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
-     * without version will later be cleaned up by the garbage collector
-     * @param until date until when to delete versions
-     * @throws SailException
-     */
-    public void removeVersions(Date until) throws SailException {
-        try {
-            final KiWiVersioningConnection connection = persistence.getConnection();
-            try {
-                connection.removeVersions(until);
-                connection.commit();
-            } finally {
-                connection.close();
-            }
-
-        } catch(SQLException ex) {
-            throw new SailException("database error while listing versions",ex);
-        }
-    }
-
-
-    /**
-     * Remove all versions in the given time interval. Iterates over all versions and deletes them individually.
-     * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
-     * without version will later be cleaned up by the garbage collector
-     * @param from date after which versions will be deleted
-     * @param to   date before which versions will be deleted
-     * @throws SailException
-     */
-    public void removeVersions(Date from, Date to) throws SailException {
-        try {
-            final KiWiVersioningConnection connection = persistence.getConnection();
-            try {
-                connection.removeVersions(from, to);
-                connection.commit();
-            } finally {
-                connection.close();
-            }
-
-        } catch(SQLException ex) {
-            throw new SailException("database error while listing versions",ex);
-        }
-    }
-
     /**
      * Return the version that is the most recent version for a resource given a reference date. The method will either
      * return the version that was current for the resource at the given date or return null in case such a version
      * does not exist (e.g. before the resource was created).
      *
-     * @param r         the resource for which to find a version
+     * @param resource  the resource for which to find a version
      * @param date      the reference date
      * @return the latest version of the resource at the given date, or null if such a version does not exist
      * @throws SQLException
@@ -475,32 +405,6 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         }
     }
 
-    /**
-     * Revert (undo) the version given as argument. This method creates a new transaction, adds all triples
-     * that were deleted in the old version, removes all triples that were added in the old version, and commits
-     * the transaction, effectively creating a new (reverted) version.
-     *
-     * @param version    the version to revert
-     * @throws SailException in case reverting the version failed
-     */
-    public void revertVersion(Version version) throws SailException {
-        SailConnection con = getConnection();
-        try {
-            con.begin();
-
-            for(Statement stmt : version.getAddedTriples()) {
-                con.removeStatements(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), stmt.getContext());
-            }
-
-            for(Statement stmt : version.getRemovedTriples()) {
-                con.addStatement(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), stmt.getContext());
-            }
-
-            con.commit();
-        } finally {
-            con.close();
-        }
-    }
 
 
     @Override

@@ -65,7 +65,11 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
             producedTypes.addAll(format.getMIMETypes());
         }
         log.info(" - available writers: {}", Arrays.toString(producedTypes.toArray()));
+
+
+
     }
+
 
 	/**
 	 * returns a list of all mimetypes which can be parsed by implemented parsers
@@ -104,5 +108,4 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	public RDFFormat getParser(String mimetype) {
 		return parserRegistry.getFileFormatForMIMEType(mimetype);
 	}
-	
 }

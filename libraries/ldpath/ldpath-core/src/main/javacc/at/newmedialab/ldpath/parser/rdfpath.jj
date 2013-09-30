@@ -26,7 +26,7 @@ options
 //  DEBUG_LOOKAHEAD=true;
 }
 
-PARSER_BEGIN(LdPathParser)
+PARSER_BEGIN(RdfPathParser)
 package org.apache.marmotta.ldpath.parser;
 
 import org.apache.marmotta.ldpath.model.Constants;
@@ -47,7 +47,6 @@ import org.apache.marmotta.ldpath.model.transformers.*;
 
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,12 +64,12 @@ import org.slf4j.LoggerFactory;
 
 
 @SuppressWarnings("all")
-public class LdPathParser<Node> {
+public class RdfPathParser<Node> {
 
         private enum Mode { RULE, SELECTOR, TEST, PROGRAM, PREFIX };
 
 
-        private static final Logger log = LoggerFactory.getLogger(LdPathParser.class);
+        private static final Logger log = LoggerFactory.getLogger(RdfPathParser.class);
 
         /**
          * A map mapping from namespace prefix to namespace URI
@@ -83,11 +82,11 @@ public class LdPathParser<Node> {
 
         private Mode mode = Mode.PROGRAM;
 
-        public LdPathParser(NodeBackend<Node> backend, Reader in) {
+        public RdfPathParser(NodeBackend<Node> backend, Reader in) {
             this(backend,null,in);
         }
 
-        public LdPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
+        public RdfPathParser(NodeBackend<Node> backend, Configuration config, Reader in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -99,11 +98,11 @@ public class LdPathParser<Node> {
             initialise();
         }
 
-        public LdPathParser(NodeBackend<Node> backend, InputStream in) {
+        public RdfPathParser(NodeBackend<Node> backend, InputStream in) {
             this(backend,null,in);
         }
 
-        public LdPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
+        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in) {
             this(in);
             this.backend = backend;
             if(config == null) {
@@ -115,11 +114,11 @@ public class LdPathParser<Node> {
             initialise();
         }
 
-        public LdPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
+        public RdfPathParser(NodeBackend<Node> backend, InputStream in, String encoding) {
             this(backend,null,in,encoding);
         }
 
-        public LdPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
+        public RdfPathParser(NodeBackend<Node> backend, Configuration config, InputStream in, String encoding) {
             this(in,encoding);
             this.backend = backend;
             if(config == null) {
@@ -212,15 +211,10 @@ public class LdPathParser<Node> {
             }
         }
 
-        public Node resolveURI(URI uri) {            return backend.createURI(uri.toString());
-        }
 
-        public Node resolveResource(String uri) throws ParseException {
+        public Node resolveResource(String uri) {
             return backend.createURI(uri);
         }
-
-        public Node resolveResource(String prefix, String local) throws ParseException {
-            return resolveResource(resolveNamespace(prefix)+local);        }
 
 
         public String resolveNamespace(String prefix) throws ParseException {
@@ -246,14 +240,6 @@ public class LdPathParser<Node> {
             } else {
                 throw new ParseException("test function with URI "+uri+" does not exist");
             }
-        }
-
-        public NodeTransformer<?,Node> getTransformer(URI type) throws ParseException {
-            return getTransformer(type.toString());
-        }
-
-        public NodeTransformer<?,Node> getTransformer(Node node) throws ParseException {
-            return getTransformer(backend.stringValue(node));
         }
 
         public NodeTransformer<?,Node> getTransformer(String uri) throws ParseException {
@@ -303,7 +289,7 @@ public class LdPathParser<Node> {
 
 
         private Map<String, SelectorFunction<Node>> xsdNodeFunctionMap;
-        private Map<String, TestFunction<Node>> xsdNodeTestMap;
+    private Map<String, TestFunction<Node>> xsdNodeTestMap;
         private void initFunctionMappings() {
             Map<String, SelectorFunction<Node>> functionMap = new HashMap<String, SelectorFunction<Node>>();
 
@@ -347,7 +333,7 @@ public class LdPathParser<Node> {
         }
 
 }
-PARSER_END(LdPathParser)
+PARSER_END(RdfPathParser)
 
 SKIP :
 {
@@ -388,49 +374,20 @@ MORE:
 }
 
 
-TOKEN : /* LDPATH */
-{
-  < COMMA:  "," >  |
-  < SCOLON: ";" >  |
-  < COLON:  ":" >  |
-  < DCOLON: "::" > |
-  < ASSIGN: "=" >  |
-  < K_PREFIX: "@prefix" > |
-  < K_FILTER: "@filter" > |
-  < K_BOOST:  "@boost" >  |
-  < K_GRAPH:  "@graph" >
-}
 TOKEN : /* OPERATORS */
 {
-    < SELF: "." >    |
 	< AND:  "&" >    |
 	< OR:   "|" >    |
-    < P_SEP:"/" >    |
-    < PLUS: "+" >    |
-    < STAR: "*" >    |
 	< NOT:  "!" >    |
-    < INVERSE: "^" > |
 	< IS:   "is" >   |
 	< IS_A: "is-a" > |
-    < FUNC: "fn:" >  |
   	< TYPE: "^^" >   |
   	< LANG: "@" >
 }
 
-TOKEN : /* BRACKETS */
-{
-  < B_RO: "(" > |
-  < B_RC: ")" > |
-  < B_SO: "[" > |
-  < B_SC: "]" > |
-  < B_CO: "{" > |
-  < B_CC: "}" > |
-  < B_XO: "<" > |
-  < B_XC: ">" > 
-}
 TOKEN :
 {
-    < URI: "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ ">" > |
+    < URI: ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","+","-","."])* "://"  (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+ ("#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])*)? | "#" (["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"])+> |
     < IDENTIFIER: ["a"-"z","A"-"Z","0"-"9","_"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])* > |
     < #URICHAR: ["a"-"z","A"-"Z","0"-"9",";","/","?",":","@","&","=","+","$",".","-","_","!","~","*","'","%"] >
 }
@@ -458,9 +415,9 @@ Entry<String, String> Namespace() :
 }
 {
   ( 
-    <K_PREFIX> id = <IDENTIFIER> <COLON> uri = <URI> (<SCOLON> )? {
+    "@prefix" id = <IDENTIFIER> ":" "<" uri = <URI> ">" (";")? {
     }
-  ) { return new Namespace(id.image, uri.image.substring(1,uri.image.length()-1)); }
+  ) { return new Namespace(id.image, uri.image); }
 }
 
 Program Program() :
@@ -470,7 +427,6 @@ Program Program() :
     Map<String, String> nss = null;
     FieldMapping<?,Node> rule;
     NodeSelector<Node> boostSelector;
-    LinkedList<Node> graphs;
 }
 {
   (
@@ -483,21 +439,15 @@ Program Program() :
   )?
 
   (
-    <K_GRAPH> graphs = UriList() <SCOLON> {
-      program.setGraphs(graphs);
-    }
-  )?
-
-  (
-    <K_FILTER> filter = NodeTest() <SCOLON> {
+    "@filter" filter = NodeTest() ";" {
         program.setFilter(filter);
     }
   )?
 
   (
-    <K_BOOST> boostSelector = Selector() <SCOLON> {
+    "@boost" boostSelector = Selector() ";" {
     	NodeTransformer transformer = getTransformer(Program.DOCUMENT_BOOST_TYPE);
-		FieldMapping booster = new FieldMapping("@boost", java.net.URI.create(Program.DOCUMENT_BOOST_TYPE), boostSelector, transformer, null);
+		FieldMapping booster = new FieldMapping("@boost", Program.DOCUMENT_BOOST_TYPE, boostSelector, transformer, null);
 		program.setBooster(booster);  
     }
   )?
@@ -514,32 +464,18 @@ Program Program() :
   }
 }
 
-LinkedList<Node> UriList() :
-{
-    LinkedList<Node> rest = null;
-    URI uri;
-}
-{
-    uri = Uri() ( <COMMA> rest = UriList() )?
-    {
-      if (rest == null) rest = new LinkedList<Node>();
-      rest.addFirst(resolveURI(uri));
-      return rest;
-    }
-}
-
 FieldMapping Rule() :
 {
     FieldMapping<?,Node> rule;
     Token name;
-    URI uri;
-    URI type = null;
+    String uri;
+    String type = null;
     NodeSelector<Node> selector;
     NodeTransformer<?,Node> transformer;
     Map<String, String> conf = null;
 }
 {
-    name = <IDENTIFIER> <ASSIGN> selector = Selector() (<DCOLON> type = Uri())? (<B_RO> conf = FieldConfig() <B_RC>)? <SCOLON> {
+    name = <IDENTIFIER> "=" selector = Selector() ("::" type = Uri())? ("(" conf = FieldConfig() ")")? ";" {
         if(type != null) {
             transformer = getTransformer(type);
         } else {
@@ -551,7 +487,7 @@ FieldMapping Rule() :
         rule = new FieldMapping(name.image,type,selector,transformer, conf);
         return rule;
     }
-|   uri = Uri() <ASSIGN> selector = Selector() (<DCOLON> type = Uri())? (<B_RO> conf = FieldConfig() <B_RC>)? <SCOLON> {
+|   uri = Uri() "=" selector = Selector() ("::" type = Uri())? ("(" conf = FieldConfig() ")")? ";" {
         if(type != null) {
             transformer = getTransformer(type);
         } else {
@@ -563,7 +499,7 @@ FieldMapping Rule() :
         rule = new FieldMapping(uri,type,selector,transformer, conf);
         return rule;
     }
-|   selector = Selector() (<DCOLON> type = Uri())? (<B_RO> conf = FieldConfig() <B_RC>)? (<SCOLON>)? {
+|   selector = Selector() ("::" type = Uri())? ("(" conf = FieldConfig() ")")? (";")? {
         if(type != null) {
             transformer = getTransformer(type);
         } else {
@@ -595,7 +531,7 @@ Map<String,String> FieldConfig() : {
 	Map<String,String> more = null;
 }
 {
-	( key = <IDENTIFIER> <ASSIGN> val = ConfVal() ( <COMMA> more = FieldConfig() )? )? {
+	( key = <IDENTIFIER> "=" val = ConfVal() ("," more = FieldConfig() )? )? {
 		if (key == null || val == null) return null;
 		conf.put(key.image, val);
 		if (more != null) {
@@ -613,16 +549,16 @@ String ConfVal() : {
 |	id = <IDENTIFIER> { return id.image; }
 }
 
-URI Uri() : {
+String Uri() : {
     Token uri, prefix, localName;
 
 }
 {
-    uri = <URI> {
-       return java.net.URI.create(uri.image.substring(1,uri.image.length()-1));
+    "<" uri = <URI> ">" {
+       return uri.image;
     }
 |   prefix = <IDENTIFIER> ":" localName = <IDENTIFIER> {
-        return java.net.URI.create(resolveNamespace(prefix.image)+localName.image);
+        return resolveNamespace(prefix.image)+localName.image;
     }
 }
 
@@ -742,7 +678,7 @@ NodeSelector SelfSelector() :
 {
 }
 {
-	<SELF> { return new SelfSelector(); }
+	"." { return new SelfSelector(); }
 }
 
 NodeSelector GroupedSelector() :
@@ -751,9 +687,9 @@ NodeSelector GroupedSelector() :
 }
 {
     /* Other selector enclosed in braces */
-    <B_RO> result = Selector() <B_RC>
+    "(" result = Selector() ")"
     {
-        return new GroupedSelector(result);
+        return result;
     }
 
 }
@@ -764,12 +700,12 @@ RecursivePathSelector RecursivePathSelector() :
 	NodeSelector delegate        = null;
 }
 {
-	<B_RO> delegate = Selector() <B_RC> <PLUS>	
+	"(" delegate = Selector() ")" "+"
 	{
 		result = RecursivePathSelector.getPathSelectorPlused(delegate);
 		return result;
 	} |
-    <B_RO> delegate = Selector() <B_RC> <STAR>
+    "(" delegate = Selector() ")" "*"
     {
         result = RecursivePathSelector.getPathSelectorStared(delegate);
         return result;
@@ -783,7 +719,7 @@ PathSelector PathSelector() :
     NodeSelector right  = null;
 }
 {
-    left = AtomicOrTestingSelector() <P_SEP> right = AtomicOrTestingOrPathSelector()
+    left = AtomicOrTestingSelector() "/" right = AtomicOrTestingOrPathSelector()
     {
         result = new PathSelector(left,right);
         return result;
@@ -797,7 +733,7 @@ IntersectionSelector IntersectionSelector() :
     NodeSelector right  = null;
 }
 {
-    left = AtomicOrTestingOrPathSelector() <AND> right = Selector()
+    left = AtomicOrTestingOrPathSelector() "&" right = Selector()
     {
         result = new IntersectionSelector(left,right);
         return result;
@@ -811,7 +747,7 @@ UnionSelector UnionSelector() :
     NodeSelector right  = null;
 }
 {
-    left = AtomicOrTestingOrPathSelector() <OR> right = Selector()
+    left = AtomicOrTestingOrPathSelector() "|" right = Selector()
     {
         result = new UnionSelector(left,right);
         return result;
@@ -825,7 +761,7 @@ TestingSelector TestingSelector() :
     NodeTest test = null;
 }
 {
-    delegate = AtomicSelector() <B_SO> test = NodeTest() <B_SC> {
+    delegate = AtomicSelector() "[" test = NodeTest() "]" {
         result = new TestingSelector(delegate,test);
         return result;
     }
@@ -834,11 +770,13 @@ TestingSelector TestingSelector() :
 ReversePropertySelector ReversePropertySelector() :
 {
 	ReversePropertySelector result = null;
-	URI uri;
+	Node property;
+    String uri;
 }
 {
-	<INVERSE> uri = Uri() {
-        result   = new ReversePropertySelector(resolveURI(uri));
+	"^" uri = Uri() {
+        property = resolveResource(uri);
+        result   = new ReversePropertySelector(property);
         return result;
 	}
 }
@@ -846,11 +784,13 @@ ReversePropertySelector ReversePropertySelector() :
 PropertySelector PropertySelector() :
 {
     PropertySelector result = null;
-    URI uri;
+    Node property;
+    String uri;
 }
 {
     uri = Uri() {
-        result   = new PropertySelector(resolveURI(uri));
+        property = resolveResource(uri);
+        result   = new PropertySelector(property);
         return result;
     }
 }
@@ -860,7 +800,7 @@ WildcardSelector WildcardSelector() :
     WildcardSelector result = null;
 }
 {
-    <STAR> {
+    "*" {
         result = new WildcardSelector();
         return result;
     }
@@ -877,22 +817,22 @@ FunctionSelector FunctionSelector() :
 {
     /* Function-Calls without arguments can skip parenthesis */
     /* Does not work... why?
-    <FUNC> fName = <IDENTIFIER> {
+    "fn:" fName = <IDENTIFIER> {
            uri = namespaces.get("fn") + fName.image;
            result = new FunctionSelector(getFunction(uri),Collections.emptyList());
            return result;
     } | */
     /* Functions do not need to have arguments */
-    <FUNC> fName = <IDENTIFIER> <B_RO> <B_RC> {
+    "fn:" fName = <IDENTIFIER> "(" ")" {
            uri = namespaces.get("fn") + fName.image;
            result = new FunctionSelector(getFunction(uri),Collections.emptyList());
            return result;
     } |
     /* Sometimes arguments are required */
-    <FUNC> fName = <IDENTIFIER> <B_RO>
+    "fn:" fName = <IDENTIFIER> "("
             argument = Selector() { arguments.add(argument); }
-            ( <COMMA> argument = Selector() { arguments.add(argument); } )*
-    <B_RC> {
+            ( "," argument = Selector() { arguments.add(argument); } )*
+    ")" {
            uri = namespaces.get("fn") + fName.image;
            result = new FunctionSelector(getFunction(uri),arguments);
            return result;
@@ -936,7 +876,7 @@ NodeTest GroupedTest() :
     NodeTest delegate;
 }
 {
-    <B_RO> delegate = NodeTest() <B_RC> {
+    "(" delegate = NodeTest() ")" {
        return delegate;
     }
 }
@@ -949,7 +889,7 @@ NodeTest AtomicNodeTest() :
     (
         result = LiteralLanguageTest()
     |   result = LiteralTypeTest()
-    |   result = IsATest()
+    |   result = TypeTest()
     |   result = PathEqualityTest()
     |   result = FunctionTest()
     |   result = PathTest()
@@ -971,20 +911,20 @@ FunctionTest FunctionTest() :
   (    
     /* Function-Calls without arguments can skip parenthesis */
     /* Does not work... why?
-    <FUNC> fName = <IDENTIFIER> {
+    "fn:" fName = <IDENTIFIER> {
            uri = namespaces.get("fn") + fName.image;
            result = new FunctionSelector(getTestFunction(uri),Collections.emptyList());
     } | */
     /* Functions do not need to have arguments */
-    <FUNC> fName = <IDENTIFIER> <B_RO> <B_RC> {
+    "fn:" fName = <IDENTIFIER> "(" ")" {
            uri = namespaces.get("fn") + fName.image;
            result = new FunctionTest(getTestFunction(uri),Collections.emptyList());
     } |
     /* Sometimes arguments are required */
-    <FUNC> fName = <IDENTIFIER> <B_RO>
+    "fn:" fName = <IDENTIFIER> "("
             argument = Selector() { arguments.add(argument); }
-            ( <COMMA> argument = Selector() { arguments.add(argument); } )*
-    <B_RC> {
+            ( "," argument = Selector() { arguments.add(argument); } )*
+    ")" {
            uri = namespaces.get("fn") + fName.image;
            result = new FunctionTest(getTestFunction(uri),arguments);
     }
@@ -999,17 +939,17 @@ LiteralLanguageTest LiteralLanguageTest():
     Token lang;
 }
 {
-    <LANG> lang = <IDENTIFIER> {
+    "@" lang = <IDENTIFIER> {
         return new LiteralLanguageTest(lang.image);
     }
 }
 
 LiteralTypeTest LiteralTypeTest():
 {
-    URI type;
+    String type;
 }
 {
-    <TYPE> type = Uri() {
+    "^^" type = Uri() {
         return new LiteralTypeTest(type);
     }
 }
@@ -1019,18 +959,18 @@ NotTest NotTest() :
     NodeTest delegate;
 }
 {
-    <NOT>  delegate = NodeTest() {
+    "!" delegate = NodeTest() {
         return new NotTest(delegate);
     }
 }
 
-IsATest IsATest() :
+PathEqualityTest TypeTest() :
 {
     Node node;
 }
 {
     <IS_A> node = Node() {
-        return new IsATest(resolveResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), node);
+        return new PathEqualityTest(new PropertySelector(resolveResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")), node);
     }
 }
 
@@ -1040,7 +980,7 @@ AndTest AndTest():
     NodeTest left, right;
 }
 {
-    left = AtomicNodeTest() <AND> right = NodeTest() {
+    left = AtomicNodeTest() "&" right = NodeTest() {
         return new AndTest(left,right);
     }
 }
@@ -1050,7 +990,7 @@ OrTest OrTest():
     NodeTest left, right;
 }
 {
-    left = AtomicNodeTest() <OR> right = NodeTest() {
+    left = AtomicNodeTest() "|" right = NodeTest() {
         return new OrTest(left,right);
     }
 }
@@ -1061,7 +1001,7 @@ PathEqualityTest PathEqualityTest():
     Node node;
 }
 {
-    path = Selector() <IS> node = Node() {
+    path = Selector() "is" node = Node() {
         return new PathEqualityTest(path,node);
     }
 }
@@ -1069,17 +1009,21 @@ PathEqualityTest PathEqualityTest():
 
 Node Node():
 {
-    URI uri, type = null;
+    String uri, type = null;
     Token literal, language;
 }
 {
     uri = Uri() {
-        return resolveURI(uri);
+        return resolveResource(uri);
     }
-|   literal = <STRLIT>  (<TYPE> type = Uri() )? {
-        return backend.createLiteral(literal.image.substring(1, literal.image.length()-1),null,type);
+|   literal = <STRLIT>  ("^^" type = Uri() )? {
+        try {
+            return backend.createLiteral(literal.image.substring(1, literal.image.length()-1),null,type == null ? null : new URI(type));
+        } catch(java.net.URISyntaxException ex) {
+            throw new ParseException("could not parse type URI "+type+": "+ex.getMessage());
+	    }
     }
-|   literal = <STRLIT>  <LANG> language = <IDENTIFIER> {
+|   literal = <STRLIT>  "@" language = <IDENTIFIER> {
         return backend.createLiteral(literal.image.substring(1, literal.image.length()-1),new Locale(language.image),null);
     }
 }

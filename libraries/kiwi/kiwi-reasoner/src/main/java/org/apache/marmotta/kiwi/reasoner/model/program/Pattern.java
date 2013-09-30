@@ -17,8 +17,6 @@
  */
 package org.apache.marmotta.kiwi.reasoner.model.program;
 
-import com.google.common.base.Objects;
-
 import java.util.Map;
 
 /**
@@ -95,23 +93,28 @@ public class Pattern  {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        if(! (o instanceof Pattern)) {
-            return false;
+        if(context == null && object == null && subject == null && property == null) {
+            return super.equals(o);
         }
 
         Pattern pattern = (Pattern) o;
 
-        if(!Objects.equal(this.context, pattern.context)) return false;
-        if(!Objects.equal(this.object, pattern.object)) return false;
-        if(!Objects.equal(this.property, pattern.property)) return false;
-        if(!Objects.equal(this.subject, pattern.subject)) return false;
+        if (context != null ? !context.equals(pattern.context) : pattern.context != null) return false;
+        if (object != null ? !object.equals(pattern.object) : pattern.object != null) return false;
+        if (property != null ? !property.equals(pattern.property) : pattern.property != null) return false;
+        if (subject != null ? !subject.equals(pattern.subject) : pattern.subject != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(subject, property, object, context);
+        int result = subject != null ? subject.hashCode() : 0;
+        result = 31 * result + (property != null ? property.hashCode() : 0);
+        result = 31 * result + (object != null ? object.hashCode() : 0);
+        result = 31 * result + (context != null ? context.hashCode() : 0);
+        return result;
     }
 }

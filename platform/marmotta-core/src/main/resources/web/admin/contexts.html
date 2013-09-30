@@ -59,7 +59,7 @@
 
             function deleteContext(uri, id) {
             	$.ajax({
-            	    url: "../../context?graph=" + encodeURIComponent(uri),
+            	    url: uri,
             	    type: "DELETE",
             	    success: function(result) {
             	    	alert("Context " + uri + " deleted!");

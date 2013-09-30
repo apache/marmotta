@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.template.model.freemarker.TemplateNodeModel;
@@ -51,7 +52,6 @@ public class TemplateEngine<Node> {
         this.backend = backend;
 
         freemarker = new Configuration();
-        freemarker.setDefaultEncoding("utf-8");
         freemarker.setObjectWrapper(new DefaultObjectWrapper());
 
 
@@ -77,7 +77,7 @@ public class TemplateEngine<Node> {
         freemarker.setServletContextForTemplateLoading(sctxt, path);
     }
 
-    public void setClassForTemplateLoading(Class<?> clazz, String pathPrefix) {
+    public void setClassForTemplateLoading(Class clazz, String pathPrefix) {
         freemarker.setClassForTemplateLoading(clazz, pathPrefix);
     }
 
@@ -109,26 +109,26 @@ public class TemplateEngine<Node> {
      * @throws IOException
      * @throws TemplateException
      */
-    public void processFileTemplate(Node context, String templateName, Map<String, ?> initialEnv,  Writer out) throws IOException, TemplateException {
+    public void processFileTemplate(Node context, String templateName, Map initialEnv,  Writer out) throws IOException, TemplateException {
         processTemplate(context,freemarker.getTemplate(templateName),initialEnv,out);
     }
 
 
-    private void processTemplate(Node context, Template template, Map<String, ?> initialEnv, Writer out) throws IOException, TemplateException {
-        Map<String, Object> root = new HashMap<>();
+    private void processTemplate(Node context, Template template, Map initialEnv, Writer out) throws IOException, TemplateException {
+        Map root = new HashMap();
 
         if(initialEnv != null) {
-            for(Map.Entry<String, ?> entry : initialEnv.entrySet()) {
+            for(Map.Entry entry : (Set<Map.Entry>) initialEnv.entrySet()) {
                 root.put(entry.getKey(), entry.getValue());
             }
         }
 
         root.put("namespace", new NamespaceDirective());
-        root.put("evalLDPath",new LDPathMethod<>(backend));
-        root.put("ldpath",new LDPathDirective<>(backend));
+        root.put("evalLDPath",new LDPathMethod(backend));
+        root.put("ldpath",new LDPathDirective(backend));
 
         TemplateStackModel contexts = new TemplateStackModel();
-        contexts.push(new TemplateNodeModel<>(context,backend));
+        contexts.push(new TemplateNodeModel(context,backend));
         root.put("context",contexts);
 
         template.process(root,out);

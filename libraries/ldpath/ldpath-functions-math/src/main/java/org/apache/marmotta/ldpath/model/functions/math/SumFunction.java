@@ -46,7 +46,7 @@ public class SumFunction<Node> extends MathFunction<Node> {
         return result;
     }
 
-    protected Node calc(RDFBackend<Node> backend, Collection<Node> arg) {
+    protected Node calc(NodeBackend<Node> backend, Collection<Node> arg) {
         /* SUM */
         Double d = 0d;
         for (Node n : arg) {

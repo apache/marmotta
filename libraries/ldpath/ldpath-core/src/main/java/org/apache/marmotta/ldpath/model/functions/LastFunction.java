@@ -27,7 +27,7 @@ import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 /**
  * Selects the <code>last</code> node in the argument list.
  * 
- * @author Jakob Frank <jakob@apache.org>
+ * @author jfrank
  * 
  */
 public class LastFunction<Node> extends SelectorFunction<Node> {
@@ -41,8 +41,7 @@ public class LastFunction<Node> extends SelectorFunction<Node> {
      * @return
      */
     @Override
-    @SafeVarargs
-    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         for (int i = args.length - 1; i >= 0; i--) {
             if (args[i].size() > 0) { return args[i]; }
         }

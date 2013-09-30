@@ -17,6 +17,17 @@
  */
 package org.apache.marmotta.platform.core.services.task;
 
+import org.apache.marmotta.platform.core.api.task.Task;
+import org.apache.marmotta.platform.core.api.task.TaskInfo;
+import org.apache.marmotta.platform.core.api.task.TaskManagerService;
+
+import org.apache.marmotta.commons.util.HashUtils;
+import org.slf4j.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Date;
@@ -26,36 +37,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.apache.marmotta.commons.util.HashUtils;
-import org.apache.marmotta.platform.core.api.task.Task;
-import org.apache.marmotta.platform.core.api.task.TaskInfo;
-import org.apache.marmotta.platform.core.api.task.TaskManagerService;
-import org.slf4j.Logger;
-
-import com.google.common.collect.MapMaker;
+import java.util.WeakHashMap;
 
 @ApplicationScoped
 public class TaskManagerServiceImpl implements TaskManagerService {
 
-    private static final String  DEFAULT_GROUP = "default";
+    private static final String                        DEFAULT_GROUP = "default";
 
-    private final ConcurrentMap<Thread, Stack<TaskImpl>> tasks;
+    private final WeakHashMap<Thread, Stack<TaskImpl>> tasks;
 
     private final ThreadWatchdog watchdog;
 
     @Inject
-    private Logger log;
+    private Logger                                     log;
 
     @Inject
     public TaskManagerServiceImpl() {
-        tasks = new MapMaker().makeMap();
+        tasks = new WeakHashMap<Thread, Stack<TaskImpl>>();
         watchdog = new ThreadWatchdog(15000);
     }
 

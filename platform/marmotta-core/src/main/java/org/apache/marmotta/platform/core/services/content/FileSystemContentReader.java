@@ -134,7 +134,6 @@ public class FileSystemContentReader implements ContentReader {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
-                conn.begin();
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
@@ -188,7 +187,6 @@ public class FileSystemContentReader implements ContentReader {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
-                conn.begin();
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
@@ -231,7 +229,6 @@ public class FileSystemContentReader implements ContentReader {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
-                conn.begin();
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
@@ -288,7 +285,6 @@ public class FileSystemContentReader implements ContentReader {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
-                conn.begin();
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();

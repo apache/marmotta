@@ -21,7 +21,6 @@ import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.SailException;
 
 /**
  * Offers access to the Sesame repository underlying this LMF instance. The activation/deactivation methods
@@ -84,12 +83,5 @@ public interface SesameService {
      */
     @Deprecated
     ValueFactory getValueFactory();
-
-    void restart();
-
-    /**
-     * Run the triple store garbage collector manually and clean up unreferenced nodes and triples.
-     * @throws org.openrdf.sail.SailException
-     */
-    void garbageCollect() throws SailException;
+    
 }

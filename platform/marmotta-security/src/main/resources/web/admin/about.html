@@ -27,46 +27,7 @@
 <!--###BEGIN_CONTENT###-->
 <h1>Marmotta Security</h1>
 <p>
-    This module provide security mechanisms for Apache Marmotta, which implements its own authentication and authorization mechanism.
-</p>
-<h2>Users and roles</h2>
-    <p>There are two default users in Marmotta: anonymous and admin. The first one is not an actual user, but the user all anonymous requests use. The second is the user with administration rights on the system.
-    </p>
-    <p>At the same time, users are group in roles for simplifying permission management. The system comes with three groups (manager, editor and user) by default, but this could be customized as preferred.
-    </p>
-    <p>For instance, by default the admin user is part of manager, editor and user groups.
-    </p>
-<h2>Profiles</h2>
-    <p>There are three pre-defined profiles, <i>simple</i>, <i>standard</i>, and <i>restricted</i>:
-    </p>
-    <ul>
-        <li><b>simple</b> allows read access from everywhere and write access only from localhost or other local interfaces.</li>
-        <li><b>standard</b> allows read access from everywhere and write access only for authenticated users of the “manager” role.
-        <li><b>restricted</b> allows access only for authenticated users.</li>
-    </ul>
-    <p>By default, Marmotta will use the simple profile, allowing only access from localhost. If you want to change the profile, you can set the configuration property security.profile to standard, e.g. via the configuration interface in “Core Services” or “Security”. If your instance is running on a remote server, you can e.g. log in using SSH and run the following command:
-    </p>
-    <pre>
-        curl -X POST -H "Content-Type: application/json" -d '["standard"]' http://&lt;HOST&gt;:&lt;PORT&gt;/marmotta/config/data/security.profile</pre>
-    <p>
-        Afterwards, you can log in with the default admin user and password (“admin” and “pass123”). Needless to say you should change this password.
-    </p>
-    <h2>Rules</h2>
-    <p>The configuration is based on ACL rules such as:
-    </p>
-    <pre>
-    security.{TYPE}.{NAME}.pattern = {PATTERN}
-    security.{TYPE}.{NAME}.methods = {METHOD}
-    security.{TYPE}.{NAME}.priority = {PRIORITY}</pre>
-    <p>Where:</p>
-    <ul>
-        <li><b>{TYPE}</b> is the type of control, which can be <i>permission</i> for granting permission the requests matching this rule or <i>restriction</i> for restricting.</li>
-        <li><b>{NAME}</b> is an arbitrary label for naming the rule, which should be unique in combination with the type.</li>
-        <li><b>{PATTERN}</b> is the regular expression pattern which this rule matches.</li>
-        <li><b>{METHOD}</b> is the HTTP method this rule applies (<i>HEAD</i>, <i>OPTIONS</i>, <i>GET</i>, <i>POST</i>, <i>PUT</i> or <i>DELETE</i>). If the rules applies to more than one method, you can add all methods separated by commas or add additional property lines for each method, both options are valid.</li>
-        <li><b>{PRIORITY}</b> is the the priority of this rule in the access control list.</li>
-    </ul>
-    <p>The system evaluates the rules ordered by priority, allowing or rejecting access whenever a rule matches each request to the system. The adminnistration user interface provides an overview page for the status of the current rules applied to the system.
+    This module provide security mechanisms for Apache Marmotta
 </p>
 
 <!--###END_CONTENT###-->

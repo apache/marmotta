@@ -1,11 +1,15 @@
 Apache Marmotta Splash Screen
-Copyright 2012-2013 The Apache Software Foundation
+Copyright [2012-2013] The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
-Portions of this software were originally based on the following:
+Additionally, it includes the following 3rd party modules:
 
-    Copyright 2008-2012 Salzburg Research Forschungsgesellschaft mbH
+* MigLayout, http://www.migcalendar.com/miglayout
 
-These have been licensed to the Apache Software Foundation under a software grant.
+  Copyright (c) 2004 MiG InfoCom AB
+
+* SwingBits, http://swingbits.sourceforge.net
+
+  Copyright (c) 2006 EzWare

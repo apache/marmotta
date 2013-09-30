@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.ldclient.provider.youtube;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
@@ -122,7 +122,7 @@ public class YoutubeVideoPagesProvider implements DataProvider {
                 log.error(msg);
                 throw new RuntimeException(msg, e);
             }
-            ClientResponse clientResponse = new ClientResponse(200, triples);
+            ClientResponse clientResponse = new ClientResponse(triples);
             clientResponse.setExpires(DateUtils.addYears(new Date(), 10));
             return clientResponse;
         }

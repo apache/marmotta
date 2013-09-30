@@ -35,11 +35,9 @@ import org.apache.marmotta.ldcache.backend.file.repository.LDCachingFileReposito
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.SailException;
 import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,26 +108,6 @@ public class LDCachingFileBackend implements LDCachingBackend {
 
         };
     }
-
-    /**
-     * Return true in case the resource is a cached resource.
-     *
-     * @param resource the URI of the resource to check
-     * @return true in case the resource is a cached resource
-     */
-    @Override
-    public boolean isCached(String resource) throws RepositoryException {
-        try {
-            final File dataFile = FileBackendUtils.getMetaFile(resource, storageDir);
-            if (!(dataFile.exists())) return false;
-            final CacheEntry ce = FileBackendUtils.readCacheEntry(dataFile, new ValueFactoryImpl());
-            //return ce != null && !FileBackendUtils.isExpired(ce) && ce.getTripleCount() > 0;
-            return ce != null && ce.getTripleCount() > 0;
-        } catch (IOException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
 
     /* (non-Javadoc)
      * @see org.apache.marmotta.ldcache.api.LDCachingBackend#initialize()

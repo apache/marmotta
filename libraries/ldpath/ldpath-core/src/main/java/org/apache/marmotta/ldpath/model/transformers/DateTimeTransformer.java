@@ -21,7 +21,7 @@ package org.apache.marmotta.ldpath.model.transformers;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 /**
@@ -38,13 +38,11 @@ public class DateTimeTransformer<Node> implements NodeTransformer<Date,Node> {
      * the respective datatype, throws an IllegalArgumentException that needs to be caught by the class
      * carrying out the transformation.
      *
-     *
-     * @param rdfBackend
      * @param node
      * @return
      */
     @Override
-    public Date transform(RDFBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public Date transform(NodeBackend<Node> rdfBackend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         if(rdfBackend.isLiteral(node)) {
             return rdfBackend.dateTimeValue(node);
         } else {

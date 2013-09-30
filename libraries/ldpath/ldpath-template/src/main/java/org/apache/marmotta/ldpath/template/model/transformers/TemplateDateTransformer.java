@@ -23,7 +23,7 @@ import freemarker.template.TemplateModelException;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.DateTimeTransformer;
 
@@ -52,14 +52,12 @@ public class TemplateDateTransformer<Node> implements NodeTransformer<TemplateDa
      * carrying out the transformation.
      *
      *
-     *
-     * @param nodeRDFBackend
      * @param node
      * @param configuration
      * @return
      */
     @Override
-    public TemplateDateModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
+    public TemplateDateModel transform(final NodeBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
         return new TemplateDateModel() {
             @Override
             public Date getAsDate() throws TemplateModelException {

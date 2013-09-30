@@ -36,7 +36,6 @@
       <tr>
         <th>Prefix</th>
         <th>Namespace</th>
-        <th>&nbsp;</th>
       </tr>
     </table>
     
@@ -60,33 +59,13 @@
         jQuery(document).ready(function() {
 
             function appendPrefix(prefix, namespace) {
-            	$("table#prefixes  > tbody:last").append("<tr id=\"prefix-" + prefix + "\"><td>" + prefix + "</td><td><a href=\"" + namespace + "\">" + namespace + "</a></td><td><a href=\"#\" class=\"deletePrefix\">delete</a></td></tr>");
+            	$("table#prefixes  > tbody:last").append("<tr><td>" + prefix + "</td><td><a href=\"" + namespace + "\">" + namespace + "</a></td></tr>");
             }
-            
-            function deletePrefix(prefix) {
-            	$.ajax({
-            	    url: "../../prefix/" + prefix,
-            	    type: "DELETE",	
-            	    dataType: "text",
-            	    statusCode: {
-            	       204: function() {
-		   	        	    	alert("Prefix " + prefix + " deleted!");
-			        	        $("tr#prefix-" + prefix).remove();
-            	          	}
-            	    }
-            	});
-            }              
             
             $.getJSON("../../prefix", function(data) {
                 $.each(data, function(prefix, namespace) {
                 	appendPrefix(prefix, namespace);
                 });
-                $("a.deletePrefix").click(function() {
-                    var row = $(this).closest("td").closest("tr");
-                    var prefix = row.find("td:first").text();
-                    deletePrefix(prefix);
-                    return false;	
-                });                
             });
 
             $("#add-new-prefix-button").click(function() {

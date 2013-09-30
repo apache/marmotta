@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.kiwi.reasoner.model.query;
 
-import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
@@ -28,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Represent the result of a pattern query of a rule body against the triple store.
+ * Add file description here!
  * <p/>
  * User: sschaffe
  */
@@ -40,7 +39,7 @@ public class QueryResult {
 
     public QueryResult() {
         bindings       = new HashMap<VariableField, KiWiNode>();
-        justifications = StatementCommons.newQuadrupleSet();
+        justifications = new HashSet<KiWiTriple>();
     }
 
     public QueryResult(Map<VariableField, KiWiNode> bindings, Set<KiWiTriple> justifications) {
@@ -52,8 +51,15 @@ public class QueryResult {
         return bindings;
     }
 
+    public void setBindings(Map<VariableField, KiWiNode> bindings) {
+        this.bindings = bindings;
+    }
+
     public Set<KiWiTriple> getJustifications() {
         return justifications;
     }
 
+    public void setJustifications(Set<KiWiTriple> justifications) {
+        this.justifications = justifications;
+    }
 }

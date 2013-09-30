@@ -13,25 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-@prefix test: <http://example.com/> ;
+@prefix test: <http://example.com/>;
 @prefix foo: <http://foo.com/some/path#> ;
-
-@graph test:context, foo:ctx, test:bar ;
 
 @filter test:type is foo:bar | test:p1 & is-a test:Case ;
 
 @boost foo:boost / ^test:boost ;
 
-path = test:p1 / test:p2 :: test:type ;
-lang_test = test:p1[@en] :: test:type ;
-type_test = foo:p2[^^test:int] :: test:type ;
-int_s = (foo:go)* :: test:type ;
-int_p = (foo:go)+ :: test:type ;
-group = (test:p1 / test:p2) :: test:type ;
+path = test:p1 / test:p2 :: test:type;
+lang_test = test:p1[@en] :: test:type;
+type_test = foo:p2[^^test:int] :: test:type;
+int_s = (foo:go)* :: test:type;
+int_p = (foo:go)+ :: test:type;
 
-inverse = ^test:incoming :: test:type ;
+inverse = ^test:incoming :: test:type;
 
-config = test:foo :: test:type(c1="true", c2="false", c3="1.234") ;
-
-foo:bar = test:foo :: test:type ;
-<http://test/> = test:test :: test:type ;
+config = test:foo :: test:type(c1=true, c2="false", c3="1.234");

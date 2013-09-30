@@ -96,7 +96,8 @@ public class VersioningSailProvider implements TransactionalSailProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         if(e.containsChangedKey(VERSIONING_ENABLED)) {
-            sesameService.restart();
+            sesameService.shutdown();
+            sesameService.initialise();
         }
     }
 
@@ -222,50 +223,5 @@ public class VersioningSailProvider implements TransactionalSailProvider {
      */
     public Version getLatestVersion(Resource r, Date date) throws SailException {
         return sail.getLatestVersion(r, date);
-    }
-
-    /**
-     * Remove the version with the id passed as argument, including all references to added and removed triples. The
-     * triples themselves are not deleted immediately, we let the garbage collector carry this out periodically.
-     * @param id  the database ID of the version (see {@link org.apache.marmotta.kiwi.versioning.model.Version#getId()})
-     * @throws org.openrdf.sail.SailException
-     */
-    public void removeVersion(Long id) throws SailException {
-        sail.removeVersion(id);
-    }
-
-    /**
-     * Remove all versions in the given time interval. Iterates over all versions and deletes them individually.
-     * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
-     * without version will later be cleaned up by the garbage collector
-     * @param from date after which versions will be deleted
-     * @param to   date before which versions will be deleted
-     * @throws org.openrdf.sail.SailException
-     */
-    public void removeVersions(Date from, Date to) throws SailException {
-        sail.removeVersions(from, to);
-    }
-
-    /**
-     * Remove all versions until the date given as argument. Iterates over all versions and deletes them individually.
-     * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
-     * without version will later be cleaned up by the garbage collector
-     * @param until date until when to delete versions
-     * @throws org.openrdf.sail.SailException
-     */
-    public void removeVersions(Date until) throws SailException {
-        sail.removeVersions(until);
-    }
-
-    /**
-     * Revert (undo) the version given as argument. This method creates a new transaction, adds all triples
-     * that were deleted in the old version, removes all triples that were added in the old version, and commits
-     * the transaction, effectively creating a new (reverted) version.
-     *
-     * @param version    the version to revert
-     * @throws org.openrdf.sail.SailException in case reverting the version failed
-     */
-    public void revertVersion(Version version) throws SailException {
-        sail.revertVersion(version);
     }
 }

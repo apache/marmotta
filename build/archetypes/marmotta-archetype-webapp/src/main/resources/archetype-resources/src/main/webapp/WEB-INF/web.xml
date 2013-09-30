@@ -52,7 +52,6 @@
         <param-value>/tmp/lmf</param-value>
     </context-param>
 
-
     <!-- handle OPTIONS requests -->
     <filter>
         <filter-name>MarmottaOptionsFilter</filter-name>
@@ -77,14 +76,10 @@
 
         <init-param>
             <param-name>cors.supportedHeaders</param-name>
-            <param-value>Origin, Accept, Content-Type</param-value>
+            <param-value>Origin, Accept</param-value>
         </init-param>
 
     </filter>
-    <filter-mapping>
-        <filter-name>CORS</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
 
     <!-- this filter performs startup configurations for first installation -->
     <filter>

@@ -29,7 +29,7 @@ import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
  *
  *
  * @param <Node> the node type used by the backend
- * @author Jakob Frank <jakob@apache.org>
+ * @author jakob
  * 
  */
 public class FirstFunction<Node> extends SelectorFunction<Node> {
@@ -44,8 +44,7 @@ public class FirstFunction<Node> extends SelectorFunction<Node> {
      * @return
      */
     @Override
-    @SafeVarargs
-    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         for (Collection<Node> arg : args) {
             if (arg.size() > 0) { return arg; }
         }

@@ -74,7 +74,7 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public String getPathExpression(NodeBackend<Node> rdfBackend) {
-        return String.format("%s | %s", left.getPathExpression(rdfBackend), right.getPathExpression(rdfBackend));
+        return String.format("(%s | %s)", left.getPathExpression(rdfBackend), right.getPathExpression(rdfBackend));
     }
 
     /**

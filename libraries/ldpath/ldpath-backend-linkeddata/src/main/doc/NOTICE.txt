@@ -1,8 +1,6 @@
-Apache Marmotta LDPath
-Copyright 2012-2013 The Apache Software Foundation
+Apache Marmotta LDPath, Copyright 2012-2013 The Apache Software Foundation
 
-This product includes software developed at 
-The Apache Software Foundation (http://www.apache.org).
+This product includes software developed at The Apache Software Foundation (http://www.apache.org).
 
 Portions of this software were originally based on the following:
 
@@ -10,9 +8,103 @@ Portions of this software were originally based on the following:
 
 These have been licensed to the Apache Software Foundation under a software grant.
 
-This product also includes some third-party source components:
+* CAL10N, http://cal10n.qos.ch
 
- * The module commons/marmotta-commons contains a modified and reduced version
-   of the Javolution library. Javolution has copyright (c) 2012, Javolution and
-   is licensed under BSD license. The original source code is available from
-   http://javolution.org
+  Copyright (c) 2009 QOS.ch
+
+* Logback, http://logback.qos.ch
+
+  Copyright (C) 2012 QOS.ch
+
+* Guava, http://guava-libraries.googlecode.com
+
+  Copyright (c) 2013 Google Inc.
+
+* OneJAR, http://one-jar.sourceforge.net
+
+  Copyright (c) 2004-2010 P. Simon Tuffs
+
+* SLF4J, http://www.slf4j.org
+
+  Copyright (c) 2013 QOS.ch
+
+* Jaxen, http://jaxen.codehaus.org
+
+  Copyright (c) 2006 The Werken Company
+
+* JDOM, http://www.jdom.org
+
+  Copyright (c) 2012 Jason Hunter & Brett McLaughlin
+
+* JSoup, http://jsoup.org
+
+  Copyright (c) 2013 Jonathan Hedley
+
+* Jackson, http://jackson.codehaus.org
+
+  Copyright (c) 2010 FasterXML LLC.
+
+* OpenRDF Sesame, http://www.openrdf.org
+
+  Copyright (c) 2013 Aduna
+
+  This software includes code developed by Aduna
+  (http://www.aduna-software.com/).
+
+  This software includes code developed by Ontotext AD
+  (http://www.ontotext.com/).
+
+  This software includes code developed by 3 Round Stones
+  (http://www.3roundstones.com/).
+
+  This software includes code developed by Fluid Operations
+  (http://www.fluidops.com/).
+
+  This software includes code developed by the Information Management Group at
+  Food & Biobased Research, Wageningen University (http://www.fbr.wur.nl/).
+
+  This software includes code developed by Clark & Parsia
+  (http://clarkparsia.com/).
+
+  This software includes code developed by the Institute for Defense Analyses
+  (IDA) (http://www.ida.org/).
+
+  This software includes code developed by Atos (http://www.atos.net/).
+
+  This software includes code developed by Peter Ansell.
+
+  The above parties have licensed their code contributions to Aduna under the
+  terms of a contributor license agreement (CLA).
+
+  This product includes software developed by the JUnit project
+  (http://www.junit.org). License: http://junit.sourceforge.net/cpl-v10.html
+
+  Parts of this product use software developed by JSON.org
+  (http://www.json.org). License: http://www.json.org/license.html
+
+  Parts of this product use software developed by the Mockito project
+  (http://mockito.googlecode.com). License: https://github.com/mockito/mockito/blob/master/LICENSE
+
+* Semargl, http://semarglproject.org
+
+  Copyright (c) 2012 Lev Khomich
+
+  This product uses software developed by The Apache Software Foundation:
+  Clerezza, Jena, IO Commons (http://www.apache.org/).
+
+  This product includes/uses test suite developed by Hewlett-Packard
+  (http://hp.com/). Copyright (c) 2002, Hewlett-Packard Company.
+
+  This product includes/uses test suite developed by W3C Consortium.
+
+  This product includes/uses RDFa test harness developed by RDF Web Applications
+  Working Group (http://www.w3.org/2010/02/rdfa/).
+
+* ROME, http://rometools.jira.com
+
+  Copyright (c) 2004 Sun Microsystems
+
+* JSONLD-Java, http://github.com/tristan/jsonld-java
+
+  Copyright (c) 2012, Deutsches Forschungszentrum für Künstliche Intelligenz GmbH
+

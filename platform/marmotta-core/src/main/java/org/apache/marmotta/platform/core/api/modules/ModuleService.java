@@ -17,13 +17,11 @@
  */
 package org.apache.marmotta.platform.core.api.modules;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 
 import javax.enterprise.inject.spi.InjectionPoint;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -130,32 +128,5 @@ public interface ModuleService {
      * @return the weight (default == 50)
      */
     public int getWeight(String moduleName);
-
-    /**
-     * returns  more complex admin page description
-     * @param moduleName
-     * @return
-     */
-    public List<HashMap<String,String>> getAdminPageObjects(String moduleName);
-
-    /**
-     * returns the icon (if set), null otherwise
-     * @param moduleName
-     * @return
-     */
-    public String getIcon(String moduleName);
-
-    /**
-     * list modules for container sorted on weight
-     * @param container
-     * @return
-     */
-    public List<String> listSortedModules(String container);
-
-    /**
-     * list containers sorted on weight
-     * @return
-     */
-    public List<String> listSortedContainers();
 
 }

@@ -105,7 +105,7 @@ public class TemplateNodeModel<Node> implements TemplateModel, TemplateHashModel
      *         class.
      */
     @Override
-    public Object getAdaptedObject(@SuppressWarnings("rawtypes") Class hint) {
+    public Object getAdaptedObject(Class hint) {
         return node;
     }
 }

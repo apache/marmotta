@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -56,13 +55,29 @@ public class SPARQLGraphResultWriter {
     }
 
     public void write(GraphQueryResult result) throws IOException {
-
+        Repository repository = new SailRepository(new MemoryStore());
         try {
-            QueryResultIO.write(result,format,outputStream);
+            repository.initialize();
+
+            RepositoryConnection conn = repository.getConnection();
+
+            for(Map.Entry<String,String> namespace : result.getNamespaces().entrySet()) {
+                conn.setNamespace(namespace.getKey(), namespace.getValue());
+            }
+
+            conn.add(result);           
+            conn.commit();
+
+            RDFWriter writer = Rio.createWriter(format, outputStream);
+            conn.export(writer);
+            conn.close();
+            repository.shutDown();
 
             outputStream.flush();
             outputStream.close();
 
+        } catch (RepositoryException e) {
+            throw new IOException("query result writing failed because there was an error while creating temporary triple store", e);
         } catch (QueryEvaluationException e) {
             throw new IOException("query result writing failed because query evaluation had a problem", e);
         } catch (RDFHandlerException e) {

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
@@ -56,6 +56,8 @@
         <module>sesame-filter</module>
         <module>sesame-tools-rio-api</module>
         <module>sesame-tools-rio-ical</module>
+        <module>sesame-tools-rio-jsonld</module>
+        <module>sesame-tools-rio-rdfjson</module>
         <module>sesame-tools-rio-rss</module>
         <module>sesame-tools-rio-vcard</module>
         <module>sesame-tools-facading</module>

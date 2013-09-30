@@ -40,7 +40,7 @@ import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.marmotta.platform.core.util.CDIContext;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,10 +250,7 @@ public class MarmottaStartupService {
 
             hostStarted = true;
 
-            configurationService.setInitialising(false);
-
             startupEvent.fire(new SystemStartupEvent());
-            
         } finally {
             lock.unlock();
         }
@@ -264,12 +261,4 @@ public class MarmottaStartupService {
         log.info("Apache Marmotta Core shutting down ...");
     }
 
-    public boolean isConfigurationStarted() {
-        return configurationStarted;
-    }
-
-    public boolean isHostStarted() {
-        return hostStarted;
-    }
-    
 }

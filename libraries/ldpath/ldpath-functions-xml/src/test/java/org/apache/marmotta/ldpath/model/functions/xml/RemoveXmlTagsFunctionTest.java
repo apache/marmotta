@@ -22,7 +22,7 @@ import java.util.Collection;
 
 import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.parser.ParseException;
-import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.RdfPathParser;
 import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class RemoveXmlTagsFunctionTest extends AbstractTestBase {
 
         final URI context = repository.getValueFactory().createURI(NSS.get("ex") + "Text");
 
-        final LdPathParser<Value> parser = createParserFromString("fn:removeTags(foo:formatted) :: xsd:string");
+        final RdfPathParser<Value> parser = createParserFromString("fn:removeTags(foo:formatted) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
         final Collection<Object> values = rule.getValues(backend, context);
 

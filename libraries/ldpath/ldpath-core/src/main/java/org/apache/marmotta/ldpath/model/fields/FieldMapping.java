@@ -21,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +38,6 @@ import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
  */
 public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
 
-    private boolean isSimpleName = true;
-    
     /**
      * The name of the field in the search index
      */
@@ -49,7 +46,7 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
     /**
      * The type of the field in the search index
      */
-    private URI fieldType;
+    private String fieldType;
 
     /**
      * The selector to use for selecting nodes
@@ -66,15 +63,10 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
      */
     private Map<String, String> fieldConfig;
 
-    private FieldMapping() {
+    public FieldMapping() {
     }
-    
-    public FieldMapping(URI fieldName, URI fieldType, NodeSelector<Node> selector, NodeTransformer<T,Node> transformer, Map<String, String> fieldConfig) {
-        this(fieldName.toString(), fieldType, selector, transformer, fieldConfig);
-        this.isSimpleName = false;
-    }
-    
-    public FieldMapping(String fieldName, URI fieldType, NodeSelector<Node> selector, NodeTransformer<T,Node> transformer, Map<String, String> fieldConfig) {
+
+    public FieldMapping(String fieldName, String fieldType, NodeSelector<Node> selector, NodeTransformer<T,Node> transformer, Map<String, String> fieldConfig) {
     	this();
         this.fieldName = fieldName;
         this.fieldType = fieldType;
@@ -88,7 +80,7 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
         return fieldName;
     }
 
-    public URI getFieldType() {
+    public String getFieldType() {
         return fieldType;
     }
 
@@ -170,10 +162,7 @@ public class FieldMapping<T,Node> implements LDPathConstruct<Node> {
             }
             fc.append(")");
         }
-        if (isSimpleName)
-            return String.format("%s = %s :: <%s>%s ;", fieldName, selector.getPathExpression(backend), fieldType, fc.toString());
-        else
-            return String.format("<%s> = %s :: <%s>%s ;", fieldName, selector.getPathExpression(backend), fieldType, fc.toString());
+        return String.format("%s = %s :: <%s>%s ;", fieldName, selector.getPathExpression(backend), fieldType, fc.toString());
     }
 
 }

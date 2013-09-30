@@ -65,7 +65,7 @@ public class IntersectionSelector<Node> implements NodeSelector<Node> {
 
 	@Override
 	public String getPathExpression(NodeBackend<Node> backend) {
-		return String.format("%s & %s", left.getPathExpression(backend), right.getPathExpression(backend));
+		return String.format("(%s & %s)", left.getPathExpression(backend), right.getPathExpression(backend));
 	}
 
     /**

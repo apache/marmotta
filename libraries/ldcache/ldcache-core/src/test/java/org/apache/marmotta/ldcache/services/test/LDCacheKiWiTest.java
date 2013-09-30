@@ -274,11 +274,6 @@ public class LDCacheKiWiTest {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-        } else {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
         }
     }
 

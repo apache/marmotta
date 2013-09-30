@@ -87,7 +87,7 @@ public class BlockingProvider implements DataProvider {
         long defaultExpires = client.getClientConfiguration().getDefaultExpiry();
         Date expiresDate = new Date(System.currentTimeMillis() + defaultExpires * 1000);
 
-        ClientResponse result = new ClientResponse(200, empty_repository);
+        ClientResponse result = new ClientResponse(empty_repository);
         result.setExpires(expiresDate);
         return result;
     }

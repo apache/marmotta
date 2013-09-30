@@ -17,9 +17,14 @@
  */
 package org.apache.marmotta.platform.core.services.triplestore;
 
-import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.generator.IDGeneratorType;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.StandardSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
+import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
+import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
+import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -29,22 +34,12 @@ import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
 import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.transactions.model.TransactionData;
 import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.api.triplestore.StandardSailProvider;
-import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
-import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
-import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
-import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.base.RepositoryConnectionWrapper;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 
 import javax.annotation.PreDestroy;
@@ -122,103 +117,79 @@ public class SesameServiceImpl implements SesameService {
 
     private SailRepository repository;
 
-    private ReentrantReadWriteLock restartLock = new ReentrantReadWriteLock();
-
     /**
      * Initialise the Sesame repository. Should be called on service activation.
      */
     @Override
     public synchronized void initialise() {
-        restartLock.writeLock().lock();
+        log.info("Apache Marmotta Sesame Repository Service starting up ...");
+
+        if(repository != null) {
+            log.warn("RDF repository has already been initialized");
+        }
+
+        String database = configurationService.getStringConfiguration("database.type");
+        KiWiDialect dialect;
+        if("h2".equalsIgnoreCase(database)) {
+            dialect = new H2Dialect();
+        } else if("mysql".equalsIgnoreCase(database)) {
+            dialect = new MySQLDialect();
+        } else if("postgres".equalsIgnoreCase(database)) {
+            dialect = new PostgreSQLDialect();
+        } else
+            throw new IllegalStateException("database type "+database+" currently not supported!");
+        String jdbcUrl = configurationService.getStringConfiguration("database.url");
+        String dbUser  = configurationService.getStringConfiguration("database.user");
+        String dbPass  = configurationService.getStringConfiguration("database.password");
+
+        store = new KiWiStore("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
+
+        tsail = new KiWiTransactionalSail(store);
+
+        log.info("initialising repository plugins ...");
+
+        // wrap all stackable transactional sails
+        TransactionalSail transactionalSail = tsail;
+        for(TransactionalSailProvider provider : transactionalSailProviders) {
+            if(provider.isEnabled()) {
+                log.info("- transaction plugin: {}",provider.getName());
+                transactionalSail = provider.createSail(transactionalSail);
+            } else {
+                log.info("- transaction plugin: {} (DISABLED)", provider.getName());
+            }
+        }
+
+        // wrap all stackable notifying sails
+        NotifyingSail notifyingSail = transactionalSail;
+        for(NotifyingSailProvider provider : notifyingSailProviders) {
+            if(provider.isEnabled()) {
+                log.info("- notifying plugin: {}",provider.getName());
+                notifyingSail = provider.createSail(notifyingSail);
+            } else {
+                log.info("- notifying plugin: {} (DISABLED)", provider.getName());
+            }
+        }
+
+        // wrap all standard sails
+        Sail standardSail = notifyingSail;
+        for(StandardSailProvider provider : standardSailProviders) {
+            if(provider.isEnabled()) {
+                log.info("- standard plugin: {}",provider.getName());
+                standardSail = provider.createSail(standardSail);
+            } else {
+                log.info("- standard plugin: {} (DISABLED)", provider.getName());
+            }
+        }
+
+        // the CDI events should be triggered once all internal events have been handled, so register the transaction listener last
+        tsail.addTransactionListener(new LMFTransactionEventProxy());
+
+        repository = new SailRepository(standardSail);
+
         try {
-            log.info("Apache Marmotta Sesame Repository Service starting up ...");
-
-            if(repository != null) {
-                log.warn("RDF repository has already been initialized");
-            }
-
-            String database = configurationService.getStringConfiguration("database.type");
-            KiWiDialect dialect;
-            if("h2".equalsIgnoreCase(database)) {
-                dialect = new H2Dialect();
-            } else if("mysql".equalsIgnoreCase(database)) {
-                dialect = new MySQLDialect();
-            } else if("postgres".equalsIgnoreCase(database)) {
-                dialect = new PostgreSQLDialect();
-            } else
-                throw new IllegalStateException("database type "+database+" currently not supported!");
-            String jdbcUrl = configurationService.getStringConfiguration("database.url");
-            String dbUser  = configurationService.getStringConfiguration("database.user");
-            String dbPass  = configurationService.getStringConfiguration("database.password");
-            boolean batchCommit = configurationService.getBooleanConfiguration("database.batchcommit", true);
-
-            KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
-            configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
-            configuration.setBatchCommit(batchCommit);
-            configuration.setBatchSize(configurationService.getIntConfiguration("database.batchsize",10000));
-
-            String generatorType = configurationService.getStringConfiguration("database.generator", "uuid-time");
-            if("uuid-time".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.UUID_TIME);
-            } else if("uuid-random".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.UUID_RANDOM);
-            } else if("sequence".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.DATABASE_SEQUENCE);
-            } else if("memory".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.MEMORY_SEQUENCE);
-            }
-
-            store = new KiWiStore(configuration);
-
-            tsail = new KiWiTransactionalSail(store);
-
-            log.info("initialising repository plugins ...");
-
-            // wrap all stackable transactional sails
-            TransactionalSail transactionalSail = tsail;
-            for(TransactionalSailProvider provider : transactionalSailProviders) {
-                if(provider.isEnabled()) {
-                    log.info("- transaction plugin: {}",provider.getName());
-                    transactionalSail = provider.createSail(transactionalSail);
-                } else {
-                    log.info("- transaction plugin: {} (DISABLED)", provider.getName());
-                }
-            }
-
-            // wrap all stackable notifying sails
-            NotifyingSail notifyingSail = transactionalSail;
-            for(NotifyingSailProvider provider : notifyingSailProviders) {
-                if(provider.isEnabled()) {
-                    log.info("- notifying plugin: {}",provider.getName());
-                    notifyingSail = provider.createSail(notifyingSail);
-                } else {
-                    log.info("- notifying plugin: {} (DISABLED)", provider.getName());
-                }
-            }
-
-            // wrap all standard sails
-            Sail standardSail = notifyingSail;
-            for(StandardSailProvider provider : standardSailProviders) {
-                if(provider.isEnabled()) {
-                    log.info("- standard plugin: {}",provider.getName());
-                    standardSail = provider.createSail(standardSail);
-                } else {
-                    log.info("- standard plugin: {} (DISABLED)", provider.getName());
-                }
-            }
-
-            // the CDI events should be triggered once all internal events have been handled, so register the transaction listener last
-            tsail.addTransactionListener(new LMFTransactionEventProxy());
-
-            repository = new SailRepository(standardSail);
-
-            try {
-                repository.initialize();
-            } catch (RepositoryException e) {
-                log.error("error while initialising Apache Marmotta Sesame repository",e);
-            }
-        } finally {
-            restartLock.writeLock().unlock();
+            repository.initialize();
+        } catch (RepositoryException e) {
+            log.error("error while initialising Apache Marmotta Sesame repository",e);
         }
     }
 
@@ -228,33 +199,14 @@ public class SesameServiceImpl implements SesameService {
     @Override
     @PreDestroy
     public synchronized void shutdown() {
-        restartLock.writeLock().lock();
-        try {
-            if(repository != null) {
-                log.info("Apache Marmotta Sesame Repository Service shutting down ...");
-                try {
-                    repository.shutDown();
-                } catch (RepositoryException e) {
-                    log.error("error while shutting down Apache Marmotta Sesame repository",e);
-                }
-                repository = null;
+        if(repository != null) {
+            log.info("Apache Marmotta Sesame Repository Service shutting down ...");
+            try {
+                repository.shutDown();
+            } catch (RepositoryException e) {
+                log.error("error while shutting down Apache Marmotta Sesame repository",e);
             }
-        } finally {
-            restartLock.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Restart the Sesame Service.
-     */
-    @Override
-    public void restart() {
-        restartLock.writeLock().lock();
-        try {
-            shutdown();
-            initialise();
-        } finally {
-            restartLock.writeLock().unlock();
+            repository = null;
         }
     }
 
@@ -293,15 +245,9 @@ public class SesameServiceImpl implements SesameService {
     @Override
     @Produces
     public RepositoryConnection getConnection() throws RepositoryException {
-        restartLock.readLock().lock();
         RepositoryConnection connection = repository.getConnection();
-        return new RepositoryConnectionWrapper(repository,connection) {
-            @Override
-            public void close() throws RepositoryException {
-                super.close();
-                restartLock.readLock().unlock();
-            }
-        };
+        // connection.setAutoCommit(false);
+        return connection;
     }
 
     /**
@@ -313,17 +259,6 @@ public class SesameServiceImpl implements SesameService {
     @Produces
     public ValueFactory getValueFactory() {
         return repository.getValueFactory();
-    }
-
-    /**
-     * Run the triple store garbage collector manually and clean up unreferenced nodes and triples.
-     * @throws SailException
-     */
-    @Override
-    public void garbageCollect() throws SailException {
-        if(store != null) {
-            store.garbageCollect();
-        }
     }
 
     private class LMFTransactionEventProxy implements TransactionListener {

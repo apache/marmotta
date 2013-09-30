@@ -24,7 +24,6 @@ import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Value;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,18 +71,6 @@ public interface LDPathService {
      * @throws org.apache.marmotta.ldpath.exception.LDPathParseException when the path passed as argument could not be parsed
      */
     public Map<String, Collection<?>> programQuery(Value context, String program) throws LDPathParseException;
-
-
-    /**
-     * Run a path program over all resources in the triplestore matching the program's filter and return the result for
-     * each respurce. Since this query can potentially return many results and take long, it is recommended to define
-     * appropriate program filters for the query.
-     *
-     * @param program
-     * @return
-     * @throws LDPathParseException
-     */
-    public Map<Value,Map<String,Collection<?>>> programQuery(String program) throws LDPathParseException;
 
     /**
      * Register a result transformer for a type URI. Use this method in your own projects

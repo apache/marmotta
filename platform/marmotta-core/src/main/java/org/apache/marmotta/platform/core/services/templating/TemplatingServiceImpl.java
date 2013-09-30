@@ -31,7 +31,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import com.google.common.base.Preconditions;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
@@ -39,7 +38,6 @@ import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
 
 /**
  * Template Service Implementation
@@ -54,18 +52,13 @@ public class TemplatingServiceImpl implements TemplatingService {
     @Inject
     private ConfigurationService configurationService;
 
-    @Inject
-    private MarmottaStartupService startupService;
-
 	public TemplatingServiceImpl() {
 		super();
 		common = new HashMap<String,String>();
 	}
 
 	@PostConstruct
-	public void initDataModel() {
-        Preconditions.checkState(startupService.isHostStarted());
-
+	public void initDataModel() {        
         String project = configurationService.getStringConfiguration("kiwi.pages.project", DEFAULT_PROJECT);
         common.put("PROJECT", project);
         common.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style_path", DEFAULT_STYLE));

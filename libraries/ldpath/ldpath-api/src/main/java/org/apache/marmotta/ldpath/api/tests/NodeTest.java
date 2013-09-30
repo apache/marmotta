@@ -31,7 +31,6 @@ import org.apache.marmotta.ldpath.api.functions.NodeFunction;
 public abstract class NodeTest<Node> implements NodeFunction<Boolean, Node> {
 
     @Override
-    @SafeVarargs
     public final Boolean apply(RDFBackend<Node> backend, Node context, Collection<Node>... args)
             throws IllegalArgumentException {
 

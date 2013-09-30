@@ -174,7 +174,7 @@ public class InspectionWebService {
 
     private List<TriplePoJo> buildResultList(RepositoryConnection conn, URI s, URI p, URI o, URI c, long start, int limit) throws RepositoryException {
         List<TriplePoJo> result = new ArrayList<InspectionWebService.TriplePoJo>();
-        RepositoryResult<Statement> triples = c != null ? conn.getStatements(s,p,o,true,c) : conn.getStatements(s,p,o,true);
+        RepositoryResult<Statement> triples = conn.getStatements(s,p,o,true,c);
         // skip until start
         for(int i = 0; i<start && triples.hasNext(); i++) {
             triples.next();

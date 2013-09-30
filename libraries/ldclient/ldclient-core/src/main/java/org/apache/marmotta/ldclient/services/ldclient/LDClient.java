@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldclient.services.ldclient;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -160,7 +161,7 @@ public final class LDClient implements LDClientService {
                 return false;
             }
         } else {
-            throw new UnsupportedOperationException("protocol not supportted");
+            throw new NotImplementedException("protocol not supportted");
         }
         
         /*

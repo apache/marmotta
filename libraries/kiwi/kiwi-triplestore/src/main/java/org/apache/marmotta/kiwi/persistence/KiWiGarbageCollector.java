@@ -22,13 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a garbage collector for the database that cleans up deleted triples and nodes when they
@@ -45,7 +42,7 @@ public class KiWiGarbageCollector extends Thread {
     private Set<TableDependency> tripleTableDependencies;
     private Set<TableDependency>  nodeTableDependencies;
 
-    private long interval = TimeUnit.MILLISECONDS.convert(24L, TimeUnit.HOURS);
+    private long interval = 60 * 60 * 1000;
 
     private long round = 0;
 
@@ -101,107 +98,11 @@ public class KiWiGarbageCollector extends Thread {
         nodeTableDependencies.add(new TableDependency(tableName,columnName));
     }
 
-    protected boolean checkConsistency() throws SQLException {
-        boolean consistent = true;
 
-        String checkNodeDuplicatesQuery = "SELECT svalue, ntype, count(id) FROM nodes group by svalue, ntype having count(id) > 1";
-
-        try(Connection con = persistence.getJDBCConnection()) {
-            PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(checkNodeDuplicatesQuery);
-
-            try(ResultSet result = checkNodeDuplicatesStatement.executeQuery()) {
-                if(result.next()) {
-                    log.warn("DATABASE INCONSISTENCY: duplicate node entries found, please try to fix the consistency with fixConsistency()!");
-                    do {
-                        if(result.getString("ntype").equals("uri")) {
-                            log.warn(" - inconsistent resource: {}", result.getString("svalue"));
-                        }
-                    } while(result.next());
-
-                    consistent = false;
-                }
-            }
-
-        }
-
-        if(!consistent) {
-            log.warn("DATABASE INCONSISTENCY: attempting to auto-fix inconsistencies where possible");
-            try {
-                fixConsistency();
-            } catch (SQLException ex) {
-                log.error("DATABASE INCONSISTENCY: auto-fixing inconsistencies failed ({})", ex.getMessage());
-            }
-        }
-
-        return consistent;
-    }
-
-
-    protected void fixConsistency() throws SQLException {
-        String checkNodeDuplicatesQuery = "SELECT svalue, ntype, count(id), max(id) FROM nodes group by svalue, ntype having count(id) > 1";
-        String getNodeIdsQuery = "SELECT id FROM nodes WHERE svalue = ? AND ntype = ? AND id != ?";
-
-        try(Connection con = persistence.getJDBCConnection(true)) {
-            PreparedStatement checkNodeDuplicatesStatement = con.prepareStatement(persistence.getDialect().getStatement("gc.check_consistency"));
-            PreparedStatement getNodeIdsStatement = con.prepareStatement(persistence.getDialect().getStatement("gc.list_node_ids"));
-
-            ResultSet result = checkNodeDuplicatesStatement.executeQuery();
-            while(result.next()) {
-                if(result.getString("ntype").equals("uri")) {
-                    log.warn("DATABASE INCONSISTENCY: attempting to fix references for resource {}", result.getString("svalue"));
-                } else {
-                    log.warn("DATABASE INCONSISTENCY: attempting to fix references for literal or anonymous node {}", result.getString("svalue"));
-                }
-
-                long latest_id = result.getLong(4);
-
-                // first we collect all ids of nodes that have the same svalue and ntype
-                getNodeIdsStatement.clearParameters();
-                getNodeIdsStatement.setString(1, result.getString("svalue"));
-                getNodeIdsStatement.setString(2,result.getString("ntype"));
-                getNodeIdsStatement.setLong(3, latest_id);
-
-                ArrayList<Long> ids = new ArrayList<>();
-                try(ResultSet idResult = getNodeIdsStatement.executeQuery()) {
-                    while(idResult.next()) {
-                        ids.add(idResult.getLong(1));
-                    }
-                }
-                getNodeIdsStatement.close();
-
-                // then we "fix" the triples table by making sure that all subjects, predicates, objects and contexts point to
-                // the latest version only; we use the nodes dependency table for this purpose
-                for(TableDependency dep : nodeTableDependencies) {
-                    String fixNodeIdsQuery = "UPDATE " + dep.table + " SET " + dep.column + " = " + latest_id + " WHERE " + dep.column + " = ?";
-                    PreparedStatement fixNodeIdsStatement = con.prepareStatement(fixNodeIdsQuery);
-                    for(Long id : ids) {
-                        fixNodeIdsStatement.setLong(1, id);
-                        fixNodeIdsStatement.addBatch();
-                    }
-                    fixNodeIdsStatement.executeBatch();
-                }
-
-                // finally we clean up all now unused node ids
-                String deleteDuplicatesQuery = "DELETE FROM nodes WHERE id = ?";
-                PreparedStatement deleteDuplicatesStatement = con.prepareStatement(deleteDuplicatesQuery);
-                for(Long id : ids) {
-                    deleteDuplicatesStatement.setLong(1, id);
-                    deleteDuplicatesStatement.addBatch();
-                }
-                deleteDuplicatesStatement.executeBatch();
-                deleteDuplicatesStatement.close();
-            }
-            checkNodeDuplicatesStatement.close();
-        }
-    }
-
-
-    protected int garbageCollect() throws SQLException {
+    private int garbageCollect() throws SQLException {
         round++;
 
-        long start = System.currentTimeMillis();
-
-        Connection con = persistence.getJDBCConnection(false);
+        Connection con = persistence.getJDBCConnection();
         try {
             int count = 0;
 
@@ -219,14 +120,9 @@ public class KiWiGarbageCollector extends Thread {
             }
 
             // garbage collect nodes (only every 10th garbage collection, only makes sense when we previously deleted triples ...)
-            if(count > 0 && round % 10 == 1) {
-                // flush all nodes from the value factory first
-                if(persistence.getValueFactory() != null) {
-                    persistence.getValueFactory().flushBatch();
-                }
-
-
-                // then delete all unconnected nodes
+            // TODO: this is currently not working, because the nodes remain in the cache; we need to find a different solution ...
+            //if(count > 0 && round % 10 == 1) {
+            if(false) {
                 try {
                     String gcNodesQuery = buildGCNodesQuery();
                     PreparedStatement stmtGcNodes = con.prepareStatement(gcNodesQuery);
@@ -239,11 +135,10 @@ public class KiWiGarbageCollector extends Thread {
                     log.warn("SQL error while executing garbage collection on nodes table: {}", ex.getMessage());
                 }
             }
-            log.info("... cleaned up {} entries (duration: {} ms)", count, (System.currentTimeMillis()-start));
 
             return count;
         } finally {
-            persistence.releaseJDBCConnection(con);
+            con.close();
         }
     }
 
@@ -254,6 +149,7 @@ public class KiWiGarbageCollector extends Thread {
      *
      * @see #start()
      * @see #stop()
+     * @see #Thread(ThreadGroup, Runnable, String)
      */
     @Override
     public void run() {
@@ -264,16 +160,11 @@ public class KiWiGarbageCollector extends Thread {
             while(!shutdown) {
                 // don't run immediately on startup
                 if(started) {
-                    log.info("running database consistency checks ...");
-                    try {
-                        checkConsistency();
-                    } catch (SQLException e) {
-                        log.error("error while executing consistency checks: {}",e.getMessage());
-                    }
-
+                    long start = System.currentTimeMillis();
                     log.info("running garbage collection ...");
                     try {
                         int count = garbageCollect();
+                        log.info("... cleaned up {} entries (duration: {} ms)", count, (System.currentTimeMillis()-start));
                     } catch (SQLException e) {
                         log.error("error while executing garbage collection: {}",e.getMessage());
                     }

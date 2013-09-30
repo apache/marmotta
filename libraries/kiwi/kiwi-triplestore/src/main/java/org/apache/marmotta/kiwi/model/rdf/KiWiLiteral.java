@@ -17,16 +17,19 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Locale;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Locale;
 
 /**
  * KiWiLiterals store literal information from the knowledge base. They directly
@@ -41,10 +44,21 @@ import org.openrdf.model.datatypes.XMLDatatypeUtil;
  */
 public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
+    private static HashFunction hasher = Hashing.goodFastHash(32);
+
+    //@Transient
+    private HashCode goodHashCode;
+
     /**
      * 
      */
     private static final long serialVersionUID = 1772323725671607249L;
+
+
+    /**
+     * An internal checksum of the content of the literal, used to efficiently check equality.
+     */
+    private String contentMd5;
 
 
     private Locale locale;
@@ -166,7 +180,17 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     @Override
     public int hashCode() {
-        return this.getLabel().hashCode();
+        if(goodHashCode == null) {
+            Hasher hash = hasher.newHasher().putChar('L').putString(getContent());
+            if(getLocale() != null) {
+                hash.putString(getLocale().toString());
+            }
+            if(getType() != null) {
+                hash.putString(getType().stringValue());
+            }
+            goodHashCode = hash.hash();
+        }
+        return goodHashCode.hashCode();
     }
 
 

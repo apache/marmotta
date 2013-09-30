@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -64,6 +64,10 @@
                     <version>2.13</version>
                     <configuration>
                         <systemPropertyVariables>
+                            <h2.url>jdbc:h2:mem:test;MVCC=true;DB_CLOSE_ON_EXIT=TRUE</h2.url>
+                            <h2.user>sa</h2.user>
+                            <h2.pass />
+
                             <!-- enable or pass on command line for testing local PostgreSQL -->
                             <postgresql.url>jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</postgresql.url>
                             <postgresql.user>lmf</postgresql.user>
@@ -84,21 +88,10 @@
                 <plugin> <!-- generate JRebel Configuration -->
                     <groupId>org.zeroturnaround</groupId>
                     <artifactId>jrebel-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>generate-rebel-xml</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                     <configuration>
-                        <relativePath>../../../</relativePath>
-                        <rootPath>$${rebel.root}</rootPath>
+                        <relativePath>../../</relativePath>
                     </configuration>
                 </plugin>
-
             </plugins>
         </pluginManagement>
         <plugins>
@@ -107,6 +100,19 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
 
+            <!-- do not install / deploy reactor -->
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -129,7 +135,6 @@
         <module>kiwi-tripletable</module>
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
-        <module>kiwi-sparql</module>
     </modules>
 
 </project>

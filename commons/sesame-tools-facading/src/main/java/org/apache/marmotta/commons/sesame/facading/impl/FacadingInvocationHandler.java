@@ -49,8 +49,7 @@ import java.util.*;
  * implementation as parameter. Interfaces that make use of this invocation handler need to extend
  * the {@link Facade} interface.
  * 
- * @author Sebastian Schaffert <sschaffert@apache.org>
- * @author Jakob Frank <jakob@apache.org>
+ * @author Sebastian Schaffert
  */
 class FacadingInvocationHandler implements InvocationHandler {
 
@@ -58,7 +57,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         GET(false, 0, "get"),
         SET(true, 1, "set"),
         ADD(true, 1, "add"),
-        DEL(true, 0, "del", "delete", "remove", "rm"),
+        DEL(true, 0, "del", "delete", "remove"),
         HAS(false, 0, "has", "is");
 
 
@@ -130,7 +129,7 @@ class FacadingInvocationHandler implements InvocationHandler {
 
     private final HashMap<String, Object> fieldCache;
 
-    private final Logger log;
+    private Logger log = LoggerFactory.getLogger(FacadingInvocationHandler.class);
 
     /**
      * Indicates if the cache is used, by default is false.
@@ -138,7 +137,6 @@ class FacadingInvocationHandler implements InvocationHandler {
     private boolean useCache;
 
     public FacadingInvocationHandler(Resource item, URI context, Class<? extends Facade> facade, Facading facadingService, RepositoryConnection connection) {
-        this.log = LoggerFactory.getLogger(facade.getName() + "!" + this.getClass().getSimpleName() + "@" + item.stringValue());
         this.delegate = item;
         this.facadingService = facadingService;
         this.declaredFacade = facade;
@@ -226,8 +224,7 @@ class FacadingInvocationHandler implements InvocationHandler {
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws InstantiationException, IllegalAccessException, RepositoryException {
-        if (!connection.isOpen()) { throw new IllegalAccessException("the connection is already closed, cannot access proxy methods."); }
-        if (!connection.isActive()) { throw new IllegalAccessException("no active transaction, cannot access triple-store."); }
+        if (!connection.isOpen()) { throw new IllegalAccessException("the connection is already closed, cannot access proxy methods"); }
 
         // handle default methods:
         if (FacadingInvocationHelper.checkMethodSig(method, "hashCode")) {
@@ -473,16 +470,13 @@ class FacadingInvocationHandler implements InvocationHandler {
                 connection.remove((Resource) null, prop, delegate, context);
             } else if (!predicate.isInverse() && loc != null) {
                 final RepositoryResult<Statement> statements = connection.getStatements(delegate, prop, null, false, context);
-                try {
-                    while (statements.hasNext()) {
-                        final Statement s = statements.next();
-                        if (FacadingInvocationHelper.checkLocale(loc, s.getObject())) {
-                            connection.remove(s);
-                        }
+                while (statements.hasNext()) {
+                    final Statement s = statements.next();
+                    if (FacadingInvocationHelper.checkLocale(loc, s.getObject())) {
+                        connection.remove(s);
                     }
-                } finally {
-                    statements.close();
                 }
+                statements.close();
             } else if (predicate.isInverse() && loc != null) { throw new IllegalArgumentException("A combination of @RDFInverse and a Literal is not possible");
             }
         }
@@ -618,7 +612,7 @@ class FacadingInvocationHandler implements InvocationHandler {
                     final Collection<Object> result = FacadingInvocationHelper.createCollection(collectionType, Collections.<Object> emptyList());
                     final URI property = connection.getValueFactory().createURI(rdf_property);
 
-                    for (final String s : getProperties(entity, property, loc, context)) {
+                    for (final String s : getProperties(entity, property, null, null)) {
                         result.add(FacadeUtils.transformToBaseType(s, tCls));
                     }
 
@@ -649,6 +643,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         URI property = connection.getValueFactory().createURI(rdf_property);
 
         RepositoryResult<Statement> triples = connection.getStatements(entity, property, null, false);
+
         try {
             if (triples.hasNext()) {
                 Statement triple = triples.next();
@@ -681,6 +676,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         URI property = connection.getValueFactory().createURI(rdf_property);
 
         RepositoryResult<Statement> triples = connection.getStatements(null, property, entity, false);
+
         try {
             if (triples.hasNext()) {
                 Statement triple = triples.next();
@@ -709,20 +705,19 @@ class FacadingInvocationHandler implements InvocationHandler {
      * 
      */
     private <C> Set<C> queryOutgoingAll(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
-        final URI property = connection.getValueFactory().createURI(rdf_property);
+        URI property = connection.getValueFactory().createURI(rdf_property);
 
-        final Set<C> dupSet = new LinkedHashSet<C>();
-        final RepositoryResult<Statement> triples = connection.getStatements(entity, property, null, false);
-        try {
-            while (triples.hasNext()) {
-                Statement triple = triples.next();
-                if (returnType.isInstance(triple.getObject())) {
-                    dupSet.add(returnType.cast(triple.getObject()));
-                }
+        RepositoryResult<Statement> triples = connection.getStatements(entity, property, null, false);
+
+        Set<C> dupSet = new LinkedHashSet<C>();
+
+        while (triples.hasNext()) {
+            Statement triple = triples.next();
+            if (returnType.isInstance(triple.getObject())) {
+                dupSet.add(returnType.cast(triple.getObject()));
             }
-        } finally {
-            triples.close();
         }
+        triples.close();
 
         return dupSet;
 
@@ -735,20 +730,20 @@ class FacadingInvocationHandler implements InvocationHandler {
      * 
      */
     private <C> Set<C> queryIncomingAll(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
-        final URI property = connection.getValueFactory().createURI(rdf_property);
 
-        final Set<C> dupSet = new LinkedHashSet<C>();
-        final RepositoryResult<Statement> triples = connection.getStatements(null, property, entity, false);
-        try {
-            while (triples.hasNext()) {
-                Statement triple = triples.next();
-                if (returnType.isInstance(triple.getSubject())) {
-                    dupSet.add(returnType.cast(triple.getSubject()));
-                }
+        URI property = connection.getValueFactory().createURI(rdf_property);
+
+        RepositoryResult<Statement> triples = connection.getStatements(null, property, entity, false);
+
+        Set<C> dupSet = new LinkedHashSet<C>();
+
+        while (triples.hasNext()) {
+            Statement triple = triples.next();
+            if (returnType.isInstance(triple.getSubject())) {
+                dupSet.add(returnType.cast(triple.getSubject()));
             }
-        } finally {
-            triples.close();
         }
+        triples.close();
 
         return dupSet;
     }
@@ -774,25 +769,23 @@ class FacadingInvocationHandler implements InvocationHandler {
     }
 
     private Set<String> getProperties(Resource entity, URI property, Locale loc, URI context) throws RepositoryException {
-        final String lang = loc == null ? null : loc.getLanguage().toLowerCase();
+        String lang = loc == null ? null : loc.getLanguage().toLowerCase();
 
-        final Set<String> values = new HashSet<String>();
-        final RepositoryResult<Statement> candidates = connection.getStatements(entity, property, null, false, context);
-        try {
-            while (candidates.hasNext()) {
-                Statement triple = candidates.next();
+        RepositoryResult<Statement> candidates = connection.getStatements(entity, property, null, false, context);
 
-                if (triple.getObject() instanceof Literal) {
-                    Literal l = (Literal) triple.getObject();
+        Set<String> values = new HashSet<String>();
+        while (candidates.hasNext()) {
+            Statement triple = candidates.next();
 
-                    if (lang == null || lang.equals(l.getLanguage())) {
-                        values.add(l.stringValue());
-                    }
+            if (triple.getObject() instanceof Literal) {
+                Literal l = (Literal) triple.getObject();
+
+                if (lang == null || lang.equals(l.getLanguage())) {
+                    values.add(l.stringValue());
                 }
             }
-        } finally {
-            candidates.close();
         }
+        candidates.close();
 
         return values;
     }

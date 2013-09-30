@@ -18,4 +18,3 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> ;
 @prefix test: <http://example.com/>
 @prefix dcterms: <http://purl.org/dc/terms/> ;
-@prefix foobar: <urn:uuid:1234> ;

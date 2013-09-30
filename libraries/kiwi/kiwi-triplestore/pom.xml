@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>kiwi-parent</artifactId>
-        <version>3.2.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
 
@@ -36,6 +36,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
                 <executions>
                     <execution>
                         <goals>
@@ -72,12 +73,6 @@
             <artifactId>tomcat-jdbc</artifactId>
         </dependency>
 
-        <!-- primary key generation -->
-        <dependency>
-            <groupId>com.fasterxml.uuid</groupId>
-            <artifactId>java-uuid-generator</artifactId>
-        </dependency>
-
 
         <!-- Sesame dependencies -->
         <dependency>
@@ -111,8 +106,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -156,7 +151,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
+            <groupId>org.jumpmind.symmetric.jdbc</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
@@ -181,18 +176,6 @@
             <artifactId>sesame-repository-sail</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-store-testsuite</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.google.code.tempus-fugit</groupId>
-            <artifactId>tempus-fugit</artifactId>
-            <scope>test</scope>
-        </dependency>
-
 
     </dependencies>
     

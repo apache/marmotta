@@ -19,20 +19,24 @@ package org.apache.marmotta.platform.core.test.base;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
 import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.core.webservices.CoreApplication;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.FilterMapping;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-
-import javax.servlet.DispatcherType;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.FilterHolder;
+import org.mortbay.jetty.servlet.ServletHolder;
 
 /**
  * An extended version of the EmbeddedMarmotta which also starts a jetty servlet 
@@ -87,13 +91,17 @@ public class JettyMarmotta extends AbstractMarmotta {
         this.port = port;
         this.context = (context != null ? context : "/");
         
-        // create a new jetty & run it on port 8080
-        jetty = new Server(this.port);
+        // create a new jetty
+        jetty = new Server();
 
-
+        // run it on port 8080
+        Connector connector=new SelectChannelConnector();
+        connector.setPort(this.port);
+        jetty.setConnectors(new Connector[]{connector});
+        
         TestInjectorFactory.setManager(container.getBeanManager());
 
-        ServletContextHandler ctx = new ServletContextHandler(jetty, this.context);
+        Context ctx = new Context(jetty, this.context);
 
         // now we have a context, start up the first phase of the LMF initialisation
         startupService.startupConfiguration(home.getAbsolutePath(), override, ctx.getServletContext());
@@ -104,7 +112,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         // register filters
         FilterHolder resourceFilter = new FilterHolder(CDIContext.getInstance(MarmottaResourceFilter.class));
         resourceFilter.setInitParameter("kiwi.resourceCaching", "true");
-        ctx.addFilter(resourceFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
+        ctx.addFilter(resourceFilter,"/*", Handler.DEFAULT);
 
         // register RestEasy so we can run web services
 

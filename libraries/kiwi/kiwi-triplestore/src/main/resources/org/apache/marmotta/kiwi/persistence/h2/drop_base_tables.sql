@@ -16,8 +16,13 @@
 DROP INDEX IF EXISTS idx_node_content;
 DROP INDEX IF EXISTS idx_literal_lang;
 
-DROP INDEX IF EXISTS idx_triples_op;
+DROP INDEX IF EXISTS idx_triples_s;
+DROP INDEX IF EXISTS idx_triples_o;
+DROP INDEX IF EXISTS idx_triples_sp;
+DROP INDEX IF EXISTS idx_triples_po;
 DROP INDEX IF EXISTS idx_triples_spo;
+DROP INDEX IF EXISTS idx_triples_cs;
+DROP INDEX IF EXISTS idx_triples_csp;
 DROP INDEX IF EXISTS idx_triples_cspo;
 
 DROP INDEX IF EXISTS idx_namespaces_uri;

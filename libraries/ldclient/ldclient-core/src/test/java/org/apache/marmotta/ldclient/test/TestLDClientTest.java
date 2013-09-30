@@ -30,8 +30,6 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-
 public class TestLDClientTest {
 
     private TestLDClient client;
@@ -69,7 +67,7 @@ public class TestLDClientTest {
 
     @Test(expected = DataRetrievalException.class)
     public void testLocalhostInvalidPort() throws Exception {
-        client.retrieveResource("http://127.1.2.3:66000/");
+        client.retrieveResource("http://127.1.2.3:-1/");
         Assert.fail();
     }
 

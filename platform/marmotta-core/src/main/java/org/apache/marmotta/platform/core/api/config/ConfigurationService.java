@@ -61,12 +61,6 @@ public interface ConfigurationService {
     static final String CONTEXT_INFERRED = "inferred";
 
     static final String CONTEXT_SYSTEM = "system";
-    
-    static final String DIR_CONFIG = "config";
-
-    static final String DIR_LOG = "log";
-
-    static final String DIR_IMPORT = "import";
 
     /**
      * Get the base URI of the system.
@@ -536,7 +530,4 @@ public interface ConfigurationService {
     void performServerShutdown();
 
 
-    boolean isInitialising();
-
-    void setInitialising(boolean initialising);
 }

@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.core.util;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;

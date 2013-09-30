@@ -28,31 +28,19 @@ import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.model.rdf.URI;
 import org.apache.marmotta.client.model.sparql.SPARQLResult;
 import org.apache.marmotta.client.util.HTTPUtil;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryResultHandler;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultParseException;
-import org.openrdf.query.resultio.QueryResultParser;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.UnsupportedQueryResultFormatException;
-import org.openrdf.query.resultio.helpers.QueryResultCollector;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Add file description here!
@@ -80,13 +68,14 @@ public class SPARQLClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
+    @SuppressWarnings("unchecked")
     public SPARQLResult select(String query) throws IOException, MarmottaClientException {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(query, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", TupleQueryResultFormat.JSON.getDefaultMIMEType());
+        get.setHeader("Accept", "application/sparql-results+json");
         
         try {
 
@@ -95,50 +84,57 @@ public class SPARQLClient {
             switch(response.getStatusLine().getStatusCode()) {
                 case 200:
                     log.debug("SPARQL Query {} evaluated successfully",query);
-                    QueryResultCollector results = new QueryResultCollector();
-                    
-                    parse(response.getEntity().getContent(), TupleQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+                    Map<String,Map<String,List<?>>> resultMap =
+                            mapper.readValue(response.getEntity().getContent(),new TypeReference<Map<String,Map<String,List<?>>>>(){});
 
-                    if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
+                    if(resultMap.isEmpty()) {
                         return null;
                     } else {
-                        List<String> fieldNames = results.getBindingNames();
+                        List<?> head = resultMap.get("head").get("vars");
+                        Set<String> fieldNames = new HashSet<String>();
+                        for(Object o : head) {
+                            if(o instanceof String) {
+                                fieldNames.add((String)o);
+                            }
+                        }
 
-                        SPARQLResult result = new SPARQLResult(new LinkedHashSet<String>(fieldNames));
+                        SPARQLResult result = new SPARQLResult(fieldNames);
 
-                        //List<?> bindings = resultMap.get("results").get("bindings");
-                        for(BindingSet nextRow : results.getBindingSets()) {
-                            Map<String,RDFNode> row = new HashMap<String, RDFNode>();
-                            
-                            for(String nextBindingName : fieldNames) {
-                                if(nextRow.hasBinding(nextBindingName)) {
-                                    Binding nextBinding = nextRow.getBinding(nextBindingName);
-                                    //Map<String,String> nodeDef = (Map<String,String>) entry.getValue();
-                                    Value nodeDef = nextBinding.getValue();
+                        List<?> bindings = resultMap.get("results").get("bindings");
+                        for(Object o : bindings) {
+                            if(o instanceof Map) {
+                                Map<String,RDFNode> row = new HashMap<String, RDFNode>();
+                                for(Map.Entry<String,?> entry : ((Map<String,?>)o).entrySet()) {
+                                    Map<String,String> nodeDef = (Map<String,String>) entry.getValue();
                                     RDFNode node = null;
-                                    if(nodeDef instanceof org.openrdf.model.URI) {
-                                        node = new URI(nodeDef.stringValue());
-                                    } else if(nodeDef instanceof org.openrdf.model.BNode) {
-                                        node = new BNode(((org.openrdf.model.BNode)nodeDef).getID());
-                                    } else if(nodeDef instanceof org.openrdf.model.Literal) {
-                                        org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal)nodeDef;
-                                        if(nodeLiteral.getLanguage() != null) {
-                                            node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage());
-                                        } else if(nodeLiteral.getDatatype() != null) {
-                                            node = new Literal(nodeLiteral.getLabel(), new URI(nodeLiteral.getDatatype().stringValue()));
+                                    if("uri".equalsIgnoreCase(nodeDef.get("type"))) {
+                                        node = new URI(nodeDef.get("value"));
+                                    } else if("literal".equalsIgnoreCase(nodeDef.get("type")) ||
+                                              "typed-literal".equalsIgnoreCase(nodeDef.get("type"))) {
+                                        String lang = nodeDef.get("xml:lang");
+                                        String datatype = nodeDef.get("datatype");
+
+                                        if(lang != null) {
+                                            node = new Literal(nodeDef.get("value"),lang);
+                                        } else if(datatype != null) {
+                                            node = new Literal(nodeDef.get("value"),new URI(datatype));
                                         } else {
-                                            node = new Literal(nodeLiteral.getLabel());
+                                            node = new Literal(nodeDef.get("value"));
                                         }
+                                    } else if("bnode".equalsIgnoreCase(nodeDef.get("type"))) {
+                                        node = new BNode(nodeDef.get("value"));
                                     } else {
-                                        log.error("unknown result node type: {}",nodeDef);
+                                        log.error("unknown result node type: {}",nodeDef.get("type"));
                                     }
                                     
                                     if(node != null) {
-                                        row.put(nextBindingName, node);
+                                        row.put(entry.getKey(),node);
                                     }
                                 }
+                                result.add(row);
                             }
-                            result.add(row);
                         }
                         return result;
                     }
@@ -147,16 +143,6 @@ public class SPARQLClient {
                     throw new MarmottaClientException("error evaluating SPARQL Select Query "+query+": "+response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
             }
 
-        } catch(TupleQueryResultHandlerException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Select Query ", e);
-        } catch(QueryResultParseException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Select Query ", e);
-        } catch(UnsupportedQueryResultFormatException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Select Query ", e);
-        } catch(IllegalStateException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Select Query ", e);
-        } catch(QueryResultHandlerException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Select Query ", e);
         } finally {
             get.releaseConnection();
         }
@@ -176,7 +162,7 @@ public class SPARQLClient {
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(askQuery, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", BooleanQueryResultFormat.JSON.getDefaultMIMEType());
+        get.setHeader("Accept", "application/sparql-results+json");
         
         try {
 
@@ -185,30 +171,22 @@ public class SPARQLClient {
             switch(response.getStatusLine().getStatusCode()) {
                 case 200:
                     log.debug("SPARQL ASK Query {} evaluated successfully",askQuery);
-                    QueryResultCollector results = new QueryResultCollector();
-                    
-                    parse(response.getEntity().getContent(), BooleanQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+                    Map<String,Object> resultMap =
+                            mapper.readValue(response.getEntity().getContent(),new TypeReference<Map<String,Object>>(){});
 
-                    if(!results.getHandledBoolean()) {
+                    if(resultMap.isEmpty()) {
                         return false;
                     } else {
-                        return results.getBoolean();
+                        Boolean result = resultMap.get("boolean") != null && ((String)resultMap.get("boolean")).equalsIgnoreCase("true");
+                        return result;
                     }
                 default:
                     log.error("error evaluating SPARQL ASK Query {}: {} {}",new Object[] {askQuery,response.getStatusLine().getStatusCode(),response.getStatusLine().getReasonPhrase()});
                     throw new MarmottaClientException("error evaluating SPARQL ASK Query "+askQuery+": "+response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase());
             }
 
-        } catch(TupleQueryResultHandlerException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
-        } catch(QueryResultParseException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
-        } catch(UnsupportedQueryResultFormatException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
-        } catch(IllegalStateException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
-        } catch(QueryResultHandlerException e) {
-            throw new MarmottaClientException("error evaluating SPARQL Ask Query ", e);
         } finally {
             get.releaseConnection();
         }
@@ -248,49 +226,4 @@ public class SPARQLClient {
         }
     }
     
-    /**
-     * FIXME: Replace this with QueryResultIO.parse after Sesame-2.7.3.
-     * 
-     * @param in
-     * @param format
-     * @param handler
-     * @param valueFactory
-     * @throws IOException
-     * @throws QueryResultParseException
-     * @throws TupleQueryResultHandlerException
-     * @throws UnsupportedQueryResultFormatException
-     */
-    private static void parse(InputStream in, TupleQueryResultFormat format, QueryResultHandler handler,
-            ValueFactory valueFactory)
-        throws IOException, QueryResultParseException, QueryResultHandlerException,
-        UnsupportedQueryResultFormatException
-    {
-        QueryResultParser parser = QueryResultIO.createParser(format);
-        parser.setValueFactory(valueFactory);
-        parser.setQueryResultHandler(handler);
-        parser.parseQueryResult(in);
-    }
-    
-    /**
-     * FIXME: Replace this with QueryResultIO.parse after Sesame-2.7.3.
-     * 
-     * @param in
-     * @param format
-     * @param handler
-     * @param valueFactory
-     * @throws IOException
-     * @throws QueryResultParseException
-     * @throws TupleQueryResultHandlerException
-     * @throws UnsupportedQueryResultFormatException
-     */
-    private static void parse(InputStream in, BooleanQueryResultFormat format, QueryResultHandler handler,
-            ValueFactory valueFactory)
-        throws IOException, QueryResultParseException, QueryResultHandlerException,
-        UnsupportedQueryResultFormatException
-    {
-        QueryResultParser parser = QueryResultIO.createParser(format);
-        parser.setValueFactory(valueFactory);
-        parser.setQueryResultHandler(handler);
-        parser.parseQueryResult(in);
-    }
 }
