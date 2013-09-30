@@ -17,15 +17,7 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assume.assumeThat;
 import info.aduna.iteration.Iterations;
-
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -36,10 +28,7 @@ import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
@@ -50,6 +39,14 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assume.assumeThat;
 
 /**
  * This test checks if the versioning functionality itself works, i.e. the system properly creates versions on
@@ -152,16 +149,14 @@ public class VersioningRepositoryTest {
         // list all versions
         List<Version> versions = asList(vsail.listVersions());
         Assert.assertEquals("expected 3 versions!", 3, versions.size());
-        Assert.assertEquals(1, (long)versions.get(0).getId());
-        Assert.assertEquals(2, (long)versions.get(1).getId());
-        Assert.assertEquals(3, (long)versions.get(2).getId());
+        Assert.assertTrue("version order is not correct", versions.get(0).getId() < versions.get(1).getId());
+        Assert.assertTrue("version order is not correct", versions.get(1).getId() < versions.get(2).getId());
         Assert.assertEquals(3, (long)versions.get(0).getAddedTriples().size());
         Assert.assertEquals(3, (long)versions.get(1).getAddedTriples().size());
         Assert.assertEquals(1, (long)versions.get(2).getAddedTriples().size());
 
         List<Version> versions1 = asList(vsail.listVersions(date1,date2));
         Assert.assertEquals("expected 1 version!", 1, versions1.size());
-        Assert.assertEquals(1, (long)versions1.get(0).getId());
         Assert.assertEquals(3, (long)versions1.get(0).getAddedTriples().size());
     }
 
@@ -224,7 +219,6 @@ public class VersioningRepositoryTest {
         // list all versions
         List<Version> versions = asList(vsail.listVersions());
         Assert.assertEquals("expected 3 versions!", 3, versions.size());
-        Assert.assertEquals(1, (long)versions.get(0).getId());
 
         URI subject = repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R1");
         URI predicate = repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/P2");
