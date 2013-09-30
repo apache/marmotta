@@ -17,13 +17,7 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
-import static org.hamcrest.Matchers.hasItems;
 import info.aduna.iteration.Iterations;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
@@ -38,14 +32,16 @@ import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItems;
 
 /**
  * This test checks if the database persistence for the versioning functionality works properly.
@@ -136,13 +132,11 @@ public class VersioningPersistenceTest {
             List<Version> list1 = Iterations.asList(connection.listVersions());
             Assert.assertEquals("there should be exactly one version",1,list1.size());
             Assert.assertEquals("contents of version differ", version1, list1.get(0));
-            Assert.assertEquals("version id is not 1", 1L, (long)list1.get(0).getId());
 
             // check if listVersions with subject1 now gives exactly one version
             List<Version> listr1 = Iterations.asList(connection.listVersions(subject1));
             Assert.assertEquals("there should be exactly one version", 1, listr1.size());
             Assert.assertEquals("contents of version differ", version1, listr1.get(0));
-            Assert.assertEquals("version id is not 1", 1L, (long)listr1.get(0).getId());
 
 
             Version version2 = new Version();
@@ -162,7 +156,6 @@ public class VersioningPersistenceTest {
             List<Version> listr2 = Iterations.asList(connection.listVersions(subject1));
             Assert.assertEquals("there should be exactly one version", 2, listr2.size());
             Assert.assertEquals("contents of version differ", version1, listr2.get(0));
-            Assert.assertEquals("version id is not 1", 1L, (long)listr2.get(0).getId());
 
             connection.commit();
         } finally {
@@ -239,7 +232,6 @@ public class VersioningPersistenceTest {
             List<Version> list1 = Iterations.asList(connection.listVersions(date1,date2));
             Assert.assertEquals("there should be exactly one version from "+date1+" to "+date2,1,list1.size());
             Assert.assertEquals("contents of version differ", version1, list1.get(0));
-            Assert.assertEquals("version id is not 1", 1L, (long)list1.get(0).getId());
 
             // check if getLatestVersion at date2 works
             Version latest2 = connection.getLatestVersion(subject,date2);
@@ -250,13 +242,12 @@ public class VersioningPersistenceTest {
             List<Version> listr1 = Iterations.asList(connection.listVersions(subject,date1,date2));
             Assert.assertEquals("there should be exactly one version", 1, listr1.size());
             Assert.assertEquals("contents of version differ", version1, listr1.get(0));
-            Assert.assertEquals("version id is not 1", 1L, (long)listr1.get(0).getId());
 
 
             List<Version> list2 = Iterations.asList(connection.listVersions(date2,date3));
             Assert.assertEquals("there should be exactly one version from "+date2+" to "+date3,1,list2.size());
             Assert.assertEquals("contents of version differ", version2, list2.get(0));
-            Assert.assertEquals("version id is not 2", 2L, (long)list2.get(0).getId());
+            Assert.assertTrue("order of versions is not correct", version1.getId() < (long) list2.get(0).getId());
 
             List<Version> list3 = Iterations.asList(connection.listVersions(date3,new Date()));
             Assert.assertEquals("there should be no version from "+date3+" to now",0,list3.size());
@@ -313,7 +304,6 @@ public class VersioningPersistenceTest {
             List<Version> list1 = Iterations.asList(connection.listVersions());
             Assert.assertEquals("there should be exactly one version",1,list1.size());
             Assert.assertEquals("contents of version differ", version1, list1.get(0));
-            Assert.assertEquals("version id is not 1", 1L, (long)list1.get(0).getId());
 
             Version version2 = new Version();
             version2.setCommitTime(new Date());

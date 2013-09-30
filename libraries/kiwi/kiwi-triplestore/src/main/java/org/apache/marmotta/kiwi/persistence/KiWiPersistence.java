@@ -17,34 +17,21 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import com.google.common.util.concurrent.AtomicLongMap;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.generator.*;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
-import org.openrdf.model.Statement;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Add file description here!
@@ -75,18 +62,12 @@ public class KiWiPersistence {
     private KiWiConfiguration     configuration;
 
     /**
-     * A map holding in-memory sequences to be used for sequence caching in case the appropriate configuration option
-     * is configued and batched commits are enabled.
-     */
-    private AtomicLongMap<String> memorySequences;
-
-    private ReentrantLock          sequencesLock;
-
-
-    /**
      * A reference to the value factory used to access this store. Used for notifications when to flush batches.
      */
     private KiWiValueFactory      valueFactory;
+
+
+    private IDGenerator    idGenerator;
 
 
     /**
@@ -100,9 +81,6 @@ public class KiWiPersistence {
 
     private boolean         initialized = false;
 
-    // keep track which memory sequences have been updated and need to be written back
-    private Set<String>     sequencesUpdated;
-
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
         this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect));
@@ -111,8 +89,6 @@ public class KiWiPersistence {
     public KiWiPersistence(KiWiConfiguration configuration) {
         this.configuration = configuration;
         this.maintenance = false;
-        this.sequencesLock = new ReentrantLock();
-        this.sequencesUpdated = new HashSet<>();
     }
 
     public void initialise() {
@@ -207,50 +183,26 @@ public class KiWiPersistence {
      * Initialise in-memory sequences if the feature is enabled.
      */
     public void initSequences(String scriptName) {
-        if(configuration.isBatchCommit() && configuration.isMemorySequences()) {
-            sequencesLock.lock();
-            try {
-                if(memorySequences == null) {
-                    memorySequences = AtomicLongMap.create();
-                }
-
-                try {
-                    Connection con = getJDBCConnection(true);
-                    try {
-                        for(String sequenceName : getDialect().listSequences(scriptName)) {
-
-                            // load sequence value from database
-                            // if there is a preparation needed to update the transaction, run it first
-                            if(getDialect().hasStatement(sequenceName+".prep")) {
-                                PreparedStatement prepNodeId = con.prepareStatement(getDialect().getStatement(sequenceName+".prep"));
-                                prepNodeId.executeUpdate();
-                                prepNodeId.close();
-                            }
-
-                            PreparedStatement queryNodeId = con.prepareStatement(getDialect().getStatement(sequenceName));
-                            ResultSet resultNodeId = queryNodeId.executeQuery();
-                            try {
-                                if(resultNodeId.next()) {
-                                    memorySequences.put(sequenceName,resultNodeId.getLong(1)-1);
-                                } else {
-                                    throw new SQLException("the sequence did not return a new value");
-                                }
-                            } finally {
-                                resultNodeId.close();
-                            }
-
-                            con.commit();
-                        }
-                    } finally {
-                        releaseJDBCConnection(con);
-                    }
-                } catch(SQLException ex) {
-                    log.warn("database error: could not initialise in-memory sequences",ex);
-                }
-            } finally {
-                sequencesLock.unlock();
-            }
+        switch (configuration.getIdGeneratorType()) {
+            case DATABASE_SEQUENCE:
+                idGenerator = new DatabaseSequenceIDGenerator();
+                break;
+            case MEMORY_SEQUENCE:
+                idGenerator = new MemorySequenceIDGenerator();
+                break;
+            case UUID_TIME:
+                idGenerator = new UUIDTimeIDGenerator();
+                break;
+            case UUID_RANDOM:
+                idGenerator = new UUIDRandomIDGenerator();
+                break;
+            case SNOWFLAKE:
+                idGenerator = new SnowflakeIDGenerator();
+                break;
+            default:
+                idGenerator = new DatabaseSequenceIDGenerator();
         }
+        idGenerator.init(this,scriptName);
     }
 
     public void logPoolInfo() throws SQLException {
@@ -510,29 +462,12 @@ public class KiWiPersistence {
     public void shutdown() {
         initialized = false;
 
-        if(!droppedDatabase && !configuration.isCommitSequencesOnCommit()) {
-            log.info("storing in-memory sequences in database ...");
-            try {
-                KiWiConnection connection = getConnection();
-                try {
-                    connection.commitMemorySequences();
-                    connection.commit();
-                } finally {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("could not store back values of in-memory sequences", e);
-            }
-        }
-
-
+        idGenerator.shutdown(this);
         garbageCollector.shutdown();
         cacheManager.shutdown();
         connectionPool.close();
 
         connectionPool = null;
-        memorySequences = null;
-
     }
 
     /**
@@ -555,20 +490,6 @@ public class KiWiPersistence {
         return configuration;
     }
 
-    public AtomicLongMap<String> getMemorySequences() {
-        return memorySequences;
-    }
-
-    public long incrementAndGetMemorySequence(String name) {
-        sequencesUpdated.add(name);
-
-        if(memorySequences != null) {
-            return memorySequences.incrementAndGet(name);
-        } else {
-            return 0;
-        }
-    }
-
 
     public void garbageCollect() throws SQLException {
         this.garbageCollector.garbageCollect();
@@ -578,11 +499,7 @@ public class KiWiPersistence {
         return garbageCollector.checkConsistency();
     }
 
-    public Set<String> getSequencesUpdated() {
-        return sequencesUpdated;
-    }
-
-    public void setSequencesUpdated(Set<String> sequencesUpdated) {
-        this.sequencesUpdated = sequencesUpdated;
+    public IDGenerator getIdGenerator() {
+        return idGenerator;
     }
 }

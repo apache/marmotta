@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.config;
 
+import org.apache.marmotta.kiwi.generator.IDGeneratorType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 
 /**
@@ -83,13 +84,10 @@ public class KiWiConfiguration {
     private int cursorSize = 1000;
 
     /**
-     * If enabled, and batchCommit is also true, load sequence values into static memory fields once and increment
-     * values purely in-memory. The last value is then written back on batch commits.
+     * The method to use for generating row IDs. Starting with Marmotta 3.2, the default is to use the Twitter Snowflake
+     * algorithm.
      */
-    private boolean memorySequences = true;
-
-
-    private boolean commitSequencesOnCommit = true;
+    private IDGeneratorType idGeneratorType = IDGeneratorType.SNOWFLAKE;
 
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
@@ -201,32 +199,16 @@ public class KiWiConfiguration {
         this.cursorSize = cursorSize;
     }
 
-    public boolean isMemorySequences() {
-        return memorySequences;
-    }
-
     /**
-     * Enable in-memory sequences. If enabled, and batchCommit is also true, load sequence values into static memory
-     * fields once and increment values purely in-memory. The last value is then written back on batch commits. This
-     * feature can avoid many database accesses and connections and therefore give significant performance improvements.
-     * (EXPERIMENTAL).
-     */
-    public void setMemorySequences(boolean memorySequences) {
-        this.memorySequences = memorySequences;
-    }
-
-
-    public boolean isCommitSequencesOnCommit() {
-        return commitSequencesOnCommit;
-    }
-
-    /**
-     * This flag determines whether memory sequences should be stored back into the database on every commit or only
-     * when the repository shuts down. Saving back on every commit is safer, but has less performance.
+     * The ID generator used for generating row IDs in the database. See documentation in {@link IDGeneratorType}
      *
-     * @param commitSequencesOnCommit
+     * @return the type defined for this configuration
      */
-    public void setCommitSequencesOnCommit(boolean commitSequencesOnCommit) {
-        this.commitSequencesOnCommit = commitSequencesOnCommit;
+    public IDGeneratorType getIdGeneratorType() {
+        return idGeneratorType;
+    }
+
+    public void setIdGeneratorType(IDGeneratorType idGeneratorType) {
+        this.idGeneratorType = idGeneratorType;
     }
 }
