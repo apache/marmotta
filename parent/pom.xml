@@ -976,6 +976,19 @@
                 <version>7.0.42</version>
             </dependency>
 
+            <!--Secure  Unique IDs -->
+            <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>3.1.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
 
             <!-- Test Support -->
             <dependency>

@@ -19,14 +19,7 @@ package org.apache.marmotta.platform.core.services.triplestore;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.api.triplestore.StandardSailProvider;
-import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
-import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
-import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
-import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
+import org.apache.marmotta.kiwi.generator.IDGeneratorType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -36,6 +29,14 @@ import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
 import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.transactions.model.TransactionData;
 import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.StandardSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
+import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
+import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
+import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -155,7 +156,17 @@ public class SesameServiceImpl implements SesameService {
             configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
             configuration.setBatchCommit(batchCommit);
             configuration.setBatchSize(configurationService.getIntConfiguration("database.batchsize",10000));
-            configuration.setMemorySequences(configurationService.getBooleanConfiguration("database.memsequences",true));
+
+            String generatorType = configurationService.getStringConfiguration("database.generator", "uuid-time");
+            if("uuid-time".equals(generatorType)) {
+                configuration.setIdGeneratorType(IDGeneratorType.UUID_TIME);
+            } else if("uuid-random".equals(generatorType)) {
+                configuration.setIdGeneratorType(IDGeneratorType.UUID_RANDOM);
+            } else if("sequence".equals(generatorType)) {
+                configuration.setIdGeneratorType(IDGeneratorType.DATABASE_SEQUENCE);
+            } else if("memory".equals(generatorType)) {
+                configuration.setIdGeneratorType(IDGeneratorType.MEMORY_SEQUENCE);
+            }
 
             store = new KiWiStore(configuration);
 

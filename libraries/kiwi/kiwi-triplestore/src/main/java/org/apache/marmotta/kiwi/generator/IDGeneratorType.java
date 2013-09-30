@@ -1,0 +1,54 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.marmotta.kiwi.generator;
+
+/**
+ * An enum for describing different ways of calculating the primary key ids for database rows in the KiWiConfiguration
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
+ */
+public enum IDGeneratorType {
+    /**
+     * Generate keys using database sequences (for databases which support it) or atomic table updates
+     */
+    DATABASE_SEQUENCE,
+
+    /**
+     * Load the sequences in-memory on startup and generate ids by incrementing an atomic counter. Much faster
+     * than database sequences and backwards-compatible, but only works for exclusive connections to the
+     * database (i.e. no other application is accessing the same database)
+     */
+    MEMORY_SEQUENCE,
+
+
+    /**
+     * Generate row ids using the least significant 8 bytes of time-based UUIDs as described in http://www.ietf.org/rfc/rfc4122.txt
+     */
+    UUID_TIME,
+
+
+    /**
+     * Generate the row ids using the least significant 8 bytes of secure random UUIDs as described in http://www.ietf.org/rfc/rfc4122.txt
+     */
+    UUID_RANDOM,
+
+    /**
+     * Generate the row ids using the Twitter Snowflake algorithm described in https://github.com/twitter/snowflake
+     */
+    SNOWFLAKE
+}
