@@ -248,7 +248,6 @@ public class SparqlWebService {
 	        	} else if (QueryType.GRAPH.equals(queryType)) {
 	        		Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
 	        		producedTypes.remove("application/xml");
-	        		producedTypes.remove("application/xml");
 	        		producedTypes.remove("text/plain");
 	        		producedTypes.remove("text/html");
 	        		producedTypes.remove("application/xhtml+xml");
@@ -539,6 +538,10 @@ public class SparqlWebService {
         for(QueryResultFormat type : types) {
             results.addAll(type.getMIMETypes());
         }
+        // HACK: Remove application/xml so that application/sparql-results+xml 
+        // and application/rdf+xml, for tuple/boolean and graph results, respectively, 
+        // will be preferred
+        results.remove("application/xml");
         return results;
     }
     
