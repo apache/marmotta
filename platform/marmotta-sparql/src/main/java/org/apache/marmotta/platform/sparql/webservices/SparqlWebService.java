@@ -536,6 +536,9 @@ public class SparqlWebService {
     private Set<String> getTypes(Collection<? extends QueryResultFormat> types) {
         Set<String> results = new LinkedHashSet<String>();
         for(QueryResultFormat type : types) {
+            results.add(type.getDefaultMIMEType());
+        }
+        for(QueryResultFormat type : types) {
             results.addAll(type.getMIMETypes());
         }
         // HACK: Remove application/xml so that application/sparql-results+xml 
