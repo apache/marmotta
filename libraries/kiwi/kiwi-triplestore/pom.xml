@@ -72,6 +72,12 @@
             <artifactId>tomcat-jdbc</artifactId>
         </dependency>
 
+        <!-- primary key generation -->
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+        </dependency>
+
 
         <!-- Sesame dependencies -->
         <dependency>
