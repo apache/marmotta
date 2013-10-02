@@ -242,9 +242,9 @@ public class SparqlWebService {
 	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
 	        	}
 	        	if (QueryType.TUPLE.equals(queryType)) {
-	        		offeredTypes  = MarmottaHttpUtils.parseStringList(getTypes(TupleQueryResultWriterRegistry.getInstance().getKeys()));
+	        		offeredTypes  = MarmottaHttpUtils.parseQueryResultFormatList(TupleQueryResultWriterRegistry.getInstance().getKeys());
 	        	} else if (QueryType.BOOL.equals(queryType)) {
-	        		offeredTypes  = MarmottaHttpUtils.parseStringList(getTypes(BooleanQueryResultWriterRegistry.getInstance().getKeys()));
+	        		offeredTypes  = MarmottaHttpUtils.parseQueryResultFormatList(BooleanQueryResultWriterRegistry.getInstance().getKeys());
 	        	} else if (QueryType.GRAPH.equals(queryType)) {
 	        		Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
 	        		producedTypes.remove("application/xml");
@@ -528,26 +528,6 @@ public class SparqlWebService {
         return r;
     }
 
-    /**
-     * Build a set of mime types based on the given formats
-     * @param types
-     * @return
-     */
-    private Set<String> getTypes(Collection<? extends QueryResultFormat> types) {
-        Set<String> results = new LinkedHashSet<String>();
-        for(QueryResultFormat type : types) {
-            results.add(type.getDefaultMIMEType());
-        }
-        for(QueryResultFormat type : types) {
-            results.addAll(type.getMIMETypes());
-        }
-        // HACK: Remove application/xml so that application/sparql-results+xml 
-        // and application/rdf+xml, for tuple/boolean and graph results, respectively, 
-        // will be preferred
-        results.remove("application/xml");
-        return results;
-    }
-    
     private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
     private String parseSubType(String mimeType) {
         Matcher matcher = subTypePattern.matcher(mimeType);

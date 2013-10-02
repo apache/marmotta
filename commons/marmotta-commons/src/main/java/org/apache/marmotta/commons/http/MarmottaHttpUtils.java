@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.openrdf.query.resultio.QueryResultFormat;
+
 /**
  * Add file description here!
  * <p/>
@@ -70,6 +72,33 @@ public class MarmottaHttpUtils {
             ContentType type = parseContentType(c);
             if(type != null) {
                 contentTypes.add(type);
+            }
+        }
+        return contentTypes;
+    }
+
+
+    public static List<ContentType> parseQueryResultFormatList(Collection<? extends QueryResultFormat> types) {
+        List<ContentType> contentTypes = new ArrayList<ContentType>();
+        for(QueryResultFormat c : types) {
+            // We cannot handle formats that do not have a charset, ie, they are binary formats
+            if(c.hasCharset()) {
+                for(String nextMimeType : c.getMIMETypes()) {
+                    if(nextMimeType.equals("application/xml")) {
+                        // HACK: Remove application/xml so that application/sparql-results+xml 
+                        // and application/rdf+xml, for tuple/boolean and graph results, respectively, 
+                        // will be preferred
+                        continue;
+                    }
+                    ContentType type = new ContentType(parseContentType(nextMimeType).getType(), 
+                            parseContentType(nextMimeType).getSubtype(), c.getCharset());
+                    if(c.getDefaultMIMEType().equals(nextMimeType)) {
+                        type.setParameter("q", "1.0");
+                    } else {
+                        type.setParameter("q", "0.5");
+                    }
+                    contentTypes.add(type);
+                }
             }
         }
         return contentTypes;
