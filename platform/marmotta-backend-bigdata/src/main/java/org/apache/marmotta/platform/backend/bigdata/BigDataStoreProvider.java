@@ -25,6 +25,7 @@ import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
 import org.slf4j.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.Properties;
@@ -38,6 +39,7 @@ import java.util.Properties;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
+@ApplicationScoped
 public class BigDataStoreProvider implements StoreProvider {
 
     @Inject
@@ -61,10 +63,14 @@ public class BigDataStoreProvider implements StoreProvider {
 
         Properties properties = new Properties();
         properties.setProperty( BigdataSail.Options.FILE, journal.getAbsolutePath());
+        properties.setProperty( BigdataSail.Options.QUADS, "true");
+        properties.setProperty( BigdataSail.Options.TRUTH_MAINTENANCE, "false");
+        properties.setProperty( BigdataSail.Options.STATEMENT_IDENTIFIERS, "false");
+        properties.setProperty( BigdataSail.Options.AXIOMS_CLASS, "com.bigdata.rdf.axioms.NoAxioms");
+        properties.setProperty( BigdataSail.Options.TEXT_INDEX, "true");
 
-        BigdataSail sail = new BigdataSail(properties);
 
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new BigDataSesame27Sail(properties);
     }
 
 

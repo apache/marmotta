@@ -163,7 +163,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-transactions</artifactId>
+            <artifactId>kiwi-sparql</artifactId>
         </dependency>
     </dependencies>
 

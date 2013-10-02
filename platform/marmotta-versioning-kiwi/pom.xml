@@ -28,12 +28,13 @@
     <artifactId>marmotta-versioning-kiwi</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Marmotta Platform: Versioning</name>
+    <name>Apache Marmotta Platform: Versioning (KiWi Backend)</name>
     <description>
         This module provides versioning support for all modifications of the data contained in the LMF System (triples,
         resources, namespaces). Versions are accessible according to the Memento protocol using a special webservice.
         Versioning is triggered when a transaction finishes successfully and will store additional
         versioning information in the database. Note that this implies a certain performance overhead.
+        This module contains the KiWi backend for versioning.
     </description>
 
     <build>
@@ -157,16 +158,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-versioning-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-backend-kiwi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-versioning</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
         </dependency>
     </dependencies>
 

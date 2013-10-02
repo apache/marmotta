@@ -25,6 +25,7 @@ import org.openrdf.sail.Sail;
 import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.File;
 
@@ -34,6 +35,7 @@ import java.io.File;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
+@ApplicationScoped
 public class NativeStoreProvider implements StoreProvider {
 
     @Inject

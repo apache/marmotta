@@ -17,22 +17,21 @@
  */
 package org.apache.marmotta.platform.user.services;
 
-import org.apache.marmotta.platform.core.model.user.MarmottaUser;
-import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
-import org.apache.marmotta.platform.user.api.AccountService;
-import org.apache.marmotta.platform.user.model.UserAccount;
-import org.apache.marmotta.platform.user.model.UserAccount.PasswordHash;
 import com.google.common.base.Preconditions;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.platform.core.model.user.MarmottaUser;
+import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
+import org.apache.marmotta.platform.user.api.AccountService;
+import org.apache.marmotta.platform.user.model.UserAccount;
+import org.apache.marmotta.platform.user.model.UserAccount.PasswordHash;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -159,17 +158,11 @@ public class AccountServiceImpl implements AccountService {
             }
         }
 
-        if(webid instanceof KiWiUriResource) {
-            UserAccount account = new UserAccount(login, webid.stringValue());
+        UserAccount account = new UserAccount(login, webid.stringValue());
 
-            save(account);
+        save(account);
 
-            return account;
-        } else {
-            log.error("could not create user account, the backend is not KiWi");
-
-            return null;
-        }
+        return account;
     }
 
     private void save(UserAccount account) {

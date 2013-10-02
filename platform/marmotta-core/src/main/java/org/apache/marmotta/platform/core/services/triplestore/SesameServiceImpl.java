@@ -18,22 +18,12 @@
 package org.apache.marmotta.platform.core.services.triplestore;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.generator.IDGeneratorType;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
 import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.transactions.model.TransactionData;
 import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.api.triplestore.StandardSailProvider;
-import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.*;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
@@ -98,6 +88,12 @@ public class SesameServiceImpl implements SesameService {
     private Event<TransactionData> afterRollbackEvent;
 
     /**
+     * triple store providers from backend modules
+     */
+    @Inject
+    private Instance<StoreProvider> storeProviders;
+
+    /**
      * notifying sail providers from other modules
      */
     @Inject
@@ -115,8 +111,13 @@ public class SesameServiceImpl implements SesameService {
     @Inject
     private Instance<StandardSailProvider> standardSailProviders;
 
+    /**
+     * garbage collectors for backends that support it
+     */
+    @Inject
+    private Instance<GarbageCollectionProvider> garbageCollectionProviders;
 
-    private KiWiStore  store;
+    private NotifyingSail store;
 
     private KiWiTransactionalSail tsail;
 
@@ -137,40 +138,16 @@ public class SesameServiceImpl implements SesameService {
                 log.warn("RDF repository has already been initialized");
             }
 
-            String database = configurationService.getStringConfiguration("database.type");
-            KiWiDialect dialect;
-            if("h2".equalsIgnoreCase(database)) {
-                dialect = new H2Dialect();
-            } else if("mysql".equalsIgnoreCase(database)) {
-                dialect = new MySQLDialect();
-            } else if("postgres".equalsIgnoreCase(database)) {
-                dialect = new PostgreSQLDialect();
-            } else
-                throw new IllegalStateException("database type "+database+" currently not supported!");
-            String jdbcUrl = configurationService.getStringConfiguration("database.url");
-            String dbUser  = configurationService.getStringConfiguration("database.user");
-            String dbPass  = configurationService.getStringConfiguration("database.password");
-            boolean batchCommit = configurationService.getBooleanConfiguration("database.batchcommit", true);
-
-            KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
-            configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
-            configuration.setBatchCommit(batchCommit);
-            configuration.setBatchSize(configurationService.getIntConfiguration("database.batchsize",10000));
-
-            String generatorType = configurationService.getStringConfiguration("database.generator", "uuid-time");
-            if("uuid-time".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.UUID_TIME);
-            } else if("uuid-random".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.UUID_RANDOM);
-            } else if("sequence".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.DATABASE_SEQUENCE);
-            } else if("memory".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.MEMORY_SEQUENCE);
-            } else if("snowflake".equals(generatorType)) {
-                configuration.setIdGeneratorType(IDGeneratorType.SNOWFLAKE);
+            if(storeProviders.isAmbiguous()) {
+                log.error("more than one storage backend in classpath; please only select one storage backend");
+                return;
+            }
+            if(storeProviders.isUnsatisfied()) {
+                log.error("no storage backend found in classpath; please add one of the marmotta-backend-XXX modules");
+                return;
             }
 
-            store = new KiWiStore(configuration);
+            store = storeProviders.get().createStore();
 
             tsail = new KiWiTransactionalSail(store);
 
@@ -212,7 +189,7 @@ public class SesameServiceImpl implements SesameService {
             // the CDI events should be triggered once all internal events have been handled, so register the transaction listener last
             tsail.addTransactionListener(new LMFTransactionEventProxy());
 
-            repository = new SailRepository(standardSail);
+            repository = storeProviders.get().createRepository(standardSail);
 
             try {
                 repository.initialize();
@@ -324,7 +301,9 @@ public class SesameServiceImpl implements SesameService {
     @Override
     public void garbageCollect() throws SailException {
         if(store != null) {
-            store.garbageCollect();
+            for(GarbageCollectionProvider p : garbageCollectionProviders) {
+                p.garbageCollect(store);
+            }
         }
     }
 

@@ -24,14 +24,18 @@ import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 /**
@@ -54,11 +58,17 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class KiWiStoreProvider implements StoreProvider {
 
+    public static final String SPARQL_STRATEGY = "sparql.strategy";
+
     @Inject
     private Logger log;
 
     @Inject
     private ConfigurationService configurationService;
+
+    @Inject
+    private SesameService sesameService;
+
 
     /**
      * Create the store provided by this SailProvider
@@ -102,7 +112,11 @@ public class KiWiStoreProvider implements StoreProvider {
             configuration.setIdGeneratorType(IDGeneratorType.SNOWFLAKE);
         }
 
-        return new KiWiStore(configuration);
+        if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
+            return new KiWiSparqlSail(new KiWiStore(configuration));
+        } else {
+            return new KiWiStore(configuration);
+        }
     }
 
     /**
@@ -136,4 +150,11 @@ public class KiWiStoreProvider implements StoreProvider {
     public boolean isEnabled() {
         return true;
     }
+
+    public void configurationChanged(@Observes ConfigurationChangedEvent e) {
+        if(e.containsChangedKey(SPARQL_STRATEGY)) {
+            sesameService.restart();
+        }
+    }
+
 }

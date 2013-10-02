@@ -65,6 +65,9 @@
         <module>marmotta-sparql</module>
         <module>marmotta-user</module>
 
+        <module>marmotta-ldcache-common</module>
+        <module>marmotta-versioning-common</module>
+
         <!-- KiWi backend specific modules -->
         <module>marmotta-ldcache-kiwi</module>
         <module>marmotta-reasoner-kiwi</module>
