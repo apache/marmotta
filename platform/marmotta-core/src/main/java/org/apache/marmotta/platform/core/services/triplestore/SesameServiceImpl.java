@@ -166,6 +166,8 @@ public class SesameServiceImpl implements SesameService {
                 configuration.setIdGeneratorType(IDGeneratorType.DATABASE_SEQUENCE);
             } else if("memory".equals(generatorType)) {
                 configuration.setIdGeneratorType(IDGeneratorType.MEMORY_SEQUENCE);
+            } else if("snowflake".equals(generatorType)) {
+                configuration.setIdGeneratorType(IDGeneratorType.SNOWFLAKE);
             }
 
             store = new KiWiStore(configuration);

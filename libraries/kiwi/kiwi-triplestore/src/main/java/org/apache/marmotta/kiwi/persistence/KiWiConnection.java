@@ -1983,7 +1983,9 @@ public class KiWiConnection {
         execution.execute(connection, new RetryCommand<Void>() {
             @Override
             public Void run() throws SQLException {
-                persistence.getIdGenerator().commit(persistence, getJDBCConnection());
+                if(connection != null) {
+                    persistence.getIdGenerator().commit(persistence, connection);
+                }
 
                 if(tripleBatch != null && tripleBatch.size() > 0) {
                     flushBatch();
