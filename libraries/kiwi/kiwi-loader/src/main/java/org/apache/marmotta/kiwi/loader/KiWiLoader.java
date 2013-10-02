@@ -34,17 +34,15 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
-import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,27 +78,53 @@ public class KiWiLoader {
         CommandLineParser parser = new PosixParser();
         try {
             CommandLine cmd = parser.parse(options, args);
-
-            final String dbCon, dbUser, dbPasswd;
-            dbCon = cmd.getOptionValue('d');
-            dbUser = cmd.getOptionValue('U');
-            
-            final KiWiDialect dialect = getDialect(cmd, dbCon);
-            dbPasswd = getPassword(cmd, dbCon, dbUser);
-            
-            KiWiConfiguration kiwi = new KiWiConfiguration("kiwiLoader", dbCon, dbUser, dbPasswd, dialect);
-            
             
             String baseUri = endWith("http://localhost/", "/"),
                    context = baseUri+"context/default", 
                    format = null;
             boolean gzip = false;
             
+            String dbCon = null, dbUser = null, dbPasswd = null;
+            KiWiDialect dialect = null;
+            
             if (cmd.hasOption('c')) {
                 Configuration conf = new PropertiesConfiguration(cmd.getOptionValue('c'));
                 baseUri = endWith(conf.getString("kiwi.context", baseUri), "/");
                 context = conf.getString("kiwi.context", baseUri) + "context/default";
+                
+                dbCon = conf.getString("database.url");
+                dbUser = conf.getString("database.user");
+                dbPasswd = conf.getString("database.password");
+                
+                String dbType = conf.getString("database.type");
+                if ("h2".equalsIgnoreCase(dbType)) {
+                    dialect = new H2Dialect();
+                } else if ("mysql".equalsIgnoreCase(dbType)) {
+                    dialect = new MySQLDialect();
+                } else if ("postgres".equalsIgnoreCase(dbType)) {
+                    dialect = new PostgreSQLDialect();
+                }
             }
+            
+            if (cmd.hasOption('d')) {
+                dbCon = cmd.getOptionValue('d');
+            }
+            if (cmd.hasOption('U')) {
+                dbUser = cmd.getOptionValue('U');
+            }
+            
+            dialect = getDialect(cmd, dbCon, dialect);
+            dbPasswd = getPassword(cmd, dbCon, dbUser, dbPasswd);
+            
+            if (dbCon == null || dbUser == null || dbPasswd == null || dialect == null) {
+                log.error("Cannot import without database connection!\n"
+                        +"Please provide the database configuration either\n"
+                        +"- in a kiwi-config file (-c), and/or\n"
+                        +"- as commandline parameters (-d, -U, -P, -D");
+                System.exit(3);
+            }
+            
+            KiWiConfiguration kiwi = new KiWiConfiguration("kiwiLoader", dbCon, dbUser, dbPasswd, dialect);
             
             if (cmd.hasOption('b')) {
                 baseUri = endWith(cmd.getOptionValue('b', baseUri), "/");
@@ -124,24 +148,35 @@ public class KiWiLoader {
                 throw new ParseException("No files to import");
             }
             
+            log.info("Initializing KiWiLoader for {}; user: {}, password: {}", dbCon, dbUser, String.format("%"+dbPasswd.length()+"s", "*"));
             KiWiLoader loader = new KiWiLoader(kiwi, baseUri, context);
             loader.setVersioningEnabled(cmd.hasOption("versioning"));
             loader.setReasoningEnabled(cmd.hasOption("reasoning"));
             loader.initialize();
             
+            log.info("Starting import");
             for (String inFile: inputFiles) {
+                log.info("Importing {}", inFile);
+                long start = System.currentTimeMillis();
                 loader.load(inFile, format, gzip);
+                long dur = System.currentTimeMillis() - start;
+                log.info("Import completed ({}): {}", inFile, dur);
             }
             
+            log.info("Import complete, shutting down.");
             loader.shutdown();
+            log.info("Exiting");
         } catch (ParseException e) {
             log.error(e.getMessage());
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp(KiWiLoader.class.getSimpleName(), options, true);
+            System.exit(1);
         } catch (ConfigurationException e) {
             log.error("Could not read system-config.properties: {}", e.getMessage());
+            System.exit(1);
         } catch (RepositoryException e) {
             log.error("Sesame-Exception: {}", e.getMessage(), e);
+            System.exit(2);
         }
     }
 
@@ -162,24 +197,37 @@ public class KiWiLoader {
     }
 
     public void load(String file, String format, boolean gzip) {
-        // TODO Auto-generated method stub
-        
+        try {
+            final SailRepositoryConnection con = repository.getConnection();
+            try {
+                con.begin();
+                // TODO Auto-generated method stub
+                con.commit();
+            } finally {
+                con.close();
+            }
+        } catch (RepositoryException re) {
+            log.error("RepositoryException: {}", re.getMessage());
+        }
     }
 
     public synchronized void initialize() throws RepositoryException {
         if (repository != null && repository.isInitialized()) {
             throw new IllegalStateException("repository already initialized");
         }
-        KiWiStore store = new KiWiStore((kiwi));
+        log.debug("initializing kiwi-store: {}", kiwi);
+        KiWiStore store = new KiWiStore(kiwi);
         
         TransactionalSail tSail = new KiWiTransactionalSail(store);
         if (isVersioningEnabled) {
+            log.debug("enabling versioning...");
             // TODO: Add Versioning
             // tSail = new KiWiVersioningSail(tSail);
             log.warn("versioning not yet supported/implemented");
         }
 
         if (isReasoningEnabled) {
+            log.debug("enabling reasoner...");
             // TODO: Add Reasoning
             // tSail = new KiWiReasoningSail(tSail, null);
             log.warn("reasoning not yet supported/implemented");
@@ -189,7 +237,7 @@ public class KiWiLoader {
         repository.initialize();
     }
 
-    private static String getPassword(CommandLine cmd, String jdbc, String user) throws ParseException {
+    private static String getPassword(CommandLine cmd, String jdbc, String user, String password) throws ParseException {
         if (cmd.hasOption('P')) {
             if (cmd.getOptionValue('P') != null) {
                 return cmd.getOptionValue('P');
@@ -203,15 +251,17 @@ public class KiWiLoader {
                 return new String(passwordArray);
             }
         } else {
-            return "";
+            return password;
         }
     }
 
-    private static KiWiDialect getDialect(CommandLine cmd, final String dbCon)
+    private static KiWiDialect getDialect(CommandLine cmd, String dbCon, KiWiDialect dialect)
             throws ParseException {
         // get the dialect
         final String dbDialect = cmd.getOptionValue('D');
-        if (dbDialect == null) {
+        if (!cmd.hasOption('D')) {
+            return dialect;
+        } else if (dbDialect == null) {
             log.info("No dialect provded, trying to guess based on dbUrl: {}", dbCon);
             // try guessing
             if (dbCon.startsWith("jdbc:h2:")) {
@@ -251,6 +301,7 @@ public class KiWiLoader {
         final Option context = new Option("C", "context", true, "context to import into");
         context.setArgName("context");
         context.setArgs(1);
+        context.setOptionalArg(false);
         options.addOption(context);
         
         options.addOption("z", false, "Input file is gzip compressed");
@@ -266,13 +317,11 @@ public class KiWiLoader {
         options.addOption(input);
 
         final Option dbUrl = new Option("d", "database", true, "jdbc connection string");
-        dbUrl.setRequired(true);
         dbUrl.setArgName("jdbc-url");
         dbUrl.setArgs(1);
         options.addOption(dbUrl);
         
         final Option dbUser = new Option("U", "user", true, "database user");
-        dbUser.setRequired(true);
         dbUser.setArgName("dbUser");
         options.addOption(dbUser);
         
