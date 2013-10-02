@@ -91,12 +91,21 @@ import com.google.common.io.CharStreams;
  */
 @ApplicationScoped
 @Path("/" + SparqlWebService.PATH)
-public class SparqlWebService {
+public class
+        SparqlWebService {
 	
     public static final String PATH = "sparql";
     public static final String SELECT = "/select";
     public static final String UPDATE = "/update";
     public static final String SNORQL = "/snorql";
+
+    private static final Map<String,String> outputMapper = new HashMap<String,String>(){{
+        put("json","application/sparql-results+json");
+        put("xml","application/sparql-results+xml");
+        put("tabs","text/tab-separated-values");
+        put("csv","text/csv");
+        put("html","text/html");
+    }};
 
     @Inject
     private Logger log;
@@ -168,7 +177,9 @@ public class SparqlWebService {
     @GET
     @Path(SELECT)
     public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {  
-    	return select(query, resultType, request);
+    	//get real return type: even it is not in the standard, this is useful
+        if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
+        return select(query, resultType, request);
     }
     
     /**
@@ -187,7 +198,8 @@ public class SparqlWebService {
     @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
     @Path(SELECT)
     public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-    	return select(query, resultType, request);
+        if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
+        return select(query, resultType, request);
     }    
     
     /**
@@ -206,6 +218,7 @@ public class SparqlWebService {
     @Path(SELECT)
     public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
 		try {
+            if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
 			String query = CharStreams.toString(request.getReader());
 			return select(query, resultType, request);
 		} catch (IOException e) {
