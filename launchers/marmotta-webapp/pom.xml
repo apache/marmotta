@@ -182,12 +182,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-ldcache</artifactId>
+            <artifactId>marmotta-backend-kiwi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-reasoner</artifactId>
+            <artifactId>marmotta-ldcache-kiwi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-reasoner-kiwi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -202,7 +207,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-versioning</artifactId>
+            <artifactId>marmotta-versioning-kiwi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!--
