@@ -123,12 +123,19 @@ public class CDIContext {
         return !beanManager.resolveObserverMethods(event,qualifier).isEmpty();
     }
 
-    public static <T> boolean hasObservers(Object o, String fieldName) {
+    /**
+     * Convenience method for checking if there are observers for an event trigger field of a service. Pass the service
+     * as first parameter and the name of the field of type Event<T> as second argument.
+     * @param o
+     * @param fieldName
+     * @return
+     */
+    public static boolean hasObservers(Object o, String fieldName) {
         Class type = o.getClass();
         try {
             Field field = type.getDeclaredField(fieldName);
             if(!field.getType().getClass().getSimpleName().equals("Event")) {
-                Class persistentClass = (Class<T>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                Class persistentClass = (Class) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
                 Annotation qualifier = null;
                 for(Annotation a : field.getDeclaredAnnotations()) {
                     if(a.annotationType().isAnnotationPresent(Qualifier.class)) {
