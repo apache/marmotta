@@ -341,6 +341,9 @@
                                                 <include name="*.tar.gz" />
                                             </fileset>
                                         </checksum>
+                                        <exec executable="./build/git-tag-revision.sh" outputproperty="checksum.git" os="Linux,Solaris,Mac OS X">
+                                            <arg value="${project.version}" />
+                                        </exec>
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-installer.zip" algorithm="SHA1" property="checksum.installer.zip" />
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-installer.tar.gz" algorithm="SHA1" property="checksum.installer.tgz" />
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldpath.zip" algorithm="SHA1" property="checksum.ldpath.zip" />
@@ -361,6 +364,8 @@ https://dist.apache.org/repos/dist/dev/incubator/marmotta/${project.version}/
 The release candidate is based on the sources tagged with ${project.version} in:
 
 https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git
+
+The checksum of this commit is ${checksum.git}
 
 The release candidate consists of the following source distribution archives:
 - apache-marmotta-${project.version}-src.[zip|tar.gz]

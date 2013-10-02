@@ -93,7 +93,7 @@ public class SnowflakeIDGenerator implements IDGenerator {
         Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
         while (en.hasMoreElements()) {
             NetworkInterface nint = en.nextElement();
-            if (!nint.isLoopback()) {
+            if (!nint.isLoopback() && nint.getHardwareAddress() != null) {
                 network = nint;
                 break;
             }
