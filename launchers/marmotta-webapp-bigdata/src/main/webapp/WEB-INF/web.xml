@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<web-app version="2.5"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <!-- enable custom JNDI implementation -->
+    <listener>
+        <listener-class>org.apache.marmotta.platform.core.jndi.MarmottaJndiListener</listener-class>
+    </listener>
+
+    <!-- enable CDI / Weld for dependency injection -->
+    <listener>
+       <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
+    </listener>
+
+    <!-- Initialise the KiWi system -->
+    <listener>
+        <listener-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupListener</listener-class>
+    </listener>
+
+    <!-- RESTeasy Webservices -->
+    <listener>
+      <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+    </listener>
+
+    <!-- specifies the home directory; overridden by environment variable MARMOTTA_HOME or system property marmotta.home -->
+    <context-param>
+        <param-name>marmotta.home</param-name>
+        <param-value>/tmp/marmotta</param-value>
+    </context-param>
+
+    <!-- handle OPTIONS requests -->
+    <filter>
+        <filter-name>MarmottaOptionsFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaOptionsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaOptionsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- enables a cors filter and maps it to any request -->
+    <!-- for more fine grained configuration have a look at http://software.dzhuvinov.com/cors-filter-configuration.html -->
+    <filter>
+        <!-- The CORS filter with parameters -->
+        <filter-name>CORS</filter-name>
+        <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+
+        <init-param>
+            <param-name>cors.supportedMethods</param-name>
+            <param-value>GET, HEAD, POST, PUT, DELETE, OPTIONS</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>cors.supportedHeaders</param-name>
+            <param-value>Origin, Accept, Content-Type</param-value>
+        </init-param>
+
+    </filter>
+    <filter-mapping>
+        <filter-name>CORS</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- this filter performs startup configurations for first installation -->
+    <filter>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Serve static resources from file system and from .jar files of the respective modules -->
+    <filter>
+        <filter-name>MarmottaResourceFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter</filter-class>
+        <init-param>
+            <!-- cache resources loaded from module jar files? -->
+            <param-name>kiwi.resourceCaching</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaResourceFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <mime-mapping>
+        <extension>.xsl</extension>
+        <!-- per http://www.w3.org/TR/2006/PR-xslt20-20061121/ -->
+        <mime-type>application/xslt+xml</mime-type>
+    </mime-mapping>
+
+    <servlet>
+        <servlet-name>ViewStatusMessages</servlet-name>
+        <servlet-class>ch.qos.logback.classic.ViewStatusMessagesServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ViewStatusMessages</servlet-name>
+        <url-pattern>/logging/status</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <filter-name>MarmottaWebservices</filter-name>
+        <filter-class>
+            org.jboss.resteasy.plugins.server.servlet.FilterDispatcher
+        </filter-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>org.apache.marmotta.platform.core.webservices.CoreApplication</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>MarmottaWebservices</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+    <context-param>
+        <param-name>resteasy.injector.factory</param-name>
+        <param-value>org.jboss.resteasy.cdi.CdiInjectorFactory</param-value>
+    </context-param>
+
+   <!--<context-param>
+        <param-name>resteasy.providers</param-name>
+        <param-value>org.apache.marmotta.platform.core.filters.CorsInterceptor</param-value>
+    </context-param>-->
+
+    <filter>
+        <filter-name>MarmottaPostStartupFilter</filter-name>
+        <filter-class>
+            org.apache.marmotta.platform.core.servlet.MarmottaPostStartupFilter
+        </filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaPostStartupFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>
