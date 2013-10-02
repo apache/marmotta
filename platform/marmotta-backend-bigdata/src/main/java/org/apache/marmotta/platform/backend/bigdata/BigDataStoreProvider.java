@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.platform.backend.bigdata;
 
+import com.bigdata.Banner;
 import com.bigdata.rdf.sail.BigdataSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
@@ -68,6 +69,7 @@ public class BigDataStoreProvider implements StoreProvider {
         properties.setProperty( BigdataSail.Options.STATEMENT_IDENTIFIERS, "false");
         properties.setProperty( BigdataSail.Options.AXIOMS_CLASS, "com.bigdata.rdf.axioms.NoAxioms");
         properties.setProperty( BigdataSail.Options.TEXT_INDEX, "true");
+        properties.setProperty( Banner.Options.LOG4J_MBEANS_DISABLE, "true");
 
 
         return new BigDataSesame27Sail(properties);

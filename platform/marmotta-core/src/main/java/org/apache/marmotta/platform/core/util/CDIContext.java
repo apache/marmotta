@@ -23,8 +23,11 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Qualifier;
 import javax.naming.*;
-
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,6 +109,45 @@ public class CDIContext {
         }
 
         return result;
+    }
+
+    /**
+     * Returns true in case the given event with qualifier has event observers listening of the event
+     * @param event
+     * @param qualifier
+     * @param <T>
+     * @return
+     */
+    public static <T> boolean hasObservers(T event, Annotation qualifier) {
+        BeanManager beanManager = getBeanManager();
+        return !beanManager.resolveObserverMethods(event,qualifier).isEmpty();
+    }
+
+    public static <T> boolean hasObservers(Object o, String fieldName) {
+        Class type = o.getClass();
+        try {
+            Field field = type.getDeclaredField(fieldName);
+            if(!field.getType().getClass().getSimpleName().equals("Event")) {
+                Class persistentClass = (Class<T>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+                Annotation qualifier = null;
+                for(Annotation a : field.getDeclaredAnnotations()) {
+                    if(a.annotationType().isAnnotationPresent(Qualifier.class)) {
+                        qualifier = a;
+                    }
+                }
+                return hasObservers(persistentClass.newInstance(), qualifier);
+            } else {
+                log.warn("list observers: field {} of class {} is not an event", fieldName, type.getName());
+            }
+        } catch (NoSuchFieldException e) {
+            log.warn("list observers: event field {} not found for class {}", fieldName, type.getName());
+        } catch (InstantiationException e) {
+            log.warn("list observers: could not instantiate object of event field {} for class {}", fieldName, type.getName());
+        } catch (IllegalAccessException e) {
+            log.warn("list observers: could not instantiate object of event field {} for class {}", fieldName, type.getName());
+        }
+        return false;
+
     }
 
 

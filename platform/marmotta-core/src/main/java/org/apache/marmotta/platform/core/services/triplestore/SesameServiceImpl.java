@@ -27,6 +27,7 @@ import org.apache.marmotta.platform.core.api.triplestore.*;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
+import org.apache.marmotta.platform.core.util.CDIContext;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -119,8 +120,6 @@ public class SesameServiceImpl implements SesameService {
 
     private NotifyingSail store;
 
-    private KiWiTransactionalSail tsail;
-
     private SailRepository repository;
 
     private ReentrantReadWriteLock restartLock = new ReentrantReadWriteLock();
@@ -149,23 +148,39 @@ public class SesameServiceImpl implements SesameService {
 
             store = storeProviders.get().createStore();
 
-            tsail = new KiWiTransactionalSail(store);
+
+            NotifyingSail notifyingSail;
 
             log.info("initialising repository plugins ...");
 
-            // wrap all stackable transactional sails
-            TransactionalSail transactionalSail = tsail;
-            for(TransactionalSailProvider provider : transactionalSailProviders) {
-                if(provider.isEnabled()) {
-                    log.info("- transaction plugin: {}",provider.getName());
-                    transactionalSail = provider.createSail(transactionalSail);
-                } else {
-                    log.info("- transaction plugin: {} (DISABLED)", provider.getName());
+            // TODO: should also wrap a transactional sail in case there are observers on the classpath!
+            if(   !transactionalSailProviders.isUnsatisfied() || CDIContext.hasObservers(this, "beforeCommitEvent")
+               || CDIContext.hasObservers(this, "afterCommitEvent") || CDIContext.hasObservers(this, "afterRollbackEvent")) {
+                log.info("enabling transaction notification");
+
+                KiWiTransactionalSail tsail = new KiWiTransactionalSail(store);
+
+                // the CDI events should be triggered once all internal events have been handled, so register the transaction listener last
+                tsail.addTransactionListener(new LMFTransactionEventProxy());
+
+
+                // wrap all stackable transactional sails
+                TransactionalSail transactionalSail = tsail;
+                for(TransactionalSailProvider provider : transactionalSailProviders) {
+                    if(provider.isEnabled()) {
+                        log.info("- transaction plugin: {}",provider.getName());
+                        transactionalSail = provider.createSail(transactionalSail);
+                    } else {
+                        log.info("- transaction plugin: {} (DISABLED)", provider.getName());
+                    }
                 }
+                notifyingSail = transactionalSail;
+            } else {
+                log.info("not enabling transaction notification, because no transaction observers are registered");
+                notifyingSail = store;
             }
 
             // wrap all stackable notifying sails
-            NotifyingSail notifyingSail = transactionalSail;
             for(NotifyingSailProvider provider : notifyingSailProviders) {
                 if(provider.isEnabled()) {
                     log.info("- notifying plugin: {}",provider.getName());
@@ -186,8 +201,6 @@ public class SesameServiceImpl implements SesameService {
                 }
             }
 
-            // the CDI events should be triggered once all internal events have been handled, so register the transaction listener last
-            tsail.addTransactionListener(new LMFTransactionEventProxy());
 
             repository = storeProviders.get().createRepository(standardSail);
 
