@@ -86,17 +86,6 @@ public class BigDataStoreProvider implements StoreProvider {
     @Override
     public SailRepository createRepository(Sail sail) {
         return new BigDataSesame27Repository(sail);
-
-        /*
-        if(sail instanceof BigDataSesame27Sail) {
-            log.info("no additional sails in stack; native SPARQL support enabled");
-            // direct access to underlying sail, no other sails stacked inbetween
-            return new BigdataSailRepository(((BigDataSesame27Sail) sail).getWrapped());
-        } else {
-            log.warn("bigdata backend currently does not support stacked sails, native SPARQL support disabled");
-            return new SailRepository(sail);
-        }
-        */
     }
 
 

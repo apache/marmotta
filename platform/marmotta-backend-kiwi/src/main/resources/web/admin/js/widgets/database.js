@@ -168,7 +168,7 @@
                 if (input_fields.db_host.val().indexOf(";") > 0) {
                     dburl = input_fields.db_host.val().substring(0, input_fields.db_host.val().indexOf(";"));
                 }
-                var url = settings.host + "system/database/ping?type=" + input_fields.db_select.val() + "&url=" + dburl + "&user=" + input_fields.db_user.val() + "&pwd=" + input_fields.db_pass.val();
+                var url = settings.host + "storage-kiwi/ping?type=" + input_fields.db_select.val() + "&url=" + dburl + "&user=" + input_fields.db_user.val() + "&pwd=" + input_fields.db_pass.val();
                 $.ajax({
                     type:"POST",
                     url: url,
