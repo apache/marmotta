@@ -28,6 +28,7 @@ import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.sail.*;
 import org.openrdf.sail.helpers.NotifyingSailBase;
 import org.openrdf.sail.helpers.NotifyingSailConnectionBase;
+import org.openrdf.sail.helpers.SailBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,91 +144,7 @@ public class BigDataSesame27Sail extends NotifyingSailBase implements NotifyingS
 
     @Override
     protected NotifyingSailConnection getConnectionInternal() throws SailException {
-        final BigdataSail.BigdataSailConnection con = wrapped.getConnection();
-
-        return new NotifyingSailConnectionBase(this) {
-            @Override
-            protected void closeInternal() throws SailException {
-               con.close();
-            }
-
-            @Override
-            protected CloseableIteration<? extends BindingSet, QueryEvaluationException> evaluateInternal(TupleExpr tupleExpr, Dataset dataset, BindingSet bindings, boolean includeInferred) throws SailException {
-                return con.evaluate(tupleExpr,dataset,bindings,includeInferred);
-            }
-
-            @Override
-            protected CloseableIteration<? extends Resource, SailException> getContextIDsInternal() throws SailException {
-                return con.getContextIDs();
-            }
-
-            @Override
-            protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
-                return con.getStatements(subj,pred,obj,includeInferred,contexts);
-            }
-
-            @Override
-            protected long sizeInternal(Resource... contexts) throws SailException {
-                return con.size(contexts);
-            }
-
-            @Override
-            protected void startTransactionInternal() throws SailException {
-                // wrapped connection is Sesame 2.6, no begin method
-            }
-
-            @Override
-            protected void commitInternal() throws SailException {
-                con.commit();
-            }
-
-            @Override
-            protected void rollbackInternal() throws SailException {
-                con.rollback();
-            }
-
-            @Override
-            protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-                con.addStatement(subj,pred,obj,contexts);
-            }
-
-            @Override
-            protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-                con.removeStatements(subj,pred,obj,contexts);
-            }
-
-            @Override
-            protected void clearInternal(Resource... contexts) throws SailException {
-                con.clear(contexts);
-            }
-
-            @Override
-            protected CloseableIteration<? extends Namespace, SailException> getNamespacesInternal() throws SailException {
-                return con.getNamespaces();
-            }
-
-            @Override
-            protected String getNamespaceInternal(String prefix) throws SailException {
-                return con.getNamespace(prefix);
-            }
-
-            @Override
-            protected void setNamespaceInternal(String prefix, String name) throws SailException {
-                con.setNamespace(prefix,name);
-            }
-
-            @Override
-            protected void removeNamespaceInternal(String prefix) throws SailException {
-                con.removeNamespace(prefix);
-            }
-
-            @Override
-            protected void clearNamespacesInternal() throws SailException {
-                con.clearNamespaces();
-            }
-
-
-        };
+        return new BigDataSesame27SailConnection(this,wrapped.getConnection());
     }
 
     /**
@@ -256,5 +173,111 @@ public class BigDataSesame27Sail extends NotifyingSailBase implements NotifyingS
     @Override
     public ValueFactory getValueFactory() {
         return wrapped.getValueFactory();
+    }
+
+    /**
+     * Get the wrapped BigdataSail
+     *
+     * @return
+     */
+    protected BigdataSail getWrapped() {
+        return wrapped;
+    }
+
+    /**
+     * A wrapper around the (Sesame 2.6) BigdataSailConnection, adding the new API methods of Sesame 2.7
+     */
+    protected static class BigDataSesame27SailConnection extends NotifyingSailConnectionBase {
+        BigdataSail.BigdataSailConnection con;
+
+        public BigDataSesame27SailConnection(SailBase sailBase, BigdataSail.BigdataSailConnection con) {
+            super(sailBase);
+            this.con = con;
+        }
+
+        protected BigdataSail.BigdataSailConnection getWrapped() {
+            return con;
+        }
+
+        @Override
+        protected void closeInternal() throws SailException {
+            con.close();
+        }
+
+        @Override
+        protected CloseableIteration<? extends BindingSet, QueryEvaluationException> evaluateInternal(TupleExpr tupleExpr, Dataset dataset, BindingSet bindings, boolean includeInferred) throws SailException {
+            return con.evaluate(tupleExpr,dataset,bindings,includeInferred);
+        }
+
+        @Override
+        protected CloseableIteration<? extends Resource, SailException> getContextIDsInternal() throws SailException {
+            return con.getContextIDs();
+        }
+
+        @Override
+        protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+            return con.getStatements(subj,pred,obj,includeInferred,contexts);
+        }
+
+        @Override
+        protected long sizeInternal(Resource... contexts) throws SailException {
+            return con.size(contexts);
+        }
+
+        @Override
+        protected void startTransactionInternal() throws SailException {
+            // wrapped connection is Sesame 2.6, no begin method
+        }
+
+        @Override
+        protected void commitInternal() throws SailException {
+            con.commit();
+        }
+
+        @Override
+        protected void rollbackInternal() throws SailException {
+            con.rollback();
+        }
+
+        @Override
+        protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+            con.addStatement(subj,pred,obj,contexts);
+        }
+
+        @Override
+        protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+            con.removeStatements(subj,pred,obj,contexts);
+        }
+
+        @Override
+        protected void clearInternal(Resource... contexts) throws SailException {
+            con.clear(contexts);
+        }
+
+        @Override
+        protected CloseableIteration<? extends Namespace, SailException> getNamespacesInternal() throws SailException {
+            return con.getNamespaces();
+        }
+
+        @Override
+        protected String getNamespaceInternal(String prefix) throws SailException {
+            return con.getNamespace(prefix);
+        }
+
+        @Override
+        protected void setNamespaceInternal(String prefix, String name) throws SailException {
+            con.setNamespace(prefix,name);
+        }
+
+        @Override
+        protected void removeNamespaceInternal(String prefix) throws SailException {
+            con.removeNamespace(prefix);
+        }
+
+        @Override
+        protected void clearNamespacesInternal() throws SailException {
+            con.clearNamespaces();
+        }
+
     }
 }
