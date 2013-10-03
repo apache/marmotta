@@ -26,7 +26,7 @@
 
     <artifactId>kiwi-loader</artifactId>
     <name>KiWi Triplestore: DB Loader</name>
-    <description>Standalone module to load rdf files into a KiWi Database</description>
+    <description>Standalone module to load RDF files into a KiWi Database</description>
 
     <build>
         <plugins>
@@ -121,5 +121,16 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>kiwi-triplestore</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-turtle</artifactId>
+        </dependency>
     </dependencies>
 </project>
