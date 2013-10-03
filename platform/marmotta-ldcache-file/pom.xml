@@ -25,10 +25,10 @@
         <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>marmotta-ldcache-kiwi</artifactId>
+    <artifactId>marmotta-ldcache-file</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Marmotta Platform: Linked Data Caching (KiWi Backend)</name>
+    <name>Apache Marmotta Platform: Linked Data Caching (File Backend)</name>
     <description>
         Provides transparent Linked Data Caching in the LMF triple store. When a resource is queried using e.g. LDPath
         or SPARQL and it represents an external resource (e.g. on DBPedia or GeoNames), the resource is transparently
@@ -161,12 +161,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-backend-kiwi</artifactId>
-            <version>${project.version}</version>
+            <artifactId>ldcache-sail-generic</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-sail-kiwi</artifactId>
+            <artifactId>ldcache-backend-file</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
 

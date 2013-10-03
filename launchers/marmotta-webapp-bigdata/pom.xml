@@ -209,6 +209,16 @@
             <artifactId>marmotta-user</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-ldcache-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-ldcache-file</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Servlet / CDI Environment -->
         <dependency>

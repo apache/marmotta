@@ -72,6 +72,10 @@
         <module>marmotta-ldcache-kiwi</module>
         <module>marmotta-reasoner-kiwi</module>
         <module>marmotta-versioning-kiwi</module>
+
+        <!-- Native/BigData specific modules -->
+        <module>marmotta-ldcache-file</module>
+
     </modules>
 
 </project>

@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.ldcache.model.filter;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.core.util.CDIContext;
-import org.apache.marmotta.platform.ldcache.services.ldcache.LDCacheSailProvider;
+import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;

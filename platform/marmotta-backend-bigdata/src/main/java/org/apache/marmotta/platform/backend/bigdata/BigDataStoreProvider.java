@@ -20,13 +20,16 @@ package org.apache.marmotta.platform.backend.bigdata;
 import com.bigdata.Banner;
 import com.bigdata.rdf.sail.BigdataSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.Properties;
@@ -50,6 +53,10 @@ public class BigDataStoreProvider implements StoreProvider {
     private ConfigurationService configurationService;
 
 
+    @Inject
+    private SesameService sesameService;
+
+
 
     /**
      * Create the store provided by this SailProvider
@@ -68,11 +75,18 @@ public class BigDataStoreProvider implements StoreProvider {
         properties.setProperty( BigdataSail.Options.TRUTH_MAINTENANCE, "false");
         properties.setProperty( BigdataSail.Options.STATEMENT_IDENTIFIERS, "false");
         properties.setProperty( BigdataSail.Options.AXIOMS_CLASS, "com.bigdata.rdf.axioms.NoAxioms");
-        properties.setProperty( BigdataSail.Options.TEXT_INDEX, "true");
+        properties.setProperty( BigdataSail.Options.TEXT_INDEX, ""+configurationService.getBooleanConfiguration("bigdata.textIndex",true));
         properties.setProperty( Banner.Options.LOG4J_MBEANS_DISABLE, "true");
 
 
         return new BigDataSesame27Sail(properties);
+    }
+
+
+    public void configurationChanged(@Observes ConfigurationChangedEvent e) {
+        if(e.containsChangedKeyWithPrefix("bigdata")) {
+            sesameService.restart();
+        }
     }
 
 

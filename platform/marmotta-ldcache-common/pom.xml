@@ -31,7 +31,7 @@
     <artifactId>marmotta-ldcache-common</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Marmotta Platform: Linked Data Caching (Common Services)</name>
+    <name>Apache Marmotta Platform: Linked Data Caching (Common)</name>
     <description>
         Provides transparent Linked Data Caching in the LMF triple store. When a resource is queried using e.g. LDPath
         or SPARQL and it represents an external resource (e.g. on DBPedia or GeoNames), the resource is transparently

@@ -24,7 +24,7 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
-import org.apache.marmotta.platform.ldcache.services.ldcache.LDCacheSailProvider;
+import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.rio.RDFHandler;
@@ -277,6 +277,14 @@ public class LinkedDataCachingWebService {
         return enableEndpoint(id, false);
     }
 
+    @GET
+    @Path("/info")
+    @Produces("application/json")
+    public Response getInformation() {
+        Map<String,String> result = new HashMap<>();
+        result.put("backend", cacheSailProvider.getName());
+        return Response.ok(result).build();
+    }
 
     private Map<String, Object> buildEndpointJSON(Endpoint endpoint, boolean isVolatile) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();

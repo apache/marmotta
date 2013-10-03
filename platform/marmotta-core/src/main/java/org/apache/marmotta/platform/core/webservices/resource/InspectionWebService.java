@@ -17,47 +17,28 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getAnonResource;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getLabel;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.getUriResource;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.*;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.*;
 
 @Path("/" + ConfigurationService.INSPECT_PATH)
 public class InspectionWebService {
@@ -200,7 +181,7 @@ public class InspectionWebService {
             s = t.getSubject().toString();
             p = t.getPredicate().toString();
             o = t.getObject().toString();
-            c = t.getContext().toString();
+            c = t.getContext() != null ? t.getContext().toString() : "";
         }
 
         public long getId() {

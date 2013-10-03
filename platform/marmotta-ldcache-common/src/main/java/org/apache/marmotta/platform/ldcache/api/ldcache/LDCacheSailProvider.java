@@ -1,13 +1,12 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.platform.ldcache.services.ldcache;
 
-import com.google.common.collect.Lists;
-import org.apache.marmotta.commons.sesame.filter.NotFilter;
-import org.apache.marmotta.commons.sesame.filter.OneOfFilter;
-import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;
+package org.apache.marmotta.platform.ldcache.api.ldcache;
+
 import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
@@ -31,16 +26,13 @@ import org.apache.marmotta.platform.core.api.http.HttpClientService;
 import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.ldcache.model.filter.LDCacheIgnoreFilter;
-import org.openrdf.model.Resource;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
+import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -49,15 +41,24 @@ import java.util.Set;
 
 /**
  * A sail provider service that allows wrapping a transparent Linked Data caching component around the
- * main SAIL.
+ * main SAIL. This is the generic superclass for all LDCache backends.
  *
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-@ApplicationScoped
-public class LDCacheSailProvider implements NotifyingSailProvider {
+public abstract class LDCacheSailProvider implements NotifyingSailProvider {
+
 
     public static final String LDCACHE_ENABLED = "ldcache.enabled";
+
+    @Inject
+    protected ConfigurationService configurationService;
+
+    @Inject
+    protected Instance<LDCacheIgnoreFilter> ignoreFilters;
+
+    protected ClientConfiguration ldclientConfig;
+
     @Inject
     private Logger log;
 
@@ -65,33 +66,26 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
     private LinkedDataEndpointService endpointService;
 
     @Inject
-    private ConfigurationService configurationService;
-
-    @Inject
     private SesameService sesameService;
 
     @Inject
-    private HttpClientService         httpClientService;
-
-    @Inject
-    private Instance<LDCacheIgnoreFilter> ignoreFilters;
+    private HttpClientService httpClientService;
 
     private Set<Endpoint> volatileEndpoints;
 
-    private ClientConfiguration ldclientConfig;
-
-    private KiWiLinkedDataSail  sail;
-
     /**
-     * Return the name of the provider. Used e.g. for displaying status information or logging.
-     *
+     * Return true in case the URI resource passed as argument is cached.
+     * @param resource
      * @return
      */
-    @Override
-    public String getName() {
-        return "Linked Data Caching";
+    public boolean isCached(URI resource) throws RepositoryException {
+        return getLDCache().isCached(resource.stringValue());
     }
 
+    /**
+     * Clear the currently configured Linked Data Sail.
+     */
+    public abstract void clearSail();
 
     /**
      * Return true if this sail provider is enabled in the configuration.
@@ -108,11 +102,10 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
             sesameService.restart();
 
             if(!isEnabled()) {
-                sail = null;
+                clearSail();
             }
         }
     }
-
 
     @PostConstruct
     public void initialize() {
@@ -128,11 +121,10 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
         ldclientConfig.setEndpoints(endpoints);
 
-        if(sail != null &&  sail.getLDCache() != null) {
-            sail.getLDCache().reload();
+        if(getLDCache() != null) {
+            getLDCache().reload();
         }
     }
-
 
     public void updateConfig() {
         ldclientConfig.setDefaultExpiry(configurationService.getLongConfiguration("ldcache.expiry", 86400L));
@@ -148,55 +140,22 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
 
         ldclientConfig.setHttpClient(httpClientService.getHttpClient());
 
-        if(sail != null &&  sail.getLDCache() != null) {
-            sail.getLDCache().reload();
+        if(getLDCache() != null) {
+            getLDCache().reload();
         }
     }
-
-    /**
-     * Create the sail wrapper provided by this SailProvider
-     *
-     * @param parent the parent sail to wrap by the provider
-     * @return the wrapped sail
-     */
-    @Override
-    public NotifyingSailWrapper createSail(NotifyingSail parent) {
-        Set<SesameFilter<Resource>> filters = new HashSet<SesameFilter<Resource>>();
-        filters.add(MarmottaLocalFilter.getInstance());
-        filters.addAll(Lists.newArrayList(ignoreFilters));
-
-        SesameFilter<Resource> cacheFilters = new OneOfFilter<Resource>(filters);
-
-        String cache_context = configurationService.getCacheContext();
-        sail = new KiWiLinkedDataSail(parent, new NotFilter<Resource>(cacheFilters), cache_context, ldclientConfig);
-        return sail;
-    }
-
 
     /**
      * Return the Linked Data Client used by the caching system (e.g. for debugging).
      * @return
      */
-    public LDClientService getLDClient() {
-        if(sail != null) {
-            return sail.getLDCache().getLDClient();
-        } else {
-            return null;
-        }
-    }
+    public abstract LDClientService getLDClient();
 
     /**
      * Return the caching backend used by the caching system (e.g. for debugging)
      * @return
      */
-    public LDCache getLDCache() {
-        if(sail != null) {
-            return sail.getLDCache();
-        } else {
-            return null;
-        }
-    }
-
+    public abstract LDCache getLDCache();
 
     /**
      * Add a volatile (in-memory) endpoint to the LDClient configuration. Can be used by other services for auto-registering
@@ -210,7 +169,6 @@ public class LDCacheSailProvider implements NotifyingSailProvider {
             updateEndpoints();
         }
     }
-
 
     /**
      * Remove a volatile (in-memory) endpoint from the LDClient configuration.
