@@ -29,7 +29,6 @@
     <!-- unpack to apache-marmotta-x.x.x directory -->
     <includeBaseDirectory>true</includeBaseDirectory>
 
-
     <files>
         <file>
             <source>${project.basedir}/src/main/doc/LICENSE.txt</source>
@@ -59,4 +58,5 @@
             <fileMode>0644</fileMode>
         </file>
     </files>
+
 </assembly>
