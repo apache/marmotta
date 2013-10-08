@@ -394,9 +394,6 @@
                             <exclude>**/*.ttl</exclude>
                             <exclude>**/*.nt</exclude>
                             <exclude>**/test/resources/**</exclude>
-                            <exclude>**/solr/admin/**</exclude>
-                            <exclude>**/solr-home/**</exclude>
-                            <exclude>**/ajax-solr/**</exclude>
                             <exclude>**/jquery*.js</exclude>
                             <exclude>**/jquery*.css</exclude>
                             <exclude>**/foundation.js</exclude>
