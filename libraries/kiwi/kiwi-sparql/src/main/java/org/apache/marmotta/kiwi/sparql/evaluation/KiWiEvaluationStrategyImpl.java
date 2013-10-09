@@ -75,7 +75,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi JOIN optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -99,7 +99,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi FILTER optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
