@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -121,40 +122,46 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 						final WatchKey key = watcher.take();
 						for (WatchEvent<?> event : key.pollEvents()) {
 							
-							@SuppressWarnings("unchecked")
-							Path item = ((WatchEvent<Path>) event).context();
-							Path dir = keys.get(key);
-							File file = new File(dir.toString(), item.toString()).getAbsoluteFile();
-							
-							if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
-								if (file.isDirectory()) {
-									//recursive registration of sub-directories
-									register(Paths.get(dir.toString(), item.toString()), watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
-									task.updateProgress(++count);
-								} else {
-									URI context = getTargetContext(file);
-									log.debug("Importing '{}'...", file.getAbsolutePath());
-									task.updateMessage("importing...");
-									task.updateDetailMessage(TASK_DETAIL_PATH, file.getAbsolutePath());
-									task.updateDetailMessage(TASK_DETAIL_CONTEXT, context.stringValue());
-									if (execImport(file, context)) {
-										log.info("Sucessfully imported file '{}' into {}", file.getAbsolutePath(), context.stringValue());
-										try {
-											//delete the imported file
-											log.debug("Deleting {}...", file.getAbsolutePath());
-											file.delete();
-										} catch (Exception ex) {
-											log.error("Error deleing {}: {}", file.getAbsolutePath(), ex.getMessage());
+							try {
+								@SuppressWarnings("unchecked")
+								Path item = ((WatchEvent<Path>) event).context();
+								Path dir = keys.get(key);
+								File file = new File(dir.toString(), item.toString()).getAbsoluteFile();
+								
+								if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
+									if (file.isDirectory()) {
+										//recursive registration of sub-directories
+										register(Paths.get(dir.toString(), item.toString()), watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+										task.updateProgress(++count);
+									} else {
+										URI context = getTargetContext(file);
+										log.debug("Importing '{}'...", file.getAbsolutePath());
+										task.updateMessage("importing...");
+										task.updateDetailMessage(TASK_DETAIL_PATH, file.getAbsolutePath());
+										task.updateDetailMessage(TASK_DETAIL_CONTEXT, context.stringValue());
+										if (execImport(file, context)) {
+											log.info("Sucessfully imported file '{}' into {}", file.getAbsolutePath(), context.stringValue());
+											try {
+												//delete the imported file
+												log.debug("Deleting {}...", file.getAbsolutePath());
+												file.delete();
+											} catch (Exception ex) {
+												log.error("Error deleing {}: {}", file.getAbsolutePath(), ex.getMessage());
+											}
 										}
+										task.updateProgress(++count);
+										task.updateMessage("watching...");
+										task.updateDetailMessage(TASK_DETAIL_PATH, path);
+										task.removeDetailMessage(TASK_DETAIL_CONTEXT);
 									}
+								} else if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind()) && Files.isDirectory(item)) {
+									//TODO: unregister deleted directories?
 									task.updateProgress(++count);
-									task.updateMessage("watching...");
-									task.updateDetailMessage(TASK_DETAIL_PATH, path);
-									task.removeDetailMessage(TASK_DETAIL_CONTEXT);
 								}
-							} else if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind()) && Files.isDirectory(item)) {
-								//TODO: unregister deleted directories?
-								task.updateProgress(++count);
+							} catch (IOException e) {
+								log.error("Error importing '{}': {}", path, e.getMessage());
+							} catch (URISyntaxException e) {
+								log.error("Error creating context uri for file '{}': {}", path, e.getMessage());
 							}
 							
 						}
@@ -230,8 +237,9 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 	 * 
 	 * @param file
 	 * @return
+	 * @throws URISyntaxException 
 	 */
-	private URI getTargetContext(File file) {
+	private URI getTargetContext(File file) throws URISyntaxException {
 		String subdir = StringUtils.removeStart(file.getParentFile().getAbsolutePath(), this.path);
 		if (StringUtils.isBlank(subdir)) {
 			return contextService.getDefaultContext();

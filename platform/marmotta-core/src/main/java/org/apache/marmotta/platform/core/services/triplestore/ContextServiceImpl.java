@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.core.services.triplestore;
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
@@ -39,7 +41,6 @@ import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.qualifiers.kspace.ActiveKnowledgeSpaces;
-import org.apache.marmotta.platform.core.qualifiers.kspace.CurrentKnowledgeSpace;
 import org.apache.marmotta.platform.core.qualifiers.kspace.DefaultKnowledgeSpace;
 import org.apache.marmotta.platform.core.qualifiers.kspace.InferredKnowledgeSpace;
 import org.apache.marmotta.platform.core.qualifiers.kspace.SystemKnowledgeSpace;
@@ -167,14 +168,21 @@ public class ContextServiceImpl implements ContextService {
      *
      * @param uri the uri of the context to create
      * @return a URI representing the created context, or null if the URI could not be created
+     * @throws URISyntaxException 
      */
     @Override
-    public URI createContext(String uri) {
+    public URI createContext(String uri) throws URISyntaxException {
         return createContext(uri, null);
     }
 
     @Override
-    public URI createContext(String uri, String label) {
+    public URI createContext(String uri, String label) throws URISyntaxException {
+    	if (!UriUtil.validate(uri)) {
+    		uri = configurationService.getBaseContext() + uri;
+    		if (!UriUtil.validate(uri)) {
+    			throw new URISyntaxException(uri, "not valid context uri");
+    		}
+    	}
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
@@ -215,25 +223,14 @@ public class ContextServiceImpl implements ContextService {
     }
 
     /**
-     * Return the context that is currently selected for write access. The currently active knowledge space
-     * is either the default context or explicitly passed as argument ctx to web service calls.
-     *
-     * @return a KiWiUriResource representing the current knowledge space
-     */
-    @Override
-    @Produces @RequestScoped @CurrentKnowledgeSpace
-    public URI getCurrentContext() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    /**
      * Return the context used for storing system information.
      *
      * @return a KiWiUriResource representing the system knowledge space
+     * @throws URISyntaxException 
      */
     @Override
     @Produces @RequestScoped @SystemKnowledgeSpace
-    public URI getSystemContext() {
+    public URI getSystemContext() throws URISyntaxException {
         return createContext(configurationService.getSystemContext());
     }
 
@@ -263,10 +260,11 @@ public class ContextServiceImpl implements ContextService {
      * Get the uri of the inferred context
      *
      * @return uri of this inferred context
+     * @throws URISyntaxException 
      */
     @Override
     @Produces @RequestScoped @InferredKnowledgeSpace
-    public URI getInferredContext() {
+    public URI getInferredContext() throws URISyntaxException {
         return createContext(configurationService.getInferredContext());
     }
 
@@ -274,10 +272,11 @@ public class ContextServiceImpl implements ContextService {
      * Get the uri of the default context
      *
      * @return
+     * @throws URISyntaxException 
      */
     @Override
     @Produces @RequestScoped @DefaultKnowledgeSpace
-    public URI getDefaultContext() {
+    public URI getDefaultContext() throws URISyntaxException {
         return createContext(configurationService.getDefaultContext());
     }
 
@@ -285,9 +284,10 @@ public class ContextServiceImpl implements ContextService {
      * Get the uri of the context used for caching linked data
      *
      * @return
+     * @throws URISyntaxException 
      */
     @Override
-    public URI getCacheContext() {
+    public URI getCacheContext() throws URISyntaxException {
         return createContext(configurationService.getCacheContext());
     }
 
