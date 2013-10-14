@@ -1202,6 +1202,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-reasoner</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-tripletable</artifactId>
                 <version>${project.version}</version>
             </dependency>
