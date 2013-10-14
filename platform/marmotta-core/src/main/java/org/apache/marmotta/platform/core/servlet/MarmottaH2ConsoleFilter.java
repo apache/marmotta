@@ -17,8 +17,7 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.slf4j.Logger;
+import java.io.IOException;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -27,19 +26,19 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 
 /**
  * This filter injects the database configuration into the H2 console using the LMF Configuration settings
  * <p/>
  * User: sschaffe
  */
+@WebFilter("/database/*")
 public class MarmottaH2ConsoleFilter implements Filter {
-
-    @Inject
-    private Logger log;
 
     @Inject
     private ConfigurationService configurationService;
