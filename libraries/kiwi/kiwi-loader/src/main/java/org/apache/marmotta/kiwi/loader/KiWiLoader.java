@@ -52,6 +52,7 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.UnsupportedRDFormatException;
 import org.openrdf.sail.Sail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,12 +112,12 @@ import org.slf4j.LoggerFactory;
 public class KiWiLoader {
 
     private static Logger log = LoggerFactory.getLogger(KiWiLoader.class);
-    private final KiWiConfiguration kiwi;
-    private String baseUri;
-    private String context;
-    private boolean isVersioningEnabled;
-    private boolean isReasoningEnabled;
-    private SailRepository repository;
+    protected final KiWiConfiguration kiwi;
+    protected String baseUri;
+    protected String context;
+    protected boolean isVersioningEnabled;
+    protected boolean isReasoningEnabled;
+    protected SailRepository repository;
 
     public KiWiLoader(KiWiConfiguration kiwi, String baseUri, String context) {
         this.kiwi = kiwi;
@@ -153,8 +154,8 @@ public class KiWiLoader {
             if (cmd.hasOption('c')) {
                 // load as much as possible from the config file
                 Configuration conf = new PropertiesConfiguration(cmd.getOptionValue('c'));
-                baseUri = endWith(conf.getString("kiwi.context", baseUri), "/");
-                //context = conf.getString("kiwi.context", baseUri) + "context/default";
+                context = endWith(conf.getString("kiwi.context", baseUri), "/") + "context/default";
+                baseUri = endWith(conf.getString("kiwi.context", baseUri), "/") + "resource/";
 
                 dbCon = conf.getString("database.url");
                 dbUser = conf.getString("database.user");
@@ -197,8 +198,7 @@ public class KiWiLoader {
 
             // set the baseUri
             if (cmd.hasOption('b')) {
-                baseUri = endWith(cmd.getOptionValue('b', baseUri), "/");
-                //context = cmd.getOptionValue('b', baseUri) + "context/default";
+                baseUri = cmd.getOptionValue('b', baseUri);
             }
 
             // the context to import into.
@@ -217,6 +217,7 @@ public class KiWiLoader {
                 if (fmt == null) {
                     throw new ParseException(String.format("Invalid/Unknown RDF format: %s, use one of %s", format, RDFFormat.values()));
                 }
+                log.debug("Format-Hint: {}", fmt);
             } else {
                 fmt = null;
             }
@@ -257,7 +258,25 @@ public class KiWiLoader {
                     }
 
                     long start = System.currentTimeMillis();
-                    loader.load(inStream, RDFFormat.forFileName(fName, fmt));
+                    try {
+                        loader.load(inStream, RDFFormat.forFileName(fName, fmt));
+                    } catch (final UnsupportedRDFormatException | RDFParseException e) {
+                        // try again with the fixed format
+                        if (fmt != null) {
+                            inStream.close();
+                            // Reopen new
+                            if (inStream instanceof GZIPInputStream) {
+                                inStream = new GZIPInputStream(new FileInputStream(f));
+                            } else {
+                                inStream = new FileInputStream(f);
+                            }
+                            loader.load(inStream, fmt);
+                        } else {
+                            throw e;
+                        }
+                    } finally {
+                        inStream.close();
+                    }
                     long dur = System.currentTimeMillis() - start;
                     log.info("Import completed ({}): {}ms", inFile, dur);
                 } catch (FileNotFoundException e) {
@@ -266,6 +285,8 @@ public class KiWiLoader {
                     log.error("Error while reading {}: {}", inFile, e);
                 } catch (RDFParseException e) {
                     log.error("file {} contains errors: {}\n{}", inFile, e.getMessage(), e);
+                } catch (UnsupportedRDFormatException e) {
+                    log.error("{}, required for {} - dependency missing?", e.getMessage(), inFile);
                 }
             }
 
@@ -313,6 +334,9 @@ public class KiWiLoader {
                 con.add(inStream, baseUri, forFileName, ctx);
 
                 con.commit();
+            } catch (final Throwable t) {
+                con.rollback();
+                throw t;
             } finally {
                 con.close();
             }
