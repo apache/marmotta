@@ -366,8 +366,8 @@ public class KiWiPersistence {
         if(connectionPool != null) {
             KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
             if(getDialect().isBatchSupported()) {
-                con.setBatchCommit(configuration.isBatchCommit());
-                con.setBatchSize(configuration.getBatchSize());
+                con.setBatchCommit(configuration.isTripleBatchCommit());
+                con.setBatchSize(configuration.getTripleBatchSize());
             }
             return con;
         } else {

@@ -18,10 +18,7 @@
 package org.apache.marmotta.kiwi.test.generator;
 
 import org.apache.marmotta.kiwi.generator.UUIDTimeIDGenerator;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +49,7 @@ public class UUIDTimeTest {
      * Run test for 5 seconds and test how many ids were generated; should be more than 1000 per second
      */
     @Test
+    @Ignore
     public void testPerformance() throws SQLException {
         long count = 0;
         long start = System.currentTimeMillis();
@@ -67,6 +65,7 @@ public class UUIDTimeTest {
     }
 
     @Test
+    @Ignore
     public void testNonEqual() throws SQLException {
         long start = System.currentTimeMillis();
         long oldid = 0;

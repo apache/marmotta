@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.LiteralKey;
@@ -106,8 +105,8 @@ public class KiWiValueFactory implements ValueFactory {
         // batch commits
         this.nodeBatch      = Collections.synchronizedList(new ArrayList<KiWiNode>(batchSize));
 
-        this.batchCommit    = store.getPersistence().getConfiguration().isBatchCommit();
-        this.batchSize      = store.getPersistence().getConfiguration().getBatchSize();
+        this.batchCommit    = store.getPersistence().getConfiguration().isNodeBatchCommit();
+        this.batchSize      = store.getPersistence().getConfiguration().getNodeBatchSize();
 
         this.batchUriLookup     = new ConcurrentHashMap<String,KiWiUriResource>();
         this.batchBNodeLookup   = new ConcurrentHashMap<String, KiWiAnonResource>();

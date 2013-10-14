@@ -381,6 +381,14 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- introduces a cyclic reference ...
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-backend-kiwi</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>com.jayway.restassured</groupId>

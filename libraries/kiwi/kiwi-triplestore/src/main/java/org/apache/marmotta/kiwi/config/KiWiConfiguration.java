@@ -67,13 +67,27 @@ public class KiWiConfiguration {
     private boolean queryLoggingEnabled = false;
 
     /**
-     * Enable batched commit (if supported by the database dialect). If this is enabled, the KiWiConnection will
-     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
-     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     * Enable batched commit for triples (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance, and is usually quite safe for triples.
      */
-    private boolean batchCommit;
+    private boolean tripleBatchCommit;
 
-    private int batchSize = 10000;
+
+    /**
+     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
+     * same database.
+     */
+    private boolean nodeBatchCommit;
+
+
+    private int tripleBatchSize = 10000;
+
+    private int nodeBatchSize = 1000;
 
     /**
      * Size of the database cursor for pre-fetching rows on database supporting this feature. If the size is set to 0,
@@ -103,7 +117,8 @@ public class KiWiConfiguration {
         this.defaultContext = defaultContext;
         this.inferredContext = inferredContext;
 
-        batchCommit = dialect.isBatchSupported();
+        tripleBatchCommit = dialect.isBatchSupported();
+        nodeBatchCommit   = dialect.isBatchSupported();
     }
 
 
@@ -152,31 +167,63 @@ public class KiWiConfiguration {
     }
 
     /**
-     * Return true if batched commit is enabled. If this is enabled, the KiWiConnection will
-     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
-     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     * Enable batched commit for triples (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance, and is usually quite safe for triples.
      */
-    public boolean isBatchCommit() {
-        return batchCommit;
+    public boolean isTripleBatchCommit() {
+        return tripleBatchCommit;
     }
 
     /**
-     * Enable batched commit (if supported by the database dialect). If this is enabled, the KiWiConnection will
-     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
-     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     * Enable batched commit for triples (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance, and is usually quite safe for triples.
      */
-    public void setBatchCommit(boolean batchCommit) {
+    public void setTripleBatchCommit(boolean tripleBatchCommit) {
         if(dialect.isBatchSupported()) {
-            this.batchCommit = batchCommit;
+            this.tripleBatchCommit = tripleBatchCommit;
         }
     }
 
-    public int getBatchSize() {
-        return batchSize;
+    /**
+     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
+     * same database.
+     */
+    public boolean isNodeBatchCommit() {
+        return nodeBatchCommit;
     }
 
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
+    /**
+     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
+     * same database.
+     */
+    public void setNodeBatchCommit(boolean nodeBatchCommit) {
+        this.nodeBatchCommit = nodeBatchCommit;
+    }
+
+    public int getTripleBatchSize() {
+        return tripleBatchSize;
+    }
+
+    public void setTripleBatchSize(int tripleBatchSize) {
+        this.tripleBatchSize = tripleBatchSize;
+    }
+
+    public int getNodeBatchSize() {
+        return nodeBatchSize;
+    }
+
+    public void setNodeBatchSize(int nodeBatchSize) {
+        this.nodeBatchSize = nodeBatchSize;
     }
 
     /**

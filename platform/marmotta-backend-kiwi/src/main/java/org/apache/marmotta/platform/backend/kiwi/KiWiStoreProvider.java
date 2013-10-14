@@ -92,12 +92,13 @@ public class KiWiStoreProvider implements StoreProvider {
         String jdbcUrl = configurationService.getStringConfiguration("database.url");
         String dbUser  = configurationService.getStringConfiguration("database.user");
         String dbPass  = configurationService.getStringConfiguration("database.password");
-        boolean batchCommit = configurationService.getBooleanConfiguration("database.batchcommit", true);
 
         KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
         configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
-        configuration.setBatchCommit(batchCommit);
-        configuration.setBatchSize(configurationService.getIntConfiguration("database.batchsize",10000));
+        configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration("database.triples.batchcommit", true));
+        configuration.setTripleBatchSize(configurationService.getIntConfiguration("database.triples.batchsize", 10000));
+        configuration.setNodeBatchCommit(configurationService.getBooleanConfiguration("database.nodes.batchcommit", true));
+        configuration.setNodeBatchSize(configurationService.getIntConfiguration("database.nodes.batchsize", 1000));
 
         String generatorType = configurationService.getStringConfiguration("database.generator", "uuid-time");
         if("uuid-time".equals(generatorType)) {
