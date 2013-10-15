@@ -21,6 +21,7 @@ import static com.jayway.restassured.RestAssured.expect;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
@@ -48,7 +49,7 @@ public class SparqlWebServiceTest {
     private static JettyMarmotta marmotta;
 
     @BeforeClass
-    public static void setUp() throws MarmottaImportException {
+    public static void setUp() throws MarmottaImportException, URISyntaxException {
         marmotta = new JettyMarmotta("/marmotta", SparqlWebService.class);
         
         ImportService importService = marmotta.getService(ImportService.class);
