@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>kiwi-parent</artifactId>
-        <version>3.0.0-incubating</version>
+        <version>3.0.1-incubating-SNAPSHOT</version>
     </parent>
 
     <artifactId>kiwi-tripletable</artifactId>
