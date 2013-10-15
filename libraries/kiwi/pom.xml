@@ -135,6 +135,7 @@
         <module>kiwi-tripletable</module>
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
+        <module>kiwi-loader</module>
     </modules>
 
 </project>
