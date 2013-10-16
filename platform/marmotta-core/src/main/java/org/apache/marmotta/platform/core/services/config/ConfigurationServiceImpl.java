@@ -273,7 +273,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // the bootstrap configuration is overwritten
             if (getHome() != null) {
                 config.setProperty("marmotta.home", getHome());
-                config.setProperty("solr.home", getHome() + File.separator + "solr");
             }
 
             // in case override configuration is given, change all settings in the configuration accordingly
