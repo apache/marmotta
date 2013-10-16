@@ -59,7 +59,9 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	public List<String> getAcceptTypes() {
         Set<String> acceptTypes = new LinkedHashSet<String>();
         for(RDFFormat format : RDFParserRegistry.getInstance().getKeys()) {
-            acceptTypes.addAll(format.getMIMETypes());
+            if(format.hasCharset()) {
+                acceptTypes.addAll(format.getMIMETypes());
+            }
         }
         return new ArrayList<String>(acceptTypes);
 	}
@@ -72,7 +74,9 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	public List<String> getProducedTypes() {
 	    Set<String> producedTypes = new LinkedHashSet<String>();
         for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
-            producedTypes.addAll(format.getMIMETypes());
+            if(format.hasCharset()) {
+                producedTypes.addAll(format.getMIMETypes());
+            }
         }
         return new ArrayList<String>(producedTypes);
 	}

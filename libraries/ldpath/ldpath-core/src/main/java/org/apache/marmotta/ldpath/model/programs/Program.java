@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldpath.model.programs;
 
 
+import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -62,7 +63,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     /**
      * Restrict evaluation of the program to the graphs/contexts
      */
-    private Set<Node> graphs;
+    private Set<URI> graphs;
 
     /**
      * An (optional) filter to use for checking which resources should be
@@ -83,7 +84,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     public Program() {
         namespaces = new LinkedHashMap<String, String>();
         fields = new LinkedHashSet<FieldMapping<?,Node>>();
-        graphs = new LinkedHashSet<Node>();
+        graphs = new LinkedHashSet<URI>();
     }
 
     public void addNamespace(String prefix, String uri) {
@@ -135,16 +136,15 @@ public class Program<Node> implements LDPathConstruct<Node> {
         this.namespaces = new LinkedHashMap<String, String>(namespaces);
     }
 
-    public Set<Node> getGraphs() {
+    public Set<URI> getGraphs() {
         return this.graphs;
     }
 
-    @SuppressWarnings("unchecked")
-    public Node[] getGraphArr() {
-        return (Node[]) this.graphs.toArray();
+    public URI[] getGraphArr() {
+        return this.graphs.toArray(new URI[0]);
     }
 
-    public void setGraphs(Collection<Node> graphs) {
+    public void setGraphs(Collection<URI> graphs) {
         this.graphs.clear();
         this.graphs.addAll(graphs);
     }
@@ -186,17 +186,15 @@ public class Program<Node> implements LDPathConstruct<Node> {
         if (graphs != null && graphs.size() > 0) {
             sb.append("@graph");
             boolean first = true;
-            for (Node gaph : graphs) {
-                if (backend.isURI(gaph)) {
-                    if (first) {
-                        sb.append(" <");
-                    } else{
-                        sb.append(", <");
-                    }
-                    sb.append(backend.stringValue(gaph)).append(">");
-
-                    first = false;
+            for (URI graph : graphs) {
+                if (first) {
+                    sb.append(" <");
+                } else{
+                    sb.append(", <");
                 }
+                sb.append(graph.toString()).append(">");
+
+                first = false;
             }
             sb.append(" ;\n");
         }

@@ -17,17 +17,13 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
+import com.google.common.base.Preconditions;
 import info.aduna.iteration.*;
-
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
-
-import com.google.common.base.Preconditions;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
@@ -1767,32 +1763,31 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        if(batchCommit && persistence.getConfiguration().isMemorySequences()) {
-            return persistence.incrementAndGetMemorySequence(sequenceName);
-        } else {
-            requireJDBCConnection();
+        return persistence.getIdGenerator().getId(sequenceName,this);
+    }
 
-            // retrieve a new node id and set it in the node object
+    public long getDatabaseSequence(String sequenceName) throws SQLException {
+        requireJDBCConnection();
 
-            // if there is a preparation needed to update the transaction, run it first
-            if(dialect.hasStatement(sequenceName+".prep")) {
-                PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
-                prepNodeId.executeUpdate();
-            }
+        // retrieve a new node id and set it in the node object
 
-            PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
-            ResultSet resultNodeId = queryNodeId.executeQuery();
-            try {
-                if(resultNodeId.next()) {
-                    return resultNodeId.getLong(1);
-                } else {
-                    throw new SQLException("the sequence did not return a new value");
-                }
-            } finally {
-                resultNodeId.close();
-            }
+        // if there is a preparation needed to update the transaction, run it first
+        if(dialect.hasStatement(sequenceName+".prep")) {
+            PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
+            prepNodeId.executeUpdate();
         }
 
+        PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
+        ResultSet resultNodeId = queryNodeId.executeQuery();
+        try {
+            if(resultNodeId.next()) {
+                return resultNodeId.getLong(1);
+            } else {
+                throw new SQLException("the sequence did not return a new value");
+            }
+        } finally {
+            resultNodeId.close();
+        }
     }
 
 
@@ -1988,10 +1983,9 @@ public class KiWiConnection {
         execution.execute(connection, new RetryCommand<Void>() {
             @Override
             public Void run() throws SQLException {
-                if(persistence.getConfiguration().isCommitSequencesOnCommit() || numberOfCommits % 100 == 0) {
-                    commitMemorySequences();
+                if(connection != null) {
+                    persistence.getIdGenerator().commit(persistence, connection);
                 }
-
 
                 if(tripleBatch != null && tripleBatch.size() > 0) {
                     flushBatch();
@@ -2007,42 +2001,6 @@ public class KiWiConnection {
                 return null;
             }
         });
-    }
-
-    /**
-     * Store the values of all memory sequences back into the database. Should be called at least on repository shutdown
-     * but possibly even when a transaction commits.
-     */
-    public void commitMemorySequences() throws SQLException {
-        if(persistence.getMemorySequences() != null) {
-            synchronized (persistence.getMemorySequences()) {
-                requireJDBCConnection();
-
-                Set<String> updated = persistence.getSequencesUpdated();
-                persistence.setSequencesUpdated(new HashSet<String>());
-
-                try {
-                    for(Map.Entry<String,Long> entry : persistence.getMemorySequences().asMap().entrySet()) {
-                        if( updated.contains(entry.getKey()) && entry.getValue() > 0) {
-                            PreparedStatement updateSequence = getPreparedStatement(entry.getKey()+".set");
-                            updateSequence.setLong(1, entry.getValue());
-                            if(updateSequence.execute()) {
-                                updateSequence.getResultSet().close();
-                            } else {
-                                updateSequence.getUpdateCount();
-                            }
-                        }
-                    }
-                } catch(SQLException ex) {
-                    // MySQL deadlock state, in this case we retry anyways
-                    if(!"40001".equals(ex.getSQLState())) {
-                        log.error("SQL exception:",ex);
-                    }
-                    throw ex;
-                }
-            }
-        }
-
     }
 
     /**

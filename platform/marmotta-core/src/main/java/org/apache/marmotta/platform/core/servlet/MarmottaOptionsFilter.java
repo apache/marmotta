@@ -17,25 +17,23 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.jboss.resteasy.spi.DefaultOptionsMethodException;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-import org.slf4j.Logger;
+import java.io.IOException;
 
-import javax.inject.Inject;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.io.IOException;
-import java.util.Arrays;
+
+import org.jboss.resteasy.spi.DefaultOptionsMethodException;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 /**
  * This filter checks for OPTIONS requests. If the response returned by the other filters throws an exception
@@ -45,13 +43,8 @@ import java.util.Arrays;
  * <p/>
  * Author: Sebastian Schaffert
  */
+@WebFilter("/*")
 public class MarmottaOptionsFilter implements Filter {
-
-    @Inject
-    private Logger log;
-
-    @Inject
-    private ConfigurationService configurationService;
 
     /**
      * Called by the web container to indicate to a filter that it is being placed into

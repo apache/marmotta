@@ -1,0 +1,271 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Linked Data Caching</title>
+    <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            jQuery.getJSON(_SERVER_URL + "/cache/info", function(data) {
+                $("#title").html(data.backend);
+            });
+        });
+    </script>
+
+    <!--###END_HEAD###-->
+</head>
+<body>
+	<!--###BEGIN_CONTENT###-->
+	<h1>
+		<a id="Introduction"></a><span id="title">Introduction</span><a class="section_anchor"
+			href="#Introduction"></a>
+	</h1>
+	<p>
+		Apache Marmotta can optionally be extended with a Linked
+		Data Caching Module that transparently retrieves resources from the
+		Linked Data Cloud when they are needed (e.g. when querying a relation
+		to a remote resource) and caches them transparently. Linked Data
+		Caching is integrated at the triple store level and thus available to
+		all services accessing the triple store, including the SPARQL endpoint.
+	</p>
+	<h1>
+		<a id="Functionality"></a>Functionality<a class="section_anchor"
+			href="#Functionality"></a>
+	</h1>
+	<h2>
+		<a id="Transparent_Linked_Data_Access"></a>Transparent Linked Data
+		Access<a class="section_anchor" href="#Transparent_Linked_Data_Access"></a>
+	</h2>
+	<p>The Linked Data Caching module is a powerful component for
+		integrating with other Linked Data servers, either on the public
+		Linked Data Cloud or from local severs deployed in an intranet. It
+		provides transparent access to resources on Linked Data-aware servers.
+		When enabled, it is triggered when the triples of a non-local resource
+		are requested from the triple store. A typical case where this can
+		happen is when a local resource links to a resource in the Linked Data
+		Cloud using a triple and a query to the system requests information
+		about this external resource.</p>
+	<p>For example, the FOAF description of a user in the Marmotta might
+		contain a reference to the FOAF file of a user at some external
+		location:</p>
+	<pre class="prettyprint">
+		<span class="kwd">local</span><span class="pun">:</span><span
+			class="pln">peter foaf</span><span class="pun">:</span><span
+			class="pln">knows </span><span class="pun">&lt;</span><span
+			class="pln">http</span><span class="pun">:</span><span class="com">//example.com/john.rdf&gt;</span>
+	</pre>
+	<p>A query could then ask for all the names of persons that peter
+		knows, e.g. in SPARQL:</p>
+	<pre class="prettyprint">
+		<span class="pln">SELECT </span><span class="pun">?</span><span
+			class="pln">name WHERE </span><span class="pun">{</span><span
+			class="pln"> </span><span class="kwd">local</span><span class="pun">:</span><span
+			class="pln">peter foaf</span><span class="pun">:</span><span
+			class="pln">knows </span><span class="pun">?</span><span class="pln">p </span><span
+			class="pun">.</span><span class="pln"> </span><span class="pun">?</span><span
+			class="pln">p foaf</span><span class="pun">:</span><span class="pln">name </span><span
+			class="pun">?</span><span class="pln">name </span><span class="pun">}</span>
+	</pre>
+	<p>
+		When evaluating the query, the Linked Data Caching module would then
+		transparently retrieve the resource <em>http://example.com/john.rdf</em>
+		and try to answer the query using the triples contained therein.
+	</p>
+	<h2>
+		<a id="Local_Caching"></a>Local Caching<a class="section_anchor"
+			href="#Local_Caching"></a>
+	</h2>
+	<p>When the triple data of a remote resource are retrieved, they
+		are cached locally in the Linked Media Framework's triple store in a
+		special named graph called "cache", together with provenance and cache
+		expiry information. The cache graph is special in the sense that
+		resources in this graph are by default not considered for direct
+		indexing in the semantic search (i.e. a foaf:Person retrieved from the
+		Linked Data Cloud will not be returned by the Semantic Search
+		component), and triples and resources in this graph are not included
+		in versioning.</p>
+	<p>A query to a resource is answered from the local cache as long
+		as the entry is not expired, i.e. subsequent queries to a resource
+		will be significantly faster than the first query as long as they are
+		carried out within a certain time frame. The expiry date of a resource
+		in the cache is determined in two ways:</p>
+	<ul>
+		<li>if the Linked Data server providing the original resource
+			sends an "Expires" header, the value of the header defines the expiry
+			date of the local cache entry</li>
+		<li>otherwise, if there is an endpoint configuration for the URI
+			prefix of the resource, the expiry time of the endpoint is used</li>
+		<li>otherwise, the default expiry time configured in the
+			configuration variable ldcache.expiry is used</li>
+	</ul>
+	<p></p>
+	<h2>
+		<a id="Modes_of_Operation"></a>Modes of Operation<a
+			class="section_anchor" href="#Modes_of_Operation"></a>
+	</h2>
+	<p>Since the Linked Data Cloud is distributed over the Web and some
+		services might not provide the reliability or availability necessary,
+		or some servers are not yet Linked Data aware, the Linked Data Caching
+		Module offers different modes of operation for accessing resources:</p>
+	<ul>
+		<li><strong>Linked Data</strong> (direct Linked Data access):
+			makes use of the HTTP content negotiation to directly retrieve a
+			Linked Data resource from the Web as defined in the Linked Data
+			Principles. This is the default behaviour if nothing else has been
+			configured</li>
+		<li><strong>Cache</strong> (access to a resource or entity cache
+			endpoint): retrieves the triples of a resource from a defined server
+			by accessing a cache endpoint. This is e.g. useful if there is a
+			local cache of a public server (e.g. to improve reliability or
+			performance) or if there is a "traditional" RDF server that does not
+			offer Linked Data access</li>
+		<li><strong>SPARQL</strong> (access to a resource via a SPARQL
+			endpoint): retrieves the triples of a resource from a defined SPARQL
+			endpoint by issuing a query for all triples with the resource as
+			subject. This is e.g. useful for traditional RDF servers that are
+			extended by a SPARQL endpoint using e.g. Joseki or other tools.</li>
+		<li><strong>NONE</strong> (block access to the resource): does
+			not try to retrieve the external resource. Useful for blocking access
+			for known "bad" Linked Data servers. For example, many Linked Data
+			sources contain references to Wikipedia, which does not offer its
+			data as Linked Data directly.</li>
+	</ul>
+	<p></p>
+	<p>The different modes of operation can be configured as described
+		below. In addition to the RDF/XML format, the Linked Data Caching
+		Module also supports additional RDF serialisation formats that can be
+		configured for certain Linked Data servers.</p>
+	<h1>
+		<a id="Configuration"></a>Configuration<a class="section_anchor"
+			href="#Configuration"></a>
+	</h1>
+	<p>The Linked Data Caching Module can be configured using Marmotta
+		configuration mechanism. The following section describes the
+		configuration options used.</p>
+	<h2>
+		<a id="Configuration_Options"></a>Configuration Options<a
+			class="section_anchor" href="#Configuration_Options"></a>
+	</h2>
+	<p>The following options affect the general behaviour of the Linked
+		Data Caching Module:</p>
+	<ul>
+		<li>ldcache.enabled (true/false): if set to true, transparent
+			Linked Data Caching is enabled; if set to false, remote resources
+			will never be retrieved</li>
+		<li>ldcache.fallback (true/false): try to retrieve a resource
+			using ordinary Linked Data call if no endpoint is specified; when set
+			to false, this option will not retrieve any remote resources except
+			those defined with endpoints; can be used to provide transparent
+			caching only to some specific Linked Data servers</li>
+		<li>ldcache.expiry (seconds): defines the default expiry time for
+			a resource in the cache if the server does not provide an "Expires"
+			header and the endpoint definition does not have an expiry time
+			(default: 1 day)</li>
+		<li>ldcache.fetchall (true/false): if set to true, even a query
+			for all resources will include the resources that are cached locally;
+			the default is set to false because this might lead to unexpected
+			behaviour and crawling of the whole Linked Data Cloud if not used
+			with care</li>
+	</ul>
+	<h2>
+		<a id="Endpoint_Configuration"></a>Endpoint Configuration<a
+			class="section_anchor" href="#Endpoint_Configuration"></a>
+	</h2>
+	<p>The Linked Data Caching Module allows to define URI prefix to
+		endpoint mappings. These can be used to either redirect Linked Data
+		queries to cache or SPARQL endpoints for improving performance or
+		accessing non-Linked Data resources, or for setting different
+		parameters for certain server. An endpoint definition consists of the
+		following parameters:</p>
+	<ul>
+		<li><strong>name</strong> (string): the public name of the
+			endpoint, used for displaying</li>
+		<li><strong>prefix</strong> (uri): the prefix of URIs that are
+			redirected to the endpoint; if a resource requested from the cache
+			has this prefix, it is handled by this endpoint</li>
+		<li><strong>kind</strong> (SPARQL/LINKEDDATA/CACHE/NONE): the
+			operation mode of the endpoint (see above)</li>
+		<li><strong>endpoint</strong> (uri with parameters): the URI
+			under which the endpoint can be accessed. Depending on the mode,
+			certain parameters will be replaced by actual values in the URI:
+		<ul>
+			<li>CACHE: the parameter {uri} will be replaced by the actual
+				URI of the requested resource, e.g. <span class="tt">http://api.sindice.com/v2/cache?url={uri}</span>
+			</li>
+			<li>SPARQL: the parameter {query} will be replaced by the SPARQL
+				query, the parameter {contenttype} will be replaced by the MIME type
+				to be requested from the server, e.g. <span class="tt">http://sparql.sindice.com/sparql?default-graph-uri=&amp;query={query}&amp;format={contenttype}</span>
+			</li>
+		</ul>
+		</li>
+		<li><strong>mimetype</strong> the MIME type to request/expect
+			from the endpoint; depends on the mode of operation:
+		<ul>
+			<li>CACHE/LINKEDDATA: any RDF serialization supported by the
+				Marmotta, e.g. application/rdf+xml, text/rdf+n3, ...</li>
+			<li>SPARQL: any SPARQL result format, e.g.
+				application/sparql-results+xml</li>
+		</ul>
+		</li>
+		<li><strong>expiry</strong> (seconds): the default expiry time
+			for this endpoint if not provided by the server itself</li>
+	</ul>
+	<h2>
+		<a id="Webservice"></a>Webservice<a class="section_anchor"
+			href="#Webservice"></a>
+	</h2>
+	<p>
+		Endpoints are configured using the Linked Data Caching Webservice
+		available under
+		<span class="tt">&lt;APPDIR&gt;/cache/endpoint</span>
+		; the Webservice provides the following operations for managing
+		endpoints:
+	</p>
+	<ul>
+		<li><span class="tt">POST
+				&lt;APPDIR&gt;/cache/endpoint?name=...&amp;prefix=...&amp;endpoint=...&amp;kind=...&amp;mimetype=...&amp;expiry=...</span>
+			will create a new endpoint with the given parameters</li>
+		<li><span class="tt">GET &lt;APPDIR&gt;/cache/endpoint/list</span> will return a
+			list of configured endpoints in JSON</li>
+		<li><span class="tt">GET &lt;APPDIR&gt;/cache/endpoint/{id}</span> will return
+			the endpoint configuration for the endpoint with the given internal
+			ID</li>
+		<li><span class="tt">DELETE &lt;APPDIR&gt;/cache/endpoint/{id}</span> will
+			delete the endpoint configuration for the endpoint with the given
+			internal ID</li>
+	</ul>
+	<p></p>
+	<p>In addition to managing endpoints, the webservice also offers
+		two methods for retrieving resources:</p>
+	<ul>
+		<li><span class="tt">GET &lt;APPDIR&gt;/cache/live?uri=...</span> directly
+			retrieves a resource from the endpoints or Linked Data Cloud without
+			caching it locally; used for testing endpoints</li>
+		<li><span class="tt">GET &lt;APPDIR&gt;/cache/cached?uri=...</span> refreshes
+			the resource with the given URI and returns nothing; the resource can
+			then be retrieved using the normal resource access webservices</li>
+	</ul>
+	<p></p>
+	<p>For your convenience, the Marmotta administration interface offers a
+		simple UI for adding, listing and removing endpoint definitions.</p>
+	<!--###END_CONTENT###-->
+</body>
+</html>

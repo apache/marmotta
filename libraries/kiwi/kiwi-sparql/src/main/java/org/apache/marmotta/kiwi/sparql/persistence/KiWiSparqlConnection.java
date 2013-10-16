@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.sparql.persistence;
 import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.CloseableIteratorIteration;
+import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
@@ -29,12 +30,11 @@ import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.openrdf.model.*;
+import org.openrdf.model.vocabulary.SESAME;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
@@ -79,10 +79,12 @@ public class KiWiSparqlConnection {
     /**
      * Evaluate a statement pattern join or filter on the database by translating it into an appropriate SQL statement.
      * Copied and adapted from KiWiReasoningConnection.query()
+     *
      * @param join
+     * @param dataset
      * @return
      */
-    public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings) throws SQLException, InterruptedException {
+    public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings, final Dataset dataset) throws SQLException, InterruptedException {
         Preconditions.checkArgument(join instanceof Join || join instanceof Filter || join instanceof StatementPattern);
 
         // some definitions
@@ -107,13 +109,66 @@ public class KiWiSparqlConnection {
         int variableCount = 0;
 
         // a map for the variable names; will look like { ?x -> "V1", ?y -> "V2", ... }
-        final Map<Var,String> variableNames = new HashMap<Var, String>();
+        final Map<Var,String> variableNames = new HashMap<>();
 
         // a map for mapping variables to field names; each variable might have one or more field names,
         // depending on the number of patterns it occurs in; will look like
         // { ?x -> ["P1_V1", "P2_V1"], ?y -> ["P2_V2"], ... }
-        Map<Var,List<String>> queryVariables = new HashMap<Var, List<String>>();
+        Map<Var,List<String>> queryVariables = new HashMap<>();
+
+        // a map for defining alternative context values for each variable used in the context part of a pattern
+        Map<StatementPattern,List<Resource>> variableContexts = new HashMap<>();
+
         for(StatementPattern p : patterns) {
+            // check graph restrictions in datasets (MARMOTTA-340)
+            Resource[] contexts;
+            Value contextValue = p.getContextVar() != null ? p.getContextVar().getValue() : null;
+
+            Set<URI> graphs = null;
+            boolean emptyGraph = false;
+
+            if (dataset != null) {
+                if (p.getScope() == StatementPattern.Scope.DEFAULT_CONTEXTS) {
+                    graphs = dataset.getDefaultGraphs();
+                    emptyGraph = graphs.isEmpty() && !dataset.getNamedGraphs().isEmpty();
+                }
+                else {
+                    graphs = dataset.getNamedGraphs();
+                    emptyGraph = graphs.isEmpty() && !dataset.getDefaultGraphs().isEmpty();
+                }
+            }
+
+            if (emptyGraph) {
+                // Search zero contexts
+                return new EmptyIteration<BindingSet, SQLException>();
+            } else if (graphs == null || graphs.isEmpty()) {
+                if (contextValue != null) {
+                    contexts = new Resource[] { (Resource)contextValue };
+                } else {
+                    contexts = new Resource[0];
+                }
+            } else if (contextValue != null) {
+                if (graphs.contains(contextValue)) {
+                    contexts = new Resource[] { (Resource)contextValue };
+                } else {
+                    // Statement pattern specifies a context that is not part of
+                    // the dataset
+                    return new EmptyIteration<BindingSet, SQLException>();
+                }
+            } else {
+                contexts = new Resource[graphs.size()];
+                int i = 0;
+                for (URI graph : graphs) {
+                    URI context = null;
+                    if (!SESAME.NIL.equals(graph)) {
+                        context = graph;
+                    }
+                    contexts[i++] = context;
+                }
+            }
+
+
+            // build pattern
             Var[] fields = new Var[] {
                     p.getSubjectVar(),
                     p.getPredicateVar(),
@@ -131,6 +186,11 @@ public class KiWiSparqlConnection {
                     String vName = variableNames.get(v);
                     queryVariables.get(v).add(pName + "_" + positions[i] + "_" + vName);
                 }
+            }
+
+            // build an OR query for the value of the context variable
+            if(contexts.length > 0) {
+                variableContexts.put(p, Arrays.asList(contexts));
             }
         }
 
@@ -273,6 +333,36 @@ public class KiWiSparqlConnection {
             whereConditions.add(evaluateExpression(expr,queryVariables, null));
         }
 
+
+        // 6. for each context variable with a restricted list of contexts, we add a condition to the where clause
+        //    of the form (V.id = R1.id OR V.id = R2.id ...)
+        for(Map.Entry<StatementPattern,List<Resource>> vctx : variableContexts.entrySet()) {
+            // the variable
+            String varName = patternNames.get(vctx.getKey());
+
+            // the string we are building
+            StringBuilder cCond = new StringBuilder();
+            cCond.append("(");
+            for(Iterator<Resource> it = vctx.getValue().iterator(); it.hasNext(); ) {
+                Value v = valueFactory.convert(it.next());
+                if(v instanceof KiWiNode) {
+                    Long nodeId = ((KiWiNode) v).getId();
+
+                    cCond.append(varName);
+                    cCond.append(".context = ");
+                    cCond.append(nodeId);
+
+                    if(it.hasNext()) {
+                        cCond.append(" OR ");
+                    }
+                } else {
+                    throw new IllegalArgumentException("the values in this query have not been created by the KiWi value factory");
+                }
+
+            }
+            cCond.append(")");
+            whereConditions.add(cCond.toString());
+        }
 
         // construct the where clause
         StringBuilder whereClause = new StringBuilder();
@@ -697,6 +787,18 @@ public class KiWiSparqlConnection {
             return value + " LIKE '"+simplified+"'";
         }
 
+    }
+
+    protected Value getVarValue(Var var, BindingSet bindings) {
+        if (var == null) {
+            return null;
+        }
+        else if (var.hasValue()) {
+            return var.getValue();
+        }
+        else {
+            return bindings.getValue(var.getName());
+        }
     }
 
 

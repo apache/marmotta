@@ -108,4 +108,8 @@ public class GenericLinkedDataSail extends NotifyingSailWrapper {
 	public CacheConfiguration getCacheConfiguration() {
 		return config;
 	}
+
+    public LDCache getLDCache() {
+        return ldcache;
+    }
 }

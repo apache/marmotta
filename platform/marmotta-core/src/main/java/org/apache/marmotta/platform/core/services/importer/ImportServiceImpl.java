@@ -76,7 +76,7 @@ public class ImportServiceImpl implements ImportService{
         long start = System.currentTimeMillis();
 		int result = getImporterInstance(format).importData(url,format,user,context);
         long end = System.currentTimeMillis();
-        log.info("data import finished ({} ms}", end-start);
+        log.info("data import finished ({} ms)", end-start);
         return result;
 	}
 
@@ -85,7 +85,7 @@ public class ImportServiceImpl implements ImportService{
         long start = System.currentTimeMillis();
         int result = getImporterInstance(format).importData(is,format,user,context);
         long end = System.currentTimeMillis();
-        log.info("data import finished ({} ms}", end-start);
+        log.info("data import finished ({} ms)", end-start);
         return result;
 	}
 
@@ -94,7 +94,7 @@ public class ImportServiceImpl implements ImportService{
         long start = System.currentTimeMillis();
         int result = getImporterInstance(format).importData(reader,format,user,context);
         long end = System.currentTimeMillis();
-        log.info("data import finished ({} ms}", end-start);
+        log.info("data import finished ({} ms)", end-start);
         return result;
 	}
 

@@ -17,17 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.http;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.http.HttpClientService;
-import org.apache.marmotta.platform.core.api.statistics.StatisticsModule;
-import org.apache.marmotta.platform.core.api.statistics.StatisticsService;
-import org.apache.marmotta.platform.core.api.task.Task;
-import org.apache.marmotta.platform.core.api.task.TaskManagerService;
-import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
-import org.apache.marmotta.platform.core.services.http.response.LastModifiedResponseHandler;
-import org.apache.marmotta.platform.core.services.http.response.StatusCodeResponseHandler;
-import org.apache.marmotta.platform.core.services.http.response.StringBodyResponseHandler;
 import net.sf.ehcache.Ehcache;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
@@ -56,6 +45,17 @@ import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.http.HttpClientService;
+import org.apache.marmotta.platform.core.api.statistics.StatisticsModule;
+import org.apache.marmotta.platform.core.api.statistics.StatisticsService;
+import org.apache.marmotta.platform.core.api.task.Task;
+import org.apache.marmotta.platform.core.api.task.TaskManagerService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
+import org.apache.marmotta.platform.core.services.http.response.LastModifiedResponseHandler;
+import org.apache.marmotta.platform.core.services.http.response.StatusCodeResponseHandler;
+import org.apache.marmotta.platform.core.services.http.response.StringBodyResponseHandler;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -64,7 +64,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -108,12 +107,12 @@ public class HttpClientServiceImpl implements HttpClientService {
     private IdleConnectionMonitorThread  idleConnectionMonitorThread;
     private BasicHttpParams              httpParams;
 
-    private final AtomicLong             bytesSent               = new AtomicLong();
-    private final AtomicLong             bytesReceived           = new AtomicLong();
-    private final AtomicLong             bytesFromCache          = new AtomicLong();
-    private final AtomicLong             requestsExecuted        = new AtomicLong();
+    private  AtomicLong             bytesSent               = new AtomicLong();
+    private  AtomicLong             bytesReceived           = new AtomicLong();
+    private  AtomicLong             bytesFromCache          = new AtomicLong();
+    private  AtomicLong             requestsExecuted        = new AtomicLong();
 
-    private final ReentrantReadWriteLock lock                    = new ReentrantReadWriteLock();
+    private  ReentrantReadWriteLock lock                    = new ReentrantReadWriteLock();
 
     /**
      * Execute a request and pass the response to the provided handler.
@@ -179,7 +178,7 @@ public class HttpClientServiceImpl implements HttpClientService {
         EntityUtils.consumeQuietly(response.getEntity());
     }
 
-    private final String formatNanoDuration(long nano) {
+    private static String formatNanoDuration(long nano) {
         // convert to microseconds (1/1000s)
         final long micro = nano / 1000;
         if (micro > 1000 * 1000l) {

@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.core.webservices.resource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,7 +52,6 @@ import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
 import org.apache.marmotta.platform.core.services.sesame.ResourceSubjectMetadata;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
@@ -273,72 +273,67 @@ public class MetaWebService {
                     return response;
                 }
 
-                if(r != null) {
+                final Resource subject = r;
 
-                    final Resource subject = r;
-
-                    StreamingOutput entity = new StreamingOutput() {
-                        @Override
-                        public void write(OutputStream output) throws IOException, WebApplicationException {
-                            // FIXME: This method is executed AFTER the @Transactional!
-                            RDFWriter writer = Rio.createWriter(serializer,output);
+                StreamingOutput entity = new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream output) throws IOException, WebApplicationException {
+                        // FIXME: This method is executed AFTER the @Transactional!
+                        RDFWriter writer = Rio.createWriter(serializer,output);
+                        try {
+                            RepositoryConnection connection = sesameService.getConnection();
                             try {
-                                RepositoryConnection connection = sesameService.getConnection();
-                                try {
-                                    connection.begin();
-                                    connection.exportStatements(subject,null,null,true,writer);
-                                } finally {
-                                    connection.commit();
-                                    connection.close();
-                                }
-                            } catch (RepositoryException e) {
-                                throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
-                            } catch (RDFHandlerException e) {
-                                throw new IOException("error while writing RDF data to stream", e);
+                                connection.begin();
+                                connection.exportStatements(subject,null,null,true,writer);
+                            } finally {
+                                connection.commit();
+                                connection.close();
                             }
-
+                        } catch (RepositoryException e) {
+                            throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
+                        } catch (RDFHandlerException e) {
+                            throw new IOException("error while writing RDF data to stream", e);
                         }
-                    };
 
-                    // build response
-                    Response response = Response.ok(entity).lastModified(KiWiSesameUtil.lastModified(r, conn)).build();
-                    response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
-                    
-                    if (!mimetype.contains("html")) { // then create a proper filename
-	                    String[] components;
-	                    if (resource.contains("#")) {
-	                    	components = resource.split("#");	                    	
-	                    } else {
-	                    	components = resource.split("/");
-	                    }
-	                    final String fileName = components[components.length-1] + "." + serializer.getDefaultFileExtension();   
-	                    response.getMetadata().add("Content-Disposition", "attachment; filename=\""+fileName+"\"");
                     }
+                };
 
-                    // create the Content-Type header for the response
-                    if (mimetype.startsWith("text/") || mimetype.startsWith("application/")) {
-                        response.getMetadata().add("Content-Type", mimetype + "; charset=" + ResourceWebService.CHARSET);
+                // build response
+                Response response = Response.ok(entity).lastModified(ResourceUtils.getLastModified(conn, r)).build();
+                response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
+                
+                if (!mimetype.contains("html")) { // then create a proper filename
+                    String[] components;
+                    if (resource.contains("#")) {
+                    	components = resource.split("#");	                    	
                     } else {
-                        response.getMetadata().add("Content-Type", mimetype);
+                    	components = resource.split("/");
                     }
-
-                    // create the Link headers for the response
-                    List<String> links = new LinkedList<String>();
-
-                    // build the link to the human readable content of this resource (if it exists)
-                    String contentLink = ResourceWebServiceHelper.buildContentLink(r, contentService.getContentType(r), configurationService);
-                    if(!"".equals(contentLink)) {
-                        links.add(contentLink);
-                    }
-
-                    if (links.size() > 0) {
-                        response.getMetadata().add("Link", CollectionUtils.fold(links, ", "));
-                    }
-                    return response;
-                } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity("resource with URI "+resource+" does not exist").build();
+                    final String fileName = components[components.length-1] + "." + serializer.getDefaultFileExtension();   
+                    response.getMetadata().add("Content-Disposition", "attachment; filename=\""+fileName+"\"");
                 }
-            } finally {
+
+                // create the Content-Type header for the response
+                if (mimetype.startsWith("text/") || mimetype.startsWith("application/")) {
+                    response.getMetadata().add("Content-Type", mimetype + "; charset=" + ResourceWebService.CHARSET);
+                } else {
+                    response.getMetadata().add("Content-Type", mimetype);
+                }
+
+                // create the Link headers for the response
+                List<String> links = new LinkedList<String>();
+
+                // build the link to the human readable content of this resource (if it exists)
+                String contentLink = ResourceWebServiceHelper.buildContentLink(r, contentService.getContentType(r), configurationService);
+                if(!"".equals(contentLink)) {
+                    links.add(contentLink);
+                }
+
+                if (links.size() > 0) {
+                    response.getMetadata().add("Link", CollectionUtils.fold(links, ", "));
+                }
+                return response;
+        } finally {
                 if (conn.isOpen()) {
                     conn.commit();
                     conn.close();
@@ -376,11 +371,13 @@ public class MetaWebService {
 
                 // add RDF data from input to the suject
                 connection.add(request.getReader(), configurationService.getBaseUri(), parser, contextService.getDefaultContext());
-            } finally {
+			} finally {
                 connection.commit();
                 connection.close();
             }
             return Response.ok().build();
+        } catch (URISyntaxException e) {
+        	return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, "invalid target context", configurationService, templatingService);
         } catch (RepositoryException e) {
             return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService, templatingService);
         } catch (IOException e) {

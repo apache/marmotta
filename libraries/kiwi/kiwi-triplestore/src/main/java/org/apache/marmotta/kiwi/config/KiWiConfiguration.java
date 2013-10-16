@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.config;
 
+import org.apache.marmotta.kiwi.generator.IDGeneratorType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 
 /**
@@ -66,13 +67,27 @@ public class KiWiConfiguration {
     private boolean queryLoggingEnabled = false;
 
     /**
-     * Enable batched commit (if supported by the database dialect). If this is enabled, the KiWiConnection will
-     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
-     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     * Enable batched commit for triples (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance, and is usually quite safe for triples.
      */
-    private boolean batchCommit;
+    private boolean tripleBatchCommit;
 
-    private int batchSize = 10000;
+
+    /**
+     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
+     * same database.
+     */
+    private boolean nodeBatchCommit;
+
+
+    private int tripleBatchSize = 10000;
+
+    private int nodeBatchSize = 1000;
 
     /**
      * Size of the database cursor for pre-fetching rows on database supporting this feature. If the size is set to 0,
@@ -83,13 +98,10 @@ public class KiWiConfiguration {
     private int cursorSize = 1000;
 
     /**
-     * If enabled, and batchCommit is also true, load sequence values into static memory fields once and increment
-     * values purely in-memory. The last value is then written back on batch commits.
+     * The method to use for generating row IDs. Starting with Marmotta 3.2, the default is to use the Twitter Snowflake
+     * algorithm.
      */
-    private boolean memorySequences = true;
-
-
-    private boolean commitSequencesOnCommit = true;
+    private IDGeneratorType idGeneratorType = IDGeneratorType.SNOWFLAKE;
 
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
@@ -105,7 +117,8 @@ public class KiWiConfiguration {
         this.defaultContext = defaultContext;
         this.inferredContext = inferredContext;
 
-        batchCommit = dialect.isBatchSupported();
+        tripleBatchCommit = dialect.isBatchSupported();
+        nodeBatchCommit   = dialect.isBatchSupported();
     }
 
 
@@ -154,31 +167,63 @@ public class KiWiConfiguration {
     }
 
     /**
-     * Return true if batched commit is enabled. If this is enabled, the KiWiConnection will
-     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
-     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     * Enable batched commit for triples (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance, and is usually quite safe for triples.
      */
-    public boolean isBatchCommit() {
-        return batchCommit;
+    public boolean isTripleBatchCommit() {
+        return tripleBatchCommit;
     }
 
     /**
-     * Enable batched commit (if supported by the database dialect). If this is enabled, the KiWiConnection will
-     * use an in-memory buffer for stored triples and nodes that are committed in a batch once the limit is reached
-     * or the connection committed. Enabling this can significantly improve the performance (EXPERIMENTAL).
+     * Enable batched commit for triples (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance, and is usually quite safe for triples.
      */
-    public void setBatchCommit(boolean batchCommit) {
+    public void setTripleBatchCommit(boolean tripleBatchCommit) {
         if(dialect.isBatchSupported()) {
-            this.batchCommit = batchCommit;
+            this.tripleBatchCommit = tripleBatchCommit;
         }
     }
 
-    public int getBatchSize() {
-        return batchSize;
+    /**
+     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
+     * same database.
+     */
+    public boolean isNodeBatchCommit() {
+        return nodeBatchCommit;
     }
 
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
+    /**
+     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
+     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
+     * once the limit is reached or the connection committed. Enabling this can significantly improve the
+     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
+     * same database.
+     */
+    public void setNodeBatchCommit(boolean nodeBatchCommit) {
+        this.nodeBatchCommit = nodeBatchCommit;
+    }
+
+    public int getTripleBatchSize() {
+        return tripleBatchSize;
+    }
+
+    public void setTripleBatchSize(int tripleBatchSize) {
+        this.tripleBatchSize = tripleBatchSize;
+    }
+
+    public int getNodeBatchSize() {
+        return nodeBatchSize;
+    }
+
+    public void setNodeBatchSize(int nodeBatchSize) {
+        this.nodeBatchSize = nodeBatchSize;
     }
 
     /**
@@ -201,32 +246,16 @@ public class KiWiConfiguration {
         this.cursorSize = cursorSize;
     }
 
-    public boolean isMemorySequences() {
-        return memorySequences;
-    }
-
     /**
-     * Enable in-memory sequences. If enabled, and batchCommit is also true, load sequence values into static memory
-     * fields once and increment values purely in-memory. The last value is then written back on batch commits. This
-     * feature can avoid many database accesses and connections and therefore give significant performance improvements.
-     * (EXPERIMENTAL).
-     */
-    public void setMemorySequences(boolean memorySequences) {
-        this.memorySequences = memorySequences;
-    }
-
-
-    public boolean isCommitSequencesOnCommit() {
-        return commitSequencesOnCommit;
-    }
-
-    /**
-     * This flag determines whether memory sequences should be stored back into the database on every commit or only
-     * when the repository shuts down. Saving back on every commit is safer, but has less performance.
+     * The ID generator used for generating row IDs in the database. See documentation in {@link IDGeneratorType}
      *
-     * @param commitSequencesOnCommit
+     * @return the type defined for this configuration
      */
-    public void setCommitSequencesOnCommit(boolean commitSequencesOnCommit) {
-        this.commitSequencesOnCommit = commitSequencesOnCommit;
+    public IDGeneratorType getIdGeneratorType() {
+        return idGeneratorType;
+    }
+
+    public void setIdGeneratorType(IDGeneratorType idGeneratorType) {
+        this.idGeneratorType = idGeneratorType;
     }
 }

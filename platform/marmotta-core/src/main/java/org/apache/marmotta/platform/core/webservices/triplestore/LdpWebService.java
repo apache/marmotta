@@ -17,32 +17,23 @@
  */
 package org.apache.marmotta.platform.core.webservices.triplestore;
 
-import static javax.ws.rs.core.Response.status;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.LdpService;
+import org.apache.marmotta.platform.core.util.WebServiceUtil;
+import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryException;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.LdpService;
-import org.apache.marmotta.platform.core.util.JerseyUtils;
-
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryException;
+import static javax.ws.rs.core.Response.status;
 
 /**
  * LDP Web Service (isolated for the moment for experimenting with
@@ -143,7 +134,7 @@ public class LdpWebService {
     
     private String buildBaseUri() {
         String root = configurationService.getBaseUri();
-        return root.substring(0, root.length() - 1) + JerseyUtils.getResourcePath(this) + "/";
+        return root.substring(0, root.length() - 1) + WebServiceUtil.getResourcePath(this) + "/";
     }
 
     private String buildUri(String uuid) {

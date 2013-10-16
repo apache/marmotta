@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.core.api.triplestore;
 
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
 
@@ -58,14 +59,6 @@ public interface ContextService {
      * @return base context
      */
     String getBaseContext();
-    
-    /**
-     * Return the knowledge space that is currently selected for write access. The currently active context
-     * is either the default context or explicitly passed as argument ctx to web service calls.
-     *
-     * @return a KiWiUriResource representing the current knowledge space
-     */
-    URI getCurrentContext();
 
     /**
      * Return the set of contexts that is currently active for reading. The set of active contexts
@@ -79,28 +72,32 @@ public interface ContextService {
      * Return the context used for storing system information.
      *
      * @return a URI representing the system context
+     * @throws URISyntaxException 
      */
-    URI getSystemContext();
+    URI getSystemContext() throws URISyntaxException;
 
     /**
      * Get the uri of the inferred context
      *
      * @return uri of this inferred context
+     * @throws URISyntaxException 
      */
-    URI getInferredContext();
+    URI getInferredContext() throws URISyntaxException;
 
     /**
      * Get the uri of the default context
      *
      * @return
+     * @throws URISyntaxException 
      */
-    URI getDefaultContext();
+    URI getDefaultContext() throws URISyntaxException;
 
     /**
      * Get the uri of the context used for caching linked data
      * @return
+     * @throws URISyntaxException 
      */
-    URI getCacheContext();
+    URI getCacheContext() throws URISyntaxException;
 
     /**
      * List all contexts currently available
@@ -131,8 +128,9 @@ public interface ContextService {
      *
      * @param uri the uri of the context to create
      * @return a URI representing the created context
+     * @throws URISyntaxException 
      */
-    URI createContext(String uri);
+    URI createContext(String uri) throws URISyntaxException;
 
     /**
      * Create a new context with the given URI or return the already existing context. Essentially
@@ -141,8 +139,9 @@ public interface ContextService {
      * @param uri
      * @param label
      * @return
+     * @throws URISyntaxException 
      */
-    URI createContext(String uri, String label);
+    URI createContext(String uri, String label) throws URISyntaxException;
 
     /**
      * Return the context with the given URI if it exists.

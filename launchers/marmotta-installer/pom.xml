@@ -145,6 +145,30 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.marmotta</groupId>
+                        <artifactId>marmotta-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>createSplash</goal>
+                                </goals>
+                                <configuration>
+                                    <input>src/main/resources/images/splashscreen.png</input>
+                                    <output>${stagingDir}/images/splashscreen.png</output>
+                                    <versionString>${project.version}</versionString>
+                                    <color>#1d1d1b</color>
+                                    <snapshotColor>#f8651d</snapshotColor>
+                                    <vAlign>base</vAlign>
+                                    <hAlign>right</hAlign>
+                                    <xPos>467</xPos>
+                                    <yPos>333</yPos>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.marmotta</groupId>
                         <artifactId>refpack-maven-plugin</artifactId>
                         <version>${project.version}</version>
                         <configuration>

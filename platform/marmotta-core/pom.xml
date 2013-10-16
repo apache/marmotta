@@ -258,6 +258,11 @@
             <artifactId>commons-net</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
@@ -408,6 +413,18 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-inferencer</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
         <!-- CDI/Java EE 6 Environment -->
         <dependency>
             <groupId>javax.enterprise</groupId>
@@ -492,18 +509,8 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-nativerdf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-inferencer</artifactId>
-        </dependency>
+
+
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -559,10 +566,6 @@
             <artifactId>icu4j</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-triplestore</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-transactions</artifactId>

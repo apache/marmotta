@@ -17,6 +17,31 @@
  */
 package org.apache.marmotta.platform.core.webservices.io;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskInfo;
@@ -28,24 +53,6 @@ import org.openrdf.model.URI;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * A webservice offering functionality to import data from the KiWi knowledge base.
@@ -153,7 +160,7 @@ public class ImportWebService {
      */
     @POST
     @Path("/external")
-    public Response externalData(@HeaderParam("Content-Type") String type, @QueryParam("url") String url, @QueryParam("context") String context_string) throws IOException, MarmottaImportException {
+    public Response externalData(@HeaderParam("Content-Type") String type, @QueryParam("url") String url, @QueryParam("context") String context) throws IOException, MarmottaImportException {
         try {
             log.debug("Received 'external' request for {} with {}%n", type, url);
             if(type != null && type.lastIndexOf(';') >= 0) {
@@ -161,11 +168,11 @@ public class ImportWebService {
             }
             if(type==null || !importService.getAcceptTypes().contains(type)) return Response.status(412).entity("define a valid content-type (types: "+importService.getAcceptTypes()+")").build();
             final URL finalUrl = new URL(url);
-            final URI context = getContext(context_string);
+            final URI ctx = getContext(context);
 
             try {
-                URLConnection con = finalUrl.openConnection();
-                con.connect();
+                URLConnection conn = finalUrl.openConnection();
+                conn.connect();
             } catch(IOException ex) {
                 return Response.status(502).entity("the URL passed as argument cannot be retrieved").build();
             }
@@ -178,11 +185,11 @@ public class ImportWebService {
                     Task task = taskManagerService.createTask("Import from external source", TASK_GROUP_NAME);
                     task.updateDetailMessage("source", finalUrl.toExternalForm());
                     task.updateDetailMessage("type", finalType);
-                    if (context != null) {
-                        task.updateDetailMessage("context", context.toString());
+                    if (ctx != null) {
+                        task.updateDetailMessage("context", ctx.toString());
                     }
                     try {
-                        importService.importData(finalUrl,finalType,userService.getCurrentUser(),context);
+                        importService.importData(finalUrl,finalType,userService.getCurrentUser(),ctx);
                     } catch(Exception e) {
                         log.error("exception while asynchronously importing data",e);
                     } finally {
@@ -199,7 +206,9 @@ public class ImportWebService {
             return Response.ok().entity(String.format("{\"tname\":\"%s\"}", t.getName())).build();
         } catch(MalformedURLException ex) {
             return Response.status(400).entity("the URL passed as argument is not valid").build();
-        }
+        } catch (URISyntaxException e1) {
+        	return Response.status(400).entity("invalid context URI: " + context).build();
+		}
     }
 
     /**
@@ -264,11 +273,12 @@ public class ImportWebService {
         // return running;
     }
 
-    private URI getContext(String context_string) {
-        if(context_string != null)
+    private URI getContext(String context_string) throws URISyntaxException {
+        if(context_string != null) {
             return contextService.createContext(context_string);
-        else
+        } else {
             return contextService.getDefaultContext();
+        }
     }
 
     protected static class Status {

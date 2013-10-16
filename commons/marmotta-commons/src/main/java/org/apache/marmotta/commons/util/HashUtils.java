@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,21 +17,44 @@
  */
 package org.apache.marmotta.commons.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.file.Path;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * A static class for generating hash-sums (MD5, SHA-1) out of strings
+ * A static class for generating hash-sums (MD5, SHA-1, SHA-512) out of various sources.
  * 
  * @author Sebastian Schaffert
  * 
  */
 public class HashUtils {
+    
+    private HashUtils() {
+        // avoid instantiation of util-class.
+    }
 
     public static final String md5sum(String string) {
         return calcHash(string, "MD5");
+    }
+
+    public static final String md5sum(File file) throws FileNotFoundException, IOException {
+        return calcHash(new FileInputStream(file), "MD5");
+    }
+
+    public static final String md5sum(Path file) throws FileNotFoundException, IOException {
+        return md5sum(file.toFile());
+    }
+
+    public static final String md5sum(InputStream inStream) throws IOException {
+        return calcHash(inStream, "MD5");
     }
 
     public static final String md5sum(byte[] bytes) {
@@ -42,15 +65,46 @@ public class HashUtils {
         return calcHash(string, "SHA-1");
     }
 
+    public static final String sha1(File file) throws FileNotFoundException, IOException {
+        return calcHash(new FileInputStream(file), "SHA-1");
+    }
+
+    public static final String sha1(Path file) throws FileNotFoundException, IOException {
+        return sha1(file.toFile());
+    }
+
+    public static final String sha1(InputStream inStream) throws IOException {
+        return calcHash(inStream, "SHA-1");
+    }
+
     public static final String sha1(byte[] bytes) {
         return calcHash(bytes, "SHA-1");
     }
 
+    public static final String sha512(String string) {
+        return calcHash(string, "SHA-512");
+    }
+
+    public static final String sha512(File file) throws FileNotFoundException, IOException {
+        return calcHash(new FileInputStream(file), "SHA-512");
+    }
+
+    public static final String sha512(Path file) throws FileNotFoundException, IOException {
+        return sha512(file.toFile());
+    }
+
+    public static final String sha512(InputStream inStream) throws IOException {
+        return calcHash(inStream, "SHA-512");
+    }
+
+    public static final String sha512(byte[] bytes) {
+        return calcHash(bytes, "SHA-512");
+    }
     private static String calcHash(String string, String algorithm) {
         try {
             return calcHash(string.getBytes("UTF-8"), algorithm);
         } catch (UnsupportedEncodingException e) {
-            return string;
+            return calcHash(string.getBytes(), algorithm);
         }
     }
 
@@ -58,11 +112,31 @@ public class HashUtils {
         try {
             MessageDigest m = MessageDigest.getInstance(algorithm);
             m.update(bytes);
-            return new BigInteger(1,m.digest()).toString(16);
-        } catch(NoSuchAlgorithmException ex) {
+            return new BigInteger(1, m.digest()).toString(16);
+        } catch (NoSuchAlgorithmException ex) {
+            // this should not happen
             return "";
         }
     }
 
-
+    private static String calcHash(InputStream input, String algorithm) throws IOException {
+        try {
+            final MessageDigest md = MessageDigest.getInstance(algorithm);
+            final DigestInputStream dis = new DigestInputStream(input, md);
+            try {
+                byte[] buff = new byte[4096];
+                // just read to get the Digest filled...
+                while (dis.read(buff) > 0) {
+                    // nop
+                }
+                return new BigInteger(1, md.digest()).toString(16);
+            } finally {
+                dis.close();
+            }
+        } catch (NoSuchAlgorithmException e) {
+            // this should not happen
+            return "";
+        }
+    }
+    
 }

@@ -53,13 +53,25 @@
 
     <modules>
         <module>marmotta-core</module>
-        <module>marmotta-ldcache</module>
+
+        <!-- alternative backend implementations, only include exactly one in your classpath -->
+        <module>backends</module>
+        <module>ldcache</module>
+
+        <!-- generic modules -->
         <module>marmotta-ldpath</module>
-        <module>marmotta-reasoner</module>
         <module>marmotta-security</module>
         <module>marmotta-sparql</module>
         <module>marmotta-user</module>
-        <module>marmotta-versioning</module>
+
+        <module>marmotta-versioning-common</module>
+
+        <!-- KiWi backend specific modules -->
+        <module>marmotta-reasoner-kiwi</module>
+        <module>marmotta-versioning-kiwi</module>
+
+
     </modules>
+
 
 </project>

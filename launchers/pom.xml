@@ -58,4 +58,14 @@
         <module>marmotta-webapp</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>non-free</id>
+            <modules>
+                <module>marmotta-webapp-bigdata</module>
+            </modules>
+        </profile>
+    </profiles>
+
+
 </project>

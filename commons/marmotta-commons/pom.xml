@@ -33,7 +33,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.7</version>
                 <executions>
                     <execution>
                         <id>add-ext</id>
@@ -99,6 +98,14 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-queryresultio-api</artifactId>
+        </dependency>
 
         <dependency>
         <!-- TODO: this should be removed -->
@@ -116,11 +123,6 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-memory</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -24,12 +24,14 @@ import javax.naming.NamingException;
 import javax.naming.spi.NamingManager;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 /**
- * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert
+ * Listener to enable custom JNDI implementation
+ * 
+ * @author Sebastian Schaffert
  */
+@WebListener
 public class MarmottaJndiListener implements ServletContextListener {
 
     private static Logger log = LoggerFactory.getLogger(MarmottaJndiListener.class);

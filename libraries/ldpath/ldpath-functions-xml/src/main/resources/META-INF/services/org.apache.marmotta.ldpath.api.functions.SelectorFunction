@@ -1,2 +1,4 @@
 org.apache.marmotta.ldpath.model.functions.xml.RemoveXmlTagsFunction
 org.apache.marmotta.ldpath.model.functions.xml.XPathFunction
+org.apache.marmotta.ldpath.model.functions.xml.XmlTextFunction
+org.apache.marmotta.ldpath.model.functions.xml.XmlUnescapeFunction
