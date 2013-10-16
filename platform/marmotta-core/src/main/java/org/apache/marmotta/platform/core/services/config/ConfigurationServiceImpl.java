@@ -1007,6 +1007,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             config.clearProperty(key);
             configDescriptions.clearProperty(key+".type");
             configDescriptions.clearProperty(key+".description");
+            save();
         } finally {
             lock.writeLock().unlock();
         }
