@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -24,23 +24,27 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.Date;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.nio.watch.SimpleTreeWatcher;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.importer.ImportWatchService;
@@ -48,6 +52,7 @@ import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.user.UserService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.openrdf.model.URI;
@@ -59,19 +64,27 @@ import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
 /**
- * Implementation for watching import directory
+ * Implementation for watching import directory.
+ * This service watches the import directory (see {@link #getImportRoot()}) for (new) files and imports them. 
  * 
  * @author Sergio Fernández
+ * @author Jakob Frank <jakob@apache.org>
  * 
  */
 @ApplicationScoped
 public class ImportWatchServiceImpl implements ImportWatchService {
 
-	private static final String TASK_GROUP = "Import Watch";
+	private static final String CONFIG_PREFIX = "file-import.";
+    private static final String CONFIG_KEY_LOCK_FILE = CONFIG_PREFIX + "lockFile";
+    private static final String CONFIG_KEY_CONF_FILE = CONFIG_PREFIX + "dirConfigFile";
+    private static final String CONFIG_KEY_IMPORT_DELAY = CONFIG_PREFIX + "importDelay";
+    private static final String CONFIG_KEY_DELETE_AFTER_IMPORT = CONFIG_PREFIX + "deleteAfterImport";
+    private static final String CONFIG_KEY_SERVICE_ENABLED = CONFIG_PREFIX + "enabled";
+
+    private static final String TASK_GROUP = "Import Watch";
 
 	private static final String TASK_DETAIL_PATH = "path";
-	
-	private static final String TASK_DETAIL_CONTEXT = "context";
+	private static final String TASK_DETAIL_QUEUE = "import queue";
 	
 	@Inject
 	private Logger log;
@@ -91,122 +104,108 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 	@Inject
 	private UserService userService;
 	
-	private Map<WatchKey,Path> keys;
+    private ImportWatcher importWatcher = null;
 
-	private String path;
-
-	private int count;
-
-	public ImportWatchServiceImpl() {
-		this.keys = new HashMap<WatchKey,Path>();
-		count = 0;
-	}
-
+    /**
+     * Initialize and start the watcher service.
+     */
 	@Override
-	public void initialize(@Observes SystemStartupEvent event) {
-		this.path = configurationService.getHome() + File.separator + ConfigurationService.DIR_IMPORT;
-
-		Runnable r = new Runnable() {
-
-			@Override
-			public void run() {
-				final Task task = taskManagerService.createTask("Directory import watch", TASK_GROUP);
-				task.updateMessage("watching...");
-				task.updateDetailMessage(TASK_DETAIL_PATH, path);
-
-				try {
-					Path root = Paths.get(path);
-					WatchService watcher = root.getFileSystem().newWatchService();
-					register(root, watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
-					while (true) {
-						final WatchKey key = watcher.take();
-						for (WatchEvent<?> event : key.pollEvents()) {
-							
-							try {
-								@SuppressWarnings("unchecked")
-								Path item = ((WatchEvent<Path>) event).context();
-								Path dir = keys.get(key);
-								File file = new File(dir.toString(), item.toString()).getAbsoluteFile();
-								
-								if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
-									if (file.isDirectory()) {
-										//recursive registration of sub-directories
-										register(Paths.get(dir.toString(), item.toString()), watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
-										task.updateProgress(++count);
-									} else {
-										URI context = getTargetContext(file);
-										log.debug("Importing '{}'...", file.getAbsolutePath());
-										task.updateMessage("importing...");
-										task.updateDetailMessage(TASK_DETAIL_PATH, file.getAbsolutePath());
-										task.updateDetailMessage(TASK_DETAIL_CONTEXT, context.stringValue());
-										if (execImport(file, context)) {
-											log.info("Sucessfully imported file '{}' into {}", file.getAbsolutePath(), context.stringValue());
-											try {
-												//delete the imported file
-												log.debug("Deleting {}...", file.getAbsolutePath());
-												file.delete();
-											} catch (Exception ex) {
-												log.error("Error deleing {}: {}", file.getAbsolutePath(), ex.getMessage());
-											}
-										}
-										task.updateProgress(++count);
-										task.updateMessage("watching...");
-										task.updateDetailMessage(TASK_DETAIL_PATH, path);
-										task.removeDetailMessage(TASK_DETAIL_CONTEXT);
-									}
-								} else if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind()) && Files.isDirectory(item)) {
-									//TODO: unregister deleted directories?
-									task.updateProgress(++count);
-								}
-							} catch (IOException e) {
-								log.error("Error importing '{}': {}", path, e.getMessage());
-							} catch (URISyntaxException e) {
-								log.error("Error creating context uri for file '{}': {}", path, e.getMessage());
-							}
-							
-						}
-						if (!key.reset()) {
-							// exit loop if the key is not valid
-							// e.g. if the directory was deleted
-							break;
-						}
-					}
-				} catch (IOException e) {
-					log.error("Error registering the import watch service over '{}': {}", path, e.getMessage());
-				} catch (InterruptedException e) {
-					log.error("Import watch service has been interrupted");
-				}
-			}
-
-		};
-
-		Thread t = new Thread(r);
-		t.setName(TASK_GROUP + "(start:" + new Date() + ",path:" + this.path + ")");
-		t.setDaemon(true);
-		t.start();
-
+	public void startup() {
+	    if (importWatcher == null && configurationService.getBooleanConfiguration(CONFIG_KEY_SERVICE_ENABLED, true)) {
+    	    importWatcher = new ImportWatcher(getImportRoot());
+    	    importWatcher.setDeleteAfterImport(configurationService.getBooleanConfiguration(CONFIG_KEY_DELETE_AFTER_IMPORT, true));
+            importWatcher.setImportDelay(configurationService.getIntConfiguration(CONFIG_KEY_IMPORT_DELAY, 2500));
+    	    importWatcher.setDirConfigFileName(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
+    	    importWatcher.setLockFile(configurationService.getStringConfiguration(CONFIG_KEY_LOCK_FILE, "lock"));
+    	    new Thread(importWatcher).start();
+	    }
 	}
 
+	/**
+	 * The import root. all files put into this directory (and any subdir) will be imported.
+	 * Directories containing a file called "lock" (configurable, see {@link #CONFIG_KEY_LOCK_FILE}) are ignored.
+	 */
 	@Override
-	public boolean execImport(File file, URI context) {
-		try {
-			String format = detectFormat(file);
-			FileInputStream is = new FileInputStream(file);
-			URI user = userService.getAdminUser();
-			importService.importData(is, format, user, context);
-			return true;
-		} catch (MarmottaImportException e) {
-			log.error("Error importing file {} from the local directory: {}", file.getAbsolutePath(), e.getMessage());
-			return false;
-		} catch (IOException e) {
-			log.error("Error retrieving file {} from the local directory: {}", file.getAbsolutePath(), e.getMessage());
-			return false;
-		}
+    public Path getImportRoot() {
+        return Paths.get(configurationService.getHome(), ConfigurationService.DIR_IMPORT).toAbsolutePath();
+    }
+	
+	/**
+	 * Shutdown the directory.
+	 */
+    @Override
+    public void shutdown() {
+        if (importWatcher != null) {
+            try {
+                importWatcher.shutdown();
+            } catch (IOException e) {
+                log.error("Exception while shutting down import watcher: {}\n{}", e.getMessage(), e);
+            }
+            importWatcher = null;
+        }
+    }
+    
+    protected void onConfigurationChangedEvent(@Observes ConfigurationChangedEvent event) {
+        if (event.containsChangedKeyWithPrefix(CONFIG_PREFIX)) {
+            if (event.containsChangedKey(CONFIG_KEY_SERVICE_ENABLED)) {
+                shutdown();
+                startup();
+            } else if (importWatcher != null) {
+                importWatcher.setDeleteAfterImport(configurationService.getBooleanConfiguration(CONFIG_KEY_DELETE_AFTER_IMPORT, true));
+                importWatcher.setImportDelay(configurationService.getIntConfiguration(CONFIG_KEY_IMPORT_DELAY, 2500));
+                importWatcher.setDirConfigFileName(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
+                importWatcher.setLockFile(configurationService.getStringConfiguration(CONFIG_KEY_LOCK_FILE, "lock"));
+            }
+        }
+    }
+
+	protected void onSystemStartupEvent(@Observes SystemStartupEvent event) {
+	    shutdown();
+	    startup();
 	}
 
-	private String detectFormat(File file) throws MarmottaImportException {
+	/**
+	 * Import the given file.
+	 * @see #importFile(Path)
+	 */
+	@Override
+	public boolean importFile(File file) throws MarmottaImportException {
+	    return importFile(file.toPath());
+	}
+	
+	/**
+	 * Import the given file.
+	 * TODO
+	 */
+	@Override
+	public boolean importFile(Path file) throws MarmottaImportException {
+	    try {
+	        URI context;
+            try {
+                context = getTargetContext(file);
+            } catch (URISyntaxException e) {
+                log.warn("Could not build context for file {}: {}", file, e.getMessage());
+                context = null;
+            }
+	        String format = detectFormat(file);
+	        FileInputStream is = new FileInputStream(file.toFile());
+	        URI user = userService.getAdminUser();
+	        importService.importData(is, format, user, context);
+	        return true;
+	    } catch (IOException e) {
+	        throw new MarmottaImportException("Could not read input file " + file.toFile().getAbsolutePath(), e);
+	    }
+	}
+
+	/**
+	 * Detect the import format of the given file (mime-type)
+	 * @param file the file to check
+	 * @return the mime-type
+	 * @throws MarmottaImportException
+	 */
+	private String detectFormat(Path file) throws MarmottaImportException {
 		String format = null;
-		String fileName = file.getName();
+		final String fileName = file.toFile().getName();
 		
 		//mimetype detection
 		RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName);
@@ -217,8 +216,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 		}
 
 	    //encoding detection
-		try {
-			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.toFile()))) {
 			CharsetDetector cd = new CharsetDetector();
 			cd.setText(bis);
 			CharsetMatch cm = cd.detect();
@@ -233,41 +231,244 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 	}
 	
 	/**
-	 * Get the target context, according the path relative to the base import directory
+	 * Get the target context. 
+	 * The algorithm is as follows:
+	 * <ol>
+	 * <li>check for a file "conf" (configurable, see {@link #CONFIG_KEY_CONF_FILE}) which specifies 
+	 * the target content using {@link Properties} syntax (key {@code context}), then use is; or
+	 * <li>check if the sub-directory is a url-encoded URI, then use it; or
+	 * <li>construct the context by using {@link ConfigurationService#getBaseContext()} and the relative sub-dirs and use it; or
+	 * <li>use the default context as a general fallback.
+	 * </ol>
 	 * 
-	 * @param file
-	 * @return
+	 * @param file the file
+	 * @return the context URI
 	 * @throws URISyntaxException 
 	 */
-	private URI getTargetContext(File file) throws URISyntaxException {
-		String subdir = StringUtils.removeStart(file.getParentFile().getAbsolutePath(), this.path);
-		if (StringUtils.isBlank(subdir)) {
-			return contextService.getDefaultContext();
-		} else {
-			subdir = subdir.substring(1); //remove initial slash
-			if (StringUtils.startsWith(subdir, "http%3A%2F%2F")) {
-				try {
-					return contextService.createContext(URLDecoder.decode(subdir, "UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-					log.error("Error url-decoding context name '{}', so using the default one: {}", subdir, e.getMessage());
-					return contextService.getDefaultContext();
-				}
-			} else {
-				return contextService.createContext(configurationService.getBaseContext() + subdir);
-			}
-		}
+	private URI getTargetContext(Path file) throws URISyntaxException {
+	    // Check for a configFile
+	    final Path config = file.getParent().resolve(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
+	    if (Files.isReadable(config)) {
+	        try {
+	            Properties prop = new Properties();
+	            prop.load(new FileInputStream(config.toFile()));
+	            final String _c = prop.getProperty("context");
+	            if (_c != null) {
+	                try {
+	                    URI context = contextService.createContext(_c);
+	                    log.debug("using context {} from config file {}", context, config);
+	                    return context;
+	                } catch (URISyntaxException e) {
+	                    log.warn("invalid context {} in config file {}, ignoring", _c, config);
+	                }
+	            } else {
+	                log.trace("no context defined in config file {}", config);
+	            }
+	        } catch (IOException e) {
+	            log.warn("could not read dirConfigFile {}: {}", config, e.getMessage());
+	        }
+	    }
+
+	    // Check for url-encoded directory
+	    Path subDir = file.getParent().relativize(getImportRoot());
+	    if (StringUtils.isBlank(subDir.toString())) {
+	        log.trace("using default context for file {}", file);
+	        return contextService.getDefaultContext();
+	    } else if (StringUtils.startsWith(subDir.toString(), "http%3A%2F%2F")){
+	        log.debug("using url-encoded context {} for import of {}", subDir, file);
+	        try {
+	            return contextService.createContext(URLDecoder.decode(subDir.toString(), "UTF-8"));
+	        } catch (UnsupportedEncodingException e) {
+	            log.error("Error url-decoding context name '{}', so using the default one: {}", subDir, e.getMessage());
+	            return contextService.getDefaultContext();
+	        }
+	    } else {
+	        final String _c = String.format("%s/%s", configurationService.getBaseContext().replaceFirst("/$", ""), subDir);
+	        final URI context = contextService.createContext(_c);
+	        log.debug("using context {} based on relative subdir {} for file {}", context, subDir, file);
+            return context;
+	    }
 	}
 	
-	/**
-	 * Registers a new path in the watcher, keeping the path mapping for future uses
-	 * 
-	 * @param path
-	 * @param watcher
-	 * @param events
-	 * @throws IOException
-	 */
-	private void register(Path path, WatchService watcher, Kind<?>... events) throws IOException {
-		keys.put(path.register(watcher, events), path);
+	private class ImportWatcher extends SimpleTreeWatcher {
+
+        private String dirConfigFileName = null;
+        private boolean deleteAfterImport = false;
+        private int importDelay = 2500;
+        private String lockFile = null;
+        
+        private final ScheduledThreadPoolExecutor executor;
+        private final Map<Path, ScheduledFuture<?>> fileSchedules;
+        
+        private final Task task;
+
+        public ImportWatcher(Path target) {
+            super(target, true);
+            
+            executor = new ScheduledThreadPoolExecutor(1);
+            executor.setMaximumPoolSize(1);
+
+            fileSchedules = new HashMap<>();
+            
+            task = taskManagerService.createTask("Import Watch", TASK_GROUP);
+            task.updateMessage("off");
+            task.updateDetailMessage(TASK_DETAIL_PATH, target.toAbsolutePath().toString());
+        }
+        
+        public void setLockFile(String lockFile) {
+            this.lockFile = lockFile;
+        }
+
+        public void setDirConfigFileName(String configFileName) {
+            this.dirConfigFileName = configFileName;
+        }
+
+        public void setDeleteAfterImport(boolean deleteAfterImport) {
+            this.deleteAfterImport = deleteAfterImport;
+        }
+        
+        /**
+         * Wait for some time before actually starting the import.
+         * @param importDelay the delay in milliseconds.
+         */
+        public void setImportDelay(int importDelay) {
+            this.importDelay = importDelay;
+        }
+
+        @Override
+        public void run() {
+            task.updateMessage("waiting for new files");
+            scheduleDirectoryRecursive(root);
+            super.run();
+        }
+        
+        @Override
+        public void shutdown() throws IOException {
+            try {
+                task.updateMessage("shutting down");
+                super.shutdown();
+                executor.shutdownNow();
+            } finally {
+                task.endTask();
+            }
+        }
+        
+        @Override
+        public void onChildDeleted(final Path parent, Path child) {
+            // if the lockfile is deleted, import the full directory
+            if (lockFile != null && child.endsWith(lockFile)) {
+                scheduleDirectory(parent);
+            } else {
+                // otherwise remove a potential scheduled import
+                final ScheduledFuture<?> scheduled = fileSchedules.remove(child);
+                if (scheduled != null) {
+                    scheduled.cancel(true);
+                    updateQueueSizeMonitor();
+                }
+            }
+        }
+        
+        private void scheduleDirectory(Path dir) {
+            if (!isLocked(dir)) {
+                try {
+                    Files.walkFileTree(dir, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file,
+                                BasicFileAttributes attrs) throws IOException {
+                            scheduleFile(file);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                } catch (IOException e) {
+                    log.warn("Could not schedule directory {} for import: {}", dir, e.getMessage());
+                }
+            }
+        }
+        
+        private boolean isLocked(Path dir) {
+            if (lockFile == null) {
+                return false;
+            } else {
+                return Files.exists(dir.resolve(lockFile));
+            }
+        }
+
+        private void scheduleFile(final Path file) {
+            // if the dir is locked, do not schedule
+            if (isLocked(file.getParent())) return;
+            
+            // do not schedule a config file
+            if (dirConfigFileName != null && file.endsWith(dirConfigFileName)) return;
+
+            // schedule the import
+            final ScheduledFuture<?> prevSchedule = fileSchedules.put(file, executor.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        task.updateMessage("importing " + file);
+                        final File f = file.toFile();
+                        if (importFile(f)) {
+                            fileSchedules.remove(file);
+                            updateQueueSizeMonitor();
+                            if (deleteAfterImport) {
+                                Files.delete(file);
+                            }
+                        }
+                    } catch (IOException e) {
+                        log.warn("Could not delete file {} after successful import: {}", file, e.getMessage());
+                    } catch (MarmottaImportException e) {
+                        log.warn("importing {} failed: {}", file, e.getMessage());
+                    } catch (final Throwable t) {
+                        log.error("{} during file-import: {}", t.getClass().getSimpleName(), t.getMessage());
+                        throw t;
+                    } finally {
+                        task.updateMessage("waiting for new files");
+                    }
+                }
+            }, importDelay, TimeUnit.MILLISECONDS));
+            
+            // cancel any previously scheduled import for this file.
+            if (prevSchedule != null) {
+                prevSchedule.cancel(true);
+            }
+
+            updateQueueSizeMonitor();
+        }
+
+        private void updateQueueSizeMonitor() {
+            task.updateDetailMessage(TASK_DETAIL_QUEUE, executor.getQueue().size() + " files");
+        }
+
+        @Override
+        public void onFileCreated(Path createdFile) {
+            scheduleFile(createdFile);
+        }
+        
+        @Override
+        public void onFileModified(Path modifiedFile) {
+            scheduleFile(modifiedFile);
+        }
+        
+        @Override
+        public void onDirectoryCreated(Path createdDir) {
+            scheduleDirectoryRecursive(createdDir);
+        }
+
+        private void scheduleDirectoryRecursive(Path directory) {
+            try {
+                Files.walkFileTree(directory, new SimpleFileVisitor<Path> () {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir,
+                            BasicFileAttributes attrs) throws IOException {
+                        scheduleDirectory(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            } catch (IOException e) {
+                log.warn("Could not schedule directory {} for import: {}", directory, e.getMessage());
+            }
+        }
+	    
 	}
 
 }
