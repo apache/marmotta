@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.core.test.base;
+package org.apache.marmotta.platform.backend.memory;
 
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
 import org.openrdf.repository.sail.SailRepository;
@@ -26,18 +26,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
 
 /**
  * A triple store provider for tests. Uses a Sesame in-memory store for holding triples.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@Alternative
 @ApplicationScoped
-public class TestStoreProvider implements StoreProvider {
+public class MemoryStoreProvider implements StoreProvider {
 
-    private static Logger log = LoggerFactory.getLogger(TestStoreProvider.class);
+    private static Logger log = LoggerFactory.getLogger(MemoryStoreProvider.class);
 
 
     /**
@@ -70,7 +68,7 @@ public class TestStoreProvider implements StoreProvider {
      */
     @Override
     public String getName() {
-        return "Test Store";
+        return "Memory Store";
     }
 
     /**

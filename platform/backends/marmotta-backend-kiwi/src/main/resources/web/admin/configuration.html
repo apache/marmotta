@@ -1,0 +1,46 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html>
+<head>
+<!--###BEGIN_HEAD###-->
+    <title>Core Module Configuration</title>
+    <link type="text/css" rel="stylesheet" href="../../../../../../../marmotta-core/src/main/resources/web/public/js/widgets/configurator/style.css">
+    <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/widgets/database.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+            $('#lmf_database').lmf_database({host:_SERVER_URL});
+        });
+    </script>
+<!--###END_HEAD###-->
+</head>
+<body>
+<div id="main">
+<div id="contents">
+<!--###BEGIN_CONTENT###-->
+<h1>KiWi Storage Backend Configuration</h1>
+        <p>
+            Here you can configure the database options for the Marmotta KiWi Storage Backend.<br/>
+        </p>
+        <div id="lmf_database">
+            <h4>Loading database manager</h4>
+        </div>
+<!--###END_CONTENT###-->
+</div>
+</div>
+</body>
+</html>

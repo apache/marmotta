@@ -22,14 +22,14 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-incubating-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>platform-reactor</artifactId>
+    <artifactId>platform-ldcache-reactor</artifactId>
     <packaging>pom</packaging>
 
-    <name>Apache Marmotta Platform: Reactor</name>
-    <description>Linked Data Platform implementation of Apache Marmotta</description>
+    <name>Apache Marmotta Backends: Reactor</name>
+    <description>Different ldcache backends for the Apache Marmotta Platform</description>
 
 
     <!-- release management -->
@@ -52,25 +52,13 @@
     </build>
 
     <modules>
-        <module>marmotta-core</module>
-
-        <!-- alternative backend implementations, only include exactly one in your classpath -->
-        <module>backends</module>
-        <module>ldcache</module>
-
-        <!-- generic modules -->
-        <module>marmotta-ldpath</module>
-        <module>marmotta-security</module>
-        <module>marmotta-sparql</module>
-        <module>marmotta-user</module>
-
-        <module>marmotta-versioning-common</module>
+        <module>marmotta-ldcache-common</module>
 
         <!-- KiWi backend specific modules -->
-        <module>marmotta-reasoner-kiwi</module>
-        <module>marmotta-versioning-kiwi</module>
+        <module>marmotta-ldcache-kiwi</module>
 
-
+        <!-- Native/BigData specific modules -->
+        <module>marmotta-ldcache-file</module>
     </modules>
 
 
