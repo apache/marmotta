@@ -52,7 +52,6 @@ import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
 import org.apache.marmotta.platform.core.services.sesame.ResourceSubjectMetadata;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
@@ -300,7 +299,7 @@ public class MetaWebService {
                 };
 
                 // build response
-                Response response = Response.ok(entity).lastModified(KiWiSesameUtil.lastModified(r, conn)).build();
+                Response response = Response.ok(entity).lastModified(ResourceUtils.getLastModified(conn, r)).build();
                 response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
                 
                 if (!mimetype.contains("html")) { // then create a proper filename

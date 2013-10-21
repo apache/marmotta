@@ -381,14 +381,6 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- introduces a cyclic reference ...
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-backend-kiwi</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>com.jayway.restassured</groupId>
@@ -415,6 +407,18 @@
             <artifactId>jatl</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-inferencer</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 
         <!-- CDI/Java EE 6 Environment -->
         <dependency>
@@ -500,18 +504,8 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-nativerdf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-inferencer</artifactId>
-        </dependency>
+
+
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -567,10 +561,6 @@
             <artifactId>icu4j</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-triplestore</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-transactions</artifactId>

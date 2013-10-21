@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.core.api.user;
 
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.openrdf.model.URI;
 
 import java.util.Date;
 import java.util.UUID;
@@ -34,10 +34,10 @@ public class UserToken {
 
     private UUID uuid;
 
-    private KiWiUriResource user;
+    private URI user;
 
 
-    public UserToken(KiWiUriResource user) {
+    public UserToken(URI user) {
         this.user     = user;
         this.uuid     = UUID.randomUUID();
         this.created  = new Date();
@@ -60,11 +60,11 @@ public class UserToken {
         this.uuid = uuid;
     }
 
-    public KiWiUriResource getUser() {
+    public URI getUser() {
         return user;
     }
 
-    public void setUser(KiWiUriResource user) {
+    public void setUser(URI user) {
         this.user = user;
     }
 
