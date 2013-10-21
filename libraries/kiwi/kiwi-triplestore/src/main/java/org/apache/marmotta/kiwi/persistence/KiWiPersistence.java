@@ -198,11 +198,11 @@ public class KiWiPersistence {
                 break;
             case UUID_RANDOM:
                 idGenerator = new UUIDRandomIDGenerator();
-                log.info("database key generation strategy: secure random UUIDs (fast, almost no conflicts with distribution");
+                log.info("database key generation strategy: secure random UUIDs (fast, almost no conflicts with distribution)");
                 break;
             case SNOWFLAKE:
                 idGenerator = new SnowflakeIDGenerator();
-                log.info("database key generation strategy: Twitter Snowflake (very fast, almost no conflicts with distribution");
+                log.info("database key generation strategy: Twitter Snowflake (very fast, almost no conflicts with distribution)");
                 break;
             default:
                 idGenerator = new DatabaseSequenceIDGenerator();
