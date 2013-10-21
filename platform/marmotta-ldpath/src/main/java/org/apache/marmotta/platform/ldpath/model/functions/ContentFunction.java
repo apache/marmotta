@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.platform.ldpath.model.functions;
 
-import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
-import org.apache.marmotta.platform.core.api.content.ContentService;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.platform.core.api.content.ContentService;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.LiteralImpl;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -77,7 +76,7 @@ public class ContentFunction extends AutoRegisteredLDPathFunction {
 
         for(Collection<? extends Value> nodes : args) {
             for(Value n : nodes) {
-                if(n instanceof KiWiResource) {
+                if(n instanceof Resource) {
                     Resource r = (Resource)n;
 
                     String type = contentService.getContentType(r);
@@ -87,7 +86,7 @@ public class ContentFunction extends AutoRegisteredLDPathFunction {
                             if(type.matches(allowedType)) {
                                 byte[] data = contentService.getContentData(r,type);
                                 String content = new String(data);
-                                result.add(new KiWiStringLiteral(content));
+                                result.add(new LiteralImpl(content));
                                 break;
                             }
                         }
@@ -101,7 +100,6 @@ public class ContentFunction extends AutoRegisteredLDPathFunction {
     /**
      * Return the representation of the NodeFunction or NodeSelector in the RDF Path Language
      *
-     * @param backend
      * @return
      */
     @Override

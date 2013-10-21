@@ -17,23 +17,18 @@
  */
 package org.apache.marmotta.platform.ldpath.webservices;
 
-import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
-
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -45,10 +40,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
 import java.io.IOException;
 import java.text.Collator;
 import java.util.*;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 
 /**
  * Execute LDPath queries against the LMF backend. Depending on the LMF configuration, this might trigger retrieval
@@ -170,11 +167,11 @@ public class LDPathWebService {
                         for(Map.Entry<String,Collection<?>> row : ldPathService.programQuery(resource,program).entrySet()) {
                             List<Map<String,String>> rowList = new ArrayList<Map<String, String>>();
                             for(Object o : row.getValue()) {
-                                if(o instanceof KiWiNode) {
+                                if(o instanceof Value) {
                                     rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
                                 } else {
                                     // we convert always to a literal
-                                    rowList.add(JSONUtils.serializeNodeAsJson(new KiWiStringLiteral(o.toString())));
+                                    rowList.add(JSONUtils.serializeNodeAsJson(new LiteralImpl(o.toString())));
                                 }
                             }
                             result.put(row.getKey(),rowList);
@@ -333,11 +330,11 @@ public class LDPathWebService {
                             for(Map.Entry<String,Collection<?>> row : ldPathService.programQuery(resource,program).entrySet()) {
                                 List<Map<String,String>> rowList = new ArrayList<Map<String, String>>();
                                 for(Object o : row.getValue()) {
-                                    if(o instanceof KiWiNode) {
+                                    if(o instanceof Value) {
                                         rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
                                     } else {
                                         // we convert always to a literal
-                                        rowList.add(JSONUtils.serializeNodeAsJson(new KiWiStringLiteral(o.toString())));
+                                        rowList.add(JSONUtils.serializeNodeAsJson(new LiteralImpl(o.toString())));
                                     }
                                 }
                                 result.put(row.getKey(),rowList);
