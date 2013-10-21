@@ -57,7 +57,6 @@
         <!-- alternative backend implementations, only include exactly one in your classpath -->
         <module>marmotta-backend-kiwi</module>
         <module>marmotta-backend-native</module>
-        <module>marmotta-backend-bigdata</module>
 
         <!-- generic modules -->
         <module>marmotta-ldpath</module>
@@ -77,5 +76,16 @@
         <module>marmotta-ldcache-file</module>
 
     </modules>
+
+
+    <profiles>
+        <!-- non-free backends and modules -->
+        <profile>
+            <id>non-free</id>
+            <modules>
+                <module>marmotta-backend-bigdata</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
