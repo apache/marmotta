@@ -22,8 +22,6 @@ import com.google.common.base.Objects;
 import javolution.util.FastMap;
 import javolution.util.FastSet;
 import javolution.util.function.Equality;
-import org.apache.marmotta.commons.collections.EquivalenceHashMap;
-import org.apache.marmotta.commons.collections.EquivalenceHashSet;
 import org.openrdf.model.Statement;
 
 import java.util.Map;
@@ -161,6 +159,8 @@ public class StatementCommons {
 
     private static <E> Equality<E> equivalenceEquality(final Equivalence<E> equivalence) {
         return new Equality<E>() {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public int hashCodeOf(E object) {
                 return equivalence.hash(object);
