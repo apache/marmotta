@@ -215,7 +215,8 @@ public class ImportWatchServiceImpl implements ImportWatchService {
 			throw new MarmottaImportException("Suitable RDF parser not found");
 		}
 
-	    //encoding detection
+	    // encoding detection
+		// FIXME: is this required?
 		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.toFile()))) {
 			CharsetDetector cd = new CharsetDetector();
 			cd.setText(bis);
@@ -406,8 +407,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
                 public void run() {
                     try {
                         task.updateMessage("importing " + file);
-                        final File f = file.toFile();
-                        if (importFile(f)) {
+                        if (importFile(file)) {
                             fileSchedules.remove(file);
                             updateQueueSizeMonitor();
                             if (deleteAfterImport) {
