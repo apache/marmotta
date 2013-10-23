@@ -214,8 +214,7 @@ following licenses.
 For the D3.js component,
 
     located at:
-        platform/marmotta-core/src/main/resources/web/admin/js/lib/
-        platform/marmotta-sparql/src/main/resources/web/admin/sgvizler/0.5/lib/
+        extras/webjars/sgvizler/src/main/resources/lib/
 
     Copyright (c) 2013 Michael Bostock, http://d3js.org
 
@@ -247,7 +246,7 @@ For the D3.js component,
 For the Dracula Graph Library component,
 
     located at:
-        platform/marmotta-core/src/main/resources/web/admin/js/lib/
+        extras/webjars/sgvizler/src/main/resources/lib/
 
     Copyright (c) 2013 Johann Philipp Strathausen, http://www.graphdracula.net
 
@@ -273,7 +272,7 @@ For the Dracula Graph Library component,
 For the strftime component,
 
     located at:
-        platform/marmotta-core/src/main/resources/web/public/js/lib
+        extras/webjars/strftime/src/main/resources/
 
     Copyright (c) 2008 Philip S Tellis, http://hacks.bluesmoon.info/strftime
     Extended by Marmotta with German locales and %F formatter.
@@ -300,64 +299,10 @@ For the strftime component,
     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-For the jQuery component,
-
-    located at:
-        platform/marmotta-core/src/main/resources/web/public/js/lib
-
-    Copyright (c) 2013 jQuery Foundation, http://jquery.com
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-
-For the CodeMirror component,
-
-    located at:
-        platform/marmotta-ldpath/src/main/resources/web/cm
-        platform/marmotta-sparql/src/main/resources/web/cm
-        platform/marmotta-sparql/src/main/resources/web/admin/editor/sparql/lib
-
-    Copyright (c) 2013 Marijn Haverbeke, http://codemirror.net
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-
 For the D2R Snorql component,
 
     located at:
-        platform/marmotta-sparql/src/main/resources/web/admin/snorql
+        extras/webjars/snorql/src/main/resources/
 
     Copyright (c) 2007 Richard Cyganiak, http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/
     with some minor modifications for Apache Marmotta.
@@ -368,7 +313,7 @@ For the D2R Snorql component,
 For the script.aculo.us component,
 
     located at:
-        platform/marmotta-sparql/src/main/resources/web/admin/snorql/scriptaculous
+        extras/webjars/snorql/src/main/resources/scriptaculous/
 
     Copyright (c) 2010 Thomas Fuchs, http://script.aculo.us
 
@@ -394,7 +339,7 @@ For the script.aculo.us component,
 For the Prototype component,
 
     located at:
-        platform/marmotta-sparql/src/main/resources/web/admin/snorql
+        extras/webjars/snorql/src/main/resources/
 
     Copyright (c) 2010 Sam Stephenson, http://prototypejs.org
 
@@ -417,37 +362,10 @@ For the Prototype component,
     SOFTWARE.    
 
 
-For the SPARQL Flint Editor component, 
-
-    located at:
-        platform/marmotta-sparql/src/main/resources/web/admin/editor/
-
-    Copyright (c) 2011 TSO Ltd, http://github.com/TSO-Openup/FlintSparqlEditor
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.   
-
-
 For the Sgvizler component,
 
     located at:
-        platform/marmotta-core/src/main/resources/web/admin/js/lib
-        platform/marmotta-sparql/src/main/resources/web/admin/sgvizler
+        extras/webjars/sgvizler/src/main/resources/
 
     Copyright (c) 2011 Martin G. Skjæveland, http://sgvizler.googlecode.com
 
