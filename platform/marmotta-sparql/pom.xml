@@ -183,7 +183,7 @@
             <artifactId>jquery-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
+            <groupId>org.webjars</groupId>
             <artifactId>codemirror</artifactId>
         </dependency>
         <dependency>

@@ -154,10 +154,13 @@ $(function() {
         $.getJSON(_SERVER_URL + "ldpath/util/namespaces", function(data) {
             defaultNamespaces = data;
         }).complete(function() {
+            CodeMirror.commands.autocomplete = function(cm) {
+                CodeMirror.showHint(cm, CodeMirror.hint.ldpath);
+            };
           editor = CodeMirror.fromTextArea(document.getElementById("ldpath"), {
               lineNumbers : true,
               matchBrackets : true,
-              extraKeys: {"Ctrl-Space": "ldpathAutocomplete"},
+              extraKeys: {"Ctrl-Space": "autocomplete"},
               mode : {
                 name: "ldpath",
                 baseURL: _SERVER_URL,

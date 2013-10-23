@@ -155,7 +155,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>codemirror</artifactId>
+            <artifactId>codemirror-modes</artifactId>
         </dependency>
 
 
