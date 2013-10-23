@@ -32,7 +32,7 @@
     </properties>
 
     <groupId>org.apache.marmotta.webjars</groupId>
-    <artifactId>codemirror</artifactId>
+    <artifactId>codemirror-modes</artifactId>
     <packaging>jar</packaging>
 
     <build>
@@ -42,6 +42,7 @@
                 <artifactId>yuicompressor-maven-plugin</artifactId>
                 <version>1.0.0</version>
                 <executions>
+                <!-- jakob@apache.org: deactivated during webjar-cleanup
                     <execution>
                         <id>assemble-javascript</id>
                         <goals>
@@ -68,16 +69,19 @@
                             <output>${webjar.path}/codemirror.css</output>
                         </configuration>
                     </execution>
+                 -->
                 </executions>
             </plugin>
             <plugin>
-                <!-- these are "extras", so they come from 3rd parties, no RAT check! -->
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
+            </plugin>
+            <plugin> <!-- generate JRebel Configuration -->
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
                 <configuration>
-                    <excludes>
-                        <exclude>src/**</exclude>
-                    </excludes>
+                    <relativePath>../../../</relativePath>
+                    <rootPath>$${rebel.root}</rootPath>
                 </configuration>
             </plugin>
         </plugins>
@@ -85,8 +89,10 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
+                <!-- do not exclude as the yuicompressor is turned off.
                     <exclude>**/*.js</exclude>
                     <exclude>**/*.css</exclude>
+                 -->
                 </excludes>
                 <filtering>false</filtering>
                 <targetPath>${webjar.path}</targetPath>
@@ -94,4 +100,12 @@
         </resources>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>codemirror</artifactId>
+            <version>${webjar.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
 </project>

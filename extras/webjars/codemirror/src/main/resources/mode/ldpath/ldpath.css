@@ -1,4 +1,4 @@
-<!--
+/*
 
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements. See the NOTICE file
@@ -16,23 +16,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
--->
-<!doctype html>
-<html>
-<head>
-<title>CodeMirror: LDPath Demo</title>
-<link rel="stylesheet" href="codemirror.css">
-<link rel="stylesheet" href="simple-hint.css">
+ */
 
-<script type="text/javascript" src="../../../webjars/jquery/1.8.2/jquery.min.js"></script>
-
-<script src="codemirror.js"></script>
-<script src="simple-hint.js"></script>
-<script src="ldpath.js"></script>
-
-<link rel="stylesheet" href="ldpath.css">
-
-<style type="text/css">
 .CodeMirror {
     border: 1px solid #eee;
 }
@@ -194,53 +179,3 @@ a.download:hover {
 * html .clear { height: 1%; }
 .clear { display: block; }
 /* close commented backslash hack */
-</style>
-</head>
-<body>
-  <h1>CodeMirror: LDPath demo</h1>
-  <div>
-    Read about the <a href="http://marmotta.incubator.apache.org/ldpath/language.html" title="LDPath">LDPath Syntax</a>
-    in <a href="http://marmotta.incubator.apache.org/">Apache Marmotta</a>.
-  </div>
-  <div>
-    <button onclick="javascript:createEditor()">Editor</button>
-    <button onclick="javascript:removeEditor()">Plain</button>
-  </div>
-  <form>
-    <textarea id="code" name="code">
-@prefix iptc : <http://iptc.org/std/nar/2006-10-01/> ;
-@prefix foaf ;
-@prefix rss: ;
-@prefix sioc: ;
-@filter rdf:type is rss:item | rdf:type is isig:WebPage | rdf:type is sioc:Post ;
-  date = dc:date :: xsd:date(multiValued="false") ;
-  desc = dc:description[@de] :: lmf:text_en ;
-  feed = (^rss:items / rss:title | (page:partOf | sioc:has_container / dc:title)) :: xsd:string ;
-  lang = fn:first(^rss:items / dc:language, "de") :: xsd:string ;
-  summary = fn:removeTags((rss:description | dc:description)) :: lmf:text_en ;
-  title = (rss:title | (html:title | dc:title)) :: lmf:text_en ;
-  user = dc:creator :: xsd:string(multiValue="false") ;
-</textarea>
-  </form>
-  <script>
-            var editor = null;
-            function createEditor() {
-                if (editor === null) {
-                    editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                        lineNumbers : true,
-                        matchBrackets : true,
-						extraKeys: {"Ctrl-Space": "ldpathAutocomplete"},
-                        mode : "ldpath"
-                    });
-                }
-            }
-            function removeEditor() {
-                if (editor) {
-                    editor.toTextArea();
-                    editor = null;
-                }
-            }
-            createEditor();
-        </script>
-</body>
-</html>

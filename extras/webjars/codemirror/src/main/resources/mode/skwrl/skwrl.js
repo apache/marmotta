@@ -310,7 +310,7 @@ CodeMirror.defineMode("skwrl", function(config, parserConfig) {
 });
 
 // Autocompletion
-if (CodeMirror.simpleHint && jQuery) {
+if (CodeMirror.showHint && jQuery) {
     function completePrefix(editor, cur, token) {
         var line = editor.getLine(cur.line);
         var match = line.match(/(^|>)\s*@prefix\s+(\w+)\s*(:\s*<?)?$/);
@@ -465,27 +465,22 @@ if (CodeMirror.simpleHint && jQuery) {
             } 
         }
     }
-    CodeMirror.commands.skwrlAutocomplete = function(cm) {
-        CodeMirror.simpleHint(cm, function(editor) {
-            var cur = editor.getCursor();
-            var line = editor.getLine(cur.line);
-            var token = editor.getTokenAt(cur);
+    function skwrlAutocomplete(editor, options) {
+        var cur = editor.getCursor(),
+            line = editor.getLine(cur.line),
+            token = editor.getTokenAt(cur);
         
-            if (token.state.stack.indexOf('prefix') >= 0) {
-                return completePrefix(editor, cur, token);
-//            } else if (token.state.current() == 'url' || (token.state.current() == 'error' && token.state.stack[1] == 'url')) {
-//                return completeURI(editor, cur, token);
-//            } else if (token.className == "qualifier" || (token.className == "atom" && token.state.stack.indexOf("path") >= 0)) {
-//                return completeCUIE(editor, cur, token);
-            } else if (token.className == "string-2") {
-                return insertPrefixDef(editor, cur, token);
-            } else {
-                if (console && console.log) {
-                    console.log("State: " + token.state.stack);
-                }
+        if (token.state.stack.indexOf('prefix') >= 0) {
+            return completePrefix(editor, cur, token);
+        } else if (token.className == "string-2") {
+            return insertPrefixDef(editor, cur, token);
+        } else {
+            if (console && console.log) {
+                console.log("State: " + token.state.stack);
             }
-        });
+        }
     }
+    CodeMirror.registerHelper("hint", "skwrl", skwrlAutocomplete);
 }
 
 }
