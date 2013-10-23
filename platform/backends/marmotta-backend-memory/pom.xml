@@ -37,7 +37,7 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <relativePath>../../</relativePath>
+                        <relativePath>../../../</relativePath>
                         <rootPath>$${rebel.root}</rootPath>
                         <classpath>
                             <resources>

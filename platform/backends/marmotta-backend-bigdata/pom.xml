@@ -28,7 +28,6 @@
         <relativePath>../../../parent</relativePath>
     </parent>
 
-    <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-backend-bigdata</artifactId>
 
     <name>Apache Marmotta Platform: BigData Backend</name>
@@ -63,7 +62,7 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <relativePath>../../</relativePath>
+                        <relativePath>../../../</relativePath>
                         <rootPath>$${rebel.root}</rootPath>
                         <classpath>
                             <resources>
