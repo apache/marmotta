@@ -17,32 +17,30 @@
  */
 package org.apache.marmotta.platform.core.services.content;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import com.google.common.io.ByteStreams;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.http.HttpClientService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.model.content.MediaContentItem;
 import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import com.google.common.io.ByteStreams;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * Add file description here!
@@ -122,8 +120,8 @@ public class HTTPContentReader implements ContentReader {
                 String location = mci.getContentLocation();
 
                 // if no location is explicitly specified, use the resource URI itself
-                if(location == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("http://")) {
-                    location = ((KiWiUriResource)resource).stringValue();
+                if(location == null && resource instanceof URI && resource.stringValue().startsWith("http://")) {
+                    location = resource.stringValue();
                 }
 
                 if(location != null) {
@@ -168,8 +166,8 @@ public class HTTPContentReader implements ContentReader {
                 String location = mci.getContentLocation();
 
                 // if no location is explicitly specified, use the resource URI itself
-                if(location == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("http://")) {
-                    location = ((KiWiUriResource)resource).stringValue();
+                if(location == null && resource instanceof URI && resource.stringValue().startsWith("http://")) {
+                    location = resource.stringValue();
                 }
 
                 try {
@@ -216,8 +214,8 @@ public class HTTPContentReader implements ContentReader {
                 String location = mci.getContentLocation();
 
                 // if no location is explicitly specified, use the resource URI itself
-                if(location == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("http://")) {
-                    location = ((KiWiUriResource)resource).stringValue();
+                if(location == null && resource instanceof URI && resource.stringValue().startsWith("http://")) {
+                    location = resource.stringValue();
                 }
 
                 try {
@@ -265,8 +263,8 @@ public class HTTPContentReader implements ContentReader {
                 String location = mci.getContentLocation();
 
                 // if no location is explicitly specified, use the resource URI itself
-                if(location == null && resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("http://")) {
-                    location = ((KiWiUriResource)resource).stringValue();
+                if(location == null && resource instanceof URI && resource.stringValue().startsWith("http://")) {
+                    location = resource.stringValue();
                 }
 
                 try {

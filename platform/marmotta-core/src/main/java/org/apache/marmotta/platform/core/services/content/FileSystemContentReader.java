@@ -17,21 +17,9 @@
  */
 package org.apache.marmotta.platform.core.services.content;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -43,8 +31,13 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.io.*;
+import java.net.URI;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content reader that reads the content of a resource from the file system.
@@ -138,7 +131,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
@@ -192,7 +185,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
@@ -235,7 +228,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();
@@ -292,7 +285,7 @@ public class FileSystemContentReader implements ContentReader {
                 MediaContentItem mci = FacadingFactory.createFacading(conn).createFacade(resource, MediaContentItem.class);
 
                 String path = mci.getContentPath();
-                if(path == null && resource instanceof KiWiUriResource && resource.stringValue().startsWith("file:")) {
+                if(path == null && resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
                     try {
                         URI uri = new URI(resource.stringValue());
                         path = uri.getPath();

@@ -60,7 +60,7 @@
                     <groupId>org.zeroturnaround</groupId>
                     <artifactId>jrebel-maven-plugin</artifactId>
                     <configuration>
-                        <relativePath>../</relativePath>
+                        <relativePath>../../</relativePath>
                         <rootPath>${rebel.root}</rootPath>
                     </configuration>
                 </plugin>

@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.core.rio;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.io.RDFHtmlWriter;
 import org.apache.marmotta.platform.core.api.io.RDFWriterPriority;
@@ -204,8 +204,8 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                     triple.put("context", ImmutableMap.of("uri","","curie",""));
                 }
 
-                if (t instanceof KiWiTriple && ((KiWiTriple) t).isInferred()) {
-                    triple.put("info", createInfo(((KiWiTriple) t).getId()));
+                if (ResourceUtils.isInferred(t)) {
+                    triple.put("info", ResourceUtils.getId(t));
                 } else {
                     triple.put("info", "-");
                 }

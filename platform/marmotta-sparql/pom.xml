@@ -300,7 +300,12 @@
             <groupId>com.googlecode.jatl</groupId>
             <artifactId>jatl</artifactId>
             <scope>test</scope>
-        </dependency>       
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
