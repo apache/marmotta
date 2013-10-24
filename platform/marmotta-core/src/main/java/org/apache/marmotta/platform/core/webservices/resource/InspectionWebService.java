@@ -18,8 +18,7 @@
 package org.apache.marmotta.platform.core.webservices.resource;
 
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.openrdf.model.*;
@@ -173,11 +172,7 @@ public class InspectionWebService {
         private final String s, p, o, c;
 
         public TriplePoJo(Statement t) {
-            if(t instanceof KiWiTriple) {
-                id = ((KiWiTriple)t).getId();
-            } else {
-                id = 0;
-            }
+            id = ResourceUtils.getId(t);
             s = t.getSubject().toString();
             p = t.getPredicate().toString();
             o = t.getObject().toString();
@@ -300,10 +295,11 @@ public class InspectionWebService {
         ps.println("</head><body>");
 
         ps.printf("<h1>Inspect %s</h1>%n<div>ShortName: %s<span class='%s'>%<s</span></div>%n", rsc.stringValue(), getLabel(conn,rsc), "");
-        if(rsc instanceof KiWiResource) {
-            ps.printf("<div>Created: <span>%tF %<tT</span> by <span>%s</span></div>%n", ((KiWiResource)rsc).getCreated(), createInspectLink(conn, null, null, ""));
+        Date created = ResourceUtils.getCreated(conn, rsc);
+        if(created != null) {
+            ps.printf("<div>Created: <span>%tF %<tT</span> by <span>%s</span></div>%n", created, createInspectLink(conn, null, null, ""));
         }
-        ps.printf("<div>Last Modified: <span>%tF %<tT</span></div>%n", lastModified(conn, rsc));
+        ps.printf("<div>Last Modified: <span>%tF %<tT</span></div>%n", ResourceUtils.getLastModified(conn, rsc));
 
         // Outgoing
         printOutgoing(conn, rsc, ps, subjOffset, limit);
@@ -319,7 +315,7 @@ public class InspectionWebService {
 
         ps.println();
         ps.println("</body></html>");
-        return Response.ok().header("Content-Type", "text/html;charset=" + CHARSET).header("Last-Modified", lastModified(conn, rsc))
+        return Response.ok().header("Content-Type", "text/html;charset=" + CHARSET).header("Last-Modified", ResourceUtils.getLastModified(conn, rsc))
                 .entity(os.toString(CHARSET)).build();
     }
 
@@ -345,7 +341,7 @@ public class InspectionWebService {
             for (Statement t : triples) {
                 ps.printf("    <tr class='%s'><td>%s</td><td>%s</td><td>%s</td><td><span class='reasoned'>%s</span></td><td><span class='deleted %b'></span></td></tr>%n",
                         i++ % 2 == 0 ? "even" : "odd", createInspectLink(conn, t.getSubject()), createInspectLink(conn,t.getObject()), createInspectLink(conn,t.getContext()),
-                                t instanceof KiWiTriple && ((KiWiTriple)t).isInferred() ? createInfo(((KiWiTriple)t).getId()) : "", t instanceof KiWiTriple && ((KiWiTriple)t).isDeleted());
+                                ResourceUtils.isInferred(conn,t) ? createInfo(ResourceUtils.getId(t)) : "", ResourceUtils.isDeleted(conn,t));
             }
             ps.printf("  </tbody>%n</table>");
         } else if (offset > 0) {
@@ -376,7 +372,7 @@ public class InspectionWebService {
                 ps.printf(
                         "    <tr class='%s'><td>%s</td><td>%s</td><td>%s</td><td><span class='reasoned'>%s</span></td><td><span class='deleted %b'></span></td></tr>%n",
                         i++ % 2 == 0 ? "even" : "odd", createInspectLink(conn, t.getSubject()), createInspectLink(conn,t.getObject()), createInspectLink(conn,t.getContext()),
-                                t instanceof KiWiTriple && ((KiWiTriple)t).isInferred() ? createInfo(((KiWiTriple)t).getId()) : "", t instanceof KiWiTriple && ((KiWiTriple)t).isDeleted());
+                        ResourceUtils.isInferred(conn,t) ? createInfo(ResourceUtils.getId(t)) : "", ResourceUtils.isDeleted(conn,t));
             }
             ps.printf("  </tbody>%n</table>");
         } else if (offset > 0) {
@@ -407,7 +403,7 @@ public class InspectionWebService {
                 ps.printf(
                         "    <tr class='%s'><td>%s</td><td>%s</td><td>%s</td><td><span class='reasoned'>%s</span></td><td><span class='deleted %b'></span></td></tr>%n",
                         i++ % 2 == 0 ? "even" : "odd", createInspectLink(conn, t.getSubject()), createInspectLink(conn,t.getObject()), createInspectLink(conn,t.getContext()),
-                                t instanceof KiWiTriple && ((KiWiTriple)t).isInferred() ? createInfo(((KiWiTriple)t).getId()) : "", t instanceof KiWiTriple && ((KiWiTriple)t).isDeleted());
+                        ResourceUtils.isInferred(conn,t) ? createInfo(ResourceUtils.getId(t)) : "", ResourceUtils.isDeleted(conn,t));
             }
             ps.printf("  </tbody>%n</table>");
         } else if (offset > 0) {
@@ -439,7 +435,7 @@ public class InspectionWebService {
                 ps.printf(
                         "    <tr class='%s'><td>%s</td><td>%s</td><td>%s</td><td><span class='reasoned'>%s</span></td><td><span class='deleted %b'></span></td></tr>%n",
                         i++ % 2 == 0 ? "even" : "odd", createInspectLink(conn, t.getSubject()), createInspectLink(conn,t.getObject()), createInspectLink(conn,t.getContext()),
-                                t instanceof KiWiTriple && ((KiWiTriple)t).isInferred() ? createInfo(((KiWiTriple)t).getId()) : "", t instanceof KiWiTriple && ((KiWiTriple)t).isDeleted());
+                        ResourceUtils.isInferred(conn,t) ? createInfo(ResourceUtils.getId(t)) : "", ResourceUtils.isDeleted(conn,t));
             }
             ps.printf("  </tbody>%n</table>");
         } else if (offset > 0) {
@@ -520,23 +516,5 @@ public class InspectionWebService {
         return b.toString();
     }
 
-    /**
-     * Get the last modification of the set of triples passed as argument.
-     *
-     * @return
-     */
-    private Date lastModified(RepositoryConnection conn, Resource resource) throws RepositoryException {
-        Date last_modified = new Date(0);
-        for (Statement triple : listOutgoing(conn, resource)) {
-            if(triple instanceof KiWiTriple) {
-                KiWiTriple t = (KiWiTriple)triple;
-                if (t.getCreated().getTime() > last_modified.getTime()) {
-                    last_modified = t.getCreated();
-                }
-            }
-        }
-        return last_modified;
-
-    }
 
 }

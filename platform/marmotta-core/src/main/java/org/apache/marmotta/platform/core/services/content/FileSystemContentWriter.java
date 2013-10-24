@@ -17,17 +17,13 @@
  */
 package org.apache.marmotta.platform.core.services.content;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentWriter;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.model.content.MediaContentItem;
-
-import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -38,13 +34,11 @@ import sun.net.www.MimeTable;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.util.UUID;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content writer that writes the content of a resource to the file system.
@@ -171,9 +165,9 @@ public class FileSystemContentWriter implements ContentWriter {
                 String path = mci.getContentPath();
 
                 if(path == null) {
-                    if(resource instanceof KiWiUriResource && ((KiWiUriResource)resource).stringValue().startsWith("file:")) {
+                    if(resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
                         try {
-                            URI uri = new URI(((KiWiUriResource)resource).stringValue());
+                            URI uri = new URI(resource.stringValue());
                             path = uri.getPath();
                         } catch(Exception ex) {}
                     } else {

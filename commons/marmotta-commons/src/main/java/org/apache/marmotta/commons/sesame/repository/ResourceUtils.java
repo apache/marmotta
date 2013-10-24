@@ -21,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
@@ -33,6 +32,8 @@ import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -1368,4 +1369,121 @@ public class ResourceUtils {
         }
     }
 
+
+    /**
+     * Return the creation date of the resource if this information is available. Otherwise returns null. At the
+     * moment only supports KiWi resources (through reflection)
+     *
+     * @param resource
+     * @return
+     * @throws RepositoryConnection
+     */
+    public static Date getCreated(RepositoryConnection conn, Resource resource) {
+        try {
+            Method m = resource.getClass().getMethod("getCreated", new Class[0]);
+            return (Date)m.invoke(resource);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get the last modification of the set of triples passed as argument.
+     *
+     * @return date
+     * @throws org.openrdf.repository.RepositoryException
+     */
+    public static Date getLastModified(RepositoryConnection conn, Resource resource) throws RepositoryException {
+        Date last_modified = new Date(0);
+        RepositoryResult<Statement> triples = conn.getStatements(resource, null, null, false);
+        try {
+            while (triples.hasNext()) {
+                Statement triple = triples.next();
+
+                try {
+                    Method m = triple.getClass().getMethod("getCreated", new Class[0]);
+                    Date created = (Date)m.invoke(triple);
+                    if (created.getTime() > last_modified.getTime()) {
+                        last_modified = created;
+                    }
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+                    // do nothing
+                }
+            }
+        } finally {
+            triples.close();
+        }
+        return last_modified;
+    }
+
+
+    /**
+     * Return true in case the statement passed as argument is an inferred statement. Since this method does not
+     * have access to the repository it can only use properties of the statement to figure out if it is inferred.
+     * @param stmt
+     * @return
+     * @throws RepositoryConnection
+     */
+    public static boolean isInferred(Statement stmt)  {
+        try {
+            Method m = stmt.getClass().getMethod("isInferred", new Class[0]);
+            return (Boolean)m.invoke(stmt);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+            return false;
+        }
+
+    }
+
+
+    /**
+     * Return true in case the statement passed as argument is an inferred statement. Depending on the concrete
+     * implementation of the statement uses different approaches to figure out if it is inferred or not.
+     * @param conn
+     * @param stmt
+     * @return
+     * @throws RepositoryConnection
+     */
+    public static boolean isInferred(RepositoryConnection conn, Statement stmt) throws RepositoryException {
+        try {
+            Method m = stmt.getClass().getMethod("isInferred", new Class[0]);
+            return (Boolean)m.invoke(stmt);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+            boolean is_base = conn.hasStatement(stmt,false);
+            boolean exists  = conn.hasStatement(stmt,true);
+
+            return !is_base && exists;
+        }
+
+    }
+
+
+    /**
+     * Return true in case the statement passed as argument is a deleted statement. Depending on the concrete
+     * implementation of the statement uses different approaches to figure out if it is deleted or not.
+     * @param conn
+     * @param stmt
+     * @return
+     * @throws RepositoryConnection
+     */
+    public static boolean isDeleted(RepositoryConnection conn, Statement stmt) throws RepositoryException {
+        try {
+            Method m = stmt.getClass().getMethod("isDeleted", new Class[0]);
+            return (Boolean)m.invoke(stmt);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+            boolean exists  = conn.hasStatement(stmt,true);
+
+            return !exists;
+        }
+
+    }
+
+    public static long getId(Statement stmt) {
+        try {
+            Method m = stmt.getClass().getMethod("getId", new Class[0]);
+            return (Long)m.invoke(stmt);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassCastException e) {
+            return 0L;
+        }
+
+    }
 }

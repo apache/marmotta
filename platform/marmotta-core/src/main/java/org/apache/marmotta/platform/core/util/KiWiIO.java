@@ -17,17 +17,10 @@
  */
 package org.apache.marmotta.platform.core.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import com.google.common.base.Preconditions;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Add file description here!
@@ -89,28 +82,4 @@ public class KiWiIO {
 		}
 	}
 
-	public static String md5sum(File file) throws FileNotFoundException, IOException {
-		FileInputStream fis = new FileInputStream(file);
-		return md5sum(fis);
-	}
-
-	public static String md5sum(InputStream input) throws IOException {
-		try {
-			MessageDigest md;
-			md = MessageDigest.getInstance("MD5");
-			DigestInputStream dis = new DigestInputStream(input, md);
-			try {
-				byte[] buff = new byte[1024];
-				// just read to get the Digest filled...
-				while (dis.read(buff) > 0)
-					;
-				return new BigInteger(1, md.digest()).toString(16);
-			} finally {
-				dis.close();
-			}
-		} catch (NoSuchAlgorithmException e) {
-			// this should not happen
-			return null;
-		}
-	}
 }

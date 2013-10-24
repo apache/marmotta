@@ -15,6 +15,7 @@ import org.openrdf.model.URI;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
+import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -155,6 +156,45 @@ public class ContextAwareTest {
             TupleQuery query = con.prepareTupleQuery(QueryLanguage.SPARQL, queryStr);
             List<BindingSet> result = Iterations.asList(query.evaluate());
             Assert.assertEquals(1,result.size());
+            con.commit();
+        } finally {
+            con.close();
+        }
+    }
+
+    @Test
+    public void testNamedGraphQuery() throws Exception {
+        ContextAwareConnection con = new ContextAwareConnection(repository, repository.getConnection());
+        try {
+            con.setInsertContext(context1);
+            con.setReadContexts(context1);
+            con.setRemoveContexts(context1);
+
+            Assert.assertTrue(con.hasStatement(subject,predicate1, object11));
+            Assert.assertFalse(con.hasStatement(subject, predicate2, object21));
+
+            String queryStr1 = "SELECT * WHERE { GRAPH <"+context1.stringValue()+"> { ?X ?P ?Y } }";
+
+            TupleQuery query1 = con.prepareTupleQuery(QueryLanguage.SPARQL, queryStr1);
+
+            // workaround for a bug in sesame
+            DatasetImpl ds = new DatasetImpl();
+            ds.addDefaultGraph(context1);
+            ds.addNamedGraph(context1);
+            ds.addDefaultRemoveGraph(context1);
+            ds.setDefaultInsertGraph(context1);
+            query1.setDataset(ds);
+
+
+            List<BindingSet> result1 = Iterations.asList(query1.evaluate());
+            Assert.assertEquals(2, result1.size());
+
+            String queryStr2 = "SELECT * WHERE { GRAPH <"+context2.stringValue()+"> { ?X ?P ?Y  } }";
+
+            TupleQuery query2 = con.prepareTupleQuery(QueryLanguage.SPARQL, queryStr2);
+            List<BindingSet> result2 = Iterations.asList(query2.evaluate());
+            Assert.assertEquals(0, result2.size());
+
             con.commit();
         } finally {
             con.close();

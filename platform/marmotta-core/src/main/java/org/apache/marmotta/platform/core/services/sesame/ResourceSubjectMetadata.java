@@ -17,8 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.sesame;
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
@@ -45,11 +43,11 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
         if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
             // if s is a URI and subject a KiWiUriResource, return
             // true if they are different
-            denyAdd = !s.stringValue().equals(((KiWiUriResource) subject).toString());
+            denyAdd = !s.stringValue().equals(subject.stringValue());
         } else if (s instanceof BNode && subject instanceof BNode) {
             // if s is a BNode and subject a KiWiAnonResource,
             // return true if they are different
-            denyAdd = !s.stringValue().equals(((KiWiAnonResource) subject).getID());
+            denyAdd = !s.stringValue().equals(subject.stringValue());
         } else {
             // in all other cases, return true to filter out the
             // triple

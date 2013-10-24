@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.core.util;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import javax.ws.rs.Path;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -76,5 +77,20 @@ public class WebServiceUtil {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out,result);
 
+    }
+
+    /**
+     * Get the resource's path
+     *
+     * @param resource target resource
+     * @return path
+     */
+    public static String getResourcePath(Object resource) {
+        try {
+            return (String) ReflectionUtils.getAnnotationValue(resource, Path.class, "value");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

@@ -54,7 +54,6 @@ import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.services.sesame.KiWiSesameUtil;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -411,7 +410,7 @@ public class ResourceWebService {
 
                 if(bestType != null) {
                     Response response = buildGetResponse(r, bestType);
-                    response.getMetadata().add("Last-Modified", KiWiSesameUtil.lastModified(r, conn));
+                    response.getMetadata().add("Last-Modified", ResourceUtils.getLastModified(conn, r));
                     response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
                     return response;
                 } else {
