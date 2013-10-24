@@ -77,7 +77,9 @@ public class BigDataStoreProvider implements StoreProvider {
         properties.setProperty( BigdataSail.Options.AXIOMS_CLASS, "com.bigdata.rdf.axioms.NoAxioms");
         properties.setProperty( BigdataSail.Options.TEXT_INDEX, ""+configurationService.getBooleanConfiguration("bigdata.textIndex",true));
         properties.setProperty( Banner.Options.LOG4J_MBEANS_DISABLE, "true");
-
+        properties.setProperty( BigdataSail.Options.ISOLATABLE_INDICES, "true");
+        properties.setProperty( BigdataSail.Options.VOCABULARY_CLASS, "com.bigdata.rdf.vocab.NoVocabulary");
+        properties.setProperty( BigdataSail.Options.JUSTIFY, "false");
 
         return new BigDataSesame27Sail(properties);
     }
