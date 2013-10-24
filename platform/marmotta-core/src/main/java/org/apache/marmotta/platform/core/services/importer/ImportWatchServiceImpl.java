@@ -213,11 +213,32 @@ public class ImportWatchServiceImpl implements ImportWatchService {
         String format = null;
         final String fileName = file.toFile().getName();
 
-        //mimetype detection
-        RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName.replaceFirst("\\.(gz|bz2)$",""));
-        if (rdfFormat != null && importService.getAcceptTypes().contains(rdfFormat.getDefaultMIMEType())) {
-            format = rdfFormat.getDefaultMIMEType();
-        } else {
+        final Path config = file.getParent().resolve(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
+        if (Files.isReadable(config)) {
+            Properties prop = loadConfigFile(file);
+            final String fmt = prop.getProperty("format");
+            if (fmt != null) {
+                RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(fmt);
+                if (rdfFormat != null) {
+                    format = rdfFormat.getDefaultMIMEType();
+                    log.debug("Using format {} from config file {}", format, config);
+                } else {
+                    log.debug("Unknown format {} in config file {}, ignoring", fmt, config);
+                }
+            } else {
+                log.trace("No format defined in {}", config);
+            }
+        }
+
+        if (format == null) {
+            //mimetype detection
+            RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName.replaceFirst("\\.(gz|bz2)$",""));
+            if (rdfFormat != null) {
+                format = rdfFormat.getDefaultMIMEType();
+            }
+        }
+
+        if (format == null || !importService.getAcceptTypes().contains(format)) {
             throw new MarmottaImportException("Suitable RDF parser not found");
         }
 
@@ -250,6 +271,23 @@ public class ImportWatchServiceImpl implements ImportWatchService {
         }
     }
 
+    private Properties loadConfigFile(Path importFile) {
+        // Check for a configFile
+        final Path config = importFile.getParent().resolve(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
+        if (Files.isReadable(config)) {
+            try {
+                Properties prop = new Properties();
+                final FileInputStream inStream = new FileInputStream(config.toFile());
+                prop.load(inStream);
+                inStream.close();
+                return prop;
+            } catch (IOException e) {
+                log.warn("could not read dirConfigFile {}: {}", config, e.getMessage());
+            }
+        }
+        return null;
+    }
+
     /**
      * Get the target context. 
      * The algorithm is as follows:
@@ -269,25 +307,18 @@ public class ImportWatchServiceImpl implements ImportWatchService {
         // Check for a configFile
         final Path config = file.getParent().resolve(configurationService.getStringConfiguration(CONFIG_KEY_CONF_FILE, "config"));
         if (Files.isReadable(config)) {
-            try {
-                Properties prop = new Properties();
-                final FileInputStream inStream = new FileInputStream(config.toFile());
-                prop.load(inStream);
-                inStream.close();
-                final String _c = prop.getProperty("context");
-                if (_c != null) {
-                    try {
-                        URI context = contextService.createContext(_c);
-                        log.debug("using context {} from config file {}", context, config);
-                        return context;
-                    } catch (URISyntaxException e) {
-                        log.warn("invalid context {} in config file {}, ignoring", _c, config);
-                    }
-                } else {
-                    log.trace("no context defined in config file {}", config);
+            Properties prop = loadConfigFile(file);
+            final String _c = prop.getProperty("context");
+            if (_c != null) {
+                try {
+                    URI context = contextService.createContext(_c);
+                    log.debug("using context {} from config file {}", context, config);
+                    return context;
+                } catch (URISyntaxException e) {
+                    log.warn("invalid context {} in config file {}, ignoring", _c, config);
                 }
-            } catch (IOException e) {
-                log.warn("could not read dirConfigFile {}: {}", config, e.getMessage());
+            } else {
+                log.trace("no context defined in config file {}", config);
             }
         }
 
