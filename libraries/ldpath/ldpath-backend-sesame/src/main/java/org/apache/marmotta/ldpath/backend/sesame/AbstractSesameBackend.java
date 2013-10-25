@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -59,12 +59,12 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 		}
 	}
 
-	protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.URI property)
+	protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.URI property, Resource... contexts)
 			throws RepositoryException {
-        ValueFactory valueFactory = connection.getValueFactory();
+        final ValueFactory valueFactory = connection.getValueFactory();
 
 		Set<Value> result = new HashSet<Value>();
-		RepositoryResult<Statement> qResult = connection.getStatements(merge(subject, connection.getValueFactory()), merge(property, connection.getValueFactory()), null, true);
+		RepositoryResult<Statement> qResult = connection.getStatements(merge(subject, valueFactory), merge(property, valueFactory), null, true);
 		try {
 			while(qResult.hasNext()) {
 				result.add(qResult.next().getObject());
@@ -75,10 +75,12 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 		return  result;
 	}
 
-	protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.URI property, Value object)
+	protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.URI property, Value object, Resource... contexts)
 			throws RepositoryException {
+	    final ValueFactory valueFactory = connection.getValueFactory();
+	    
 		Set<Value> result = new HashSet<Value>();
-		RepositoryResult<Statement> qResult = connection.getStatements(null, merge(property, connection.getValueFactory()), merge(object, connection.getValueFactory()), true);
+        RepositoryResult<Statement> qResult = connection.getStatements(null, merge(property, valueFactory), merge(object, valueFactory), true);
 		try {
 			while(qResult.hasNext()) {
 				result.add(qResult.next().getSubject());
@@ -96,6 +98,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
      * @param <T>
      * @return
      */
+    @SuppressWarnings("unchecked")
     protected <T extends Value> T merge(T value, ValueFactory vf) {
         if(value instanceof org.openrdf.model.URI) {
             return (T)vf.createURI(value.stringValue());
