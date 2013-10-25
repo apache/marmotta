@@ -140,9 +140,8 @@ public class Program<Node> implements LDPathConstruct<Node> {
         return this.graphs;
     }
 
-    @SuppressWarnings("unchecked")
-    public Node[] getGraphArr() {
-        return (Node[]) this.graphs.toArray();
+    public URI[] getGraphArr() {
+        return this.graphs.toArray(new URI[0]);
     }
 
     public void setGraphs(Collection<URI> graphs) {
