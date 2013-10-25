@@ -28,7 +28,7 @@
     <artifactId>platform-ldcache-reactor</artifactId>
     <packaging>pom</packaging>
 
-    <name>Apache Marmotta Backends: Reactor</name>
+    <name>Apache Marmotta Platform: Linked Data Caching (Reactor)</name>
     <description>Different ldcache backends for the Apache Marmotta Platform</description>
 
 
