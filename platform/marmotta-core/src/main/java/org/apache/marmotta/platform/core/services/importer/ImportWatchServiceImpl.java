@@ -46,6 +46,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2Utils;
+import org.apache.commons.compress.compressors.gzip.GzipUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.nio.watch.SimpleTreeWatcher;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -230,11 +232,13 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             }
         }
 
+        // mimetype detection based on file-extension
         if (format == null) {
-            //mimetype detection
+            // FIXME: Maybe use GzipUtils and BZip2Utils instead?
             RDFFormat rdfFormat = Rio.getParserFormatForFileName(fileName.replaceFirst("\\.(gz|bz2)$",""));
             if (rdfFormat != null) {
                 format = rdfFormat.getDefaultMIMEType();
+                log.trace("Using format {} based on file-name {}", format, fileName);
             }
         }
 
@@ -249,6 +253,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             cd.setText(bis);
             CharsetMatch cm = cd.detect();
             if (cm != null) {
+                log.trace("Detected charset {} in {}", cm.getName(), file);
                 format += "; charset=" + cm.getName();
             }
             bis.close();
@@ -262,9 +267,12 @@ public class ImportWatchServiceImpl implements ImportWatchService {
     private InputStream openStream(Path file) throws IOException {
         final String fName = file.getFileName().toString();
         final FileInputStream fis = new FileInputStream(file.toFile());
-        if (fName.endsWith(".gz")) {
+        
+        if (GzipUtils.isCompressedFilename(fName)) {
+            log.trace("{} looks GZIP compressed,", file);
             return new GZIPInputStream(fis);
-        } else if (fName.endsWith(".bz2")) {
+        } else if (BZip2Utils.isCompressedFilename(fName)) {
+            log.trace("{} looks BZ2 compressed", file);
             return new BZip2CompressorInputStream(fis);
         } else {
             return fis;
@@ -323,7 +331,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
         }
 
         // Check for url-encoded directory
-        Path subDir = file.getParent().relativize(getImportRoot());
+        Path subDir = getImportRoot().relativize(file.getParent());
         if (StringUtils.isBlank(subDir.toString())) {
             log.trace("using default context for file {}", file);
             return contextService.getDefaultContext();
@@ -428,7 +436,9 @@ public class ImportWatchServiceImpl implements ImportWatchService {
                         @Override
                         public FileVisitResult visitFile(Path file,
                                 BasicFileAttributes attrs) throws IOException {
-                            scheduleFile(file);
+                            if (!Files.isDirectory(file)) {
+                                scheduleFile(file);
+                            }
                             return FileVisitResult.CONTINUE;
                         }
                     });
@@ -447,16 +457,30 @@ public class ImportWatchServiceImpl implements ImportWatchService {
         }
 
         private void scheduleFile(final Path file) {
+            // ignore directories
+            if (Files.isDirectory(file)) {
+                log.trace("not scheduling directory {}", file);
+                return;
+            }
+            
             // if the dir is locked, do not schedule
-            if (isLocked(file.getParent())) return;
+            if (isLocked(file.getParent())) {
+                log.trace("not scheduling {} because {} is locked", file, file.getParent());
+                return;
+            }
 
             // do not schedule a config file
-            if (dirConfigFileName != null && file.endsWith(dirConfigFileName)) return;
+            if (dirConfigFileName != null && file.endsWith(dirConfigFileName)) {
+                log.trace("not scheduling {} because it is a config-file", file);
+                return;
+            }
 
             // schedule the import
             final ScheduledFuture<?> prevSchedule = fileSchedules.put(file, executor.schedule(new Runnable() {
                 @Override
                 public void run() {
+                    final String threadName = Thread.currentThread().getName();
+                    Thread.currentThread().setName(String.format("%sWorker for %s", ImportWatcher.class.getSimpleName(), file));
                     try {
                         task.updateMessage("importing " + file);
                         if (importFile(file)) {
@@ -475,6 +499,7 @@ public class ImportWatchServiceImpl implements ImportWatchService {
                         throw t;
                     } finally {
                         task.updateMessage("waiting for new files");
+                        Thread.currentThread().setName(threadName);
                     }
                 }
             }, importDelay, TimeUnit.MILLISECONDS));
@@ -482,6 +507,9 @@ public class ImportWatchServiceImpl implements ImportWatchService {
             // cancel any previously scheduled import for this file.
             if (prevSchedule != null) {
                 prevSchedule.cancel(true);
+                log.trace("rescheduled {} for import", file);
+            } else {
+                log.trace("scheduled {} for import", file);
             }
 
             updateQueueSizeMonitor();
