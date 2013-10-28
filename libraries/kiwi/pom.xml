@@ -32,28 +32,6 @@
     <description>A Sesame Triple Store based on a relational database. Supports reasoning and versioning.</description>
 
     <inceptionYear>2008</inceptionYear>
-    <licenses>
-        <license>
-            <name>Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Sebastian Schaffert</name>
-            <email>sebastian.schaffert@salzburgresearch.at</email>
-            <organization>Salzburg Research</organization>
-        </developer>
-    </developers>
-
-    <properties>
-        <sesameVersion>2.6.10</sesameVersion>
-        <sl4jVersion>1.7.2</sl4jVersion>
-        <logbackVersion>1.0.7</logbackVersion>
-    </properties>
 
     <build>
         <pluginManagement>
