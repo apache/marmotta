@@ -18,9 +18,9 @@
 package org.apache.marmotta.platform.core.api.importer;
 
 import java.io.File;
+import java.nio.file.Path;
 
-import org.apache.marmotta.platform.core.events.SystemStartupEvent;
-import org.openrdf.model.URI;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 
 /**
  * A service for watching import directory
@@ -31,18 +31,20 @@ import org.openrdf.model.URI;
 public interface ImportWatchService {
 
 	/**
-	 * Initialize the directory watching, performing an importation
-	 * of new files copied there
-	 */
-	public void initialize(SystemStartupEvent event);
-
-	/**
 	 * Import an observed item 
 	 * 
 	 * @param file
-	 * @param context
 	 * @return
+	 * @throws MarmottaImportException 
 	 */
-	boolean execImport(File file, URI context);
+    boolean importFile(File file) throws MarmottaImportException;
+
+    boolean importFile(Path file) throws MarmottaImportException;
+
+    void startup();
+
+    void shutdown();
+
+    Path getImportRoot();
 
 }

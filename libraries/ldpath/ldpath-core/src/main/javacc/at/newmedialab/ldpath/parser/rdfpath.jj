@@ -470,7 +470,7 @@ Program Program() :
     Map<String, String> nss = null;
     FieldMapping<?,Node> rule;
     NodeSelector<Node> boostSelector;
-    LinkedList<Node> graphs;
+    LinkedList<URI> graphs;
 }
 {
   (
@@ -514,16 +514,16 @@ Program Program() :
   }
 }
 
-LinkedList<Node> UriList() :
+LinkedList<URI> UriList() :
 {
-    LinkedList<Node> rest = null;
+    LinkedList<URI> rest = null;
     URI uri;
 }
 {
     uri = Uri() ( <COMMA> rest = UriList() )?
     {
-      if (rest == null) rest = new LinkedList<Node>();
-      rest.addFirst(resolveURI(uri));
+      if (rest == null) rest = new LinkedList<URI>();
+      rest.addFirst(uri);
       return rest;
     }
 }

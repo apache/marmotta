@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -32,13 +32,24 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
 
 	private final RepositoryConnection connection;
 	private final ValueFactory valueFactory;
+    private final Resource[] contexts;
 
+    /**
+     * Create a new {@link SesameConnectionBackend}. This backend is context-agnostig (ignores all context information). 
+     * @param connection the {@link RepositoryConnection} to use.
+     * @see ContextAwareSesameConnectionBackend#ContextAwareSesameConnectionBackend(RepositoryConnection, Resource...)
+     */
 	public SesameConnectionBackend(RepositoryConnection connection) {
-		this.connection = connection;
-		valueFactory = connection.getValueFactory();
+	    this(connection, new Resource[] {});
 	}
 
-	@Override
+	protected SesameConnectionBackend(RepositoryConnection connection, Resource[] contexts) {
+	    this.connection = connection;
+        this.contexts = contexts;
+	    valueFactory = connection.getValueFactory();
+    }
+
+    @Override
 	public Literal createLiteral(String content) {
 		return createLiteralInternal(valueFactory, content);
 	}
@@ -56,7 +67,7 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
 	@Override
 	public Collection<Value> listObjects(Value subject, Value property) {
 		try {
-			return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property);
+			return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property, contexts);
 		} catch (RepositoryException e) {
 			throw new RuntimeException(
 					"error while querying Sesame repository!", e);
@@ -71,7 +82,7 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
 	@Override
 	public Collection<Value> listSubjects(Value property, Value object) {
         try {
-        	return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object);
+        	return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object, contexts);
         } catch (RepositoryException e) {
             throw new RuntimeException("error while querying Sesame repository!",e);
         } catch (ClassCastException e) {
@@ -81,6 +92,11 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
         }
 	}
 
+    /**
+     * Create a new {@link SesameConnectionBackend}. This backend is context-agnostig (ignores all context information). 
+     * @param connection the {@link RepositoryConnection} to use.
+     * @see ContextAwareSesameConnectionBackend#withConnection(RepositoryConnection, Resource...)
+     */
 	public static SesameConnectionBackend withConnection(RepositoryConnection connection) {
 		return new SesameConnectionBackend(connection);
 	}
