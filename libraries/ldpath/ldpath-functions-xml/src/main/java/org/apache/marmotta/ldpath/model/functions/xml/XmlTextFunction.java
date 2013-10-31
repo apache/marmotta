@@ -17,37 +17,42 @@
  */
 package org.apache.marmotta.ldpath.model.functions.xml;
 
-import java.util.regex.Pattern;
-
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.marmotta.ldpath.model.functions.AbstractTextFilterFunction;
 
-public class RemoveXmlTagsFunction<Node> extends AbstractTextFilterFunction<Node> {
+/**
+ * LDPath function that cleans up an XML string, i.e. removes all tags and resolves all xml-entities.
+ * 
+ * @see StringEscapeUtils#unescapeXml(String)
+ * @see RemoveXmlTagsFunction
+ * @author Jakob Frank <jakob@apache.org>
+ *
+ */
+public class XmlTextFunction<Node> extends AbstractTextFilterFunction<Node> {
 
-    static final Pattern XML_TAG = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^>])*>", Pattern.MULTILINE);
-
-    @Override
-    protected String doFilter(String in) {
-        return XML_TAG.matcher(in).replaceAll("");
-    }
-
-    /**
-     * Return the name of the NodeFunction for registration in the function registry
-     *
-     * @return
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldpath.model.functions.xml.AbstractTextFilterFunction#doFilter(java.lang.String)
      */
     @Override
-    public String getLocalName() {
-        return "removeTags";
-
+    protected String doFilter(String in) {
+        return StringEscapeUtils.unescapeXml(RemoveXmlTagsFunction.XML_TAG.matcher(in).replaceAll(""));
     }
 
-    /**
-     * A short human-readable description of what the node function does.
-     *
-     * @return
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldpath.api.functions.NodeFunction#getDescription()
      */
     @Override
     public String getDescription() {
-        return "Function to remove all XML or HTML tags from the content. Can be used in-path, using the current context nodes as argument.";
+        return "function to remove all XML-Tags and -Entities (&...; stuff) from the content.";
     }
+
+
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldpath.api.functions.SelectorFunction#getLocalName()
+     */
+    @Override
+    protected String getLocalName() {
+        return "xmlText";
+    }
+
 }

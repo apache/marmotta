@@ -15,39 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.ldpath.model.functions.xml;
-
-import java.util.regex.Pattern;
+package org.apache.marmotta.ldpath.model.functions.html;
 
 import org.apache.marmotta.ldpath.model.functions.AbstractTextFilterFunction;
+import org.jsoup.Jsoup;
 
-public class RemoveXmlTagsFunction<Node> extends AbstractTextFilterFunction<Node> {
+/**
+ * @author Jakob Frank <jakob@apache.org>
+ *
+ */
+public class HtmlTextFunction<Node> extends AbstractTextFilterFunction<Node> {
 
-    static final Pattern XML_TAG = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^>])*>", Pattern.MULTILINE);
-
-    @Override
-    protected String doFilter(String in) {
-        return XML_TAG.matcher(in).replaceAll("");
-    }
-
-    /**
-     * Return the name of the NodeFunction for registration in the function registry
-     *
-     * @return
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldpath.model.functions.AbstractTextFilterFunction#doFilter(java.lang.String)
      */
     @Override
-    public String getLocalName() {
-        return "removeTags";
-
+    protected String doFilter(String in) {
+        return Jsoup.parse(in).text();
     }
 
-    /**
-     * A short human-readable description of what the node function does.
-     *
-     * @return
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldpath.api.functions.SelectorFunction#getLocalName()
+     */
+    @Override
+    protected String getLocalName() {
+        return "htmlText";
+    }
+
+    /* (non-Javadoc)
+     * @see org.apache.marmotta.ldpath.api.functions.NodeFunction#getDescription()
      */
     @Override
     public String getDescription() {
-        return "Function to remove all XML or HTML tags from the content. Can be used in-path, using the current context nodes as argument.";
+        return "strips all html tags and resolves html-entities like &amp;";
     }
 }
