@@ -76,12 +76,6 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
     public void init(ServletContext context) throws TemplatingException {
         menu = buildMenu();
         this.context = context;
-        try {
-            //try-run to check it from the very beginning
-            templatingService.getTemplate(TemplatingService.ADMIN_TPL);
-        } catch (Exception e) {
-            throw new TemplatingException("Severe Error: admin template cannot be found: " + e.getMessage());
-        }
     }
 
     /**
