@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldclient.model;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openrdf.repository.Repository;
 
 import java.util.Date;
@@ -30,15 +30,27 @@ import java.util.Date;
  */
 public class ClientResponse {
 
+	private static final int DEFAULT_HTTP_CODE = 200;
+	
     private static final int DEFAULT_EXPIRATION_IN_DAYS = 7;
+
+    /**
+     * The HTTP status code returned by the client
+     */
+    private int httpStatus;
 
     private Repository triples;
 
     private Date expires;
-
+    
     public ClientResponse(Repository triples) {
+    	this(DEFAULT_HTTP_CODE, triples);
+    }
+
+    public ClientResponse(int httpStatus, Repository triples) {
         this.triples = triples;
         this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
+        this.httpStatus = httpStatus;
     }
 
     public Repository getTriples() {
@@ -57,4 +69,11 @@ public class ClientResponse {
         this.expires = new Date(expires.getTime());
     }
 
+    public int getHttpStatus() {
+        return httpStatus;
+    }
+
+    public void setHttpStatus(int httpStatus) {
+        this.httpStatus = httpStatus;
+    }
 }

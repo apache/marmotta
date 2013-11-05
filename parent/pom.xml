@@ -29,26 +29,28 @@
     <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.1.0-incubating-SNAPSHOT</version>
+    <version>3.1.0-incubating</version>
 
     <name>Apache Marmotta Parent</name>
     <description>Parent POM for the Apache Marmotta project</description>
     <url>http://marmotta.incubator.apache.org</url>
 
     <properties>
-        <sesame.version>2.7.0-beta2</sesame.version>
+        <sesame.version>2.7.6</sesame.version>
         <junit.version>4.11</junit.version>
-        <weld.version>1.1.Final</weld.version>
-        <weld.core.version>1.1.11.Final</weld.core.version>
+        <weld.version>2.0.SP1</weld.version>
+        <weld.core.version>2.0.4.Final</weld.core.version>
         <rest.assured.version>1.7.1</rest.assured.version>
         <hamcrest.version>1.3</hamcrest.version>
         <tempus.fugit.version>1.1</tempus.fugit.version>
         <jatl.version>0.2.2</jatl.version>
-        <servlet.api.version>2.5</servlet.api.version>
-        <javax.el.version>2.2</javax.el.version>
-        <h2.version>1.3.170</h2.version>
-        <postgresql.version>9.2-1002-jdbc4</postgresql.version>
+        <servlet.api.version>3.0.1</servlet.api.version>
+        <javax.el.version>2.2.4</javax.el.version>
+        <h2.version>1.3.173</h2.version>
+        <postgresql.version>9.2-1003-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
+        <jetty.version>9.0.3.v20130506</jetty.version>
+        <resteasy.version>3.0.4.Final</resteasy.version>
     </properties>
 
     <prerequisites>
@@ -96,10 +98,10 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.0</version>
+                    <version>3.1</version>
                     <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
+                        <source>1.7</source>
+                        <target>1.7</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -133,19 +135,21 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.12.4</version>
+                    <version>2.16</version>
                     <configuration>
                         <useSystemClassLoader>false</useSystemClassLoader>
-                        <forkMode>always</forkMode>
+                        <forkCount>1</forkCount>
+                        <reuseForks>false</reuseForks>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.12.4</version>
+                    <version>2.16</version>
                     <configuration>
                         <useSystemClassLoader>false</useSystemClassLoader>
-                        <forkMode>always</forkMode>
+                        <forkCount>1</forkCount>
+                        <reuseForks>false</reuseForks>
                     </configuration>
                 </plugin>
  <!--               <plugin>
@@ -344,7 +348,7 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <relativePath>../</relativePath>
+                        <relativePath>../../</relativePath>
                         <rootPath>$${rebel.root}</rootPath>
                     </configuration>
                 </plugin>
@@ -370,6 +374,9 @@
                         <header>parent/src/etc/header.txt</header>
                         <strictCheck>true</strictCheck>
                         <excludes>
+                            <!-- everything in extras is contributed 3rd party -->
+                            <exclude>**/extras/**</exclude>
+
                             <exclude>**/src/ext/**</exclude>
                             <exclude>COPYING.txt</exclude>
                             <exclude>NOTICE.txt</exclude>
@@ -403,6 +410,13 @@
                             <exclude>**/src/main/java/solr2155/**</exclude>
                             <exclude>**/src/main/java/net/miginfocom/**</exclude>
                             <exclude>**/src/main/java/org/oxbow/**</exclude>
+                            
+                            <!-- codemirror -->
+                            <exclude>**/codemirror.js</exclude>
+                            <exclude>**/codemirror.css</exclude>
+                            <exclude>**/simple-hint.js</exclude>
+                            <exclude>**/simple-hint.css</exclude>
+                            <exclude>**/sparql.js</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -413,6 +427,9 @@
                     <configuration>
                         <excludeSubProjects>false</excludeSubProjects>
                         <excludes>
+                            <!-- 3rd party libraries -->
+                            <exclude>extras/**</exclude>
+
                             <!-- auto-generated files -->
                             <exclude>**/*.txt</exclude>
                             <exclude>**/atlassian-ide-plugin.xml</exclude>
@@ -425,6 +442,7 @@
                             <exclude>.git/**</exclude>
                             <exclude>.idea/**</exclude>
                             <exclude>.eclipse/**</exclude>
+                            <exclude>**/*.ids</exclude>
                             <exclude>**/*.iml</exclude>
                             <exclude>**/*.ipr</exclude>
                             <exclude>**/*.iws</exclude>
@@ -434,20 +452,10 @@
 
 
                             <!-- known 3rd-party source code -->
-                            <exclude>**/jquery*.js</exclude>
-                            <exclude>**/jquery*.css</exclude>
-                            <exclude>**/foundation.js</exclude>
-                            <exclude>**/strftime.js</exclude>
-                            <exclude>**/customforms.js</exclude>
-                            <exclude>**/pageguide.js</exclude>
-                            <exclude>**/raphael-dracula.pack.min.js</exclude>
-                            <exclude>**/dygraph/**</exclude>
-                            <exclude>**/sgvizler/**</exclude>
-                            <exclude>**/js/lib/**</exclude>
                             <exclude>**/src/ext/**</exclude>
                             <exclude>**/src/main/resources/task-dialog*.properties</exclude>
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/jsonld/**</exclude>
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
+                            <exclude>**/src/main/resources/web/admin/sgvizler.html</exclude>
 
                             <!-- META-INF files don't take a license header -->
                             <exclude>**/META-INF/**</exclude>
@@ -455,7 +463,6 @@
                             <!-- some parsers don't support comments, they are covered by the general LICENSE.txt
                                  similar to binaries -->
                             <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/ical/*.ics</exclude>
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/rdfjson/*.json</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -564,7 +571,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>13.0.1</version>
+                <version>14.0.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -583,9 +590,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
@@ -593,14 +600,19 @@
                 <version>3.2</version>
             </dependency>
             <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -611,7 +623,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -622,7 +634,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -633,7 +645,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient-cache</artifactId>
-                <version>4.2.3</version>
+                <version>4.2.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -685,14 +697,9 @@
 
             <!-- XML Processing -->
             <dependency>
-                <groupId>xom</groupId>
-                <artifactId>xom</artifactId>
-                <version>1.2.6</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
-                <version>2.0.4</version>
+                <version>2.0.5</version>
             </dependency>
             <dependency>
                 <groupId>jaxen</groupId>
@@ -704,47 +711,47 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.4</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-ext</artifactId>
-                <version>1.7.4</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.4</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.7.4</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.4</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.4</version>
+                <version>1.7.5</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.0.10</version>
+                <version>1.0.13</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.10</version>
+                <version>1.0.13</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.cal10n</groupId>
                 <artifactId>cal10n-api</artifactId>
-                <version>0.7.7</version>
+                <version>0.8.1</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
@@ -755,20 +762,20 @@
             <!-- Servlet API, Web Services -->
             <dependency>
                 <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
+                <artifactId>javax.servlet-api</artifactId>
                 <version>${servlet.api.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>javax.el</groupId>
-                <artifactId>el-api</artifactId>
+                <artifactId>javax.el-api</artifactId>
                 <version>${javax.el.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-cdi</artifactId>
-                <version>2.3.5.Final</version>
+                <version>${resteasy.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -779,27 +786,27 @@
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-jackson-provider</artifactId>
-                <version>2.3.5.Final</version>
+                <version>${resteasy.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
-                <version>1.9.12</version>
+                <version>1.9.13</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.12</version>
+                <version>1.9.13</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-jaxrs</artifactId>
-                <version>1.9.12</version>
+                <version>1.9.13</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-xc</artifactId>
-                <version>1.9.12</version>
+                <version>1.9.13</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
@@ -811,7 +818,13 @@
             <dependency>
                 <groupId>javax.enterprise</groupId>
                 <artifactId>cdi-api</artifactId>
-                <version>1.1-PRD</version>
+                <version>1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>el-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld</groupId>
@@ -835,18 +848,42 @@
                         <groupId>org.javassist</groupId>
                         <artifactId>javassist</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.el</groupId>
+                        <artifactId>jboss-el-api_3.0_spec</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld.se</groupId>
                 <artifactId>weld-se-core</artifactId>
                 <version>${weld.core.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>el-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.el</groupId>
+                        <artifactId>jboss-el-api_3.0_spec</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.jboss.weld.servlet</groupId>
                 <artifactId>weld-servlet-core</artifactId>
                 <version>${weld.core.version}</version>
                 <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>el-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.el</groupId>
+                        <artifactId>jboss-el-api_3.0_spec</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
@@ -873,6 +910,31 @@
                 <version>1.8.2</version>
             </dependency>
             <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>jquery-ui</artifactId>
+                <version>1.8.21</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta.webjars</groupId>
+                <artifactId>codemirror</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta.webjars</groupId>
+                <artifactId>snorql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta.webjars</groupId>
+                <artifactId>sgvizler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta.webjars</groupId>
+                <artifactId>strftime</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>marmotta-client-js</artifactId>
                 <version>${project.version}</version>
@@ -881,7 +943,7 @@
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
-                <version>2.6.5</version>
+                <version>2.6.6</version>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
@@ -889,7 +951,7 @@
                 <version>${h2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jumpmind.symmetric.jdbc</groupId>
+                <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
             </dependency>
@@ -900,55 +962,20 @@
                 <optional>true</optional>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq</artifactId>
-                <version>2.6.0</version>
-            </dependency>
 
 
             <!-- Tomcat JDBC Connection Pool (replacement for c3p0, MARMOTTA-111 -->
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-jdbc</artifactId>
-                <version>7.0.37</version>
+                <version>7.0.42</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-juli</artifactId>
+                <version>7.0.42</version>
             </dependency>
 
-
-            <!-- SOLR (Semantic Search) -->
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj</artifactId>
-                <version>3.6.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-core</artifactId>
-                <version>3.6.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-clustering</artifactId>
-                <version>3.6.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 
             <!-- Test Support -->
             <dependency>
@@ -1011,6 +1038,11 @@
             <dependency>
                 <groupId>org.openrdf.sesame</groupId>
                 <artifactId>sesame-rio-api</artifactId>
+                <version>${sesame.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-rio-rdfjson</artifactId>
                 <version>${sesame.version}</version>
             </dependency>
             <dependency>
@@ -1113,23 +1145,39 @@
                 <artifactId>sesame-queryresultio-text</artifactId>
                 <version>${sesame.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-sparql-testsuite</artifactId>
+                <version>${sesame.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-store-testsuite</artifactId>
+                <version>${sesame.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- RDFa Parser -->
             <dependency>
                 <groupId>org.semarglproject</groupId>
                 <artifactId>semargl-rdfa</artifactId>
-                <version>0.4</version>
+                <version>0.6</version>
             </dependency>
             <dependency>
                 <groupId>org.semarglproject</groupId>
                 <artifactId>semargl-sesame</artifactId>
-                <version>0.4</version>
+                <version>0.6</version>
             </dependency>
 
             <!-- KiWi Triple Store -->
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-triplestore</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-sparql</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1182,17 +1230,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-rdfjson</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tools-rio-rss</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-jsonld</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1225,16 +1263,16 @@
                 <version>0.0.8</version>
             </dependency>
             <dependency>
-                <groupId>dfki.km.json</groupId>
-                <artifactId>jsonld-java</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <groupId>com.github.jsonld-java</groupId>
+                <artifactId>jsonld-java-sesame</artifactId>
+                <version>0.2</version>
             </dependency>
 
             <!-- Freemarker -->
             <dependency>
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
-                <version>2.3.19</version>
+                <version>2.3.20</version>
             </dependency>
 
             <!-- Quartz Scheduler -->
@@ -1270,8 +1308,13 @@
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
-                <version>1.2</version>
+                <version>1.4</version>
             </dependency>
+		    <dependency>
+		        <groupId>com.ibm.icu</groupId>
+		        <artifactId>icu4j</artifactId>
+		        <version>51.2</version>
+		    </dependency>
 
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
@@ -1436,7 +1479,25 @@
             <dependency>
                 <groupId>com.thetransactioncompany</groupId>
                 <artifactId>cors-filter</artifactId>
-                <version>1.5.1</version>
+                <version>1.7.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- embedded jetty (testing) -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
             </dependency>
 
         </dependencies>
@@ -1447,7 +1508,8 @@
         <!-- Java Servlet API is always provided -->
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -1518,7 +1580,13 @@
         </profile>
     </profiles>
 
+<!--
+    <scm>
+        <tag>3.0.0-incubating</tag>
+    </scm>
+-->
+
   <scm>
-    <tag>3.0.0-incubating</tag>
+    <tag>3.1.0-incubating</tag>
   </scm>
 </project>

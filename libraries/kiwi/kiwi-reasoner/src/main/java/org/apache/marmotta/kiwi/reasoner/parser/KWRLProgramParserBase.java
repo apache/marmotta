@@ -128,14 +128,13 @@ public abstract class KWRLProgramParserBase {
         return valueFactory.createURI(uri);
     }
 
-
     protected Literal resolveLiteral(Object content, Locale loc, String typeUri) {
         if(typeUri != null) {
             return valueFactory.createLiteral(content.toString(),valueFactory.createURI(typeUri));
         } else if(loc != null) {
             return valueFactory.createLiteral(content.toString(), loc.getLanguage());
         } else {
-            return valueFactory.createLiteral(content);
+            return valueFactory.createLiteral(content.toString());
         }
     }
 

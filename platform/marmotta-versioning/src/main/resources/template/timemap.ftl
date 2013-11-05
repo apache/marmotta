@@ -23,13 +23,9 @@
 <head>
     <title>Timemap in HTML</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <script type="text/javascript" src="${baseUri}core/public/js/lib/jquery-1.7.2.js"></script>
-    <link href="${SERVER_URL}core/public/style/style.css" rel="stylesheet" type="text/css"/>
-    <link href="${SERVER_URL}core/public/style/scheme/blue.css" title="blue" rel="stylesheet" type="text/css"/>
-    <link href="${SERVER_URL}core/public/style/scheme/dark.css" title="dark" rel="alternate stylesheet" type="text/css"/>
-    <link href="${baseUri}core/public/style/rdfhtml.css" rel="stylesheet" type="text/css"/>
-
-
+    <script type="text/javascript" src="${baseUri}webjars/jquery/1.8.2/jquery.min.js"></script>
+    <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>

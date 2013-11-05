@@ -43,10 +43,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.http.LMFHttpUtils;
+import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
@@ -336,37 +337,55 @@ public class ResourceWebService {
      *                 (content and meta)
      */
     @GET
-    public Response getRemote(@QueryParam("uri") String uri, @QueryParam("format") String format, @HeaderParam("Accept") String types)
+    public Response getRemote(@QueryParam("uri") String uri, @QueryParam("genid") String genid, @QueryParam("format") String format, @HeaderParam("Accept") String types)
             throws UnsupportedEncodingException {
         try {
-            if (uri != null) {
+            if (StringUtils.isNotBlank(uri)) {
                 if (format != null && StringUtils.isNotBlank(format)) {
                     types = format;
                 }
                 //TODO: add 'If-None-Match' support, sending a '304 Not Modified' when the ETag matches
                 return get(uri, types);
-            } else
-                return Response.status(400).entity("uri may not be null").build();
+            } else if (StringUtils.isNotBlank(genid)) {
+                if (format != null && StringUtils.isNotBlank(format)) {
+                    types = format;
+                }
+                //TODO: add 'If-None-Match' support, sending a '304 Not Modified' when the ETag matches
+                return get(genid, types);
+            } else {
+                return Response.status(400).entity("resource not identified").build();
+            }
         } catch (URISyntaxException e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
     }
 
-    private Response get(String uri, String types) throws URISyntaxException, UnsupportedEncodingException {
+    private Response get(String resource, String types) throws URISyntaxException, UnsupportedEncodingException {
         try {
 
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI resource;
-                try {
-                	resource = ResourceUtils.getUriResource(conn, uri);
-                } catch (Exception e) {
-                	log.error("Error retrieving the URI <{}>: {}", uri, e.getMessage());
-                	log.debug("So redirecting directly to it...");
-                	return Response.seeOther(new java.net.URI(uri)).build();
-                }
-                if (resource == null) return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
+                Resource r = null;
+            	if (UriUtil.validate(resource)) {
+                    try {
+                    	if(ResourceUtils.isSubject(conn, resource)) {  //tests if a resource is used as subject
+                            r = ResourceUtils.getUriResource(conn, resource);
+                        }
+                    } catch (Exception e) {
+                    	log.error("Error retrieving the resource <{}>: {}", resource, e.getMessage());
+                    	log.debug("So redirecting directly to it...");
+                    	return Response.seeOther(new java.net.URI(resource)).build();
+                    }
+            	} else {
+            		try {
+            			r = ResourceUtils.getAnonResource(conn, resource);
+	                } catch (Exception e) {
+	                	log.error("Error retrieving the blank node <{}>: {}", resource, e.getMessage());
+	                	return Response.status(Status.NOT_FOUND).entity("blank node id "  + resource + " not found").build();
+	                }
+            	}
+                if (r == null) return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
                 // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
                 // "/" + uuid;
 
@@ -374,7 +393,7 @@ public class ResourceWebService {
                 for(ContentType t : offeredTypes) {
                 	t.setParameter("rel", "meta");
                 }
-                String contentmime = contentService.getContentType(resource);
+                String contentmime = contentService.getContentType(r);
                 if(contentmime != null) {
                 	ContentType tContent = LMFHttpUtils.parseContentType(contentmime);
                 	tContent.setParameter("rel", "content");
@@ -391,9 +410,9 @@ public class ResourceWebService {
                 log.debug("identified best type: {}",bestType);
 
                 if(bestType != null) {
-                    Response response = buildGetResponse(resource, bestType);
-                    response.getMetadata().add("Last-Modified", KiWiSesameUtil.lastModified(resource, conn));
-                    response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, resource) + "\"");
+                    Response response = buildGetResponse(r, bestType);
+                    response.getMetadata().add("Last-Modified", KiWiSesameUtil.lastModified(r, conn));
+                    response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
                     return response;
                 } else {
                     return build406(acceptedTypes, offeredTypes);
@@ -608,7 +627,7 @@ public class ResourceWebService {
         return deleteResourceRemote(uri);
     }
 
-    private Response buildGetResponse(URI resource, ContentType type) {
+    private Response buildGetResponse(Resource resource, ContentType type) {
         try {
 
             return Response

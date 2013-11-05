@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -29,8 +29,31 @@
     <artifactId>ldpath-backend-sesame</artifactId>
     <packaging>jar</packaging>
 
-    <dependencies>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <relativePath>../../../</relativePath>
+                        <rootPath>$${rebel.root}</rootPath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
+    <dependencies>
         <dependency>
            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-api</artifactId>
@@ -42,11 +65,6 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-repository-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 

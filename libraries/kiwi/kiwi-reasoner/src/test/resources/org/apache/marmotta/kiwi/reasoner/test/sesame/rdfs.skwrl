@@ -1,0 +1,36 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/* rules taken from http://www.w3.org/TR/2004/REC-rdf-mt-20040210/#RDFRules */
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#>
+@prefix foaf: <http://xmlns.com/foaf/0.1/>
+
+rdf1   : ($u $a $y) -> ($a rdf:type rdf:Property)
+rdfs2  : ($a rdfs:domain $x), ($u $a $y) -> ($u rdf:type $x)
+rdfs3  : ($a rdfs:range $x),  ($u $a $v) -> ($v rdf:type $x)
+rdfs4a : ($u $a $x) -> ($u rdf:type rdfs:Resource)
+rdfs5  : ($u rdfs:subPropertyOf $v), ($v rdfs:subPropertyOf $x) -> ($u rdfs:subPropertyOf $x)
+rdfs6  : ($u rdf:type rdf:Property) -> ($u rdfs:subPropertyOf $u)
+rdfs7  : ($a rdfs:subPropertyOf $b), ($u $a $y) -> ($u $b $y)
+rdfs8  : ($u rdf:type rdfs:Class) -> ($u rdfs:subClassOf rdfs:Resource)
+rdfs9  : ($u rdfs:subClassOf $x), ($v rdf:type $u) -> ($v rdf:type $x)
+rdfs10 : ($u rdf:type rdfs:Class) -> ($u rdfs:subClassOf $u)
+rdfs11 : ($u rdfs:subClassOf $v), ($v rdfs:subClassOf $x) -> ($u rdfs:subClassOf $x)
+rdfs12 : ($u rdf:type rdfs:ContainerMembershipProperty) -> ($u rdfs:subPropertyOf rdfs:member)
+rdfs13 : ($u rdf:type rdfs:Datatype) -> ($u rdfs:subClassOf rdfs:Literal)

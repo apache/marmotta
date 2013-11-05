@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.backend.kiwi.test;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
@@ -136,6 +136,7 @@ public class LDCachePersistenceTest {
     @Before
     public void initDatabase() throws SQLException {
         persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
+        persistence.initialise();
         persistence.initDatabase();
 
         vpersistence = new LDCachingKiWiPersistence(persistence);
@@ -170,7 +171,7 @@ public class LDCachePersistenceTest {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(), hasItems("ldcache_entries"));
-            Assert.assertEquals(1, connection.getDatabaseVersion());
+            Assert.assertEquals(2, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
@@ -193,6 +194,7 @@ public class LDCachePersistenceTest {
             entry1.setLastRetrieved(new Date());
             entry1.setUpdateCount(1);
             entry1.setResource(subject1);
+            entry1.setTripleCount(1);
             connection.storeCacheEntry(entry1);
 
             connection.commit();
@@ -205,6 +207,7 @@ public class LDCachePersistenceTest {
             entry2.setLastRetrieved(new Date());
             entry2.setUpdateCount(1);
             entry2.setResource(subject2);
+            entry2.setTripleCount(1);
             connection.storeCacheEntry(entry2);
 
             connection.commit();
@@ -252,6 +255,7 @@ public class LDCachePersistenceTest {
             entry1.setLastRetrieved(new Date());
             entry1.setUpdateCount(1);
             entry1.setResource(subject1);
+            entry1.setTripleCount(1);
             connection.storeCacheEntry(entry1);
 
             KiWiCacheEntry entry2 = new KiWiCacheEntry();
@@ -259,6 +263,7 @@ public class LDCachePersistenceTest {
             entry2.setLastRetrieved(new Date());
             entry2.setUpdateCount(1);
             entry2.setResource(subject2);
+            entry2.setTripleCount(1);
             connection.storeCacheEntry(entry2);
 
             connection.commit();

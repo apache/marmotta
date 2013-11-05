@@ -20,6 +20,7 @@ CREATE TABLE ldcache_entries (
   expires_at   timestamp  NOT NULL,
   resource_id  bigint     NOT NULL REFERENCES nodes(id),
   update_count int        NOT NULL DEFAULT 0,
+  triple_count int        NOT NULL DEFAULT 0,
   PRIMARY KEY(id)
 );
 

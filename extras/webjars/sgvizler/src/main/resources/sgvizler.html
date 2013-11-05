@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Sgvizler</title>
+    <meta charset="UTF-8"/>
+    <link rel="shortcut icon" href="http://sgvizler.googlecode.com/svn/www/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="http://sgvizler.googlecode.com/svn/www/sgvizler.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" id="sgvzlr_script" src="http://sgvizler.googlecode.com/svn/release/0.5/sgvizler.js"></script>
+    <script type="text/javascript">
+      // CONFIGURATION Sgvizler 0.5: Set variables to fit your setup.
+      // NB! Do not let the last item in a list end with a comma.
+
+       //// Query settings. The defaults settings are listed.
+       sgvizler.option.query = {
+           // Default query. 
+           //'query':                "SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE{ ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class",
+    
+           // Endpoint URL. 
+           //'endpoint':             "http://sws.ifi.uio.no/sparql/world",
+    
+           // Endpoint output format. 
+           //'endpoint_output':      'json',  // 'xml', 'json' or 'jsonp'
+    
+           // This string is appended the 'endpoint' variable and the query to it again to give a link to the "raw" query results.
+           //'endpoint_query_url':   "?output=text&amp;query=",
+    
+           // URL to SPARQL validation service. The query is appended to it. 
+           //'validator_query_url':  "http://www.sparql.org/query-validator?languageSyntax=SPARQL&amp;outputFormat=sparql&amp;linenumbers=true&amp;query=",
+    
+           // Default chart type. 
+           //'chart':                'gLineChart',
+    
+           // Default log level. Must be either 0, 1, or 2. 
+           //'loglevel':             2
+       };
+
+       //// Prefixes
+       // Add convenient prefixes for your dataset. rdf, rdfs, xsd, owl
+       // are already set.  Examples: 
+       sgvizler.option.namespace['wd'] = 'http://sws.ifi.uio.no/d2rq/resource/';
+       sgvizler.option.namespace['w']  = 'http://sws.ifi.uio.no/ont/world.owl#';
+
+       //// Your chart drawing preferences. The defaults are listed.
+       // See the Google visualization API for available options for
+       // Google charts, and the Sgvizler homepage for other
+       // options. Options applicable to all charts are put in the
+       // "root" of sgvizler.chartOptions. Chart specific options are
+       // put in a "child" with the chart's id as name,
+       // e.g. 'gGeoMap'. 
+       sgvizler.option.chart = { 
+           //'width':           '800',
+           //'height':          '400',
+           //'chartArea':       { left: '5%', top: '5%', width: '75%', height: '80%' },
+           //     'gGeoMap': {
+           //	 'dataMode':           'markers'
+           //     },
+           //     'gMap': {
+           //	 'dataMode':           'markers',
+           //     },
+           //     'sMap': {
+           //	 'dataMode':           'markers',
+           //	 'showTip':            true,
+           //	 'useMapTypeControl':  true
+           //     } 
+       };
+
+       //// Leave this as is. Ready, steady, GO!
+       $(document).ready(sgvizler.go());
+    </script>
+  </head>
+  <body>
+    <div id="logo">
+      <a href="http://code.google.com/p/sgvizler/">
+	<img src="http://sgvizler.googlecode.com/svn/www/mr.sgvizler.png" alt="mr.sgvizler.png"/>
+      </a><br/>Mr. Sgvizler
+    </div>
+    <h1>Sgvizler</h1>    
+
+    <h2>User Input</h2>
+
+    This section contains a input form where users can write and
+    execute their own SPARQL queries. The query is sent to Sgvizler
+    via the URL in GET parameters.
+
+    <div id="queryarea">
+      <pre id="sgvzlr_cPrefix"></pre>
+      <textarea id="sgvzlr_cQuery" rows="10" cols="80"></textarea>
+      <form method="get" id="sgvzlr_formQuery">
+	<p>
+	  <input type="hidden" value="" name="query" id="sgvzlr_strQuery"/>
+	  Width:  <input name="width" id="sgvzlr_strWidth" type="text" size="3"/>
+	  Height: <input name="height" id="sgvzlr_strHeight" type="text" size="3"/>
+	  Chart Type: <select name="chart" id="sgvzlr_optChart"></select>
+	  <input type="button" value="Reset" onclick="sgvizler.ui.resetPage()"/>
+	  <input type="button" value="GO!" onclick="sgvizler.ui.submitQuery()"/>
+	</p>
+      </form>
+      <div id="sgvzlr_cMessage"></div>
+    </div>
+    <div id="sgvzlr_gchart" style="width:800px; height:400px;"></div>
+    <div id="footer">
+      <!-- Please leave a link to the Sgvizler homepage --> 
+      <p>
+	Sgvizler visualizes the result of SPARQL SELECT queries using
+	javascript and the Google Visualization API. For more
+	information, see
+	the <a href="http://code.google.com/p/sgvizler/">Sgvizler</a>
+	homepage. (c) 2011 Martin G. Skj&#230;veland.
+      </p>
+    </div>
+  </body>
+</html>

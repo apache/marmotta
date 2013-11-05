@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -68,6 +68,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
@@ -103,6 +107,27 @@
 
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <relativePath>../../../</relativePath>
+                        <rootPath>$${rebel.root}</rootPath>
+                     </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

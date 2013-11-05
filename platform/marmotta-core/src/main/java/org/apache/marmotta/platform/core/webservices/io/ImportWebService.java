@@ -272,6 +272,7 @@ public class ImportWebService {
     }
 
     protected static class Status {
+    	
         boolean isRunning;
         String status;
         String message;
@@ -307,6 +308,7 @@ public class ImportWebService {
         public void setStatus(String status) {
             this.status = status;
         }
+        
     }
 
 }

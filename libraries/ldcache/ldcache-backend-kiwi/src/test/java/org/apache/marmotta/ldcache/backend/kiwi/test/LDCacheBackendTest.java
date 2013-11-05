@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.backend.kiwi.test;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -249,9 +249,12 @@ public class LDCacheBackendTest {
             entry1.setLastRetrieved(new Date());
             entry1.setUpdateCount(1);
             entry1.setResource(subject1);
+            entry1.setTripleCount(1);
             con.addCacheEntry(subject1, entry1);
             con.commit();
 
+            Assert.assertTrue(backend.isCached(subject1.stringValue()));
+            Assert.assertFalse(backend.isCached(subject2.stringValue()));
             Assert.assertEquals(1,asList(backend.listCacheEntries()).size());
             Assert.assertEquals(0,asList(backend.listExpiredEntries()).size());
 
@@ -261,10 +264,13 @@ public class LDCacheBackendTest {
             entry2.setLastRetrieved(new Date());
             entry2.setUpdateCount(1);
             entry2.setResource(subject2);
+            entry2.setTripleCount(1);
             con.addCacheEntry(subject2,entry2);
 
             con.commit();
 
+            Assert.assertTrue(backend.isCached(subject1.stringValue()));
+            Assert.assertTrue(backend.isCached(subject2.stringValue()));
             Assert.assertEquals(2,asList(backend.listCacheEntries()).size());
             Assert.assertEquals(1,asList(backend.listExpiredEntries()).size());
 
@@ -272,6 +278,8 @@ public class LDCacheBackendTest {
             con.removeCacheEntry(subject1);
             con.commit();
 
+            Assert.assertFalse(backend.isCached(subject1.stringValue()));
+            Assert.assertTrue(backend.isCached(subject2.stringValue()));
             Assert.assertEquals(1,asList(backend.listCacheEntries()).size());
             Assert.assertEquals(1,asList(backend.listExpiredEntries()).size());
         } catch(RepositoryException ex) {

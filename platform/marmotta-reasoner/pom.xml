@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -36,6 +36,34 @@
     </description>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>1.1.3</version>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <relativePath>../../</relativePath>
+                        <rootPath>$${rebel.root}</rootPath>
+                        <classpath>
+                            <resources>
+                                <resource><!-- default resource --></resource>
+                                <resource><directory>src/main/resources</directory></resource>
+                            </resources>
+                        </classpath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.marmotta</groupId>
@@ -141,9 +169,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-embedded</artifactId>
-            <version>6.1.26</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

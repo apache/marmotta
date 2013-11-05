@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.commons.sesame.model;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
@@ -101,37 +103,38 @@ public class LiteralCommonsTest {
     public void testGetXSDType() {
 
         // String
-        Assert.assertEquals(Namespaces.NS_XSD + "string" , LiteralCommons.getXSDType(String.class));
+        Assert.assertEquals(XMLSchema.STRING.stringValue() , LiteralCommons.getXSDType(String.class));
 
         // int and Integer
-        Assert.assertEquals(Namespaces.NS_XSD + "integer", LiteralCommons.getXSDType(int.class));
-        Assert.assertEquals(Namespaces.NS_XSD + "integer", LiteralCommons.getXSDType(Integer.class));
+        Assert.assertEquals(XMLSchema.INTEGER.stringValue(), LiteralCommons.getXSDType(int.class));
+        Assert.assertEquals(XMLSchema.INTEGER.stringValue(), LiteralCommons.getXSDType(Integer.class));
 
 
         // long and Long
-        Assert.assertEquals(Namespaces.NS_XSD + "long", LiteralCommons.getXSDType(long.class));
-        Assert.assertEquals(Namespaces.NS_XSD + "long", LiteralCommons.getXSDType(Long.class));
+        Assert.assertEquals(XMLSchema.LONG.stringValue(), LiteralCommons.getXSDType(long.class));
+        Assert.assertEquals(XMLSchema.LONG.stringValue(), LiteralCommons.getXSDType(Long.class));
 
         // double and Double
-        Assert.assertEquals(Namespaces.NS_XSD + "double", LiteralCommons.getXSDType(double.class));
-        Assert.assertEquals(Namespaces.NS_XSD + "double", LiteralCommons.getXSDType(Double.class));
+        Assert.assertEquals(XMLSchema.DOUBLE.stringValue(), LiteralCommons.getXSDType(double.class));
+        Assert.assertEquals(XMLSchema.DOUBLE.stringValue(), LiteralCommons.getXSDType(Double.class));
 
         // float and Float
-        Assert.assertEquals(Namespaces.NS_XSD + "float", LiteralCommons.getXSDType(float.class));
-        Assert.assertEquals(Namespaces.NS_XSD + "float", LiteralCommons.getXSDType(Float.class));
+        Assert.assertEquals(XMLSchema.FLOAT.stringValue(), LiteralCommons.getXSDType(float.class));
+        Assert.assertEquals(XMLSchema.FLOAT.stringValue(), LiteralCommons.getXSDType(Float.class));
 
 
         // boolean and Boolean
-        Assert.assertEquals(Namespaces.NS_XSD + "boolean", LiteralCommons.getXSDType(boolean.class));
-        Assert.assertEquals(Namespaces.NS_XSD + "boolean", LiteralCommons.getXSDType(Boolean.class));
+        Assert.assertEquals(XMLSchema.BOOLEAN.stringValue(), LiteralCommons.getXSDType(boolean.class));
+        Assert.assertEquals(XMLSchema.BOOLEAN.stringValue(), LiteralCommons.getXSDType(Boolean.class));
 
 
         // Date
-        Assert.assertEquals(Namespaces.NS_XSD + "dateTime", LiteralCommons.getXSDType(Date.class));
+        Assert.assertEquals(XMLSchema.DATETIME.stringValue(), LiteralCommons.getXSDType(Date.class));
 
     }
     
+    @Test
     public void testGetRDFLangStringType() throws Exception {
-    	Assert.assertEquals(Namespaces.NS_RDF+ "langString", LiteralCommons.getRDFLangStringType());
+    	Assert.assertEquals(RDF.LANGSTRING.stringValue(), LiteralCommons.getRDFLangStringType());
 	}
 }

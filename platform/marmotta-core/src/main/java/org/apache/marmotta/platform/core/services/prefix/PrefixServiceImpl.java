@@ -29,7 +29,7 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.prefix.PrefixService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SesameStartupEvent;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.slf4j.Logger;
 
@@ -127,6 +127,17 @@ public class PrefixServiceImpl implements PrefixService {
     public Map<String, String> getMappings() {
         return Collections.unmodifiableMap(cache);
     }
+    
+	@Override
+	public boolean remove(String prefix) {
+		if (cache.containsKey(prefix)) {
+			cache.remove(prefix);
+			configurationService.removeConfiguration(CONFIGURATION_PREFIX + "." + prefix);
+			return true;
+		} else {
+			return false;
+		}
+	}
 
     @Override
     public boolean containsPrefix(String prefix) {

@@ -60,6 +60,11 @@ public class Program<Node> implements LDPathConstruct<Node> {
     private Map<String, String> namespaces;
 
     /**
+     * Restrict evaluation of the program to the graphs/contexts
+     */
+    private Set<Node> graphs;
+
+    /**
      * An (optional) filter to use for checking which resources should be
      * indexed.
      */
@@ -69,7 +74,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
      * An (optional) selector to resolve a document boost factor.
      */
     private FieldMapping<Float,Node> booster;
-    
+
     /**
      * The field mappings contained in this program.
      */
@@ -78,6 +83,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     public Program() {
         namespaces = new LinkedHashMap<String, String>();
         fields = new LinkedHashSet<FieldMapping<?,Node>>();
+        graphs = new LinkedHashSet<Node>();
     }
 
     public void addNamespace(String prefix, String uri) {
@@ -91,7 +97,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     public Set<FieldMapping<?,Node>> getFields() {
         return fields;
     }
-    
+
     public FieldMapping<?,Node> getField(String name) {
         for(FieldMapping<?,Node> m : fields) {
             if(name.equals(m.getFieldName())) {
@@ -128,7 +134,21 @@ public class Program<Node> implements LDPathConstruct<Node> {
     public void setNamespaces(Map<String, String> namespaces) {
         this.namespaces = new LinkedHashMap<String, String>(namespaces);
     }
-    
+
+    public Set<Node> getGraphs() {
+        return this.graphs;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Node[] getGraphArr() {
+        return (Node[]) this.graphs.toArray();
+    }
+
+    public void setGraphs(Collection<Node> graphs) {
+        this.graphs.clear();
+        this.graphs.addAll(graphs);
+    }
+
     /**
      * Executes this Program on the parsed {@link RDFBackend backend}. 
      * @param context The context of the execution
@@ -158,22 +178,41 @@ public class Program<Node> implements LDPathConstruct<Node> {
         return result;
     }
 
-    
-    
+
+
     public String getPathExpression(NodeBackend<Node> backend) {
         StringBuilder sb = new StringBuilder();
-        // Filter (?)
+        // Graphs (optional)
+        if (graphs != null && graphs.size() > 0) {
+            sb.append("@graph");
+            boolean first = true;
+            for (Node gaph : graphs) {
+                if (backend.isURI(gaph)) {
+                    if (first) {
+                        sb.append(" <");
+                    } else{
+                        sb.append(", <");
+                    }
+                    sb.append(backend.stringValue(gaph)).append(">");
+
+                    first = false;
+                }
+            }
+            sb.append(" ;\n");
+        }
+
+        // Filter (optional)
         if (filter != null) {
             sb.append(String.format("@filter %s ;%n", filter.getPathExpression(backend)));
         }
 
-        // Booster (?)
+        // Booster (optional)
         if (booster != null) {
             sb.append(String.format("@boost %s ;%n", booster.getSelector().getPathExpression(backend)));
         }
 
         // Field-Definitions
-		for (FieldMapping<?,Node> field : fields) {
+        for (FieldMapping<?,Node> field : fields) {
             sb.append(String.format("  %s%n", field.getPathExpression(backend)));
         }
         String progWithoutNamespace = sb.toString();
@@ -190,7 +229,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
             progWithoutNamespace = progWithoutNamespace.replaceAll("<" + Pattern.quote(ns.getValue()) + "([^>]*)>", Matcher.quoteReplacement(ns.getKey())
                     + ":$1");
         }
-        
+
 
         // Also resolve default namespaces...
         for (Entry<String, String> ns : DEFAULT_NAMESPACES.entrySet()) {
@@ -201,8 +240,8 @@ public class Program<Node> implements LDPathConstruct<Node> {
         }
         final StringBuilder prefixes = new StringBuilder();
         for (Entry<String, String> ns : namespaces.entrySet()) {
-        	prefixes.append(String.format("@prefix %s : <%s> ;%n", ns.getKey(), ns.getValue()));
-		}
+            prefixes.append(String.format("@prefix %s: <%s> ;%n", ns.getKey(), ns.getValue()));
+        }
 
         return prefixes.append(progWithoutNamespace).toString();
     }

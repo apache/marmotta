@@ -84,6 +84,14 @@ public interface PrefixService {
      * @return mappings
      */
     Map<String, String> getMappings();
+    
+    /**
+     * Delete a prefix mapping 
+     * 
+     * @param prefix
+     * @return
+     */
+    boolean remove(String prefix);
 
     /**
      * Get the CURIE for this URI if possible

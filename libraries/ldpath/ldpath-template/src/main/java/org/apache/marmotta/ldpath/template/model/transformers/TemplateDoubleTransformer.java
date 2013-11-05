@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.template.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;
 
@@ -47,12 +47,14 @@ public class TemplateDoubleTransformer<Node> implements NodeTransformer<Template
      * carrying out the transformation.
      *
      *
+     *
+     * @param nodeRDFBackend
      * @param node
      * @param configuration
      * @return
      */
     @Override
-    public TemplateNumberModel transform(final NodeBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
+    public TemplateNumberModel transform(final RDFBackend<Node> nodeRDFBackend, final Node node, final Map<String, String> configuration) throws IllegalArgumentException {
         return new TemplateNumberModel() {
             @Override
             public Number getAsNumber() throws TemplateModelException {

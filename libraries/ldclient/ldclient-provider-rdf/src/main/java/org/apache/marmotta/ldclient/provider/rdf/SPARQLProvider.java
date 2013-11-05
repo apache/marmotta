@@ -24,6 +24,7 @@ import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultIO;
@@ -151,9 +152,14 @@ public class SPARQLProvider extends AbstractHttpProvider {
                         public void endQueryResult() throws TupleQueryResultHandlerException   {
                             try {
                                 con.commit();
-                                con.close();
                             } catch (RepositoryException e) {
-                                throw new TupleQueryResultHandlerException("error while closing repository connection",e);
+                                throw new TupleQueryResultHandlerException("error while committing repository connection",e);
+                            } finally {
+                                try {
+                                    con.close();
+                                } catch(RepositoryException e) {
+                                    throw new TupleQueryResultHandlerException("error while closing repository connection",e);
+                                }
                             }
                         }
 
@@ -173,6 +179,19 @@ public class SPARQLProvider extends AbstractHttpProvider {
                                 throw new TupleQueryResultHandlerException("error while adding triple to repository connection",e);
                             }
                         }
+
+						@Override
+						public void handleBoolean(boolean bool	) throws QueryResultHandlerException {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void handleLinks(List<String> links) throws QueryResultHandlerException {
+							// TODO Auto-generated method stub
+							
+						}
+						
                     },
                     triples.getValueFactory());
 

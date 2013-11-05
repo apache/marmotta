@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -35,6 +35,34 @@
     </description>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin> <!-- generate JRebel Configuration -->
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>1.1.3</version>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <relativePath>../../</relativePath>
+                        <rootPath>$${rebel.root}</rootPath>
+                        <classpath>
+                            <resources>
+                                <resource><!-- default resource --></resource>
+                                <resource><directory>src/main/resources</directory></resource>
+                            </resources>
+                        </classpath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.marmotta</groupId>
@@ -125,6 +153,12 @@
             <artifactId>marmotta-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>codemirror</artifactId>
+        </dependency>
+
+
         <dependency>
            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-core</artifactId>

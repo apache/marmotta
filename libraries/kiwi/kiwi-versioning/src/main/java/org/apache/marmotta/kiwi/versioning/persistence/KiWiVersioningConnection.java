@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.versioning.persistence;
 
+import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
@@ -128,6 +129,65 @@ public class KiWiVersioningConnection extends KiWiConnection {
         }
 
     }
+
+    /**
+     * Remove the version with the id passed as argument, including all references to added and removed triples. The
+     * triples themselves are not deleted immediately, we let the garbage collector carry this out periodically.
+     * @param id
+     * @throws SQLException
+     */
+    public void removeVersion(Long id) throws SQLException {
+        Preconditions.checkNotNull(id);
+        Preconditions.checkArgument(id > 0);
+
+        requireJDBCConnection();
+
+        PreparedStatement removeAdded = getPreparedStatement("delete.version_added");
+        removeAdded.clearParameters();
+        removeAdded.setLong(1, id);
+        removeAdded.executeUpdate();
+
+        PreparedStatement removeRemoved = getPreparedStatement("delete.version_removed");
+        removeRemoved.clearParameters();
+        removeRemoved.setLong(1, id);
+        removeRemoved.executeUpdate();
+
+        PreparedStatement removeVersion = getPreparedStatement("delete.version");
+        removeVersion.clearParameters();
+        removeVersion.setLong(1, id);
+        removeVersion.executeUpdate();
+
+    }
+
+    /**
+     * Remove all versions until the date given as argument. Iterates over all versions and deletes them individually.
+     * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
+     * without version will later be cleaned up by the garbage collector
+     * @param until date until when to delete versions
+     * @throws SQLException
+     */
+    public void removeVersions(Date until) throws SQLException {
+        removeVersions(new Date(0), until);
+    }
+
+
+    /**
+     * Remove all versions in the given time interval. Iterates over all versions and deletes them individually.
+     * Entries in join tables (added/removed triples) are also deleted, the triples themselves not. Deleted triples
+     * without version will later be cleaned up by the garbage collector
+     * @param from date after which versions will be deleted
+     * @param to   date before which versions will be deleted
+     * @throws SQLException
+     */
+    public void removeVersions(Date from, Date to) throws SQLException {
+        CloseableIteration<Version, SQLException> it = listVersionsInternal(from,to);
+        while(it.hasNext()) {
+            Version next = it.next();
+            removeVersion(next.getId());
+        }
+    }
+
+
 
     /**
      * Retrieve a version by its id. If the version does not exist, returns null

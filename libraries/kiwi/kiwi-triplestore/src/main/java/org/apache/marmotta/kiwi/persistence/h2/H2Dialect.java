@@ -44,4 +44,47 @@ public class H2Dialect extends KiWiDialect {
     public String getDriverClass() {
         return "org.h2.Driver";
     }
+
+    @Override
+    public boolean isBatchSupported() {
+        return false;
+    }
+
+    @Override
+    public String getRegexp(String text, String pattern) {
+        return text + " REGEXP " + pattern;
+    }
+
+    @Override
+    public String getILike(String text, String pattern) {
+        return "lower("+text+") LIKE lower("+pattern+")";
+    }
+
+
+
+    @Override
+    public String getConcat(String... args) {
+        StringBuilder buf = new StringBuilder();
+        buf.append("CONCAT(");
+        for(int i=0; i<args.length; i++) {
+            buf.append(args[i]);
+            if(i + 1 <args.length) {
+                buf.append(",");
+            }
+        }
+        buf.append(")");
+        return buf.toString();
+    }
+
+    /**
+     * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
+     * Typically, this should be an inexpensive operation like "SELECT 1",
+     *
+     * @return
+     */
+    @Override
+    public String getValidationQuery() {
+        return "SELECT 1";
+    }
+
 }

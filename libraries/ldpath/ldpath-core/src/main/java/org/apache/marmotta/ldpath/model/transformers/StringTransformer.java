@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldpath.model.transformers;
 
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 
 import java.util.Map;
@@ -35,11 +35,13 @@ public class StringTransformer<Node> implements NodeTransformer<String,Node> {
      * the respective datatype, throws an IllegalArgumentException that needs to be caught by the class
      * carrying out the transformation.
      *
+     *
+     * @param backend
      * @param node
      * @return
      */
     @Override
-    public String transform(NodeBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
+    public String transform(RDFBackend<Node> backend, Node node, Map<String, String> configuration) throws IllegalArgumentException {
         return backend.stringValue(node);
     }
 }

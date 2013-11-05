@@ -17,40 +17,11 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.persistence;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.not;
 import info.aduna.iteration.CloseableIteration;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
-import org.apache.marmotta.kiwi.reasoner.model.program.Program;
-import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
-import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParserBase;
-import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
-import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.apache.marmotta.kiwi.test.RepositoryTest;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.sail.SailRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
@@ -61,109 +32,66 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.*;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
+import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
+import org.apache.marmotta.kiwi.reasoner.model.program.Program;
+import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
+import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParserBase;
+import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
+import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
+import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.junit.runner.RunWith;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.sail.SailRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This test verifies the persistence functionality of the reasoning component regarding storing, loading and deleting
  * reasoning programs.
  *
- * It will try running over all available databases. Except for in-memory databases like H2 or Derby, database
- * URLs must be passed as system property, or otherwise the test is skipped for this database. Available system properties:
- * <ul>
- *     <li>PostgreSQL:
- *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
- *         <li>postgresql.user (default: lmf)</li>
- *         <li>postgresql.pass (default: lmf)</li>
- *     </ul>
- *     </li>
- *     <li>MySQL:
- *     <ul>
- *         <li>mysql.url, e.g. jdbc:mysql://localhost:3306/kiwitest?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull</li>
- *         <li>mysql.user (default: lmf)</li>
- *         <li>mysql.pass (default: lmf</li>
- *     </ul>
- *     </li>
- *     <li>H2:
- *     <ul>
- *         <li>h2.url, e.g. jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10</li>
- *         <li>h2.user (default: lmf)</li>
- *         <li>h2.pass (default: lmf</li>
- *     </ul>
- *     </li>
- * </ul>
- *
  * @see org.apache.marmotta.kiwi.persistence.KiWiConnection
  * @see org.apache.marmotta.kiwi.persistence.KiWiPersistence
- * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@RunWith(Parameterized.class)
+@RunWith(KiWiDatabaseRunner.class)
 public class JustificationPersistenceTest {
-
-    /**
-     * Return database configurations if the appropriate parameters have been set.
-     *
-     * @return an array (database name, url, user, password)
-     */
-    @Parameterized.Parameters(name="Database Test {index}: {0} at {1}")
-    public static Iterable<Object[]> databases() {
-        String[] databases = {"H2", "PostgreSQL", "MySQL"};
-
-        List<Object[]> result = new ArrayList<Object[]>(databases.length);
-        for(String database : databases) {
-            if(System.getProperty(database.toLowerCase()+".url") != null) {
-                result.add(new Object[] {
-                        database,
-                        System.getProperty(database.toLowerCase()+".url"),
-                        System.getProperty(database.toLowerCase()+".user","lmf"),
-                        System.getProperty(database.toLowerCase()+".pass","lmf")
-                });
-            }
-        }
-        return result;
-    }
-
-
-    private KiWiDialect dialect;
-
-    private String jdbcUrl;
-
-    private String jdbcUser;
-
-    private String jdbcPass;
 
     private KiWiPersistence persistence;
     private KiWiReasoningPersistence rpersistence;
 
     private Repository repository;
+    private final KiWiConfiguration config;
 
 
-    public JustificationPersistenceTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
-        this.jdbcPass = jdbcPass;
-        this.jdbcUrl = jdbcUrl;
-        this.jdbcUser = jdbcUser;
-
-        if("H2".equals(database)) {
-            this.dialect = new H2Dialect();
-        } else if("MySQL".equals(database)) {
-            this.dialect = new MySQLDialect();
-        } else if("PostgreSQL".equals(database)) {
-            this.dialect = new PostgreSQLDialect();
-        }
-
-        DBConnectionChecker.checkDatabaseAvailability(jdbcUrl, jdbcUser, jdbcPass, dialect);
+    public JustificationPersistenceTest(KiWiConfiguration config) {
+      this.config = config;
     }
 
 
     @Before
     public void initDatabase() throws Exception {
+        KiWiStore store = new KiWiStore(config);
 
-        persistence = new KiWiPersistence("test",jdbcUrl,jdbcUser,jdbcPass,dialect);
-        persistence.initDatabase();
-
-        repository = new SailRepository(new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred"));
+        repository = new SailRepository(store);
         repository.initialize();
+
+        persistence = store.getPersistence();
 
         rpersistence = new KiWiReasoningPersistence(persistence, repository.getValueFactory());
         rpersistence.initDatabase();
@@ -173,26 +101,13 @@ public class JustificationPersistenceTest {
     @After
     public void dropDatabase() throws Exception {
         rpersistence.dropDatabase();
-
         persistence.dropDatabase();
-        persistence.shutdown();
-
         repository.shutDown();
     }
 
     final Logger logger =
             LoggerFactory.getLogger(JustificationPersistenceTest.class);
 
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
 
     /**
      * Test 1: create some triples through a repository connection (some inferred, some base), load a program, and
@@ -251,8 +166,8 @@ public class JustificationPersistenceTest {
         connection = rpersistence.getConnection();
         try {
             // retrieve the persisted triples and put them into two sets to build justifications
-            List<Statement> baseTriples = asList(connection.listTriples(null,null,null,v.convert(ctxb),false));
-            List<Statement> infTriples = asList(connection.listTriples(null,null,null,v.convert(ctxi),true));
+            List<Statement> baseTriples = asList(connection.listTriples(null,null,null,v.convert(ctxb),false, true));
+            List<Statement> infTriples = asList(connection.listTriples(null,null,null,v.convert(ctxi),true, true));
 
             Assert.assertEquals("number of base triples was not 3", 3, baseTriples.size());
             Assert.assertEquals("number of inferred triples was not 3", 3, infTriples.size());

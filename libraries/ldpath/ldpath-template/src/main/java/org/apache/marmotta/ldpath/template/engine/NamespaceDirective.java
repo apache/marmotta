@@ -70,6 +70,7 @@ public class NamespaceDirective implements TemplateDirectiveModel {
      *
      * @throws java.io.IOException
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
         TemplateWrapperModel<Map<String,String>> namespacesWrapped = (TemplateWrapperModel<Map<String,String>>)env.getGlobalVariable("namespaces");

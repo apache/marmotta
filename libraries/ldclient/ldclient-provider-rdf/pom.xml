@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -45,6 +45,10 @@
 
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-rdfjson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-rdfxml</artifactId>
         </dependency>
         <dependency>
@@ -56,12 +60,8 @@
             <artifactId>sesame-rio-n3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-jsonld</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-rdfjson</artifactId>
+            <groupId>com.github.jsonld-java</groupId>
+            <artifactId>jsonld-java-sesame</artifactId>
         </dependency>
 
 

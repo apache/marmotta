@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.importer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.importer.Importer;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
@@ -28,6 +29,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
@@ -71,21 +73,39 @@ public class ImportServiceImpl implements ImportService{
 
 	@Override
 	public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException {
-		return getImporterInstance(format).importData(url,format,user,context);
+        long start = System.currentTimeMillis();
+		int result = getImporterInstance(format).importData(url,format,user,context);
+        long end = System.currentTimeMillis();
+        log.info("data import finished ({} ms}", end-start);
+        return result;
 	}
 
 	@Override
 	public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException {
-		return getImporterInstance(format).importData(is,format,user,context);
+        long start = System.currentTimeMillis();
+        int result = getImporterInstance(format).importData(is,format,user,context);
+        long end = System.currentTimeMillis();
+        log.info("data import finished ({} ms}", end-start);
+        return result;
 	}
 
 	@Override
 	public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException {
-		return getImporterInstance(format).importData(reader,format,user,context);
+        long start = System.currentTimeMillis();
+        int result = getImporterInstance(format).importData(reader,format,user,context);
+        long end = System.currentTimeMillis();
+        log.info("data import finished ({} ms}", end-start);
+        return result;
 	}
 
 	private Importer getImporterInstance(String type) throws MarmottaImportException {
-		if(!importerMap.containsKey(type)) throw new MarmottaImportException("no importer defined for type "+type);
+		if (StringUtils.contains(type, ';')) { 
+			type = type.split(";")[0];
+		}
+		if(!importerMap.containsKey(type)) { 
+			throw new MarmottaImportException("no importer defined for type " + type);
+		}
 		return importerMap.get(type);
 	}
+	
 }

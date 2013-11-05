@@ -17,6 +17,7 @@
 package org.apache.marmotta.commons.sesame.facading.util;
 
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Resource;
@@ -295,40 +296,50 @@ public class FacadeUtils {
      * @return
      * @throws IllegalArgumentException
      */
+    @SuppressWarnings("unchecked")
     public static <T> T transformToBaseType(String value, Class<T> returnType) throws IllegalArgumentException {
         // transformation to appropriate primitive type
+        /*
+         * README: the "dirty" cast: "(T) x" instead of "returnType.cast(x)" is required since
+         * .cast does not work for primitive types (int, double, float, etc...).
+         * Somehow it results in a ClassCastException
+         */
         if(Integer.class.equals(returnType) || int.class.equals(returnType)) {
             if(value == null) {
-                return returnType.cast(0);
+                return (T)(Integer)(0);
             }
-            return returnType.cast(Integer.parseInt(value));
+            return (T)(Integer.decode(value));
         } else if(Long.class.equals(returnType) || long.class.equals(returnType)) {
             if(value == null) {
-                return returnType.cast(0L);
+                return (T)(Long)(0L);
             }
-            return returnType.cast(Long.parseLong(value));
+            return (T)(Long.decode(value));
         } else if(Double.class.equals(returnType) || double.class.equals(returnType)) {
             if(value == null) {
-                return returnType.cast(0.0);
+                return (T)(Double)(0.0);
             }
-            return returnType.cast(Double.parseDouble(value));
+            return (T)(Double.valueOf(value));
         } else if(Float.class.equals(returnType) || float.class.equals(returnType)) {
             if(value == null) {
-                return returnType.cast(0.0F);
+                return (T)(Float)(0.0F);
             }
-            return returnType.cast(Float.parseFloat(value));
+            return (T)(Float.valueOf(value));
         } else if(Byte.class.equals(returnType) || byte.class.equals(returnType)) {
             if(value == null) {
-                return returnType.cast((byte) 0);
+                return (T)(Byte)((byte) 0);
             }
-            return returnType.cast(Byte.parseByte(value));
+            return (T)(Byte.decode(value));
         } else if(Boolean.class.equals(returnType) || boolean.class.equals(returnType)) {
-            return returnType.cast(Boolean.parseBoolean(value));
+            return (T)(Boolean.valueOf(value));
         } else if(Character.class.equals(returnType) || char.class.equals(returnType)) {
             if(value == null) {
-                return null;
+                if (Character.class.equals(returnType)){
+                    return null;
+                } else {
+                    return (T) new Character((char) 0);
+                }
             } else if(value.length() > 0) {
-                return returnType.cast(value.charAt(0));
+                return (T)(Character)(value.charAt(0));
             } else {
                 return null;
             }
@@ -336,7 +347,7 @@ public class FacadeUtils {
             if(value == null) {
                 return null;
             } else {
-                return returnType.cast(new Locale(value));
+                return returnType.cast(LocaleUtils.toLocale(value));
             }
         } else if (Date.class.equals(returnType)) {
             if(value == null) {

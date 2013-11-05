@@ -23,9 +23,9 @@
 <!--###BEGIN_HEAD###-->
     <title>Data Views</title>
     <meta charset="UTF-8"/>
-    <script type="text/javascript" src="../public/js/lib/jquery-1.6.4.js"></script>
+    <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="js/lib/sgvizler.pack.js"></script>
+    <script type="text/javascript" src="../../webjars/sgvizler/0.5.1/sgvizler.js" id="sgvzlr_script" ></script>
     <script type="text/javascript">
 
         var HAS_DATA = true;
@@ -36,7 +36,7 @@
                         'blue','red','orange','green','navy','Crimson','DarkGreen','DarkTurquoise','DodgerBlue','OliveDrab','pink','violet',
                         'GoldenRod','Fuchsia','Darkorange','DarkSlateBlue','GreenYellow','LightSeaGreen','Maroon','MediumVioletRed']
 
-        sgvizler.option.libfolder = "js/lib/";
+        sgvizler.option.libfolder = "../../webjars/sgvizler/0.5.1/lib";
 
         sgvizler.option.stylepath = _SERVER_URL + _CURRENT_STYLE;
 
@@ -237,7 +237,7 @@
                 drawGraphs();
                 drawClasses();
             }
-        });
+    });
 
     </script>
     <style type="text/css">

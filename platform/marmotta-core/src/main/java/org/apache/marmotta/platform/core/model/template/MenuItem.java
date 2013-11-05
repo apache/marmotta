@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.platform.core.model.template;
 
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,19 +33,76 @@ import java.util.Map;
  */
 public class MenuItem {
 
-    private Map<String,Object> properties;
-    private List<MenuItem> submenu;
+    private boolean initialized = false;
+    public final static String DEFAULT_MENU_ICON = "icon-asterisk";
 
-    public MenuItem() {
-        properties = new HashMap<String, Object>();
-        submenu = new ArrayList<MenuItem>();
+    private HashMap<String,Object> properties;
+    private List<MenuItem> items;
+    private MenuItemType type;
+
+    public MenuItem(String label, MenuItemType type) {
+        this.properties = new HashMap<String, Object>();
+        this.type = type;
+        this.items = new ArrayList<MenuItem>();
+
+        properties.put("items",items);
+        properties.put("label",label);
+        properties.put("isActive",false);
+        properties.put("icon",DEFAULT_MENU_ICON);
     }
 
-    public Map<String, Object> getProperties() {
+    public HashMap<String,Object> getProperties() {
+        if(properties.get("items") != null) {
+            List<Object> os = new ArrayList<Object>();
+            for(MenuItem item : items) {
+                os.add(item.getProperties());
+            }
+            properties.put("items",os);
+        }
         return properties;
     }
 
-    public List<MenuItem> getSubmenu() {
-        return submenu;
+    public void set(String name, Object value) {
+        properties.put(name,value);
+    }
+
+    public Object get(String name) {
+        return properties.get(name);
+    }
+
+    public void addItem(MenuItem item) {
+        items.add(item);
+    }
+
+    public boolean setActive(String path) {
+        boolean isActive = false;
+        switch(type) {
+            case ROOT:
+            case CONTAINER:
+            case MODULE:
+                for(MenuItem item : items) {
+                    if(item.setActive(path)) {
+                        isActive = true;
+                    }
+                }
+                break;
+            case PAGE:
+                isActive  = get("path").equals(path);
+                break;
+            case WEBSERVICE:
+                String s = (String)properties.get("path");
+                isActive = (
+                        path.startsWith(s.substring(0,s.lastIndexOf("/"))) &&
+                                path.contains(TemplatingService.DEFAULT_REST_PATH));
+                break;
+            default:
+                isActive = false;
+        }
+        set("isActive",isActive);
+        return isActive;
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
     }
 }

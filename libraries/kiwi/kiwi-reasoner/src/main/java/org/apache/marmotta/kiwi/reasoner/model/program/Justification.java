@@ -18,7 +18,10 @@
 package org.apache.marmotta.kiwi.reasoner.model.program;
 
 
+import com.google.common.base.Equivalence;
+import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.openrdf.model.Statement;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -63,8 +66,11 @@ public class Justification  {
      */
     private Date createdAt;
 
+
+    private static Equivalence<Statement> equivalence = StatementCommons.quadrupleEquivalence();
+
     public Justification() {
-        supportingTriples = new HashSet<KiWiTriple>();
+        supportingTriples = StatementCommons.newQuadrupleSet();
         supportingRules   = new HashSet<Rule>();
     }
 
@@ -118,7 +124,7 @@ public class Justification  {
         //if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (!supportingRules.equals(that.supportingRules)) return false;
         if (!supportingTriples.equals(that.supportingTriples)) return false;
-        if (!triple.equals(that.triple)) return false;
+        if (!equivalence.equivalent(this.triple, that.triple)) return false;
 
         return true;
     }
@@ -126,7 +132,7 @@ public class Justification  {
     @Override
     public int hashCode() {
         int result = 0; // id != null ? id.hashCode() : 0;
-        result = 31 * result + triple.hashCode();
+        result = 31 * result + equivalence.hash(triple);
         result = 31 * result + supportingTriples.hashCode();
         result = 31 * result + supportingRules.hashCode();
         return result;

@@ -20,16 +20,21 @@ package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,11 +56,14 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
     private OutputStream out;
     
     private List<String> vars;
-
+    
     private TemplatingService templatingService;
+    
+    private WriterConfig config;
     
     public SPARQLResultsHTMLWriter(OutputStream out, TemplatingService templatingService) {
         this.out = out;
+        this.templatingService = templatingService;
     }
 
 	@Override
@@ -106,6 +114,91 @@ public class SPARQLResultsHTMLWriter implements TupleQueryResultWriter {
             log.error(e.getMessage(), e);
             throw new TupleQueryResultHandlerException(e);
         }
-	}	
+	}
+
+	@Override
+	public void handleBoolean(boolean arg0) throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLinks(List<String> arg0)
+			throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public QueryResultFormat getQueryResultFormat() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void handleNamespace(String prefix, String uri)
+			throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startDocument() throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleStylesheet(String stylesheetUrl)
+			throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startHeader() throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endHeader() throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+    /**
+     * @return A collection of {@link RioSetting}s that are supported by this
+     *         RDFWriter.
+     * @since 2.7.0
+     */
+	@Override
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return new ArrayList<RioSetting<?>>();
+	}
+
+    /**
+     * Retrieves the current writer configuration as a single object.
+     * 
+     * @return a writer configuration object representing the current
+     *         configuration of the writer.
+     * @since 2.7.0
+     */
+	@Override
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+    /**
+     * Sets all supplied writer configuration options.
+     * 
+     * @param config
+     *        a writer configuration object.
+     * @since 2.7.0
+     */
+	@Override
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
+	}
 
 }

@@ -72,7 +72,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
     private static Logger        log                  = LoggerFactory.getLogger(MediawikiProvider.class);
 
     private static final Pattern COLON_PREFIX_PATTERN = Pattern.compile("^[^:]*:");
-    private static final Pattern REDIRECT_PATTERN     = Pattern.compile("^#REDIRECT\\s+\\[\\[([^#\\]]*)(#.*)?\\]\\]",
+    private static final Pattern REDIRECT_PATTERN     = Pattern.compile("^#REDIRECT\\s*\\[\\[([^#\\]]*)(#.*)?\\]\\]",
             Pattern.CASE_INSENSITIVE);
     private static final int     MAX_TITLES_PER_QUERY = 50;
 

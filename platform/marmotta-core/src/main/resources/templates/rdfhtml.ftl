@@ -24,10 +24,25 @@
   <title>Resource/s in HTML</title>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
   <meta http-equiv="Default-Style" content="${DEFAULT_STYLE}">
-  <script type="text/javascript" src="${SERVER_URL}core/public/js/lib/jquery-1.7.2.js"></script>
+  <script type="text/javascript" src="${SERVER_URL}webjars/jquery/1.8.2/jquery.min.js"></script>
   <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
   <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
-
+  <#if resources?size = 1>
+  <#if resources[0].uri?has_content>
+  <link rel="alternate" type="application/rdf+xml" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bxml" /> 
+  <link rel="alternate" type="text/rdf+n3" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/rdf%2Bn3" /> 
+  <link rel="alternate" type="text/turtle" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/turtle" /> 
+  <link rel="alternate" type="application/rdf+json" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bjson" /> 
+  <link rel="alternate" type="application/ld+json" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/ld%2Bjson" /> 
+  <#else>
+  <link rel="alternate" type="application/rdf+xml" href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=application/rdf%2Bxml" /> 
+  <link rel="alternate" type="text/rdf+n3" href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=text/rdf%2Bn3" /> 
+  <link rel="alternate" type="text/turtle" href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=text/turtle" /> 
+  <link rel="alternate" type="application/rdf+json" href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=application/rdf%2Bjson" /> 
+  <link rel="alternate" type="application/ld+json" href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=application/ld%2Bjson" />   
+  </#if>
+  </#if>
+      
   <script>
       $(document).ready(function(){
           $(".submenu li").click(function(event){
@@ -110,7 +125,7 @@
               };
           }
 
-      <#if resources?size = 1>
+      <#if resources?size = 1 && resources[0].uri?has_content>
           var subjLoader = new loader("${resources[0].uri}", "subject", "inspect_subject");
           subjLoader.fetch();
           $("#s0").click(function() {subjLoader.first();});
@@ -175,11 +190,19 @@
         <h1>RDF/HTML</h1>
         <#if resources?size = 1>
         <div id="top_serialisation_links">
+          <#if resources[0].uri?has_content>
             <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bxml">RDF/XML</a>&nbsp;|&nbsp;
             <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/rdf%2Bn3">N3</a>&nbsp;|&nbsp;
             <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=text/turtle">Turtle</a>&nbsp;|&nbsp;
             <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bjson">RDF/JSON</a>&nbsp;|&nbsp;
             <a href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/ld%2Bjson">JSON-LD</a>
+          <#else>
+            <a href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=application/rdf%2Bxml">RDF/XML</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=text/rdf%2Bn3">N3</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=text/turtle">Turtle</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=application/rdf%2Bjson">RDF/JSON</a>&nbsp;|&nbsp;
+            <a href="${SERVER_URL}resource?genid=${resources[0].encoded_genid}&amp;format=application/ld%2Bjson">JSON-LD</a>          
+          </#if>
         </div>
         <div class="clean"></div>
         </#if>
@@ -205,12 +228,17 @@
             <h1>Triples</h1>
             <#if resources?has_content>
                 <#list resources as resource>
-                    <h2><a href="${resource.uri}" class="ldcache">${resource.uri}</a>
-                        <#if timemaplink??>
-                            <a style="float:right" id="timemap_link" href="${SERVER_URL}${timemaplink}${resource.uri}">
-                                <img style="width: 24px" title="browser versions" alt="memento" src="${SERVER_URL}core/public/img/icon/memento_logo_128.png">
-                            </a>
-                        </#if>
+                    <h2>
+                	<#if resource.uri?has_content>
+                		<a href="${resource.uri}" class="ldcache">${resource.uri}</a>
+                	<#else>
+                		<a href="${SERVER_URL}resource?genid=${resource.encoded_genid}">bnode://${resource.genid}</a>
+                    </#if>                		
+                    <#if timemaplink?? && resource.uri?has_content>
+                        <a style="float:right" id="timemap_link" href="${SERVER_URL}${timemaplink}${resource.uri}">
+                            <img style="width: 24px" title="browser versions" alt="memento" src="${SERVER_URL}core/public/img/icon/memento_logo_128.png">
+                        </a>
+                    </#if>
                     </h2>
                     <table class="simple_table">
                         <tr class="trClassHeader">
@@ -221,10 +249,18 @@
                         </tr>
                         <#list resource.triples as triple>
                             <tr class="${zebra(triple_index)}">
-                                <td><a href="${triple.predicate.uri}" class="ldcache">${triple.predicate.curie}</a></td>
+                                <td>
+                                    <a href="${triple.predicate.uri}" class="ldcache">${triple.predicate.curie}</a>
+                                </td>
+                                <#if resource.uri?has_content>
                                 <td about="${resource.uri}">
+                                <#else>
+                                <td>
+                                </#if>
                                     <#if triple.object.uri?has_content>
-                                        <a rel="${triple.predicate.curie}" href="${triple.object.uri}" class="${cacheClass(triple.object)}">${triple.object.curie}</a>
+                                    	<a rel="${triple.predicate.curie}" href="${triple.object.uri}" class="${cacheClass(triple.object)}">${triple.object.curie}</a>
+                                    <#elseif triple.object.genid?has_content>	
+                                        <a rel="${triple.predicate.curie}" href="${SERVER_URL}resource?genid=${triple.object.encoded_genid}">${triple.object.genid}</a>
                                     <#else>
                                         <span property="${triple.predicate.curie}" ${rdfaAttributes(triple.object)}>${triple.object.value}</span>
                                     </#if>
@@ -234,7 +270,7 @@
                             </tr>
                         </#list>
                     </table>
-                    <#if resources?size != 1>
+                    <#if resources?size != 1 && resource.uri?has_content>
                     <p id="rawrdf">
                         Get this resource in raw RDF:
                         <a href="${SERVER_URL}resource?uri=${resource.encoded_uri}&amp;format=application/rdf%2Bxml">RDF/XML</a>,
@@ -253,7 +289,7 @@
 
             </div>
 
-        <#if resources?size = 1>
+        <#if resources?size = 1 && resources[0].uri?has_content>
             <div id="tab-inspection" style="display: none">
                 <h1>Inspection of <a href="${resources[0].uri}" class="ldcache">${resources[0].uri}</a></h1>
                 <div class="introspectionDetails">

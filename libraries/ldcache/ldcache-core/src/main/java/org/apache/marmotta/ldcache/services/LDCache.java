@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldcache.services;
 
 import info.aduna.iteration.CloseableIteration;
+import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.api.LDCachingConnection;
 import org.apache.marmotta.ldcache.api.LDCachingService;
@@ -27,7 +28,6 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
-import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
@@ -37,8 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -54,7 +52,7 @@ public class LDCache implements LDCachingService {
 
 
     // lock a resource while refreshing it so that not several threads trigger a refresh at the same time
-    private HashMap<Resource,ReentrantLock> resourceLocks;
+    private ObjectLocks resourceLocks;
 
     private LDClientService  ldclient;
 
@@ -73,7 +71,7 @@ public class LDCache implements LDCachingService {
     public LDCache(CacheConfiguration config, LDCachingBackend backend) {
         log.info("Linked Data Caching Service initialising ...");
 
-        this.resourceLocks = new HashMap<Resource, ReentrantLock>();
+        this.resourceLocks = new ObjectLocks();
         this.backend  = backend;
         this.ldclient = new LDClient(config.getClientConfiguration());
         this.config   = config;
@@ -125,6 +123,31 @@ public class LDCache implements LDCachingService {
     @Override
     public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries() throws RepositoryException {
         return backend.listExpiredEntries();
+    }
+
+
+    /**
+     * Return true if the resource is a cached resource.
+     *
+     * @param resourceUri
+     * @return
+     * @throws RepositoryException
+     */
+    public boolean isCached(String resourceUri) throws RepositoryException {
+        // if there is no cache entry, then return false in any case
+        if(!backend.isCached(resourceUri)) {
+            return false;
+        } else {
+            // else list all cached triples - if there are none, the resource is not cached (e.g. blacklist or no LD resource)
+            RepositoryConnection con = backend.getCacheConnection(resourceUri);
+            try {
+                con.begin();
+                return con.hasStatement(con.getValueFactory().createURI(resourceUri), null, null, false);
+            } finally {
+                con.commit();
+                con.close();
+            }
+        }
     }
 
     /**
@@ -182,7 +205,7 @@ public class LDCache implements LDCachingService {
      */
     @Override
     public void refreshResource(URI resource, boolean forceRefresh) {
-        final ReentrantLock lock = lockResource(resource);
+        resourceLocks.lock(resource.stringValue());
         try {
             LDCachingConnection cacheConnection = backend.getCacheConnection(resource.stringValue());
             CacheEntry entry = null;
@@ -225,7 +248,7 @@ public class LDCache implements LDCachingService {
 
                         cacheConnection1.remove(subject, null, null);
 
-
+                        int count = 0;
                         RepositoryResult<Statement> triples = respConnection.getStatements(null,null,null,true);
                         while(triples.hasNext()) {
                             Statement triple = triples.next();
@@ -234,6 +257,7 @@ public class LDCache implements LDCachingService {
                             } catch (RuntimeException ex) {
                                 log.warn("not adding triple {}: an exception occurred ({})",triple,ex.getMessage());
                             }
+                            count++;
                         }
                         triples.close();
                         respConnection.close();
@@ -247,6 +271,7 @@ public class LDCache implements LDCachingService {
                         } else {
                             newEntry.setUpdateCount(1);
                         }
+                        newEntry.setTripleCount(count);
 
                         cacheConnection1.removeCacheEntry(resource);
                         cacheConnection1.addCacheEntry(resource, newEntry);
@@ -270,6 +295,7 @@ public class LDCache implements LDCachingService {
                 } else {
                     newEntry.setUpdateCount(1);
                 }
+                newEntry.setTripleCount(0);
 
                 LDCachingConnection cacheConnection2 = backend.getCacheConnection(resource.stringValue());
                 cacheConnection2.begin();
@@ -293,7 +319,7 @@ public class LDCache implements LDCachingService {
         } catch (RepositoryException e) {
             log.error("repository exception while obtaining cache connection",e);
         } finally {
-            unlockResource(resource, lock);
+            resourceLocks.unlock(resource.stringValue());
         }
 
     }
@@ -390,38 +416,4 @@ public class LDCache implements LDCachingService {
     public LDClientService getLDClient() {
         return ldclient;
     }
-
-    private ReentrantLock lockResource(final URI resource) {
-        ReentrantLock lock;
-        synchronized (resourceLocks) {
-            lock = resourceLocks.get(resource);
-            if(lock == null) {
-                lock = new ReentrantLock();
-                resourceLocks.put(resource,lock);
-            }
-        }
-        lock.lock();
-        return lock;
-    }
-
-    private void unlockResource(final URI resource, final ReentrantLock lock) {
-        synchronized (resourceLocks) {
-            // lock = resourceLocks.get(resource);
-            if (lock != null) {
-                if (!lock.hasQueuedThreads()) {
-                    resourceLocks.remove(resource);
-                }
-            }
-        }
-        if (lock != null) {
-            try {
-                lock.unlock();
-            } catch (IllegalMonitorStateException e) {
-                log.error("Could not release lock for {} (Thread: {}, Lock: {})", resource, Thread.currentThread().getName(), lock.toString() );
-                throw e;
-            }
-
-        }
-    }
-
 }

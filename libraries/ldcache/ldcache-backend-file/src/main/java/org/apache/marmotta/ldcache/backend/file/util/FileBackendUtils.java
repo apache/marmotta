@@ -101,7 +101,8 @@ public class FileBackendUtils {
 				ce.setLastRetrieved(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
 				ce.setExpiryDate(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
 				ce.setUpdateCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));
-				
+                ce.setTripleCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));
+
 				return ce;
 			} finally {
 				br.close();
@@ -120,6 +121,8 @@ public class FileBackendUtils {
 				ps.printf("%tQ # last retrieved: %<tF %<tT.%<tL%n", ce.getLastRetrieved());
 				ps.printf("%tQ # expires: %<tF %<tT.%<tL%n", ce.getExpiryDate());
 				ps.printf("%d # %<d updates%n", ce.getUpdateCount());
+                ps.printf("%d # %<d triples%n", ce.getTripleCount());
+                ps.flush();
 			} finally {
 				ps.close();
 			}

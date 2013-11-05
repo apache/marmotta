@@ -33,10 +33,18 @@ import freemarker.template.TemplateException;
 public interface TemplatingService {
     
     final static String PATH = "/templates/";
+
+    public final static String DEFAULT_REST_PATH = "/doc/rest/";
+
+    public final static String DEFAULT_REST_FILE = "overview-index.html";
     
     static final String DEFAULT_PROJECT = "marmotta";
     
     static final String DEFAULT_STYLE = "blue";
+
+    static final String ADMIN_TPL = "admin.ftl";
+
+    public final static String DEFAULT_WEBSERVICE_TITLE = "Webservice";
     
     void initDataModel();
     

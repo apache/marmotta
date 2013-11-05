@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -101,6 +101,18 @@
             <email>tkurz@apache.org</email>
             <organization>The Apache Software Foundation</organization>
         </developer>
+        <developer>
+            <id>rpalmieri</id>
+            <name>Raffaele Palmieri</name>
+            <email>rpalmieri@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
+        <developer>
+            <id>ansell</id>
+            <name>Peter Ansell</name>
+            <email>ansell@apache.org</email>
+            <organization>The Apache Software Foundation</organization>
+        </developer>
     </developers>
 
     <organization>
@@ -112,7 +124,7 @@
         <url>https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</url>
         <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</developerConnection>
-      <tag>3.0.0-incubating</tag>
+      <tag>3.1.0-incubating</tag>
   </scm>
 
     <issueManagement>

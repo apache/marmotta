@@ -121,7 +121,7 @@ public class ConfigurationWebService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             //log.info(getContentData(request.getReader()));
-            Map<String,String> values = mapper.readValue(request.getInputStream(), new TypeReference<HashMap<String,String>>(){});
+            Map<String,Object> values = mapper.readValue(request.getInputStream(), new TypeReference<HashMap<String,Object>>(){});
             configurationService.setConfigurations(values);
         } catch (IOException e) {
             return Response.serverError().build();

@@ -44,7 +44,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.LMFHttpUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;

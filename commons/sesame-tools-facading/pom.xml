@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.1.0-incubating-SNAPSHOT</version>
+        <version>3.1.0-incubating</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -109,6 +109,17 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>kiwi-triplestore</artifactId>
+            <scope>test</scope>
+        </dependency>
+                <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
 </project>

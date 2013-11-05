@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A dialect provides the SQL statements necessary to access the different types of database systems. Each
@@ -36,7 +35,7 @@ public abstract class KiWiDialect {
 
     private static Logger log = LoggerFactory.getLogger(KiWiDialect.class);
 
-    private final static int VERSION = 1;
+    private final static int VERSION = 2;
 
     private Properties statements;
 
@@ -67,6 +66,12 @@ public abstract class KiWiDialect {
      */
     public abstract String getDriverClass();
 
+
+    /**
+     * Return true if batched commits are supported by this dialect.
+     * @return
+     */
+    public abstract boolean isBatchSupported();
 
     /**
      * Return the contents of the SQL create script used for initialising an empty database
@@ -112,7 +117,7 @@ public abstract class KiWiDialect {
         StringBuilder builder = new StringBuilder();
         for(int i = oldVersion+1; i <= VERSION; i++ ) {
             try {
-                String script = String.format("upgrade_"+name+"_%02d_%02d.sql",i-1,i);
+                String script = String.format("upgrade_"+name+"_%03d_%03d.sql",i-1,i);
 
                 builder.append(IOUtils.toString(this.getClass().getResourceAsStream(script)));
             } catch (Exception e) {
@@ -151,5 +156,82 @@ public abstract class KiWiDialect {
      */
     public Set<String> getStatementIdentifiers() {
         return statements.stringPropertyNames();
+    }
+
+    /**
+     * Return the names of all sequences that have been configured in the system, i.e. all statements starting with "seq."
+     * @return
+     */
+    public Set<String> listSequences(String scriptName) {
+        // quick hack for current modules, fix later!
+        if("base".equals(scriptName)) {
+            return ImmutableSet.of("seq.nodes", "seq.triples", "seq.namespaces");
+        } else if("reasoner".equals(scriptName)) {
+            return ImmutableSet.of("seq.rules", "seq.justifications", "seq.programs");
+        } else if("versioning".equals(scriptName)) {
+            return ImmutableSet.of("seq.versions");
+        } else if("ldcache".equals(scriptName)) {
+            return ImmutableSet.of("seq.ldcache");
+        } else {
+            return Collections.EMPTY_SET;
+        }
+
+
+        /*
+        Set<String> names = new HashSet<String>();
+        Enumeration e = statements.propertyNames();
+        while(e.hasMoreElements()) {
+            String[] keys = e.nextElement().toString().split("\\.");
+            if(keys[0].equals("seq")) {
+                names.add(keys[0] + "." + keys[1]);
+            }
+        }
+        return names;
+        */
+    }
+
+    /**
+     * Return the database specific operator for matching a text against a regular expression.
+     *
+     * @param text
+     * @param pattern
+     * @return
+     */
+    public abstract String getRegexp(String text, String pattern);
+
+
+    /**
+     * Return the database specific case insensitive like comparison, e.g. ILIKE in Postgres.
+     *
+     * @param text
+     * @param pattern
+     * @return
+     */
+    public abstract String getILike(String text, String pattern);
+
+
+    /**
+     * Get the database specific string concatenation function for the (variable number of) arguments.
+     *
+     * @param args
+     * @return
+     */
+    public abstract String getConcat(String... args);
+
+
+    /**
+     * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
+     * Typically, this should be an inexpensive operation like "SELECT 1",
+     * @return
+     */
+    public abstract String getValidationQuery();
+
+
+    /**
+     * Return true in case the database system supports using cursors for queries over large data tables.
+     * @return
+     */
+    public boolean isCursorSupported() {
+        return false;
     }
 }

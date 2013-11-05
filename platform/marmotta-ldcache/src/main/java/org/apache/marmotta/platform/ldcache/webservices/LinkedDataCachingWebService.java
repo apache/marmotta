@@ -78,116 +78,137 @@ public class LinkedDataCachingWebService {
     @GET
     @Path("/live")
     public Response retrieveLive(@QueryParam("uri") String uri) {
+        if(cacheSailProvider.isEnabled()) {
+            try {
+                ClientResponse response = cacheSailProvider.getLDClient().retrieveResource(uri);
 
-        try {
-            ClientResponse response = cacheSailProvider.getLDClient().retrieveResource(uri);
+                RepositoryConnection con = response.getTriples().getConnection();
+                con.begin();
 
-            RepositoryConnection con = response.getTriples().getConnection();
-            con.begin();
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                RDFHandler handler = new RDFXMLPrettyWriter(out);
+                con.export(handler);
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            RDFHandler handler = new RDFXMLPrettyWriter(out);
-            con.export(handler);
-
-            con.commit();
-            con.close();
+                con.commit();
+                con.close();
 
 
-            return Response.ok().entity( new String(out.toByteArray(), "utf-8")).build();
-        } catch (Exception e) {
-            log.error("exception while retrieving resource",e);
-            return Response.status(500).entity(e.getMessage()).build();
+                return Response.ok().entity( new String(out.toByteArray(), "utf-8")).build();
+            } catch (Exception e) {
+                log.error("exception while retrieving resource",e);
+                return Response.status(500).entity(e.getMessage()).build();
+            }
+        } else {
+            return Response.status(Status.SERVICE_UNAVAILABLE).entity("caching is disabled").build();
         }
     }
 
     @GET
     @Path("/cached")
     public Response retrieveCached(@QueryParam("uri") String uri) {
+        if(cacheSailProvider.isEnabled()) {
+            URI resource = sesameService.getValueFactory().createURI(uri);
 
-        URI resource = sesameService.getValueFactory().createURI(uri);
 
+            try {
+                cacheSailProvider.getLDCache().refreshResource(resource, false);
 
-        try {
-            cacheSailProvider.getLDCache().refreshResource(resource, false);
-
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("exception while retrieving resource",e);
-            return Response.status(500).entity(e.getMessage()).build();
+                return Response.ok().build();
+            } catch (Exception e) {
+                log.error("exception while retrieving resource",e);
+                return Response.status(500).entity(e.getMessage()).build();
+            }
+        } else {
+            return Response.status(Status.SERVICE_UNAVAILABLE).entity("caching is disabled").build();
         }
+
     }
 
     @GET
     @Path("/refresh")
     public Response refreshCached(@QueryParam("uri") String uri) {
 
-        URI resource = sesameService.getValueFactory().createURI(uri);
+        if(cacheSailProvider.isEnabled()) {
+            URI resource = sesameService.getValueFactory().createURI(uri);
 
 
-        try {
-            cacheSailProvider.getLDCache().refreshResource(resource, true);
+            try {
+                cacheSailProvider.getLDCache().refreshResource(resource, true);
 
-            return Response.ok().build();
-        } catch (Exception e) {
-            log.error("exception while retrieving resource",e);
-            return Response.status(500).entity(e.getMessage()).build();
+                return Response.ok().build();
+            } catch (Exception e) {
+                log.error("exception while retrieving resource",e);
+                return Response.status(500).entity(e.getMessage()).build();
+            }
+        } else {
+            return Response.status(Status.SERVICE_UNAVAILABLE).entity("caching is disabled").build();
         }
+
     }
 
     @POST
     @Path("/expire")
     public Response expireCache(@QueryParam("uri") String uri) {
 
-        if (uri != null) {
-            URI resource = sesameService.getValueFactory().createURI(uri);
-            cacheSailProvider.getLDCache().expire(resource);
-        } else {
-            cacheSailProvider.getLDCache().expireAll();
-        }
+        if(cacheSailProvider.isEnabled()) {
+            if (uri != null) {
+                URI resource = sesameService.getValueFactory().createURI(uri);
+                cacheSailProvider.getLDCache().expire(resource);
+            } else {
+                cacheSailProvider.getLDCache().expireAll();
+            }
 
-        return Response.ok().build();
+            return Response.ok().build();
+        } else {
+            return Response.status(Status.SERVICE_UNAVAILABLE).entity("caching is disabled").build();
+        }
     }
 
     @POST
     @Path("/endpoint")
     public Response registerEndpoint(@QueryParam("name") String name,
-            @QueryParam("prefix") String prefix,
-            @QueryParam("endpoint") String endpointUrl,
-            @QueryParam("kind") String type,
-            @QueryParam("mimetype") String mimetype,
-            @QueryParam("expiry") long expiry) {
+                                     @QueryParam("prefix") String prefix,
+                                     @QueryParam("endpoint") String endpointUrl,
+                                     @QueryParam("kind") String type,
+                                     @QueryParam("mimetype") String mimetype,
+                                     @QueryParam("expiry") long expiry) {
 
-        if (type == null || !getProviderNames().contains(type.toLowerCase())) {
-            type = LinkedDataProvider.PROVIDER_NAME;
-        }
-
-        // Check for valid Regex
-        if (prefix != null) {
-            try {
-                if (prefix.startsWith(Endpoint.REGEX_INDICATOR)) {
-                    Pattern.compile(prefix.substring(Endpoint.REGEX_INDICATOR.length()));
-                } else {
-                    Pattern.compile(prefix);
-                }
-            } catch (PatternSyntaxException pse) {
-                return Response.status(Status.BAD_REQUEST).entity("Invalid Regex in prefix detected").build();
+        if(cacheSailProvider.isEnabled()) {
+            if (type == null || !getProviderNames().contains(type.toLowerCase())) {
+                type = LinkedDataProvider.PROVIDER_NAME;
             }
-        }
-        if (endpointUrl != null) {
-            endpointUrl = endpointUrl.replace('<', '{').replace('>', '}');
+
+            // Check for valid Regex
+            if (prefix != null) {
+                try {
+                    if (prefix.startsWith(Endpoint.REGEX_INDICATOR)) {
+                        Pattern.compile(prefix.substring(Endpoint.REGEX_INDICATOR.length()));
+                    } else {
+                        Pattern.compile(prefix);
+                    }
+                } catch (PatternSyntaxException pse) {
+                    return Response.status(Status.BAD_REQUEST).entity("Invalid Regex in prefix detected").build();
+                }
+            }
+            if (endpointUrl != null) {
+                endpointUrl = endpointUrl.replace('<', '{').replace('>', '}');
+            } else {
+                endpointUrl = "";
+            }
+            if (mimetype == null) {
+                mimetype ="";
+            }
+            Endpoint endpoint = new Endpoint(name, type, prefix, endpointUrl, mimetype, expiry);
+            endpointService.addEndpoint(endpoint);
+
+            cacheSailProvider.updateEndpoints();
+
+
+            return Response.ok().build();
         } else {
-            endpointUrl = "";
+            return Response.status(Status.SERVICE_UNAVAILABLE).entity("caching is disabled").build();
         }
-        if (mimetype == null) {
-            mimetype ="";
-        }
-        Endpoint endpoint = new Endpoint(name, type, prefix, endpointUrl, mimetype, expiry);
-        endpointService.addEndpoint(endpoint);
 
-        cacheSailProvider.updateEndpoints();
-
-
-        return Response.ok().build();
     }
 
     @GET
@@ -197,7 +218,10 @@ public class LinkedDataCachingWebService {
 
         List<Map<String, Object>> result = new LinkedList<Map<String, Object>>();
         for(Endpoint endpoint : endpointService.listEndpoints()) {
-            result.add(buildEndpointJSON(endpoint));
+            result.add(buildEndpointJSON(endpoint, false));
+        }
+        for(Endpoint endpoint : cacheSailProvider.getVolatileEndpoints()) {
+            result.add(buildEndpointJSON(endpoint, true));
         }
 
         return Response.ok().entity(result).build();
@@ -206,8 +230,12 @@ public class LinkedDataCachingWebService {
     @GET
     @Path("/provider/list")
     @Produces(Namespaces.MIME_TYPE_JSON)
-    public Set<String> listProviders() {
-        return getProviderNames();
+    public Response listProviders() {
+        if(cacheSailProvider.isEnabled()) {
+            return Response.ok(getProviderNames()).build();
+        } else {
+            return Response.status(Status.SERVICE_UNAVAILABLE).entity("caching is disabled").build();
+        }
     }
 
 
@@ -220,7 +248,7 @@ public class LinkedDataCachingWebService {
         if (endpoint == null) return notFound(id);
 
 
-        return Response.ok().entity(buildEndpointJSON(endpoint)).build();
+        return Response.ok().entity(buildEndpointJSON(endpoint, false)).build();
     }
 
     @DELETE
@@ -262,7 +290,7 @@ public class LinkedDataCachingWebService {
     }
 
 
-    private Map<String, Object> buildEndpointJSON(Endpoint endpoint) {
+    private Map<String, Object> buildEndpointJSON(Endpoint endpoint, boolean isVolatile) {
         HashMap<String, Object> resultMap = new HashMap<String, Object>();
         resultMap.put("id",endpoint.getName().replaceAll("[^A-Za-z0-9 ]", "").toLowerCase());
         resultMap.put("name",endpoint.getName());
@@ -272,6 +300,7 @@ public class LinkedDataCachingWebService {
         resultMap.put("kind",endpoint.getType().toString());
         resultMap.put("mimetype",endpoint.getContentTypes());
         resultMap.put("active", endpoint.isActive());
+        resultMap.put("volatile", isVolatile);
 
         return resultMap;
     }

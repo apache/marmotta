@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.core.services.config;
 
 import org.apache.marmotta.platform.core.api.config.DependenciesService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;

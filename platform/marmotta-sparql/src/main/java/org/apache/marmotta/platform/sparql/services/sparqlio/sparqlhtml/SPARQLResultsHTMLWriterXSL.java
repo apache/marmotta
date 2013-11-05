@@ -24,10 +24,14 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jdom2.transform.JDOMResult;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.query.resultio.sparqlxml.SPARQLResultsXMLWriter;
+import org.openrdf.rio.RioSetting;
+import org.openrdf.rio.WriterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +48,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,14 +65,16 @@ public class SPARQLResultsHTMLWriterXSL implements TupleQueryResultWriter {
     private OutputStream out;
     private ByteArrayOutputStream xmlOut;
 
-    private SPARQLResultsXMLWriter xmlWriter;
+    private SPARQLResultsXMLWriter writer;
+    
+    private WriterConfig config;
 
     private Templates stylesheet;
 
     public SPARQLResultsHTMLWriterXSL(OutputStream out) {
         this.out = out;
         this.xmlOut = new ByteArrayOutputStream();
-        this.xmlWriter = new SPARQLResultsXMLWriter(xmlOut);
+        this.writer = new SPARQLResultsXMLWriter(xmlOut);
         Source s_stylesheet = new StreamSource(SPARQLResultsHTMLWriterXSL.class.getResourceAsStream("style.xsl"));
         try {
             stylesheet = TransformerFactory.newInstance().newTemplates(s_stylesheet);
@@ -93,7 +101,7 @@ public class SPARQLResultsHTMLWriterXSL implements TupleQueryResultWriter {
      */
     @Override
     public void startQueryResult(List<String> bindingNames) throws TupleQueryResultHandlerException {
-        xmlWriter.startQueryResult(bindingNames);
+        writer.startQueryResult(bindingNames);
     }
 
     /**
@@ -101,7 +109,7 @@ public class SPARQLResultsHTMLWriterXSL implements TupleQueryResultWriter {
      */
     @Override
     public void endQueryResult() throws TupleQueryResultHandlerException {
-        xmlWriter.endQueryResult();
+        writer.endQueryResult();
 
         // get server uri
         String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
@@ -138,6 +146,92 @@ public class SPARQLResultsHTMLWriterXSL implements TupleQueryResultWriter {
      */
     @Override
     public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
-        xmlWriter.handleSolution(bindingSet);
+        writer.handleSolution(bindingSet);
     }
+
+	@Override
+	public void handleBoolean(boolean arg0) throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLinks(List<String> arg0)
+			throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public QueryResultFormat getQueryResultFormat() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void handleNamespace(String prefix, String uri)
+			throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startDocument() throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleStylesheet(String stylesheetUrl)
+			throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startHeader() throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void endHeader() throws QueryResultHandlerException {
+		// TODO Auto-generated method stub
+		
+	}
+
+    /**
+     * @return A collection of {@link RioSetting}s that are supported by this
+     *         RDFWriter.
+     * @since 2.7.0
+     */
+	@Override
+	public Collection<RioSetting<?>> getSupportedSettings() {
+		return new ArrayList<RioSetting<?>>();
+	}
+
+    /**
+     * Retrieves the current writer configuration as a single object.
+     * 
+     * @return a writer configuration object representing the current
+     *         configuration of the writer.
+     * @since 2.7.0
+     */
+	@Override
+	public WriterConfig getWriterConfig() {
+		return config;
+	}
+
+    /**
+     * Sets all supplied writer configuration options.
+     * 
+     * @param config
+     *        a writer configuration object.
+     * @since 2.7.0
+     */
+	@Override
+	public void setWriterConfig(WriterConfig config) {
+		this.config = config;
+	}
+	
 }
