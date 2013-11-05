@@ -67,6 +67,13 @@
                 <module>marmotta-backend-bigdata</module>
             </modules>
         </profile>
+        <profile>
+            <id>experimental</id>
+            <modules>
+                <module>marmotta-backend-http</module>
+                <module>marmotta-backend-sparql</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>
