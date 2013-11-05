@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.persistence.h2;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 
@@ -51,8 +52,33 @@ public class H2Dialect extends KiWiDialect {
     }
 
     @Override
-    public String getRegexp(String text, String pattern) {
-        return text + " REGEXP " + pattern;
+    public String getRegexp(String text, String pattern, String flags) {
+        if(StringUtils.containsIgnoreCase(flags, "i")) {
+            return String.format("lower(%s) REGEXP lower(%s)",text,pattern);
+        } else {
+            return text + " REGEXP " + pattern;
+        }
+    }
+
+    /**
+     * Return true in case the SPARQL RE flags contained in the given string are supported.
+     *
+     * @param flags
+     * @return
+     */
+    @Override
+    public boolean isRegexpSupported(String flags) {
+        if(StringUtils.containsIgnoreCase(flags,"s")) {
+            return false;
+        }
+        if(StringUtils.containsIgnoreCase(flags,"m")) {
+            return false;
+        }
+        if(StringUtils.containsIgnoreCase(flags,"x")) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override

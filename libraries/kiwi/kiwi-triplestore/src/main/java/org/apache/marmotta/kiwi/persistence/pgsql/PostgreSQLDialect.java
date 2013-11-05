@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.persistence.pgsql;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 
@@ -52,8 +53,37 @@ public class PostgreSQLDialect extends KiWiDialect {
     }
 
     @Override
-    public String getRegexp(String text, String pattern) {
-        return text + " ~ " + pattern;
+    public String getRegexp(String text, String pattern, String flags) {
+        StringBuilder flagList = new StringBuilder();
+        if(StringUtils.containsIgnoreCase(flags,"i")) {
+            flagList.append("i");
+        }
+        if(flagList.length() == 0) {
+            return text + " ~ " + pattern;
+        } else {
+            return String.format("%s ~ (?%s)%s", text, flagList.toString(), pattern);
+        }
+    }
+
+    /**
+     * Return true in case the SPARQL RE flags contained in the given string are supported.
+     *
+     * @param flags
+     * @return
+     */
+    @Override
+    public boolean isRegexpSupported(String flags) {
+        if(StringUtils.containsIgnoreCase(flags, "s")) {
+            return false;
+        }
+        if(StringUtils.containsIgnoreCase(flags,"m")) {
+            return false;
+        }
+        if(StringUtils.containsIgnoreCase(flags,"x")) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override

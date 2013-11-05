@@ -123,7 +123,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
      * @param expr
      * @return
      */
-    private static boolean isSupported(TupleExpr expr) {
+    private boolean isSupported(TupleExpr expr) {
         if(expr instanceof Join) {
             return isSupported(((Join) expr).getLeftArg()) && isSupported(((Join) expr).getRightArg());
         } else if(expr instanceof Filter) {
@@ -142,7 +142,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
      * @param expr
      * @return
      */
-    private static boolean isSupported(ValueExpr expr) {
+    private boolean isSupported(ValueExpr expr) {
         if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
         } else if(expr instanceof MathExpr) {
@@ -174,7 +174,9 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         } else if(expr instanceof LangMatches) {
             return isSupported(((LangMatches) expr).getLeftArg()) && isConstant(((LangMatches) expr).getRightArg());
         } else if(expr instanceof Regex) {
-            return isSupported(((Regex) expr).getArg()) && isAtomic(((Regex) expr).getPatternArg()) && ((Regex) expr).getFlagsArg() == null;
+            ValueExpr flags = ((Regex) expr).getFlagsArg();
+            String _flags = flags != null && flags instanceof ValueConstant ? ((ValueConstant)flags).getValue().stringValue() : null;
+            return isSupported(((Regex) expr).getArg()) && isAtomic(((Regex) expr).getPatternArg()) && connection.getDialect().isRegexpSupported(_flags);
         } else {
             return false;
         }

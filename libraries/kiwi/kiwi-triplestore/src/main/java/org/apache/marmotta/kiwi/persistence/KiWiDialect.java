@@ -23,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * A dialect provides the SQL statements necessary to access the different types of database systems. Each
@@ -193,12 +196,22 @@ public abstract class KiWiDialect {
     /**
      * Return the database specific operator for matching a text against a regular expression.
      *
+     *
      * @param text
      * @param pattern
+     * @param flags
      * @return
      */
-    public abstract String getRegexp(String text, String pattern);
+    public abstract String getRegexp(String text, String pattern, String flags);
 
+
+    /**
+     * Return true in case the SPARQL RE flags contained in the given string are supported.
+     *
+     * @param flags
+     * @return
+     */
+    public abstract boolean isRegexpSupported(String flags);
 
     /**
      * Return the database specific case insensitive like comparison, e.g. ILIKE in Postgres.

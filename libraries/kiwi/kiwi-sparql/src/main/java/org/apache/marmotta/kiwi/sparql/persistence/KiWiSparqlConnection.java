@@ -27,10 +27,15 @@ import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.openrdf.model.*;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.SESAME;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -45,8 +50,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
 /**
@@ -503,7 +520,7 @@ public class KiWiSparqlConnection {
         } else if(expr instanceof Regex) {
             Regex re = (Regex)expr;
 
-            return optimizeRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING));
+            return optimizeRegexp(evaluateExpression(re.getArg(),queryVariables, optype), evaluateExpression(re.getPatternArg(), queryVariables, OPTypes.STRING), re.getFlagsArg());
         } else if(expr instanceof LangMatches) {
             LangMatches lm = (LangMatches)expr;
             String value = evaluateExpression(lm.getLeftArg(), queryVariables, optype);
@@ -740,7 +757,9 @@ public class KiWiSparqlConnection {
      * @param pattern
      * @return
      */
-    private String optimizeRegexp(String value, String pattern) {
+    private String optimizeRegexp(String value, String pattern, ValueExpr flags) {
+        String _flags = flags != null && flags instanceof ValueConstant ? ((ValueConstant)flags).getValue().stringValue() : null;
+
         String simplified = pattern;
 
         // apply simplifications
@@ -769,7 +788,7 @@ public class KiWiSparqlConnection {
         if(!simplified.endsWith("$")) {
             simplified = simplified + "%";
         } else {
-            simplified = simplified.substring(0,simplified.length()-2);
+            simplified = simplified.substring(0,simplified.length()-1);
         }
 
         // replace all non-escaped occurrences of .* with %
@@ -782,9 +801,21 @@ public class KiWiSparqlConnection {
         Pattern notSimplifiable = Pattern.compile("(?<!\\\\)[\\.\\*\\+\\{\\}\\[\\]\\|]");
 
         if(notSimplifiable.matcher(simplified).find()) {
-            return parent.getDialect().getRegexp(value, pattern);
+            return parent.getDialect().getRegexp(value, pattern, _flags);
         } else {
-            return value + " LIKE '"+simplified+"'";
+            if(!simplified.startsWith("%") && !simplified.endsWith("%")) {
+                if(StringUtils.containsIgnoreCase(_flags,"i")) {
+                    return String.format("lower(%s) = lower('%s')", value, simplified);
+                } else {
+                    return String.format("%s = '%s'", value, simplified);
+                }
+            } else {
+                if(StringUtils.containsIgnoreCase(_flags,"i")) {
+                    return parent.getDialect().getILike(value, "'" + simplified + "'");
+                } else {
+                    return value + " LIKE '"+simplified+"'";
+                }
+            }
         }
 
     }
@@ -804,5 +835,9 @@ public class KiWiSparqlConnection {
 
     private static enum OPTypes {
         STRING, DOUBLE, INT, DATE, ANY
+    }
+
+    public KiWiDialect getDialect() {
+        return parent.getDialect();
     }
 }
