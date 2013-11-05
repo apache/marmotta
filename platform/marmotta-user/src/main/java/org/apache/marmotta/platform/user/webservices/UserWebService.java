@@ -17,14 +17,14 @@
  */
 package org.apache.marmotta.platform.user.webservices;
 
-import org.apache.marmotta.platform.user.api.AccountService;
-import org.apache.marmotta.platform.user.model.UserAccount;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
+import org.apache.marmotta.platform.user.api.AccountService;
+import org.apache.marmotta.platform.user.model.UserAccount;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -251,7 +251,7 @@ public class UserWebService {
                     return Response.seeOther(u).header("Accept", types).build();
                 } finally {
                     conn.commit();
-                    conn.commit();
+                    conn.close();
                 }
             } catch (URISyntaxException e) {
                 return Response.status(Status.BAD_REQUEST).entity(String.format("Invalid URI: %s", e.getMessage())).build();
