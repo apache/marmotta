@@ -1578,8 +1578,6 @@ public class KiWiConnection {
             }
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
-            } else {
-                log.debug("Loaded literal without type: '{}' (id:{}).", result.getContent(), result.getId());
             }
 
             cacheNode(result);
