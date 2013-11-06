@@ -16,5 +16,5 @@
 DROP INDEX IF EXISTS kiwi_ft_idx;
 CREATE FULLTEXT INDEX kiwi_ft_idx ON nodes(svalue);
 
-INSERT INTO metadata(mkey,mvalue) VALUES ('fulltext.index','true');
+INSERT INTO metadata(mkey,mvalue) VALUES ('ft.idx','true');
 

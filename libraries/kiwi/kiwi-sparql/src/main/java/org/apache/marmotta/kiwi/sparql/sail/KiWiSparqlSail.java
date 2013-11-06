@@ -94,25 +94,62 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                         //   an index over nodes.svalue
 
                         ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
-                        if(connection.getMetadata("fulltext.langlookup") == null) {
-                            runner.runScript(new StringReader(IOUtils.toString(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql")).replaceAll("\\n"," ")));
+                        if(connection.getMetadata("ft.lookup") == null) {
+                            log.info("PostgreSQL: creating language configuration lookup function");
+                            StringBuilder script = new StringBuilder();
+                            for(String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql"))) {
+                                if(!line.startsWith("--")) {
+                                    script.append(line);
+                                    script.append(" ");
+                                }
+                            }
+                            log.debug("PostgreSQL: running SQL script '{}'", script.toString());
+                            runner.runScript(new StringReader(script.toString()));
                         }
 
+                        // language specific indexes
                         if(configuration.getFulltextLanguages() != null) {
-                            String script = IOUtils.toString(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql")).replaceAll("\\n"," ");
+                            StringBuilder script = new StringBuilder();
+                            for(String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql"))) {
+                                if(!line.startsWith("--")) {
+                                    script.append(line);
+                                    script.append(" ");
+                                }
+                            }
                             for(String lang : configuration.getFulltextLanguages()) {
-                                if(connection.getMetadata("fulltext.index."+lang) == null) {
-                                    String script_lang = script.replaceAll("@LANGUAGE@", lang);
+                                if(connection.getMetadata("ft.idx."+lang) == null) {
+                                    log.info("PostgreSQL: creating fulltext index for language {}", lang);
+                                    String script_lang = script.toString().replaceAll("@LANGUAGE@", lang);
+                                    log.debug("PostgreSQL: running SQL script '{}'", script_lang);
                                     runner.runScript(new StringReader(script_lang));
                                 }
                             }
                         }
+
+                        // generic index
+                        if(configuration.getFulltextLanguages() != null) {
+                            if(connection.getMetadata("ft.idx.generic") == null) {
+                                StringBuilder script = new StringBuilder();
+                                for(String line : IOUtils.readLines(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index_generic.sql"))) {
+                                    if(!line.startsWith("--")) {
+                                        script.append(line);
+                                        script.append(" ");
+                                    }
+                                }
+                                log.info("PostgreSQL: creating generic fulltext index ");
+                                log.debug("PostgreSQL: running SQL script '{}'", script.toString());
+                                runner.runScript(new StringReader(script.toString()));
+                            }
+                        }
+
                     } else if(configuration.getDialect() instanceof MySQLDialect) {
 
                         // for MySQL, just create a fulltext index (no language support)
-                        if(connection.getMetadata("fulltext.index") == null) {
+                        if(connection.getMetadata("ft.idx") == null) {
                             ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
                             String script = IOUtils.toString(MySQLDialect.class.getResourceAsStream("create_fulltext_index.sql"));
+                            log.info("MySQL: creating generic fulltext index ");
+                            log.debug("MySQL: running SQL script '{}'", script.toString());
                             runner.runScript(new StringReader(script));
                         }
                         /*

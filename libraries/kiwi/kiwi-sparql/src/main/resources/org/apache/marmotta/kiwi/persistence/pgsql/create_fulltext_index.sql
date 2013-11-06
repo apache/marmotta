@@ -16,5 +16,5 @@
 DROP INDEX IF EXISTS kiwi_ft_idx_@LANGUAGE@;
 CREATE INDEX kiwi_ft_idx_@LANGUAGE@ ON nodes USING gin(to_tsvector(kiwi_ft_lang('@LANGUAGE@'),svalue));
 
-INSERT INTO metadata(mkey,mvalue) VALUES ('fulltext.index.@LANGUAGE@','true');
+INSERT INTO metadata(mkey,mvalue) VALUES ('ft.idx.@LANGUAGE@','true');
 

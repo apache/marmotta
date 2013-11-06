@@ -38,5 +38,5 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-INSERT INTO metadata(mkey,mvalue) VALUES ('fulltext.langlookup','true');
+INSERT INTO metadata(mkey,mvalue) VALUES ('ft.lookup','true');
 
