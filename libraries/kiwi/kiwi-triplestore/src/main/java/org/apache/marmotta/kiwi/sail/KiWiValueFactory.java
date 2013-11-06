@@ -85,9 +85,6 @@ public class KiWiValueFactory implements ValueFactory {
     private String defaultContext;
 
 
-    private int poolSize = 4;
-    private int poolPosition = 0;
-
     private LoadingCache<String,KiWiUriResource> uriCache;
     private LoadingCache<String,KiWiAnonResource> bnodeCache;
     private LoadingCache<LiteralKey, KiWiLiteral> literalCache;

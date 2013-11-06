@@ -43,6 +43,7 @@ public class KiWiHandler implements RDFHandler {
 
     long count = 0;
     long start = 0;
+    long previous = 0;
 
     private KiWiLoaderConfiguration config;
 
@@ -122,6 +123,7 @@ public class KiWiHandler implements RDFHandler {
         }
 
         this.start = System.currentTimeMillis();
+        this.previous = System.currentTimeMillis();
     }
 
     /**
@@ -176,6 +178,9 @@ public class KiWiHandler implements RDFHandler {
 
             if(count % config.getCommitBatchSize() == 0) {
                 connection.commit();
+
+                log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
+                previous = System.currentTimeMillis();
             }
         } catch (SQLException | ExecutionException e) {
             throw new RDFHandlerException(e);

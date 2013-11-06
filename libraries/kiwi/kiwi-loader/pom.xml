@@ -69,6 +69,12 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.4.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
@@ -81,6 +87,20 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-reasoner</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -106,11 +126,6 @@
             <artifactId>commons-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.3</version>
-        </dependency>
-        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
@@ -123,11 +138,6 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-turtle</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-ntriples</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -155,11 +165,6 @@
             <artifactId>sesame-rio-trig</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-trig</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -168,8 +173,8 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <!-- License: CPL-1.0 http://www.opensource.org/licenses/cpl1.0 
-                As a MAVEN dependency it is not included in a source release. As a TEST dependency 
+            <!-- License: CPL-1.0 http://www.opensource.org/licenses/cpl1.0
+                As a MAVEN dependency it is not included in a source release. As a TEST dependency
                 it is not included in a BINARY release, so no need to mention in N&L. -->
             <groupId>com.github.stefanbirkner</groupId>
             <artifactId>system-rules</artifactId>
