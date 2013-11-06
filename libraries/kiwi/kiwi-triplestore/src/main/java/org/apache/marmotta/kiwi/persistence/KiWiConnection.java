@@ -864,17 +864,6 @@ public class KiWiConnection {
         }
     }
 
-//    public KiWiTriple loadTripleById(Long id) {
-//        // TODO: transactional caching
-//        return null;
-//    }
-
-
-
-    public long getNodeId() throws SQLException {
-        return getNextSequence("seq.nodes");
-    }
-
     /**
      * Store a new node in the database. The method will retrieve a new database id for the node and update the
      * passed object. Afterwards, the node data will be inserted into the database using appropriate INSERT
