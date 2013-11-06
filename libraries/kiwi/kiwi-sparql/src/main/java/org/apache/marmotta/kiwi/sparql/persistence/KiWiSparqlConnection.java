@@ -36,6 +36,8 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.SESAME;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
@@ -605,6 +607,22 @@ public class KiWiSparqlConnection {
                     default: throw new IllegalArgumentException("unsupported value type: " + optype);
                 }
             }
+        } else if(expr instanceof FunctionCall) {
+            FunctionCall fc = (FunctionCall)expr;
+            URI fnUri = new URIImpl(fc.getURI());
+
+            String[] args = new String[fc.getArgs().size()];
+
+            OPTypes fOpType = functionParameterTypes.get(fnUri);
+            if(fOpType == null) {
+                fOpType = OPTypes.STRING;
+            }
+
+            for(int i=0; i<args.length;i++) {
+                args[i] = evaluateExpression(fc.getArgs().get(i),queryVariables,fOpType);
+            }
+
+            return parent.getDialect().getFunction(fnUri,args);
         }
 
 
@@ -724,6 +742,17 @@ public class KiWiSparqlConnection {
             return determineOpType(((MathExpr) expr).getLeftArg(), ((MathExpr) expr).getRightArg());
         } else if(expr instanceof Var) {
             return OPTypes.ANY;
+        } else if(expr instanceof FunctionCall) {
+            FunctionCall fc = (FunctionCall)expr;
+            URI fnUri = new URIImpl(fc.getURI());
+
+            String[] args = new String[fc.getArgs().size()];
+
+            OPTypes fOpType = functionReturnTypes.get(fnUri);
+            if(fOpType == null) {
+                fOpType = OPTypes.ANY;
+            }
+            return fOpType;
         } else {
             throw new IllegalArgumentException("unsupported expression: "+expr);
         }
@@ -834,10 +863,54 @@ public class KiWiSparqlConnection {
 
 
     private static enum OPTypes {
-        STRING, DOUBLE, INT, DATE, ANY
+        STRING, DOUBLE, INT, DATE, BOOL, ANY
     }
 
     public KiWiDialect getDialect() {
         return parent.getDialect();
     }
+
+
+    private static Map<URI,OPTypes> functionParameterTypes = new HashMap<>();
+    static {
+        functionParameterTypes.put(FN.CONCAT, OPTypes.STRING);
+        functionParameterTypes.put(FN.CONTAINS, OPTypes.STRING);
+        functionParameterTypes.put(FN.LOWER_CASE, OPTypes.STRING);
+        functionParameterTypes.put(FN.UPPER_CASE, OPTypes.STRING);
+        functionParameterTypes.put(FN.REPLACE, OPTypes.STRING);
+        functionParameterTypes.put(FN.SUBSTRING_AFTER, OPTypes.STRING);
+        functionParameterTypes.put(FN.SUBSTRING_BEFORE, OPTypes.STRING);
+        functionParameterTypes.put(FN.STARTS_WITH, OPTypes.STRING);
+        functionParameterTypes.put(FN.ENDS_WITH, OPTypes.STRING);
+        functionParameterTypes.put(FN.STRING_LENGTH, OPTypes.STRING);
+        functionParameterTypes.put(FN.SUBSTRING, OPTypes.STRING);
+
+        functionParameterTypes.put(FN.NUMERIC_ABS, OPTypes.DOUBLE);
+        functionParameterTypes.put(FN.NUMERIC_CEIL, OPTypes.DOUBLE);
+        functionParameterTypes.put(FN.NUMERIC_FLOOR, OPTypes.DOUBLE);
+        functionParameterTypes.put(FN.NUMERIC_ROUND, OPTypes.DOUBLE);
+
+    }
+
+    private static Map<URI,OPTypes> functionReturnTypes = new HashMap<>();
+    static {
+        functionReturnTypes.put(FN.CONCAT, OPTypes.STRING);
+        functionReturnTypes.put(FN.CONTAINS, OPTypes.BOOL);
+        functionReturnTypes.put(FN.LOWER_CASE, OPTypes.STRING);
+        functionReturnTypes.put(FN.UPPER_CASE, OPTypes.STRING);
+        functionReturnTypes.put(FN.REPLACE, OPTypes.STRING);
+        functionReturnTypes.put(FN.SUBSTRING_AFTER, OPTypes.STRING);
+        functionReturnTypes.put(FN.SUBSTRING_BEFORE, OPTypes.STRING);
+        functionReturnTypes.put(FN.STARTS_WITH, OPTypes.BOOL);
+        functionReturnTypes.put(FN.ENDS_WITH, OPTypes.BOOL);
+        functionReturnTypes.put(FN.STRING_LENGTH, OPTypes.INT);
+        functionReturnTypes.put(FN.SUBSTRING, OPTypes.STRING);
+
+        functionReturnTypes.put(FN.NUMERIC_ABS, OPTypes.DOUBLE);
+        functionReturnTypes.put(FN.NUMERIC_CEIL, OPTypes.INT);
+        functionReturnTypes.put(FN.NUMERIC_FLOOR, OPTypes.INT);
+        functionReturnTypes.put(FN.NUMERIC_ROUND, OPTypes.INT);
+
+    }
+
 }

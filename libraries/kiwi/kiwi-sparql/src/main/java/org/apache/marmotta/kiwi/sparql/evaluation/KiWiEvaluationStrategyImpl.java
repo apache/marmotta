@@ -20,6 +20,8 @@ package org.apache.marmotta.kiwi.sparql.evaluation;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
+import org.openrdf.model.URI;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -177,11 +179,17 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             ValueExpr flags = ((Regex) expr).getFlagsArg();
             String _flags = flags != null && flags instanceof ValueConstant ? ((ValueConstant)flags).getValue().stringValue() : null;
             return isSupported(((Regex) expr).getArg()) && isAtomic(((Regex) expr).getPatternArg()) && connection.getDialect().isRegexpSupported(_flags);
+        } else if(expr instanceof FunctionCall) {
+            return isFunctionSupported((FunctionCall)expr);
         } else {
             return false;
         }
     }
 
+    private boolean isFunctionSupported(FunctionCall fc) {
+        URI fnUri = new URIImpl(fc.getURI());
+        return connection.getDialect().isFunctionSupported(fnUri);
+    }
 
     private static boolean isAtomic(ValueExpr expr) {
         return expr instanceof Var || expr instanceof ValueConstant;

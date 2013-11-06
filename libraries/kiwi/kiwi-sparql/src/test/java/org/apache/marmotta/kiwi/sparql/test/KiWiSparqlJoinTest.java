@@ -17,14 +17,9 @@
 
 package org.apache.marmotta.kiwi.sparql.test;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import info.aduna.iteration.Iterations;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
@@ -33,6 +28,7 @@ import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,8 +51,11 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Test the KiWi SPARQL Join optimization.
@@ -222,12 +221,64 @@ public class KiWiSparqlJoinTest {
         testQuery("query14.sparql");
     }
 
+    // contains filter
+    @Test
+    public void testQuery15() throws Exception {
+        testQuery("query15.sparql");
+    }
+
+    // strafter filter
+    @Test
+    public void testQuery16() throws Exception {
+        testQuery("query16.sparql");
+    }
+
+    // strbefore filter
+    @Test
+    public void testQuery17() throws Exception {
+        testQuery("query17.sparql");
+    }
+
+    // replace filter
+    @Test
+    public void testQuery18() throws Exception {
+        testQuery("query18.sparql");
+    }
+
+    // strlen filter
+    @Test
+    public void testQuery19() throws Exception {
+        testQuery("query19.sparql");
+    }
+
+    // strstarts filter
+    @Test
+    public void testQuery20() throws Exception {
+        testQuery("query20.sparql");
+    }
+
+    // strends filter
+    @Test
+    public void testQuery21() throws Exception {
+        testQuery("query21.sparql");
+    }
+
+
     private void testQuery(String filename) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
 
         RepositoryConnection con1 = repository.getConnection();
         RepositoryConnection con2 = reference.getConnection();
         try {
+            con2.begin();
+
+            TupleQuery query2 = con2.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result2 = query2.evaluate();
+
+            con2.commit();
+
+            Assume.assumeTrue(result2.hasNext());
+
             con1.begin();
 
             TupleQuery query1 = con1.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
@@ -238,12 +289,6 @@ public class KiWiSparqlJoinTest {
             Assert.assertTrue(result1.hasNext());
 
 
-            con2.begin();
-
-            TupleQuery query2 = con2.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-            TupleQueryResult result2 = query2.evaluate();
-
-            con2.commit();
 
             compareResults(result1,result2);
 
