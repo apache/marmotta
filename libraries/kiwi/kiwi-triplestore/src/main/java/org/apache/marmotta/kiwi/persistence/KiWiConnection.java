@@ -1036,32 +1036,6 @@ public class KiWiConnection {
     }
 
     /**
-     * Start a batch operation for inserting nodes. Afterwards, storeNode needs to be called with the batch argument
-     * set to "true".
-     *
-     * @throws SQLException
-     */
-    public void startNodeBatch() throws SQLException {
-        for(String stmt : new String[] { "store.uri", "store.sliteral", "store.bliteral", "store.dliteral", "store.iliteral", "store.tliteral", "store.bnode"}) {
-            PreparedStatement insertNode = getPreparedStatement(stmt);
-            insertNode.clearParameters();
-            insertNode.clearBatch();
-        }
-    }
-
-    /**
-     * Execute the batch operation for inserting nodes into the database.
-     * @throws SQLException
-     */
-    public void commitNodeBatch() throws SQLException {
-        for(String stmt : new String[] { "store.uri", "store.sliteral", "store.bliteral", "store.dliteral", "store.iliteral", "store.tliteral", "store.bnode"}) {
-            PreparedStatement insertNode = getPreparedStatement(stmt);
-            insertNode.executeBatch();
-        }
-        connection.commit();
-    }
-
-    /**
      * Store a triple in the database. This method assumes that all nodes used by the triple are already persisted.
      *
      * @param triple     the triple to store
@@ -2166,11 +2140,6 @@ public class KiWiConnection {
 
             commitLock.lock();
             try {
-                if(persistence.getValueFactory() != null) {
-                    persistence.getValueFactory().flushBatch();
-                }
-
-
                 RetryExecution execution = new RetryExecution("FLUSH BATCH");
                 execution.setUseSavepoint(true);
                 execution.execute(connection, new RetryCommand<Void>() {

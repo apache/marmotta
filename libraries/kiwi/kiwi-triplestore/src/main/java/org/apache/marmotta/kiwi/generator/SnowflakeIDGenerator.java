@@ -60,21 +60,25 @@ public class SnowflakeIDGenerator implements IDGenerator {
     private volatile long sequence = 0L;
 
 
-    public SnowflakeIDGenerator()  {
-        try {
-            datacenterId = getDatacenterId();
-        } catch (SocketException | UnknownHostException e) {
-            log.warn("SNOWFLAKE: could not determine machine address; using random datacenter ID");
-            Random rnd = new Random();
-            datacenterId = rnd.nextInt((int)maxDatacenterId) + 1;
-        }
-        if (datacenterId > maxDatacenterId || datacenterId < 0){
-            log.warn("SNOWFLAKE: datacenterId > maxDatacenterId; using random datacenter ID");
-            Random rnd = new Random();
-            datacenterId = rnd.nextInt((int)maxDatacenterId) + 1;
+    public SnowflakeIDGenerator(long datacenterId)  {
+        if(datacenterId == 0) {
+            try {
+                this.datacenterId = getDatacenterId();
+            } catch (SocketException | UnknownHostException e) {
+                log.warn("SNOWFLAKE: could not determine machine address; using random datacenter ID");
+                Random rnd = new Random();
+                this.datacenterId = rnd.nextInt((int)maxDatacenterId) + 1;
+            }
+        } else {
+            this.datacenterId = datacenterId;
         }
 
-        log.info("SNOWFLAKE: initialised with datacenter ID {}", datacenterId);
+        if (this.datacenterId > maxDatacenterId || datacenterId < 0){
+            log.warn("SNOWFLAKE: datacenterId > maxDatacenterId; using random datacenter ID");
+            Random rnd = new Random();
+            this.datacenterId = rnd.nextInt((int)maxDatacenterId) + 1;
+        }
+        log.info("SNOWFLAKE: initialised with datacenter ID {}", this.datacenterId);
     }
 
     protected long tilNextMillis(long lastTimestamp){
@@ -163,7 +167,6 @@ public class SnowflakeIDGenerator implements IDGenerator {
      */
     @Override
     public void init(KiWiPersistence persistence, String scriptName) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

@@ -36,6 +36,18 @@ public class LiteralKey {
         this.lang = lang;
     }
 
+    public String getLang() {
+        return lang;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

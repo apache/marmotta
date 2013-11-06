@@ -39,7 +39,7 @@ public class SnowflakeTest {
 
     @Before
     public void setup() {
-        generator = new SnowflakeIDGenerator();
+        generator = new SnowflakeIDGenerator(0);
     }
 
 

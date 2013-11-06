@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.platform.backend.kiwi;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.generator.IDGeneratorType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -94,24 +94,13 @@ public class KiWiStoreProvider implements StoreProvider {
         String dbPass  = configurationService.getStringConfiguration("database.password");
 
         KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
-        configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries",false));
+        configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries", false));
         configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration("database.triples.batchcommit", true));
         configuration.setTripleBatchSize(configurationService.getIntConfiguration("database.triples.batchsize", 10000));
-        configuration.setNodeBatchCommit(configurationService.getBooleanConfiguration("database.nodes.batchcommit", true));
-        configuration.setNodeBatchSize(configurationService.getIntConfiguration("database.nodes.batchsize", 1000));
 
-        String generatorType = configurationService.getStringConfiguration("database.generator", "uuid-time");
-        if("uuid-time".equals(generatorType)) {
-            configuration.setIdGeneratorType(IDGeneratorType.UUID_TIME);
-        } else if("uuid-random".equals(generatorType)) {
-            configuration.setIdGeneratorType(IDGeneratorType.UUID_RANDOM);
-        } else if("sequence".equals(generatorType)) {
-            configuration.setIdGeneratorType(IDGeneratorType.DATABASE_SEQUENCE);
-        } else if("memory".equals(generatorType)) {
-            configuration.setIdGeneratorType(IDGeneratorType.MEMORY_SEQUENCE);
-        } else if("snowflake".equals(generatorType)) {
-            configuration.setIdGeneratorType(IDGeneratorType.SNOWFLAKE);
-        }
+        configuration.setDatacenterId(configurationService.getIntConfiguration("database.datacenter.id",0));
+        configuration.setFulltextEnabled(configurationService.getBooleanConfiguration("database.fulltext.enabled", true));
+        configuration.setFulltextLanguages(configurationService.getListConfiguration("database.fulltext.languages", ImmutableList.of("en")));
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
             return new KiWiSparqlSail(new KiWiStore(configuration));

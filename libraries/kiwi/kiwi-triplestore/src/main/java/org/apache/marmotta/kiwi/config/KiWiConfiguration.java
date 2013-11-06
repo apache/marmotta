@@ -17,8 +17,10 @@
  */
 package org.apache.marmotta.kiwi.config;
 
-import org.apache.marmotta.kiwi.generator.IDGeneratorType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An object to hold a KiWi persistence configuration. The configuration consists of:
@@ -75,19 +77,7 @@ public class KiWiConfiguration {
     private boolean tripleBatchCommit;
 
 
-    /**
-     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
-     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
-     * once the limit is reached or the connection committed. Enabling this can significantly improve the
-     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
-     * same database.
-     */
-    private boolean nodeBatchCommit;
-
-
     private int tripleBatchSize = 10000;
-
-    private int nodeBatchSize = 1000;
 
     /**
      * Size of the database cursor for pre-fetching rows on database supporting this feature. If the size is set to 0,
@@ -100,11 +90,14 @@ public class KiWiConfiguration {
     private boolean fulltextEnabled     = false;
     private String[] fulltextLanguages;
 
-    /**
-     * The method to use for generating row IDs. Starting with Marmotta 3.2, the default is to use the Twitter Snowflake
-     * algorithm.
-     */
-    private IDGeneratorType idGeneratorType = IDGeneratorType.SNOWFLAKE;
+
+    private int uriCacheSize = 500000;
+
+    private int bNodeCacheSize = 10000;
+
+    private int literalCacheSize = 100000;
+
+    private int datacenterId = 0;
 
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
@@ -121,7 +114,6 @@ public class KiWiConfiguration {
         this.inferredContext = inferredContext;
 
         tripleBatchCommit = dialect.isBatchSupported();
-        nodeBatchCommit   = dialect.isBatchSupported();
     }
 
 
@@ -191,42 +183,12 @@ public class KiWiConfiguration {
         }
     }
 
-    /**
-     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
-     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
-     * once the limit is reached or the connection committed. Enabling this can significantly improve the
-     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
-     * same database.
-     */
-    public boolean isNodeBatchCommit() {
-        return nodeBatchCommit;
-    }
-
-    /**
-     * Enable batched commit for nodes (if supported by the database dialect). If this is enabled,
-     * the KiWiConnection will use an in-memory buffer for stored triples that are committed in a batch
-     * once the limit is reached or the connection committed. Enabling this can significantly improve the
-     * performance. For nodes this is not safe in a clustered environment where multiple servers access the
-     * same database.
-     */
-    public void setNodeBatchCommit(boolean nodeBatchCommit) {
-        this.nodeBatchCommit = nodeBatchCommit;
-    }
-
     public int getTripleBatchSize() {
         return tripleBatchSize;
     }
 
     public void setTripleBatchSize(int tripleBatchSize) {
         this.tripleBatchSize = tripleBatchSize;
-    }
-
-    public int getNodeBatchSize() {
-        return nodeBatchSize;
-    }
-
-    public void setNodeBatchSize(int nodeBatchSize) {
-        this.nodeBatchSize = nodeBatchSize;
     }
 
     /**
@@ -247,19 +209,6 @@ public class KiWiConfiguration {
      */
     public void setCursorSize(int cursorSize) {
         this.cursorSize = cursorSize;
-    }
-
-    /**
-     * The ID generator used for generating row IDs in the database. See documentation in {@link IDGeneratorType}
-     *
-     * @return the type defined for this configuration
-     */
-    public IDGeneratorType getIdGeneratorType() {
-        return idGeneratorType;
-    }
-
-    public void setIdGeneratorType(IDGeneratorType idGeneratorType) {
-        this.idGeneratorType = idGeneratorType;
     }
 
     /**
@@ -300,4 +249,76 @@ public class KiWiConfiguration {
         this.fulltextLanguages = fulltextLanguages;
     }
 
+    /**
+     * Set the languages (ISO codes) for which to add specific fulltext search support. The SPARQL module will add a
+     * separate fulltext index for each supported language, adding additional overhead. In case you only want generic
+     * fulltext support, use the empty array.
+     */
+    public void setFulltextLanguages(List<String> fulltextLanguages) {
+        this.fulltextLanguages = new ArrayList<String>(fulltextLanguages).toArray(new String[fulltextLanguages.size()]);
+    }
+
+
+    /**
+     * The maximum size of the literal cache used by the KiWiValueFactory (default: 100000)
+     * @return
+     */
+    public int getLiteralCacheSize() {
+        return literalCacheSize;
+    }
+
+    /**
+     * The maximum size of the literal cache used by the KiWiValueFactory (default: 100000)
+     */
+    public void setLiteralCacheSize(int literalCacheSize) {
+        this.literalCacheSize = literalCacheSize;
+    }
+
+    /**
+     * The maximum size of the BNode cache used by the KiWiValueFactory (default: 10000)
+     * @return
+     */
+    public int getBNodeCacheSize() {
+        return bNodeCacheSize;
+    }
+
+    /**
+     * The maximum size of the BNode cache used by the KiWiValueFactory (default: 10000)
+     */
+    public void setBNodeCacheSize(int bNodeCacheSize) {
+        this.bNodeCacheSize = bNodeCacheSize;
+    }
+
+    /**
+     * The maximum size of the URI cache used by the KiWiValueFactory (default: 500000)
+     * @return
+     */
+    public int getUriCacheSize() {
+        return uriCacheSize;
+    }
+
+    /**
+     * The maximum size of the URI cache used by the KiWiValueFactory (default: 500000)
+     */
+    public void setUriCacheSize(int uriCacheSize) {
+        this.uriCacheSize = uriCacheSize;
+    }
+
+    /**
+     * The datacenter ID of this server for generating unique database IDs. If not given, a random value will
+     * be generated.
+     *
+     * @return
+     */
+    public int getDatacenterId() {
+        return datacenterId;
+    }
+
+    /**
+     * The datacenter ID of this server for generating unique database IDs.
+     * @return
+     */
+    public void setDatacenterId(int datacenterId) {
+        this.datacenterId = datacenterId;
+    }
 }

@@ -220,12 +220,6 @@ public class KiWiGarbageCollector extends Thread {
 
             // garbage collect nodes (only every 10th garbage collection, only makes sense when we previously deleted triples ...)
             if(count > 0 && round % 10 == 1) {
-                // flush all nodes from the value factory first
-                if(persistence.getValueFactory() != null) {
-                    persistence.getValueFactory().flushBatch();
-                }
-
-
                 // then delete all unconnected nodes
                 try {
                     String gcNodesQuery = buildGCNodesQuery();
