@@ -1,17 +1,5 @@
 package org.apache.marmotta.kiwi.loader;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Properties;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -30,6 +18,18 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
+import java.util.zip.GZIPOutputStream;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class KiWiLoaderTest {
 
@@ -107,7 +107,7 @@ public class KiWiLoaderTest {
     public void testLoadFile() throws RepositoryException, RDFParseException,
             IOException {
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
-                "htto://example.com/test/", null);
+                "http://example.com/test/", null);
         loader.initialize();
 
         loader.load(dataFile.getAbsolutePath(), RDFFormat.RDFXML, false);
@@ -137,7 +137,7 @@ public class KiWiLoaderTest {
         os.close();
         
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
-                "htto://example.com/test/", null);
+                "http://example.com/test/", null);
         loader.initialize();
 
         loader.load(gz.getAbsolutePath(), RDFFormat.RDFXML, true);
@@ -177,7 +177,7 @@ public class KiWiLoaderTest {
     @Test
     public void testLoadInputStream() throws RepositoryException, RDFParseException, IOException {
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
-                "htto://example.com/test/", null);
+                "http://example.com/test/", null);
         loader.initialize();
 
         loader.load(new FileInputStream(dataFile), RDFFormat.RDFXML);

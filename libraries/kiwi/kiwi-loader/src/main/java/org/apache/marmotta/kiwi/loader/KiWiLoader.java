@@ -17,17 +17,6 @@
  */
 package org.apache.marmotta.kiwi.loader;
 
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -44,18 +33,27 @@ import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
-import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
 import org.openrdf.rio.UnsupportedRDFormatException;
-import org.openrdf.sail.Sail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Console;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 /**
  * {@link KiWiLoader} is a fastpath importer into a kiwi database. It is meant
@@ -117,6 +115,8 @@ public class KiWiLoader {
     protected String context;
     protected boolean isVersioningEnabled;
     protected boolean isReasoningEnabled;
+
+    protected KiWiStore store;
     protected SailRepository repository;
 
     public KiWiLoader(KiWiConfiguration kiwi, String baseUri, String context) {
@@ -320,28 +320,19 @@ public class KiWiLoader {
      */
     public void load(InputStream inStream, RDFFormat forFileName) throws RDFParseException, IOException {
         try {
-            final SailRepositoryConnection con = repository.getConnection();
-            try {
-                con.begin();
-
-                final Resource[] ctx;
-                if (context != null) {
-                    ctx = new Resource[] { con.getValueFactory().createURI(context) };
-                } else {
-                    ctx = new Resource[] {};
-                }
-
-                con.add(inStream, baseUri, forFileName, ctx);
-
-                con.commit();
-            } catch (final Throwable t) {
-                con.rollback();
-                throw t;
-            } finally {
-                con.close();
+            KiWiLoaderConfiguration config = new KiWiLoaderConfiguration();
+            if (context != null) {
+                config.setContext(context);
             }
-        } catch (RepositoryException re) {
-            log.error("RepositoryException: {}", re.getMessage());
+
+            KiWiHandler handler = new KiWiHandler(store,config);
+
+            RDFParser parser = Rio.createParser(forFileName);
+            parser.setRDFHandler(handler);
+            parser.parse(inStream,baseUri);
+
+        } catch (RDFHandlerException e) {
+            log.error("RepositoryException: {}", e.getMessage());
         }
     }
 
@@ -400,31 +391,9 @@ public class KiWiLoader {
             throw new IllegalStateException("repository already initialized");
         }
         log.debug("initializing kiwi-store: {}", kiwi);
-        KiWiStore store = new KiWiStore(kiwi);
+        store = new KiWiStore(kiwi);
 
-        final Sail sail;
-        if (isVersioningEnabled || isReasoningEnabled) {
-            TransactionalSail tSail = new KiWiTransactionalSail(store);
-            if (isVersioningEnabled) {
-                log.debug("enabling versioning...");
-                // TODO: Add Versioning
-                // tSail = new KiWiVersioningSail(tSail);
-                log.warn("versioning not yet supported/implemented");
-            }
-
-            if (isReasoningEnabled) {
-                log.debug("enabling reasoner...");
-                // TODO: Add Reasoning
-                // tSail = new KiWiReasoningSail(tSail, null);
-                log.warn("reasoning not yet supported/implemented");
-            }
-            sail = tSail;
-        } else {
-            // no transactional sail required here
-            sail = store;
-        }
-
-        repository = new SailRepository(sail);
+        repository = new SailRepository(store);
         repository.initialize();
     }
 
