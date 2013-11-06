@@ -262,7 +262,7 @@ public class KiWiLoader {
                     } else if(bzip || inFile.endsWith(".bz2")) {
                         log.debug("{} seems to be bzip2 compressed", inFile);
                         inStream = new BZip2CompressorInputStream(inStream,true);
-                        fName = fName.replaceFirst("\\.gz$", "");
+                        fName = fName.replaceFirst("\\.bz2$", "");
                     }
 
                     long start = System.currentTimeMillis();
