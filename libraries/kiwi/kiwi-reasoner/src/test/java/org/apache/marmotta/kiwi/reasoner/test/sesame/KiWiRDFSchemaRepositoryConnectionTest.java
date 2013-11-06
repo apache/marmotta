@@ -18,7 +18,6 @@
 package org.apache.marmotta.kiwi.reasoner.test.sesame;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -53,6 +52,7 @@ import static org.junit.Assert.fail;
  * @author Sebastian Schaffert <sschaffert@apache.org>
  *
  */
+@Ignore
 @RunWith(KiWiDatabaseRunner.class)
 //@KiWiDatabaseRunner.ForDialects(dialect = H2Dialect.class)
 public class KiWiRDFSchemaRepositoryConnectionTest extends RDFSchemaRepositoryConnectionTest {
