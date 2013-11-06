@@ -38,7 +38,7 @@ CREATE TABLE nodes (
   lang      varchar(5),
   createdAt timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(id)
-) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=InnoDB;
+) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=MyISAM;
 
 CREATE TABLE triples (
   id        bigint     NOT NULL,

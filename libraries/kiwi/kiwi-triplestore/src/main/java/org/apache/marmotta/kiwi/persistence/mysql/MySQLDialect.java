@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
 
@@ -58,6 +59,8 @@ public class MySQLDialect extends KiWiDialect {
         supportedFunctions.add(FN.STRING_LENGTH);
         supportedFunctions.add(FN.STARTS_WITH);
         supportedFunctions.add(FN.ENDS_WITH);
+        supportedFunctions.add(FN_MARMOTTA.SEARCH_FULLTEXT);
+        supportedFunctions.add(FN_MARMOTTA.QUERY_FULLTEXT);
     }
 
     /**
@@ -163,6 +166,21 @@ public class MySQLDialect extends KiWiDialect {
         } else if(FN.ENDS_WITH.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 2);
             return String.format("(POSITION(reverse(%2$s) IN reverse(%1$s)) = 1)", args[0], args[1]);
+        } else if(FN_MARMOTTA.SEARCH_FULLTEXT.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 2 || args.length == 3); // no specific language support in MySQL
+            return String.format("(MATCH (%1$s) AGAINST (%2$s))", args[0], args[1]);
+        } else if(FN_MARMOTTA.QUERY_FULLTEXT.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 2 || args.length == 3); // no specific language support in MySQL
+
+            // basic transformation from postgres to mysql syntax, assuming the argument is a constant query
+            String query;
+            if(args[1].startsWith("'")) {
+                query = args[1].replaceAll("&","+").replaceAll("\\|", " ").replaceAll("!"," -");
+            } else {
+                query = args[1];
+            }
+
+            return String.format("(MATCH (%1$s) AGAINST (%2$s IN BOOLEAN MODE))", args[0], query);
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
     }

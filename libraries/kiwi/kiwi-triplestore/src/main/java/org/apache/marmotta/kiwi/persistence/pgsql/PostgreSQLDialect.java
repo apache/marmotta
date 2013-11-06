@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
 
@@ -49,6 +50,8 @@ public class PostgreSQLDialect extends KiWiDialect {
         supportedFunctions.add(FN.STRING_LENGTH);
         supportedFunctions.add(FN.STARTS_WITH);
         supportedFunctions.add(FN.ENDS_WITH);
+        supportedFunctions.add(FN_MARMOTTA.SEARCH_FULLTEXT);
+        supportedFunctions.add(FN_MARMOTTA.QUERY_FULLTEXT);
     }
 
     /**
@@ -183,6 +186,22 @@ public class PostgreSQLDialect extends KiWiDialect {
         } else if(FN.ENDS_WITH.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 2);
             return String.format("(POSITION(reverse(%2$s) IN reverse(%1$s)) = 1)", args[0], args[1]);
+        } else if(FN_MARMOTTA.SEARCH_FULLTEXT.equals(fnUri)) {
+            if(args.length == 2) {
+                return String.format("(to_tsvector('simple' :: regconfig,%1$s) @@ plainto_tsquery('simple' :: regconfig,%2$s))", args[0], args[1]);
+            } else if(args.length == 3) {
+                return String.format("(to_tsvector(kiwi_ft_lang(%3$s) :: regconfig, %1$s) @@ plainto_tsquery(kiwi_ft_lang(%3$s) :: regconfig, %2$s))", args[0], args[1], args[2]);
+            } else {
+                throw new IllegalArgumentException("invalid number of arguments");
+           }
+        } else if(FN_MARMOTTA.QUERY_FULLTEXT.equals(fnUri)) {
+            if(args.length == 2) {
+                return String.format("(to_tsvector('simple' :: regconfig,%1$s) @@ to_tsquery('simple' :: regconfig,%2$s))", args[0], args[1]);
+            } else if(args.length == 3) {
+                return String.format("(to_tsvector(kiwi_ft_lang(%3$s) :: regconfig, %1$s) @@ to_tsquery(kiwi_ft_lang(%3$s) :: regconfig, %2$s))", args[0], args[1], args[2]);
+            } else {
+                throw new IllegalArgumentException("invalid number of arguments");
+            }
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
     }

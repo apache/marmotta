@@ -97,6 +97,9 @@ public class KiWiConfiguration {
      */
     private int cursorSize = 1000;
 
+    private boolean fulltextEnabled     = false;
+    private String[] fulltextLanguages;
+
     /**
      * The method to use for generating row IDs. Starting with Marmotta 3.2, the default is to use the Twitter Snowflake
      * algorithm.
@@ -258,4 +261,43 @@ public class KiWiConfiguration {
     public void setIdGeneratorType(IDGeneratorType idGeneratorType) {
         this.idGeneratorType = idGeneratorType;
     }
+
+    /**
+     * Return true in case fulltext support is enabled in this configuration. If this is the case, the SPARQL module
+     * will prepare the database with appropriate fulltext index support. Since this adds additional overhead, it is
+     * not enabled by default.
+     *
+     * @return
+     */
+    public boolean isFulltextEnabled() {
+        return fulltextEnabled;
+    }
+
+    /**
+     * Set to true in case fulltext support is enabled in this configuration. If this is the case, the SPARQL module
+     * will prepare the database with appropriate fulltext index support. Since this adds additional overhead, it is
+     * not enabled by default.
+     */
+    public void setFulltextEnabled(boolean fulltextEnabled) {
+        this.fulltextEnabled = fulltextEnabled;
+    }
+
+    /**
+     * Return the languages (ISO codes) for which to add specific fulltext search support. The SPARQL module will add a
+     * separate fulltext index for each supported language, adding additional overhead. In case you only want generic
+     * fulltext support, use the empty array.
+     */
+    public String[] getFulltextLanguages() {
+        return fulltextLanguages;
+    }
+
+    /**
+     * Set the languages (ISO codes) for which to add specific fulltext search support. The SPARQL module will add a
+     * separate fulltext index for each supported language, adding additional overhead. In case you only want generic
+     * fulltext support, use the empty array.
+     */
+    public void setFulltextLanguages(String[] fulltextLanguages) {
+        this.fulltextLanguages = fulltextLanguages;
+    }
+
 }

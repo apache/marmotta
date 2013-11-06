@@ -17,14 +17,28 @@
 
 package org.apache.marmotta.kiwi.sparql.sail;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
+import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
-import org.openrdf.sail.*;
+import org.openrdf.sail.NotifyingSail;
+import org.openrdf.sail.NotifyingSailConnection;
+import org.openrdf.sail.Sail;
+import org.openrdf.sail.SailConnection;
+import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailWrapper;
 import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.openrdf.sail.helpers.SailWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.SQLException;
 
 /**
@@ -34,13 +48,21 @@ import java.sql.SQLException;
  */
 public class KiWiSparqlSail extends NotifyingSailWrapper {
 
+    private static Logger log = LoggerFactory.getLogger(KiWiSparqlSail.class);
+
+
     private KiWiStore parent;
 
     public KiWiSparqlSail(NotifyingSail baseSail) {
         super(baseSail);
 
         this.parent = getRootSail(baseSail);
+    }
 
+    @Override
+    public void initialize() throws SailException {
+        super.initialize();
+        prepareFulltext(this.parent.getPersistence().getConfiguration());
     }
 
     /**
@@ -55,6 +77,61 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
             return getRootSail(((SailWrapper) sail).getBaseSail());
         } else {
             throw new IllegalArgumentException("root sail is not a KiWiStore or could not be found");
+        }
+    }
+
+
+    private void prepareFulltext(KiWiConfiguration configuration) {
+        try {
+            if(configuration.isFulltextEnabled()) {
+                KiWiConnection connection = parent.getPersistence().getConnection();
+                try {
+                    if(configuration.getDialect() instanceof PostgreSQLDialect) {
+
+                        // for postgres, we need to create
+                        // - a stored procedure for mapping ISO language codes to PostgreSQL fulltext configuration names
+                        // - if languages are not null, for each configured language as well as for the generic configuration
+                        //   an index over nodes.svalue
+
+                        ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
+                        if(connection.getMetadata("fulltext.langlookup") == null) {
+                            runner.runScript(new StringReader(IOUtils.toString(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_langlookup.sql")).replaceAll("\\n"," ")));
+                        }
+
+                        if(configuration.getFulltextLanguages() != null) {
+                            String script = IOUtils.toString(PostgreSQLDialect.class.getResourceAsStream("create_fulltext_index.sql")).replaceAll("\\n"," ");
+                            for(String lang : configuration.getFulltextLanguages()) {
+                                if(connection.getMetadata("fulltext.index."+lang) == null) {
+                                    String script_lang = script.replaceAll("@LANGUAGE@", lang);
+                                    runner.runScript(new StringReader(script_lang));
+                                }
+                            }
+                        }
+                    } else if(configuration.getDialect() instanceof MySQLDialect) {
+
+                        // for MySQL, just create a fulltext index (no language support)
+                        if(connection.getMetadata("fulltext.index") == null) {
+                            ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
+                            String script = IOUtils.toString(MySQLDialect.class.getResourceAsStream("create_fulltext_index.sql"));
+                            runner.runScript(new StringReader(script));
+                        }
+                        /*
+                    } else if(configuration.getDialect() instanceof H2Dialect) {
+
+                        // for H2, just create a fulltext index (no language support)
+                        if(connection.getMetadata("fulltext.index") == null) {
+                            ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
+                            String script = IOUtils.toString(H2Dialect.class.getResourceAsStream("create_fulltext_index.sql"));
+                            runner.runScript(new StringReader(script));
+                        }
+                        */
+                    }
+                } finally {
+                    connection.close();
+                }
+            }
+        } catch (IOException | SQLException ex) {
+            log.error("error while preparing fulltext support",ex);
         }
     }
 

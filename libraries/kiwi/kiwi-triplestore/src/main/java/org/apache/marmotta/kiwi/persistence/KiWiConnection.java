@@ -18,7 +18,15 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import com.google.common.base.Preconditions;
-import info.aduna.iteration.*;
+import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.ConvertingIteration;
+import info.aduna.iteration.DelayedIteration;
+import info.aduna.iteration.DistinctIteration;
+import info.aduna.iteration.EmptyIteration;
+import info.aduna.iteration.ExceptionConvertingIteration;
+import info.aduna.iteration.Iteration;
+import info.aduna.iteration.IteratorIteration;
+import info.aduna.iteration.UnionIteration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
@@ -38,9 +46,14 @@ import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.*;
-import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -1836,6 +1849,62 @@ public class KiWiConnection {
                 tables.add(result.getString(1).toLowerCase());
             }
             return tables;
+        } finally {
+            result.close();
+        }
+    }
+
+    /**
+     * Return the metadata value with the given key; can be used by KiWi modules to retrieve module-specific metadata.
+     *
+     * @param key
+     * @return
+     * @throws SQLException
+     */
+    public String getMetadata(String key) throws SQLException {
+        requireJDBCConnection();
+
+        PreparedStatement statement = getPreparedStatement("meta.get");
+        statement.setString(1,key);
+        ResultSet result = statement.executeQuery();
+        try {
+            if(result.next()) {
+                return result.getString(1);
+            } else {
+                return null;
+            }
+        } finally {
+            result.close();
+        }
+    }
+
+
+    /**
+     * Update the metadata value for the given key; can be used by KiWi modules to set module-specific metadata.
+     *
+     * @param key
+     * @return
+     * @throws SQLException
+     */
+    public void setMetadata(String key, String value) throws SQLException {
+        requireJDBCConnection();
+
+        PreparedStatement statement = getPreparedStatement("meta.get");
+        ResultSet result = statement.executeQuery();
+        try {
+            if(result.next()) {
+                PreparedStatement update = getPreparedStatement("meta.update");
+                update.clearParameters();
+                update.setString(1, value);
+                update.setString(2, key);
+                update.executeUpdate();
+            } else {
+                PreparedStatement insert = getPreparedStatement("meta.insert");
+                insert.clearParameters();
+                insert.setString(1, key);
+                insert.setString(2, value);
+                insert.executeUpdate();
+            }
         } finally {
             result.close();
         }

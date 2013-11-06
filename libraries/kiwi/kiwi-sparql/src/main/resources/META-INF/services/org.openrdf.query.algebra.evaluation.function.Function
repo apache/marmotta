@@ -1,0 +1,2 @@
+org.apache.marmotta.kiwi.sparql.function.FulltextSearchFunction
+org.apache.marmotta.kiwi.sparql.function.FulltextQueryFunction

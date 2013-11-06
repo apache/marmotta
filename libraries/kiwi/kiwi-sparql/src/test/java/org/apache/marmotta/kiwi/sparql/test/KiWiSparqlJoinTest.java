@@ -26,6 +26,8 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -78,6 +80,8 @@ public class KiWiSparqlJoinTest {
 
     public KiWiSparqlJoinTest(KiWiConfiguration dbConfig) {
         this.dbConfig = dbConfig;
+        dbConfig.setFulltextEnabled(true);
+        dbConfig.setFulltextLanguages(new String[] {"en"});
     }
 
 
@@ -261,6 +265,65 @@ public class KiWiSparqlJoinTest {
     @Test
     public void testQuery21() throws Exception {
         testQuery("query21.sparql");
+    }
+
+    // fulltext search filter
+    @Test
+    public void testQuery22() throws Exception {
+        Assume.assumeTrue(dbConfig.getDialect().isFunctionSupported(FN_MARMOTTA.SEARCH_FULLTEXT));
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("query22.sparql"), "UTF-8");
+
+        RepositoryConnection con1 = repository.getConnection();
+        try {
+            con1.begin();
+
+            TupleQuery query1 = con1.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result1 = query1.evaluate();
+
+            con1.commit();
+
+            Assert.assertTrue(result1.hasNext());
+
+            BindingSet next = result1.next();
+
+            Assert.assertEquals("http://localhost:8080/LMF/resource/hans_meier", next.getValue("p1").stringValue());
+
+        } catch(RepositoryException ex) {
+            con1.rollback();
+        } finally {
+            con1.close();
+        }
+
+    }
+
+    // fulltext query filter
+    @Test
+    public void testQuery23() throws Exception {
+        Assume.assumeTrue(dbConfig.getDialect().isFunctionSupported(FN_MARMOTTA.SEARCH_FULLTEXT));
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("query23.sparql"), "UTF-8");
+
+        RepositoryConnection con1 = repository.getConnection();
+        try {
+            con1.begin();
+
+            TupleQuery query1 = con1.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result1 = query1.evaluate();
+
+            con1.commit();
+
+            Assert.assertTrue(result1.hasNext());
+
+            while (result1.hasNext()) {
+                BindingSet next = result1.next();
+                Assert.assertThat(next.getValue("p1").stringValue(), Matchers.isOneOf("http://localhost:8080/LMF/resource/hans_meier", "http://localhost:8080/LMF/resource/sepp_huber"));
+            }
+
+        } catch(RepositoryException ex) {
+            con1.rollback();
+        } finally {
+            con1.close();
+        }
+
     }
 
 
