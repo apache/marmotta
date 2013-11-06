@@ -50,6 +50,12 @@ public class PostgreSQLDialect extends KiWiDialect {
         supportedFunctions.add(FN.STRING_LENGTH);
         supportedFunctions.add(FN.STARTS_WITH);
         supportedFunctions.add(FN.ENDS_WITH);
+
+        supportedFunctions.add(FN.NUMERIC_ABS);
+        supportedFunctions.add(FN.NUMERIC_CEIL);
+        supportedFunctions.add(FN.NUMERIC_FLOOR);
+        supportedFunctions.add(FN.NUMERIC_ROUND);
+
         supportedFunctions.add(FN_MARMOTTA.SEARCH_FULLTEXT);
         supportedFunctions.add(FN_MARMOTTA.QUERY_FULLTEXT);
     }
@@ -186,6 +192,18 @@ public class PostgreSQLDialect extends KiWiDialect {
         } else if(FN.ENDS_WITH.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 2);
             return String.format("(POSITION(reverse(%2$s) IN reverse(%1$s)) = 1)", args[0], args[1]);
+        } else if(FN.NUMERIC_ABS.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("abs(%s)", args[0]);
+        } else if(FN.NUMERIC_CEIL.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("ceil(%s)", args[0]);
+        } else if(FN.NUMERIC_FLOOR.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("floor(%s)", args[0]);
+        } else if(FN.NUMERIC_ROUND.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("round(%s)", args[0]);
         } else if(FN_MARMOTTA.SEARCH_FULLTEXT.equals(fnUri)) {
             if(args.length == 2) {
                 return String.format("(to_tsvector('simple' :: regconfig,%1$s) @@ plainto_tsquery('simple' :: regconfig,%2$s))", args[0], args[1]);

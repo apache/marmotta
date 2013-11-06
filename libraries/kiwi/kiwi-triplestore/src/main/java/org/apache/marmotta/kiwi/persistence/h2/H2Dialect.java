@@ -48,6 +48,11 @@ public class H2Dialect extends KiWiDialect {
         supportedFunctions.add(FN.STRING_LENGTH);
         supportedFunctions.add(FN.STARTS_WITH);
         supportedFunctions.add(FN.ENDS_WITH);
+
+        supportedFunctions.add(FN.NUMERIC_ABS);
+        supportedFunctions.add(FN.NUMERIC_CEIL);
+        supportedFunctions.add(FN.NUMERIC_FLOOR);
+        supportedFunctions.add(FN.NUMERIC_ROUND);
     }
 
     /**
@@ -160,6 +165,18 @@ public class H2Dialect extends KiWiDialect {
         } else if(FN.ENDS_WITH.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 2);
             return String.format("(SUBSTRING(%1$s, - CHAR_LENGTH(%2$s)) = %2$s)", args[0], args[1]);
+        } else if(FN.NUMERIC_ABS.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("abs(%s)", args[0]);
+        } else if(FN.NUMERIC_CEIL.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("ceil(%s)", args[0]);
+        } else if(FN.NUMERIC_FLOOR.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("floor(%s)", args[0]);
+        } else if(FN.NUMERIC_ROUND.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("round(%s)", args[0]);
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
     }
