@@ -50,6 +50,10 @@ public class KiWiHandler implements RDFHandler {
     private LoadingCache<Literal, KiWiLiteral> literalCache;
     private LoadingCache<URI, KiWiUriResource> uriCache;
     private LoadingCache<BNode, KiWiAnonResource> bnodeCache;
+    private LoadingCache<String,Locale> localeCache;
+
+    // if non-null, all imported statements will have this context (regardless whether they specified a different context)
+    private KiWiResource overrideContext;
 
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
@@ -82,6 +86,22 @@ public class KiWiHandler implements RDFHandler {
                     @Override
                     public KiWiAnonResource load(BNode key) throws Exception {
                         return createBNode(key.stringValue());
+                    }
+                });
+
+        this.localeCache = CacheBuilder.newBuilder()
+                .maximumSize(100)
+                .build(new CacheLoader<String, Locale>() {
+                    @Override
+                    public Locale load(String lang) throws Exception {
+                        try {
+                            Locale.Builder builder = new Locale.Builder();
+                            builder.setLanguageTag(lang);
+                            return builder.build();
+                        } catch (IllformedLocaleException ex) {
+                            log.warn("malformed language literal (language: {})", lang);
+                            return null;
+                        }
                     }
                 });
 
@@ -124,6 +144,14 @@ public class KiWiHandler implements RDFHandler {
 
         this.start = System.currentTimeMillis();
         this.previous = System.currentTimeMillis();
+
+        if(config.getContext() != null) {
+            try {
+                this.overrideContext = (KiWiResource)convertNode(new URIImpl(config.getContext()));
+            } catch (ExecutionException e) {
+                log.error("could not create/load resource",e);
+            }
+        }
     }
 
     /**
@@ -162,8 +190,8 @@ public class KiWiHandler implements RDFHandler {
             KiWiNode object = convertNode(st.getObject());
             KiWiResource context;
 
-            if(config.getContext() != null) {
-                context = (KiWiResource)convertNode(new URIImpl(config.getContext()));
+            if(this.overrideContext != null) {
+                context = this.overrideContext;
             } else {
                 context = (KiWiResource)convertNode(st.getContext());
             }
@@ -215,17 +243,12 @@ public class KiWiHandler implements RDFHandler {
 
         Locale locale;
         if(lang != null) {
-            try {
-                Locale.Builder builder = new Locale.Builder();
-                builder.setLanguageTag(lang);
-                locale = builder.build();
-            } catch (IllformedLocaleException ex) {
-                log.warn("malformed language literal (language: {})", lang);
-                locale = null;
-                lang = null;
-            }
+            locale = localeCache.get(lang);
         } else {
             locale = null;
+        }
+        if(locale == null) {
+            lang = null;
         }
 
 
