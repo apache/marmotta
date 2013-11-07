@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Add file description here!
@@ -118,10 +120,13 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                             }
                             for(String lang : configuration.getFulltextLanguages()) {
                                 if(connection.getMetadata("ft.idx."+lang) == null) {
-                                    log.info("PostgreSQL: creating fulltext index for language {}", lang);
-                                    String script_lang = script.toString().replaceAll("@LANGUAGE@", lang);
-                                    log.debug("PostgreSQL: running SQL script '{}'", script_lang);
-                                    runner.runScript(new StringReader(script_lang));
+                                    String pg_configuration = POSTGRES_LANG_MAPPINGS.get(lang);
+                                    if(pg_configuration != null) {
+                                        log.info("PostgreSQL: creating fulltext index for language {}", lang);
+                                        String script_lang = script.toString().replaceAll("@LANGUAGE@", lang).replaceAll("@CONFIGURATION@",pg_configuration);
+                                        log.debug("PostgreSQL: running SQL script '{}'", script_lang);
+                                        runner.runScript(new StringReader(script_lang));
+                                    }
                                 }
                             }
                         }
@@ -197,5 +202,25 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
         } catch (SQLException e) {
             throw new SailException(e);
         }
+    }
+
+
+    private static Map<String,String> POSTGRES_LANG_MAPPINGS = new HashMap<>();
+    static {
+        POSTGRES_LANG_MAPPINGS.put("en","english");
+        POSTGRES_LANG_MAPPINGS.put("de","german");
+        POSTGRES_LANG_MAPPINGS.put("fr","french");
+        POSTGRES_LANG_MAPPINGS.put("it","italian");
+        POSTGRES_LANG_MAPPINGS.put("es","spanish");
+        POSTGRES_LANG_MAPPINGS.put("pt","portuguese");
+        POSTGRES_LANG_MAPPINGS.put("sv","swedish");
+        POSTGRES_LANG_MAPPINGS.put("no","norwegian");
+        POSTGRES_LANG_MAPPINGS.put("dk","danish");
+        POSTGRES_LANG_MAPPINGS.put("nl","dutch");
+        POSTGRES_LANG_MAPPINGS.put("ru","russian");
+        POSTGRES_LANG_MAPPINGS.put("tr","turkish");
+        POSTGRES_LANG_MAPPINGS.put("hu","hungarian");
+        POSTGRES_LANG_MAPPINGS.put("fi","finnish");
+
     }
 }

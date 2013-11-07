@@ -36,7 +36,7 @@ BEGIN
     ELSE RETURN 'simple';
   END CASE;
 END
-$$ LANGUAGE plpgsql IMMUTABLE;
+$$ LANGUAGE plpgsql;
 
 INSERT INTO metadata(mkey,mvalue) VALUES ('ft.lookup','true');
 

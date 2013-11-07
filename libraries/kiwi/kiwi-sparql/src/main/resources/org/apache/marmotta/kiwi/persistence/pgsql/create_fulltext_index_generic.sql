@@ -16,5 +16,5 @@
 DROP INDEX IF EXISTS kiwi_ft_idx_generic;
 CREATE INDEX kiwi_ft_idx_generic ON nodes USING gin(to_tsvector('simple',svalue));
 
-INSERT INTO metadata(mkey,mvalue) VALUES ('ft.idx.generic,'true');
+INSERT INTO metadata(mkey,mvalue) VALUES ('ft.idx.generic','true');
 
