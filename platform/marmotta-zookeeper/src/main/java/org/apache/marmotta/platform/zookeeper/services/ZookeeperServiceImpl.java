@@ -65,6 +65,7 @@ public class ZookeeperServiceImpl implements ZookeeperService {
 
     private Properties properties;
 
+    private String datacenterIdPath;
 
     public void initialise(@Observes ConfigurationServiceInitEvent event) throws IOException, InterruptedException {
         log.warn("Activating Marmotta Zookeeper Bridge");
@@ -142,16 +143,25 @@ public class ZookeeperServiceImpl implements ZookeeperService {
     }
 
     @PreDestroy
-    private void shutdown() throws InterruptedException, IOException {
-        log.info("deactivating Zookeeper Bridge ...");
-        if(nodeKeeper != null) {
-            log.info(" - closing nodekeeper connection");
-            nodeKeeper.shutdown();
-            log.info("   ... closed");
-        }
-        if(properties != null) {
-            File nkProperties = new File(configurationService.getHome() + File.separator + "nodekeeper.properties");
-            properties.store(new FileOutputStream(nkProperties), "automatic nodekeeper state");
+    private void shutdown()  {
+        try {
+            log.info("ZOOKEEPER: deactivating Zookeeper Bridge ...");
+            if(nodeKeeper != null) {
+                String cluster = configurationService.getStringConfiguration(ZK_CLUSTER, "default");
+
+                log.info("- removing lock on datacenter id");
+                nodeKeeper.getZooKeeper().delete(String.format(datacenterIdPath, cluster),-1);
+
+                log.info(" - closing nodekeeper connection");
+                nodeKeeper.shutdown();
+                log.info("   ... closed");
+            }
+            if(properties != null) {
+                File nkProperties = new File(configurationService.getHome() + File.separator + "nodekeeper.properties");
+                properties.store(new FileOutputStream(nkProperties), "automatic nodekeeper state");
+            }
+        } catch (InterruptedException | KeeperException | IOException e) {
+            log.error("ZOOKEEPER: exception while shutting down Zookeeper connection ({})", e.getMessage());
         }
     }
 
@@ -175,12 +185,25 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             createNodeIfNotExists("/marmotta/clusters");
             createNodeIfNotExists(String.format("/marmotta/clusters/%s", cluster));
             createNodeIfNotExists(String.format("/marmotta/clusters/%s/config", cluster));
+            createNodeIfNotExists(String.format("/marmotta/clusters/%s/snowflake", cluster));
 
             createNodeIfNotExists(String.format("/marmotta/clusters/%s/instances", cluster));
             createNodeIfNotExists(String.format("/marmotta/clusters/%s/instances/%s", cluster, uuid));
             createNodeIfNotExists(String.format("/marmotta/clusters/%s/instances/%s/config", cluster, uuid));
+
+            int datacenterId = configurationService.getIntConfiguration("database.datacenter.id",0);
+
+            // configure datacenter id using a sequential ephemeral node
+            while (datacenterIdPath == null || nodeKeeper.getZooKeeper().exists(String.format("/marmotta/clusters/%s/snowflake/id-%010d", cluster,datacenterId), false) != null) {
+                datacenterIdPath = nodeKeeper.getZooKeeper().create(String.format("/marmotta/clusters/%s/snowflake/id-", cluster),new String("creator:"+uuid).getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+                datacenterId = Integer.parseInt(datacenterIdPath.substring(datacenterIdPath.lastIndexOf("id-")+3)) % 4096;
+            }
+            log.info("ZOOKEEPER: generated datacenter ID {}", datacenterId);
+            configurationService.setIntConfiguration("database.datacenter.id", datacenterId);
         }
     }
+
+
 
 
     private void createNodeIfNotExists(String path) throws KeeperException, InterruptedException {
