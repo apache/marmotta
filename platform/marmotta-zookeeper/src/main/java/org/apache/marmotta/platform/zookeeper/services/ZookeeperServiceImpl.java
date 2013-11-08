@@ -191,13 +191,12 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             createNodeIfNotExists(String.format("/marmotta/clusters/%s/instances/%s", cluster, uuid));
             createNodeIfNotExists(String.format("/marmotta/clusters/%s/instances/%s/config", cluster, uuid));
 
-            int datacenterId = configurationService.getIntConfiguration("database.datacenter.id",0);
+            // TODO: check that the datacenter id is not yet occupied
 
             // configure datacenter id using a sequential ephemeral node
-            while (datacenterIdPath == null || nodeKeeper.getZooKeeper().exists(String.format("/marmotta/clusters/%s/snowflake/id-%010d", cluster,datacenterId), false) != null) {
-                datacenterIdPath = nodeKeeper.getZooKeeper().create(String.format("/marmotta/clusters/%s/snowflake/id-", cluster),new String("creator:"+uuid).getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
-                datacenterId = Integer.parseInt(datacenterIdPath.substring(datacenterIdPath.lastIndexOf("id-")+3)) % 4096;
-            }
+            datacenterIdPath = nodeKeeper.getZooKeeper().create(String.format("/marmotta/clusters/%s/snowflake/id-", cluster),new String("creator:"+uuid).getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+            int datacenterId = Integer.parseInt(datacenterIdPath.substring(datacenterIdPath.lastIndexOf("id-")+3)) % 4096;
+
             log.info("ZOOKEEPER: generated datacenter ID {}", datacenterId);
             configurationService.setIntConfiguration("database.datacenter.id", datacenterId);
         }
