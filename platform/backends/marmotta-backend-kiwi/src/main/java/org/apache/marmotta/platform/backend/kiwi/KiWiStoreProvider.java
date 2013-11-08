@@ -146,6 +146,7 @@ public class KiWiStoreProvider implements StoreProvider {
     }
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
+        log.info("configuration changed: {}", e.getKeys());
         if(e.containsChangedKey(SPARQL_STRATEGY) ||
                 e.containsChangedKey(DATACENTER_ID) ||
                 e.containsChangedKey(FULLTEXT_ENABLED) ||
