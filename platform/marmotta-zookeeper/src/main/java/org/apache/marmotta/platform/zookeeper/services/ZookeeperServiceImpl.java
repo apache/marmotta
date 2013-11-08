@@ -149,8 +149,10 @@ public class ZookeeperServiceImpl implements ZookeeperService {
             nodeKeeper.shutdown();
             log.info("   ... closed");
         }
-        File nkProperties = new File(configurationService.getHome() + File.separator + "nodekeeper.properties");
-        properties.store(new FileOutputStream(nkProperties), "automatic nodekeeper state");
+        if(properties != null) {
+            File nkProperties = new File(configurationService.getHome() + File.separator + "nodekeeper.properties");
+            properties.store(new FileOutputStream(nkProperties), "automatic nodekeeper state");
+        }
     }
 
     /**
