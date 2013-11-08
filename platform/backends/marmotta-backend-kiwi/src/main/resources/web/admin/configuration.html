@@ -16,31 +16,37 @@
   -->
 <html>
 <head>
+<title>Storage Backend: BigData</title>
+<script type="text/javascript">
+	var _SERVER_URL = "http://localhost:8080/LMF/";
+</script>
 <!--###BEGIN_HEAD###-->
-    <title>Core Module Configuration</title>
-    <link type="text/css" rel="stylesheet" href="../../../../../../../marmotta-core/src/main/resources/web/public/js/widgets/configurator/style.css">
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
-    <script type="text/javascript" src="js/widgets/database.js"></script>
+    <script type="text/javascript" src="../../core/public/js/widgets/configurator/configurator.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link type="text/css" rel="stylesheet" href="../../core/public/js/widgets/configurator/style.css">
     <script type="text/javascript">
         jQuery(document).ready(function(){
-            $('#lmf_database').lmf_database({host:_SERVER_URL});
+            var options = {
+                url : _SERVER_URL,
+                container : "kiwi_configurator",
+                prefix : 'database',
+                blacklist: ['database.type','database.url','database.user','database.password','database.h2.','database.postgres.','database.mysql.']
+            }
+            var configurator = new Configurator(options);
         });
     </script>
 <!--###END_HEAD###-->
 </head>
 <body>
-<div id="main">
-<div id="contents">
-<!--###BEGIN_CONTENT###-->
-<h1>KiWi Storage Backend Configuration</h1>
-        <p>
-            Here you can configure the database options for the Marmotta KiWi Storage Backend.<br/>
-        </p>
-        <div id="lmf_database">
-            <h4>Loading database manager</h4>
-        </div>
-<!--###END_CONTENT###-->
-</div>
-</div>
+  <!--###BEGIN_CONTENT###-->
+  <h1>KiWi Backend Configuration</h1>
+  <p>
+    Here you can configure options offered by the KiWi triple store. The configuration currently contains:
+  </p>
+  <div id="kiwi_configurator">
+    <h4>Loading configurator</h4>
+  </div>
+  <!--###END_CONTENT###-->
 </body>
 </html>

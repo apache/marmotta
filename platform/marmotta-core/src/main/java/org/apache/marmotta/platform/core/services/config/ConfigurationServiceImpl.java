@@ -64,7 +64,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ApplicationScoped
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-	private String home;
+    private String home;
 
     private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
 
@@ -176,13 +176,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 if(!f3.exists()) {
                     f3.mkdirs();
                 }
-                
+
                 // ensure directory for importing data
                 File f4 = new File(getHome() + File.separator + DIR_IMPORT);
                 if(!f4.exists()) {
                     f4.mkdirs();
                 }
-                
+
             }
 
             // the save configuration will be in the  home directory
@@ -299,7 +299,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             log.info("Apache Marmotta Configuration Service: initialisation completed");
 
             configurationInitEvent.fire(new ConfigurationServiceInitEvent());
-            
+
         } finally {
             lock.writeLock().unlock();
         }
@@ -991,6 +991,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
             if (!initialising) {
+                log.debug("firing configuration changed event for key {}", key);
                 configurationEvent.fire(new ConfigurationChangedEvent(key));
             }
         }
@@ -1018,6 +1019,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         Preconditions.checkNotNull(key);
         Preconditions.checkState(initialised,"ConfigurationService not yet initialised; call initialise() manually");
 
+        log.debug("setting configuration {} = {}", key, value);
+
         if(!config.containsKey(key) || !ObjectUtils.equals(value,config.getString(key))) {
 
             lock.writeLock().lock();
@@ -1036,6 +1039,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
             if (!initialising) {
+                log.debug("firing configuration changed event for key {}", key);
                 configurationEvent.fire(new ConfigurationChangedEvent(key));
             }
         }
@@ -1452,4 +1456,28 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
     }
 
+    /**
+     * Return the context parameter, servlet init parameter, or system property with the given key. This method
+     * provides unified access to properties configured in either the web.xml, the context.xml or via a system property
+     * passed on startup. It can be used by services that cannot read their configuration from the main
+     * system-config.properties.
+     *
+     * @param key
+     * @return
+     */
+    @Override
+    public String getContextParam(String key) {
+        String value = System.getProperty(key);
+        if(value == null) {
+            if(servletContext != null) {
+                value = servletContext.getInitParameter(key);
+
+                if(value == null) {
+                    value = servletContext.getAttribute(key) != null ? servletContext.getAttribute(key).toString() : null;
+                }
+
+            }
+        }
+        return value;
+    }
 }

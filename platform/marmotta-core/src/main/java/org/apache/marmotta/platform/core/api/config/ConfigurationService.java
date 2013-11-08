@@ -20,7 +20,6 @@ package org.apache.marmotta.platform.core.api.config;
 import org.apache.commons.configuration.Configuration;
 
 import javax.servlet.ServletContext;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -539,4 +538,16 @@ public interface ConfigurationService {
     boolean isInitialising();
 
     void setInitialising(boolean initialising);
+
+
+    /**
+     * Return the context parameter, servlet init parameter, or system property with the given key. This method
+     * provides unified access to properties configured in either the web.xml, the context.xml or via a system property
+     * passed on startup. It can be used by services that cannot read their configuration from the main
+     * system-config.properties.
+     *
+     * @param key
+     * @return
+     */
+    String getContextParam(String key);
 }

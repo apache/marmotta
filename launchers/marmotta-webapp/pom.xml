@@ -221,6 +221,11 @@
             <artifactId>marmotta-versioning-kiwi</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>org.apache.marmotta</groupId>

@@ -70,6 +70,8 @@
         <module>marmotta-reasoner-kiwi</module>
         <module>marmotta-versioning-kiwi</module>
 
+        <!-- Cloud Integration -->
+        <module>marmotta-zookeeper</module>
 
     </modules>
 

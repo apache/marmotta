@@ -15,6 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
 (function( $ ){
     $.fn.lmf_database = function(options) {
         var settings = {
@@ -103,13 +108,15 @@
                         var values = [];
                          var databases = new Array();
                          for(var property in data) {
-                            property = property.substring(property.indexOf('.')+1);
-                            property = property.substring(0,property.indexOf('.'));
-                            if(property!="") {
-                                if($.inArray(property,databases)==-1) {
-                                    databases.push(property);
-                                }
-                            }
+                             if(endsWith(property,"url")) {
+                                 property = property.substring(property.indexOf('.')+1);
+                                 property = property.substring(0,property.indexOf('.'));
+                                 if(property!="") {
+                                     if($.inArray(property,databases)==-1) {
+                                         databases.push(property);
+                                     }
+                                 }
+                             }
                         }
                         getDBType(databases,new Array());
                     });

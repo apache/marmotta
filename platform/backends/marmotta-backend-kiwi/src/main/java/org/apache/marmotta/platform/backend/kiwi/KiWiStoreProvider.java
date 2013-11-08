@@ -58,7 +58,11 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class KiWiStoreProvider implements StoreProvider {
 
-    public static final String SPARQL_STRATEGY = "sparql.strategy";
+    public static final String SPARQL_STRATEGY    = "sparql.strategy";
+    public static final String DATACENTER_ID      = "database.datacenter.id";
+    public static final String FULLTEXT_ENABLED   = "database.fulltext.enabled";
+    public static final String FULLTEXT_LANGUAGES = "database.fulltext.languages";
+    public static final String DEBUG_SLOWQUERIES = "database.debug.slowqueries";
 
     @Inject
     private Logger log;
@@ -94,13 +98,13 @@ public class KiWiStoreProvider implements StoreProvider {
         String dbPass  = configurationService.getStringConfiguration("database.password");
 
         KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
-        configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration("database.debug.slowqueries", false));
+        configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration(DEBUG_SLOWQUERIES, false));
         configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration("database.triples.batchcommit", true));
         configuration.setTripleBatchSize(configurationService.getIntConfiguration("database.triples.batchsize", 10000));
 
-        configuration.setDatacenterId(configurationService.getIntConfiguration("database.datacenter.id",0));
-        configuration.setFulltextEnabled(configurationService.getBooleanConfiguration("database.fulltext.enabled", true));
-        configuration.setFulltextLanguages(configurationService.getListConfiguration("database.fulltext.languages", ImmutableList.of("en")));
+        configuration.setDatacenterId(configurationService.getIntConfiguration(DATACENTER_ID,0));
+        configuration.setFulltextEnabled(configurationService.getBooleanConfiguration(FULLTEXT_ENABLED, true));
+        configuration.setFulltextLanguages(configurationService.getListConfiguration(FULLTEXT_LANGUAGES, ImmutableList.of("en")));
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
             return new KiWiSparqlSail(new KiWiStore(configuration));
@@ -142,7 +146,14 @@ public class KiWiStoreProvider implements StoreProvider {
     }
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
-        if(e.containsChangedKey(SPARQL_STRATEGY)) {
+        if(e.containsChangedKey(SPARQL_STRATEGY) ||
+                e.containsChangedKey(DATACENTER_ID) ||
+                e.containsChangedKey(FULLTEXT_ENABLED) ||
+                e.containsChangedKey(FULLTEXT_LANGUAGES) ||
+                e.containsChangedKey(DEBUG_SLOWQUERIES)
+                ) {
+            log.info("KiWi backend configuration changed, re-initialising triple store");
+
             sesameService.restart();
         }
     }
