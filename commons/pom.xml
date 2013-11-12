@@ -54,6 +54,7 @@
     <modules>
         <module>marmotta-commons</module>
         <module>sesame-filter</module>
+        <module>sesame-contextaware</module>
         <module>sesame-tools-rio-api</module>
         <module>sesame-tools-rio-ical</module>
         <module>sesame-tools-rio-rss</module>

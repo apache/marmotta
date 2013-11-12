@@ -98,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-contextaware</artifactId>
+            <artifactId>sesame-contextaware</artifactId>
         </dependency>
 
         <!-- Logging -->
