@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.kiwi.versioning.sail;
 
-import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
-import org.apache.marmotta.kiwi.transactions.model.TransactionData;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence;
 
 /**

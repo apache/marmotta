@@ -18,11 +18,12 @@
 package org.apache.marmotta.kiwi.versioning.test;
 
 import info.aduna.iteration.Iterations;
+
+import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
 import org.junit.After;

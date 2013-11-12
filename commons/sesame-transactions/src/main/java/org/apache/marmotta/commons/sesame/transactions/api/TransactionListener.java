@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.transactions.api;
+package org.apache.marmotta.commons.sesame.transactions.api;
 
-import org.apache.marmotta.kiwi.transactions.model.TransactionData;
+import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
 
 /**
  * Add file description here!

@@ -27,12 +27,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
+import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
-import org.apache.marmotta.kiwi.transactions.model.TransactionData;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

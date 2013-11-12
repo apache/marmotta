@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.transactions.api;
+package org.apache.marmotta.commons.sesame.transactions.api;
 
 import org.openrdf.sail.NotifyingSailConnection;
 

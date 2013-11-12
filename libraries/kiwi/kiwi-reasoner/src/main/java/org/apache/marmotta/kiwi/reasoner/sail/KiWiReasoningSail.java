@@ -19,6 +19,9 @@ package org.apache.marmotta.kiwi.reasoner.sail;
 
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
+
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningEngine;
 import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
@@ -30,8 +33,6 @@ import org.apache.marmotta.kiwi.reasoner.parser.ParseException;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.wrapper.TransactionalSailWrapper;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.StackableSail;
 import org.slf4j.Logger;

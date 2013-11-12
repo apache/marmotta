@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.sail;
 
+import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -28,7 +29,6 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

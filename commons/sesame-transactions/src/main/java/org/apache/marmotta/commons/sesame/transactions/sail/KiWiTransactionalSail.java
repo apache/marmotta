@@ -15,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.transactions.sail;
+package org.apache.marmotta.commons.sesame.transactions.sail;
 
-import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailException;

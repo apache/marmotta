@@ -20,16 +20,16 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>kiwi-parent</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>kiwi-transactions</artifactId>
+    <artifactId>sesame-transactions</artifactId>
     <packaging>jar</packaging>
 
-    <name>KiWi Triplestore: Transactions</name>
-    <description>Extended transaction support for KiWi triplestores. Needed by reasoner and versioning.</description>
+    <name>Sesame Tools: Transactions</name>
+    <description>Extended transaction support for Sesame Notifying Sails.</description>
 
     <dependencies>
         <dependency>

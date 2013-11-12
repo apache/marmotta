@@ -15,16 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.transactions.api;
+package org.apache.marmotta.commons.sesame.transactions.wrapper;
 
-import org.openrdf.sail.NotifyingSail;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.openrdf.sail.helpers.NotifyingSailWrapper;
 
 /**
- * Add file description here!
+ * A Sail Wrapper allowing to pass through transaction functionality to other sails.
  * <p/>
  * Author: Sebastian Schaffert
  */
-public interface TransactionalSail extends NotifyingSail {
+public class TransactionalSailWrapper extends NotifyingSailWrapper implements TransactionalSail {
+
+    private TransactionalSail parent;
+
+    /**
+     * Creates a new SailWrapper that wraps the supplied Sail.
+     */
+    public TransactionalSailWrapper(TransactionalSail parent) {
+        super(parent);
+        this.parent = parent;
+    }
 
     /**
      * Add a transaction listener to the KiWiTransactionalStore. The listener will be notified whenever a connection
@@ -33,20 +45,30 @@ public interface TransactionalSail extends NotifyingSail {
      *
      * @param listener the listener to add to the list
      */
-    public void addTransactionListener(TransactionListener listener);
+    @Override
+    public void addTransactionListener(TransactionListener listener) {
+        parent.addTransactionListener(listener);
+    }
 
     /**
      * Remove a transaction listener from the list.
      *
      * @param listener the listener to remove
      */
-    public void removeTransactionListener(TransactionListener listener);
+    @Override
+    public void removeTransactionListener(TransactionListener listener) {
+        parent.removeTransactionListener(listener);
+    }
 
     /**
      * Check if extended transaction support is enabled
+     *
      * @return true if extended transactions are enabled
      */
-    public boolean isTransactionsEnabled();
+    @Override
+    public boolean isTransactionsEnabled() {
+        return parent.isTransactionsEnabled();
+    }
 
     /**
      * Temporarily enable/disable extended transactions. Disabling transactions might be useful when bulk loading large
@@ -54,7 +76,8 @@ public interface TransactionalSail extends NotifyingSail {
      *
      * @param transactionsEnabled
      */
-    public void setTransactionsEnabled(boolean transactionsEnabled);
-
-
+    @Override
+    public void setTransactionsEnabled(boolean transactionsEnabled) {
+        parent.setTransactionsEnabled(transactionsEnabled);
+    }
 }

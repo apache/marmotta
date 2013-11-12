@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.kiwi.versioning.api;
 
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryResult;

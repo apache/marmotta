@@ -1216,11 +1216,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>kiwi-transactions</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-versioning</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1231,6 +1226,11 @@
             </dependency>
 
             <!-- LMF Sesame Tools -->
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>sesame-transactions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-tripletable</artifactId>

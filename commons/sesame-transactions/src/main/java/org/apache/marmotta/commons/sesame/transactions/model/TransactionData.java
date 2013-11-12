@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.transactions.model;
+package org.apache.marmotta.commons.sesame.transactions.model;
 
 import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.openrdf.model.Statement;

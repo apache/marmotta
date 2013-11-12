@@ -19,12 +19,12 @@ package org.apache.marmotta.kiwi.versioning.sail;
 
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
+import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.model.TransactionData;
-import org.apache.marmotta.kiwi.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.versioning.api.VersioningSail;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;

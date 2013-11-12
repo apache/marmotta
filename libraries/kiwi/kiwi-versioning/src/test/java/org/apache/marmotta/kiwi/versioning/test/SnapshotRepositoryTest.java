@@ -26,10 +26,10 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.versioning.repository.SnapshotRepository;
 import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
 import org.junit.After;

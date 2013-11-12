@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.platform.core.api.triplestore;
 
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.wrapper.TransactionalSailWrapper;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 
 /**
  * An interface implemented by all modules that provide transactional sail wrappers for the sesame sail stack.

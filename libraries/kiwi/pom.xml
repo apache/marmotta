@@ -103,7 +103,6 @@
 
     <modules>
         <module>kiwi-triplestore</module>
-        <module>kiwi-transactions</module>
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
         <module>kiwi-sparql</module>
