@@ -32,11 +32,11 @@ import net.sf.ehcache.Element;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
-import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
@@ -308,7 +308,7 @@ public class KiWiConnection {
      */
     public void storeNamespace(KiWiNamespace namespace) throws SQLException {
         // TODO: add unique constraints to table
-        if(namespace.getId() >= 0) {
+        if(namespace.getId() != null) {
             log.warn("trying to store namespace which is already persisted: {}",namespace);
             return;
         }
@@ -335,7 +335,7 @@ public class KiWiConnection {
      * @throws SQLException in case a database error occurred
      */
     public void deleteNamespace(KiWiNamespace namespace) throws SQLException {
-        if(namespace.getId() < 0) {
+        if(namespace.getId() == null) {
             log.warn("trying to remove namespace which is not persisted: {}",namespace);
             return;
         }
@@ -377,7 +377,7 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public long getSize(KiWiResource context) throws SQLException {
-        if(context.getId() < 0) {
+        if(context.getId() == null) {
             return 0;
         };
 
@@ -605,7 +605,7 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         // ltype not persisted
-        if(ltype != null && ltype.getId() < 0) {
+        if(ltype != null && ltype.getId() == null) {
             return null;
         }
 
@@ -671,7 +671,7 @@ public class KiWiConnection {
 
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "dateTime");
 
-        if(ltype == null || ltype.getId() < 0) {
+        if(ltype == null || ltype.getId() == null) {
             return null;
         }
 
@@ -726,7 +726,7 @@ public class KiWiConnection {
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "integer");
 
         // ltype not persisted
-        if(ltype == null || ltype.getId() < 0) {
+        if(ltype == null || ltype.getId() == null) {
             return null;
         }
 
@@ -781,7 +781,7 @@ public class KiWiConnection {
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "double");
 
         // ltype not persisted
-        if(ltype == null || ltype.getId() < 0) {
+        if(ltype == null || ltype.getId() == null) {
             return null;
         }
 
@@ -836,7 +836,7 @@ public class KiWiConnection {
         KiWiUriResource ltype = loadUriResource(Namespaces.NS_XSD + "boolean");
 
         // ltype not persisted
-        if(ltype == null || ltype.getId() < 0) {
+        if(ltype == null || ltype.getId() == null) {
             return null;
         }
 
@@ -883,7 +883,7 @@ public class KiWiConnection {
         // ensure the data type of a literal is persisted first
         if(node instanceof KiWiLiteral) {
             KiWiLiteral literal = (KiWiLiteral)node;
-            if(literal.getType() != null && literal.getType().getId() < 0) {
+            if(literal.getType() != null && literal.getType().getId() == null) {
                 storeNode(literal.getType(), batch);
             }
         }
@@ -891,7 +891,7 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         // retrieve a new node id and set it in the node object
-        if(node.getId() < 0) {
+        if(node.getId() == null) {
             node.setId(getNextSequence("seq.nodes"));
         }
 
@@ -999,43 +999,20 @@ public class KiWiConnection {
         } else if(node instanceof KiWiStringLiteral) {
             KiWiStringLiteral stringLiteral = (KiWiStringLiteral)node;
 
-
-            Double dbl_value = null;
-            Long   lng_value = null;
-            if(stringLiteral.getContent().length() < 64 && NumberUtils.isNumber(stringLiteral.getContent()))
-            try {
-                dbl_value = Double.parseDouble(stringLiteral.getContent());
-                lng_value = Long.parseLong(stringLiteral.getContent());
-            } catch (NumberFormatException ex) {
-                // ignore, keep NaN
-            }
-
-
             PreparedStatement insertNode = getPreparedStatement("store.sliteral");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2, stringLiteral.getContent());
-            if(dbl_value != null) {
-                insertNode.setDouble(3, dbl_value);
+            if(stringLiteral.getLocale() != null) {
+                insertNode.setString(3,stringLiteral.getLocale().getLanguage());
             } else {
                 insertNode.setObject(3, null);
             }
-            if(lng_value != null) {
-                insertNode.setLong(4, lng_value);
+            if(stringLiteral.getType() != null) {
+                insertNode.setLong(4,stringLiteral.getType().getId());
             } else {
                 insertNode.setObject(4, null);
             }
-
-            if(stringLiteral.getLocale() != null) {
-                insertNode.setString(5, stringLiteral.getLocale().getLanguage());
-            } else {
-                insertNode.setObject(5, null);
-            }
-            if(stringLiteral.getType() != null) {
-                insertNode.setLong(6,stringLiteral.getType().getId());
-            } else {
-                insertNode.setObject(6, null);
-            }
-            insertNode.setTimestamp(7, new Timestamp(stringLiteral.getCreated().getTime()));
+            insertNode.setTimestamp(5, new Timestamp(stringLiteral.getCreated().getTime()));
 
             if(batch) {
                 insertNode.addBatch();
@@ -1063,7 +1040,7 @@ public class KiWiConnection {
 
             requireJDBCConnection();
 
-            boolean hasId = triple.getId() >= 0;
+            boolean hasId = triple.getId() != null;
 
             if(hasId && deletedStatementsLog.contains(triple.getId())) {
                 // this is a hack for a concurrency problem that may occur in case the triple is removed in the
@@ -1076,7 +1053,7 @@ public class KiWiConnection {
                 return true;
             } else {
                 // retrieve a new triple ID and set it in the object
-                if(triple.getId() < 0) {
+                if(triple.getId() == null) {
                     triple.setId(getNextSequence("seq.triples"));
                 }
 
@@ -1150,7 +1127,7 @@ public class KiWiConnection {
      * @param inferred
      * @return
      */
-    public synchronized long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+    public synchronized Long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
             Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context, false);
             if(batched.size() > 0) {
@@ -1174,7 +1151,7 @@ public class KiWiConnection {
             if(result.next()) {
                 return result.getLong(1);
             } else {
-                return -1L;
+                return null;
             }
 
         } finally {
@@ -1206,7 +1183,7 @@ public class KiWiConnection {
                     triple.setDeleted(true);
                     triple.setDeletedAt(new Date());
 
-                    if (triple.getId() < 0) {
+                    if (triple.getId() == null) {
                         log.warn("attempting to remove non-persistent triple: {}", triple);
                         removeCachedTriple(triple);
                     } else {
@@ -1259,7 +1236,7 @@ public class KiWiConnection {
      * @param triple
      */
     public void undeleteTriple(KiWiTriple triple) throws SQLException {
-        if(triple.getId() < 0) {
+        if(triple.getId() == null) {
             log.warn("attempting to undelete non-persistent triple: {}",triple);
             return;
         }
@@ -1358,7 +1335,7 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         PreparedStatement queryContexts = getPreparedStatement("query.resources_prefix");
-        queryContexts.setString(1, prefix + "%");
+        queryContexts.setString(1, prefix+"%");
 
         final ResultSet result = queryContexts.executeQuery();
 
@@ -1463,16 +1440,16 @@ public class KiWiConnection {
      */
     private CloseableIteration<Statement, SQLException> listTriplesInternal(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, final boolean wildcardContext) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
-        if(subject != null && subject.getId() < 0) {
+        if(subject != null && subject.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
         }
-        if(predicate != null && predicate.getId() < 0) {
+        if(predicate != null && predicate.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
         }
-        if(object != null && object.getId() < 0) {
+        if(object != null && object.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
         }
-        if(context != null && context.getId() < 0) {
+        if(context != null && context.getId() == null) {
             return new EmptyIteration<Statement, SQLException>();
         }
 
@@ -1569,7 +1546,7 @@ public class KiWiConnection {
      */
     protected KiWiNode constructNodeFromDatabase(ResultSet row) throws SQLException {
 
-        long id = row.getLong("id");
+        Long id = row.getLong("id");
 
         Element cached = nodeCache.get(id);
 
@@ -1580,20 +1557,23 @@ public class KiWiConnection {
 
         String ntype = row.getString("ntype");
         if("uri".equals(ntype)) {
-            KiWiUriResource result = new KiWiUriResource(row.getString("svalue"),new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiUriResource result = new KiWiUriResource(row.getString("svalue"));
             result.setId(id);
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
             cacheNode(result);
             return result;
         } else if("bnode".equals(ntype)) {
-            KiWiAnonResource result = new KiWiAnonResource(row.getString("svalue"), new Date(row.getTimestamp("createdAt").getTime()));
-            result.setId(id);
+            KiWiAnonResource result = new KiWiAnonResource(row.getString("svalue"));
+            result.setId(row.getLong("id"));
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
             cacheNode(result);
             return result;
         } else if("string".equals(ntype)) {
-            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString("svalue"), new Date(row.getTimestamp("createdAt").getTime()));
-            result.setId(id);
+            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString("svalue"));
+            result.setId(row.getLong("id"));
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
             if(row.getString("lang") != null) {
                 result.setLocale(getLocale(row.getString("lang")));
@@ -1605,8 +1585,10 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("int".equals(ntype)) {
-            KiWiIntLiteral result = new KiWiIntLiteral(row.getLong("ivalue"), null, new Date(row.getTimestamp("createdAt").getTime()));
-            result.setId(id);
+            KiWiIntLiteral result = new KiWiIntLiteral();
+            result.setId(row.getLong("id"));
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
+            result.setIntContent(row.getLong("ivalue"));
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
             }
@@ -1614,8 +1596,10 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("double".equals(ntype)) {
-            KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble("dvalue"), null, new Date(row.getTimestamp("createdAt").getTime()));
-            result.setId(id);
+            KiWiDoubleLiteral result = new KiWiDoubleLiteral();
+            result.setId(row.getLong("id"));
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
+            result.setDoubleContent(row.getDouble("dvalue"));
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
             }
@@ -1623,8 +1607,10 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("boolean".equals(ntype)) {
-            KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean("bvalue"),null,new Date(row.getTimestamp("createdAt").getTime()));
-            result.setId(id);
+            KiWiBooleanLiteral result = new KiWiBooleanLiteral();
+            result.setId(row.getLong("id"));
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
+            result.setValue(row.getBoolean("bvalue"));
 
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
@@ -1633,8 +1619,10 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("date".equals(ntype)) {
-            KiWiDateLiteral result = new KiWiDateLiteral(new Date(row.getTimestamp("tvalue").getTime()), null, new Date(row.getTimestamp("createdAt").getTime()));
-            result.setId(id);
+            KiWiDateLiteral result = new KiWiDateLiteral();
+            result.setId(row.getLong("id"));
+            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
+            result.setDateContent(new Date(row.getTimestamp("tvalue").getTime()));
 
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
@@ -1668,10 +1656,6 @@ public class KiWiConnection {
      * @return a KiWiTriple representation of the database result
      */
     protected KiWiTriple constructTripleFromDatabase(ResultSet row) throws SQLException {
-        if(row.isClosed()) {
-            throw new ResultInterruptedException("retrieving results has been interrupted");
-        }
-
         Long id = row.getLong("id");
 
         Element cached = tripleCache.get(id);
@@ -1710,7 +1694,7 @@ public class KiWiConnection {
 
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
-        if(locale == null && language != null && !language.isEmpty()) {
+        if(locale == null && language != null) {
             try {
                 Locale.Builder builder = new Locale.Builder();
                 builder.setLanguageTag(language);
@@ -1784,7 +1768,7 @@ public class KiWiConnection {
 
 
     private void cacheNode(KiWiNode node) {
-        if(node.getId() >= 0) {
+        if(node.getId() != null) {
             nodeCache.put(new Element(node.getId(), node));
         }
         if(node instanceof KiWiUriResource) {
@@ -1797,13 +1781,13 @@ public class KiWiConnection {
     }
 
     private void cacheTriple(KiWiTriple triple) {
-        if(triple.getId() >= 0) {
+        if(triple.getId() != null) {
             tripleCache.put(new Element(triple.getId(),triple));
         }
     }
 
     private void removeCachedTriple(KiWiTriple triple) {
-        if(triple.getId() >= 0) {
+        if(triple.getId() != null) {
             tripleCache.remove(triple.getId());
         }
     }
@@ -2067,7 +2051,7 @@ public class KiWiConnection {
         if(tripleBatch != null && tripleBatch.size() > 0) {
             synchronized (tripleBatch) {
                 for(KiWiTriple triple : tripleBatch) {
-                    triple.setId(-1L);
+                    triple.setId(null);
                 }
                 tripleBatch.clear();
             }
@@ -2166,7 +2150,7 @@ public class KiWiConnection {
                                 }
 
                                 // retrieve a new triple ID and set it in the object
-                                if(triple.getId() < 0) {
+                                if(triple.getId() == null) {
                                     triple.setId(getNextSequence("seq.triples"));
                                 }
 

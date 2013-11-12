@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-tripletable</artifactId>
+            <artifactId>sesame-tripletable</artifactId>
         </dependency>
 
         <!-- Logging -->

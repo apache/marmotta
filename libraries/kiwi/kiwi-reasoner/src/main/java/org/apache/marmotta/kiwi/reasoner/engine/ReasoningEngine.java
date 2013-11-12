@@ -25,7 +25,7 @@ import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.Iterations;
 import info.aduna.iteration.SingletonIteration;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
-import org.apache.marmotta.kiwi.model.caching.TripleTable;
+import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;

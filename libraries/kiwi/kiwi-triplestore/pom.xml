@@ -104,7 +104,7 @@
         <!-- Utilities -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-tripletable</artifactId>
+            <artifactId>sesame-tripletable</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

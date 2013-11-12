@@ -20,7 +20,8 @@ package org.apache.marmotta.kiwi.caching;
 import com.google.common.collect.ImmutableList;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.marmotta.kiwi.model.caching.IntArray;
+
+import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;

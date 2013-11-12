@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.kiwi.transactions.model;
 
-import org.apache.marmotta.kiwi.model.caching.TripleTable;
+import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.openrdf.model.Statement;
 
 import java.util.Date;

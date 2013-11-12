@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.model.caching;
+package org.apache.marmotta.commons.sesame.tripletable;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.junit.Test;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
