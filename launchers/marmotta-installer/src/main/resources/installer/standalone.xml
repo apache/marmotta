@@ -106,13 +106,17 @@
         </pack>
         <refpack file="refpacks/marmotta-webapp.xml" />
         <refpack file="refpacks/marmotta-core.xml" />
-        <refpack file="refpacks/marmotta-ldcache.xml" />
+        <refpack file="refpacks/marmotta-backend-kiwi.xml" />
+        <refpack file="refpacks/marmotta-ldcache-common.xml" />
+        <refpack file="refpacks/marmotta-ldcache-kiwi.xml" />
         <refpack file="refpacks/marmotta-ldpath.xml" />
-        <refpack file="refpacks/marmotta-reasoner.xml" />
+        <refpack file="refpacks/marmotta-reasoner-kiwi.xml" />
         <refpack file="refpacks/marmotta-security.xml" />
         <refpack file="refpacks/marmotta-sparql.xml" />
         <refpack file="refpacks/marmotta-user.xml" />
-        <refpack file="refpacks/marmotta-versioning.xml" />
+        <refpack file="refpacks/marmotta-versioning-common.xml" />
+        <refpack file="refpacks/marmotta-versioning-kiwi.xml" />
+        <refpack file="refpacks/marmotta-zookeeper.xml" />
     </packs>
 
     <!-- shortcut generation -->

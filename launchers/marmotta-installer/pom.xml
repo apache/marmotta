@@ -176,6 +176,7 @@
                             <moduleGroupId>org.apache.marmotta</moduleGroupId>
                             <requiredModules>
                                 <requiredModule>marmotta-core</requiredModule>
+                                <requiredModule>marmotta-backend-kiwi</requiredModule>
                             </requiredModules>
                         </configuration>
                         <executions>
