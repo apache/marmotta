@@ -16,16 +16,6 @@
  */
 package org.apache.marmotta.kiwi.test.junit;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -47,6 +37,16 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Specialized {@link Parameterized} runner for UnitTests that injects the database config for KiWi.
@@ -235,8 +235,11 @@ public class KiWiDatabaseRunner extends Suite {
         
         @Override
         protected String testName(FrameworkMethod method) {
-            return method.getName() + "(" + config.getName() + ")";
+            //return method.getName() + "(" + config.getName() + ")";
+            return method.getName();
         }
+
+
         
         @Override
         protected void validateConstructor(List<Throwable> errors) {

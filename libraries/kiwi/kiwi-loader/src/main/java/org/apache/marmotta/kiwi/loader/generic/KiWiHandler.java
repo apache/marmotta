@@ -1,10 +1,11 @@
-package org.apache.marmotta.kiwi.loader;
+package org.apache.marmotta.kiwi.loader.generic;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * A fast-lane RDF import handler that allows bulk-importing triples into a KiWi triplestore. It directly accesses
  * the database using a KiWiConnection. Note that certain configuration options will make the import "unsafe"
- * because they turn off expensive existance checks. If you are not careful and import the same data twice, this
+ * because they turn off expensive existence checks. If you are not careful and import the same data twice, this
  * might mean duplicate entries in the database.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)

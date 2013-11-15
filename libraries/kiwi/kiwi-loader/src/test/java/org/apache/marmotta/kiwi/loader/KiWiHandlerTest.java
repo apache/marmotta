@@ -1,6 +1,7 @@
 package org.apache.marmotta.kiwi.loader;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.After;

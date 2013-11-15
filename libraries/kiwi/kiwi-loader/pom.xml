@@ -73,7 +73,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -99,6 +98,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- PostgreSQL bulk importing -->
+        <dependency>
+            <groupId>net.sf.supercsv</groupId>
+            <artifactId>super-csv</artifactId>
+            <version>2.1.0</version>
         </dependency>
 
 

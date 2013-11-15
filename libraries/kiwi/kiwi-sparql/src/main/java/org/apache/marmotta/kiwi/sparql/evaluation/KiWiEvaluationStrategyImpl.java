@@ -119,6 +119,10 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         }
     }
 
+    @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(LeftJoin leftJoin, BindingSet bindings) throws QueryEvaluationException {
+        return super.evaluate(leftJoin, bindings);
+    }
 
     /**
      * Test if a tuple expression is supported nby the optimized evaluation; in this case we can apply a specific optimization.
