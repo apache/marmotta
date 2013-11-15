@@ -341,7 +341,7 @@ public class KiWiLoader {
 
             KiWiHandler handler;
             if(kiwi.getDialect() instanceof PostgreSQLDialect) {
-                config.setCommitBatchSize(10000);
+                config.setCommitBatchSize(100000);
                 handler = new KiWiPostgresHandler(store,config);
             } else {
                 handler = new KiWiHandler(store,config);
@@ -355,7 +355,7 @@ public class KiWiLoader {
             parser.parse(inStream,baseUri);
 
         } catch (RDFHandlerException e) {
-            log.error("RepositoryException: {}", e.getMessage());
+            log.error("RepositoryException:", e);
         }
     }
 
