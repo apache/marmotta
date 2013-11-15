@@ -150,6 +150,7 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
                 connection.commit();
             } catch (SQLException ex) {
                 log.warn("could not flush out data ({}), retrying with fresh connection", ex.getCause().getMessage());
+                log.warn("exception:", ex.getCause());
                 connection.close();
                 connection = store.getPersistence().getConnection();
                 flushBacklog();
