@@ -262,7 +262,7 @@ public class MetaWebService {
             	}
             	
                 if (r == null || !ResourceUtils.isUsed(conn, r)) {
-                	return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
+                	return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in Marmotta right now, but may be available again in the future", configurationService, templatingService);
                 }
             	
                 // create parser

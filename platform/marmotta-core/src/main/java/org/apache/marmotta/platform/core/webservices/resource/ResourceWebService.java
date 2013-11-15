@@ -384,7 +384,7 @@ public class ResourceWebService {
 	                	return Response.status(Status.NOT_FOUND).entity("blank node id "  + resource + " not found").build();
 	                }
             	}
-                if (r == null) return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in LMF right now, but may be available again in the future", configurationService, templatingService);
+                if (r == null) return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in Marmotta right now, but may be available again in the future", configurationService, templatingService);
                 // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
                 // "/" + uuid;
 
