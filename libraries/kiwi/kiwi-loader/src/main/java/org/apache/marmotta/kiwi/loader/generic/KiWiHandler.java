@@ -39,19 +39,19 @@ public class KiWiHandler implements RDFHandler {
 
     private static Logger log = LoggerFactory.getLogger(KiWiHandler.class);
 
-    private KiWiConnection connection;
-    private KiWiStore store;
+    protected KiWiConnection connection;
+    protected KiWiStore store;
 
-    long count = 0;
-    long start = 0;
-    long previous = 0;
+    protected long count = 0;
+    protected long start = 0;
+    protected long previous = 0;
 
-    private KiWiLoaderConfiguration config;
+    protected KiWiLoaderConfiguration config;
 
-    private LoadingCache<Literal, KiWiLiteral> literalCache;
-    private LoadingCache<URI, KiWiUriResource> uriCache;
-    private LoadingCache<BNode, KiWiAnonResource> bnodeCache;
-    private LoadingCache<String,Locale> localeCache;
+    protected LoadingCache<Literal, KiWiLiteral> literalCache;
+    protected LoadingCache<URI, KiWiUriResource> uriCache;
+    protected LoadingCache<BNode, KiWiAnonResource> bnodeCache;
+    protected LoadingCache<String,Locale> localeCache;
 
     // if non-null, all imported statements will have this context (regardless whether they specified a different context)
     private KiWiResource overrideContext;
@@ -201,16 +201,8 @@ public class KiWiHandler implements RDFHandler {
             if(config.isStatementExistanceCheck()) {
                 result.setId(connection.getTripleId(subject, predicate, object, context, true));
             }
-            connection.storeTriple(result);
+            storeTriple(result);
 
-            count++;
-
-            if(count % config.getCommitBatchSize() == 0) {
-                connection.commit();
-
-                log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
-                previous = System.currentTimeMillis();
-            }
         } catch (SQLException | ExecutionException e) {
             throw new RDFHandlerException(e);
         }
@@ -236,7 +228,7 @@ public class KiWiHandler implements RDFHandler {
 
     }
 
-    private KiWiLiteral createLiteral(Literal l) throws ExecutionException {
+    protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {
         String value = l.getLabel();
         String lang  = l.getLanguage();
         URI    type  = l.getDatatype();
@@ -321,7 +313,7 @@ public class KiWiHandler implements RDFHandler {
             }
 
             if(result.getId() == null) {
-                connection.storeNode(result, false);
+                storeNode(result);
             }
 
             return result;
@@ -333,7 +325,7 @@ public class KiWiHandler implements RDFHandler {
         }
     }
 
-    private KiWiUriResource createURI(String uri) {
+    protected KiWiUriResource createURI(String uri) {
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
@@ -342,7 +334,7 @@ public class KiWiHandler implements RDFHandler {
             if(result == null) {
                 result = new KiWiUriResource(uri);
 
-                connection.storeNode(result, false);
+                storeNode(result);
 
             }
             if(result.getId() == null) {
@@ -356,7 +348,7 @@ public class KiWiHandler implements RDFHandler {
         }
     }
 
-    private KiWiAnonResource createBNode(String nodeID) {
+    protected KiWiAnonResource createBNode(String nodeID) {
         try {
             // first look in the registry for newly created resources if the resource has already been created and
             // is still volatile
@@ -364,7 +356,7 @@ public class KiWiHandler implements RDFHandler {
 
             if(result == null) {
                 result = new KiWiAnonResource(nodeID);
-                connection.storeNode(result, false);
+                storeNode(result);
             }
             if(result.getId() == null) {
                 log.error("node ID is null!");
@@ -377,6 +369,23 @@ public class KiWiHandler implements RDFHandler {
         }
     }
 
+
+    protected void storeNode(KiWiNode node) throws SQLException {
+        connection.storeNode(node, false);
+    }
+
+    protected void storeTriple(KiWiTriple result) throws SQLException {
+        connection.storeTriple(result);
+
+        count++;
+
+        if(count % config.getCommitBatchSize() == 0) {
+            connection.commit();
+
+            log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
+            previous = System.currentTimeMillis();
+        }
+    }
 
 
     /**

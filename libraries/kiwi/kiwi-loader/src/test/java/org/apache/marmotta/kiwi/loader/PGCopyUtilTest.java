@@ -2,7 +2,8 @@ package org.apache.marmotta.kiwi.loader;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.loader.pgsql.csv.CSVUtil;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.loader.pgsql.csv.PGCopyUtil;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
@@ -11,23 +12,42 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
+import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.SailException;
+import org.postgresql.copy.PGCopyOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class CSVUtilTest {
+public class PGCopyUtilTest {
 
+    private static Logger log = LoggerFactory.getLogger(PGCopyUtilTest.class);
 
     protected static Random rnd = new Random();
 
@@ -41,12 +61,45 @@ public class CSVUtilTest {
 
 
 
+    private KiWiStore store;
+
+    private SailRepository repository;
+
+    @Before
+    public void setup() throws RepositoryException {
+        log.info("creating test setup...");
+
+        KiWiConfiguration psql = KiWiDatabaseRunner.createKiWiConfig("PostgreSQL", new PostgreSQLDialect());
+        DBConnectionChecker.checkDatabaseAvailability(psql);
+
+        rnd = new Random();
+
+        store = new KiWiStore(psql);
+        repository = new SailRepository(store);
+        repository.initialize();
+    }
+
+    @After
+    public void dropDatabase() throws RepositoryException, SQLException, SailException {
+        log.info("cleaning up test setup...");
+        if (store != null && store.isInitialized()) {
+            assertTrue(store.checkConsistency());
+            store.closeValueFactory(); // release all connections before dropping the database
+            store.getPersistence().dropDatabase();
+            repository.shutDown();
+        }
+    }
+
+
 
 
     @Test
-    public void testWriteNodes() throws IOException {
-        FileOutputStream out = new FileOutputStream("/tmp/nodes.csv");
+    public void testWriteNodes() throws IOException, SQLException {
+        KiWiConnection con = store.getPersistence().getConnection();
 
+        PGCopyOutputStream out = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(con.getJDBCConnection()), "COPY nodes FROM STDIN (FORMAT csv)");
+
+        long start = System.currentTimeMillis();
 
         List<KiWiNode> nodes = new ArrayList<>(10000);
 
@@ -56,15 +109,29 @@ public class CSVUtilTest {
         nodes.add(TYPE_DATE);
 
         // randomly create 10000 nodes
-        for(int i=0; i<10000; i++) {
+        for(int i=0; i<100000; i++) {
             nodes.add(randomObject());
         }
 
         // flush out nodes
-        CSVUtil.flushNodes(nodes,out);
+        PGCopyUtil.flushNodes(nodes, out);
 
         out.close();
 
+        long imported = System.currentTimeMillis();
+
+        log.info("imported {} nodes in {} ms", nodes.size(), imported-start);
+
+        // check if database contains the nodes (based on ID)
+
+        PreparedStatement stmt = con.getJDBCConnection().prepareStatement("SELECT * FROM nodes WHERE id = ?");
+        for(int i=0; i<id; i++) {
+            stmt.setLong(1, (long)i);
+            ResultSet dbResult = stmt.executeQuery();
+            Assert.assertTrue(dbResult.next());
+        }
+
+        log.info("checked {} nodes in {} ms", nodes.size(), System.currentTimeMillis()-imported);
     }
 
 

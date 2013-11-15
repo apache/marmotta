@@ -211,7 +211,7 @@ public class KiWiTriple  implements Statement, Serializable {
      * @return
      */
     public Date getDeletedAt() {
-        return new Date(deletedAt.getTime());
+        return deletedAt == null ? null : new Date(deletedAt.getTime());
     }
 
     /**

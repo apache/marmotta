@@ -10,6 +10,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.openrdf.model.URI;
+import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
@@ -22,6 +23,8 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -32,9 +35,9 @@ import java.util.Locale;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class CSVUtil {
+public class PGCopyUtil {
 
-    private static Logger log = LoggerFactory.getLogger(CSVUtil.class);
+    private static Logger log = LoggerFactory.getLogger(PGCopyUtil.class);
 
 
     final static CellProcessor[] nodeProcessors = new CellProcessor[] {
@@ -64,6 +67,20 @@ public class CSVUtil {
             new SQLTimestampProcessor(),              // deletedAt
     };
 
+
+    /**
+     * Return a PGConnection wrapped by the tomcat connection pool so we are able to access PostgreSQL specific functionality.
+     * @param con
+     * @return
+     */
+    public static PGConnection getWrappedConnection(Connection con) throws SQLException {
+        if(con instanceof PGConnection) {
+            return (PGConnection)con;
+        } else {
+            return (PGConnection) ((javax.sql.PooledConnection)con).getConnection();
+        }
+
+    }
 
     public static void flushTriples(Iterable<KiWiTriple> tripleBacklog, OutputStream out) throws IOException {
         CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), CsvPreference.STANDARD_PREFERENCE);

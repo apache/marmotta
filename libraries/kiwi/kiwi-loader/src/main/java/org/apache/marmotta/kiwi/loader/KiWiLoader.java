@@ -31,6 +31,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
+import org.apache.marmotta.kiwi.loader.pgsql.KiWiPostgresHandler;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -338,7 +339,13 @@ public class KiWiLoader {
                 config.setContext(context);
             }
 
-            KiWiHandler handler = new KiWiHandler(store,config);
+            KiWiHandler handler;
+            if(kiwi.getDialect() instanceof PostgreSQLDialect) {
+                config.setCommitBatchSize(10000);
+                handler = new KiWiPostgresHandler(store,config);
+            } else {
+                handler = new KiWiHandler(store,config);
+            }
 
             RDFParser parser = Rio.createParser(forFileName);
             parser.setRDFHandler(handler);

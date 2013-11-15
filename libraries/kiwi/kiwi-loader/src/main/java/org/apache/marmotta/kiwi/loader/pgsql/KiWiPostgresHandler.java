@@ -1,17 +1,28 @@
 package org.apache.marmotta.kiwi.loader.pgsql;
 
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
+import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
+import org.apache.marmotta.kiwi.loader.pgsql.csv.PGCopyUtil;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.model.Statement;
+import org.openrdf.model.Literal;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.postgresql.copy.PGCopyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A fast-lane RDF import handler for PostgreSQL backends. This importer takes advantage of the PostgreSQL COPY command
@@ -20,26 +31,43 @@ import java.util.List;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiPostgresHandler implements RDFHandler {
+public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
 
     private static Logger log = LoggerFactory.getLogger(KiWiPostgresHandler.class);
 
 
-    private KiWiConnection connection;
-    private KiWiStore store;
-
-    private KiWiLoaderConfiguration config;
-
     private List<KiWiNode> nodeBacklog;
     private List<KiWiTriple> tripleBacklog;
 
-
+    private Map<Literal,KiWiLiteral> literalBacklogLookup;
+    private Map<String,KiWiUriResource> uriBacklogLookup;
+    private Map<String,KiWiAnonResource> bnodeBacklogLookup;
 
 
     public KiWiPostgresHandler(KiWiStore store, KiWiLoaderConfiguration config) {
-        this.store = store;
-        this.config = config;
+        super(store, config);
     }
+
+    /**
+
+     /**
+     * Signals the start of the RDF data. This method is called before any data
+     * is reported.
+     *
+     * @throws org.openrdf.rio.RDFHandlerException
+     *          If the RDF handler has encountered an unrecoverable error.
+     */
+    @Override
+    public void startRDF() throws RDFHandlerException {
+        this.tripleBacklog = new ArrayList<>(config.getStatementBatchSize());
+        this.nodeBacklog   = new ArrayList<>(config.getStatementBatchSize()*2);
+        this.literalBacklogLookup = new HashMap<>();
+        this.uriBacklogLookup = new HashMap<>();
+        this.bnodeBacklogLookup = new HashMap<>();
+
+        super.startRDF();
+    }
+
 
     /**
      * Signals the end of the RDF data. This method is called when all data has
@@ -50,62 +78,102 @@ public class KiWiPostgresHandler implements RDFHandler {
      */
     @Override
     public void endRDF() throws RDFHandlerException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        try {
+            flushBacklog();
+        } catch (SQLException e) {
+            throw new RDFHandlerException(e);
+        }
+
+        super.endRDF();
+
     }
 
-    /**
-     * Signals the start of the RDF data. This method is called before any data
-     * is reported.
-     *
-     * @throws org.openrdf.rio.RDFHandlerException
-     *          If the RDF handler has encountered an unrecoverable error.
-     */
+
     @Override
-    public void startRDF() throws RDFHandlerException {
-        //To change body of implemented methods use File | Settings | File Templates.
+    protected KiWiAnonResource createBNode(String nodeID) {
+        // check in backlog, if not found call super method
+        KiWiAnonResource result = bnodeBacklogLookup.get(nodeID);
+        if(result == null) {
+            result = super.createBNode(nodeID);
+        }
+        return result;
     }
 
-    /**
-     * Handles a namespace declaration/definition. A namespace declaration
-     * associates a (short) prefix string with the namespace's URI. The prefix
-     * for default namespaces, which do not have an associated prefix, are
-     * represented as empty strings.
-     *
-     * @param prefix The prefix for the namespace, or an empty string in case of a
-     *               default namespace.
-     * @param uri    The URI that the prefix maps to.
-     * @throws org.openrdf.rio.RDFHandlerException
-     *          If the RDF handler has encountered an unrecoverable error.
-     */
     @Override
-    public void handleNamespace(String prefix, String uri) throws RDFHandlerException {
-        //To change body of implemented methods use File | Settings | File Templates.
+    protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {
+        KiWiLiteral result = literalBacklogLookup.get(l);
+        if(result == null) {
+            result = super.createLiteral(l);
+        }
+        return result;
     }
 
-    /**
-     * Handles a statement.
-     *
-     * @param st The statement.
-     * @throws org.openrdf.rio.RDFHandlerException
-     *          If the RDF handler has encountered an unrecoverable error.
-     */
     @Override
-    public void handleStatement(Statement st) throws RDFHandlerException {
-        //To change body of implemented methods use File | Settings | File Templates.
+    protected KiWiUriResource createURI(String uri) {
+        KiWiUriResource result = uriBacklogLookup.get(uri);
+        if(result == null) {
+            result = super.createURI(uri);
+        }
+        return result;
     }
 
-    /**
-     * Handles a comment.
-     *
-     * @param comment The comment.
-     * @throws org.openrdf.rio.RDFHandlerException
-     *          If the RDF handler has encountered an unrecoverable error.
-     */
     @Override
-    public void handleComment(String comment) throws RDFHandlerException {
-        //To change body of implemented methods use File | Settings | File Templates.
+    protected void storeNode(KiWiNode node) throws SQLException {
+        if(node.getId() == null) {
+            node.setId(connection.getNextSequence("nodes"));
+        }
+
+        nodeBacklog.add(node);
+
+        if(node instanceof KiWiUriResource) {
+            uriBacklogLookup.put(node.stringValue(),(KiWiUriResource)node);
+        } else if(node instanceof KiWiAnonResource) {
+            bnodeBacklogLookup.put(node.stringValue(), (KiWiAnonResource)node);
+        } else if(node instanceof KiWiLiteral) {
+            literalBacklogLookup.put((KiWiLiteral)node, (KiWiLiteral)node);
+        }
     }
 
+    @Override
+    protected void storeTriple(KiWiTriple result) throws SQLException {
+        if(result.getId() == null) {
+            result.setId(connection.getNextSequence("triples"));
+        }
 
+        tripleBacklog.add(result);
 
+        count++;
+
+        if(count % config.getCommitBatchSize() == 0) {
+            flushBacklog();
+            connection.commit();
+
+            log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
+            previous = System.currentTimeMillis();
+        }
+    }
+
+    private synchronized void flushBacklog() throws SQLException {
+        try {
+            // flush out nodes
+            PGCopyOutputStream nodesOut = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(connection.getJDBCConnection()), "COPY nodes FROM STDIN (FORMAT csv)");
+            PGCopyUtil.flushNodes(nodeBacklog, nodesOut);
+            nodesOut.close();
+
+            // flush out triples
+            PGCopyOutputStream triplesOut = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(connection.getJDBCConnection()), "COPY triples FROM STDIN (FORMAT csv)");
+            PGCopyUtil.flushTriples(tripleBacklog, triplesOut);
+            triplesOut.close();
+        } catch (IOException ex) {
+            throw new SQLException("error while flushing out data",ex);
+        }
+
+        nodeBacklog.clear();
+        tripleBacklog.clear();
+
+        uriBacklogLookup.clear();
+        bnodeBacklogLookup.clear();
+        literalBacklogLookup.clear();
+
+    }
 }
