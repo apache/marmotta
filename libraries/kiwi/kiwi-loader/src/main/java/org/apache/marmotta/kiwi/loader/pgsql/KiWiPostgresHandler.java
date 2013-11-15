@@ -145,8 +145,16 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
         count++;
 
         if(count % config.getCommitBatchSize() == 0) {
-            flushBacklog();
-            connection.commit();
+            try {
+                flushBacklog();
+                connection.commit();
+            } catch (SQLException ex) {
+                log.warn("could not flush out data ({}), retrying with fresh connection", ex.getCause().getMessage());
+                connection.close();
+                connection = store.getPersistence().getConnection();
+                flushBacklog();
+                connection.commit();
+            }
 
             log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
             previous = System.currentTimeMillis();
