@@ -58,6 +58,7 @@ public class PGCopyUtilTest {
     final static KiWiUriResource TYPE_DBL = createURI(XSD.Double.stringValue());
     final static KiWiUriResource TYPE_BOOL = createURI(XSD.Boolean.stringValue());
     final static KiWiUriResource TYPE_DATE = createURI(XSD.DateTime.stringValue());
+    final static KiWiStringLiteral EMPTY = createLiteral("");
 
 
 
@@ -107,9 +108,10 @@ public class PGCopyUtilTest {
         nodes.add(TYPE_DBL);
         nodes.add(TYPE_BOOL);
         nodes.add(TYPE_DATE);
+        nodes.add(EMPTY);
 
         // randomly create 10000 nodes
-        for(int i=0; i<100000; i++) {
+        for(int i=0; i<10000; i++) {
             nodes.add(randomObject());
         }
 
@@ -125,10 +127,11 @@ public class PGCopyUtilTest {
         // check if database contains the nodes (based on ID)
 
         PreparedStatement stmt = con.getJDBCConnection().prepareStatement("SELECT * FROM nodes WHERE id = ?");
-        for(int i=0; i<id; i++) {
+        for(int i=0; i<nodes.size(); i++) {
             stmt.setLong(1, (long)i);
             ResultSet dbResult = stmt.executeQuery();
             Assert.assertTrue(dbResult.next());
+            Assert.assertEquals(nodes.get(i).stringValue(),dbResult.getString("svalue"));
         }
 
         log.info("checked {} nodes in {} ms", nodes.size(), System.currentTimeMillis()-imported);
@@ -181,5 +184,12 @@ public class PGCopyUtilTest {
         object.setId(id++);
         return object;
     }
+
+    protected static KiWiStringLiteral createLiteral(String data) {
+        KiWiStringLiteral r = new KiWiStringLiteral(data);
+        r.setId(id++);
+        return r;
+    }
+
 
 }

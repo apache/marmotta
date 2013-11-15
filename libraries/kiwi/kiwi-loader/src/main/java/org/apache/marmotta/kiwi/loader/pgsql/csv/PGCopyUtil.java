@@ -17,8 +17,10 @@ import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.constraint.Unique;
 import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
+import org.supercsv.util.CsvContext;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -68,6 +70,22 @@ public class PGCopyUtil {
     };
 
 
+    // PostgreSQL expects the empty string to be quoted to distinguish between null and empty
+    final static CsvPreference nodesPreference = new CsvPreference.Builder('"', ',', "\r\n").useEncoder(new DefaultCsvEncoder() {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String encode(String input, CsvContext context, CsvPreference preference) {
+            if("".equals(input)) {
+                return "\"\"";
+            } else {
+                return super.encode(input, context, preference);
+            }
+        }
+    }).build();
+
+
     /**
      * Return a PGConnection wrapped by the tomcat connection pool so we are able to access PostgreSQL specific functionality.
      * @param con
@@ -99,7 +117,7 @@ public class PGCopyUtil {
 
 
     public static void flushNodes(Iterable<KiWiNode> nodeBacklog, OutputStream out) throws IOException {
-        CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), CsvPreference.STANDARD_PREFERENCE);
+        CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), nodesPreference);
         for(KiWiNode n : nodeBacklog) {
             List<Object> row = null;
             if(n instanceof KiWiUriResource) {
