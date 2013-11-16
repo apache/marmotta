@@ -254,10 +254,10 @@ public class KiWiHandler implements RDFHandler {
                 // differentiate between the different types of the value
                 if (type == null) {
                     // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                    result = connection.loadLiteral(value.toString(), lang, rtype);
+                    result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype);
                     }
                 } else if(type.equals(Namespaces.NS_XSD+"dateTime")) {
                     // parse if necessary
@@ -293,10 +293,10 @@ public class KiWiHandler implements RDFHandler {
                         result= new KiWiBooleanLiteral(bvalue, rtype);
                     }
                 } else {
-                    result = connection.loadLiteral(value.toString(), lang, rtype);
+                    result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype);
                     }
                 }
             } catch(IllegalArgumentException ex) {
@@ -304,10 +304,10 @@ public class KiWiHandler implements RDFHandler {
                 log.warn("malformed argument for typed literal of type {}: {}", rtype.stringValue(), value);
                 KiWiUriResource mytype = createURI(Namespaces.NS_XSD+"string");
 
-                result = connection.loadLiteral(value.toString(), lang, mytype);
+                result = connection.loadLiteral(sanitizeString(value.toString()), lang, mytype);
 
                 if(result == null) {
-                    result = new KiWiStringLiteral(value.toString(), locale, mytype);
+                    result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, mytype);
                 }
 
             }
@@ -397,5 +397,11 @@ public class KiWiHandler implements RDFHandler {
      */
     @Override
     public void handleComment(String comment) throws RDFHandlerException {
+    }
+
+
+    private static String sanitizeString(String in) {
+        // clean up illegal characters
+        return in.replaceAll("[\\00]","");
     }
 }
