@@ -1,5 +1,6 @@
 package org.apache.marmotta.kiwi.loader.pgsql;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
 import org.apache.marmotta.kiwi.loader.pgsql.csv.PGCopyUtil;
@@ -8,6 +9,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.model.Literal;
 import org.openrdf.rio.RDFHandler;
@@ -17,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +62,8 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
      */
     @Override
     public void startRDF() throws RDFHandlerException {
+        log.info("starting import using optimized PostgreSQL data loader");
+
         this.tripleBacklog = new ArrayList<>(config.getStatementBatchSize());
         this.nodeBacklog   = new ArrayList<>(config.getStatementBatchSize()*2);
         this.literalBacklogLookup = new HashMap<>();
@@ -66,6 +71,15 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
         this.bnodeBacklogLookup = new HashMap<>();
 
         super.startRDF();
+
+        if(config.isDropIndexes()) {
+            try {
+                dropIndexes();
+                connection.commit();
+            } catch (SQLException | IOException e) {
+                throw new RDFHandlerException("error while dropping indexes", e);
+            }
+        }
     }
 
 
@@ -82,6 +96,15 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
             flushBacklog();
         } catch (SQLException e) {
             throw new RDFHandlerException(e);
+        }
+
+        if(config.isDropIndexes()) {
+            try {
+                createIndexes();
+                connection.commit();
+            } catch (SQLException | IOException e) {
+                throw new RDFHandlerException("error while dropping indexes", e);
+            }
         }
 
         super.endRDF();
@@ -185,4 +208,36 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
         literalBacklogLookup.clear();
 
     }
+
+
+    private void dropIndexes() throws SQLException, IOException {
+        ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
+
+        log.info("PostgreSQL: dropping indexes before import");
+        StringBuilder script = new StringBuilder();
+        for(String line : IOUtils.readLines(KiWiPostgresHandler.class.getResourceAsStream("drop_indexes.sql"))) {
+            if(!line.startsWith("--")) {
+                script.append(line);
+                script.append(" ");
+            }
+        }
+        log.debug("PostgreSQL: running SQL script '{}'", script.toString());
+        runner.runScript(new StringReader(script.toString()));
+    }
+
+    private void createIndexes() throws SQLException, IOException {
+        ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
+
+        log.info("PostgreSQL: re-creating indexes after import");
+        StringBuilder script = new StringBuilder();
+        for(String line : IOUtils.readLines(KiWiPostgresHandler.class.getResourceAsStream("create_indexes.sql"))) {
+            if(!line.startsWith("--")) {
+                script.append(line);
+                script.append(" ");
+            }
+        }
+        log.debug("PostgreSQL: running SQL script '{}'", script.toString());
+        runner.runScript(new StringReader(script.toString()));
+    }
+
 }

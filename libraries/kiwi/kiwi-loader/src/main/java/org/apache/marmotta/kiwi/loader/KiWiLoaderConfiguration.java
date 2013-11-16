@@ -1,5 +1,10 @@
 package org.apache.marmotta.kiwi.loader;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.MapConfiguration;
+
+import java.util.HashMap;
+
 /**
  * Configuration options for the KiWiLoader
  *
@@ -7,6 +12,11 @@ package org.apache.marmotta.kiwi.loader;
  */
 public class KiWiLoaderConfiguration {
 
+    public static final String LOADER_COMMIT_BATCH_SIZE = "loader.commitBatchSize";
+    public static final String LOADER_STATEMENT_BATCH_SIZE = "loader.statementBatchSize";
+    public static final String LOADER_STATEMENT_EXISTENCE_CHECK = "loader.statementExistenceCheck";
+    public static final String LOADER_CONTEXT = "loader.context";
+    public static final String LOADER_DROP_INDEXES = "loader.dropIndexes";
     /**
      * the size of a batch insert into the database; only when this number of statements has been processed will
      * an insert statement to the database be issued.
@@ -31,38 +41,54 @@ public class KiWiLoaderConfiguration {
      */
     String context;
 
+    private Configuration config;
+
     public KiWiLoaderConfiguration() {
+        this(new MapConfiguration(new HashMap<String,Object>()));
+    }
+
+    public KiWiLoaderConfiguration(Configuration config) {
+        this.config = config;
     }
 
     public int getCommitBatchSize() {
-        return commitBatchSize;
+        return config.getInt(LOADER_COMMIT_BATCH_SIZE,commitBatchSize);
     }
 
     public void setCommitBatchSize(int commitBatchSize) {
-        this.commitBatchSize = commitBatchSize;
+        config.setProperty(LOADER_COMMIT_BATCH_SIZE, commitBatchSize);
     }
 
     public int getStatementBatchSize() {
-        return statementBatchSize;
+        return config.getInt(LOADER_STATEMENT_BATCH_SIZE,statementBatchSize);
     }
 
     public void setStatementBatchSize(int statementBatchSize) {
-        this.statementBatchSize = statementBatchSize;
+        config.setProperty(LOADER_STATEMENT_BATCH_SIZE, statementBatchSize);
     }
 
     public boolean isStatementExistanceCheck() {
-        return statementExistanceCheck;
+        return config.getBoolean(LOADER_STATEMENT_EXISTENCE_CHECK,statementExistanceCheck);
     }
 
     public void setStatementExistanceCheck(boolean statementExistanceCheck) {
-        this.statementExistanceCheck = statementExistanceCheck;
+        config.setProperty(LOADER_STATEMENT_EXISTENCE_CHECK, statementExistanceCheck);
     }
 
     public String getContext() {
-        return context;
+        return config.getString(LOADER_CONTEXT, context);
     }
 
     public void setContext(String context) {
-        this.context = context;
+        config.setProperty(LOADER_CONTEXT, context);
+    }
+
+
+    public boolean isDropIndexes() {
+        return config.getBoolean(LOADER_DROP_INDEXES, true);
+    }
+
+    public void setDropIndexes(boolean v) {
+        config.setProperty(LOADER_DROP_INDEXES,v);
     }
 }

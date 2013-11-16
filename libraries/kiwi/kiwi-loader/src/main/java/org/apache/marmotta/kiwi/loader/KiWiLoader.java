@@ -524,6 +524,8 @@ public class KiWiLoader {
         options.addOption(null, "reasoning", false, "enable reasoning");
         options.addOption(null, "versioning", false, "enable versioning");
 
+        options.addOption(null, "drop-indexes", false, "drop indexes before importing (increases bulk-load performance but requires exclusive access)");
+
         return options;
     }
 
