@@ -556,8 +556,12 @@ public class KiWiHandler implements RDFHandler {
             return String.format("%,d", (int)value);
         } else {
             int exp = (int) (Math.log(value) / Math.log(1000));
-            char pre = "KMGTPE".charAt(exp-1);
-            return String.format("%.1f %s", value / Math.pow(1000, exp), pre);
+            if(exp < 1) {
+                return String.format("%,d", (int)value);
+            } else {
+                char pre = "KMGTPE".charAt(exp-1);
+                return String.format("%.1f %s", value / Math.pow(1000, exp), pre);
+            }
         }
     }
 
