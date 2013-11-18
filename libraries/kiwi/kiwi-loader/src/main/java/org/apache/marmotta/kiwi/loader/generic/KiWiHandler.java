@@ -246,7 +246,7 @@ public class KiWiHandler implements RDFHandler {
                                 statSample.update();
                             }
 
-                            if(System.currentTimeMillis() > statLastDump + TimeUnit.MINUTES.toMillis(1L)) {
+                            if(System.currentTimeMillis() > statLastDump + TimeUnit.MINUTES.toMillis(5L)) {
                                 File gFile = new File(config.getStatisticsGraph());
 
                                 if(gFile.exists()) {
@@ -275,6 +275,10 @@ public class KiWiHandler implements RDFHandler {
                                 gDef.hrule(10000, Color.RED);
                                 gDef.hrule(15000, Color.RED);
                                 gDef.hrule(20000, Color.RED);
+                                gDef.hrule(25000, Color.RED);
+                                gDef.hrule(30000, Color.RED);
+                                gDef.hrule(35000, Color.RED);
+                                gDef.hrule(40000, Color.RED);
 
                                 gDef.line("triples", Color.BLUE, "Triples Written", 3F);
                                 gDef.line("nodes", Color.MAGENTA, "Nodes Written", 3F);
