@@ -227,11 +227,10 @@ public class KiWiHandler implements RDFHandler {
                 statLastDump = System.currentTimeMillis();
 
                 // start a sampler thread to run at the SAMPLE_INTERVAL
-                statSampler = Executors.newScheduledThreadPool(1);
+                statSampler = Executors.newScheduledThreadPool(2);
                 statSampler.scheduleAtFixedRate(new Runnable() {
                     @Override
                     public void run() {
-                        long time = System.currentTimeMillis() / 1000;
 
                         long cacheMisses = 0, cacheHits = 0;
                         for(LoadingCache c : new LoadingCache[] { literalCache, uriCache, bnodeCache }) {
@@ -241,62 +240,73 @@ public class KiWiHandler implements RDFHandler {
                         }
 
                         try {
+                            long time = System.currentTimeMillis() / 1000;
+
                             synchronized (statSample) {
                                 statSample.setTime(time);
                                 statSample.setValues(triples, nodes, nodesLoaded, cacheHits, cacheMisses);
                                 statSample.update();
                             }
 
-                            if(System.currentTimeMillis() > statLastDump + TimeUnit.MINUTES.toMillis(5L)) {
-                                File gFile = new File(config.getStatisticsGraph());
-
-                                if(gFile.exists()) {
-                                    gFile.delete();
-                                }
-
-                                // generate PNG diagram
-                                RrdGraphDef gDef = new RrdGraphDef();
-                                gDef.setFilename("-");
-                                gDef.setWidth(800);
-                                gDef.setHeight(600);
-                                gDef.setStartTime(start / 1000);
-                                gDef.setEndTime(System.currentTimeMillis() / 1000);
-                                gDef.setTitle("KiWiLoader Performance");
-                                gDef.setVerticalLabel("number/sec");
-                                gDef.setAntiAliasing(true);
-
-
-                                gDef.datasource("triples", "kiwiloader.rrd", "triples", ConsolFun.AVERAGE);
-                                gDef.datasource("nodes", "kiwiloader.rrd", "nodes", ConsolFun.AVERAGE);
-                                gDef.datasource("nodes-loaded", "kiwiloader.rrd", "nodes-loaded", ConsolFun.AVERAGE);
-                                gDef.datasource("cache-hits", "kiwiloader.rrd", "cache-hits", ConsolFun.AVERAGE);
-                                gDef.datasource("cache-misses", "kiwiloader.rrd", "cache-misses", ConsolFun.AVERAGE);
-
-                                gDef.line("triples", Color.BLUE, "Triples Written", 3F);
-                                gDef.line("nodes", Color.MAGENTA, "Nodes Written", 3F);
-                                gDef.line("nodes-loaded", Color.CYAN, "Nodes Loaded", 3F);
-                                gDef.line("cache-hits", Color.GREEN, "Node Cache Hits");
-                                gDef.line("cache-misses", Color.ORANGE, "Node Cache Misses");
-
-
-                                gDef.setImageFormat("png");
-                                gDef.print("triples", ConsolFun.AVERAGE, "average triples/sec: %,.0f");
-                                gDef.print("nodes", ConsolFun.AVERAGE, "average nodes/sec: %,.0f");
-
-                                RrdGraph graph = new RrdGraph(gDef);
-                                BufferedImage img = new BufferedImage(900,750, BufferedImage.TYPE_INT_RGB);
-                                graph.render(img.getGraphics());
-                                ImageIO.write(img,"png",gFile);
-
-                                log.info("updated statistics diagram generated in {}", config.getStatisticsGraph());
-
-                                statLastDump = System.currentTimeMillis();
-                            }
                         } catch (Exception e) {
                             log.warn("could not update statistics database: {}", e.getMessage());
                         }
                     }
                 },0, SAMPLE_INTERVAL, TimeUnit.SECONDS);
+
+                // create a statistics diagram every 5 minutes
+                statSampler.scheduleAtFixedRate(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            File gFile = new File(config.getStatisticsGraph());
+
+                            if(gFile.exists()) {
+                                gFile.delete();
+                            }
+
+                            // generate PNG diagram
+                            RrdGraphDef gDef = new RrdGraphDef();
+                            gDef.setFilename("-");
+                            gDef.setWidth(800);
+                            gDef.setHeight(600);
+                            gDef.setStartTime(start / 1000);
+                            gDef.setEndTime(System.currentTimeMillis() / 1000);
+                            gDef.setTitle("KiWiLoader Performance");
+                            gDef.setVerticalLabel("number/sec");
+                            gDef.setAntiAliasing(true);
+
+
+                            gDef.datasource("triples", "kiwiloader.rrd", "triples", ConsolFun.AVERAGE);
+                            gDef.datasource("nodes", "kiwiloader.rrd", "nodes", ConsolFun.AVERAGE);
+                            gDef.datasource("nodes-loaded", "kiwiloader.rrd", "nodes-loaded", ConsolFun.AVERAGE);
+                            gDef.datasource("cache-hits", "kiwiloader.rrd", "cache-hits", ConsolFun.AVERAGE);
+                            gDef.datasource("cache-misses", "kiwiloader.rrd", "cache-misses", ConsolFun.AVERAGE);
+
+                            gDef.line("triples", Color.BLUE, "Triples Written", 3F);
+                            gDef.line("nodes", Color.MAGENTA, "Nodes Written", 3F);
+                            gDef.line("nodes-loaded", Color.CYAN, "Nodes Loaded", 3F);
+                            gDef.line("cache-hits", Color.GREEN, "Node Cache Hits");
+                            gDef.line("cache-misses", Color.ORANGE, "Node Cache Misses");
+
+
+                            gDef.setImageFormat("png");
+                            gDef.gprint("triples", ConsolFun.AVERAGE, "average triples/sec: %,.0f\\l");
+                            gDef.gprint("nodes", ConsolFun.AVERAGE, "average nodes/sec: %,.0f\\l");
+
+                            RrdGraph graph = new RrdGraph(gDef);
+                            BufferedImage img = new BufferedImage(900,750, BufferedImage.TYPE_INT_RGB);
+                            graph.render(img.getGraphics());
+                            ImageIO.write(img,"png",gFile);
+
+                            log.info("updated statistics diagram generated in {}", config.getStatisticsGraph());
+
+                            statLastDump = System.currentTimeMillis();
+                        } catch (Exception ex) {
+                            log.warn("error creating statistics diagram: {}", ex.getMessage());
+                        }
+                    }
+                },0,5,TimeUnit.MINUTES);
             } catch (IOException e) {
                 log.warn("could not initialize statistics database: {}",e.getMessage());
             }
