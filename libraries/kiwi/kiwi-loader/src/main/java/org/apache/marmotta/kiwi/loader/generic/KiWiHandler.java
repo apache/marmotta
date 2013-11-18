@@ -280,9 +280,11 @@ public class KiWiHandler implements RDFHandler {
 
 
                                 gDef.setImageFormat("png");
+                                gDef.print("triples", ConsolFun.AVERAGE, "average triples/sec: %,.0f");
+                                gDef.print("nodes", ConsolFun.AVERAGE, "average nodes/sec: %,.0f");
 
                                 RrdGraph graph = new RrdGraph(gDef);
-                                BufferedImage img = new BufferedImage(900,700, BufferedImage.TYPE_INT_RGB);
+                                BufferedImage img = new BufferedImage(900,750, BufferedImage.TYPE_INT_RGB);
                                 graph.render(img.getGraphics());
                                 ImageIO.write(img,"png",gFile);
 
