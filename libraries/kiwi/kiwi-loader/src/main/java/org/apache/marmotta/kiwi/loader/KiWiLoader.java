@@ -121,6 +121,9 @@ public class KiWiLoader {
     protected String context;
     protected boolean isVersioningEnabled;
     protected boolean isReasoningEnabled;
+    protected boolean isStatisticsEnabled;
+
+    protected String statisticsGraph;
 
     protected KiWiStore store;
     protected SailRepository repository;
@@ -132,6 +135,7 @@ public class KiWiLoader {
 
         isVersioningEnabled = false;
         isReasoningEnabled = false;
+        isStatisticsEnabled = false;
     }
 
     /**
@@ -216,6 +220,8 @@ public class KiWiLoader {
             gzip = cmd.hasOption('z');
             bzip = cmd.hasOption('j');
 
+
+
             // the format to use as fallback; will try to guess based on the filename.
             format = cmd.getOptionValue('f');
             final RDFFormat fmt;
@@ -249,6 +255,8 @@ public class KiWiLoader {
             KiWiLoader loader = new KiWiLoader(kiwi, baseUri, context);
             loader.setVersioningEnabled(cmd.hasOption("versioning"));
             loader.setReasoningEnabled(cmd.hasOption("reasoning"));
+            loader.isStatisticsEnabled = cmd.hasOption("statistics");
+            loader.statisticsGraph = cmd.getOptionValue("statistics");
             loader.initialize();
 
             log.info("Starting import");
@@ -339,6 +347,8 @@ public class KiWiLoader {
             if (context != null) {
                 config.setContext(context);
             }
+            config.setStatistics(isStatisticsEnabled);
+            config.setStatisticsGraph(statisticsGraph);
 
             KiWiHandler handler;
             if(kiwi.getDialect() instanceof PostgreSQLDialect) {
@@ -524,6 +534,7 @@ public class KiWiLoader {
 
         options.addOption(null, "reasoning", false, "enable reasoning");
         options.addOption(null, "versioning", false, "enable versioning");
+        options.addOption("S", "statistics", true, "enable statistics collection");
 
         options.addOption(null, "drop-indexes", false, "drop indexes before importing (increases bulk-load performance but requires exclusive access)");
 

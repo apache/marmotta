@@ -17,14 +17,30 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.rrd4j.ConsolFun;
+import org.rrd4j.DsType;
+import org.rrd4j.core.FetchData;
+import org.rrd4j.core.FetchRequest;
+import org.rrd4j.core.RrdDb;
+import org.rrd4j.core.RrdDef;
+import org.rrd4j.core.Sample;
+import org.rrd4j.graph.RrdGraph;
+import org.rrd4j.graph.RrdGraphDef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,7 +58,8 @@ public class KiWiHandler implements RDFHandler {
     protected KiWiConnection connection;
     protected KiWiStore store;
 
-    protected long count = 0;
+    protected long triples = 0;
+    protected long nodes = 0;
     protected long start = 0;
     protected long previous = 0;
 
@@ -55,6 +72,15 @@ public class KiWiHandler implements RDFHandler {
 
     // if non-null, all imported statements will have this context (regardless whether they specified a different context)
     private KiWiResource overrideContext;
+
+
+    protected RrdDb statDB;
+    protected Sample statSample;
+    protected long statLastDump;
+
+    protected long SAMPLE_INTERVAL = TimeUnit.SECONDS.toSeconds(5L);
+
+    protected ScheduledExecutorService statSampler;
 
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
@@ -106,6 +132,7 @@ public class KiWiHandler implements RDFHandler {
                     }
                 });
 
+
     }
 
     /**
@@ -117,6 +144,20 @@ public class KiWiHandler implements RDFHandler {
      */
     @Override
     public void endRDF() throws RDFHandlerException {
+        if(config.isStatistics()) {
+            if(statDB != null) {
+                try {
+                    statDB.close();
+                } catch (IOException e) {
+                    log.warn("could not close statistics database...");
+                }
+            }
+            if(statSampler != null) {
+                statSampler.shutdown();
+            }
+        }
+
+
         try {
             connection.commit();
             connection.close();
@@ -124,7 +165,7 @@ public class KiWiHandler implements RDFHandler {
             throw new RDFHandlerException(e);
         }
 
-        log.info("KiWiLoader: RDF bulk import of {} triples finished after {} ms", count, System.currentTimeMillis() - start);
+        log.info("KiWiLoader: RDF bulk import of {} triples finished after {} ms", triples, System.currentTimeMillis() - start);
     }
 
     /**
@@ -153,6 +194,94 @@ public class KiWiHandler implements RDFHandler {
                 log.error("could not create/load resource",e);
             }
         }
+
+        if(config.isStatistics()) {
+            log.info("statistics gathering enabled; starting statistics database");
+
+            File statFile = new File("kiwiloader.rrd");
+            if(statFile.exists()) {
+                log.info("deleting old statistics database");
+                statFile.delete();
+            }
+
+            RrdDef stCfg = new RrdDef("kiwiloader.rrd");
+            stCfg.setStep(SAMPLE_INTERVAL);
+            stCfg.addDatasource("triples", DsType.COUNTER, 600, Double.NaN, Double.NaN);
+            stCfg.addDatasource("nodes", DsType.COUNTER, 600, Double.NaN, Double.NaN);
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);   // every five seconds for 2 hours
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 300, 1440); // every five minutes for five days
+
+            try {
+                statDB = new RrdDb(stCfg);
+                statSample = statDB.createSample();
+                statLastDump = System.currentTimeMillis();
+
+                // start a sampler thread to run at the SAMPLE_INTERVAL
+                statSampler = Executors.newScheduledThreadPool(1);
+                statSampler.scheduleAtFixedRate(new Runnable() {
+                    @Override
+                    public void run() {
+                        long time = System.currentTimeMillis() / 1000;
+
+                        try {
+                            synchronized (statSample) {
+                                statSample.setTime(time);
+                                statSample.setValues(triples, nodes);
+                                statSample.update();
+                            }
+
+                            if(System.currentTimeMillis() > statLastDump + TimeUnit.MINUTES.toMillis(5L)) {
+                                File gFile = new File(config.getStatisticsGraph());
+
+                                if(gFile.exists()) {
+                                    gFile.delete();
+                                }
+
+                                // generate PNG diagram
+                                RrdGraphDef gDef = new RrdGraphDef();
+                                gDef.setFilename("-");
+                                gDef.setWidth(800);
+                                gDef.setHeight(600);
+                                gDef.setStartTime(start / 1000);
+                                gDef.setEndTime(System.currentTimeMillis() / 1000);
+                                gDef.setTitle("KiWiLoader Performance");
+                                gDef.setVerticalLabel("number/sec");
+                                gDef.setAntiAliasing(true);
+
+
+                                gDef.datasource("triples", "kiwiloader.rrd", "triples", ConsolFun.AVERAGE);
+                                gDef.datasource("nodes", "kiwiloader.rrd", "nodes", ConsolFun.AVERAGE);
+
+                                gDef.hrule(5000, Color.RED);
+                                gDef.hrule(10000, Color.RED);
+                                gDef.hrule(15000, Color.RED);
+
+                                gDef.line("triples", Color.BLUE, "Triples");
+                                gDef.line("nodes", Color.GREEN, "Nodes");
+
+
+                                gDef.setImageFormat("png");
+
+                                RrdGraph graph = new RrdGraph(gDef);
+                                BufferedImage img = new BufferedImage(900,700, BufferedImage.TYPE_INT_RGB);
+                                graph.render(img.getGraphics());
+                                ImageIO.write(img,"png",gFile);
+
+                                log.info("updated statistics diagram generated in {}", config.getStatisticsGraph());
+
+                                statLastDump = System.currentTimeMillis();
+                            }
+                        } catch (IOException e) {
+                            log.warn("could not update statistics database: {}", e.getMessage());
+                        }
+                    }
+                },0, SAMPLE_INTERVAL, TimeUnit.SECONDS);
+            } catch (IOException e) {
+                log.warn("could not initialize statistics database: {}",e.getMessage());
+            }
+        }
+
+
     }
 
     /**
@@ -372,21 +501,65 @@ public class KiWiHandler implements RDFHandler {
 
     protected void storeNode(KiWiNode node) throws SQLException {
         connection.storeNode(node, false);
+
+        nodes++;
     }
 
     protected void storeTriple(KiWiTriple result) throws SQLException {
         connection.storeTriple(result);
 
-        count++;
+        triples++;
 
-        if(count % config.getCommitBatchSize() == 0) {
+        if(triples % config.getCommitBatchSize() == 0) {
             connection.commit();
 
-            log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
-            previous = System.currentTimeMillis();
+            printStatistics();
         }
     }
 
+
+    protected void printStatistics() {
+        if(statSample != null) {
+            try {
+                long time = System.currentTimeMillis() / 1000;
+
+                FetchRequest minRequest = statDB.createFetchRequest(ConsolFun.AVERAGE, time - 60  , time);
+                FetchData minData = minRequest.fetchData();
+                double triplesLastMin = minData.getAggregate("triples", ConsolFun.AVERAGE);
+
+                FetchRequest hourRequest = statDB.createFetchRequest(ConsolFun.AVERAGE, time - (60 * 60) , time);
+                FetchData hourData = hourRequest.fetchData();
+                double triplesLastHour = hourData.getAggregate("triples", ConsolFun.AVERAGE);
+
+                if(triplesLastMin != Double.NaN) {
+                    log.info("imported {} triples; statistics: {}/sec, {}/sec (last min), {}/sec (last hour)", triples, formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)), formatUnits(triplesLastMin), formatUnits(triplesLastHour));
+                } else {
+                    log.info("imported {} triples ({}/sec, no long-time averages available)", triples, formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)));
+                }
+                previous = System.currentTimeMillis();
+
+            } catch (IOException e) {
+                log.warn("error updating statistics: {}", e.getMessage());
+            }
+        } else {
+            log.info("imported {} triples ({}/sec)", triples, formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)) );
+            previous = System.currentTimeMillis();
+        }
+
+
+    }
+
+    protected static String formatUnits(double value) {
+        if(value == Double.NaN) {
+            return "unknown";
+        } else if(value < 1000 * 10) {
+            return String.format("%,d", (int)value);
+        } else {
+            int exp = (int) (Math.log(value) / Math.log(1000));
+            char pre = "KMGTPE".charAt(exp-1);
+            return String.format("%.1f %s", value / Math.pow(1000, exp), pre);
+        }
+    }
 
     /**
      * Handles a comment.

@@ -17,6 +17,9 @@ public class KiWiLoaderConfiguration {
     public static final String LOADER_STATEMENT_EXISTENCE_CHECK = "loader.statementExistenceCheck";
     public static final String LOADER_CONTEXT = "loader.context";
     public static final String LOADER_DROP_INDEXES = "loader.dropIndexes";
+    public static final String LOADER_STATISTICS_ENABLED = "loader.statistics.enabled";
+    public static final String LOADER_STATISTICS_GRAPH = "loader.statistics.graph";
+
     /**
      * the size of a batch insert into the database; only when this number of statements has been processed will
      * an insert statement to the database be issued.
@@ -91,4 +94,28 @@ public class KiWiLoaderConfiguration {
     public void setDropIndexes(boolean v) {
         config.setProperty(LOADER_DROP_INDEXES,v);
     }
+
+
+    /**
+     * Statistics collection (using rrd) enabled? Will generate performance graphs at certain time intervals.
+     *
+     * @return
+     */
+    public boolean isStatistics() {
+        return config.getBoolean(LOADER_STATISTICS_ENABLED, false);
+    }
+
+    public void setStatistics(boolean v) {
+        config.setProperty(LOADER_STATISTICS_ENABLED,v);
+    }
+
+
+    public String getStatisticsGraph() {
+        return config.getString(LOADER_STATISTICS_GRAPH, "kiwiloader.png");
+    }
+
+    public void setStatisticsGraph(String path) {
+        config.setProperty(LOADER_STATISTICS_GRAPH, path);
+    }
+
 }

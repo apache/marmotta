@@ -155,6 +155,8 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
         } else if(node instanceof KiWiLiteral) {
             literalBacklogLookup.put((KiWiLiteral)node, (KiWiLiteral)node);
         }
+
+        nodes++;
     }
 
     @Override
@@ -165,9 +167,9 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
 
         tripleBacklog.add(result);
 
-        count++;
+        triples++;
 
-        if(count % config.getCommitBatchSize() == 0) {
+        if(triples % config.getCommitBatchSize() == 0) {
             try {
                 flushBacklog();
                 connection.commit();
@@ -180,8 +182,7 @@ public class KiWiPostgresHandler extends KiWiHandler implements RDFHandler {
                 connection.commit();
             }
 
-            log.info("imported {} triples ({}/sec)", count, (config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous));
-            previous = System.currentTimeMillis();
+            printStatistics();
         }
     }
 
