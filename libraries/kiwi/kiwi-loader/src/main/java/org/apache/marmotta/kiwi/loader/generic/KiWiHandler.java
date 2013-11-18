@@ -2,6 +2,7 @@ package org.apache.marmotta.kiwi.loader.generic;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -60,6 +61,8 @@ public class KiWiHandler implements RDFHandler {
 
     protected long triples = 0;
     protected long nodes = 0;
+    protected long nodesLoaded = 0;
+
     protected long start = 0;
     protected long previous = 0;
 
@@ -87,6 +90,7 @@ public class KiWiHandler implements RDFHandler {
         this.store      = store;
 
         this.literalCache = CacheBuilder.newBuilder()
+                .recordStats()
                 .maximumSize(1000000)
                 .expireAfterAccess(30, TimeUnit.MINUTES)
                 .build(new CacheLoader<Literal, KiWiLiteral>() {
@@ -97,6 +101,7 @@ public class KiWiHandler implements RDFHandler {
                 });
 
         this.uriCache = CacheBuilder.newBuilder()
+                .recordStats()
                 .maximumSize(5000000)
                 .expireAfterAccess(60, TimeUnit.MINUTES)
                 .build(new CacheLoader<URI, KiWiUriResource>() {
@@ -107,6 +112,7 @@ public class KiWiHandler implements RDFHandler {
                 });
 
         this.bnodeCache = CacheBuilder.newBuilder()
+                .recordStats()
                 .maximumSize(10000)
                 .expireAfterAccess(10, TimeUnit.MINUTES)
                 .build(new CacheLoader<BNode, KiWiAnonResource>() {
@@ -208,6 +214,9 @@ public class KiWiHandler implements RDFHandler {
             stCfg.setStep(SAMPLE_INTERVAL);
             stCfg.addDatasource("triples", DsType.COUNTER, 600, Double.NaN, Double.NaN);
             stCfg.addDatasource("nodes", DsType.COUNTER, 600, Double.NaN, Double.NaN);
+            stCfg.addDatasource("nodes-loaded", DsType.COUNTER, 600, Double.NaN, Double.NaN);
+            stCfg.addDatasource("cache-hits", DsType.COUNTER, 600, Double.NaN, Double.NaN);
+            stCfg.addDatasource("cache-misses", DsType.COUNTER, 600, Double.NaN, Double.NaN);
             stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);   // every five seconds for 2 hours
             stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 300, 1440); // every five minutes for five days
 
@@ -223,14 +232,21 @@ public class KiWiHandler implements RDFHandler {
                     public void run() {
                         long time = System.currentTimeMillis() / 1000;
 
+                        long cacheMisses = 0, cacheHits = 0;
+                        for(LoadingCache c : new LoadingCache[] { literalCache, uriCache, bnodeCache }) {
+                            CacheStats stats = c.stats();
+                            cacheHits   += stats.hitCount();
+                            cacheMisses += stats.missCount();
+                        }
+
                         try {
                             synchronized (statSample) {
                                 statSample.setTime(time);
-                                statSample.setValues(triples, nodes);
+                                statSample.setValues(triples, nodes, nodesLoaded, cacheHits, cacheMisses);
                                 statSample.update();
                             }
 
-                            if(System.currentTimeMillis() > statLastDump + TimeUnit.MINUTES.toMillis(5L)) {
+                            if(System.currentTimeMillis() > statLastDump + TimeUnit.MINUTES.toMillis(1L)) {
                                 File gFile = new File(config.getStatisticsGraph());
 
                                 if(gFile.exists()) {
@@ -251,13 +267,20 @@ public class KiWiHandler implements RDFHandler {
 
                                 gDef.datasource("triples", "kiwiloader.rrd", "triples", ConsolFun.AVERAGE);
                                 gDef.datasource("nodes", "kiwiloader.rrd", "nodes", ConsolFun.AVERAGE);
+                                gDef.datasource("nodes-loaded", "kiwiloader.rrd", "nodes-loaded", ConsolFun.AVERAGE);
+                                gDef.datasource("cache-hits", "kiwiloader.rrd", "cache-hits", ConsolFun.AVERAGE);
+                                gDef.datasource("cache-misses", "kiwiloader.rrd", "cache-misses", ConsolFun.AVERAGE);
 
                                 gDef.hrule(5000, Color.RED);
                                 gDef.hrule(10000, Color.RED);
                                 gDef.hrule(15000, Color.RED);
+                                gDef.hrule(20000, Color.RED);
 
-                                gDef.line("triples", Color.BLUE, "Triples");
-                                gDef.line("nodes", Color.GREEN, "Nodes");
+                                gDef.line("triples", Color.BLUE, "Triples Written", 3F);
+                                gDef.line("nodes", Color.MAGENTA, "Nodes Written", 3F);
+                                gDef.line("nodes-loaded", Color.CYAN, "Nodes Loaded", 3F);
+                                gDef.line("cache-hits", Color.GREEN, "Node Cache Hits");
+                                gDef.line("cache-misses", Color.ORANGE, "Node Cache Misses");
 
 
                                 gDef.setImageFormat("png");
@@ -387,6 +410,8 @@ public class KiWiHandler implements RDFHandler {
 
                     if(result == null) {
                         result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype);
+                    } else {
+                        nodesLoaded++;
                     }
                 } else if(type.equals(Namespaces.NS_XSD+"dateTime")) {
                     // parse if necessary
@@ -396,6 +421,8 @@ public class KiWiHandler implements RDFHandler {
 
                     if(result == null) {
                         result= new KiWiDateLiteral(dvalue, rtype);
+                    } else {
+                        nodesLoaded++;
                     }
                 } else if(type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
                     long ivalue = Long.parseLong(value.toString());
@@ -404,6 +431,8 @@ public class KiWiHandler implements RDFHandler {
 
                     if(result == null) {
                         result= new KiWiIntLiteral(ivalue, rtype);
+                    } else {
+                        nodesLoaded++;
                     }
                 } else if(type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
                     double dvalue = Double.parseDouble(value.toString());
@@ -412,6 +441,8 @@ public class KiWiHandler implements RDFHandler {
 
                     if(result == null) {
                         result= new KiWiDoubleLiteral(dvalue, rtype);
+                    } else {
+                        nodesLoaded++;
                     }
                 } else if(type.equals(Namespaces.NS_XSD+"boolean")) {
                     boolean bvalue = Boolean.parseBoolean(value.toString());
@@ -420,12 +451,16 @@ public class KiWiHandler implements RDFHandler {
 
                     if(result == null) {
                         result= new KiWiBooleanLiteral(bvalue, rtype);
+                    } else {
+                        nodesLoaded++;
                     }
                 } else {
                     result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
 
                     if(result == null) {
                         result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype);
+                    } else {
+                        nodesLoaded++;
                     }
                 }
             } catch(IllegalArgumentException ex) {
@@ -437,6 +472,8 @@ public class KiWiHandler implements RDFHandler {
 
                 if(result == null) {
                     result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, mytype);
+                } else {
+                    nodesLoaded++;
                 }
 
             }
@@ -465,6 +502,8 @@ public class KiWiHandler implements RDFHandler {
 
                 storeNode(result);
 
+            } else {
+                nodesLoaded++;
             }
             if(result.getId() == null) {
                 log.error("node ID is null!");
@@ -486,6 +525,8 @@ public class KiWiHandler implements RDFHandler {
             if(result == null) {
                 result = new KiWiAnonResource(nodeID);
                 storeNode(result);
+            } else {
+                nodesLoaded++;
             }
             if(result.getId() == null) {
                 log.error("node ID is null!");
@@ -532,9 +573,9 @@ public class KiWiHandler implements RDFHandler {
                 double triplesLastHour = hourData.getAggregate("triples", ConsolFun.AVERAGE);
 
                 if(triplesLastMin != Double.NaN) {
-                    log.info("imported {} triples; statistics: {}/sec, {}/sec (last min), {}/sec (last hour)", triples, formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)), formatUnits(triplesLastMin), formatUnits(triplesLastHour));
+                    log.info("imported {} triples; statistics: {}/sec, {}/sec (last min), {}/sec (last hour)", formatUnits(triples), formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)), formatUnits(triplesLastMin), formatUnits(triplesLastHour));
                 } else {
-                    log.info("imported {} triples ({}/sec, no long-time averages available)", triples, formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)));
+                    log.info("imported {} triples ({}/sec, no long-time averages available)", formatUnits(triples), formatUnits((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)));
                 }
                 previous = System.currentTimeMillis();
 
