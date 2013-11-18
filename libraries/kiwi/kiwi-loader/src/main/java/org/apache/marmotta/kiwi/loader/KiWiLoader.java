@@ -258,6 +258,7 @@ public class KiWiLoader {
                     final File f = new File(inFile);
                     String fName = f.getName();
                     InputStream inStream = new FileInputStream(f);
+
                     if (gzip || inFile.endsWith(".gz")) {
                         log.debug("{} seems to be gzipped", inFile);
                         inStream = new GzipCompressorInputStream(inStream,true);
