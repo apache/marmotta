@@ -271,7 +271,7 @@ public class KiWiHandler implements RDFHandler {
 
                                 statLastDump = System.currentTimeMillis();
                             }
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             log.warn("could not update statistics database: {}", e.getMessage());
                         }
                     }
