@@ -965,7 +965,6 @@
                 <scope>provided</scope>
             </dependency>
 
-
             <!-- Tomcat JDBC Connection Pool (replacement for c3p0, MARMOTTA-111 -->
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
