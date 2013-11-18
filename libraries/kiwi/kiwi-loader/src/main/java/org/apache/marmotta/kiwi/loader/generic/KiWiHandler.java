@@ -217,8 +217,9 @@ public class KiWiHandler implements RDFHandler {
             stCfg.addDatasource("nodes-loaded", DsType.COUNTER, 600, Double.NaN, Double.NaN);
             stCfg.addDatasource("cache-hits", DsType.COUNTER, 600, Double.NaN, Double.NaN);
             stCfg.addDatasource("cache-misses", DsType.COUNTER, 600, Double.NaN, Double.NaN);
-            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);   // every five seconds for 2 hours
-            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 300, 1440); // every five minutes for five days
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);  // every five seconds for 2 hours
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 12, 1440); // every minute for 1 day
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 60, 1440); // every five minutes for five days
 
             try {
                 statDB = new RrdDb(stCfg);
