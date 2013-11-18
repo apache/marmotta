@@ -271,15 +271,6 @@ public class KiWiHandler implements RDFHandler {
                                 gDef.datasource("cache-hits", "kiwiloader.rrd", "cache-hits", ConsolFun.AVERAGE);
                                 gDef.datasource("cache-misses", "kiwiloader.rrd", "cache-misses", ConsolFun.AVERAGE);
 
-                                gDef.hrule(5000, Color.RED);
-                                gDef.hrule(10000, Color.RED);
-                                gDef.hrule(15000, Color.RED);
-                                gDef.hrule(20000, Color.RED);
-                                gDef.hrule(25000, Color.RED);
-                                gDef.hrule(30000, Color.RED);
-                                gDef.hrule(35000, Color.RED);
-                                gDef.hrule(40000, Color.RED);
-
                                 gDef.line("triples", Color.BLUE, "Triples Written", 3F);
                                 gDef.line("nodes", Color.MAGENTA, "Nodes Written", 3F);
                                 gDef.line("nodes-loaded", Color.CYAN, "Nodes Loaded", 3F);
