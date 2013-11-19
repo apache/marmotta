@@ -91,7 +91,7 @@ public class KiWiHandler implements RDFHandler {
 
         this.literalCache = CacheBuilder.newBuilder()
                 .recordStats()
-                .maximumSize(1000000)
+                .maximumSize(500000)
                 .expireAfterAccess(30, TimeUnit.MINUTES)
                 .build(new CacheLoader<Literal, KiWiLiteral>() {
                     @Override
@@ -102,7 +102,7 @@ public class KiWiHandler implements RDFHandler {
 
         this.uriCache = CacheBuilder.newBuilder()
                 .recordStats()
-                .maximumSize(5000000)
+                .maximumSize(1000000)
                 .expireAfterAccess(60, TimeUnit.MINUTES)
                 .build(new CacheLoader<URI, KiWiUriResource>() {
                     @Override
