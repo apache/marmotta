@@ -3,6 +3,14 @@ package org.apache.marmotta.kiwi.loader.generic;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
@@ -57,20 +65,23 @@ public class KiWiHandler implements RDFHandler {
 
     protected KiWiLoaderConfiguration config;
 
-    protected LoadingCache<Literal, KiWiLiteral> literalCache;
-    protected LoadingCache<URI, KiWiUriResource> uriCache;
-    protected LoadingCache<BNode, KiWiAnonResource> bnodeCache;
+    protected SelfPopulatingCache literalCache;
+    protected SelfPopulatingCache uriCache;
+    protected SelfPopulatingCache bnodeCache;
     protected LoadingCache<String,Locale> localeCache;
 
     // if non-null, all imported statements will have this context (regardless whether they specified a different context)
     private KiWiResource overrideContext;
 
+    private CacheManager cacheManager;
 
     private Statistics statistics;
 
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
         this.store      = store;
+
+        this.cacheManager = CacheManager.create();
 
         long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
@@ -82,39 +93,53 @@ public class KiWiHandler implements RDFHandler {
         log.info("calculated cache sizes: uri={}B, literal={}B, bnode={}B", formatSize(uriCacheSize), formatSize(litCacheSize), formatSize(bnodeCacheSize));
 
 
+        Cache literalBaseCache = new Cache(
+                new CacheConfiguration("literalCache",0)
+                        .maxBytesLocalHeap(litCacheSize, MemoryUnit.BYTES)
+                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
+                        .eternal(false)
+                        .statistics(true)
+        );
+        cacheManager.addCache(literalBaseCache);
 
-        this.literalCache = CacheBuilder.newBuilder()
-                .recordStats()
-                .maximumWeight(litCacheSize)
-                .weigher(new CacheWeigher<Literal, KiWiLiteral>())
-                .build(new CacheLoader<Literal, KiWiLiteral>() {
-                    @Override
-                    public KiWiLiteral load(Literal l) throws Exception {
-                        return createLiteral(l);
-                    }
-                });
+        Cache uriBaseCache = new Cache(
+                new CacheConfiguration("uriCache",0)
+                        .maxBytesLocalHeap(uriCacheSize, MemoryUnit.BYTES)
+                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
+                        .eternal(false)
+                        .statistics(true)
+        );
+        cacheManager.addCache(uriBaseCache);
 
-        this.uriCache = CacheBuilder.newBuilder()
-                .recordStats()
-                .maximumWeight(uriCacheSize)
-                .weigher(new CacheWeigher<URI, KiWiUriResource>())
-                .build(new CacheLoader<URI, KiWiUriResource>() {
-                    @Override
-                    public KiWiUriResource load(URI key) throws Exception {
-                        return createURI(key.stringValue());
-                    }
-                });
+        Cache bnodeBaseCache = new Cache(
+                new CacheConfiguration("bnodeCache",0)
+                        .maxBytesLocalHeap(bnodeCacheSize, MemoryUnit.BYTES)
+                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
+                        .eternal(false)
+                        .statistics(true)
+        );
+        cacheManager.addCache(bnodeBaseCache);
 
-        this.bnodeCache = CacheBuilder.newBuilder()
-                .recordStats()
-                .maximumWeight(bnodeCacheSize)
-                .weigher(new CacheWeigher<BNode, KiWiAnonResource>())
-                .build(new CacheLoader<BNode, KiWiAnonResource>() {
-                    @Override
-                    public KiWiAnonResource load(BNode key) throws Exception {
-                        return createBNode(key.stringValue());
-                    }
-                });
+        this.literalCache = new SelfPopulatingCache(cacheManager.getCache("literalCache"), new CacheEntryFactory() {
+            @Override
+            public Object createEntry(Object key) throws Exception {
+                return createLiteral((Literal)key);
+            }
+        });
+
+        this.uriCache = new SelfPopulatingCache(cacheManager.getCache("uriCache"), new CacheEntryFactory() {
+            @Override
+            public Object createEntry(Object key) throws Exception {
+                return createURI(((URI)key).stringValue());
+            }
+        });
+
+        this.bnodeCache = new SelfPopulatingCache(cacheManager.getCache("bnodeCache"), new CacheEntryFactory() {
+            @Override
+            public Object createEntry(Object key) throws Exception {
+                return createBNode(((BNode)key).stringValue());
+            }
+        });
 
         this.localeCache = CacheBuilder.newBuilder()
                 .maximumSize(100)
@@ -255,15 +280,26 @@ public class KiWiHandler implements RDFHandler {
         } else if(value instanceof KiWiNode) {
             return (KiWiNode)value;
         } else if(value instanceof URI) {
-            return uriCache.get((URI)value);
+            Element e = uriCache.get((URI) value);
+            if(e != null) {
+                return (KiWiNode) e.getObjectValue();
+            }
         } else if(value instanceof BNode) {
-            return bnodeCache.get(((BNode)value));
+            Element e = bnodeCache.get(((BNode)value));
+            if(e != null) {
+                return (KiWiNode) e.getObjectValue();
+            }
         } else if(value instanceof Literal) {
             Literal l = (Literal)value;
-            return literalCache.get(l);
+            Element e = literalCache.get(l);
+            if(e != null) {
+                return (KiWiNode) e.getObjectValue();
+            }
+
         } else {
             throw new IllegalArgumentException("the value passed as argument does not have the correct type");
         }
+        throw new IllegalStateException("could not construct or load node");
 
     }
 
@@ -285,7 +321,7 @@ public class KiWiHandler implements RDFHandler {
 
 
         KiWiLiteral result;
-        final KiWiUriResource rtype = type==null ? null : uriCache.get(type);
+        final KiWiUriResource rtype = type==null ? null : (KiWiUriResource) convertNode(type);
 
         try {
 

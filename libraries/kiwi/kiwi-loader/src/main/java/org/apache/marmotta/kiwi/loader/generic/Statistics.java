@@ -17,8 +17,7 @@
 
 package org.apache.marmotta.kiwi.loader.generic;
 
-import com.google.common.cache.CacheStats;
-import com.google.common.cache.LoadingCache;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import org.apache.marmotta.kiwi.loader.util.UnitFormatter;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -157,10 +156,9 @@ public class Statistics {
         public void run() {
 
             long cacheMisses = 0, cacheHits = 0;
-            for(LoadingCache c : new LoadingCache[] { handler.literalCache, handler.uriCache, handler.bnodeCache }) {
-                CacheStats stats = c.stats();
-                cacheHits   += stats.hitCount();
-                cacheMisses += stats.missCount();
+            for(SelfPopulatingCache c : new SelfPopulatingCache[] { handler.literalCache, handler.uriCache, handler.bnodeCache }) {
+                cacheHits   += c.getStatistics().getCacheHits();
+                cacheMisses += c.getStatistics().getCacheMisses();
             }
 
             try {
