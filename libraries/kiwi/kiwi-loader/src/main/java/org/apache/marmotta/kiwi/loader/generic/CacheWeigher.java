@@ -20,6 +20,8 @@ package org.apache.marmotta.kiwi.loader.generic;
 import com.google.common.cache.Weigher;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -31,6 +33,8 @@ import java.io.Serializable;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class CacheWeigher<K extends Serializable,V extends Serializable> implements Weigher<K,V> {
+
+    private static Logger log = LoggerFactory.getLogger(CacheWeigher.class);
 
     /**
      * Returns the weight of a cache entry. There is no unit for entry weights; rather they are simply
@@ -47,9 +51,10 @@ public class CacheWeigher<K extends Serializable,V extends Serializable> impleme
             out.writeObject(value);
             int result = (int) counter.getCount();
             out.close();
-            return result;
+            return result + 16 + 48; // add 16 + 48 bytes for the cache maintenance information itself
         } catch (IOException e) {
-            return 0;
+            log.error("could not determine object size ...");
+            return 1024; // assume 1 kB
         }
     }
 }

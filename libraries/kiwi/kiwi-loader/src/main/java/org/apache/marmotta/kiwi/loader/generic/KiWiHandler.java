@@ -472,6 +472,6 @@ public class KiWiHandler implements RDFHandler {
 
     private static String sanitizeString(String in) {
         // clean up illegal characters
-        return in.replaceAll("[\\00]","");
+        return in.replaceAll("[\\00]", "");
     }
 }
