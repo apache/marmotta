@@ -46,6 +46,7 @@ are "on" and "off".  The default is "autodetect".
 <ehcache name="kiwi"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          updateCheck="false"
+         maxBytesLocalHeap="50%"
          xsi:noNamespaceSchemaLocation="http://ehcache.sf.net/ehcache.xsd">
 
     <!-- 
@@ -149,8 +150,8 @@ are "on" and "off".  The default is "autodetect".
        a cache from database ID to KiWiNode; should be very large since this kind of lookup is a very frequent operation
     -->
     <cache name="node-cache"
-           maxElementsInMemory="5000000"
-           eternal="true"
+           maxBytesLocalHeap="30%"
+           timeToLiveSeconds="3600"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU"/>
 
@@ -159,7 +160,7 @@ are "on" and "off".  The default is "autodetect".
         from the database by avoiding reconstructing each triple from the database result
     -->
     <cache name="triple-cache"
-           maxElementsInMemory="500000"
+           maxBytesLocalHeap="10%"
            overflowToDisk="false"
            timeToLiveSeconds="3600"
            memoryStoreEvictionPolicy="LFU"/>
@@ -176,24 +177,24 @@ are "on" and "off".  The default is "autodetect".
 
     <!-- a cache from URI to KiWiUriResource -->
     <cache name="uri-cache"
-           maxElementsInMemory="500000"
-           eternal="true"
+           maxBytesLocalHeap="10%"
            overflowToDisk="false"
-           memoryStoreEvictionPolicy="LFU"/>
+           timeToLiveSeconds="3600"
+           memoryStoreEvictionPolicy="LRU"/>
 
     <!-- a cache from anonymous ID to KiWiAnonResource -->
     <cache name="bnode-cache"
            maxElementsInMemory="5000"
-           eternal="true"
            overflowToDisk="false"
-           memoryStoreEvictionPolicy="LFU"/>
+           timeToLiveSeconds="3600"
+           memoryStoreEvictionPolicy="LRU"/>
 
 
     <!-- a cache from literal cache key to KiWiLiteral -->
     <cache name="literal-cache"
-           maxElementsInMemory="50000"
-           eternal="true"
+           maxBytesLocalHeap="10%"
            overflowToDisk="false"
+           timeToLiveSeconds="3600"
            memoryStoreEvictionPolicy="LFU"/>
 
 
