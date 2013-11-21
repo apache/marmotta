@@ -3,14 +3,9 @@ package org.apache.marmotta.kiwi.loader.generic;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
@@ -46,9 +41,6 @@ import static org.apache.marmotta.kiwi.loader.util.UnitFormatter.formatSize;
  */
 public class KiWiHandler implements RDFHandler {
 
-    private static double CACHE_MEMORY_PERCENTAGE = 0.20;
-
-
     private static Logger log = LoggerFactory.getLogger(KiWiHandler.class);
 
     protected KiWiConnection connection;
@@ -71,49 +63,27 @@ public class KiWiHandler implements RDFHandler {
     // if non-null, all imported statements will have this context (regardless whether they specified a different context)
     private KiWiResource overrideContext;
 
-    private CacheManager cacheManager;
-
     private Statistics statistics;
 
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
         this.store      = store;
 
-        this.cacheManager = CacheManager.create();
-
-
-        long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
-        long cacheSize   = (long) (freeMemory * CACHE_MEMORY_PERCENTAGE);
-
-
-        log.info("calculated cache size: {}B", formatSize(cacheSize));
-
-
-        Cache baseCache = new Cache(
-                new CacheConfiguration("loader-cache",0)
-                        .maxBytesLocalHeap(cacheSize, MemoryUnit.BYTES)
-                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
-                        .timeToIdleSeconds(120)
-                        .statistics(true)
-        );
-        cacheManager.addCache(baseCache);
-
-        this.literalCache = new SelfPopulatingCache(cacheManager.getCache("loader-cache"), new CacheEntryFactory() {
+        this.literalCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
             @Override
             public Object createEntry(Object key) throws Exception {
                 return createLiteral((Literal)key);
             }
         });
 
-        this.uriCache = new SelfPopulatingCache(cacheManager.getCache("loader-cache"), new CacheEntryFactory() {
+        this.uriCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
             @Override
             public Object createEntry(Object key) throws Exception {
                 return createURI(((URI)key).stringValue());
             }
         });
 
-        this.bnodeCache = new SelfPopulatingCache(cacheManager.getCache("loader-cache"), new CacheEntryFactory() {
+        this.bnodeCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
             @Override
             public Object createEntry(Object key) throws Exception {
                 return createBNode(((BNode)key).stringValue());

@@ -110,6 +110,16 @@ public class KiWiCacheManager {
         return cacheManager.getCache("namespace-prefix-cache");
     }
 
+
+    /**
+     * Return the cache used by the KiWiLoader. Used for mapping from Sesame nodes to KiWi nodes.
+     * @return
+     */
+    public Cache getLoaderCache() {
+        return cacheManager.getCache("loader-cache");
+    }
+
+
     /**
      * Get the cache with the given name from the cache manager. Can be used to request additional
      * caches from the cache manager that are not covered by explicit methods.

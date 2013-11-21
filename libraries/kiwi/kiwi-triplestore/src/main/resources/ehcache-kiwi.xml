@@ -46,7 +46,7 @@ are "on" and "off".  The default is "autodetect".
 <ehcache name="kiwi"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          updateCheck="false"
-         maxBytesLocalHeap="50%"
+         maxBytesLocalHeap="60%"
          xsi:noNamespaceSchemaLocation="http://ehcache.sf.net/ehcache.xsd">
 
     <!-- 
@@ -208,6 +208,15 @@ are "on" and "off".  The default is "autodetect".
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU"/>
+
+
+    <cache name="loader-cache"
+           statistics="true"
+           maxBytesLocalHeap="15%"
+           timeToIdleSeconds="120"
+           overflowToDisk="false"
+           memoryStoreEvictionPolicy="LRU"/>
+
 
     <!--  uncomment to enable cache debugging -->
 <!-- 
