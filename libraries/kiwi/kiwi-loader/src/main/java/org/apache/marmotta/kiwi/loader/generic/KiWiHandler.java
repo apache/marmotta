@@ -46,9 +46,7 @@ import static org.apache.marmotta.kiwi.loader.util.UnitFormatter.formatSize;
  */
 public class KiWiHandler implements RDFHandler {
 
-    private static double LITERAL_CACHE_MEMORY_PERCENTAGE = 0.20;
-    private static double URI_CACHE_MEMORY_PERCENTAGE     = 0.30;
-    private static double BNODE_CACHE_MEMORY_PERCENTAGE   = 0.05;
+    private static double CACHE_MEMORY_PERCENTAGE = 0.20;
 
 
     private static Logger log = LoggerFactory.getLogger(KiWiHandler.class);
@@ -83,58 +81,39 @@ public class KiWiHandler implements RDFHandler {
 
         this.cacheManager = CacheManager.create();
 
+
         long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long freeMemory = Runtime.getRuntime().maxMemory() - usedMemory;
-        long litCacheSize   = (long) (freeMemory * LITERAL_CACHE_MEMORY_PERCENTAGE);
-        long uriCacheSize   = (long) (freeMemory * URI_CACHE_MEMORY_PERCENTAGE);
-        long bnodeCacheSize = (long) (freeMemory * BNODE_CACHE_MEMORY_PERCENTAGE);
+        long cacheSize   = (long) (freeMemory * CACHE_MEMORY_PERCENTAGE);
 
 
-        log.info("calculated cache sizes: uri={}B, literal={}B, bnode={}B", formatSize(uriCacheSize), formatSize(litCacheSize), formatSize(bnodeCacheSize));
+        log.info("calculated cache size: {}B", formatSize(cacheSize));
 
 
-        Cache literalBaseCache = new Cache(
-                new CacheConfiguration("literalCache",0)
-                        .maxBytesLocalHeap(litCacheSize, MemoryUnit.BYTES)
-                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
-                        .eternal(false)
+        Cache baseCache = new Cache(
+                new CacheConfiguration("loader-cache",0)
+                        .maxBytesLocalHeap(cacheSize, MemoryUnit.BYTES)
+                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+                        .timeToIdleSeconds(120)
                         .statistics(true)
         );
-        cacheManager.addCache(literalBaseCache);
+        cacheManager.addCache(baseCache);
 
-        Cache uriBaseCache = new Cache(
-                new CacheConfiguration("uriCache",0)
-                        .maxBytesLocalHeap(uriCacheSize, MemoryUnit.BYTES)
-                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
-                        .eternal(false)
-                        .statistics(true)
-        );
-        cacheManager.addCache(uriBaseCache);
-
-        Cache bnodeBaseCache = new Cache(
-                new CacheConfiguration("bnodeCache",0)
-                        .maxBytesLocalHeap(bnodeCacheSize, MemoryUnit.BYTES)
-                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LFU)
-                        .eternal(false)
-                        .statistics(true)
-        );
-        cacheManager.addCache(bnodeBaseCache);
-
-        this.literalCache = new SelfPopulatingCache(cacheManager.getCache("literalCache"), new CacheEntryFactory() {
+        this.literalCache = new SelfPopulatingCache(cacheManager.getCache("loader-cache"), new CacheEntryFactory() {
             @Override
             public Object createEntry(Object key) throws Exception {
                 return createLiteral((Literal)key);
             }
         });
 
-        this.uriCache = new SelfPopulatingCache(cacheManager.getCache("uriCache"), new CacheEntryFactory() {
+        this.uriCache = new SelfPopulatingCache(cacheManager.getCache("loader-cache"), new CacheEntryFactory() {
             @Override
             public Object createEntry(Object key) throws Exception {
                 return createURI(((URI)key).stringValue());
             }
         });
 
-        this.bnodeCache = new SelfPopulatingCache(cacheManager.getCache("bnodeCache"), new CacheEntryFactory() {
+        this.bnodeCache = new SelfPopulatingCache(cacheManager.getCache("loader-cache"), new CacheEntryFactory() {
             @Override
             public Object createEntry(Object key) throws Exception {
                 return createBNode(((BNode)key).stringValue());
