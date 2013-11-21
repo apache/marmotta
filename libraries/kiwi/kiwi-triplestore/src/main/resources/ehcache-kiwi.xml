@@ -140,7 +140,6 @@ are "on" and "off".  The default is "autodetect".
     created programmtically using CacheManager.add(String cacheName)
     -->
     <defaultCache
-            maxElementsInMemory="20000"
             eternal="true"
             overflowToDisk="false"
             memoryStoreEvictionPolicy="LRU"
@@ -171,7 +170,7 @@ are "on" and "off".  The default is "autodetect".
     -->
     <cache name="query-cache"
            statistics="true"
-           maxElementsInMemory="10000"
+           maxBytesLocalHeap="10%"
            timeToLiveSeconds="3600"
            overflowToDisk="false"/>
 
@@ -184,7 +183,7 @@ are "on" and "off".  The default is "autodetect".
 
     <!-- a cache from anonymous ID to KiWiAnonResource -->
     <cache name="bnode-cache"
-           maxElementsInMemory="5000"
+           maxBytesLocalHeap="5%"
            overflowToDisk="false"
            timeToLiveSeconds="3600"
            memoryStoreEvictionPolicy="LRU"/>
@@ -199,13 +198,13 @@ are "on" and "off".  The default is "autodetect".
 
 
     <cache name="namespace-prefix-cache"
-           maxElementsInMemory="100"
+           maxBytesLocalHeap="5%"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU"/>
 
     <cache name="namespace-uri-cache"
-           maxElementsInMemory="100"
+           maxBytesLocalHeap="5%"
            eternal="true"
            overflowToDisk="false"
            memoryStoreEvictionPolicy="LFU"/>
