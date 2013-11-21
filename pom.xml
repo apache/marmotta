@@ -30,7 +30,7 @@
 
     <name>Apache Marmotta</name>
     <description>Open implementation of the Linked Data Platform</description>
-    <url>http://marmotta.incubator.apache.org</url>
+    <url>http://marmotta.apache.org</url>
 
     <prerequisites>
         <maven>3.0.3</maven>
