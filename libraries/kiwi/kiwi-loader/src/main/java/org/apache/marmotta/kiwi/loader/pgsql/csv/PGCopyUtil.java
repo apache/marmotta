@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.constraint.NotNull;
-import org.supercsv.cellprocessor.constraint.Unique;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.encoder.DefaultCsvEncoder;
 import org.supercsv.io.CsvListWriter;
@@ -43,7 +42,7 @@ public class PGCopyUtil {
 
 
     final static CellProcessor[] nodeProcessors = new CellProcessor[] {
-            new Unique(),                             // node ID
+            new NotNull(),                             // node ID
             new NodeTypeProcessor(),                  // ntype
             new NotNull(),                            // svalue
             new Optional(),                           // dvalue
@@ -57,7 +56,7 @@ public class PGCopyUtil {
 
 
     final static CellProcessor[] tripleProcessors = new CellProcessor[] {
-            new Unique(),                             // triple ID
+            new NotNull(),                             // triple ID
             new NodeIDProcessor(),                    // subject
             new NodeIDProcessor(),                    // predicate
             new NodeIDProcessor(),                    // object
