@@ -17,16 +17,16 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Locale;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * KiWiLiterals store literal information from the knowledge base. They directly
@@ -55,8 +55,19 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
         super();
     }
 
+    protected KiWiLiteral(Date created) {
+        super(created);
+    }
+
+
     protected KiWiLiteral(Locale locale, KiWiUriResource type) {
         this();
+        this.locale = locale;
+        this.type = type;
+    }
+
+    protected KiWiLiteral(Locale locale, KiWiUriResource type, Date created) {
+        super(created);
         this.locale = locale;
         this.type = type;
     }

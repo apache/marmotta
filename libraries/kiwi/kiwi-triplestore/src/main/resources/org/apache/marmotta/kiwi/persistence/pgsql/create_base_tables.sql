@@ -12,10 +12,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE SEQUENCE seq_nodes;
-CREATE SEQUENCE seq_triples;
-CREATE SEQUENCE seq_namespaces;
-
 CREATE TYPE nodetype AS ENUM ('uri','bnode','string','int','double','date','boolean');
 
 CREATE TABLE nodes (

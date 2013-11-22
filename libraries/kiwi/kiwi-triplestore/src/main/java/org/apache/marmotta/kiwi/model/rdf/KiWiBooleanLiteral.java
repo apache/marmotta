@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
+import java.util.Date;
+
 /**
  * Add file description here!
  * <p/>
@@ -33,6 +35,12 @@ public class KiWiBooleanLiteral extends KiWiStringLiteral {
 
     public KiWiBooleanLiteral(boolean value, KiWiUriResource type) {
         super();
+        setValue(value);
+        setType(type);
+    }
+
+    public KiWiBooleanLiteral(boolean value, KiWiUriResource type, Date created) {
+        super(created);
         setValue(value);
         setType(type);
     }

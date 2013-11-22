@@ -12,19 +12,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE TABLE seq_nodes (id BIGINT NOT NULL) ENGINE=InnoDB;
-INSERT INTO seq_nodes(id) VALUES (0);
-
-CREATE TABLE seq_triples (id BIGINT NOT NULL) ENGINE=InnoDB;
-INSERT INTO seq_triples VALUES (0);
-
-CREATE TABLE seq_namespaces (id BIGINT NOT NULL) ENGINE=InnoDB;
-INSERT INTO seq_namespaces(id) VALUES (0);
-
--- Sequences in MySQL:
--- UPDATE sequence SET id=LAST_INSERT_ID(id+1);
--- SELECT LAST_INSERT_ID();
-
 
 CREATE TABLE nodes (
   id        bigint     NOT NULL,

@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
+import java.util.Date;
+
 /**
  * Add file description here!
  * <p/>
@@ -40,6 +42,12 @@ public class KiWiIntLiteral extends KiWiDoubleLiteral {
 
     public KiWiIntLiteral(Long content, KiWiUriResource type) {
         super();
+        setIntContent(content);
+        setType(type);
+    }
+
+    public KiWiIntLiteral(Long content, KiWiUriResource type, Date created) {
+        super(created);
         setIntContent(content);
         setType(type);
     }

@@ -65,6 +65,10 @@ public class KiWiHandler implements RDFHandler {
 
     private Statistics statistics;
 
+
+    protected Date importDate;
+
+
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
         this.store      = store;
@@ -152,6 +156,8 @@ public class KiWiHandler implements RDFHandler {
         this.start = System.currentTimeMillis();
         this.previous = System.currentTimeMillis();
 
+        this.importDate = new Date(this.start);
+
         if(config.getContext() != null) {
             try {
                 this.overrideContext = (KiWiResource)convertNode(new URIImpl(config.getContext()));
@@ -210,7 +216,7 @@ public class KiWiHandler implements RDFHandler {
                 context = (KiWiResource)convertNode(st.getContext());
             }
 
-            KiWiTriple result = new KiWiTriple(subject,predicate,object,context);
+            KiWiTriple result = new KiWiTriple(subject,predicate,object,context, importDate);
             if(config.isStatementExistanceCheck()) {
                 result.setId(connection.getTripleId(subject, predicate, object, context, true));
             }
@@ -281,7 +287,7 @@ public class KiWiHandler implements RDFHandler {
                     result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype);
+                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
@@ -292,7 +298,7 @@ public class KiWiHandler implements RDFHandler {
                     result = connection.loadLiteral(dvalue);
 
                     if(result == null) {
-                        result= new KiWiDateLiteral(dvalue, rtype);
+                        result= new KiWiDateLiteral(dvalue, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
@@ -302,7 +308,7 @@ public class KiWiHandler implements RDFHandler {
                     result = connection.loadLiteral(ivalue);
 
                     if(result == null) {
-                        result= new KiWiIntLiteral(ivalue, rtype);
+                        result= new KiWiIntLiteral(ivalue, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
@@ -312,7 +318,7 @@ public class KiWiHandler implements RDFHandler {
                     result = connection.loadLiteral(dvalue);
 
                     if(result == null) {
-                        result= new KiWiDoubleLiteral(dvalue, rtype);
+                        result= new KiWiDoubleLiteral(dvalue, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
@@ -322,7 +328,7 @@ public class KiWiHandler implements RDFHandler {
                     result = connection.loadLiteral(bvalue);
 
                     if(result == null) {
-                        result= new KiWiBooleanLiteral(bvalue, rtype);
+                        result= new KiWiBooleanLiteral(bvalue, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
@@ -330,7 +336,7 @@ public class KiWiHandler implements RDFHandler {
                     result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype);
+                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
@@ -343,7 +349,7 @@ public class KiWiHandler implements RDFHandler {
                 result = connection.loadLiteral(sanitizeString(value.toString()), lang, mytype);
 
                 if(result == null) {
-                    result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, mytype);
+                    result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, mytype, importDate);
                 } else {
                     nodesLoaded++;
                 }
@@ -370,7 +376,7 @@ public class KiWiHandler implements RDFHandler {
             KiWiUriResource result = connection.loadUriResource(uri);
 
             if(result == null) {
-                result = new KiWiUriResource(uri);
+                result = new KiWiUriResource(uri, importDate);
 
                 storeNode(result);
 
@@ -395,7 +401,7 @@ public class KiWiHandler implements RDFHandler {
             KiWiAnonResource result = connection.loadAnonResource(nodeID);
 
             if(result == null) {
-                result = new KiWiAnonResource(nodeID);
+                result = new KiWiAnonResource(nodeID, importDate);
                 storeNode(result);
             } else {
                 nodesLoaded++;

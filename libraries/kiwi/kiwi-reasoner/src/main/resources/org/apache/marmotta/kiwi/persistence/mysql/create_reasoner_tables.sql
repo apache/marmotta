@@ -12,19 +12,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE TABLE seq_programs (id BIGINT NOT NULL);
-INSERT INTO seq_programs(id) VALUES (0);
-
-CREATE TABLE seq_rules (id BIGINT NOT NULL);
-INSERT INTO seq_rules VALUES (0);
-
-CREATE TABLE seq_justifications (id BIGINT NOT NULL);
-INSERT INTO seq_justifications(id) VALUES (0);
-
--- Sequences in MySQL:
--- UPDATE sequence SET id=LAST_INSERT_ID(id+1);
--- SELECT LAST_INSERT_ID();
-
 
 -- a table for representing metadata about complete reasoner programs
 CREATE TABLE reasoner_programs (

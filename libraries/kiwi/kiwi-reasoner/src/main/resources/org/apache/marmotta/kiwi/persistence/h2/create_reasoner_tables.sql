@@ -12,9 +12,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE SEQUENCE seq_programs;
-CREATE SEQUENCE seq_rules;
-CREATE SEQUENCE seq_justifications;
 
 -- a table for representing metadata about complete reasoner programs
 CREATE TABLE reasoner_programs (

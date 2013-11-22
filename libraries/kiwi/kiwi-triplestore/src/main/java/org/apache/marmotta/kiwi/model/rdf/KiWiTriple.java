@@ -78,29 +78,37 @@ public class KiWiTriple  implements Statement, Serializable {
 
 	
 	public KiWiTriple() {
-		this.created = new Date();
-		this.deleted = false;
+        this(new Date());
+	}
+
+    public KiWiTriple(Date created) {
+        this.created = created;
+        this.deleted = false;
         this.inferred = false;
         this.markedForReasoning = false;
         this.deletedAt = null;
-	}
-	
+    }
 
 
 	public KiWiTriple(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context) {
-		this();
-		this.subject = subject;
-		this.predicate = predicate;
-		this.object   = object;
+		this(subject, predicate, object, context, new Date());
+	}
+
+
+    public KiWiTriple(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, Date created) {
+        this(created);
+        this.subject = subject;
+        this.predicate = predicate;
+        this.object   = object;
         this.context  = context;
         this.deletedAt = null;
 
         assert(subject  != null);
         assert(predicate != null);
         assert(object   != null);
-	}
+    }
 
-   /**
+    /**
      * Get the object of this extended triple.
      * @return
      */

@@ -59,6 +59,11 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
         setDateContent(dateContent);
     }
 
+    public KiWiDateLiteral(Date dateContent, KiWiUriResource type, Date created) {
+        super(DateUtils.getXMLCalendar(DateUtils.getDateWithoutFraction(dateContent)).toXMLFormat(),null,type, created);
+        setDateContent(dateContent);
+    }
+
 
     public Date getDateContent() {
         return new Date(dateContent.getTime());

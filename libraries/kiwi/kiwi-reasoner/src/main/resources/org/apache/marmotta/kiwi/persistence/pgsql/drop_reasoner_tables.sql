@@ -25,7 +25,3 @@ DROP TABLE IF EXISTS reasoner_program_rules;
 DROP TABLE IF EXISTS reasoner_rules;
 DROP TABLE IF EXISTS reasoner_program_namespaces;
 DROP TABLE IF EXISTS reasoner_programs;
-
-DROP SEQUENCE IF EXISTS seq_rules;
-DROP SEQUENCE IF EXISTS seq_justifications;
-DROP SEQUENCE IF EXISTS seq_programs;

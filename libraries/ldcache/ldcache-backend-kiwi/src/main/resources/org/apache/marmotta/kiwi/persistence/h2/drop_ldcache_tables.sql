@@ -17,4 +17,3 @@ DROP INDEX IF EXISTS idx_ldcache_resource;
 
 DROP TABLE IF EXISTS ldcache_entries;
 
-DROP SEQUENCE IF EXISTS seq_ldcache;

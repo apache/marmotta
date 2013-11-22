@@ -1556,23 +1556,20 @@ public class KiWiConnection {
 
         String ntype = row.getString("ntype");
         if("uri".equals(ntype)) {
-            KiWiUriResource result = new KiWiUriResource(row.getString("svalue"));
+            KiWiUriResource result = new KiWiUriResource(row.getString("svalue"),new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(id);
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
             cacheNode(result);
             return result;
         } else if("bnode".equals(ntype)) {
-            KiWiAnonResource result = new KiWiAnonResource(row.getString("svalue"));
+            KiWiAnonResource result = new KiWiAnonResource(row.getString("svalue"), new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(row.getLong("id"));
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
             cacheNode(result);
             return result;
         } else if("string".equals(ntype)) {
-            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString("svalue"));
+            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString("svalue"), new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(row.getLong("id"));
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
             if(row.getString("lang") != null) {
                 result.setLocale(getLocale(row.getString("lang")));
@@ -1584,10 +1581,8 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("int".equals(ntype)) {
-            KiWiIntLiteral result = new KiWiIntLiteral();
+            KiWiIntLiteral result = new KiWiIntLiteral(row.getLong("ivalue"), null, new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(row.getLong("id"));
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
-            result.setIntContent(row.getLong("ivalue"));
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
             }
@@ -1595,10 +1590,8 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("double".equals(ntype)) {
-            KiWiDoubleLiteral result = new KiWiDoubleLiteral();
+            KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble("dvalue"), null, new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(row.getLong("id"));
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
-            result.setDoubleContent(row.getDouble("dvalue"));
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
             }
@@ -1606,10 +1599,8 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("boolean".equals(ntype)) {
-            KiWiBooleanLiteral result = new KiWiBooleanLiteral();
+            KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean("bvalue"),null,new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(row.getLong("id"));
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
-            result.setValue(row.getBoolean("bvalue"));
 
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
@@ -1618,10 +1609,8 @@ public class KiWiConnection {
             cacheNode(result);
             return result;
         } else if("date".equals(ntype)) {
-            KiWiDateLiteral result = new KiWiDateLiteral();
+            KiWiDateLiteral result = new KiWiDateLiteral(new Date(row.getTimestamp("tvalue").getTime()), null, new Date(row.getTimestamp("createdAt").getTime()));
             result.setId(row.getLong("id"));
-            result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
-            result.setDateContent(new Date(row.getTimestamp("tvalue").getTime()));
 
             if(row.getLong("ltype") != 0) {
                 result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));

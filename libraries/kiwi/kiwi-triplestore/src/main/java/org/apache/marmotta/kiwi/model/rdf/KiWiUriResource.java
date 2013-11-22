@@ -17,12 +17,10 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
-
 import org.apache.marmotta.commons.sesame.model.URICommons;
 import org.openrdf.model.URI;
+
+import java.util.Date;
 
 /**
  * Add file description here!
@@ -57,6 +55,12 @@ public class KiWiUriResource extends KiWiResource implements URI {
         super();
         this.uri = uri;
     }
+
+    public KiWiUriResource(String uri, Date created) {
+        super(created);
+        this.uri = uri;
+    }
+
 
     /**
      * @deprecated use {@link #stringValue()} instead.

@@ -29,7 +29,3 @@ DROP TABLE IF EXISTS namespaces;
 DROP TABLE IF EXISTS nodes;
 DROP TABLE IF EXISTS metadata;
 
-DROP TABLE IF EXISTS seq_nodes;
-DROP TABLE IF EXISTS seq_triples;
-DROP TABLE IF EXISTS seq_namespaces;
-

@@ -12,9 +12,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE TABLE seq_ldcache (id BIGINT NOT NULL);
-INSERT INTO seq_ldcache(id) VALUES (0);
-
 CREATE TABLE ldcache_entries (
   id           bigint     NOT NULL,
   retrieved_at timestamp  NOT NULL,

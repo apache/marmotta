@@ -13,10 +13,6 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-CREATE SEQUENCE seq_nodes;
-CREATE SEQUENCE seq_triples;
-CREATE SEQUENCE seq_namespaces;
-
 CREATE TABLE nodes (
   id        bigint     NOT NULL,
   ntype     char(8)    NOT NULL,

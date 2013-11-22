@@ -19,6 +19,8 @@ package org.apache.marmotta.kiwi.model.rdf;
 
 import org.openrdf.model.Resource;
 
+import java.util.Date;
+
 /**
  * KiWiResources correspond to RDF resources. A KiWi resource is either an anonymous 
  * resource or a URIResource. A KiWiResource represents an RDF resource. However, there
@@ -58,6 +60,10 @@ public abstract class KiWiResource extends KiWiNode implements Resource {
 
     protected KiWiResource() {
         super();
+    }
+
+    protected KiWiResource(Date created) {
+        super(created);
     }
 
 

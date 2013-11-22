@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -35,8 +36,18 @@ public class KiWiStringLiteral extends KiWiLiteral {
         super();
     }
 
+    public KiWiStringLiteral(Date created) {
+        super(created);
+    }
+
+
     public KiWiStringLiteral(String content) {
         super(null, null);
+        this.content = content;
+    }
+
+    public KiWiStringLiteral(String content, Date created) {
+        super(null, null, created);
         this.content = content;
     }
 
@@ -45,6 +56,12 @@ public class KiWiStringLiteral extends KiWiLiteral {
         super(language, type);
         this.content = content;
     }
+
+    public KiWiStringLiteral(String content, Locale language, KiWiUriResource type, Date created) {
+        super(language, type, created);
+        this.content = content;
+    }
+
 
     /**
      * Return the content of the literal, using the parametrized Java type

@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import org.openrdf.model.BNode;
+
+import java.util.Date;
 
 /**
  * The KiWiAnonResaource represents the anonymous RDF resource.
@@ -39,8 +38,14 @@ public class KiWiAnonResource extends KiWiResource implements BNode {
     
     public KiWiAnonResource(String id) {
         super();
-        setAnonId(id);
+        this.anonId = id;
     }
+
+    public KiWiAnonResource(String id, Date created) {
+        super(created);
+        this.anonId = id;
+    }
+
 
     @Deprecated
     public String getAnonId() {

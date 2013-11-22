@@ -69,7 +69,11 @@ public abstract class KiWiNode implements Value, Serializable {
     private boolean changed = false;
 
     protected KiWiNode() {
-        this.created   = new Date();
+        this(new Date());
+    }
+
+    protected KiWiNode(Date created) {
+        this.created   = created;
         this.deleted   = false;
         this.cached    = false;
     }
