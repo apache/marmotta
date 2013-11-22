@@ -17,8 +17,8 @@
 -->
 <rdf:RDF
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-        xmlns:ns1="http://marmotta.incubator.apache.org/testing/ns1/">
-    <ns1:C rdf:about="http://marmotta.incubator.apache.org/testing/ns1/R1">
+        xmlns:ns1="http://marmotta.apache.org/testing/ns1/">
+    <ns1:C rdf:about="http://marmotta.apache.org/testing/ns1/R1">
         <ns1:P3>property 3 value 1</ns1:P3>
     </ns1:C>
 

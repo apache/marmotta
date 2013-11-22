@@ -29,7 +29,7 @@ function Snorql() {
     // modify this._endpoint to point to your SPARQL endpoint
     this._endpoint = _BASIC_URL + 'sparql/select';
     // modify these to your liking
-    this._poweredByLink = 'http://marmotta.incubator.apache.org';
+    this._poweredByLink = 'http://marmotta.apache.org';
     this._poweredByLabel = 'Snorql & Apache Marmotta';
     this._enableNamedGraphs = false;
 

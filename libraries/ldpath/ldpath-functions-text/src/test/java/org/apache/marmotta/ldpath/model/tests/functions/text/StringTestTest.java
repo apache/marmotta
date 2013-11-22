@@ -48,7 +48,7 @@ public class StringTestTest extends AbstractTestBase {
     public static List<String[]> data() {
         return Arrays.asList(
                 new String[] { "Welcome to The Apache Software Foundation!" },
-                new String[] { "Apache Marmotta (incubator) is an Open Platform for Linked Data" }
+                new String[] { "Apache Marmotta is an Open Platform for Linked Data" }
                 );
     }
     private static Random rnd;
