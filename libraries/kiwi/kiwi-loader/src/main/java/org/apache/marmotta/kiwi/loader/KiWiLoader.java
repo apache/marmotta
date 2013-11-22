@@ -31,6 +31,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
+import org.apache.marmotta.kiwi.loader.mysql.KiWiMySQLHandler;
 import org.apache.marmotta.kiwi.loader.pgsql.KiWiPostgresHandler;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -354,6 +355,9 @@ public class KiWiLoader {
             if(kiwi.getDialect() instanceof PostgreSQLDialect) {
                 config.setCommitBatchSize(100000);
                 handler = new KiWiPostgresHandler(store,config);
+            } else if(kiwi.getDialect() instanceof MySQLDialect) {
+                config.setCommitBatchSize(100000);
+                handler = new KiWiMySQLHandler(store,config);
             } else {
                 handler = new KiWiHandler(store,config);
             }
