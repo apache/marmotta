@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public class Justification  {
 
-    private Long id;
+    private long id = -1L;
 
     /**
      * The triple that is supported by this justification
@@ -74,11 +74,11 @@ public class Justification  {
         supportingRules   = new HashSet<Rule>();
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

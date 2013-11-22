@@ -32,7 +32,7 @@ public class KiWiNamespace implements Namespace, Serializable {
 
 	private static final long serialVersionUID = 4894726437788578181L;
 
-	private Long id;
+	private long id = -1L;
 	
     private String prefix;
     
@@ -42,7 +42,7 @@ public class KiWiNamespace implements Namespace, Serializable {
 
     private Date modified;
     
-	private Boolean deleted;
+	private boolean deleted;
     
     public KiWiNamespace() {
         this.created = new Date();
@@ -74,14 +74,14 @@ public class KiWiNamespace implements Namespace, Serializable {
 	/**
 	 * @return the id
 	 */
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -144,7 +144,7 @@ public class KiWiNamespace implements Namespace, Serializable {
 
         KiWiNamespace that = (KiWiNamespace) o;
 
-        if (deleted != null ? !deleted.equals(that.deleted) : that.deleted != null) return false;
+        if (deleted != that.deleted) return false;
         if (prefix != null ? !prefix.equals(that.prefix) : that.prefix != null) return false;
         if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
 
@@ -155,7 +155,7 @@ public class KiWiNamespace implements Namespace, Serializable {
     public int hashCode() {
         int result = prefix != null ? prefix.hashCode() : 0;
         result = 31 * result + (uri != null ? uri.hashCode() : 0);
-        result = 31 * result + (deleted != null ? deleted.hashCode() : 0);
+        result = 31 * result + (deleted ? 1 : 0);
         return result;
     }
 

@@ -356,7 +356,7 @@ public class KiWiHandler implements RDFHandler {
 
             }
 
-            if(result.getId() == null) {
+            if(result.getId() < 0) {
                 storeNode(result);
             }
 
@@ -383,7 +383,7 @@ public class KiWiHandler implements RDFHandler {
             } else {
                 nodesLoaded++;
             }
-            if(result.getId() == null) {
+            if(result.getId() < 0) {
                 log.error("node ID is null!");
             }
 
@@ -406,7 +406,7 @@ public class KiWiHandler implements RDFHandler {
             } else {
                 nodesLoaded++;
             }
-            if(result.getId() == null) {
+            if(result.getId() < 0) {
                 log.error("node ID is null!");
             }
 

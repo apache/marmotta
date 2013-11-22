@@ -28,7 +28,7 @@ import org.apache.marmotta.kiwi.transactions.model.TransactionData;
  */
 public class Version extends TransactionData {
 
-    private Long id;
+    private long id = -1L;
 
     private KiWiResource creator;
 
@@ -47,11 +47,11 @@ public class Version extends TransactionData {
         this.commitTime     = data.getCommitTime();
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

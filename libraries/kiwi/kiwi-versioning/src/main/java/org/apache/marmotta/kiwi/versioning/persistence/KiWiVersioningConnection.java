@@ -38,7 +38,6 @@ import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,7 +71,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void storeVersion(Version data) throws SQLException {
-        if(data.getId() != null) {
+        if(data.getId() >= 0) {
             log.warn("version {} already had a version ID, not persisting", data);
             return;
         }
@@ -319,7 +318,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     private CloseableIteration<Version, SQLException> listVersionsInternal(KiWiResource r) throws SQLException {
-        if(r.getId() == null) {
+        if(r.getId() < 0) {
             return new EmptyIteration<Version, SQLException>();
         } else {
             requireJDBCConnection();
@@ -421,7 +420,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
         PreparedStatement queryVersions = getPreparedStatement("load.versions_by_resource_between");
         synchronized (queryVersions) {
             queryVersions.clearParameters();
-            if(r.getId() == null) {
+            if(r.getId() < 0) {
                 return new EmptyIteration<Version, SQLException>();
             } else {
                 queryVersions.setLong(1, r.getId());
@@ -539,16 +538,16 @@ public class KiWiVersioningConnection extends KiWiConnection {
      */
     private CloseableIteration<Statement, SQLException> listTriplesInternalSnapshot(KiWiResource subject, KiWiUriResource predicate, KiWiNode object, KiWiResource context, boolean inferred, Date snapshotDate) throws SQLException {
         // if one of the database ids is null, there will not be any database results, so we can return an empty result
-        if(subject != null && subject.getId() == null) {
+        if(subject != null && subject.getId() < 0) {
             return new EmptyIteration<Statement, SQLException>();
         }
-        if(predicate != null && predicate.getId() == null) {
+        if(predicate != null && predicate.getId() < 0) {
             return new EmptyIteration<Statement, SQLException>();
         }
-        if(object != null && object.getId() == null) {
+        if(object != null && object.getId() < 0) {
             return new EmptyIteration<Statement, SQLException>();
         }
-        if(context != null && context.getId() == null) {
+        if(context != null && context.getId() < 0) {
             return new EmptyIteration<Statement, SQLException>();
         }
 
@@ -652,7 +651,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public long getSnapshotSize(KiWiResource context, Date snapshotDate) throws SQLException {
-        if(context.getId() == null) {
+        if(context.getId() < 0) {
             return 0;
         };
 

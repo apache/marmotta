@@ -409,7 +409,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             CloseableIteration<? extends Statement, SailException> triples = getStatementsInternal(subj,pred,obj,true,contexts);
             while(triples.hasNext()) {
                 KiWiTriple triple = (KiWiTriple)triples.next();
-                if(triple.getId() != null) {
+                if(triple.getId() >= 0) {
                     databaseConnection.deleteTriple(triple);
                     triplesRemoved = true;
                     notifyStatementRemoved(triple);
@@ -440,7 +440,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             CloseableIteration<? extends Statement, SailException> triples = getStatementsInternal(subj,pred,obj,true,valueFactory.createURI(inferredContext));
             while(triples.hasNext()) {
                 KiWiTriple triple = (KiWiTriple)triples.next();
-                if(triple.getId() != null && triple.isInferred()) {
+                if(triple.getId() >= 0 && triple.isInferred()) {
                     databaseConnection.deleteTriple(triple);
                     triplesRemoved = true;
                     notifyStatementRemoved(triple);
@@ -462,7 +462,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      */
     public boolean removeInferredStatement(KiWiTriple triple) throws SailException {
         try {
-            if(triple.getId() != null && triple.isInferred()) {
+            if(triple.getId() >= 0 && triple.isInferred()) {
                 databaseConnection.deleteTriple(triple);
                 triplesRemoved = true;
                 notifyStatementRemoved(triple);

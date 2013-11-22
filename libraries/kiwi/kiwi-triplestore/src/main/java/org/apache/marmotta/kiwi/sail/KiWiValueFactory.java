@@ -171,7 +171,7 @@ public class KiWiValueFactory implements ValueFactory {
                 connection.storeNode(result, false);
 
             }
-            if(result.getId() == null) {
+            if(result.getId() < 0) {
                 log.error("node ID is null!");
             }
 
@@ -234,7 +234,7 @@ public class KiWiValueFactory implements ValueFactory {
 
                 connection.storeNode(result, false);
             }
-            if(result.getId() == null) {
+            if(result.getId() < 0) {
                 log.error("node ID is null!");
             }
 
@@ -471,7 +471,7 @@ public class KiWiValueFactory implements ValueFactory {
 
             }
 
-            if(result.getId() == null) {
+            if(result.getId() < 0) {
                 connection.storeNode(result, false);
             }
 
@@ -639,7 +639,7 @@ public class KiWiValueFactory implements ValueFactory {
 
                 result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
                 result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext,true));
-                if(result.getId() == null) {
+                if(result.getId() < 0) {
                     result.setMarkedForReasoning(true);
                 }
 

@@ -33,40 +33,24 @@ import java.util.Date;
  * @author sschaffe
  */
 public abstract class KiWiNode implements Value, Serializable {
-    
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4652575123005436645L;
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4652575123005436645L;
 
     /**
      * Unique ID of the KiWiNode in the database. This ID should not be exposed to the outside, it may be
      * different between different KiWi installations.
      */
-	private Long id;
+    private long id = -1L;
 
 
     /**
      * The creation date of the KiWiNode.
      **/
-     private Date created;
+    private Date created;
 
-    /**
-     * indicates that the node has been marked as deleted (and can possibly be completely removed from the database)
-     */
-    private boolean deleted;
-
-    /**
-     * indicates that the node is cached by the Linked Data Caching service and not local
-     */
-    private boolean cached;
-    
-    /**
-     * A flag to indicate whether the state of a node has changed and needs to be persisted in the database. Set by
-     * createResource/createLiteral/... and used by TripleStorePersister.
-     */
-    // @Transient
-    private boolean changed = false;
 
     protected KiWiNode() {
         this(new Date());
@@ -74,8 +58,6 @@ public abstract class KiWiNode implements Value, Serializable {
 
     protected KiWiNode(Date created) {
         this.created   = created;
-        this.deleted   = false;
-        this.cached    = false;
     }
 
 
@@ -83,21 +65,21 @@ public abstract class KiWiNode implements Value, Serializable {
      * Return the database ID of this node. Can be used to refer to the node in the context of one triple store
      * instance, but should not be exposed outside.
      *
-	 * @return the (internal) database id
-	 */
-	public Long getId() {
-		return id;
-	}
+     * @return the (internal) database id
+     */
+    public long getId() {
+        return id;
+    }
 
 
-	/**
+    /**
      * Update the database id of the node.
      *
-	 * @param id the id to set
-	 */
-	public void setId(Long id) {
-		this.id = id;
-	}
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
 
     /**
      * Return the timestamp when this node has been created
@@ -115,43 +97,6 @@ public abstract class KiWiNode implements Value, Serializable {
      */
     public void setCreated(Date created) {
         this.created = new Date(created.getTime());
-    }
-
-
-    /**
-     * Returns true in case the node has been marked deleted.
-     *
-     * @return the deleted
-     */
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    /**
-     * Flag this node as deleted
-     *
-     * @param deleted the deleted to set
-     */
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-
-    public boolean isChanged() {
-        return changed;
-    }
-
-    public void setChanged(boolean changed) {
-        this.changed = changed;
-    }
-
-
-    public boolean isCached() {
-        return cached;
-    }
-
-    public void setCached(boolean cached) {
-        this.cached = cached;
     }
 
 

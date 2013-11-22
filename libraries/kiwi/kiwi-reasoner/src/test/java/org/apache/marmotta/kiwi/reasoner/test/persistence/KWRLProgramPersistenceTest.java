@@ -17,14 +17,7 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.persistence;
 
-import static org.hamcrest.Matchers.hasItems;
 import info.aduna.iteration.CloseableIteration;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
@@ -37,16 +30,20 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasItems;
 
 /**
  * This test verifies the persistence functionality of the reasoning component regarding storing, loading and deleting
@@ -129,7 +126,7 @@ public class KWRLProgramPersistenceTest {
             connection.storeProgram(p);
             connection.commit();
 
-            Assert.assertNotNull("program did not get a database ID",p.getId());
+            Assert.assertTrue("program did not get a database ID", p.getId() >= 0);
 
             // load the program by name and check if it is equal to the original program
             Program p1 = connection.loadProgram("test-001");
@@ -165,7 +162,7 @@ public class KWRLProgramPersistenceTest {
             connection.storeProgram(p);
             connection.commit();
 
-            Assert.assertNotNull("program did not get a database ID",p.getId());
+            Assert.assertTrue("program did not get a database ID", p.getId() >= 0);
 
 
             // load the program by name and check if it is equal to the original program

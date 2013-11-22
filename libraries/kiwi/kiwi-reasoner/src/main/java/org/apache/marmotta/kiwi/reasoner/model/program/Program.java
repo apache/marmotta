@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class Program {
 
-    private Long id;
+    private long id = -1L;
 
     private String name;
 
@@ -45,11 +45,11 @@ public class Program {
         namespaces = new HashMap<String, String>();
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 

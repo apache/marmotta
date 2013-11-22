@@ -16,35 +16,12 @@
  */
 package org.apache.marmotta.kiwi.test;
 
-import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
 import info.aduna.iteration.Iterations;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -54,6 +31,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openrdf.model.Statement;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+
+import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 
 /**
  * This test verifies the persistence functionality of the KiWi triple store. 
@@ -118,7 +107,7 @@ public class PersistenceTest {
             connection.storeNode(uri, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(uri.getId());
+            Assert.assertTrue(uri.getId() >= 0);
 
             KiWiNode testUri1 = connection.loadNodeById(uri.getId());
 
@@ -195,7 +184,7 @@ public class PersistenceTest {
             connection.storeNode(bnode, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(bnode.getId());
+            Assert.assertTrue(bnode.getId() >= 0);
 
             KiWiNode testBNode1 = connection.loadNodeById(bnode.getId());
 
@@ -274,7 +263,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -353,7 +342,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -431,7 +420,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -513,7 +502,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -600,7 +589,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -705,7 +694,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -809,7 +798,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 
@@ -912,7 +901,7 @@ public class PersistenceTest {
             connection.storeNode(literal, false);
 
             // check if it then has a database ID
-            Assert.assertNotNull(literal.getId());
+            Assert.assertTrue(literal.getId() >= 0);
 
             KiWiNode testLiteral1 = connection.loadNodeById(literal.getId());
 

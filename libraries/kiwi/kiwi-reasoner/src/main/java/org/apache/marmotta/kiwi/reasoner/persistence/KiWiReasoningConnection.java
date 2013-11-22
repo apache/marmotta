@@ -48,7 +48,6 @@ import org.openrdf.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -92,7 +91,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void storeRule(Rule rule, Map<String, String> namespaces) throws SQLException {
-        if(rule.getId() != null) {
+        if(rule.getId() >= 0) {
             log.warn("rule {} already had a database ID, not persisting", rule);
             return;
         }
@@ -220,7 +219,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void removeRule(Rule rule) throws SQLException {
-        if(rule.getId() == null) {
+        if(rule.getId() <= 0) {
             log.warn("rule {} does not have a database ID, cannot delete", rule);
             return;
         }
@@ -247,7 +246,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void storeProgram(Program program) throws SQLException {
-        if(program.getId() != null) {
+        if(program.getId() >= 0) {
             throw new SQLException("Program already stored in the database");
         }
 
@@ -399,7 +398,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
                         deleteJustifications(oldRule);
 
-                        oldRule.setId(null);
+                        oldRule.setId(-1L);
                     }
                 }
                 deleteProgramRule.executeBatch();
@@ -564,7 +563,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public void deleteProgram(Program program) throws SQLException {
-        if(program.getId() == null) {
+        if(program.getId() <= 0) {
             log.warn("cannot delete non-persistent program (name={})!", program.getName());
             return;
         }
@@ -617,7 +616,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * Store a collection of new justification in the database. Uses an SQL batch operation to speed up
      * database insertion.
      *
-     * @param justification
+     * @param justifications
      * @throws SQLException
      */
     public void storeJustifications(Iterable<Justification> justifications) throws SQLException {
@@ -633,7 +632,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
             justificationAddRule.clearBatch();
 
             for(Justification j : justifications) {
-                if(j.getId() != null) {
+                if(j.getId() >= 0) {
                     log.warn("justification is already stored in database, not persisting again (database ID: {})", j.getId());
                 } else {
                     j.setId(getNextSequence("seq.justifications"));
@@ -648,7 +647,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
                     // insert join entries for all supporting triples
                     for(KiWiTriple supportingTriple : j.getSupportingTriples()) {
-                        if(supportingTriple.getId() == null) {
+                        if(supportingTriple.getId() < 0) {
                             log.error("supporting triple is not persistent, cannot store justification (triple={})",supportingTriple);
                         } else {
                             justificationAddTriple.clearParameters();
@@ -660,7 +659,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
                     // insert join entries for all supporting rules
                     for(Rule supportingRule : j.getSupportingRules()) {
-                        if(supportingRule.getId() == null) {
+                        if(supportingRule.getId() <= 0) {
                             log.error("supporting rule is not persistent, cannot store justification (rule={})",supportingRule);
                         } else {
                             justificationAddRule.clearParameters();
@@ -683,7 +682,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
     /**
      * Delete the justifications given as argument (batch operation).
      *
-     * @param rule
+     * @param justifications
      * @throws SQLException
      */
     public void deleteJustifications(Iterable<Justification> justifications) throws SQLException {
@@ -694,7 +693,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
     /**
      * Delete the justifications given as argument (batch operation).
      *
-     * @param rule
+     * @param justifications
      * @throws SQLException
      */
     public void deleteJustifications(Iteration<Justification, SQLException> justifications) throws SQLException {
@@ -711,7 +710,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
             while(justifications.hasNext()) {
                 Justification j = justifications.next();
-                if(j.getId() == null) {
+                if(j.getId() < 0) {
                     log.error("cannot delete justification since it does not have a database ID");
                 } else {
                     deleteJustificationRules.setLong(1, j.getId());
@@ -748,7 +747,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
     /**
      * Delete the justifications referring to a certain triple given as argument.
      *
-     * @param rule
+     * @param triple
      * @throws SQLException
      */
     public void deleteJustifications(KiWiTriple triple) throws SQLException {
@@ -781,7 +780,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<Justification,SQLException> listJustificationsBySupporting(Rule rule) throws SQLException {
-        if(rule.getId() == null) {
+        if(rule.getId() <= 0) {
             return new EmptyIteration<Justification, SQLException>();
         } else {
             requireJDBCConnection();
@@ -809,7 +808,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<Justification,SQLException> listJustificationsBySupporting(KiWiTriple triple) throws SQLException {
-        if(triple.getId() == null) {
+        if(triple.getId() < 0) {
             return new EmptyIteration<Justification, SQLException>();
         } else {
             requireJDBCConnection();
@@ -837,7 +836,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
      * @throws SQLException
      */
     public CloseableIteration<Justification,SQLException> listJustificationsForTriple(KiWiTriple triple) throws SQLException {
-        if(triple.getId() == null) {
+        if(triple.getId() < 0) {
             return new EmptyIteration<Justification, SQLException>();
         } else {
             return listJustificationsForTriple(triple.getId());
@@ -846,7 +845,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
     /**
      * List all justifications supporting the given triple.
-     * @param triple
+     * @param tripleId
      * @return
      * @throws SQLException
      */
@@ -942,8 +941,6 @@ public class KiWiReasoningConnection extends KiWiConnection {
      *                        on the kind of filter, filtering will be carried out by the database or in memory
      * @param orderBy         list of variables by whose bindings the result rows should be ordered; variables
      *                        at the beginning of the list take precedence over variables that are further behind
-     * @param optional        allow variables to be unbound; if this parameter is set, at least one variable
-     *                        needs to give a result
      * @return a list of bindings matching the query patterns and filters, ordered by the specified
      *         variables and offset and limited by the parameters given
      */
@@ -1091,14 +1088,14 @@ public class KiWiReasoningConnection extends KiWiConnection {
             for(int i = 0; i<fields.length; i++) {
                 // find node id of the resource or literal field and use it in the where clause
                 // in this way we can avoid setting too many query parameters
-                Long nodeId = null;
+                long nodeId = -1;
                 if(fields[i] != null && fields[i].isLiteralField()) {
                     nodeId = ((KiWiNode)((LiteralField)fields[i]).getLiteral()).getId();
                 } else if(fields[i] != null && fields[i].isResourceField()) {
                     nodeId = ((KiWiNode)((ResourceField)fields[i]).getResource()).getId();
                 }
 
-                if(nodeId != null) {
+                if(nodeId >= 0) {
                     String condition = pName+"."+positions[i]+" = " + nodeId;
                     whereConditions.add(condition);
                 }

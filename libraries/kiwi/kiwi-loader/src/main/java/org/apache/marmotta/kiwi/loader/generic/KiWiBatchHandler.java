@@ -164,7 +164,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
     @Override
     protected void storeNode(KiWiNode node) throws SQLException {
-        if(node.getId() == null) {
+        if(node.getId() < 0) {
             node.setId(connection.getNextSequence("nodes"));
         }
 
@@ -183,7 +183,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
     @Override
     protected void storeTriple(KiWiTriple result) throws SQLException {
-        if(result.getId() == null) {
+        if(result.getId() < 0) {
             result.setId(connection.getNextSequence("triples"));
         }
 

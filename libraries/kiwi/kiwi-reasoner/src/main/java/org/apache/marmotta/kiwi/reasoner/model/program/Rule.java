@@ -50,7 +50,7 @@ import java.util.Map;
 public class Rule {
 
 
-    private Long id;
+    private long id = -1L;
 
 
     /**
@@ -82,15 +82,15 @@ public class Rule {
     public Rule() {
     }
 
-    public Rule(Long id) {
+    public Rule(long id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -176,8 +176,8 @@ public class Rule {
 
         Rule rule = (Rule) o;
 
-        if(id != null) {
-            return rule.id != null && id.equals(rule.id);
+        if(id >= 0) {
+            return rule.id == id;
         } else {
 
             if (head != null ? !head.equals(rule.head) : rule.head != null) return false;
@@ -196,8 +196,8 @@ public class Rule {
 
     @Override
     public int hashCode() {
-        if(id != null) {
-            return id.hashCode() * 37;
+        if(id >= 0) {
+            return (int)id * 37;
         } else {
             int result = name != null ? name.hashCode() : 0;
             result = 31 * result + (head != null ? head.hashCode() : 0);

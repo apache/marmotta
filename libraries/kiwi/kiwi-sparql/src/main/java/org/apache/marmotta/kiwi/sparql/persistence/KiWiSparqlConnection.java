@@ -291,7 +291,7 @@ public class KiWiSparqlConnection {
             for(int i = 0; i<fields.length; i++) {
                 // find node id of the resource or literal field and use it in the where clause
                 // in this way we can avoid setting too many query parameters
-                Long nodeId = null;
+                long nodeId = -1;
                 if(fields[i] != null && fields[i].hasValue()) {
                     Value v = valueFactory.convert(fields[i].getValue());
                     if(v instanceof KiWiNode) {
@@ -300,7 +300,7 @@ public class KiWiSparqlConnection {
                         throw new IllegalArgumentException("the values in this query have not been created by the KiWi value factory");
                     }
 
-                    if(nodeId != null) {
+                    if(nodeId >= 0) {
                         String condition = pName+"."+positions[i]+" = " + nodeId;
                         whereConditions.add(condition);
                     }
@@ -365,7 +365,7 @@ public class KiWiSparqlConnection {
             for(Iterator<Resource> it = vctx.getValue().iterator(); it.hasNext(); ) {
                 Value v = valueFactory.convert(it.next());
                 if(v instanceof KiWiNode) {
-                    Long nodeId = ((KiWiNode) v).getId();
+                    long nodeId = ((KiWiNode) v).getId();
 
                     cCond.append(varName);
                     cCond.append(".context = ");

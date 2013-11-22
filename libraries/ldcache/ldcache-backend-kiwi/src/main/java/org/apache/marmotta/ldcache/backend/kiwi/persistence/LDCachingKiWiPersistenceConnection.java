@@ -149,7 +149,7 @@ public class LDCachingKiWiPersistenceConnection  {
             kEntry.setTripleCount(entry.getTripleCount());
         }
 
-        if(! (entry.getResource() instanceof KiWiResource) || ((KiWiResource) entry.getResource()).getId() == null) {
+        if(! (entry.getResource() instanceof KiWiResource) || ((KiWiResource) entry.getResource()).getId() < 0) {
             throw new IllegalStateException("the resource contained in the cache entry is not a KiWiResource!");
         }
 

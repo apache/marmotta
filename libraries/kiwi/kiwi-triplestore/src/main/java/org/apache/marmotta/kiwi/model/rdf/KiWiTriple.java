@@ -52,7 +52,7 @@ public class KiWiTriple  implements Statement, Serializable {
 	 */
 	private static final long serialVersionUID = -8726615974625660845L;
 	
-	private Long id;
+	private long id = -1L;
 	
 
     private KiWiResource    subject;
@@ -69,12 +69,12 @@ public class KiWiTriple  implements Statement, Serializable {
 
     private Date deletedAt;
 
-	private Boolean deleted;
+	private boolean deleted;
 
-    private Boolean inferred;
+    private boolean inferred;
 
     //@Transient
-    private Boolean markedForReasoning;
+    private boolean markedForReasoning;
 
 	
 	public KiWiTriple() {
@@ -234,14 +234,14 @@ public class KiWiTriple  implements Statement, Serializable {
     /**
 	 * @return the id
 	 */
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -250,7 +250,7 @@ public class KiWiTriple  implements Statement, Serializable {
 	/**
 	 * @return the deleted
 	 */
-	public Boolean isDeleted() {
+	public boolean isDeleted() {
 		return deleted;
 	}
 
@@ -258,7 +258,7 @@ public class KiWiTriple  implements Statement, Serializable {
 	/**
 	 * @param deleted the deleted to set
 	 */
-	public void setDeleted(Boolean deleted) {
+	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
 	}
 
@@ -311,11 +311,11 @@ public class KiWiTriple  implements Statement, Serializable {
     }
 
 
-    public Boolean isMarkedForReasoning() {
+    public boolean isMarkedForReasoning() {
         return markedForReasoning;
     }
 
-    public void setMarkedForReasoning(Boolean markedForReasoning) {
+    public void setMarkedForReasoning(boolean markedForReasoning) {
         this.markedForReasoning = markedForReasoning;
     }
 }
