@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-incubating-SNAPSHOT</version>
+        <version>3.2.0-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -30,7 +30,7 @@
 
     <name>KiWi Triplestore: Parent</name>
     <description>A Sesame Triple Store based on a relational database. Supports reasoning and versioning.</description>
-    <url>http://marmotta.incubator.apache.org/kiwi/</url>
+    <url>http://marmotta.apache.org/kiwi/</url>
 
     <inceptionYear>2008</inceptionYear>
 
