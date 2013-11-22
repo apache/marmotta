@@ -20,15 +20,28 @@ package org.apache.marmotta.kiwi.sail;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import info.aduna.iteration.*;
+import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.DelayedIteration;
+import info.aduna.iteration.ExceptionConvertingIteration;
+import info.aduna.iteration.FilterIteration;
+import info.aduna.iteration.Iteration;
+import info.aduna.iteration.Iterations;
+import info.aduna.iteration.UnionIteration;
 import org.apache.marmotta.commons.sesame.repository.ResourceConnection;
+import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.openrdf.model.*;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Namespace;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -286,6 +299,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                     protected Iteration<? extends Statement, ? extends RepositoryException> createIteration() throws RepositoryException {
                         try {
                             return databaseConnection.listTriples(rsubj, rpred, robj, context, includeInferred, false);
+                        } catch (ResultInterruptedException e) {
+                            throw new RepositoryException("listing triples interrupted",e);
                         } catch (SQLException e) {
                             throw new RepositoryException("database error while listing triples",e);
                         }
@@ -298,6 +313,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 protected Iteration<? extends Statement, ? extends RepositoryException> createIteration() throws RepositoryException {
                     try {
                         return databaseConnection.listTriples(rsubj, rpred, robj, null, includeInferred, true);
+                    } catch (ResultInterruptedException e) {
+                        throw new RepositoryException("listing triples interrupted",e);
                     } catch (SQLException e) {
                         throw new RepositoryException("database error while listing triples",e);
                     }
@@ -317,7 +334,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                              */
                             @Override
                             protected SailException convert(Exception e) {
-                                return new SailException("database error while iterating over result set",e);
+                                return new SailException("database error while iterating over result set",e.getCause());
                             }
                         };
                     }
@@ -596,6 +613,13 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                         }
                         else if (e instanceof IOException) {
                             return new QueryEvaluationException(e);
+                        }
+                        else if (e instanceof SailException) {
+                            if(e.getCause() instanceof ResultInterruptedException) {
+                                return new QueryInterruptedException(e);
+                            } else {
+                                return new QueryEvaluationException(e);
+                            }
                         }
                         else if (e instanceof RuntimeException) {
                             throw (RuntimeException)e;

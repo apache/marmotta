@@ -34,6 +34,7 @@ import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
 import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
@@ -1654,6 +1655,10 @@ public class KiWiConnection {
      * @return a KiWiTriple representation of the database result
      */
     protected KiWiTriple constructTripleFromDatabase(ResultSet row) throws SQLException {
+        if(row.isClosed()) {
+            throw new ResultInterruptedException("retrieving results has been interrupted");
+        }
+
         Long id = row.getLong("id");
 
         Element cached = tripleCache.get(id);

@@ -22,6 +22,9 @@
             <pattern>%m%n</pattern>
         </encoder>
     </appender>
+
+    <logger name="net.sf.ehcache.pool.impl" level="WARN" />
+
     <root level="${root-level:-INFO}">
         <appender-ref ref="CONSOLE"/>
     </root>
