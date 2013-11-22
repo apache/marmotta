@@ -3,7 +3,7 @@ package org.apache.marmotta.kiwi.loader;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.loader.pgsql.csv.PGCopyUtil;
+import org.apache.marmotta.kiwi.loader.pgsql.PGCopyUtil;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;

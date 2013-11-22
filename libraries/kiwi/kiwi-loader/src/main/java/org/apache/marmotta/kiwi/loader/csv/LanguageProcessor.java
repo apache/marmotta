@@ -1,4 +1,4 @@
-package org.apache.marmotta.kiwi.loader.pgsql.csv;
+package org.apache.marmotta.kiwi.loader.csv;
 
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.CellProcessor;

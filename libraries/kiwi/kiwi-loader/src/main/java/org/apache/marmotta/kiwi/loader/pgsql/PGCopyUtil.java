@@ -1,5 +1,10 @@
-package org.apache.marmotta.kiwi.loader.pgsql.csv;
+package org.apache.marmotta.kiwi.loader.pgsql;
 
+import org.apache.marmotta.kiwi.loader.csv.LanguageProcessor;
+import org.apache.marmotta.kiwi.loader.csv.NodeIDProcessor;
+import org.apache.marmotta.kiwi.loader.csv.NodeTypeProcessor;
+import org.apache.marmotta.kiwi.loader.csv.SQLBooleanProcessor;
+import org.apache.marmotta.kiwi.loader.csv.SQLTimestampProcessor;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;

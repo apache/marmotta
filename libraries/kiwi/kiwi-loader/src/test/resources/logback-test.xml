@@ -17,9 +17,8 @@
 
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <target>System.out</target>
         <encoder>
-            <pattern>%m%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%level) %cyan(%logger{15}) - %m%n</pattern>
         </encoder>
     </appender>
 

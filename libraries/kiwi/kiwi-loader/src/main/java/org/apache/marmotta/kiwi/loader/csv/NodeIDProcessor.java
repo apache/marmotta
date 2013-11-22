@@ -1,4 +1,4 @@
-package org.apache.marmotta.kiwi.loader.pgsql.csv;
+package org.apache.marmotta.kiwi.loader.csv;
 
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;

@@ -2,6 +2,10 @@ package org.apache.marmotta.kiwi.loader;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
+import org.apache.marmotta.kiwi.loader.mysql.KiWiMySQLHandler;
+import org.apache.marmotta.kiwi.loader.pgsql.KiWiPostgresHandler;
+import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.After;
@@ -70,17 +74,26 @@ public class KiWiHandlerTest {
          */
         @Override
         protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
+            logger.info("{}: {} being run...", dbConfig.getDialect(), description.getMethodName());
         }
     };
 
     @Test
     public void testImport() throws Exception {
 
+        KiWiHandler handler;
+        if(store.getPersistence().getDialect() instanceof PostgreSQLDialect) {
+            handler = new KiWiPostgresHandler(store, new KiWiLoaderConfiguration());
+        } else if(store.getPersistence().getDialect() instanceof MySQLDialect) {
+            handler = new KiWiMySQLHandler(store, new KiWiLoaderConfiguration());
+        } else {
+            handler = new KiWiHandler(store,new KiWiLoaderConfiguration());
+        }
+
         // bulk import
         long start = System.currentTimeMillis();
         RDFParser parser = Rio.createParser(RDFFormat.RDFXML);
-        parser.setRDFHandler(new KiWiHandler(store, new KiWiLoaderConfiguration()));
+        parser.setRDFHandler(handler);
         parser.parse(this.getClass().getResourceAsStream("demo-data.foaf"),"");
 
         logger.info("bulk import in {} ms", System.currentTimeMillis() - start);
