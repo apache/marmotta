@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-incubating-SNAPSHOT</version>
+        <version>3.2.0-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -121,9 +121,9 @@
     </organization>
 
     <scm>
-        <url>https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</url>
-        <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</connection>
-        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git</developerConnection>
+        <url>https://git-wip-us.apache.org/repos/asf/marmotta.git</url>
+        <connection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</connection>
+        <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</developerConnection>
       <tag>HEAD</tag>
   </scm>
 
@@ -135,30 +135,30 @@
     <mailingLists>
         <mailingList>
             <name>users</name>
-            <post>users@marmotta.incubator.apache.org</post>
-            <subscribe>users-subscribe@marmotta.incubator.apache.org</subscribe>
-            <unsubscribe>users-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-users/</archive>
+            <post>users@marmotta.apache.org</post>
+            <subscribe>users-subscribe@marmotta.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@marmotta.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/marmotta-users/</archive>
             <otherArchives>
                 <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.users</otherArchive>
             </otherArchives>
         </mailingList>
         <mailingList>
             <name>dev</name>
-            <post>dev@marmotta.incubator.apache.org</post>
-            <subscribe>dev-subscribe@marmotta.incubator.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-dev/</archive>
+            <post>dev@marmotta.apache.org</post>
+            <subscribe>dev-subscribe@marmotta.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@marmotta.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/marmotta-dev/</archive>
             <otherArchives>
                 <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.dev</otherArchive>
             </otherArchives>
         </mailingList>
         <mailingList>
             <name>commits</name>
-            <post>commits@marmotta.incubator.apache.org</post>
-            <subscribe>commits-subscribe@marmotta.incubator.apache.org</subscribe>
-            <unsubscribe>commits-unsubscribe@marmotta.incubator.apache.org</unsubscribe>
-            <archive>http://mail-archives.apache.org/mod_mbox/incubator-marmotta-commits/</archive>
+            <post>commits@marmotta.apache.org</post>
+            <subscribe>commits-subscribe@marmotta.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@marmotta.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/marmotta-commits/</archive>
             <otherArchives>
                 <otherArchive>http://markmail.org/search/?q=list%3Aorg.apache.marmotta.commits</otherArchive>
             </otherArchives>
@@ -354,16 +354,16 @@
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-webapp.tar.gz" algorithm="SHA1" property="checksum.webapp.tgz" />
                                         <echo file="${basedir}/target/vote.txt">
 From: ${username}@apache.org
-To: dev@marmotta.incubator.apache.org
+To: dev@marmotta.apache.org
 Subject: [VOTE] Release Apache Marmotta ${project.version}
 
 A candidate for the Marmotta ${project.version} release is available at:
 
-https://dist.apache.org/repos/dist/dev/incubator/marmotta/${project.version}/
+https://dist.apache.org/repos/dist/dev/marmotta/${project.version}/
 
 The release candidate is based on the sources tagged with ${project.version} in:
 
-https://git-wip-us.apache.org/repos/asf/incubator-marmotta.git
+https://git-wip-us.apache.org/repos/asf/marmotta.git
 
 The checksum of this commit is ${checksum.git}
 
@@ -401,7 +401,7 @@ The release candidate has been prepared in:
 
 ${basedir}/target/${project.version}
 
-Please deploy it to https://dist.apache.org/repos/dist/dev/incubator/marmotta/:
+Please deploy it to https://dist.apache.org/repos/dist/dev/marmotta/:
 
 cd /path/to/marmotta-dev
 mv ${basedir}/target/${project.version} ${project.version}
