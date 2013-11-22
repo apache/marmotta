@@ -137,19 +137,6 @@ public class KiWiCacheManager {
 
 
     /**
-     * Return the triple query cache, which caches (smaller) listTriples results. This cache is used fairly
-     * often, but since the cache elements will often be bigger collections of results, it should not be too
-     * big (default 10.000 elements). Since the underlying database might change, cache entries should expire
-     * after a certain time (default 1 hour).
-     *
-     * @return  an EHCache Cache instance containing the query pattern -> query result mappings
-     */
-    public KiWiQueryCache getQueryCache() {
-        return queryCache;
-    }
-
-
-    /**
      * Clear all caches managed by this cache manager.
      */
     public void clear() {

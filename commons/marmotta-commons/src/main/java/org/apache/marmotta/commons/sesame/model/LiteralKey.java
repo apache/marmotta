@@ -32,8 +32,8 @@ public class LiteralKey {
 
     public LiteralKey(Object value, String type, String lang) {
         this.value = value;
-        this.type = type;
-        this.lang = lang;
+        this.type = type != null ? type.intern() : null;
+        this.lang = lang != null ? lang.intern() : null;
     }
 
     public String getLang() {

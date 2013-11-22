@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.apache.marmotta.commons.locking.ObjectLocks;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.LiteralKey;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
@@ -46,8 +45,6 @@ import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Add file description here!
@@ -59,10 +56,6 @@ public class KiWiValueFactory implements ValueFactory {
     private static Logger log = LoggerFactory.getLogger(KiWiValueFactory.class);
 
     private Random anonIdGenerator;
-
-    private ObjectLocks uriLocks;
-    private ObjectLocks literalLocks;
-    private ObjectLocks bnodeLocks;
 
     /**
      * This is a hash map for storing references to resources that have not yet been persisted. It is used e.g. when
@@ -85,9 +78,9 @@ public class KiWiValueFactory implements ValueFactory {
     private String defaultContext;
 
 
-    private LoadingCache<String,KiWiUriResource> uriCache;
-    private LoadingCache<String,KiWiAnonResource> bnodeCache;
-    private LoadingCache<LiteralKey, KiWiLiteral> literalCache;
+    protected SelfPopulatingCache literalCache;
+    protected SelfPopulatingCache uriCache;
+    protected SelfPopulatingCache bnodeCache;
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
         anonIdGenerator = new Random();
@@ -96,58 +89,27 @@ public class KiWiValueFactory implements ValueFactory {
         this.store          = store;
         this.defaultContext = defaultContext;
 
-        this.uriLocks     = new ObjectLocks();
-        this.bnodeLocks   = new ObjectLocks();
-        this.literalLocks = new ObjectLocks();
+        this.literalCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
+            @Override
+            public Object createEntry(Object key) throws Exception {
+                return createLiteralInternal((LiteralKey) key);
+            }
+        });
 
-        this.uriCache = CacheBuilder.newBuilder()
-                .maximumSize(store.getPersistence().getConfiguration().getUriCacheSize())
-                .expireAfterAccess(60, TimeUnit.MINUTES)
-                .concurrencyLevel(10)
-                .build(new CacheLoader<String, KiWiUriResource>() {
-                    @Override
-                    public KiWiUriResource load(String key) throws Exception {
-                        uriLocks.lock(key);
-                        try {
-                            return createURIInternal(key);
-                        } finally {
-                            uriLocks.unlock(key);
-                        }
-                    }
-                });
+        this.uriCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
+            @Override
+            public Object createEntry(Object key) throws Exception {
+                return createURIInternal(key.toString().intern());
+            }
+        });
 
+        this.bnodeCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
+            @Override
+            public Object createEntry(Object key) throws Exception {
+                return createBNodeInternal(key.toString().intern());
+            }
+        });
 
-        this.bnodeCache = CacheBuilder.newBuilder()
-                .maximumSize(store.getPersistence().getConfiguration().getBNodeCacheSize())
-                .expireAfterAccess(60, TimeUnit.MINUTES)
-                .concurrencyLevel(10)
-                .build(new CacheLoader<String, KiWiAnonResource>() {
-                    @Override
-                    public KiWiAnonResource load(String key) throws Exception {
-                        bnodeLocks.lock(key);
-                        try {
-                            return createBNodeInternal(key);
-                        } finally {
-                            bnodeLocks.unlock(key);
-                        }
-                    }
-                });
-
-        this.literalCache = CacheBuilder.newBuilder()
-                .maximumSize(store.getPersistence().getConfiguration().getLiteralCacheSize())
-                .expireAfterAccess(60, TimeUnit.MINUTES)
-                .concurrencyLevel(10)
-                .build(new CacheLoader<LiteralKey, KiWiLiteral>() {
-                    @Override
-                    public KiWiLiteral load(LiteralKey key) throws Exception {
-                        literalLocks.lock(key);
-                        try {
-                            return createLiteralInternal(key);
-                        } finally {
-                            literalLocks.unlock(key);
-                        }
-                    }
-                });
     }
 
     protected KiWiConnection aqcuireConnection() {
@@ -187,11 +149,12 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public URI createURI(String uri) {
-        try {
-            return uriCache.get(uri);
-        } catch (ExecutionException e) {
-            log.error("could not load URI resource",e.getCause());
-            throw new IllegalStateException("database error, could not load URI resource",e.getCause());
+        Element e = uriCache.get(uri);
+        if(e != null) {
+            return (KiWiUriResource) e.getObjectValue();
+        } else {
+            log.error("could not load URI resource");
+            throw new IllegalStateException("database error, could not load URI resource");
         }
     }
 
@@ -249,11 +212,12 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode(String nodeID) {
-        try {
-            return bnodeCache.get(nodeID);
-        } catch (ExecutionException e) {
-            log.error("could not load BNode resource",e.getCause());
-            throw new IllegalStateException("database error, could not load anonymous resource",e.getCause());
+        Element e = bnodeCache.get(nodeID);
+        if(e != null) {
+            return (KiWiAnonResource) e.getObjectValue();
+        } else {
+            log.error("could not load BNode resource");
+            throw new IllegalStateException("database error, could not load anonymous resource");
         }
     }
 
@@ -374,13 +338,15 @@ public class KiWiValueFactory implements ValueFactory {
             // FIXME: MARMOTTA-39 (no default datatype before RDF-1.1)
             // type = LiteralCommons.getXSDType(value.getClass());
         }
-        LiteralKey lkey = new LiteralKey(value,type,lang);
+        LiteralKey lkey = new LiteralKey(value,type, lang != null ? lang.intern() : null);
 
-        try {
-            return literalCache.get(lkey);
-        } catch (ExecutionException e) {
-            log.error("could not load Literal value",e.getCause());
-            throw new IllegalStateException("database error, could not load literal value",e.getCause());
+
+        Element e = literalCache.get(lkey);
+        if(e != null) {
+            return (KiWiLiteral) e.getObjectValue();
+        } else {
+            log.error("could not load Literal value");
+            throw new IllegalStateException("database error, could not load literal value");
         }
     }
 

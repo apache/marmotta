@@ -715,15 +715,6 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
            timeToLiveSeconds="3600"
            memoryStoreEvictionPolicy="LFU"/>
 
-    <!--
-        the cache used for triple queries (getStatements) by the KiWi triplestore; this can be helpful if the same
-        query is repeated very often, but needs not be very big
-    -->
-    <cache name="query-cache"
-           statistics="true"
-           maxBytesLocalHeap="10%"
-           timeToLiveSeconds="3600"
-           overflowToDisk="false"/>
 
     <!-- a cache from URI to KiWiUriResource -->
     <cache name="uri-cache"

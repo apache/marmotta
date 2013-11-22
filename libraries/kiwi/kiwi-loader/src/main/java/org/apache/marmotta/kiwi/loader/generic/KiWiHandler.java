@@ -254,7 +254,7 @@ public class KiWiHandler implements RDFHandler {
 
     protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {
         String value = l.getLabel();
-        String lang  = l.getLanguage();
+        String lang  = l.getLanguage() != null ? l.getLanguage().intern() : null;
         URI    type  = l.getDatatype();
 
 
