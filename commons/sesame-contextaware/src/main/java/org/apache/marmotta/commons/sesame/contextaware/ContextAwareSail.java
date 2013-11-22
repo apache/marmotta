@@ -30,7 +30,7 @@ import org.openrdf.sail.helpers.SailWrapper;
  */
 public class ContextAwareSail extends SailWrapper {
 
-    private Resource context;
+    private final Resource context;
 
     /**
      * Creates a new SailWrapper that wraps the supplied Sail.

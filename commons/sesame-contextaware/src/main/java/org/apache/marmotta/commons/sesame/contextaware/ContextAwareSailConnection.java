@@ -35,7 +35,7 @@ import org.openrdf.sail.helpers.SailConnectionWrapper;
  */
 public class ContextAwareSailConnection extends SailConnectionWrapper {
 
-    private Resource context;
+    private final Resource context;
 
     public ContextAwareSailConnection(SailConnection wrappedCon, Resource context) {
         super(wrappedCon);
