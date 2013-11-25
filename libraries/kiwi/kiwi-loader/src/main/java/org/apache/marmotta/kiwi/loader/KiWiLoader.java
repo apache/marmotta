@@ -62,7 +62,7 @@ import java.util.zip.GZIPInputStream;
  *        [-P [<passwd>]] 
  *        [-f <mime-type>] 
  *        [-z]
- *        [-i <rdf-file> ...] 
+ *        [-i <rdf-file> <directory>...]
  *        [--reasoning] 
  *        [--versioning]
  *        <rdf-file> ...
@@ -87,7 +87,7 @@ import java.util.zip.GZIPInputStream;
  *  -f,--format &lt;mime-type&gt;    format of rdf file (if guessing based on the
  *                             extension does not work)
  *  -z                         Input file is gzip compressed
- *  -i,--file &lt;rdf-file&gt;       input file(s) to load
+ *  -i,--file &lt;rdf-file&gt;       input file(s) or directory(s) to load
  *  
  * KiWi Extra Settings:
  *     --reasoning             enable reasoning
@@ -512,7 +512,7 @@ public class KiWiLoader {
         format.setArgs(1);
         options.addOption(format);
 
-        final Option input = new Option("i", "file", true, "input file(s) to load");
+        final Option input = new Option("i", "file", true, "input file(s) or directory(s) to load");
         input.setArgName("rdf-file");
         input.setArgs(Option.UNLIMITED_VALUES);
         options.addOption(input);
