@@ -403,15 +403,32 @@ public class KiWiLoader {
 
     /**
      * Load the triples from the file using the provided format.
-     * @param file the file to read from
+     * @param path the file to read from
      * @param format the expected {@link RDFFormat}
      * @param gzip force using a {@link GZIPInputStream} (will try to guess based on the filename if false)
      * @throws RDFParseException if the stream is invalid (e.g. does not fit with the syntax)
      * @throws IOException
      * @see {@link #load(InputStream, RDFFormat)}
      */
-    public void load(String file, RDFFormat format, boolean gzip) throws IOException, RDFParseException {
-        final File f = new File(file);
+    public void load(String path, RDFFormat format, boolean gzip) throws IOException, RDFParseException {
+        final File f = new File(path);
+        if (f.exists() && f.isDirectory() && format != null)  {
+            final String extension = "." + format.getDefaultFileExtension() + (gzip ? ".gz" : "");
+            File [] files = f.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(extension);
+                }
+            });
+            for (File file: files) {
+                load(file, format, gzip);
+            }
+        } else {
+            load(f, format, gzip);
+        }
+    }
+
+    private void load (File f, RDFFormat format, boolean gzip) throws IOException, RDFParseException {
         InputStream is = new FileInputStream(f);
         if (gzip || f.getName().endsWith(".gz")) {
             is = new GZIPInputStream(is);
