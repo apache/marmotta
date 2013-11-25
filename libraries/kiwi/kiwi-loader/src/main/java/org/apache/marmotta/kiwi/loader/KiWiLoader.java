@@ -17,13 +17,7 @@
  */
 package org.apache.marmotta.kiwi.loader;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.*;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.configuration.Configuration;
@@ -40,23 +34,12 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
+import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -262,55 +245,20 @@ public class KiWiLoader {
 
             log.info("Starting import");
             for (String inFile: inputFiles) {
-                try {
-                    log.info("Importing {}", inFile);
-                    final File f = new File(inFile);
-                    String fName = f.getName();
-                    InputStream inStream = new FileInputStream(f);
-
-                    if (gzip || inFile.endsWith(".gz")) {
-                        log.debug("{} seems to be gzipped", inFile);
-                        inStream = new GzipCompressorInputStream(inStream,true);
-                        fName = fName.replaceFirst("\\.gz$", "");
-                    } else if(bzip || inFile.endsWith(".bz2")) {
-                        log.debug("{} seems to be bzip2 compressed", inFile);
-                        inStream = new BZip2CompressorInputStream(inStream,true);
-                        fName = fName.replaceFirst("\\.bz2$", "");
-                    }
-
-                    long start = System.currentTimeMillis();
-                    try {
-                        loader.load(new BufferedInputStream(inStream), RDFFormat.forFileName(fName, fmt));
-                    } catch (final UnsupportedRDFormatException | RDFParseException e) {
-                        // try again with the fixed format
-                        if (fmt != null) {
-                            inStream.close();
-                            // Reopen new
-                            if (inStream instanceof GzipCompressorInputStream) {
-                                inStream = new GzipCompressorInputStream(new FileInputStream(f),true);
-                            } else if (inStream instanceof BZip2CompressorInputStream) {
-                                inStream = new BZip2CompressorInputStream(new FileInputStream(f),true);
-                            } else {
-                                inStream = new FileInputStream(f);
-                            }
-                            loader.load(new BufferedInputStream(inStream), fmt);
-                        } else {
-                            throw e;
+                final File f = new File(inFile);
+                final String extension = "." + fmt.getDefaultFileExtension() + (gzip ? ".gz" : (bzip ? ".bz2" : ""));
+                if (f.isDirectory())  {
+                    File [] files = f.listFiles(new FilenameFilter() {
+                        @Override
+                        public boolean accept(File dir, String name) {
+                            return name.endsWith(extension);
                         }
-                    } finally {
-                        inStream.close();
+                    });
+                    for (File file: files) {
+                        importFile(file, gzip, bzip, fmt, loader);
                     }
-                    long dur = System.currentTimeMillis() - start;
-                    log.info("Import completed ({}): {}ms", inFile, dur);
-                } catch (FileNotFoundException e) {
-                    log.error("Could not read file {}, skipping...", inFile);
-                } catch (IOException e) {
-                    log.error("Error while reading {}: {}", inFile, e);
-                } catch (RDFParseException e) {
-                    log.error("file {} contains errors: {}\n{}", inFile, e.getMessage());
-                    log.error("exception details",e);
-                } catch (UnsupportedRDFormatException e) {
-                    log.error("{}, required for {} - dependency missing?", e.getMessage(), inFile);
+                } else {
+                    importFile(f, gzip, bzip, fmt, loader);
                 }
             }
 
@@ -327,6 +275,58 @@ public class KiWiLoader {
         } catch (RepositoryException e) {
             log.error("Sesame-Exception: {}", e.getMessage(), e);
             System.exit(2);
+        }
+    }
+
+    private static void importFile(File f, boolean gzip, boolean bzip, RDFFormat fmt, KiWiLoader loader) {
+        String fName = f.getName();
+        log.info("Importing {}", fName);
+        try {
+            InputStream inStream = new FileInputStream(f);
+
+            if (gzip || fName.endsWith(".gz")) {
+                log.debug("{} seems to be gzipped", fName);
+                inStream = new GzipCompressorInputStream(inStream,true);
+                fName = fName.replaceFirst("\\.gz$", "");
+            } else if(bzip || fName.endsWith(".bz2")) {
+                log.debug("{} seems to be bzip2 compressed", fName);
+                inStream = new BZip2CompressorInputStream(inStream,true);
+                fName = fName.replaceFirst("\\.bz2$", "");
+            }
+
+            long start = System.currentTimeMillis();
+            try {
+                loader.load(new BufferedInputStream(inStream), RDFFormat.forFileName(fName, fmt));
+            } catch (final UnsupportedRDFormatException | RDFParseException e) {
+                // try again with the fixed format
+                if (fmt != null) {
+                    inStream.close();
+                    // Reopen new
+                    if (inStream instanceof GzipCompressorInputStream) {
+                        inStream = new GzipCompressorInputStream(new FileInputStream(f),true);
+                    } else if (inStream instanceof BZip2CompressorInputStream) {
+                        inStream = new BZip2CompressorInputStream(new FileInputStream(f),true);
+                    } else {
+                        inStream = new FileInputStream(f);
+                    }
+                    loader.load(new BufferedInputStream(inStream), fmt);
+                } else {
+                    throw e;
+                }
+            } finally {
+                inStream.close();
+            }
+            long dur = System.currentTimeMillis() - start;
+            log.info("Import completed ({}): {}ms", fName, dur);
+        } catch (FileNotFoundException e) {
+            log.error("Could not read file {}, skipping...", fName);
+        } catch (IOException e) {
+            log.error("Error while reading {}: {}", fName, e);
+        } catch (RDFParseException e) {
+            log.error("file {} contains errors: {}\n{}", fName, e.getMessage());
+            log.error("exception details",e);
+        } catch (UnsupportedRDFormatException e) {
+            log.error("{}, required for {} - dependency missing?", e.getMessage(), fName);
         }
     }
 
