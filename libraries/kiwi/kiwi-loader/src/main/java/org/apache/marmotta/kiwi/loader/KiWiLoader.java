@@ -246,8 +246,8 @@ public class KiWiLoader {
             log.info("Starting import");
             for (String inFile: inputFiles) {
                 final File f = new File(inFile);
-                final String extension = "." + fmt.getDefaultFileExtension() + (gzip ? ".gz" : (bzip ? ".bz2" : ""));
-                if (f.isDirectory())  {
+                if (f.exists() && f.isDirectory() && fmt != null)  {
+                    final String extension = "." + fmt.getDefaultFileExtension() + (gzip ? ".gz" : (bzip ? ".bz2" : ""));
                     File [] files = f.listFiles(new FilenameFilter() {
                         @Override
                         public boolean accept(File dir, String name) {
@@ -255,10 +255,10 @@ public class KiWiLoader {
                         }
                     });
                     for (File file: files) {
-                        importFile(file, gzip, bzip, fmt, loader);
+                        importFile(file.getName(), file, gzip, bzip, fmt, loader);
                     }
                 } else {
-                    importFile(f, gzip, bzip, fmt, loader);
+                    importFile(inFile, f, gzip, bzip, fmt, loader);
                 }
             }
 
@@ -278,8 +278,7 @@ public class KiWiLoader {
         }
     }
 
-    private static void importFile(File f, boolean gzip, boolean bzip, RDFFormat fmt, KiWiLoader loader) {
-        String fName = f.getName();
+    private static void importFile(String fName, File f, boolean gzip, boolean bzip, RDFFormat fmt, KiWiLoader loader) {
         log.info("Importing {}", fName);
         try {
             InputStream inStream = new FileInputStream(f);

@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -104,14 +105,10 @@ public class KiWiLoaderTest {
     }
 
     @Test
-    public void testLoadFile() throws RepositoryException, RDFParseException,
-            IOException {
-        KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
-                "http://example.com/test/", null);
+    public void testLoadFile() throws RepositoryException, RDFParseException, IOException {
+        KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(), "http://example.com/test/", null);
         loader.initialize();
-
         loader.load(dataFile.getAbsolutePath(), RDFFormat.RDFXML, false);
-
         final RepositoryConnection con = loader.getRepository().getConnection();
         try {
             con.begin();
@@ -127,8 +124,7 @@ public class KiWiLoaderTest {
     }
 
     @Test
-    public void testLoadFile_GZ() throws RepositoryException, RDFParseException,
-            IOException {
+    public void testLoadFile_GZ() throws RepositoryException, RDFParseException, IOException {
         File gz = temp.newFile(dataFile.getName() + ".gz");
         OutputStream os = new GZIPOutputStream(new FileOutputStream(gz));
         FileInputStream is = new FileInputStream(dataFile);
