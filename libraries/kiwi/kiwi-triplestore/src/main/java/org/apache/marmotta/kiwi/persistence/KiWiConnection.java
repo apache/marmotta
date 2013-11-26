@@ -29,6 +29,7 @@ import info.aduna.iteration.IteratorIteration;
 import info.aduna.iteration.UnionIteration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -998,20 +999,43 @@ public class KiWiConnection {
         } else if(node instanceof KiWiStringLiteral) {
             KiWiStringLiteral stringLiteral = (KiWiStringLiteral)node;
 
+
+            Double dbl_value = null;
+            Long   lng_value = null;
+            if(stringLiteral.getContent().length() < 64 && NumberUtils.isNumber(stringLiteral.getContent()))
+            try {
+                dbl_value = Double.parseDouble(stringLiteral.getContent());
+                lng_value = Long.parseLong(stringLiteral.getContent());
+            } catch (NumberFormatException ex) {
+                // ignore, keep NaN
+            }
+
+
             PreparedStatement insertNode = getPreparedStatement("store.sliteral");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2, stringLiteral.getContent());
-            if(stringLiteral.getLocale() != null) {
-                insertNode.setString(3,stringLiteral.getLocale().getLanguage());
+            if(dbl_value != null) {
+                insertNode.setDouble(3, dbl_value);
             } else {
                 insertNode.setObject(3, null);
             }
-            if(stringLiteral.getType() != null) {
-                insertNode.setLong(4,stringLiteral.getType().getId());
+            if(lng_value != null) {
+                insertNode.setLong(4, lng_value);
             } else {
                 insertNode.setObject(4, null);
             }
-            insertNode.setTimestamp(5, new Timestamp(stringLiteral.getCreated().getTime()));
+
+            if(stringLiteral.getLocale() != null) {
+                insertNode.setString(5, stringLiteral.getLocale().getLanguage());
+            } else {
+                insertNode.setObject(5, null);
+            }
+            if(stringLiteral.getType() != null) {
+                insertNode.setLong(6,stringLiteral.getType().getId());
+            } else {
+                insertNode.setObject(6, null);
+            }
+            insertNode.setTimestamp(7, new Timestamp(stringLiteral.getCreated().getTime()));
 
             if(batch) {
                 insertNode.addBatch();
@@ -1334,7 +1358,7 @@ public class KiWiConnection {
         requireJDBCConnection();
 
         PreparedStatement queryContexts = getPreparedStatement("query.resources_prefix");
-        queryContexts.setString(1, prefix+"%");
+        queryContexts.setString(1, prefix + "%");
 
         final ResultSet result = queryContexts.executeQuery();
 

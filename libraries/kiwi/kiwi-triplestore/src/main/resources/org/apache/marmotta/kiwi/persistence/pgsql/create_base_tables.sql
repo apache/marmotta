@@ -61,6 +61,8 @@ CREATE TABLE metadata (
 
 -- Indexes for accessing nodes and triples efficiently
 CREATE INDEX idx_node_content ON nodes USING hash(svalue);
+CREATE INDEX idx_node_dcontent ON nodes(dvalue) WHERE dvalue IS NOT NULL;
+CREATE INDEX idx_node_icontent ON nodes(ivalue) WHERE ivalue IS NOT NULL;
 CREATE INDEX idx_literal_lang ON nodes(lang) WHERE ntype = 'string';
 
 CREATE INDEX idx_triples_op ON triples(object,predicate) WHERE deleted = false;

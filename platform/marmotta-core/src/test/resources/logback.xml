@@ -31,6 +31,7 @@
     <logger name="org.apache.marmotta.platform.core" level="INFO" />
     <logger name="org.apache.marmotta.platform.reasoner" level="INFO" />
     <logger name="net.sf.ehcache.pool.impl" level="WARN" />
+    <logger name="net.sf.ehcache" level="INFO" />
 
     <root level="info">
         <appender-ref ref="STDOUT" />

@@ -354,7 +354,6 @@ public class KiWiValueFactory implements ValueFactory {
         Object value = key.getValue();
         String lang  = key.getLang();
         String type  = key.getType();
-
         Locale locale;
         if(lang != null) {
             try {

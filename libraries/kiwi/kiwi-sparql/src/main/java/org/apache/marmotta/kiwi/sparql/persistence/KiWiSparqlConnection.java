@@ -39,6 +39,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.SESAME;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
@@ -479,20 +480,14 @@ public class KiWiSparqlConnection {
             return "NOT (" + evaluateExpression(((Not) expr).getArg(), queryVariables, optype)  + ")";
         } else if(expr instanceof Str) {
             Str str = (Str)expr;
+
             // get value of argument and express it as string
-            if(str.getArg() instanceof Var) {
-                return queryVariables.get(str.getArg()).get(0) + ".svalue";
-            } else if(str.getArg() instanceof ValueConstant) {
-                return "'" + ((ValueConstant) str.getArg()).getValue().stringValue() + "'";
-            }
+            return evaluateExpression(str.getArg(), queryVariables, OPTypes.STRING);
         } else if(expr instanceof Label) {
             Label str = (Label)expr;
+
             // get value of argument and express it as string
-            if(str.getArg() instanceof Var) {
-                return queryVariables.get(str.getArg()).get(0) + ".svalue";
-            } else if(str.getArg() instanceof ValueConstant) {
-                return "'" + ((ValueConstant) str.getArg()).getValue().stringValue() + "'";
-            }
+            return evaluateExpression(str.getArg(), queryVariables, OPTypes.STRING);
         } else if(expr instanceof Lang) {
             Lang lang = (Lang)expr;
 
@@ -609,6 +604,19 @@ public class KiWiSparqlConnection {
             }
         } else if(expr instanceof FunctionCall) {
             FunctionCall fc = (FunctionCall)expr;
+
+            // special optimizations for frequent cases with variables
+            if((XMLSchema.DOUBLE.toString().equals(fc.getURI()) || XMLSchema.FLOAT.toString().equals(fc.getURI()) ) &&
+               fc.getArgs().size() == 1) {
+                return evaluateExpression(fc.getArgs().get(0), queryVariables, OPTypes.DOUBLE);
+            } else if(XMLSchema.INTEGER.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
+                return evaluateExpression(fc.getArgs().get(0), queryVariables, OPTypes.INT);
+            } else if(XMLSchema.BOOLEAN.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
+                return evaluateExpression(fc.getArgs().get(0), queryVariables, OPTypes.BOOL);
+            } else if(XMLSchema.DATE.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
+                return evaluateExpression(fc.getArgs().get(0), queryVariables, OPTypes.DATE);
+            }
+
             URI fnUri = new URIImpl(fc.getURI());
 
             String[] args = new String[fc.getArgs().size()];
@@ -622,13 +630,37 @@ public class KiWiSparqlConnection {
                 args[i] = evaluateExpression(fc.getArgs().get(i),queryVariables,fOpType);
             }
 
-            return parent.getDialect().getFunction(fnUri,args);
+            if(optype != null && optype != functionReturnTypes.get(fnUri)) {
+                return castExpression(parent.getDialect().getFunction(fnUri,args), optype);
+            } else {
+                return parent.getDialect().getFunction(fnUri,args);
+            }
         }
 
 
         throw new IllegalArgumentException("unsupported value expression: "+expr);
     }
 
+    private String castExpression(String arg, OPTypes type) {
+        if(type == null) {
+            return arg;
+        }
+
+        switch (type) {
+            case DOUBLE:
+                return parent.getDialect().getFunction(XMLSchema.DOUBLE, arg);
+            case INT:
+                return parent.getDialect().getFunction(XMLSchema.INTEGER, arg);
+            case BOOL:
+                return parent.getDialect().getFunction(XMLSchema.BOOLEAN, arg);
+            case DATE:
+                return parent.getDialect().getFunction(XMLSchema.DATETIME, arg);
+            case ANY:
+                return arg;
+            default:
+                return arg;
+        }
+    }
 
     /**
      * Collect all statement patterns in a tuple expression in depth-first order. The tuple expression may only

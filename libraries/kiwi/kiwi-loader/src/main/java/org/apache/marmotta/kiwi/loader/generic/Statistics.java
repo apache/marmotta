@@ -109,6 +109,9 @@ public class Statistics {
     }
 
     public void stopSampling() {
+        DiagramUpdater du = new DiagramUpdater();
+        du.run();
+
         if(statDB != null) {
             try {
                 statDB.close();

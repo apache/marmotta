@@ -23,6 +23,7 @@ import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
  * Add file description here!
@@ -48,6 +49,13 @@ public class H2Dialect extends KiWiDialect {
         supportedFunctions.add(FN.STRING_LENGTH);
         supportedFunctions.add(FN.STARTS_WITH);
         supportedFunctions.add(FN.ENDS_WITH);
+
+        supportedFunctions.add(XMLSchema.DOUBLE);
+        supportedFunctions.add(XMLSchema.FLOAT);
+        supportedFunctions.add(XMLSchema.INTEGER);
+        supportedFunctions.add(XMLSchema.DECIMAL);
+        supportedFunctions.add(XMLSchema.DATETIME);
+        supportedFunctions.add(XMLSchema.BOOLEAN);
 
         supportedFunctions.add(FN.NUMERIC_ABS);
         supportedFunctions.add(FN.NUMERIC_CEIL);
@@ -177,6 +185,24 @@ public class H2Dialect extends KiWiDialect {
         } else if(FN.NUMERIC_ROUND.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 1);
             return String.format("round(%s)", args[0]);
+        } else if(XMLSchema.DOUBLE.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS double precision)", args[0]);
+        } else if(XMLSchema.FLOAT.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS double precision)", args[0]);
+        } else if(XMLSchema.INTEGER.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS bigint)", args[0]);
+        } else if(XMLSchema.DECIMAL.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS decimal)", args[0]);
+        } else if(XMLSchema.DATETIME.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS timestamp)", args[0]);
+        } else if(XMLSchema.BOOLEAN.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS boolean)", args[0]);
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
     }

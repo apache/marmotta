@@ -104,6 +104,9 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
                 throw new RDFHandlerException("error while dropping indexes", e);
             }
         }
+        super.shutdown();
+
+
     }
 
     /**

@@ -24,6 +24,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
+import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
  * Add file description here!
@@ -55,6 +56,14 @@ public class PostgreSQLDialect extends KiWiDialect {
         supportedFunctions.add(FN.NUMERIC_CEIL);
         supportedFunctions.add(FN.NUMERIC_FLOOR);
         supportedFunctions.add(FN.NUMERIC_ROUND);
+
+        supportedFunctions.add(XMLSchema.DOUBLE);
+        supportedFunctions.add(XMLSchema.FLOAT);
+        supportedFunctions.add(XMLSchema.INTEGER);
+        supportedFunctions.add(XMLSchema.DECIMAL);
+        supportedFunctions.add(XMLSchema.DATETIME);
+        supportedFunctions.add(XMLSchema.BOOLEAN);
+
 
         supportedFunctions.add(FN_MARMOTTA.SEARCH_FULLTEXT);
         supportedFunctions.add(FN_MARMOTTA.QUERY_FULLTEXT);
@@ -204,6 +213,24 @@ public class PostgreSQLDialect extends KiWiDialect {
         } else if(FN.NUMERIC_ROUND.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 1);
             return String.format("round(%s)", args[0]);
+        } else if(XMLSchema.DOUBLE.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS double precision)", args[0]);
+        } else if(XMLSchema.FLOAT.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS double precision)", args[0]);
+        } else if(XMLSchema.INTEGER.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS bigint)", args[0]);
+        } else if(XMLSchema.DECIMAL.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS decimal)", args[0]);
+        } else if(XMLSchema.DATETIME.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS timestamp)", args[0]);
+        } else if(XMLSchema.BOOLEAN.equals(fnUri)) {
+            Preconditions.checkArgument(args.length == 1);
+            return String.format("CAST(%s AS boolean)", args[0]);
         } else if(FN_MARMOTTA.SEARCH_FULLTEXT.equals(fnUri)) {
             if(args.length == 2) {
                 return String.format("(to_tsvector('simple' :: regconfig,%1$s) @@ plainto_tsquery('simple' :: regconfig,%2$s))", args[0], args[1]);

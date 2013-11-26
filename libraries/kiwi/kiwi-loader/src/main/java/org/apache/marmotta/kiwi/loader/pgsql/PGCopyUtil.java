@@ -1,5 +1,6 @@
 package org.apache.marmotta.kiwi.loader.pgsql;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.kiwi.loader.csv.LanguageProcessor;
 import org.apache.marmotta.kiwi.loader.csv.NodeIDProcessor;
 import org.apache.marmotta.kiwi.loader.csv.NodeTypeProcessor;
@@ -158,7 +159,18 @@ public class PGCopyUtil {
                 createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+
+                Double dbl_value = null;
+                Long   lng_value = null;
+                if(l.getContent().length() < 64 && NumberUtils.isNumber(l.getContent()))  {
+                    try {
+                        dbl_value = Double.parseDouble(l.getContent());
+                        lng_value = Long.parseLong(l.getContent());
+                    } catch (NumberFormatException ex) {
+                        // ignore, keep NaN
+                    }
+                }
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else {
                 log.warn("unknown node type, cannot flush to import stream: {}", n.getClass());
             }

@@ -126,6 +126,11 @@ public class KiWiHandler implements RDFHandler {
             throw new RDFHandlerException(e);
         }
 
+
+        if(config.isStatistics()) {
+            statistics = new Statistics(this);
+            statistics.startSampling();
+        }
         initialised = true;
     }
 
@@ -143,6 +148,9 @@ public class KiWiHandler implements RDFHandler {
 
         initialised = false;
 
+        if(config.isStatistics() && statistics != null) {
+            statistics.stopSampling();
+        }
     }
 
     /**
@@ -154,9 +162,6 @@ public class KiWiHandler implements RDFHandler {
      */
     @Override
     public void endRDF() throws RDFHandlerException {
-        if(config.isStatistics() && statistics != null) {
-            statistics.stopSampling();
-        }
 
 
         try {
@@ -193,11 +198,6 @@ public class KiWiHandler implements RDFHandler {
             } catch (ExecutionException e) {
                 log.error("could not create/load resource",e);
             }
-        }
-
-        if(config.isStatistics()) {
-            statistics = new Statistics(this);
-            statistics.startSampling();
         }
 
 
