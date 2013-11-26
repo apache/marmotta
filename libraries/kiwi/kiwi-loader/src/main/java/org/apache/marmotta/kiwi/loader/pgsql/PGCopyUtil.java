@@ -106,14 +106,24 @@ public class PGCopyUtil {
 
     public static void flushTriples(Iterable<KiWiTriple> tripleBacklog, OutputStream out) throws IOException {
         CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), CsvPreference.STANDARD_PREFERENCE);
-        for(KiWiTriple t : tripleBacklog) {
-            List<Object> row = Arrays.<Object>asList(
-                    t.getId(), t.getSubject(), t.getPredicate(), t.getObject(), t.getContext(), t.getCreator(), t.isInferred(), t.isDeleted(), t.getCreated(), t.getDeletedAt()
-            );
 
-            if(row != null) {
-                writer.write(row, tripleProcessors);
-            }
+        // reuse the same array to avoid unnecessary object allocation
+        Object[] rowArray = new Object[10];
+        List<Object> row = Arrays.asList(rowArray);
+
+        for(KiWiTriple t : tripleBacklog) {
+            rowArray[0] = t.getId();
+            rowArray[1] = t.getSubject();
+            rowArray[2] = t.getPredicate();
+            rowArray[3] = t.getObject();
+            rowArray[4] = t.getContext();
+            rowArray[5] = t.getCreator();
+            rowArray[6] = t.isInferred();
+            rowArray[7] = t.isDeleted();
+            rowArray[8] = t.getCreated();
+            rowArray[9] = t.getDeletedAt();
+
+            writer.write(row, tripleProcessors);
         }
         writer.close();
     }
@@ -122,43 +132,52 @@ public class PGCopyUtil {
 
     public static void flushNodes(Iterable<KiWiNode> nodeBacklog, OutputStream out) throws IOException {
         CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), nodesPreference);
+
+        // reuse the same array to avoid unnecessary object allocation
+        Object[] rowArray = new Object[10];
+        List<Object> row = Arrays.asList(rowArray);
+
         for(KiWiNode n : nodeBacklog) {
-            List<Object> row = null;
             if(n instanceof KiWiUriResource) {
                 KiWiUriResource u = (KiWiUriResource)n;
-                row = createNodeList(u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, u.getCreated());
+                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, u.getCreated());
             } else if(n instanceof KiWiAnonResource) {
                 KiWiAnonResource a = (KiWiAnonResource)n;
-                row = createNodeList(a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, a.getCreated());
+                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, a.getCreated());
             } else if(n instanceof KiWiIntLiteral) {
                 KiWiIntLiteral l = (KiWiIntLiteral)n;
-                row = createNodeList(l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDoubleLiteral) {
                 KiWiDoubleLiteral l = (KiWiDoubleLiteral)n;
-                row = createNodeList(l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiBooleanLiteral) {
                 KiWiBooleanLiteral l = (KiWiBooleanLiteral)n;
-                row = createNodeList(l.getId(), l.getClass(), l.getContent(), null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDateLiteral) {
                 KiWiDateLiteral l = (KiWiDateLiteral)n;
-                row = createNodeList(l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
-                row = createNodeList(l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else {
                 log.warn("unknown node type, cannot flush to import stream: {}", n.getClass());
             }
 
-            if(row != null) {
-                writer.write(row, nodeProcessors);
-            }
+            writer.write(row, nodeProcessors);
         }
         writer.close();
     }
 
-    private static List<Object> createNodeList(Long id, Class type, String content, Double dbl, Long lng, Date date, Boolean bool, URI dtype, Locale lang, Date created) {
-        return Arrays.asList(new Object[]{
-                id, type, content, dbl, lng, date, bool, dtype, lang, created
-        });
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, Date date, Boolean bool, URI dtype, Locale lang, Date created) {
+        a[0] = id;
+        a[1] = type;
+        a[2] = content;
+        a[3] = dbl;
+        a[4] = lng;
+        a[5] = date;
+        a[6] = bool;
+        a[7] = dtype;
+        a[8] = lang;
+        a[9] = created;
     }
 }

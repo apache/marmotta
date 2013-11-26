@@ -71,9 +71,42 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         this.backend = backend;
     }
 
-    /**
 
-     /**
+    /**
+     * Perform initialisation, e.g. dropping indexes or other preparations.
+     */
+    @Override
+    public void initialise() throws RDFHandlerException {
+        super.initialise();
+
+        if(config.isDropIndexes()) {
+            try {
+                log.info("{}: dropping indexes before import", backend);
+                dropIndexes();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new RDFHandlerException("error while dropping indexes", e);
+            }
+        }
+    }
+
+    /**
+     * Peform cleanup on shutdown, e.g. re-creating indexes after import completed
+     */
+    @Override
+    public void shutdown() throws RDFHandlerException {
+        if(config.isDropIndexes()) {
+            try {
+                log.info("{}: re-creating indexes after import", backend);
+                createIndexes();
+                connection.commit();
+            } catch (SQLException e) {
+                throw new RDFHandlerException("error while dropping indexes", e);
+            }
+        }
+    }
+
+    /**
      * Signals the start of the RDF data. This method is called before any data
      * is reported.
      *
@@ -92,15 +125,6 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
         super.startRDF();
 
-        if(config.isDropIndexes()) {
-            try {
-                log.info("{}: dropping indexes before import", backend);
-                dropIndexes();
-                connection.commit();
-            } catch (SQLException e) {
-                throw new RDFHandlerException("error while dropping indexes", e);
-            }
-        }
     }
 
 
@@ -119,15 +143,6 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
             throw new RDFHandlerException(e);
         }
 
-        if(config.isDropIndexes()) {
-            try {
-                log.info("{}: re-creating indexes after import", backend);
-                createIndexes();
-                connection.commit();
-            } catch (SQLException e) {
-                throw new RDFHandlerException("error while dropping indexes", e);
-            }
-        }
 
         super.endRDF();
 

@@ -113,6 +113,31 @@ public class KiWiHandler implements RDFHandler {
 
     }
 
+
+    /**
+     * Perform initialisation, e.g. dropping indexes or other preparations.
+     */
+    public void initialise() throws RDFHandlerException {
+        try {
+            this.connection = store.getPersistence().getConnection();
+        } catch (SQLException e) {
+            throw new RDFHandlerException(e);
+        }
+    }
+
+
+    /**
+     * Peform cleanup on shutdown, e.g. re-creating indexes after import completed
+     */
+    public void shutdown() throws RDFHandlerException {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new RDFHandlerException(e);
+        }
+
+    }
+
     /**
      * Signals the end of the RDF data. This method is called when all data has
      * been reported.
@@ -129,7 +154,6 @@ public class KiWiHandler implements RDFHandler {
 
         try {
             connection.commit();
-            connection.close();
         } catch (SQLException e) {
             throw new RDFHandlerException(e);
         }
@@ -147,11 +171,6 @@ public class KiWiHandler implements RDFHandler {
     @Override
     public void startRDF() throws RDFHandlerException {
         log.info("KiWiLoader: starting RDF bulk import");
-        try {
-            this.connection = store.getPersistence().getConnection();
-        } catch (SQLException e) {
-            throw new RDFHandlerException(e);
-        }
 
         this.start = System.currentTimeMillis();
         this.previous = System.currentTimeMillis();

@@ -128,6 +128,7 @@ public class KiWiLoader {
 
     protected KiWiStore store;
     protected SailRepository repository;
+    protected KiWiHandler handler;
 
     public KiWiLoader(KiWiConfiguration kiwi, String baseUri, String context) {
         this.kiwi = kiwi;
@@ -327,6 +328,9 @@ public class KiWiLoader {
         } catch (RepositoryException e) {
             log.error("Sesame-Exception: {}", e.getMessage(), e);
             System.exit(2);
+        } catch (RDFHandlerException e) {
+            log.error("RDFHandler-Exception: {}", e.getMessage(), e);
+            System.exit(3);
         }
     }
 
@@ -344,23 +348,6 @@ public class KiWiLoader {
      */
     public void load(InputStream inStream, RDFFormat forFileName) throws RDFParseException, IOException {
         try {
-            KiWiLoaderConfiguration config = new KiWiLoaderConfiguration();
-            if (context != null) {
-                config.setContext(context);
-            }
-            config.setStatistics(isStatisticsEnabled);
-            config.setStatisticsGraph(statisticsGraph);
-
-            KiWiHandler handler;
-            if(kiwi.getDialect() instanceof PostgreSQLDialect) {
-                config.setCommitBatchSize(100000);
-                handler = new KiWiPostgresHandler(store,config);
-            } else if(kiwi.getDialect() instanceof MySQLDialect) {
-                config.setCommitBatchSize(100000);
-                handler = new KiWiMySQLHandler(store,config);
-            } else {
-                handler = new KiWiHandler(store,config);
-            }
 
             RDFParser parser = Rio.createParser(forFileName);
             parser.setRDFHandler(handler);
@@ -394,10 +381,11 @@ public class KiWiLoader {
      * Shutdown the Repository, close all database connections.
      * @throws RepositoryException
      */
-    public synchronized void shutdown() throws RepositoryException {
+    public synchronized void shutdown() throws RepositoryException, RDFHandlerException {
         if (repository == null || !repository.isInitialized()) {
             throw new IllegalStateException("repository was not initialized!");
         }
+        handler.shutdown();
         repository.shutDown();
         repository = null;
     }
@@ -424,7 +412,7 @@ public class KiWiLoader {
      * Initialize the KiWiStore, connect to the database.
      * @throws RepositoryException
      */
-    public synchronized void initialize() throws RepositoryException {
+    public synchronized void initialize() throws RepositoryException, RDFHandlerException {
         if (repository != null && repository.isInitialized()) {
             throw new IllegalStateException("repository already initialized");
         }
@@ -433,6 +421,25 @@ public class KiWiLoader {
 
         repository = new SailRepository(store);
         repository.initialize();
+
+
+        KiWiLoaderConfiguration config = new KiWiLoaderConfiguration();
+        if (context != null) {
+            config.setContext(context);
+        }
+        config.setStatistics(isStatisticsEnabled);
+        config.setStatisticsGraph(statisticsGraph);
+
+        if(kiwi.getDialect() instanceof PostgreSQLDialect) {
+            config.setCommitBatchSize(100000);
+            handler = new KiWiPostgresHandler(store,config);
+        } else if(kiwi.getDialect() instanceof MySQLDialect) {
+            config.setCommitBatchSize(100000);
+            handler = new KiWiMySQLHandler(store,config);
+        } else {
+            handler = new KiWiHandler(store,config);
+        }
+        handler.initialise();
     }
 
     private static String getPassword(CommandLine cmd, String jdbc, String user, String password) throws ParseException {

@@ -17,6 +17,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 
 import java.io.File;
@@ -105,7 +106,7 @@ public class KiWiLoaderTest {
 
     @Test
     public void testLoadFile() throws RepositoryException, RDFParseException,
-            IOException {
+            IOException, RDFHandlerException {
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
                 "http://example.com/test/", null);
         loader.initialize();
@@ -128,7 +129,7 @@ public class KiWiLoaderTest {
 
     @Test
     public void testLoadFile_GZ() throws RepositoryException, RDFParseException,
-            IOException {
+            IOException, RDFHandlerException {
         File gz = temp.newFile(dataFile.getName() + ".gz");
         OutputStream os = new GZIPOutputStream(new FileOutputStream(gz));
         FileInputStream is = new FileInputStream(dataFile);
@@ -175,7 +176,7 @@ public class KiWiLoaderTest {
     }
 
     @Test
-    public void testLoadInputStream() throws RepositoryException, RDFParseException, IOException {
+    public void testLoadInputStream() throws RepositoryException, RDFParseException, IOException, RDFHandlerException {
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
                 "http://example.com/test/", null);
         loader.initialize();
