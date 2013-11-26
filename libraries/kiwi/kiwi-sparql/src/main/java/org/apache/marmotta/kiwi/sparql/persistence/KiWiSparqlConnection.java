@@ -695,6 +695,7 @@ public class KiWiSparqlConnection {
             collectFilters(((Join) expr).getRightArg(), filters);
         } else if(expr instanceof Filter) {
             filters.add(((Filter) expr).getCondition());
+            collectFilters(((Filter)expr).getArg(), filters);
         } else if(expr instanceof StatementPattern) {
             // do nothing
         } else {
