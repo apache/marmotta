@@ -68,6 +68,7 @@ public class KiWiHandler implements RDFHandler {
 
     protected Date importDate;
 
+    protected boolean initialised = false;
 
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
@@ -118,11 +119,14 @@ public class KiWiHandler implements RDFHandler {
      * Perform initialisation, e.g. dropping indexes or other preparations.
      */
     public void initialise() throws RDFHandlerException {
+        log.info("KiWiLoader: initialising RDF handler");
         try {
             this.connection = store.getPersistence().getConnection();
         } catch (SQLException e) {
             throw new RDFHandlerException(e);
         }
+
+        initialised = true;
     }
 
 
@@ -130,11 +134,14 @@ public class KiWiHandler implements RDFHandler {
      * Peform cleanup on shutdown, e.g. re-creating indexes after import completed
      */
     public void shutdown() throws RDFHandlerException {
+        log.info("KiWiLoader: shutting down RDF handler");
         try {
             connection.close();
         } catch (SQLException e) {
             throw new RDFHandlerException(e);
         }
+
+        initialised = false;
 
     }
 
@@ -170,6 +177,9 @@ public class KiWiHandler implements RDFHandler {
      */
     @Override
     public void startRDF() throws RDFHandlerException {
+        if(!initialised) {
+            initialise();
+        }
         log.info("KiWiLoader: starting RDF bulk import");
 
         this.start = System.currentTimeMillis();
