@@ -135,6 +135,7 @@ public class KiWiSparqlConnection {
         // depending on the number of patterns it occurs in; will look like
         // { ?x -> ["P1_V1", "P2_V1"], ?y -> ["P2_V2"], ... }
         Map<Var,List<String>> queryVariables = new HashMap<>();
+        Map<Var,List<String>> queryVariableIds = new HashMap<>();
 
         // a map for defining alternative context values for each variable used in the context part of a pattern
         Map<StatementPattern,List<Resource>> variableContexts = new HashMap<>();
@@ -201,10 +202,14 @@ public class KiWiSparqlConnection {
                     if(variableNames.get(v) == null) {
                         variableNames.put(v,"V"+ (++variableCount));
                         queryVariables.put(v,new LinkedList<String>());
+                        queryVariableIds.put(v, new LinkedList<String>());
                     }
                     String pName = patternNames.get(p);
                     String vName = variableNames.get(v);
-                    queryVariables.get(v).add(pName + "_" + positions[i] + "_" + vName);
+                    if(hasNodeCondition(fields[i], join)) {
+                        queryVariables.get(v).add(pName + "_" + positions[i] + "_" + vName);
+                    }
+                    queryVariableIds.get(v).add(pName + "." + positions[i]);
                 }
             }
 
@@ -217,12 +222,12 @@ public class KiWiSparqlConnection {
         // build the select clause by projecting for each query variable the first name
         StringBuilder selectClause = new StringBuilder();
         final List<Var> selectVariables = new LinkedList<Var>();
-        for(Iterator<Var> it = queryVariables.keySet().iterator(); it.hasNext(); ) {
+        for(Iterator<Var> it = queryVariableIds.keySet().iterator(); it.hasNext(); ) {
             Var v = it.next();
             String projectedName = variableNames.get(v);
-            String fromName = queryVariables.get(v).get(0);
+            String fromName = queryVariableIds.get(v).get(0);
             selectClause.append(fromName);
-            selectClause.append(".id as ");
+            selectClause.append(" as ");
             selectClause.append(projectedName);
             if(it.hasNext()) {
                 selectClause.append(", ");
@@ -252,7 +257,7 @@ public class KiWiSparqlConnection {
                     p.getContextVar()
             };
             for(int i = 0; i<fields.length; i++) {
-                if(fields[i] != null && !fields[i].hasValue()) {
+                if(fields[i] != null && !fields[i].hasValue() && hasNodeCondition(fields[i], join)) {
                     String vName = variableNames.get(fields[i]);
                     fromClause.append(" INNER JOIN nodes AS ");
                     fromClause.append(pName + "_"+positions[i]+"_" + vName);
@@ -310,12 +315,12 @@ public class KiWiSparqlConnection {
         }
 
         // 2. for each variable that has more than one occurrences, add a join condition
-        for(Var v : queryVariables.keySet()) {
-            List<String> vNames = queryVariables.get(v);
+        for(Var v : queryVariableIds.keySet()) {
+            List<String> vNames = queryVariableIds.get(v);
             for(int i = 1; i < vNames.size(); i++) {
                 String vName1 = vNames.get(i-1);
                 String vName2 = vNames.get(i);
-                whereConditions.add(vName1 + ".id = " + vName2 + ".id");
+                whereConditions.add(vName1 + " = " + vName2);
             }
         }
 
@@ -323,14 +328,14 @@ public class KiWiSparqlConnection {
         //    to the node given as binding
         if(bindings != null) {
             for(String v : bindings.getBindingNames()) {
-                for(Map.Entry<Var,List<String>> entry : queryVariables.entrySet()) {
+                for(Map.Entry<Var,List<String>> entry : queryVariableIds.entrySet()) {
                     if(entry.getKey().getName() != null && entry.getKey().getName().equals(v) &&
                             entry.getValue() != null && entry.getValue().size() > 0) {
                         List<String> vNames = entry.getValue();
                         String vName = vNames.get(0);
                         Value binding = valueFactory.convert(bindings.getValue(v));
                         if(binding instanceof KiWiNode) {
-                            whereConditions.add(vName+".id = "+((KiWiNode)binding).getId());
+                            whereConditions.add(vName+" = "+((KiWiNode)binding).getId());
                         } else {
                             throw new IllegalArgumentException("the values in this binding have not been created by the KiWi value factory");
                         }
@@ -403,7 +408,8 @@ public class KiWiSparqlConnection {
 
         log.debug("original SPARQL syntax tree:\n {}", join);
         log.debug("constructed SQL query string:\n {}",queryString);
-        log.debug("SPARQL -> SQL variable mappings:\n {}", queryVariables);
+        log.debug("SPARQL -> SQL node variable mappings:\n {}", queryVariables);
+        log.debug("SPARQL -> SQL ID variable mappings:\n {}", queryVariableIds);
 
         final PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(queryString);
         if(parent.getDialect().isCursorSupported()) {
@@ -704,6 +710,49 @@ public class KiWiSparqlConnection {
 
     }
 
+
+    /**
+     * Check if a variable selecting a node actually has any attached condition; if not return false. This is used to
+     * decide whether joining with the node itself is necessary.
+     * @param v
+     * @param expr
+     * @return
+     */
+    private boolean hasNodeCondition(Var v, TupleExpr expr) {
+        if(expr instanceof Filter) {
+            return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg()) || hasNodeCondition(v,  ((Filter) expr).getCondition());
+        } else if(expr instanceof UnaryTupleOperator) {
+            return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg());
+        } else if(expr instanceof BinaryTupleOperator) {
+            return hasNodeCondition(v, ((BinaryTupleOperator) expr).getLeftArg()) || hasNodeCondition(v, ((BinaryTupleOperator) expr).getRightArg());
+        } else {
+            return false;
+        }
+
+    }
+
+    private boolean hasNodeCondition(Var v, ValueExpr expr) {
+        if(expr instanceof Var) {
+            return v.equals(expr);
+        } else if(expr instanceof UnaryValueOperator) {
+            return hasNodeCondition(v, ((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof BinaryValueOperator) {
+            return hasNodeCondition(v, ((BinaryValueOperator) expr).getLeftArg()) || hasNodeCondition(v, ((BinaryValueOperator) expr).getRightArg());
+        } else if(expr instanceof NAryValueOperator) {
+            for(ValueExpr e : ((NAryValueOperator) expr).getArguments()) {
+                if(hasNodeCondition(v,e)) {
+                    return true;
+                }
+            }
+        } else if(expr instanceof FunctionCall) {
+            for(ValueExpr e : ((FunctionCall) expr).getArgs()) {
+                if(hasNodeCondition(v,e)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     private String getSQLOperator(Compare.CompareOp op) {
         switch (op) {
