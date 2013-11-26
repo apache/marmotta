@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -204,7 +203,7 @@ public class KiWiLoaderTest {
     }
 
     @Test
-    public void testLoadFileFromDirectory() throws RepositoryException, RDFParseException, IOException {
+    public void testLoadFileFromDirectory() throws RepositoryException, RDFParseException, IOException, RDFHandlerException {
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(), "http://example.com/test/", null);
         loader.initialize();
         loader.load(dataFile.getParent(), RDFFormat.RDFXML, false);
