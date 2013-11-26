@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -57,7 +58,7 @@ public class KiWiLoaderTest {
         fos.close();
         
         // input file
-        dataFile = temp.newFile("test-data.xml");
+        dataFile = temp.newFile("test-data.rdf");
         copyResourceToFile("/org/apache/marmotta/kiwi/test/demo-data.foaf", dataFile);
         
     }
@@ -74,7 +75,6 @@ public class KiWiLoaderTest {
         
         return props;
     }
-
 
     @Test
     public void testMain_NoArgs() {
@@ -110,9 +110,7 @@ public class KiWiLoaderTest {
         KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(),
                 "http://example.com/test/", null);
         loader.initialize();
-
         loader.load(dataFile.getAbsolutePath(), RDFFormat.RDFXML, false);
-
         final RepositoryConnection con = loader.getRepository().getConnection();
         try {
             con.begin();
@@ -183,6 +181,33 @@ public class KiWiLoaderTest {
 
         loader.load(new FileInputStream(dataFile), RDFFormat.RDFXML);
 
+        final RepositoryConnection con = loader.getRepository().getConnection();
+        try {
+            con.begin();
+            testRepoContent(con);
+            con.commit();
+        } catch (final Throwable t) {
+            con.rollback();
+            throw t;
+        } finally {
+            con.close();
+        }
+        loader.shutdown();
+    }
+
+    @Test
+    public void testEmptyDirectory() throws IOException {
+        File dir = temp.newFolder("empty-dir");
+        final String fName = dir.getAbsolutePath();
+        KiWiLoader.main(new String[] {"-c", confFile.getAbsolutePath(), fName});
+        assertThat(stdOut.getLog(), containsString("Could not read file " + fName + ", skipping..."));
+    }
+
+    @Test
+    public void testLoadFileFromDirectory() throws RepositoryException, RDFParseException, IOException {
+        KiWiTestLoader loader = new KiWiTestLoader(getKiWiConfig(), "http://example.com/test/", null);
+        loader.initialize();
+        loader.load(dataFile.getParent(), RDFFormat.RDFXML, false);
         final RepositoryConnection con = loader.getRepository().getConnection();
         try {
             con.begin();
