@@ -1710,7 +1710,7 @@ public class KiWiConnection {
 
     protected static Locale getLocale(String language) {
         Locale locale = localeMap.get(language);
-        if(locale == null && language != null) {
+        if(locale == null && language != null && !language.isEmpty()) {
             try {
                 Locale.Builder builder = new Locale.Builder();
                 builder.setLanguageTag(language);
