@@ -17,23 +17,22 @@
  */
 package org.apache.marmotta.commons.sesame.contextaware;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import info.aduna.iteration.CloseableIteration;
 
 import org.apache.marmotta.commons.sesame.AbstractContextTest;
 import org.hamcrest.CoreMatchers;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 
 /**
- * @author jakob
+ * @author Jakob Frank <jakob@apache.org>
  *
  */
 public class ContextAwareSailTest extends AbstractContextTest {
@@ -46,12 +45,6 @@ public class ContextAwareSailTest extends AbstractContextTest {
         super.setUp();
 
         cas = new ContextAwareSail(sail, c1);
-    }
-
-    @Override
-    @After
-    public void tearDown() throws SailException {
-        super.tearDown();
     }
 
 
@@ -110,9 +103,9 @@ public class ContextAwareSailTest extends AbstractContextTest {
 
             final CloseableIteration<? extends Resource, SailException> cid = con.getContextIDs();
             try {
-                Assert.assertTrue(cid.hasNext());
-                Assert.assertThat(cid.next(), CoreMatchers.is(c1));
-                Assert.assertFalse(cid.hasNext());
+                assertTrue(cid.hasNext());
+                assertThat(cid.next(), CoreMatchers.is(c1));
+                assertFalse(cid.hasNext());
             } finally {
                 cid.close();
             }
@@ -125,13 +118,77 @@ public class ContextAwareSailTest extends AbstractContextTest {
             con.close();
         }
     }
-
-    protected static boolean hasStatement(SailConnection con, Resource subj, URI pred, Value object, Resource... contexts) throws SailException {
-        final CloseableIteration<? extends Statement, SailException> stmts = con.getStatements(subj, pred, object, true, contexts);
+    
+    @Test
+    public void testClear() throws SailException {
+        final SailConnection con = cas.getConnection();
         try {
-            return stmts.hasNext();
+            con.begin();
+
+            assertTrue(hasStatement(con, null, null, null));
+            con.clear();
+            assertFalse(hasStatement(con, null, null, null));
+
+            con.commit();
+        } catch (final Throwable t) {
+            con.rollback();
+            throw t;
         } finally {
-            stmts.close();
+            con.close();
+        }
+        final SailConnection con2 = sail.getConnection();
+        try {
+            con2.begin();
+
+            assertFalse(hasStatement(con2, null, null, null, c1));
+            assertTrue(hasStatement(con2, null, null, null, c2));
+
+            con2.commit();
+        } catch (final Throwable t) {
+            con2.rollback();
+            throw t;
+        } finally {
+            con2.close();
+        }
+    }
+    
+    @Test
+    public void testRemoveStatements() throws SailException {
+        final SailConnection con = cas.getConnection();
+        try {
+            con.begin();
+
+            assertTrue(hasStatement(con, u1, p1, l1));
+            assertTrue(hasStatement(con, u3, p3, l3));
+            
+            con.removeStatements(u1, p1, l1, c1);
+            con.removeStatements(u2, p2, l2);
+            con.removeStatements(u4, p4, l4, c1);
+            
+            assertFalse(hasStatement(con, u1, p1, l1));
+            assertTrue(hasStatement(con, u3, p3, l3));
+
+            con.commit();
+        } catch (final Throwable t) {
+            con.rollback();
+            throw t;
+        } finally {
+            con.close();
+        }
+        final SailConnection con2 = sail.getConnection();
+        try {
+            con2.begin();
+
+            assertFalse(hasStatement(con2, u1, p1, l1, c1));
+            assertTrue(hasStatement(con2, u2, p2, l2, c2));
+            assertTrue(hasStatement(con2, u3, p3, l3, c1));
+
+            con2.commit();
+        } catch (final Throwable t) {
+            con2.rollback();
+            throw t;
+        } finally {
+            con2.close();
         }
     }
 

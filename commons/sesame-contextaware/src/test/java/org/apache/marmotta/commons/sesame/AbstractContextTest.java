@@ -17,13 +17,17 @@
  */
 package org.apache.marmotta.commons.sesame;
 
+import info.aduna.iteration.CloseableIteration;
+
 import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailConnection;
@@ -34,6 +38,16 @@ public abstract class AbstractContextTest {
 
     protected static final String NS = "http://test.marmotta.apache.org/resource/";
     
+    protected static boolean hasStatement(SailConnection con, Resource subj,
+            URI pred, Value object, Resource... contexts) throws SailException {
+                final CloseableIteration<? extends Statement, SailException> stmts = con.getStatements(subj, pred, object, true, contexts);
+                try {
+                    return stmts.hasNext();
+                } finally {
+                    stmts.close();
+                }
+            }
+
     protected Sail sail;
 
     protected URI u1, u2, u3, u4;
