@@ -26,7 +26,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
@@ -49,9 +54,18 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This service offers access to the system configuration of the LMF and takes care of initialising the system
@@ -491,11 +505,35 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see kiwi.api.config.ConfigurationService#isConfigurationSet(java.lang.String)
+    /**
+     * List all configuration keys matching a certain regular expression pattern. Returns a matcher object for all
+     * matching keys that can be used to access capturing groups
+     *
+     * @param pattern
+     * @return
      */
+    @Override
+    public List<Matcher> listConfigurationKeys(Pattern pattern) {
+        lock.readLock().lock();
+        try {
+            List<Matcher> keys = new LinkedList<Matcher>();
+            for (Iterator<String> it = config.getKeys(); it.hasNext();) {
+                Matcher m = pattern.matcher(it.next());
+                if(m.matches()) {
+                    keys.add(m);
+                }
+            }
+            return keys;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see kiwi.api.config.ConfigurationService#isConfigurationSet(java.lang.String)
+         */
     @Override
     public boolean isConfigurationSet(String key) {
         lock.readLock().lock();

@@ -22,9 +22,20 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import com.google.common.base.Function;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Lists;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.logging.LoggingModule;
 import org.apache.marmotta.platform.core.api.logging.LoggingService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.exception.MarmottaConfigurationException;
+import org.apache.marmotta.platform.core.model.logging.ConsoleOutput;
+import org.apache.marmotta.platform.core.model.logging.LogFileOutput;
+import org.apache.marmotta.platform.core.model.logging.LoggingOutput;
+import org.apache.marmotta.platform.core.model.logging.SyslogOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +46,12 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * LoggingServiceImpl
@@ -49,6 +66,12 @@ public class LoggingServiceImpl implements LoggingService {
     @Inject
     private ConfigurationService configurationService;
 
+
+    private LoadingCache<String,LogFileOutput> logfileCache;
+    private LoadingCache<String,SyslogOutput>  syslogCache;
+
+    private ConsoleOutput consoleOutput;
+
     @PostConstruct
     public void initialize() {
         log.info("Apache Marmotta Logging Service starting up ...");
@@ -57,6 +80,35 @@ public class LoggingServiceImpl implements LoggingService {
             String loggerName   = key.substring("logging.".length());
             setConfiguredLevel(loggerName);
         }
+
+        logfileCache = CacheBuilder.newBuilder().maximumSize(10).expireAfterAccess(10, TimeUnit.MINUTES).build(
+                new CacheLoader<String, LogFileOutput>() {
+                    @Override
+                    public LogFileOutput load(String key) throws Exception {
+
+                        if(configurationService.isConfigurationSet("logging.file."+key+".name")) {
+                            return new LogFileOutput(key, configurationService);
+                        } else {
+                            throw new MarmottaConfigurationException("logfile configuration "+key+" not found");
+                        }
+                    }
+                }
+        );
+
+        syslogCache = CacheBuilder.newBuilder().maximumSize(5).expireAfterAccess(10, TimeUnit.MINUTES).build(
+                new CacheLoader<String, SyslogOutput>() {
+                    @Override
+                    public SyslogOutput load(String key) throws Exception {
+                        if(configurationService.isConfigurationSet("logging.syslog."+key+".name")) {
+                            return new SyslogOutput(key, configurationService);
+                        } else {
+                            throw new MarmottaConfigurationException("syslog configuration "+key+" not found");
+                        }
+                    }
+                }
+        );
+
+        consoleOutput = new ConsoleOutput(configurationService);
     }
 
     public void configurationChangedEvent(@Observes ConfigurationChangedEvent event) {
@@ -137,4 +189,114 @@ public class LoggingServiceImpl implements LoggingService {
         return LoggerFactory.getLogger(injectionPoint.getMember().getDeclaringClass());
     }
 
+
+    /**
+     * Create a new logfile output configuration using the given parameters; further options can be set on the object
+     * itself.
+     *
+     * @param id   unique identifier for the log output configuration
+     * @param name human-readable name for configuration (displayed in UI)
+     * @param file filename under MARMOTTA_HOME/log
+     * @return
+     */
+    @Override
+    public LogFileOutput createLogFileOutput(String id, String name, String file) {
+        try {
+            return logfileCache.get(id);
+        } catch (ExecutionException e) {
+            LogFileOutput r = new LogFileOutput(id, configurationService);
+            r.setFileName(file);
+            r.setName(name);
+            return r;
+        }
+    }
+
+    /**
+     * Return a list of all output configurations, reading directly from the configuration service.
+     *
+     * @return
+     */
+    @Override
+    public List<LoggingOutput> listOutputConfigurations() {
+        List<LoggingOutput> logs = new ArrayList<>();
+
+        logs.addAll(
+                Lists.transform(configurationService.listConfigurationKeys(Pattern.compile("logging\\.(file|syslog)\\.([^\\.]+)\\.name")), new Function<Matcher, LoggingOutput>() {
+                    @Override
+                    public LoggingOutput apply(java.util.regex.Matcher input) {
+                        return getOutputConfiguration(input.group(2));
+                    }
+                }
+                ));
+
+        logs.add(consoleOutput);
+
+        return logs;
+    }
+
+    /**
+     * Return the output configuration with the given ID.
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public LoggingOutput getOutputConfiguration(String id) {
+        if("console".equals(id)) {
+            return consoleOutput;
+        }
+
+        try {
+            return logfileCache.get(id);
+        } catch (ExecutionException e) {
+        }
+
+        try {
+            return syslogCache.get(id);
+        } catch (ExecutionException e) {
+        }
+
+        return null;
+    }
+
+    /**
+     * Create a new syslog output configuration using the given parameters; further options can be set on the object
+     * itself. If not set, the default hostname is "localhost" and the default facility is "LOCAL0".
+     *
+     * @param id   unique identifier for the log output configuration
+     * @param name human-readable name for configuration (displayed in UI)
+     * @return
+     */
+    @Override
+    public SyslogOutput createSyslogOutput(String id, String name) {
+        try {
+            return syslogCache.get(id);
+        } catch (ExecutionException e) {
+            SyslogOutput r = new SyslogOutput(id,configurationService);
+            r.setName(name);
+            return r;
+        }
+    }
+
+    /**
+     * Return the console output configuration used by Marmotta. There is only a single console output for any
+     * Marmotta instance.
+     *
+     * @return
+     */
+    @Override
+    public ConsoleOutput getConsoleOutput() {
+        return consoleOutput;
+    }
+
+    /**
+     * Return a list of all modules found on the classpath. This list is assembled via CDI injection. Since modules are
+     * managed beans, calling setters on the LoggingModule implementations will directly change the configuration.
+     *
+     * @return
+     */
+    @Override
+    public List<LoggingModule> listModules() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

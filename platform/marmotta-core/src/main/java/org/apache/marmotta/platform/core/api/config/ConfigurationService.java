@@ -23,6 +23,8 @@ import javax.servlet.ServletContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Manage the system configuration.
@@ -112,6 +114,16 @@ public interface ConfigurationService {
      * @return
      */
     List<String> listConfigurationKeys(String prefix);
+
+
+    /**
+     * List all configuration keys matching a certain regular expression pattern. Returns a matcher object for all
+     * matching keys that can be used to access capturing groups
+     *
+     * @param pattern
+     * @return
+     */
+    List<Matcher> listConfigurationKeys(Pattern pattern);
 
     /**
      * Check whether a certain configuration property is set.
