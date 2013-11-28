@@ -1,8 +1,10 @@
 package org.apache.marmotta.platform.core.api.logging;
 
 import ch.qos.logback.classic.Level;
+import org.apache.marmotta.platform.core.model.logging.LoggingOutput;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * An implementation of a LoggingModule provides information about a component for which to provide logging
@@ -71,4 +73,33 @@ public interface LoggingModule {
      * @param level
      */
     public void setCurrentLevel(Level level);
+
+
+    /**
+     * Return the identifiers of all logging outputs configured for this module
+     * @return
+     */
+    public List<String> getLoggingOutputIds();
+
+
+    /**
+     * Set the identifiers of all logging outputs for this module
+     * @param ids
+     */
+    public void setLoggingOutputIds(List<String> ids);
+
+    /**
+     * Return the logging outputs configured for this module (resolved using the LoggingService).
+     *
+     * @return
+     */
+    public List<LoggingOutput> getLoggingOutputs();
+
+
+    /**
+     * Set the logging outputs configured for this module (internally calls setLoggingOutputIds).
+     *
+     * @param outputs
+     */
+    public void setLoggingOutputs(List<LoggingOutput> outputs);
 }

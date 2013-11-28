@@ -1,19 +1,22 @@
-package org.apache.marmotta.platform.core.logging;
+package org.apache.marmotta.platform.security.logging;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableSet;
-import org.apache.marmotta.platform.core.api.logging.LoggingModule;
+import com.google.common.collect.Lists;
+import org.apache.marmotta.platform.core.logging.BaseLoggingModule;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
+import java.util.List;
 
 /**
- * Logging module for configuration-related logging information.
+ * Logging configuration for security module.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @ApplicationScoped
-public class ConfigurationLoggingModule extends BaseLoggingModule implements LoggingModule {
+public class SecurityLoggingModule extends BaseLoggingModule {
+
 
     /**
      * Return the default (logback) level used by this logging module. Should in most cases be INFO or WARN.
@@ -34,7 +37,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getId() {
-        return "configuration";
+        return "security";
     }
 
     /**
@@ -45,7 +48,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getName() {
-        return "Configuration";
+        return "Security";
     }
 
     /**
@@ -56,9 +59,17 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public Collection<String> getPackages() {
-        return ImmutableSet.of(
-                "org.apache.marmotta.platform.core.services.config",
-                "org.apache.marmotta.platform.core.webservices.config"
-        );
+        return ImmutableSet.of("org.apache.marmotta.platform.security");
+    }
+
+    /**
+     * Return the identifiers of all logging outputs configured for this module
+     *
+     * @return
+     */
+    @Override
+    public List<String> getLoggingOutputIds() {
+        return configurationService.getListConfiguration(String.format("logging.module.%s.appenders", getId()), Lists.newArrayList("console", "security"));
+
     }
 }

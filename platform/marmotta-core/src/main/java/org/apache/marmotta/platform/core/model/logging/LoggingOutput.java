@@ -1,5 +1,6 @@
 package org.apache.marmotta.platform.core.model.logging;
 
+import ch.qos.logback.classic.Level;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 
 /**
@@ -47,6 +48,24 @@ public abstract class LoggingOutput {
         configurationService.setConfiguration(getConfigKey("pattern"), pattern);
     }
 
+    /**
+     * Return the maximum logging level this output accepts. All messages above this level will be ignored.
+     *
+     * @return
+     */
+    public Level getMaxLevel() {
+        return Level.toLevel(configurationService.getStringConfiguration(getConfigKey("level")), Level.INFO);
+    }
+
+    /**
+     * Set the maximum logging level this output accepts. All messages above this level will be ignored.
+     *
+     * @return
+     */
+    public void setMaxLevel(Level level) {
+        configurationService.setConfiguration(getConfigKey("level"), level.toString());
+    }
+
 
     /**
      * Internal method: return the configuration key for this logging output and the given key suffix.
@@ -64,4 +83,22 @@ public abstract class LoggingOutput {
      * @return
      */
     protected abstract String getTypeIdentifier();
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LoggingOutput that = (LoggingOutput) o;
+
+        if (!id.equals(that.id)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

@@ -1,19 +1,20 @@
-package org.apache.marmotta.platform.core.logging;
+package org.apache.marmotta.platform.sparql.logging;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableSet;
-import org.apache.marmotta.platform.core.api.logging.LoggingModule;
+import org.apache.marmotta.platform.core.logging.BaseLoggingModule;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
 
 /**
- * Logging module for configuration-related logging information.
+ * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@ApplicationScoped
-public class ConfigurationLoggingModule extends BaseLoggingModule implements LoggingModule {
+public class SparqlLoggingModule extends BaseLoggingModule {
+
+    public SparqlLoggingModule() {
+    }
 
     /**
      * Return the default (logback) level used by this logging module. Should in most cases be INFO or WARN.
@@ -34,7 +35,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getId() {
-        return "configuration";
+        return "sparql";
     }
 
     /**
@@ -45,7 +46,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getName() {
-        return "Configuration";
+        return "SPARQL";
     }
 
     /**
@@ -57,8 +58,9 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
     @Override
     public Collection<String> getPackages() {
         return ImmutableSet.of(
-                "org.apache.marmotta.platform.core.services.config",
-                "org.apache.marmotta.platform.core.webservices.config"
+                "org.apache.marmotta.platform.sparql",
+                "org.apache.marmotta.kiwi.sparql",
+                "org.openrdf.query"
         );
     }
 }

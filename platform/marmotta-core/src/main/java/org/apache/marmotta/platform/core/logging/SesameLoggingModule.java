@@ -2,18 +2,18 @@ package org.apache.marmotta.platform.core.logging;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableSet;
-import org.apache.marmotta.platform.core.api.logging.LoggingModule;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
 
 /**
- * Logging module for configuration-related logging information.
+ * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@ApplicationScoped
-public class ConfigurationLoggingModule extends BaseLoggingModule implements LoggingModule {
+public class SesameLoggingModule extends BaseLoggingModule {
+
+    public SesameLoggingModule() {
+    }
 
     /**
      * Return the default (logback) level used by this logging module. Should in most cases be INFO or WARN.
@@ -22,7 +22,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public Level getDefaultLevel() {
-        return Level.INFO;
+        return Level.WARN;
     }
 
     /**
@@ -34,7 +34,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getId() {
-        return "configuration";
+        return "sesame";
     }
 
     /**
@@ -45,7 +45,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getName() {
-        return "Configuration";
+        return "Sesame";
     }
 
     /**
@@ -57,8 +57,12 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
     @Override
     public Collection<String> getPackages() {
         return ImmutableSet.of(
-                "org.apache.marmotta.platform.core.services.config",
-                "org.apache.marmotta.platform.core.webservices.config"
-        );
+                "org.apache.marmotta.platform.core.services.triplestore",
+                "org.apache.marmotta.platform.core.services.io",
+                "org.apache.marmotta.platform.core.services.importer",
+                "org.apache.marmotta.platform.core.services.exporter",
+                "org.apache.marmotta.platform.core.webservices.triplestore",
+                "org.apache.marmotta.platform.core.webservices.io",
+                "org.openrdf");
     }
 }

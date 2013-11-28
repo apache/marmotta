@@ -17,15 +17,8 @@
  */
 package org.apache.marmotta.platform.core.services.config;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -36,6 +29,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.events.LoggingStartEvent;
 import org.apache.marmotta.platform.core.util.FallbackConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +107,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Inject
     @Any
     private Event<ConfigurationServiceInitEvent> configurationInitEvent;
+
+    @Inject
+    @Any
+    private Event<LoggingStartEvent> loggingStartEvent;
 
     private int serverPort        = 0;
     //private String serverContext;
@@ -304,8 +302,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             initialised = true;
 
 
+            loggingStartEvent.fire(new LoggingStartEvent());
+
             // this should maybe move to the KiWiPreStartupFilter ...
-            initLoggingConfiguration();
             initDatabaseConfiguration();
 
             save();
@@ -335,53 +334,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         this.initialising = initialising;
 
         log.info("Initialisation completed, enabling configuration events");
-    }
-
-    /**
-     * Initialise the Apache Marmotta Logging Configuration.
-     * <ul>
-     * <li>if the logback.xml file does not yet exist, create it based on the logback-template.xml resource</li>
-     * <li>reiniaialise the logging framework using the logback.xml file from Apache Marmotta Home, overwriting the basic logging configured on startup</li>
-     * <li>in case debug.enabled = true, set the root logger level to debug, otherwise set it to info</li>
-     * </ul>
-     */
-    private void initLoggingConfiguration() {
-        File log_configuration = new File(getWorkDir() + File.separator + "logback.xml");
-
-        if(!log_configuration.exists()) {
-            // create new logging configuration from template
-            URL url_template = ConfigurationService.class.getResource(config.getString("logging.template", "/logback-template.xml"));
-
-            if (url_template != null) {
-                try {
-                    Files.copy(Resources.newInputStreamSupplier(url_template), log_configuration);
-                } catch (IOException e) {
-                    log.error("could not create logging configuration; reverting to bootstrap logging", e);
-                }
-            } else {
-                log.error("could not find logging template; reverting to bootstrap logging");
-            }
-        }
-
-        log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}/log/*.log", getWorkDir());
-        LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        try {
-            JoranConfigurator configurator = new JoranConfigurator();
-            configurator.setContext(context);
-            context.reset();
-            configurator.doConfigure(log_configuration);
-        } catch (JoranException e) {
-            StatusPrinter.printInCaseOfErrorsOrWarnings(context);
-        }
-
-        // set root logger level
-        ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-        if(getBooleanConfiguration("debug.enabled",false)) {
-            rootLogger.setLevel(Level.DEBUG);
-        } else {
-            rootLogger.setLevel(Level.INFO);
-        }
-
     }
 
     private void initDatabaseConfiguration() {

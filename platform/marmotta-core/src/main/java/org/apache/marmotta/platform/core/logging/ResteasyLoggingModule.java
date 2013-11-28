@@ -2,18 +2,20 @@ package org.apache.marmotta.platform.core.logging;
 
 import ch.qos.logback.classic.Level;
 import com.google.common.collect.ImmutableSet;
-import org.apache.marmotta.platform.core.api.logging.LoggingModule;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
 
 /**
- * Logging module for configuration-related logging information.
+ * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @ApplicationScoped
-public class ConfigurationLoggingModule extends BaseLoggingModule implements LoggingModule {
+public class ResteasyLoggingModule extends BaseLoggingModule {
+
+    public ResteasyLoggingModule() {
+    }
 
     /**
      * Return the default (logback) level used by this logging module. Should in most cases be INFO or WARN.
@@ -22,7 +24,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public Level getDefaultLevel() {
-        return Level.INFO;
+        return Level.WARN;
     }
 
     /**
@@ -34,7 +36,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getId() {
-        return "configuration";
+        return "resteasy";
     }
 
     /**
@@ -45,7 +47,7 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
      */
     @Override
     public String getName() {
-        return "Configuration";
+        return "RestEasy";
     }
 
     /**
@@ -57,8 +59,9 @@ public class ConfigurationLoggingModule extends BaseLoggingModule implements Log
     @Override
     public Collection<String> getPackages() {
         return ImmutableSet.of(
-                "org.apache.marmotta.platform.core.services.config",
-                "org.apache.marmotta.platform.core.webservices.config"
+                "org.apache.marmotta.platform.core.services.jaxrs",
+                "org.jboss.resteasy",
+                "javax.ws.rs"
         );
     }
 }
