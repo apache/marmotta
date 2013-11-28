@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>sesame-transactions</artifactId>
-            </dependency>
+        </dependency>
 
         <!-- Logging -->
         <dependency>
