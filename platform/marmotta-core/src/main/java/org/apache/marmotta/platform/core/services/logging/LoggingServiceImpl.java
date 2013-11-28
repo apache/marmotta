@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.logging.LoggingModule;
 import org.apache.marmotta.platform.core.api.logging.LoggingService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.LoggingStartEvent;
 import org.apache.marmotta.platform.core.exception.MarmottaConfigurationException;
 import org.apache.marmotta.platform.core.model.logging.ConsoleOutput;
@@ -148,6 +149,14 @@ public class LoggingServiceImpl implements LoggingService {
         log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}/log/*.log", configurationService.getWorkDir());
 
         configureLoggers();
+    }
+
+    public void configurationEventHandler(@Observes ConfigurationChangedEvent event) {
+        if(event.containsChangedKeyWithPrefix("logging.")) {
+            log.warn("LOGGING: Reloading logging configuration");
+
+            configureLoggers();
+        }
     }
 
 

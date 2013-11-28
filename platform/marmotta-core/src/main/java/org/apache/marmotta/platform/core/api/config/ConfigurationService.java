@@ -69,6 +69,8 @@ public interface ConfigurationService {
 
     static final String DIR_IMPORT = "import";
 
+    static final String LOGGING_PATH = "logging";
+
     /**
      * Get the base URI of the system.
      * The base URI is used by the LMF to create local resource URIs. In this way, all Apache Marmotta resources

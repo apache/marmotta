@@ -26,6 +26,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
@@ -48,15 +49,9 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,10 +123,28 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     private ReadWriteLock lock;
 
+    /**
+     * Backlog for delayed event collection; only fires a configuration changed event if there has not been a further
+     * update in a specified amount of time (default 250ms);
+     */
+    private Set<String> eventBacklog;
+
+    private long EVENT_DELAY = 250L;
+
+
+    /*
+     * Timer and task for delayed execution of configuration changed events
+     */
+    private Timer          eventTimer;
+    private ReentrantLock  eventLock;
+
 
     public ConfigurationServiceImpl() {
         runtimeFlags = new HashMap<String, Boolean>();
         lock = new ReentrantReadWriteLock();
+
+        eventTimer = new Timer("Configuration Event Timer", true);
+        eventLock  = new ReentrantLock();
     }
 
     /**
@@ -578,7 +591,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             if (!initialising) {
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -713,7 +726,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             if (!initialising) {
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -764,7 +777,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             if (!initialising) {
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -831,7 +844,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             if (!initialising) {
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -886,7 +899,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
             if (!initialising) {
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -982,7 +995,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             if (!initialising) {
                 log.debug("firing configuration changed event for key {}", key);
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -1030,7 +1043,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             if (!initialising) {
                 log.debug("firing configuration changed event for key {}", key);
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -1087,7 +1100,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
         if (!initialising) {
-            configurationEvent.fire(new ConfigurationChangedEvent(values.keySet()));
+            raiseDelayedConfigurationEvent((values.keySet()));
         }
     }
 
@@ -1107,7 +1120,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
             if (!initialising) {
-                configurationEvent.fire(new ConfigurationChangedEvent(key));
+                raiseDelayedConfigurationEvent(Collections.singleton(key));
             }
         }
     }
@@ -1469,5 +1482,56 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
         return value;
+    }
+
+
+    /**
+     * Start a delayed execution of raising an event
+     * @param keys
+     */
+    private void raiseDelayedConfigurationEvent(Set<String> keys) {
+        eventLock.lock();
+        try {
+            if(eventBacklog == null) {
+                eventBacklog = new HashSet<>();
+            }
+            eventBacklog.addAll(keys);
+
+            if(eventTimer != null) {
+                eventTimer.cancel();
+            }
+            eventTimer = new Timer("Configuration Event Timer", true);
+            eventTimer.schedule(new EventTimerTask(), EVENT_DELAY);
+        } finally {
+            eventLock.unlock();
+        }
+
+        if(log.isDebugEnabled()) {
+            log.debug("updated configuration keys [{}]", StringUtils.join(keys,", "));
+        }
+
+    }
+
+    /**
+     * Delayed event firing task
+     */
+    private class EventTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            eventLock.lock();
+            try {
+                Set<String> keys = eventBacklog;
+                eventBacklog = null;
+
+                if(log.isDebugEnabled()) {
+                    log.debug("firing delayed ({}ms) configuration changed event with keys [{}]",EVENT_DELAY, StringUtils.join(keys,", "));
+                }
+
+                configurationEvent.fire(new ConfigurationChangedEvent(keys));
+            } finally {
+                eventLock.unlock();
+            }
+        }
     }
 }
