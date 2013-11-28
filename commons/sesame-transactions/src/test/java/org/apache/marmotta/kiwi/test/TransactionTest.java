@@ -23,24 +23,16 @@ import static org.junit.Assume.assumeThat;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
 import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
 import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -48,6 +40,8 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.sail.NotifyingSail;
+import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,27 +54,20 @@ import com.google.common.collect.Iterables;
  * 
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-@RunWith(KiWiDatabaseRunner.class)
 public class TransactionTest {
     private static Logger log = LoggerFactory.getLogger(TransactionTest.class);
 
     private Repository repository;
 
-    private KiWiStore store;
+    private NotifyingSail store;
 
     private KiWiTransactionalSail tstore;
 
     private MockListener listener;
 
-    private final KiWiConfiguration kiwiConfiguration;
-
-    public TransactionTest(KiWiConfiguration configuration) {
-        this.kiwiConfiguration = configuration;
-    }
-
     @Before
     public void initDatabase() throws RepositoryException {
-        store = new KiWiStore(kiwiConfiguration);
+        store = new MemoryStore();
         tstore = new KiWiTransactionalSail(store);
         listener = new MockListener();
         tstore.addTransactionListener(listener);
@@ -89,8 +76,7 @@ public class TransactionTest {
     }
 
     @After
-    public void dropDatabase() throws RepositoryException, SQLException {
-        store.getPersistence().dropDatabase();
+    public void dropDatabase() throws RepositoryException {
         repository.shutDown();
     }
 

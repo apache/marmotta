@@ -17,11 +17,22 @@
  */
 package org.apache.marmotta.platform.versioning.services;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.marmotta.commons.sesame.filter.AllOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.commons.sesame.filter.statement.StatementFilter;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.wrapper.TransactionalSailWrapper;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.repository.SnapshotRepositoryConnection;
 import org.apache.marmotta.kiwi.versioning.sail.KiWiVersioningSail;
@@ -35,16 +46,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.inject.Named;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * A SAIL provider wrapping a versioning component around the repository

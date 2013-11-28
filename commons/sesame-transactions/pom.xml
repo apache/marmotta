@@ -78,20 +78,9 @@
 
         <!-- Testing -->
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-triplestore</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-        	<groupId>org.apache.marmotta</groupId>
-        	<artifactId>kiwi-triplestore</artifactId>
-        	<type>test-jar</type>
-        	<scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -106,6 +95,11 @@
         <dependency>
             <artifactId>hamcrest-library</artifactId>
             <groupId>org.hamcrest</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
