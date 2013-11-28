@@ -1,0 +1,219 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+<head>
+    <!--###BEGIN_HEAD###-->
+    <title>Logging Configuration</title>
+    <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../../webjars/angularjs/1.2.2/angular.min.js"></script>
+    <script type="text/javascript">
+        var url = _SERVER_URL;
+    </script>
+    <script type="text/javascript" src="js/logging.js"></script>
+
+    <style>
+        table.appenders {
+            width: 80%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            background-color: darkgray;
+            color: white;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        table.appenders .name {
+            width: 20%;
+        }
+        table.appenders .pattern {
+            width: 30%;
+        }
+        table.appenders .level {
+            width: 10%;
+        }
+        table.appenders .additional {
+            width: 20%;
+        }
+
+
+        table.modules {
+            width: 80%;
+            border-collapse: collapse;
+        }
+        table.modules .name {
+            width: 20%;
+        }
+        table.modules .level {
+            width: 10%;
+        }
+        table.modules .appenders {
+            width: 50%;
+        }
+        table.modules .actions {
+            width: 20%;
+        }
+
+        .odd td {
+            background-color: lightgray;
+        }
+
+    </style>
+
+    <!--###END_HEAD###-->
+</head>
+<body>
+<div id="main">
+    <div id="contents">
+        <!--###BEGIN_CONTENT###-->
+
+        <h1>Marmotta Logging Configuration</h1>
+
+        <div ng-app="logging" ng-controller="LoggingController">
+
+            <h2>Log Appenders</h2>
+
+
+            <h3>Console</h3>
+            <table class="appenders">
+                <tr>
+                    <th>Name</th><th>Level</th><th>Pattern</th><th></th><th></th>
+                </tr>
+                <tr ng-repeat="appender in appenders | filter:{type:'console'}" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td class="name">{{appender.name}}</td>
+                    <td class="level">
+                        <select ng-model="appender.level" ng-change="updateAppender(appender)">
+                            <option>ERROR</option>
+                            <option>WARN</option>
+                            <option>INFO</option>
+                            <option>DEBUG</option>
+                            <option>TRACE</option>
+                        </select>
+                    </td>
+                    <td class="pattern">{{appender.pattern}}</td>
+                    <td class="additional"></td>
+                    <td class="additional"></td>
+                </tr>
+            </table>
+
+            <h3>Logfile</h3>
+            <table class="appenders">
+                <tr>
+                    <th>Name</th><th>Level</th><th>Pattern</th><th>Filename</th><th>Keep Days</th>
+                </tr>
+                <tr ng-repeat="appender in appenders | filter:{type:'logfile'}" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td class="name">{{appender.name}}</td>
+                    <td class="level">
+                        <select ng-model="appender.level" ng-change="updateAppender(appender)">
+                            <option>ERROR</option>
+                            <option>WARN</option>
+                            <option>INFO</option>
+                            <option>DEBUG</option>
+                            <option>TRACE</option>
+                        </select>
+                    </td>
+                    <td class="pattern">{{appender.pattern}}</td>
+                    <td class="additional">{{appender.file}}</td>
+                    <td class="additional">{{appender.keep}}</td>
+                </tr>
+            </table>
+
+            <h3>Syslog</h3>
+            <table class="appenders">
+                <tr>
+                    <th>Name</th><th>Level</th><th>Pattern</th><th>Host</th><th>Facility</th>
+                </tr>
+                <tr ng-repeat="appender in appenders | filter:{type:'syslog'}" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td class="name">{{appender.name}}</td>
+                    <td class="level">
+                        <select ng-model="appender.level" ng-change="updateAppender(appender)">
+                            <option>ERROR</option>
+                            <option>WARN</option>
+                            <option>INFO</option>
+                            <option>DEBUG</option>
+                            <option>TRACE</option>
+                        </select>
+                    </td>
+                    <td class="pattern">{{appender.pattern}}</td>
+                    <td class="additional">{{appender.host}}</td>
+                    <td class="additional">
+                        <select ng-model="appender.facility" ng-change="updateAppender(appender)">
+                            <option>USER</option>
+                            <option>DAEMON</option>
+                            <option>SYSLOG</option>
+                            <option>LOCAL0</option>
+                            <option>LOCAL1</option>
+                            <option>LOCAL2</option>
+                            <option>LOCAL3</option>
+                            <option>LOCAL4</option>
+                            <option>LOCAL5</option>
+                            <option>LOCAL6</option>
+                            <option>LOCAL7</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+
+
+
+            <h2>Log Modules</h2>
+
+            <table class="modules">
+                <tr>
+                    <th>Name</th><th>Level</th><th>Appenders</th><th>Actions</th>
+                </tr>
+                <tr ng-repeat="module in modules" ng-class-even="'even'" ng-class-odd="'odd'">
+                    <td class="name">{{module.name}}</td>
+                    <td class="level">
+                        <select ng-model="module.level" ng-change="updateModule(module)">
+                            <option>ERROR</option>
+                            <option>WARN</option>
+                            <option>INFO</option>
+                            <option>DEBUG</option>
+                            <option>TRACE</option>
+                        </select>
+                    </td>
+                    <td class="appenders">
+                        <span ng-repeat="appender in module.appenders">
+                            {{ (appenders | filter:{id: appender})[0].name }}
+                            <button ng-click="removeModuleAppender(module,appender)">-</button>
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <select ng-model="module.new_appender" style="width: 80%">
+                            <option ng-repeat="appender in getUnselectedModuleAppenders(module)" value="{{appender.id}}">{{appender.name}}</option>
+                        </select>
+                        <button ng-click="addModuleAppender(module,module.new_appender)">+</button>
+                    </td>
+                </tr>
+            </table>
+
+
+        </div>
+
+        <!--###END_CONTENT###-->
+    </div>
+</div>
+</body>
+</html>

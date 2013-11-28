@@ -917,6 +917,10 @@
                 <version>1.8.21</version>
             </dependency>
             <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>angularjs</artifactId>
+                <version>1.2.2</version>
+            </dependency>            <dependency>
                 <groupId>org.apache.marmotta.webjars</groupId>
                 <artifactId>codemirror</artifactId>
                 <version>${project.version}</version>

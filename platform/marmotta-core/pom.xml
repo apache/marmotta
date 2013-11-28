@@ -316,6 +316,10 @@
             <artifactId>jquery</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>angularjs</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.marmotta.webjars</groupId>
             <artifactId>sgvizler</artifactId>
         </dependency>

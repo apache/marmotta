@@ -31,7 +31,6 @@ import com.google.common.base.Function;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +55,10 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.io.File;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,7 +131,7 @@ public class LoggingServiceImpl implements LoggingService {
 
         loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
-        log.info("- configured logging modules: {}", StringUtils.join(Iterables.transform(loggingModules, new Function<LoggingModule, Object>() {
+        log.info("- configured logging modules: {}", StringUtils.join(Iterables.transform(listModules(), new Function<LoggingModule, Object>() {
             @Override
             public Object apply(LoggingModule input) {
                 return input.getName();
@@ -392,6 +394,15 @@ public class LoggingServiceImpl implements LoggingService {
      */
     @Override
     public List<LoggingModule> listModules() {
-        return ImmutableList.copyOf(loggingModules);
+        List<LoggingModule> result = Lists.newArrayList(loggingModules);
+
+        Collections.sort(result, new Comparator<LoggingModule>() {
+            @Override
+            public int compare(LoggingModule o1, LoggingModule o2) {
+                return Collator.getInstance().compare(o1.getName(), o2.getName());
+            }
+        });
+
+        return result;
     }
 }
