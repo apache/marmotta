@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -23,10 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +44,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 
@@ -60,21 +59,13 @@ import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
-import org.apache.marmotta.platform.sparql.services.sparql.SparqlWritersHelper;
 import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
-import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
-import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
-import org.openrdf.rio.RDFParserRegistry;
 import org.slf4j.Logger;
 
 import com.google.common.collect.Lists;
@@ -91,15 +82,16 @@ import com.google.common.io.CharStreams;
  */
 @ApplicationScoped
 @Path("/" + SparqlWebService.PATH)
-public class
-        SparqlWebService {
+public class SparqlWebService {
 	
     public static final String PATH = "sparql";
     public static final String SELECT = "/select";
     public static final String UPDATE = "/update";
     public static final String SNORQL = "/snorql";
 
-    private static final Map<String,String> outputMapper = new HashMap<String,String>(){{
+    private static final Map<String,String> outputMapper = new HashMap<String,String>(){
+        private static final long serialVersionUID = 1L;
+    {
         put("json","application/sparql-results+json");
         put("xml","application/sparql-results+xml");
         put("tabs","text/tab-separated-values");
@@ -497,7 +489,13 @@ public class
                 }
             }
         };
-        return Response.ok().entity(entity).header("Content-Type", format.getMime()).build();
+        
+        final ResponseBuilder responseBuilder = Response.ok().entity(entity).header("Content-Type", format.getMime());
+        final TupleQueryResultFormat fmt = QueryResultIO.getWriterFormatForMIMEType(format.getMime());
+        if (fmt != null) {
+            responseBuilder.header("Content-Disposition", String.format("attachment; filename=\"%s.%s\"", queryType.toString().toLowerCase(), fmt.getDefaultFileExtension()));
+        }
+        return responseBuilder.build();
 	}
 
     @Deprecated

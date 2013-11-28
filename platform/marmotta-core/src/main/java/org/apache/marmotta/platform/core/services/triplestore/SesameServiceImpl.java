@@ -18,10 +18,11 @@
 package org.apache.marmotta.platform.core.services.triplestore;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.marmotta.kiwi.transactions.api.TransactionListener;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.model.TransactionData;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
+
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
+import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.*;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;

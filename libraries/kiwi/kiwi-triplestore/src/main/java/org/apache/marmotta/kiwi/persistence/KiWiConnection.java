@@ -32,11 +32,11 @@ import net.sf.ehcache.Element;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
-import org.apache.marmotta.kiwi.model.caching.TripleTable;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
@@ -1194,7 +1194,7 @@ public class KiWiConnection {
     public void deleteTriple(final KiWiTriple triple) throws SQLException {
         requireJDBCConnection();
 
-        RetryExecution execution = new RetryExecution("DELETE");
+        RetryExecution<Void> execution = new RetryExecution<>("DELETE");
         execution.setUseSavepoint(true);
         execution.execute(connection, new RetryCommand<Void>() {
             @Override

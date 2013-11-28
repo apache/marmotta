@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.sesame;
 
+import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.apache.marmotta.kiwi.transactions.sail.KiWiTransactionalSail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

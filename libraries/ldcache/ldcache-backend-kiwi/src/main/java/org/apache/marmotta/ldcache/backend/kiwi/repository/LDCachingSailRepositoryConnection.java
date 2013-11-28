@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldcache.backend.kiwi.repository;
 
-import org.apache.marmotta.kiwi.contextaware.ContextAwareSailConnection;
+import org.apache.marmotta.commons.sesame.contextaware.ContextAwareSailConnection;
 import org.apache.marmotta.ldcache.api.LDCachingConnection;
 import org.apache.marmotta.ldcache.backend.kiwi.sail.LDCachingKiWiSailConnection;
 import org.apache.marmotta.ldcache.model.CacheEntry;

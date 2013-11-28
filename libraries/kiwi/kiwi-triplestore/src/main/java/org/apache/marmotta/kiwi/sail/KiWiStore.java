@@ -18,8 +18,9 @@
 package org.apache.marmotta.kiwi.sail;
 
 import com.google.common.collect.MapMaker;
+
+import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.model.caching.IntArray;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.openrdf.model.Statement;

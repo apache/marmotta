@@ -572,7 +572,7 @@
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-transactions</artifactId>
+            <artifactId>sesame-transactions</artifactId>
         </dependency>
 
     </dependencies>

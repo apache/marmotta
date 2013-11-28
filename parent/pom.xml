@@ -1220,11 +1220,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>kiwi-transactions</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
                 <artifactId>kiwi-versioning</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1233,18 +1228,23 @@
                 <artifactId>kiwi-reasoner</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>kiwi-tripletable</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
-                <artifactId>kiwi-contextaware</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <!-- LMF Sesame Tools -->
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>sesame-transactions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>sesame-tripletable</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>sesame-contextaware</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-filter</artifactId>

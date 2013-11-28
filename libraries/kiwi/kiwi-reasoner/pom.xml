@@ -81,8 +81,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-transactions</artifactId>
-            </dependency>
+            <artifactId>sesame-transactions</artifactId>
+        </dependency>
 
         <!-- Logging -->
         <dependency>

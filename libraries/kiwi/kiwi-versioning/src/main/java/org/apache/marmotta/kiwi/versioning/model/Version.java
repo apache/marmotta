@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.kiwi.versioning.model;
 
+import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.transactions.model.TransactionData;
 
 /**
  * In-memory representation of a KiWi version. Consists of a set of added triples, a set of removed triples,

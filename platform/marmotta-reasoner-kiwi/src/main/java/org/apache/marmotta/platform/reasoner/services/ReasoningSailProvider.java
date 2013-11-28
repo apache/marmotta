@@ -18,25 +18,27 @@
 package org.apache.marmotta.platform.reasoner.services;
 
 import info.aduna.iteration.CloseableIteration;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
 import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
 import org.apache.marmotta.kiwi.reasoner.model.program.Program;
 import org.apache.marmotta.kiwi.reasoner.parser.ParseException;
 import org.apache.marmotta.kiwi.reasoner.sail.KiWiReasoningSail;
-import org.apache.marmotta.kiwi.transactions.api.TransactionalSail;
-import org.apache.marmotta.kiwi.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Add file description here!

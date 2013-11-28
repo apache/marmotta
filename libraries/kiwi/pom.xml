@@ -102,10 +102,7 @@
     </dependencyManagement>
 
     <modules>
-        <module>kiwi-contextaware</module>
         <module>kiwi-triplestore</module>
-        <module>kiwi-transactions</module>
-        <module>kiwi-tripletable</module>
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
         <module>kiwi-sparql</module>
