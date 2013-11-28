@@ -106,7 +106,7 @@
         </#list>
         </ul>
         <div class="clear"></div>
-        <div id="content">
+        <div id="content" class="contentWrap">
         ${CONTENT}
         </div>
     </div>
