@@ -31,10 +31,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -53,7 +50,6 @@ import java.util.List;
  * <p/>
  * User: sschaffe
  */
-@WebFilter(value="/*", initParams = { @WebInitParam(name="kiwi.resourceCaching", value="true ") })
 public class MarmottaResourceFilter implements Filter {
 
     @Inject

@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import java.io.IOException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -26,18 +26,15 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import java.io.IOException;
 
 /**
  * This filter injects the database configuration into the H2 console using the LMF Configuration settings
  * <p/>
  * User: sschaffe
  */
-@WebFilter("/database/*")
 public class MarmottaH2ConsoleFilter implements Filter {
 
     @Inject

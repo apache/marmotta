@@ -17,7 +17,10 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import java.io.IOException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.events.SystemStartupEvent;
+import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
+import org.slf4j.Logger;
 
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Any;
@@ -28,19 +31,13 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.events.SystemStartupEvent;
-import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.slf4j.Logger;
+import java.io.IOException;
 
 /**
  * This filter is currently only used to indicate that the LMF server has been started successfully.
  * <p/>
  * User: sschaffe
  */
-@WebFilter("/*")
 public class MarmottaPostStartupFilter implements Filter {
 
     @Inject

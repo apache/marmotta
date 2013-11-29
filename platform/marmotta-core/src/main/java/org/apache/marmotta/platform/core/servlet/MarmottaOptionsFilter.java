@@ -17,7 +17,8 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import java.io.IOException;
+import org.jboss.resteasy.spi.DefaultOptionsMethodException;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -25,15 +26,12 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
-import org.jboss.resteasy.spi.DefaultOptionsMethodException;
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import java.io.IOException;
 
 /**
  * This filter checks for OPTIONS requests. If the response returned by the other filters throws an exception
@@ -43,7 +41,6 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
  * <p/>
  * Author: Sebastian Schaffert
  */
-@WebFilter("/*")
 public class MarmottaOptionsFilter implements Filter {
 
     /**
