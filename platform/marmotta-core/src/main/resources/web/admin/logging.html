@@ -21,10 +21,23 @@
 <head>
     <!--###BEGIN_HEAD###-->
     <title>Logging Configuration</title>
+    <link rel="stylesheet" href="../../webjars/jquery-ui/1.10.3/themes/base/minified/jquery-ui.min.css"/>
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../../webjars/jquery-ui/1.10.3/ui/minified/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../../webjars/angularjs/1.2.2/angular.min.js"></script>
     <script type="text/javascript">
         var url = _SERVER_URL;
+
+        // initialise dialog
+        $(function() {
+            $("#new-appender-dialog").dialog({
+                autoOpen:  false,
+                resizable: false,
+                height:    300,
+                width:     600,
+                modal:     true
+            })
+        });
     </script>
     <script type="text/javascript" src="js/logging.js"></script>
 
@@ -158,24 +171,12 @@
                     <td class="pattern"><input type="text" ng-model="appender.pattern" size="40"/></td>
                     <td class="additional"><input type="text" ng-model="appender.host" size="20"/></td>
                     <td class="additional">
-                        <select ng-model="appender.facility">
-                            <option>USER</option>
-                            <option>DAEMON</option>
-                            <option>SYSLOG</option>
-                            <option>LOCAL0</option>
-                            <option>LOCAL1</option>
-                            <option>LOCAL2</option>
-                            <option>LOCAL3</option>
-                            <option>LOCAL4</option>
-                            <option>LOCAL5</option>
-                            <option>LOCAL6</option>
-                            <option>LOCAL7</option>
-                        </select>
+                        <select ng-model="appender.facility" ng-options="facility for facility in facilities"></select>
                     </td>
                 </tr>
             </table>
 
-            <div class="save-button"><button ng-click="saveAppenders()" ng-disabled="!needsAppendersSave">Save</button> </div>
+            <div class="save-button"><button ng-click="showNewAppender()">New</button> <button ng-click="saveAppenders()" ng-disabled="!needsAppendersSave">Save</button> </div>
 
 
             <h2>Log Modules</h2>
@@ -204,6 +205,43 @@
             </table>
 
             <div class="save-button"><button ng-click="saveModules()" ng-disabled="!needsModulesSave">Save</button> </div>
+
+
+
+            <div id="new-appender-dialog" title="New Appender">
+                <table>
+                    <tr>
+                        <td><strong>Name:</strong></td><td><input type="text" size="40" ng-model="appenderNew.name" required/> </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type:</strong></td><td><select ng-model="appenderNew.type" ng-options="type for type in appenderTypes"/> </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Level:</strong></td><td><select ng-model="appenderNew.level" ng-options="level for level in levels"/> </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pattern:</strong></td><td><input type="text" size="40" ng-model="appenderNew.pattern"/> </td>
+                    </tr>
+                    <tr ng-show="appenderNew.type == 'logfile'">
+                        <td><strong>File:</strong></td>
+                        <td><input type="text" size="40" ng-model="appenderNew.file" ng-required="appenderNew.type == 'logfile'"/> </td>
+                    </tr>
+                    <tr ng-show="appenderNew.type == 'logfile'">
+                        <td><strong>Keep Days:</strong></td>
+                        <td><input type="number" size="3" ng-model="appenderNew.keep" min="0"  ng-required="appenderNew.type == 'logfile'"/> </td>
+                    </tr>
+                    <tr ng-show="appenderNew.type == 'syslog'">
+                        <td><strong>Host:</strong></td>
+                        <td><input type="text" size="40" ng-model="appenderNew.host"  ng-required="appenderNew.type == 'syslog'"/> </td>
+                    </tr>
+                    <tr ng-show="appenderNew.type == 'syslog'">
+                        <td><strong>Facility:</strong></td>
+                        <td><select ng-model="appenderNew.facility" ng-options="facility for facility in facilities"  ng-required="appenderNew.type == 'syslog'"></select> </td>
+                    </tr>
+
+                </table>
+                <div class="save-button"><button ng-click="addNewAppender()">Save</button><button ng-click="cancelNewAppender()">Cancel</button></div>
+            </div>
 
         </div>
 

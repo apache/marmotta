@@ -22,11 +22,22 @@
  * Time: 16:54
  * To change this template use File | Settings | File Templates.
  */
+function randomString(len, charSet) {
+    charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var randomString = '';
+    for (var i = 0; i < len; i++) {
+        var randomPoz = Math.floor(Math.random() * charSet.length);
+        randomString += charSet.substring(randomPoz,randomPoz+1);
+    }
+    return randomString;
+}
+
+
 var loggingApp = angular.module('logging', []);
 
 loggingApp.controller('LoggingController', function ($scope, $http) {
     $scope.levels = ['OFF', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'];
-
+    $scope.facilities = ['USER', 'DAEMON', 'SYSLOG', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']
 
     $http.get(url + 'logging/modules').success(function(data) {
         $scope.modules = data;
@@ -110,6 +121,43 @@ loggingApp.controller('LoggingController', function ($scope, $http) {
      */
     $scope.needsModulesSave = false;
     $scope.needsAppendersSave = false;
+
+
+    /*
+     * model for new appender configurations
+     */
+    $scope.appenderTypes = ['logfile', 'syslog'];
+    $scope.appenderTemplate = {
+        id: '',
+        type: 'logfile',
+        level: 'INFO',
+        pattern: '%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n',
+        file: '',
+        keep: '7',
+        host: 'localhost',
+        facility: 'LOCAL0'
+    };
+
+    $scope.appenderNew = {};
+
+
+    $scope.showNewAppender = function() {
+        $scope.appenderNew = angular.copy($scope.appenderTemplate);
+        $scope.appenderNew.id = randomString(8,"abcdefghijklmnopgrstuvwxyz");
+        $("#new-appender-dialog").dialog( "open" );
+
+    };
+
+    $scope.addNewAppender = function() {
+        $scope.appenders.push($scope.appenderNew);
+        $("#new-appender-dialog").dialog( "close" );
+    };
+
+    $scope.cancelNewAppender = function() {
+        $scope.appenderNew = {};
+        $("#new-appender-dialog").dialog( "close" );
+    };
+
 
 
 });
