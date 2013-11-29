@@ -17,7 +17,8 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import java.io.IOException;
+import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
+import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.servlet.Filter;
@@ -26,11 +27,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
-import org.slf4j.Logger;
+import java.io.IOException;
 
 /**
  * This filter is evaluated when the Apache Marmotta system is accessed for the very first time using an HTTP client (e.g. a
@@ -44,7 +42,6 @@ import org.slf4j.Logger;
  * <p/>
  * User: Sebastian Schaffert
  */
-@WebFilter("/*")
 public class MarmottaPreStartupFilter implements Filter {
 
     @Inject

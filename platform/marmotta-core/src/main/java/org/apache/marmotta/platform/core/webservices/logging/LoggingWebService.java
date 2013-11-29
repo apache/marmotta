@@ -29,6 +29,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +104,38 @@ public class LoggingWebService {
     }
 
     /**
+     * Update all log appenders passed in the JSON list given in the body of the POST service request.
+     *
+     * @HTTP 200 appenders updated successfully
+     * @HTTP 400 appender configuration invalid (e.g. not proper JSON)
+     *
+     * @return HTTP status 200 in case of success
+     */
+    @POST
+    @Path("/appenders")
+    @Consumes("application/json")
+    public Response updateAppenders(@Context HttpServletRequest request) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            //log.info(getContentData(request.getReader()));
+            List<Map<String,Object>> values = mapper.readValue(request.getInputStream(), new TypeReference<ArrayList<HashMap<String,Object>>>(){});
+
+            for(Map<String,Object> module : values) {
+                if(module.get("id") != null) {
+                    updateAppenderJSON((String) module.get("id"), module);
+                }
+            }
+            return Response.ok("modules updated successfully").build();
+
+        } catch (JsonMappingException | JsonParseException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("invalid JSON format: "+e.getMessage()).build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("could not read stream: "+e.getMessage()).build();
+        }
+    }
+
+
+    /**
      * Get the configuration of the log appender with the given ID using the JSON format described in the header of
      * the class
      *
@@ -144,57 +177,10 @@ public class LoggingWebService {
             //log.info(getContentData(request.getReader()));
             Map<String,Object> values = mapper.readValue(request.getInputStream(), new TypeReference<HashMap<String,Object>>(){});
 
-            String type  = (String) values.get("type");
-            String name  = (String) values.get("name");
-            String level   = (String) values.get("level");
-            String pattern = (String) values.get("pattern");
-
-            LoggingOutput appender = loggingService.getOutputConfiguration(id);
-            if(appender == null) {
-                // type information required
-                Preconditions.checkArgument(type != null, "appender type was not given");
-                Preconditions.checkArgument(name != null, "appender name was not given");
-
-                if("logfile".equals(type)) {
-                    String file = (String) values.get("file");
-
-                    Preconditions.checkArgument(file != null, "logfile name was not given");
-
-                    appender = loggingService.createLogFileOutput(id,name,file);
-                } else if("syslog".equals(type)) {
-                    String host = (String) values.get("host");
-
-                    Preconditions.checkArgument(host != null, "syslog host was not given");
-
-                    appender = loggingService.createSyslogOutput(id,name);
-                } else {
-                    return Response.status(Response.Status.NOT_IMPLEMENTED).entity("new appenders of type "+type+" not supported").build();
-                }
-            }
-
-            appender.setName(name);
-
-            if(level != null) {
-                appender.setMaxLevel(Level.toLevel(level));
-            }
-            if(pattern != null) {
-                appender.setPattern(pattern);
-            }
-            if(values.get("file") != null && appender instanceof LogFileOutput) {
-                ((LogFileOutput) appender).setFileName((String) values.get("file"));
-            }
-            if(values.get("keep") != null && appender instanceof LogFileOutput) {
-                ((LogFileOutput) appender).setKeepDays(Integer.parseInt(values.get("keep").toString()));
-            }
-            if(values.get("host") != null && appender instanceof SyslogOutput) {
-                ((SyslogOutput) appender).setHostName((String) values.get("host"));
-            }
-            if(values.get("facility") != null && appender instanceof SyslogOutput) {
-                ((SyslogOutput) appender).setFacility((String) values.get("facility"));
-            }
+            updateAppenderJSON(id,values);
 
             return Response.ok().build();
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | UnsupportedOperationException ex) {
             // thrown by Preconditions.checkArgument
             return Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).build();
         } catch (JsonMappingException | JsonParseException e) {
@@ -224,6 +210,45 @@ public class LoggingWebService {
             }
         })).build();
     }
+
+    /**
+     * Update all modules passed as JSON list argument to the POST body of the service call. Only the fields
+     * "level" and "appenders" can be updated for modules.
+     *
+     * @HTTP 200 modules updated successfully
+     * @HTTP 400 module configuration invalid (e.g. not proper JSON)
+     * @HTTP 404 module not found
+     *
+     * @return 200 OK in case modules have been updated successfully
+     */
+    @POST
+    @Path("/modules")
+    @Consumes("application/json")
+    public Response updateModules(@Context HttpServletRequest request) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            //log.info(getContentData(request.getReader()));
+            List<Map<String,Object>> values = mapper.readValue(request.getInputStream(), new TypeReference<ArrayList<HashMap<String,Object>>>(){});
+
+            boolean updated = false;
+            for(Map<String,Object> module : values) {
+                if(module.get("id") != null) {
+                    updated = updateModuleJSON((String) module.get("id"), module) || updated;
+                }
+            }
+            if(updated) {
+                return Response.ok("modules updated successfully").build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity("one or more modules where not found").build();
+            }
+
+        } catch (JsonMappingException | JsonParseException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("invalid JSON format: "+e.getMessage()).build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("could not read stream: "+e.getMessage()).build();
+        }
+    }
+
 
     /**
      * Get the configuration of the logging module with the given id, using the JSON format described in the
@@ -270,27 +295,95 @@ public class LoggingWebService {
             //log.info(getContentData(request.getReader()));
             Map<String,Object> values = mapper.readValue(request.getInputStream(), new TypeReference<HashMap<String,Object>>(){});
 
-            String level     = (String) values.get("level");
-            List   appenders = (List)   values.get("appenders");
-            for(LoggingModule module : loggingService.listModules()) {
-                if(StringUtils.equals(module.getId(), id)) {
-                    if(level != null) {
-                        module.setCurrentLevel(Level.toLevel(level));
-                    }
-                    if(appenders != null) {
-                        module.setLoggingOutputIds(appenders);
-                    }
 
-                    return Response.ok("module updated").build();
-                }
+            if(updateModuleJSON(id, values)) {
+                return Response.ok("module updated").build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            return Response.status(Response.Status.NOT_FOUND).build();
         } catch (JsonMappingException | JsonParseException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("invalid JSON format: "+e.getMessage()).build();
         } catch (IOException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("could not read stream: "+e.getMessage()).build();
         }
+    }
+
+
+    /**
+     * Update a module following the JSON specification given as argument.
+     * @param spec
+     * @return
+     */
+    private boolean updateModuleJSON(String id, Map<String,Object> spec) {
+        String level     = (String) spec.get("level");
+        List   appenders = (List)   spec.get("appenders");
+        for(LoggingModule module : loggingService.listModules()) {
+            if(StringUtils.equals(module.getId(), id)) {
+                if(level != null) {
+                    module.setCurrentLevel(Level.toLevel(level));
+                }
+                if(appenders != null) {
+                    module.setLoggingOutputIds(appenders);
+                }
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private void updateAppenderJSON(String id, Map<String,Object> values) {
+        String type  = (String) values.get("type");
+        String name  = (String) values.get("name");
+        String level   = (String) values.get("level");
+        String pattern = (String) values.get("pattern");
+
+        LoggingOutput appender = loggingService.getOutputConfiguration(id);
+        if(appender == null) {
+            // type information required
+            Preconditions.checkArgument(type != null, "appender type was not given");
+            Preconditions.checkArgument(name != null, "appender name was not given");
+
+            if("logfile".equals(type)) {
+                String file = (String) values.get("file");
+
+                Preconditions.checkArgument(file != null, "logfile name was not given");
+
+                appender = loggingService.createLogFileOutput(id,name,file);
+            } else if("syslog".equals(type)) {
+                String host = (String) values.get("host");
+
+                Preconditions.checkArgument(host != null, "syslog host was not given");
+
+                appender = loggingService.createSyslogOutput(id,name);
+            } else {
+                throw new UnsupportedOperationException("new appenders of type "+type+" not supported");
+            }
+        }
+
+        appender.setName(name);
+
+        if(level != null) {
+            appender.setMaxLevel(Level.toLevel(level));
+        }
+        if(pattern != null) {
+            appender.setPattern(pattern);
+        }
+        if(values.get("file") != null && appender instanceof LogFileOutput) {
+            ((LogFileOutput) appender).setFileName((String) values.get("file"));
+        }
+        if(values.get("keep") != null && appender instanceof LogFileOutput) {
+            ((LogFileOutput) appender).setKeepDays(Integer.parseInt(values.get("keep").toString()));
+        }
+        if(values.get("host") != null && appender instanceof SyslogOutput) {
+            ((SyslogOutput) appender).setHostName((String) values.get("host"));
+        }
+        if(values.get("facility") != null && appender instanceof SyslogOutput) {
+            ((SyslogOutput) appender).setFacility((String) values.get("facility"));
+        }
+
     }
 
 

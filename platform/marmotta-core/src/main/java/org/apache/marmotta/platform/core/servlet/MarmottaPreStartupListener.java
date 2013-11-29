@@ -17,10 +17,6 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
@@ -28,13 +24,15 @@ import org.apache.marmotta.platform.core.util.CDIContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
 /**
  * This listener is executed first in the startup chain, initializing the Apache 
  * Marmotta system variables if necessary and starting up the configuration service
  * 
  * @author Sebastian Schaffert
  */
-@WebListener
 public class MarmottaPreStartupListener implements ServletContextListener {
 
     private static Logger log = LoggerFactory.getLogger(MarmottaPreStartupListener.class);
