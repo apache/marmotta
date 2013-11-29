@@ -90,6 +90,24 @@
 
         <h1>Marmotta Logging Configuration</h1>
 
+        <p>
+            The following forms allow to configure logging in Apache Marmotta. Logging in Marmotta is based on
+            <a href="http://logback.qos.ch/">Logback</a> and uses the following concepts:
+        </p>
+
+        <ul>
+            <li>
+                <strong>appenders</strong> are log output destinations (either the console, a logfile, or a syslog facility);
+                each appender has at least a pattern describing the layout (following the
+                <a href="http://logback.qos.ch/manual/layouts.html#ClassicPatternLayout">Logback Pattern Layout</a>) and a maximum
+                level; messages with higher level are always ignored by the appender
+            </li>
+            <li>
+                <strong>modules</strong> are logical components in Marmotta that represent a certain functionality (e.g. "SPARQL");
+                each module has a loglevel and a list of appenders to which it will send its output.
+            </li>
+        </ul>
+
         <div ng-app="logging" ng-controller="LoggingController">
 
             <h2>Log Appenders</h2>
@@ -98,20 +116,14 @@
             <h3>Console</h3>
             <table class="appenders">
                 <tr>
-                    <th>Name</th><th>Level</th><th>Pattern</th><th></th><th></th>
+                    <th>Name</th><th>Level</th><th>Pattern <a href="http://logback.qos.ch/manual/layouts.html#ClassicPatternLayout" target="new">?</a> </th><th></th><th></th>
                 </tr>
                 <tr ng-repeat="appender in appenders | filter:{type:'console'}" ng-class-even="'even'" ng-class-odd="'odd'">
                     <td class="name">{{appender.name}}</td>
                     <td class="level">
-                        <select ng-model="appender.level" ng-change="updateAppender(appender)">
-                            <option>ERROR</option>
-                            <option>WARN</option>
-                            <option>INFO</option>
-                            <option>DEBUG</option>
-                            <option>TRACE</option>
-                        </select>
+                        <select ng-model="appender.level" ng-options="level for level in levels"></select>
                     </td>
-                    <td class="pattern">{{appender.pattern}}</td>
+                    <td class="pattern"><input type="text" ng-model="appender.pattern" size="40"/> </td>
                     <td class="additional"></td>
                     <td class="additional"></td>
                 </tr>
@@ -120,45 +132,33 @@
             <h3>Logfile</h3>
             <table class="appenders">
                 <tr>
-                    <th>Name</th><th>Level</th><th>Pattern</th><th>Filename</th><th>Keep Days</th>
+                    <th>Name</th><th>Level</th><th>Pattern <a href="http://logback.qos.ch/manual/layouts.html#ClassicPatternLayout" target="new">?</a> </th><th>Filename</th><th>Keep Days</th>
                 </tr>
                 <tr ng-repeat="appender in appenders | filter:{type:'logfile'}" ng-class-even="'even'" ng-class-odd="'odd'">
                     <td class="name">{{appender.name}}</td>
                     <td class="level">
-                        <select ng-model="appender.level" ng-change="updateAppender(appender)">
-                            <option>ERROR</option>
-                            <option>WARN</option>
-                            <option>INFO</option>
-                            <option>DEBUG</option>
-                            <option>TRACE</option>
-                        </select>
+                        <select ng-model="appender.level" ng-options="level for level in levels"></select>
                     </td>
-                    <td class="pattern">{{appender.pattern}}</td>
-                    <td class="additional">{{appender.file}}</td>
-                    <td class="additional">{{appender.keep}}</td>
+                    <td class="pattern"><input type="text" ng-model="appender.pattern" size="40"/></td>
+                    <td class="additional"><input type="text" ng-model="appender.file" size="20"/></td>
+                    <td class="additional"><input type="number" ng-model="appender.keep" size="3" min="0"/></td>
                 </tr>
             </table>
 
             <h3>Syslog</h3>
             <table class="appenders">
                 <tr>
-                    <th>Name</th><th>Level</th><th>Pattern</th><th>Host</th><th>Facility</th>
+                    <th>Name</th><th>Level</th><th>Pattern <a href="http://logback.qos.ch/manual/layouts.html#ClassicPatternLayout" target="new">?</a> </th><th>Host</th><th>Facility</th>
                 </tr>
                 <tr ng-repeat="appender in appenders | filter:{type:'syslog'}" ng-class-even="'even'" ng-class-odd="'odd'">
                     <td class="name">{{appender.name}}</td>
                     <td class="level">
-                        <select ng-model="appender.level" ng-change="updateAppender(appender)">
-                            <option>ERROR</option>
-                            <option>WARN</option>
-                            <option>INFO</option>
-                            <option>DEBUG</option>
-                            <option>TRACE</option>
-                        </select>
+                        <select ng-model="appender.level" ng-options="level for level in levels"></select>
                     </td>
-                    <td class="pattern">{{appender.pattern}}</td>
-                    <td class="additional">{{appender.host}}</td>
+                    <td class="pattern"><input type="text" ng-model="appender.pattern" size="40"/></td>
+                    <td class="additional"><input type="text" ng-model="appender.host" size="20"/></td>
                     <td class="additional">
-                        <select ng-model="appender.facility" ng-change="updateAppender(appender)">
+                        <select ng-model="appender.facility">
                             <option>USER</option>
                             <option>DAEMON</option>
                             <option>SYSLOG</option>
@@ -175,6 +175,7 @@
                 </tr>
             </table>
 
+            <div class="save-button"><button ng-click="saveAppenders()" ng-disabled="!needsAppendersSave">Save</button> </div>
 
 
             <h2>Log Modules</h2>
@@ -186,13 +187,7 @@
                 <tr ng-repeat="module in modules" ng-class-even="'even'" ng-class-odd="'odd'">
                     <td class="name">{{module.name}}</td>
                     <td class="level">
-                        <select ng-model="module.level" ng-change="updateModule(module)">
-                            <option>ERROR</option>
-                            <option>WARN</option>
-                            <option>INFO</option>
-                            <option>DEBUG</option>
-                            <option>TRACE</option>
-                        </select>
+                        <select ng-model="module.level" ng-options="level for level in levels"></select>
                     </td>
                     <td class="appenders">
                         <span ng-repeat="appender in module.appenders">
@@ -203,12 +198,12 @@
                     <td class="actions">
                         <select ng-model="module.new_appender" style="width: 80%">
                             <option ng-repeat="appender in getUnselectedModuleAppenders(module)" value="{{appender.id}}">{{appender.name}}</option>
-                        </select>
-                        <button ng-click="addModuleAppender(module,module.new_appender)">+</button>
+                        </select>&nbsp;<button ng-click="addModuleAppender(module,module.new_appender)">+</button>
                     </td>
                 </tr>
             </table>
 
+            <div class="save-button"><button ng-click="saveModules()" ng-disabled="!needsModulesSave">Save</button> </div>
 
         </div>
 

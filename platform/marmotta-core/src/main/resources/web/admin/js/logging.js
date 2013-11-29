@@ -25,27 +25,33 @@
 var loggingApp = angular.module('logging', []);
 
 loggingApp.controller('LoggingController', function ($scope, $http) {
+    $scope.levels = ['OFF', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE'];
+
+
     $http.get(url + 'logging/modules').success(function(data) {
         $scope.modules = data;
+
+        $scope.$watch('modules', function(newValue, oldValue) {
+            if(oldValue != newValue) {
+                $scope.needsModulesSave = true;
+            }
+        }, true);
     });
 
     $http.get(url + 'logging/appenders').success(function(data) {
         $scope.appenders = data;
+
+        $scope.$watch('appenders', function(newValue, oldValue) {
+            if(oldValue != newValue) {
+                $scope.needsAppendersSave = true;
+            }
+        }, true);
     });
-
-    $scope.updateAppender = function(appender) {
-        $http.post(url + 'logging/appenders/' + appender.id, appender);
-    };
-
-    $scope.updateModule = function(module) {
-        $http.post(url + 'logging/modules/' + module.id, module);
-    };
 
     $scope.removeModuleAppender = function(module,appender_id) {
         var i = module.appenders.indexOf(appender_id);
         if(i >= 0) {
             module.appenders.splice(i,1);
-            $scope.updateModule(module);
         }
     };
 
@@ -53,7 +59,6 @@ loggingApp.controller('LoggingController', function ($scope, $http) {
         var i = module.appenders.indexOf(appender_id);
         if(i < 0) {
             module.appenders.push(appender_id);
-            $scope.updateModule(module);
         }
     };
 
@@ -66,4 +71,45 @@ loggingApp.controller('LoggingController', function ($scope, $http) {
         }
         return result;
     };
+
+    /**
+     * Save all appenders in this scope back to the Marmotta Webservice
+     */
+    $scope.saveAppenders = function() {
+        // $http.post takes the old model, so we use jQuery
+        $.ajax({
+            type:  "POST",
+            url:   url + 'logging/appenders',
+            data:  angular.toJson($scope.appenders),
+            contentType: 'application/json'
+        });
+
+        //$http.post(url + 'logging/appenders', $scope.appenders);
+        $scope.needsAppendersSave = false;
+    }
+
+
+    /**
+     * Save all modules in this scope back to the Marmotta Webservice
+     */
+    $scope.saveModules = function() {
+        // $http.post takes the old model, so we use jQuery
+        $.ajax({
+            type:  "POST",
+            url:   url + 'logging/modules',
+            data:  angular.toJson($scope.modules),
+            contentType: 'application/json'
+        });
+
+        //$http.post(url + 'logging/modules', mods);
+        $scope.needsModulesSave = false;
+    }
+
+    /*
+     * Watch updates to the model and set a flag to enable save buttons in UI
+     */
+    $scope.needsModulesSave = false;
+    $scope.needsAppendersSave = false;
+
+
 });
