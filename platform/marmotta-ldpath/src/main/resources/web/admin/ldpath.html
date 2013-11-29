@@ -26,10 +26,17 @@
 <title>LDPath Test Suite</title>
 <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript" src="../../webjars/marmotta.js"></script>
-<script type="text/javascript" src="../../webjars/codemirror/3.16/codemirror.js"></script>
+
+<script type="text/javascript" src="../../webjars/codemirror/3.16/lib/codemirror.js"></script>
+<link rel="stylesheet" href="../../webjars/codemirror/3.16/lib/codemirror.css">
+
+<script src="../../webjars/codemirror/3.16/addon/hint/show-hint.js"></script>
+<link rel="stylesheet" href="../../webjars/codemirror/3.16/addon/hint/show-hint.css">
+
+<script src="../../webjars/codemirror-modes/3.16/mode/ldpath/ldpath.js"></script>
+<link rel="stylesheet" href="../../webjars/codemirror-modes/3.16/mode/ldpath/ldpath.css">
 
 <link rel="stylesheet" href="style.css" />
-<link rel="stylesheet" href="../../webjars/codemirror/3.16/codemirror.css" />
 <script type="text/javascript" src="ldpath.js"></script>
 <!--###END_HEAD###-->
 </head>
@@ -46,12 +53,12 @@
       <div><input id="addContextUri" type=text /><button id="addContext">Add Context</button></div>
     </div>
     <div id="editor">
-      <h2>LDPath</h2>
       <div>
         <div class="chooseEditor"><a href="#" title="use smart editor" class="editor_cm">rich</a> | <a href="#" title="use plain text editor" class="editor_plain">plain</a></div>
 <!--
         <label for="templates">Select Template:</label><select id="templates"></select>&nbsp;<span id="chooserStatus" class="icon loading">Loading...</span>
 -->
+        <h2>LDPath</h2>
       </div>
       <div>
         <div class="editor_wrap"><textarea id="ldpath"></textarea></div>

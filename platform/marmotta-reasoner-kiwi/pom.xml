@@ -162,7 +162,10 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-reasoner</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta.webjars</groupId>
+            <artifactId>codemirror-modes</artifactId>
         </dependency>
 
         <!-- LMF Testing Package -->
@@ -176,13 +179,11 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

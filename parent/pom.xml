@@ -918,11 +918,17 @@
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
+                <artifactId>codemirror</artifactId>
+                <version>3.16</version>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars</groupId>
                 <artifactId>angularjs</artifactId>
                 <version>1.2.2</version>
-            </dependency>            <dependency>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.marmotta.webjars</groupId>
-                <artifactId>codemirror</artifactId>
+                <artifactId>codemirror-modes</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1229,7 +1235,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- LMF Sesame Tools -->
+            <!-- Marmotta Sesame Tools -->
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>sesame-transactions</artifactId>
