@@ -1599,12 +1599,12 @@
                 <repository>
                     <id>apache.releases</id>
                     <name>Apache Relesases Repository</name>
-                    <url>file:///tmp/repo</url>
+                    <url>file://${java.io.tmpdir}repo</url>
                 </repository>
                 <snapshotRepository>
                     <id>apache.snapshots</id>
                     <name>Apache Snapshots Repository</name>
-                    <url>file:///tmp/repo</url>
+                    <url>file://${java.io.tmpdir}repo</url>
                 </snapshotRepository>
             </distributionManagement>
 
