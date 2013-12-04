@@ -545,7 +545,7 @@ class Client
         str = "{"
         for value,index in data
           v = '"'+value.getValue()+'"'
-          if (value.getValue().split(",").length > 1)
+          if ((typeof value.getValue() != "boolean") && (value.getValue().split(",").length > 1))
             x = value.getValue().split(",")
             v = "["
             for val,i in x
@@ -554,7 +554,6 @@ class Client
                 v += ','
 
             v += "]"
-
           str += '"'+value.key + '":'+v
           str += "," if index < data.length-1
         str += "}"
