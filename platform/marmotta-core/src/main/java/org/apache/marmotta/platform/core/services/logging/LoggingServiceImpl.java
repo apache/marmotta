@@ -148,7 +148,7 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
     public void startEventHandler(@Observes LoggingStartEvent event) {
-        log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}/log/*.log", configurationService.getWorkDir());
+        log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}{}log{}*.log", configurationService.getHome(), File.separator, File.separator);
 
         configureLoggers();
     }
