@@ -32,7 +32,7 @@ import org.openrdf.model.vocabulary.XMLSchema;
  */
 public class H2Dialect extends KiWiDialect {
 
-    public H2Dialect() {
+    public H2Dialect() throws DriverNotFoundException {
         try {
             Class.forName(getDriverClass());
         } catch (ClassNotFoundException e) {

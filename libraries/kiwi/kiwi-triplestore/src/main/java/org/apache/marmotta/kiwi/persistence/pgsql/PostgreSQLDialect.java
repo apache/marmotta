@@ -33,8 +33,7 @@ import org.openrdf.model.vocabulary.XMLSchema;
  */
 public class PostgreSQLDialect extends KiWiDialect {
 
-    public PostgreSQLDialect() {
-        super();
+    public PostgreSQLDialect() throws DriverNotFoundException {
         try {
             Class.forName(getDriverClass());
         } catch (ClassNotFoundException e) {

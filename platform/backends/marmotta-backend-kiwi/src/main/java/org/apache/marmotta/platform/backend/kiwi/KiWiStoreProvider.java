@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.backend.kiwi;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -85,14 +86,20 @@ public class KiWiStoreProvider implements StoreProvider {
 
         String database = configurationService.getStringConfiguration("database.type");
         KiWiDialect dialect;
-        if("h2".equalsIgnoreCase(database)) {
-            dialect = new H2Dialect();
-        } else if("mysql".equalsIgnoreCase(database)) {
-            dialect = new MySQLDialect();
-        } else if("postgres".equalsIgnoreCase(database)) {
-            dialect = new PostgreSQLDialect();
-        } else
-            throw new IllegalStateException("database type "+database+" currently not supported!");
+        try {
+            if("h2".equalsIgnoreCase(database)) {
+                dialect = new H2Dialect();
+            } else if("mysql".equalsIgnoreCase(database)) {
+                dialect = new MySQLDialect();
+            } else if("postgres".equalsIgnoreCase(database)) {
+                dialect = new PostgreSQLDialect();
+            } else
+                throw new IllegalStateException("database type "+database+" currently not supported!");
+        } catch (DriverNotFoundException dnf) {
+            log.error("{}, can't build KiwiStore.", dnf.getMessage());
+            throw dnf;
+        }
+        
         String jdbcUrl = configurationService.getStringConfiguration("database.url");
         String dbUser  = configurationService.getStringConfiguration("database.user");
         String dbPass  = configurationService.getStringConfiguration("database.password");

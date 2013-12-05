@@ -17,19 +17,21 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import com.google.common.collect.ImmutableSet;
-import org.apache.commons.io.IOUtils;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.FN;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
+import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.FN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * A dialect provides the SQL statements necessary to access the different types of database systems. Each
@@ -47,7 +49,7 @@ public abstract class KiWiDialect {
     private Properties statements;
 
 
-    protected KiWiDialect() {
+    protected KiWiDialect() throws DriverNotFoundException {
         statements = new Properties();
 
         // load all statements.properties files that can be located in the same package (from different modules in different jar files)

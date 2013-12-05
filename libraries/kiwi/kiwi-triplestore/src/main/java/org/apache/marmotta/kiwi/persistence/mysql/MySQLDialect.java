@@ -44,7 +44,7 @@ import org.openrdf.model.vocabulary.XMLSchema;
 public class MySQLDialect extends KiWiDialect {
 
 
-    public MySQLDialect() {
+    public MySQLDialect() throws DriverNotFoundException {
         try {
             Class.forName(getDriverClass());
         } catch (ClassNotFoundException e) {
