@@ -54,7 +54,7 @@ public class PrefixWebService {
     @Inject
     private PrefixService prefixService;
 
-    private static final String PREFIX_PATTERN = "{prefix: [a-z][a-zA-Z0-9]+}";
+    private static final String PREFIX_PATTERN = "{prefix: [a-z][a-zA-Z0-9\\._-]+}";
 
     /**
      * Get all prefixes mappings
