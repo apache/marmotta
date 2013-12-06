@@ -66,7 +66,7 @@
                 <configuration>
                     <filesets>
                         <fileset>
-                            <directory>${java.io.tmpdir}marmotta-test</directory>
+                            <directory>${java.io.tmpdir}${file.separator}marmotta-test</directory>
                             <followSymlinks>true</followSymlinks>
                         </fileset>
                     </filesets>

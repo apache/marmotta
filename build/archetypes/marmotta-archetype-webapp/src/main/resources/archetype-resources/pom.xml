@@ -27,7 +27,7 @@
     <version>${version}</version>
 
     <properties>
-        <marmotta.home>${java.io.tmpdir}marmotta</marmotta.home>
+        <marmotta.home>${java.io.tmpdir}${file.separator}marmotta</marmotta.home>
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
     </properties>

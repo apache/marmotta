@@ -34,7 +34,7 @@
 
     <properties>
         <!-- these are used for the goals tomcat6/7:run or jetty:run -->
-        <marmotta.home>${java.io.tmpdir}marmotta</marmotta.home>
+        <marmotta.home>${java.io.tmpdir}${file.separator}marmotta</marmotta.home>
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
     </properties>
