@@ -34,15 +34,15 @@ import org.openrdf.model.datatypes.XMLDatatypeUtil;
  * parametrized with the Java type corresponding to the literal content they store.
  * The method getType() returns the KiWiResource representing the RDF type of this
  * literal. This information can e.g. be used to provide appropriate user interfaces.
- * 
+ *
  * A factory class should be provided that maps between RDF types and Java classes.
- * 
+ *
  * @author Sebastian Schaffert
  */
 public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1772323725671607249L;
 
@@ -119,7 +119,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
             result.append("@").append(locale.getLanguage());
         }
         if (type != null) {
-        	result.append("^^");
+            result.append("^^");
             if (type.stringValue().startsWith(Namespaces.NS_XSD)) {
                 result.append(getType().stringValue().replace(Namespaces.NS_XSD, "xsd:"));
             } else if (type.stringValue().startsWith(Namespaces.NS_RDF)) {
@@ -152,7 +152,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
             // getDatatype should never be null, this is only for legacy support
             if(this.getDatatype()==null && that.getDatatype()!=null) return false;
-           
+
             if(this.getDatatype() != null && !this.getDatatype().equals(that.getDatatype())) return false;
 
             return true;
@@ -163,9 +163,10 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     @Override
     public int hashCode() {
-        int result = locale != null ? locale.hashCode() : 0;
+        int result =  this.getClass().hashCode();
+        result = 31 * result + (locale != null ? locale.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 32 * result + this.getLabel().hashCode();
+        result = 31 * result + this.getLabel().hashCode();
         return result;
     }
 
