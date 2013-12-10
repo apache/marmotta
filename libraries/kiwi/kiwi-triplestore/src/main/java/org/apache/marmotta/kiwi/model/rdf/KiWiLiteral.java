@@ -161,12 +161,12 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
         return false;
     }
 
-
-
-
     @Override
     public int hashCode() {
-        return this.getLabel().hashCode();
+        int result = locale != null ? locale.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 32 * result + this.getLabel().hashCode();
+        return result;
     }
 
 
