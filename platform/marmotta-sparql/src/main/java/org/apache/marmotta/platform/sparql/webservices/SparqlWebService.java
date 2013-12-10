@@ -17,12 +17,15 @@
  */
 package org.apache.marmotta.platform.sparql.webservices;
 
+import static org.openrdf.rio.RDFFormat.RDFXML;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,8 +46,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 
@@ -59,6 +64,7 @@ import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
+import org.jboss.resteasy.spi.NoLogWebApplicationException;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
@@ -66,6 +72,10 @@ import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
 import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 
 import com.google.common.collect.Lists;
@@ -75,7 +85,8 @@ import com.google.common.io.CharStreams;
  * Execute SPARQL query (both query and update) on the LMF triple store
  * according the SPARQL 1.1 Protocol
  * 
- * @link http://www.w3.org/TR/sparql11-protocol/
+ * @see http://www.w3.org/TR/sparql11-protocol/
+ * @see http://www.w3.org/TR/sparql11-service-description/
  * 
  * @author Sebastian Schaffert
  * @author Sergio Fernández
@@ -168,7 +179,10 @@ public class SparqlWebService {
      */
     @GET
     @Path(SELECT)
-    public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {  
+    public Response selectGet(@QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
+        if (StringUtils.isBlank(query)) {
+            return createServiceDescriptionResponse(request, false);
+        }
     	//get real return type: even it is not in the standard, this is useful
         if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
         return select(query, resultType, request);
@@ -340,6 +354,9 @@ public class SparqlWebService {
     @Path(UPDATE)
     public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
     	String q = getUpdateQuery(update, query);
+    	if (StringUtils.isBlank(q)) {
+    	    return createServiceDescriptionResponse(request, true);
+    	}
         return update(q, resultType, request);
     }
     
@@ -473,6 +490,49 @@ public class SparqlWebService {
         }
 		return params;
 	}
+    
+    private Response createServiceDescriptionResponse(final HttpServletRequest request, final boolean isUpdate) {
+        final List<ContentType> acceptedTypes;
+        if (StringUtils.isBlank(request.getHeader("Accept"))) {
+            acceptedTypes = Collections.singletonList(MarmottaHttpUtils.parseContentType(RDFXML.getDefaultMIMEType()));
+        } else {
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
+        }
+        
+        ContentType _bestType = null;
+        RDFFormat _format = null;
+        for (ContentType ct : acceptedTypes) {
+            final RDFFormat f = Rio.getWriterFormatForMIMEType(ct.getMime());
+            if (f != null) {
+                _bestType = ct;
+                _format = f;
+                break;
+            }
+        }
+        if (_bestType == null || _format == null) {
+            // FIXME: todo
+            return Response.status(Status.BAD_REQUEST).entity("Could not determine Format").build();
+        }
+        
+        final RDFFormat format = _format;
+        final ContentType returnType = _bestType;
+        
+        final StreamingOutput entity = new StreamingOutput() {
+            @Override
+            public void write(OutputStream outputStream) throws IOException,
+                    WebApplicationException {
+                try {
+                    final RDFWriter writer = Rio.createWriter(format, outputStream);
+                    sparqlService.createServiceDescription(writer, request.getRequestURL().toString(), isUpdate);
+                } catch (RDFHandlerException e) {
+                    log.warn("Could not send SpaqlServiceDescription: {}", e);
+                    throw new NoLogWebApplicationException(e, Response.serverError().entity(e).build());
+                }
+            }
+        };
+
+        return Response.ok(entity, new MediaType(returnType.getType(), returnType.getSubtype(), returnType.getCharset().name())).build();
+    }
     
 	private Response buildQueryResponse(final ContentType format, final String query, final QueryType queryType) throws Exception {		
         StreamingOutput entity = new StreamingOutput() {

@@ -17,12 +17,16 @@
  */
 package org.apache.marmotta.platform.sparql.services.sparql;
 
+import info.aduna.lang.FileFormat;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +40,8 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.vocabulary.SPARQL_SD;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -44,10 +50,15 @@ import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.api.sparql.QueryType;
 import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
-import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLResultsHTMLFormat;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLHTMLSettings;
 import org.apache.marmotta.platform.sparql.webservices.SparqlWebService;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.BooleanQuery;
@@ -70,17 +81,24 @@ import org.openrdf.query.parser.QueryParser;
 import org.openrdf.query.parser.QueryParserUtil;
 import org.openrdf.query.resultio.BooleanQueryResultFormat;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
+import org.openrdf.query.resultio.QueryResultFormat;
 import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.RDFWriterRegistry;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.UnsupportedRDFormatException;
+import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 
 /**
@@ -91,6 +109,28 @@ import org.slf4j.Logger;
  */
 @ApplicationScoped
 public class SparqlServiceImpl implements SparqlService {
+
+    /**
+     * @deprecated beginning with Sesame 2.8, use {@link RDFFormat#getStandardURI()} or {@link QueryResultFormat#etStandardURI()}
+     */
+    @Deprecated
+    private static final Map<FileFormat, String> w3cFormatID = new HashMap<FileFormat, String>() {{
+        put(RDFFormat.JSONLD, "http://www.w3.org/ns/formats/JSON-LD");
+        put(RDFFormat.N3, "http://www.w3.org/ns/formats/N3");
+        put(RDFFormat.NTRIPLES, "http://www.w3.org/ns/formats/N-Triples");
+        put(RDFFormat.NQUADS, "http://www.w3.org/ns/formats/N-Quads");
+        put(RDFFormat.RDFA, "http://www.w3.org/ns/formats/RDFa");
+        put(RDFFormat.RDFJSON, "http://www.w3.org/ns/formats/RDF_JSON");
+        put(RDFFormat.RDFXML, "http://www.w3.org/ns/formats/RDF_XML");
+        put(RDFFormat.TURTLE, "http://www.w3.org/ns/formats/Turtle");
+        put(RDFFormat.TRIG, "http://www.w3.org/ns/formats/TriG");
+
+        put(TupleQueryResultFormat.CSV, "http://www.w3.org/ns/formats/SPARQL_Results_CSV");
+        put(TupleQueryResultFormat.JSON, "http://www.w3.org/ns/formats/SPARQL_Results_JSON");
+        put(TupleQueryResultFormat.TSV, "http://www.w3.org/ns/formats/SPARQL_Results_TSV");
+        put(TupleQueryResultFormat.SPARQL, "http://www.w3.org/ns/formats/SPARQL_Results_XML");
+    }};
+
 
     /**
      * Get the seam logger for issuing logging statements.
@@ -134,17 +174,17 @@ public class SparqlServiceImpl implements SparqlService {
         }
         return sparqlQuery;
     }
-    
+
     @Override
     public QueryType getQueryType(QueryLanguage language, String query) throws MalformedQueryException {
-    	QueryParser parser = QueryParserUtil.createParser(language); 
-    	ParsedQuery parsedQuery = parser.parseQuery(query, configurationService.getServerUri() + SparqlWebService.PATH + "/" + SparqlWebService.SELECT);
+        QueryParser parser = QueryParserUtil.createParser(language); 
+        ParsedQuery parsedQuery = parser.parseQuery(query, configurationService.getServerUri() + SparqlWebService.PATH + "/" + SparqlWebService.SELECT);
         if (parsedQuery instanceof ParsedTupleQuery) {
             return QueryType.TUPLE;
         } else if (parsedQuery instanceof ParsedBooleanQuery) {
-        	return QueryType.BOOL;
+            return QueryType.BOOL;
         } else if (parsedQuery instanceof ParsedGraphQuery) {
-        	return QueryType.GRAPH;
+            return QueryType.GRAPH;
         } else {
             return null;
         }
@@ -215,7 +255,7 @@ public class SparqlServiceImpl implements SparqlService {
             }
         }
     }
-    
+
     @Override
     @Deprecated
     public void query(final QueryLanguage queryLanguage, final String query, final QueryResultWriter writer, final int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
@@ -226,29 +266,29 @@ public class SparqlServiceImpl implements SparqlService {
             public Boolean call() throws Exception {
                 long start = System.currentTimeMillis();
                 try {
-	                RepositoryConnection connection = sesameService.getConnection();
-	                try {
-	                    connection.begin();
-	                    Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
-	
-	                    if (sparqlQuery instanceof TupleQuery) {
-	                        query((TupleQuery) sparqlQuery, (TupleQueryResultWriter)writer);
-	                    } else if (sparqlQuery instanceof BooleanQuery) {
-	                        query((BooleanQuery) sparqlQuery, (BooleanQueryResultWriter)writer);
-	                    } else if (sparqlQuery instanceof GraphQuery) {
-	                        query((GraphQuery) sparqlQuery, ((SPARQLGraphResultWriter)writer).getOutputStream(), ((SPARQLGraphResultWriter)writer).getFormat());
-	                    } else {
-	                        connection.rollback();
-	                        throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
-	                    }
-	
-	                    connection.commit();
-	                } catch (Exception ex) {
-	                    connection.rollback();
-	                    throw ex;
-	                } finally {
-	                    connection.close();
-	                }
+                    RepositoryConnection connection = sesameService.getConnection();
+                    try {
+                        connection.begin();
+                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+
+                        if (sparqlQuery instanceof TupleQuery) {
+                            query((TupleQuery) sparqlQuery, (TupleQueryResultWriter)writer);
+                        } else if (sparqlQuery instanceof BooleanQuery) {
+                            query((BooleanQuery) sparqlQuery, (BooleanQueryResultWriter)writer);
+                        } else if (sparqlQuery instanceof GraphQuery) {
+                            query((GraphQuery) sparqlQuery, ((SPARQLGraphResultWriter)writer).getOutputStream(), ((SPARQLGraphResultWriter)writer).getFormat());
+                        } else {
+                            connection.rollback();
+                            throw new InvalidArgumentException("SPARQL query type " + sparqlQuery.getClass() + " not supported!");
+                        }
+
+                        connection.commit();
+                    } catch (Exception ex) {
+                        connection.rollback();
+                        throw ex;
+                    } finally {
+                        connection.close();
+                    }
                 } catch(RepositoryException e) {
                     log.error("error while getting repository connection: {}", e);
                     throw new MarmottaException("error while getting repository connection", e);
@@ -281,7 +321,7 @@ public class SparqlServiceImpl implements SparqlService {
         }    	
     }
 
-	@Override
+    @Override
     public void query(final QueryLanguage language, final String query, final OutputStream output, final String format, int timeoutInSeconds) throws MarmottaException, TimeoutException, MalformedQueryException {
         log.debug("executing SPARQL query:\n{}", query);
         Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
@@ -508,6 +548,89 @@ public class SparqlServiceImpl implements SparqlService {
         }
         log.debug("SPARQL update execution took {}ms",System.currentTimeMillis()-start);
         return result;
+    }
+
+    @Override
+    public void createServiceDescription(RDFWriter writer, String requestURL, boolean isUpdate) throws RDFHandlerException {
+        try {
+            writer.startRDF();
+            final ValueFactory vf = new ValueFactoryImpl();
+            writer.handleNamespace(SPARQL_SD.PREFIX, SPARQL_SD.NAMESPACE);
+            writer.handleNamespace("formats", "http://www.w3.org/ns/formats/");
+            writer.handleNamespace("void", "http://rdfs.org/ns/void#");
+
+            final BNode sd = vf.createBNode();
+            writer.handleStatement(vf.createStatement(sd, RDF.TYPE, SPARQL_SD.Service));
+            writer.handleStatement(vf.createStatement(sd, SPARQL_SD.endpoint, vf.createURI(requestURL)));
+            writer.handleStatement(vf.createStatement(sd, SPARQL_SD.supportedLanguage, isUpdate?SPARQL_SD.SPARQL11Update:SPARQL_SD.SPARQL11Query));
+
+            if (!isUpdate) {
+                // FIXME: really? these types?
+                final Set<FileFormat> formats = new HashSet<>();
+                formats.addAll(RDFWriterRegistry.getInstance().getKeys());
+                formats.addAll(TupleQueryResultFormat.values());
+                for (FileFormat f: formats) {
+                    final String formatUri = w3cFormatID.get(f);
+                    if (StringUtils.isNotBlank(formatUri)) {
+                        writer.handleStatement(vf.createStatement(sd, SPARQL_SD.resultFormat, vf.createURI(formatUri)));
+                    } else {
+                        final BNode fNode = vf.createBNode();
+                        writer.handleStatement(vf.createStatement(sd, SPARQL_SD.resultFormat, fNode));
+                        writer.handleStatement(vf.createStatement(fNode, RDF.TYPE, vf.createURI("http://www.w3.org/ns/formats/Format")));
+                        writer.handleStatement(vf.createStatement(fNode, vf.createURI("http://www.w3.org/ns/formats/media_type"), vf.createLiteral(f.getDefaultMIMEType())));
+                        writer.handleStatement(vf.createStatement(fNode, vf.createURI("http://www.w3.org/ns/formats/preferred_suffix"), vf.createLiteral("."+f.getDefaultFileExtension())));
+                    }
+                }
+            }
+
+            final BNode dataset = vf.createBNode();
+            writer.handleStatement(vf.createStatement(sd, SPARQL_SD.defaultDataset, dataset));
+            writer.handleStatement(vf.createStatement(dataset, RDF.TYPE, SPARQL_SD.Dataset));
+
+            final RepositoryConnection kiwiCon = sesameService.getConnection();
+            try {
+                kiwiCon.begin();
+                // FIXME: Default graph, in KiWi this is all - is it not?
+                final BNode defaultGraph = vf.createBNode();
+                writer.handleStatement(vf.createStatement(dataset, SPARQL_SD.defaultGraph, defaultGraph));
+                writer.handleStatement(vf.createStatement(defaultGraph, RDF.TYPE, SPARQL_SD.Graph));
+                // TODO: Number of triples here? This can be expensive!
+                writer.handleStatement(vf.createStatement(defaultGraph, vf.createURI("http://rdfs.org/ns/void#triples"), vf.createLiteral(kiwiCon.size())));
+
+                final RepositoryResult<Resource> cID = kiwiCon.getContextIDs();
+                try {
+                    while (cID.hasNext()) {
+                        final Resource c = cID.next();
+                        if (c instanceof URI) {
+                            // A named graph
+                            final BNode ng = vf.createBNode();
+                            writer.handleStatement(vf.createStatement(dataset, SPARQL_SD.namedGraph, ng));
+                            writer.handleStatement(vf.createStatement(ng, RDF.TYPE, SPARQL_SD.NamedGraph));
+                            writer.handleStatement(vf.createStatement(ng, SPARQL_SD.name, c));
+                            final BNode g = vf.createBNode();
+                            writer.handleStatement(vf.createStatement(ng, SPARQL_SD.graph, g));
+                            writer.handleStatement(vf.createStatement(g, RDF.TYPE, SPARQL_SD.Graph));
+                            // TODO: Number of triples here? This can be expensive!
+                            writer.handleStatement(vf.createStatement(g, vf.createURI("http://rdfs.org/ns/void#triples"), vf.createLiteral(kiwiCon.size(c))));
+
+                        }
+                    }
+                } finally {
+                    cID.close();
+                }
+
+                kiwiCon.commit();
+            } catch (final Throwable t){
+                kiwiCon.rollback();
+                throw t;
+            } finally {
+                kiwiCon.close();
+            } 
+
+            writer.endRDF();
+        } catch (RepositoryException e) {
+            throw new RDFHandlerException("Could not build SparqlServiceDescription");
+        }
     }
 
     private TupleQueryResultWriter getTupleResultWriter(String format, OutputStream os) {

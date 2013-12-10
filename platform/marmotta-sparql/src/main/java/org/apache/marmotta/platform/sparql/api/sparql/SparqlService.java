@@ -35,7 +35,8 @@ import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
 
 /**
  * Add file description here!
@@ -140,5 +141,18 @@ public interface SparqlService {
      */
     @Deprecated
     void query(QueryLanguage queryLanguage, String query, QueryResultWriter writer, int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException;
+
+    /**
+     * Write a SparqlServiceDescription of the Service to the provided {@link RDFWriter}.
+     * 
+     * @param writer the {@link RDFWriter} to write the description to
+     * @param string the URI of the SPARQL Endpoint
+     * @param isUpdate if the endpoint is a update or select/query endpoint
+     * 
+     * @see http://www.w3.org/TR/sparql11-service-description/
+     */
+    void createServiceDescription(RDFWriter writer, String string, boolean isUpdate) throws RDFHandlerException;
+    
+    
     
 }
