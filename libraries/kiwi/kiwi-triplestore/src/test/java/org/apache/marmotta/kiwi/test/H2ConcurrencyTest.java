@@ -17,11 +17,6 @@
 
 package org.apache.marmotta.kiwi.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.sql.SQLException;
-import java.util.Random;
-
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -33,6 +28,11 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.SailException;
 import org.slf4j.LoggerFactory;
+
+import java.sql.SQLException;
+import java.util.Random;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,
@@ -53,6 +53,7 @@ public class H2ConcurrencyTest extends ConcurrencyTestBase {
         rnd = new Random();
 
         store = new KiWiStore(h2Config);
+        store.setDropTablesOnShutdown(true);
         repository = new SailRepository(store);
         repository.initialize();
     }
@@ -60,8 +61,6 @@ public class H2ConcurrencyTest extends ConcurrencyTestBase {
     @AfterClass
     public static void dropDatabase() throws RepositoryException, SQLException, SailException {
         assertTrue(store.checkConsistency());
-        store.closeValueFactory(); // release all connections before dropping the database
-        store.getPersistence().dropDatabase();
         repository.shutDown();
     }
 }
