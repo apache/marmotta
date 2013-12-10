@@ -19,31 +19,35 @@ package org.apache.marmotta.platform.core.webservices.io;
 
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.commons.util.DateUtils;
-import org.apache.marmotta.platform.core.api.exporter.ExportService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
-import org.apache.marmotta.commons.http.ContentType;
-import org.apache.marmotta.commons.http.MarmottaHttpUtils;
-import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.platform.core.api.exporter.ExportService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
+import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFFormat;
+import org.slf4j.Logger;
 
 /**
  * A web service for exporting data from the Apache Marmotta triple store
@@ -126,7 +130,7 @@ public class ExportWebService {
                     RepositoryConnection conn = sesameService.getConnection();
                     try {
                         conn.begin();
-                        context = ResourceUtils.getUriResource(conn,context_string);
+                        context = conn.getValueFactory().createURI(context_string);
                     } finally {
                         conn.commit();
                         conn.close();
