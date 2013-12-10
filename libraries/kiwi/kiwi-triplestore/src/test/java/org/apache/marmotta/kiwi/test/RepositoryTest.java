@@ -16,21 +16,9 @@
  */
 package org.apache.marmotta.kiwi.test;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assume.assumeThat;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.ConcurrentModificationException;
-import java.util.List;
-
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
@@ -42,11 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.*;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.Update;
@@ -60,9 +44,19 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.ConcurrentModificationException;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assume.assumeThat;
 
 /**
  * Test the Sesame repository functionality backed by the KiWi triple store. 
@@ -88,14 +82,13 @@ public class RepositoryTest {
     @Before
     public void initDatabase() throws RepositoryException {
         store = new KiWiStore(kiwiConfiguration);
+        store.setDropTablesOnShutdown(true);
         repository = new SailRepository(store);
         repository.initialize();
     }
 
     @After
     public void dropDatabase() throws RepositoryException, SQLException {
-        store.closeValueFactory(); // release all connections before dropping the database
-        store.getPersistence().dropDatabase();
         repository.shutDown();
     }
 

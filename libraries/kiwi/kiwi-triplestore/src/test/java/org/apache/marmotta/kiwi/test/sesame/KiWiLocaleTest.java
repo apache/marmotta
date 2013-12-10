@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openrdf.model.Literal;
-import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 
 import java.sql.SQLException;
@@ -50,14 +49,14 @@ public class KiWiLocaleTest  {
     
     @Before
     public void initialize() throws SailException {
-    	store = new KiWiStore(kiwiConfig);
+        store = new KiWiStore(kiwiConfig);
+        store.setDropTablesOnShutdown(true);
     	store.initialize();
     	vf = new KiWiValueFactory(store, "http://example.org");
     }
     
     @After
     public void shutdown() throws SailException, SQLException {
-        store.getPersistence().dropDatabase();
     	store.shutDown();
     	store = null;
     	vf = null;

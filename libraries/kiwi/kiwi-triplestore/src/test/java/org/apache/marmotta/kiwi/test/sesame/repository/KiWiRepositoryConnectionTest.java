@@ -17,20 +17,12 @@
 package org.apache.marmotta.kiwi.test.sesame.repository;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.runner.RunWith;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnectionTest;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailWrapper;
-
-import java.sql.SQLException;
-
-import static org.junit.Assert.fail;
 
 /**
  * Run the {@link RepositoryConnectionTest}s.
@@ -52,18 +44,8 @@ public class KiWiRepositoryConnectionTest extends RepositoryConnectionTest {
     @Override
     protected Repository createRepository() throws Exception {
         config.setDefaultContext(null);
-        Sail store = new SailWrapper(new KiWiStore(config)) {
-            @Override
-            public void shutDown() throws SailException {
-                try {
-                    ((KiWiStore)getBaseSail()).getPersistence().dropDatabase();
-                } catch (SQLException e) {
-                    fail("SQL exception while deleting database");
-                }
-
-                super.shutDown();
-            }
-        };
+        KiWiStore store = new KiWiStore(config);
+        store.setDropTablesOnShutdown(true);
         return new SailRepository(store);
     }
 

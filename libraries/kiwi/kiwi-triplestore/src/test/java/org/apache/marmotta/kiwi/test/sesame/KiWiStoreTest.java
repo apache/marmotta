@@ -23,11 +23,6 @@ import org.junit.runner.RunWith;
 import org.openrdf.sail.RDFStoreTest;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailWrapper;
-
-import java.sql.SQLException;
-
-import static org.junit.Assert.fail;
 
 /**
  * Run the Sesame {@link RDFStoreTest} suite.
@@ -44,18 +39,8 @@ public class KiWiStoreTest extends RDFStoreTest {
     
     @Override
     protected Sail createSail() throws SailException {
-        Sail store = new SailWrapper(new KiWiStore(kiwiConfig)) {
-            @Override
-            public void shutDown() throws SailException {
-                try {
-                    ((KiWiStore)getBaseSail()).getPersistence().dropDatabase();
-                } catch (SQLException e) {
-                    fail("SQL exception while deleting database");
-                }
-
-                super.shutDown();
-            }
-        };
+        KiWiStore store = new KiWiStore(kiwiConfig);
+        store.setDropTablesOnShutdown(true);
         store.initialize();
         return store;
     }

@@ -48,6 +48,7 @@ public class KiWiSailInterruptTest extends SailInterruptTest {
     @Override
     protected Sail createSail() throws SailException {
         KiWiStore store = new KiWiStore(kiwiConfig);
+        store.setDropTablesOnShutdown(true);
         return store;
     }
     

@@ -18,7 +18,6 @@
 package org.apache.marmotta.kiwi.sail;
 
 import com.google.common.collect.MapMaker;
-
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -92,6 +91,12 @@ public class KiWiStore extends NotifyingSailBase {
      */
     protected ConcurrentMap<IntArray,Statement> tripleRegistry;
 
+
+    /**
+     * Drop databases when shutdown is called. This option is mostly useful for testing.
+     */
+    private boolean dropTablesOnShutdown = false;
+
     public KiWiStore(KiWiPersistence persistence, String defaultContext, String inferredContext) {
         this.persistence    = persistence;
         this.defaultContext = defaultContext;
@@ -158,6 +163,21 @@ public class KiWiStore extends NotifyingSailBase {
         return persistence;
     }
 
+
+    /**
+     * Drop databases when shutdown is called. This option is mostly useful for testing.
+     */
+    public boolean isDropTablesOnShutdown() {
+        return dropTablesOnShutdown;
+    }
+
+    /**
+     * Drop databases when shutdown is called. This option is mostly useful for testing.
+     */
+    public void setDropTablesOnShutdown(boolean dropTablesOnShutdown) {
+        this.dropTablesOnShutdown = dropTablesOnShutdown;
+    }
+
     /**
      * Returns a store-specific SailConnection object.
      *
@@ -174,6 +194,15 @@ public class KiWiStore extends NotifyingSailBase {
     @Override
     protected void shutDownInternal() throws SailException {
         closeValueFactory();
+
+        if(dropTablesOnShutdown) {
+            try {
+                persistence.dropDatabase();
+            } catch (SQLException e) {
+                logger.error("error dropping database: {}", e.getMessage());
+            }
+        }
+
         persistence.shutdown();
         tripleRegistry = null;
         initialized = false;
