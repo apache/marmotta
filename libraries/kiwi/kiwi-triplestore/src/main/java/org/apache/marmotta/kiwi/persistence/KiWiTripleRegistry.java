@@ -135,7 +135,7 @@ public class KiWiTripleRegistry {
 
     protected void releaseConnection(KiWiConnection con) {
         try {
-            con.commit();
+            con.getJDBCConnection().commit();
             con.close();
         } catch (SQLException ex) {
             log.error("could not release database connection", ex);

@@ -84,7 +84,7 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(),hasItems("nodes","triples","namespaces"));
-            Assert.assertEquals(2, connection.getDatabaseVersion());
+            Assert.assertEquals(3, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {

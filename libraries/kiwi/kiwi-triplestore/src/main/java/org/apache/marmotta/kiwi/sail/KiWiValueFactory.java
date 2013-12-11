@@ -104,7 +104,7 @@ public class KiWiValueFactory implements ValueFactory {
 
     protected void releaseConnection(KiWiConnection con) {
         try {
-            con.commit();
+            con.getJDBCConnection().commit();
             con.close();
         } catch (SQLException ex) {
             log.error("could not release database connection", ex);
@@ -635,7 +635,7 @@ public class KiWiValueFactory implements ValueFactory {
                 // triple has no id from registry or database, so we create one and flag it for reasoning
                 if(result.getId() < 0) {
                     result.setId(connection.getNextSequence("seq.triples"));
-                    result.setMarkedForReasoning(true);
+                    result.setNewTriple(true);
 
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
                 }

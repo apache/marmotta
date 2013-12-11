@@ -160,7 +160,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(ksubj,kpred,kobj,kcontext, databaseConnection);
                 triple.setInferred(inferred);
 
-                if(databaseConnection.storeTriple(triple)) {
+                databaseConnection.storeTriple(triple);
+                if(triple.isNewTriple()) {
                     triplesAdded = true;
                     notifyStatementAdded(triple);
                 }

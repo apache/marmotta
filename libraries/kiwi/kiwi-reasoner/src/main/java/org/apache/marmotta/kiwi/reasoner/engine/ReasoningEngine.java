@@ -349,9 +349,9 @@ public class ReasoningEngine implements TransactionListener {
             Set<KiWiTriple> newTriples = StatementCommons.newQuadrupleSet();
             for(Statement stmt : data.getAddedTriples()) {
                 KiWiTriple t = (KiWiTriple)stmt;
-                if(t.isMarkedForReasoning()) {
+                if(t.isNewTriple()) {
                     newTriples.add(t);
-                    t.setMarkedForReasoning(false);
+                    t.setNewTriple(false);
                 }
             }
 

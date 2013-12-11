@@ -73,8 +73,7 @@ public class KiWiTriple  implements Statement, Serializable {
 
     private boolean inferred;
 
-    //@Transient
-    private boolean markedForReasoning;
+    private boolean newTriple;
 
 	
 	public KiWiTriple() {
@@ -85,7 +84,7 @@ public class KiWiTriple  implements Statement, Serializable {
         this.created = created;
         this.deleted = false;
         this.inferred = false;
-        this.markedForReasoning = false;
+        this.newTriple = false;
         this.deletedAt = null;
     }
 
@@ -311,11 +310,11 @@ public class KiWiTriple  implements Statement, Serializable {
     }
 
 
-    public boolean isMarkedForReasoning() {
-        return markedForReasoning;
+    public boolean isNewTriple() {
+        return newTriple;
     }
 
-    public void setMarkedForReasoning(boolean markedForReasoning) {
-        this.markedForReasoning = markedForReasoning;
+    public void setNewTriple(boolean newTriple) {
+        this.newTriple = newTriple;
     }
 }

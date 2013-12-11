@@ -1047,15 +1047,17 @@ public class KiWiConnection {
      * @throws NullPointerException in case the subject, predicate, object or context have not been persisted
      * @return true in case the update added a new triple to the database, false in case the triple already existed
      */
-    public synchronized boolean storeTriple(final KiWiTriple triple) throws SQLException {
+    public synchronized void storeTriple(final KiWiTriple triple) throws SQLException {
         // mutual exclusion: prevent parallel adding and removing of the same triple
         synchronized (triple) {
 
             requireJDBCConnection();
 
-            boolean hasId = triple.getId() >= 0;
+            if(triple.getId() < 0) {
+                triple.setId(getNextSequence("seq.triples"));
+            }
 
-            if(hasId && deletedStatementsLog.contains(triple.getId())) {
+            if(deletedStatementsLog.contains(triple.getId())) {
                 // this is a hack for a concurrency problem that may occur in case the triple is removed in the
                 // transaction and then added again; in these cases the createStatement method might return
                 // an expired state of the triple because it uses its own database connection
@@ -1063,12 +1065,7 @@ public class KiWiConnection {
                 //deletedStatementsLog.remove(triple.getId());
                 undeleteTriple(triple);
 
-                return true;
             } else {
-                // retrieve a new triple ID and set it in the object
-                if(triple.getId() < 0) {
-                    triple.setId(getNextSequence("seq.triples"));
-                }
 
                 if(batchCommit) {
                     commitLock.lock();
@@ -1081,7 +1078,6 @@ public class KiWiConnection {
                     } finally {
                         commitLock.unlock();
                     }
-                    return !hasId;
                 }  else {
                     Preconditions.checkNotNull(triple.getSubject().getId());
                     Preconditions.checkNotNull(triple.getPredicate().getId());
@@ -1113,8 +1109,6 @@ public class KiWiConnection {
                                 return count > 0;
                             }
                         });
-
-                        return !hasId;
 
                     } catch(SQLException ex) {
                         if("HYT00".equals(ex.getSQLState())) { // H2 table locking timeout
@@ -2150,15 +2144,6 @@ public class KiWiConnection {
 
                         synchronized (tripleBatch) {
                             for(KiWiTriple triple : tripleBatch) {
-                                // if the triple has been marked as deleted, this can only have been done by another connection
-                                // in this case the triple id is no longer usable (might result in key conflicts), so we set it to
-                                // a new id
-                                if(triple.isDeleted()) {
-                                    triple.setId(getNextSequence("seq.triples"));
-                                    triple.setDeleted(false);
-                                    triple.setDeletedAt(null);
-                                }
-
                                 // retrieve a new triple ID and set it in the object
                                 if(triple.getId() < 0) {
                                     triple.setId(getNextSequence("seq.triples"));
