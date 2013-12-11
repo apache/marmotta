@@ -174,11 +174,15 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     @Override
     public int hashCode() {
+        // not compatible with Sesame:
+        /*
         int result =  this.getClass().hashCode();
         result = 31 * result + (locale != null ? locale.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + this.getLabel().hashCode();
         return result;
+        */
+        return getLabel().hashCode();
     }
 
 
