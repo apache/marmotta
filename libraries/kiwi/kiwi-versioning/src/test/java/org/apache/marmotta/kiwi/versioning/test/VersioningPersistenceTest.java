@@ -87,7 +87,7 @@ public class VersioningPersistenceTest {
         KiWiConnection connection = vpersistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(), hasItems("versions", "versions_added", "versions_removed"));
-            Assert.assertEquals(2, connection.getDatabaseVersion());
+            Assert.assertEquals(3, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
