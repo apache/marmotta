@@ -75,7 +75,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MIN_VALUE;
         int p = property != null ? property.hashCode() : Integer.MIN_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MIN_VALUE;
+        int o = object != null ? (object.hashCode() + 31 * object.getClass().hashCode()) : Integer.MIN_VALUE;
         int c = context != null ? context.hashCode() : Integer.MIN_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -95,7 +95,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MAX_VALUE;
         int p = property != null ? property.hashCode() : Integer.MAX_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MAX_VALUE;
+        int o = object != null ? (object.hashCode() + 31 * object.getClass().hashCode()) : Integer.MAX_VALUE;
         int c = context != null ? context.hashCode() : Integer.MAX_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -115,7 +115,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MIN_VALUE;
         int p = property != null ? property.hashCode() : Integer.MIN_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MIN_VALUE;
+        int o = object != null ? (object.hashCode() + 31 * object.getClass().hashCode()) : Integer.MIN_VALUE;
         int c = context != null ? context.hashCode() : Integer.MIN_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -135,7 +135,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MAX_VALUE;
         int p = property != null ? property.hashCode() : Integer.MAX_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MAX_VALUE;
+        int o = object != null ? (object.hashCode() + 31 * object.getClass().hashCode()) : Integer.MAX_VALUE;
         int c = context != null ? context.hashCode() : Integer.MAX_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);

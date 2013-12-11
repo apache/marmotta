@@ -22,7 +22,7 @@ CREATE TABLE registry (
   tripleKey BIGINT NOT NULL,
   tripleId  BIGINT NOT NULL,
   txId      BIGINT NOT NULL
-) NOT PERSISTENT;
+);
 CREATE INDEX idx_reg_triple ON registry(tripleId);
 CREATE INDEX idx_reg_key ON registry(tripleKey);
 CREATE INDEX idx_reg_tx ON registry(txId);
