@@ -63,15 +63,15 @@
                     }
                 }
             },{is3D:true,title:'All Graphs in the system. Click to select!',colors:colors})
-			
-			if (document.getElementById('loading_graphs') != null) {
-				var l_g = document.getElementById('loading_graphs');
-				l_g.parentNode.removeChild(l_g);
-			}
+
+            if (document.getElementById('loading_graphs') != null) {
+                var l_g = document.getElementById('loading_graphs');
+                l_g.parentNode.removeChild(l_g);
+            }
         }
 
         function drawClasses(graph) {
-			if(graph) {
+            if(graph) {
                 $("#classes_all").removeAttr("disabled").show();
             }
             else $("#classes_all").prop("disabled", "disabled").hide();
@@ -85,7 +85,7 @@
             $("#classes").attr('data-sgvizler-query',query);
             $("#classes").attr('data-sgvizler-chart','gPieChart');
             $("#classes").attr('data-sgvizler-log',"2");
-			
+
             var query = new sgvizler.query();
             $.extend(query,sgvizler.option.query,sgvizler.ui.getQueryOptionAttr(document.getElementById('classes')));
             $.extend(query.chartOptions,sgvizler.ui.getChartOptionAttr(document.getElementById('classes')));
@@ -103,7 +103,7 @@
 
 
         function drawResources(graph,clazz,lim,color) {
-			var limit = lim ? lim : 5;
+            var limit = lim ? lim : 5;
             var query;
             var l_s = limit=="all" ? "":" LIMIT "+limit;
             if(graph) {
@@ -120,11 +120,11 @@
                 }
             }
 
-			if (document.getElementById('loading_types') != null) {
-				var l_t = document.getElementById('loading_types');
-				l_t.parentNode.removeChild(l_t);
-			}
-			
+            if (document.getElementById('loading_types') != null) {
+                var l_t = document.getElementById('loading_types');
+                l_t.parentNode.removeChild(l_t);
+            }
+            
             sparql(query,function(data){
                 $("#resources").empty();
                 if(data.results.bindings.length==0) return $("#resources").append("<p>Nothing to display!</p>");
@@ -147,10 +147,10 @@
 
             },function(){alert("cannot show data")});
 
-			if (document.getElementById('loading_resources') != null) {
-				var l_r = document.getElementById('loading_resources');
-				l_r.parentNode.removeChild(l_r);
-			}
+            if (document.getElementById('loading_resources') != null) {
+                var l_r = document.getElementById('loading_resources');
+                l_r.parentNode.removeChild(l_r);
+            }
         }
 
         //return a result object
@@ -213,7 +213,7 @@
                 },error);
 
                 draw(statistics);
-				
+                
             }
 
             function draw(statistics) {
@@ -226,10 +226,10 @@
                    s = s.replace(/\$3/g,statistics.graphs);
                    $("#statistics").empty().text(s);
                }
-				if (document.getElementById('loading_overview') != null) {
-					var l_o = document.getElementById('loading_overview');
-					l_o.parentNode.removeChild(l_o);
-				}
+                if (document.getElementById('loading_overview') != null) {
+                    var l_o = document.getElementById('loading_overview');
+                    l_o.parentNode.removeChild(l_o);
+                }
             }
 
             function error() {
