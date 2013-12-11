@@ -44,7 +44,7 @@
         sgvizler.option.query.endpoint_output = 'json';
 
         function drawGraphs() {
-            $("#graphs").empty().append(loader());
+            //$("#graphs").empty().append(loader());
 
             var query = "SELECT ?graph (COUNT(?s) AS ?triples) WHERE { GRAPH ?graph { ?s ?p ?o }} GROUP BY ?graph";
 
@@ -63,6 +63,11 @@
                     }
                 }
             },{is3D:true,title:'All Graphs in the system. Click to select!',colors:colors})
+
+            if (document.getElementById('loading_graphs') != null) {
+                var l_g = document.getElementById('loading_graphs');
+                l_g.parentNode.removeChild(l_g);
+            }
         }
 
         function drawClasses(graph) {
@@ -115,6 +120,11 @@
                 }
             }
 
+            if (document.getElementById('loading_types') != null) {
+                var l_t = document.getElementById('loading_types');
+                l_t.parentNode.removeChild(l_t);
+            }
+            
             sparql(query,function(data){
                 $("#resources").empty();
                 if(data.results.bindings.length==0) return $("#resources").append("<p>Nothing to display!</p>");
@@ -136,6 +146,11 @@
                 }
 
             },function(){alert("cannot show data")});
+
+            if (document.getElementById('loading_resources') != null) {
+                var l_r = document.getElementById('loading_resources');
+                l_r.parentNode.removeChild(l_r);
+            }
         }
 
         //return a result object
@@ -164,9 +179,9 @@
 
         function drawStatistics() {
 
-            $("#view").append("<h2>Overview</h2>");
+            $("#view").append("<h2>Overview <img id='loading_overview' src='../public/img/loader/lmf-loader_32.gif'></h2>");
             $("#view").append("<div id='statistics'></div>");
-            $("#statistics").append(loader());
+            //$("#statistics").append(loader());
             count();
 
             function count() {
@@ -198,6 +213,7 @@
                 },error);
 
                 draw(statistics);
+                
             }
 
             function draw(statistics) {
@@ -210,6 +226,10 @@
                    s = s.replace(/\$3/g,statistics.graphs);
                    $("#statistics").empty().text(s);
                }
+                if (document.getElementById('loading_overview') != null) {
+                    var l_o = document.getElementById('loading_overview');
+                    l_o.parentNode.removeChild(l_o);
+                }
             }
 
             function error() {
@@ -228,11 +248,11 @@
         sgvizler.go(function(){
             drawStatistics();
             if(HAS_DATA) {
-                $("#view").append("<h2>Graphs</h2>");
+                $("#view").append("<h2>Graphs <img id='loading_graphs' src='../public/img/loader/lmf-loader_32.gif'></h2>");
                 $("#view").append("<div id='graphs' style='height:350px;'></div>");
-                $("#view").append($("<h2>Types</h2>").append($("<button id='classes_all' style='font-size: 12px;margin-left:5px;'>(show types of all graphs)</button>").click(function(){drawClasses()})));
+                $("#view").append($("<h2>Types <img id='loading_types' src='../public/img/loader/lmf-loader_32.gif'></h2>").append($("<button id='classes_all' style='font-size: 12px;margin-left:5px;'>(show types of all graphs)</button>").click(function(){drawClasses()})));
                 $("#view").append("<div id='classes' style='height:350px;'></div>");
-                $("#view").append("<h2>Resources</h2>");
+                $("#view").append("<h2>Resources <img id='loading_resources' src='../public/img/loader/lmf-loader_32.gif'></h2>");
                 $("#view").append("<div id='resources' style=''></div>");
                 drawGraphs();
                 drawClasses();
