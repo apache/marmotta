@@ -143,14 +143,16 @@ public abstract class ConcurrencyTestBase {
      * @return
      */
     protected URI randomURI() {
-        if(resources.size() > 0 && rnd.nextInt(10) == 0) {
-            resourcesReused++;
-            // return a resource that was already used
-            return resources.get(rnd.nextInt(resources.size()));
-        } else {
-            URI resource = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-            resources.add(resource);
-            return resource;
+        synchronized (resources) {
+            if(resources.size() > 0 && rnd.nextInt(10) == 0) {
+                resourcesReused++;
+                // return a resource that was already used
+                return resources.get(rnd.nextInt(resources.size()));
+            } else {
+                URI resource = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+                resources.add(resource);
+                return resource;
+            }
         }
     }
 
@@ -159,30 +161,32 @@ public abstract class ConcurrencyTestBase {
      * @return
      */
     protected Value randomObject() {
-        if(objects.size() > 0 && rnd.nextInt(10) == 0) {
-            objectsReused++;
-            return objects.get(rnd.nextInt(objects.size()));
-        } else {
-            Value object;
-            switch(rnd.nextInt(6)) {
-                case 0: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                    break;
-                case 1: object = repository.getValueFactory().createBNode();
-                    break;
-                case 2: object = repository.getValueFactory().createLiteral(RandomStringUtils.randomAscii(40));
-                    break;
-                case 3: object = repository.getValueFactory().createLiteral(rnd.nextInt());
-                    break;
-                case 4: object = repository.getValueFactory().createLiteral(rnd.nextDouble());
-                    break;
-                case 5: object = repository.getValueFactory().createLiteral(rnd.nextBoolean());
-                    break;
-                default: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-                    break;
+        synchronized (objects) {
+            if(objects.size() > 0 && rnd.nextInt(10) == 0) {
+                objectsReused++;
+                return objects.get(rnd.nextInt(objects.size()));
+            } else {
+                Value object;
+                switch(rnd.nextInt(6)) {
+                    case 0: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+                        break;
+                    case 1: object = repository.getValueFactory().createBNode();
+                        break;
+                    case 2: object = repository.getValueFactory().createLiteral(RandomStringUtils.randomAscii(40));
+                        break;
+                    case 3: object = repository.getValueFactory().createLiteral(rnd.nextInt());
+                        break;
+                    case 4: object = repository.getValueFactory().createLiteral(rnd.nextDouble());
+                        break;
+                    case 5: object = repository.getValueFactory().createLiteral(rnd.nextBoolean());
+                        break;
+                    default: object = repository.getValueFactory().createURI("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
+                        break;
 
+                }
+                objects.add(object);
+                return object;
             }
-            objects.add(object);
-            return object;
         }
 
     }
