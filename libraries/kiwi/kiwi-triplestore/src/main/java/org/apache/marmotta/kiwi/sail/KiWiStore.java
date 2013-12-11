@@ -17,18 +17,14 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import com.google.common.collect.MapMaker;
-import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.openrdf.model.Statement;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailBase;
 
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -76,21 +72,6 @@ public class KiWiStore extends NotifyingSailBase {
 
     protected ReentrantLock tripleLock;
 
-    /**
-     * This is a hash map for storing references to resources that have not yet been persisted. It is used e.g. when
-     * one or more transactions are currently active and request the creation of same resource several times
-     * (via createResource()).
-     * <p/>
-     * The map is implemented as a hash map with weak references, i.e. the entries are volatile and
-     * will be removed by the garbage collector once they are not referred anymore somewhere else (e.g. in a
-     * transaction).
-     * <p/>
-     * The registry is not a proper cache, entries will be removed when they are no longer referred. Also, the
-     * registry should not be used to check for existence of a resource via getResource(), it is purely meant
-     * to ensure that a resource is not created multiple times.
-     */
-    protected ConcurrentMap<IntArray,Statement> tripleRegistry;
-
 
     /**
      * Drop databases when shutdown is called. This option is mostly useful for testing.
@@ -122,8 +103,6 @@ public class KiWiStore extends NotifyingSailBase {
      */
     @Override
     protected void initializeInternal() throws SailException {
-        tripleRegistry  = new MapMaker().weakValues().makeMap();
-
         try {
             persistence.initialise();
             persistence.initDatabase();
@@ -204,7 +183,6 @@ public class KiWiStore extends NotifyingSailBase {
         }
 
         persistence.shutdown();
-        tripleRegistry = null;
         initialized = false;
     }
 

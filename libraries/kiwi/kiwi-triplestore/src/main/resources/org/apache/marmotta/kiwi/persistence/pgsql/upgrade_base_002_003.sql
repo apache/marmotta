@@ -12,25 +12,19 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-DROP INDEX idx_node_content;
-DROP INDEX idx_literal_lang;
 
-DROP INDEX idx_triples_p;
-DROP INDEX idx_triples_spo;
-DROP INDEX idx_triples_cspo;
+UPDATE METADATA SET mvalue = '3' WHERE mkey = 'version';
 
-DROP INDEX idx_namespaces_uri;
-DROP INDEX idx_namespaces_prefix;
+DROP INDEX idx_triples_op;
+CREATE INDEX idx_triples_p ON triples(predicate) WHERE deleted = false;
 
-DROP INDEX idx_reg_triple;
-DROP INDEX idx_reg_key;
-DROP INDEX idx_reg_tx;
 
-DROP TABLE IF EXISTS triples;
-DROP TABLE IF EXISTS namespaces;
-DROP TABLE IF EXISTS nodes;
-DROP TABLE IF EXISTS metadata;
-DROP TABLE IF EXISTS registry;
-
-DROP TYPE IF EXISTS nodetype;
-
+-- a table for temporary triple id registrations
+CREATE UNLOGGED TABLE registry (
+  tripleKey BIGINT NOT NULL,
+  tripleId  BIGINT NOT NULL,
+  txId      BIGINT NOT NULL
+);
+CREATE INDEX idx_reg_triple ON registry(tripleId);
+CREATE INDEX idx_reg_key ON registry(tripleKey);
+CREATE INDEX idx_reg_tx ON registry(txId);

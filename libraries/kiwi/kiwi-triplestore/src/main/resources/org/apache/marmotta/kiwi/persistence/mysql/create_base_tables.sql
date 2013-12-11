@@ -58,11 +58,21 @@ CREATE TABLE metadata (
   PRIMARY KEY(id)
 ) CHARACTER SET utf8 COLLATE utf8_bin  ENGINE=InnoDB;
 
+-- a table for temporary triple id registrations
+CREATE TABLE registry (
+  tripleKey BIGINT NOT NULL,
+  tripleId  BIGINT NOT NULL,
+  txId      BIGINT NOT NULL,
+  INDEX USING BTREE(tripleKey),
+  INDEX USING BTREE(tripleId),
+  INDEX USING BTREE(txId)
+) ENGINE=MEMORY;
+
 -- Indexes for accessing nodes and triples efficiently
 CREATE INDEX idx_node_content ON nodes(svalue(256));
 CREATE INDEX idx_literal_lang ON nodes(lang);
 
-CREATE INDEX idx_triples_op ON triples(object,predicate);
+CREATE INDEX idx_triples_p ON triples(predicate);
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object);
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object);
 
@@ -70,5 +80,5 @@ CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','3');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s') );

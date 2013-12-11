@@ -35,11 +35,12 @@ import java.util.Arrays;
  */
 public final class IntArray implements Comparable<IntArray> {
 
-    private static HashFunction hashFunction = Hashing.goodFastHash(32);
+    private static HashFunction hashFunction32 = Hashing.goodFastHash(32);
+    private static HashFunction hashFunction64 = Hashing.goodFastHash(64);
 
     private int[] data;
 
-    private HashCode goodHashCode;
+    private HashCode hashCode32, hashCode64;
 
 
     public IntArray(int[] data) {
@@ -47,13 +48,24 @@ public final class IntArray implements Comparable<IntArray> {
     }
 
     private void ensureHashCode() {
-        if(goodHashCode == null) {
-            Hasher hasher = hashFunction.newHasher();
+        if(hashCode32 == null) {
+            Hasher hasher = hashFunction32.newHasher();
             for(int i : data) {
                 hasher.putInt(i);
             }
-            goodHashCode = hasher.hash();
+            hashCode32 = hasher.hash();
         }
+    }
+
+    private void ensureLongHashCode() {
+        if(hashCode64 == null) {
+            Hasher hasher = hashFunction64.newHasher();
+            for(int i : data) {
+                hasher.putInt(i);
+            }
+            hashCode64 = hasher.hash();
+        }
+
     }
 
     public static final IntArray createSPOCKey(Resource subject, URI property, Value object, Resource context){
@@ -170,6 +182,11 @@ public final class IntArray implements Comparable<IntArray> {
     @Override
     public int hashCode() {
         ensureHashCode();
-        return goodHashCode.hashCode();
+        return hashCode32.asInt();
+    }
+
+    public long longHashCode() {
+        ensureLongHashCode();
+        return hashCode64.asLong();
     }
 }

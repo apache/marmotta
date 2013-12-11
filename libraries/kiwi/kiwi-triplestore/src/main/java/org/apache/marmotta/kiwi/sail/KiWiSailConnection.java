@@ -20,28 +20,12 @@ package org.apache.marmotta.kiwi.sail;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.DelayedIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
-import info.aduna.iteration.FilterIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.Iterations;
-import info.aduna.iteration.UnionIteration;
+import info.aduna.iteration.*;
 import org.apache.marmotta.commons.sesame.repository.ResourceConnection;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -369,6 +353,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     protected void commitInternal() throws SailException {
         try {
+            valueFactory.releaseRegistry(databaseConnection);
             databaseConnection.commit();
         } catch (SQLException e) {
             throw new SailException("database error while committing transaction",e);
@@ -397,6 +382,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     @Override
     protected void rollbackInternal() throws SailException {
         try {
+            valueFactory.releaseRegistry(databaseConnection);
             databaseConnection.rollback();
         } catch (SQLException e) {
             throw new SailException("database error while rolling back transaction",e);

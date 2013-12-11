@@ -58,17 +58,28 @@ CREATE TABLE metadata (
   PRIMARY KEY(id)
 );
 
+
+-- a table for temporary triple id registrations
+CREATE TABLE registry (
+  tripleKey BIGINT NOT NULL,
+  tripleId  BIGINT NOT NULL,
+  txId      BIGINT NOT NULL
+);
+CREATE INDEX idx_reg_triple ON registry(tripleId);
+CREATE INDEX idx_reg_key ON registry(tripleKey);
+CREATE INDEX idx_reg_tx ON registry(txId);
+
 -- Indexes for accessing nodes and triples efficiently
 CREATE INDEX idx_node_content ON nodes(svalue);
 CREATE INDEX idx_literal_lang ON nodes(lang);
 
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object);
-CREATE INDEX idx_triples_op ON triples(object,predicate);
+CREATE INDEX idx_triples_p ON triples(predicate);
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object);
 
 CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','3');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',FORMATDATETIME(now(),'yyyy-MM-dd HH:mm:ss z','en') );

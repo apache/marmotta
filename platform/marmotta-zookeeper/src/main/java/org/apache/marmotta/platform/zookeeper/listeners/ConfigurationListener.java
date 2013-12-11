@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -65,7 +66,11 @@ public class ConfigurationListener extends NodeListener<String> {
             }
 
             log.info("ZOOKEEPER: setting configuration option {} = {}", key, value);
-            configurationService.setConfiguration(key,value);
+            if(value.contains("\n")) {
+                configurationService.setListConfiguration(key, Arrays.asList(value.split("\n")));
+            } else {
+                configurationService.setConfiguration(key,value);
+            }
         } catch (InterruptedException | NodeKeeperException | IOException e) {
             log.error("ZOOKEEPER: error reading Zookeeper configuration",e);
         }

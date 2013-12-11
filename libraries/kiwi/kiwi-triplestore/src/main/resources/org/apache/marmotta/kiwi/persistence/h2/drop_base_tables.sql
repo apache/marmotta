@@ -16,17 +16,21 @@
 DROP INDEX IF EXISTS idx_node_content;
 DROP INDEX IF EXISTS idx_literal_lang;
 
-DROP INDEX IF EXISTS idx_triples_op;
+DROP INDEX IF EXISTS idx_triples_p;
 DROP INDEX IF EXISTS idx_triples_spo;
 DROP INDEX IF EXISTS idx_triples_cspo;
 
 DROP INDEX IF EXISTS idx_namespaces_uri;
 DROP INDEX IF EXISTS idx_namespaces_prefix;
 
+DROP INDEX IF EXISTS idx_reg_triple;
+DROP INDEX IF EXISTS idx_reg_key;
+DROP INDEX IF EXISTS idx_reg_tx;
 
 DROP TABLE IF EXISTS triples;
 DROP TABLE IF EXISTS namespaces;
 DROP TABLE IF EXISTS nodes;
 DROP TABLE IF EXISTS metadata;
+DROP TABLE IF EXISTS registry;
 
 DROP ALL OBJECTS DELETE FILES;

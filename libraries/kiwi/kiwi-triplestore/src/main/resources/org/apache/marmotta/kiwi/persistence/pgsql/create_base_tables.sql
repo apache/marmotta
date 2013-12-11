@@ -59,13 +59,24 @@ CREATE TABLE metadata (
   PRIMARY KEY(id)
 );
 
+
+-- a table for temporary triple id registrations
+CREATE UNLOGGED TABLE registry (
+  tripleKey BIGINT NOT NULL,
+  tripleId  BIGINT NOT NULL,
+  txId      BIGINT NOT NULL
+);
+CREATE INDEX idx_reg_triple ON registry(tripleId);
+CREATE INDEX idx_reg_key ON registry(tripleKey);
+CREATE INDEX idx_reg_tx ON registry(txId);
+
 -- Indexes for accessing nodes and triples efficiently
 CREATE INDEX idx_node_content ON nodes USING hash(svalue);
 CREATE INDEX idx_node_dcontent ON nodes(dvalue) WHERE dvalue IS NOT NULL;
 CREATE INDEX idx_node_icontent ON nodes(ivalue) WHERE ivalue IS NOT NULL;
-CREATE INDEX idx_literal_lang ON nodes(lang) WHERE ntype = 'string';
+CREATE INDEX idx_literal_lang ON nodes(lang);
 
-CREATE INDEX idx_triples_op ON triples(object,predicate) WHERE deleted = false;
+CREATE INDEX idx_triples_p ON triples(predicate) WHERE deleted = false;
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object) WHERE deleted = false;
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object) WHERE deleted = false;
 
@@ -87,5 +98,5 @@ DO INSTEAD NOTHING;
 -- a function for cleaning up table rows without incoming references
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','2');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','3');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );

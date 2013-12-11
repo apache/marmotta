@@ -16,16 +16,16 @@
 DROP INDEX idx_node_content ON nodes;
 DROP INDEX idx_literal_lang ON nodes;
 
-DROP INDEX idx_triples_op ON triples;
+DROP INDEX idx_triples_p ON triples;
 DROP INDEX idx_triples_spo ON triples;
 DROP INDEX idx_triples_cspo ON triples;
 
 DROP INDEX idx_namespaces_uri ON namespaces;
 DROP INDEX idx_namespaces_prefix ON namespaces;
 
-
 DROP TABLE IF EXISTS triples;
 DROP TABLE IF EXISTS namespaces;
 DROP TABLE IF EXISTS nodes;
 DROP TABLE IF EXISTS metadata;
+DROP TABLE IF EXISTS registry;
 

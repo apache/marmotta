@@ -18,15 +18,7 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import com.google.common.base.Preconditions;
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.ConvertingIteration;
-import info.aduna.iteration.DelayedIteration;
-import info.aduna.iteration.DistinctIteration;
-import info.aduna.iteration.EmptyIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.IteratorIteration;
-import info.aduna.iteration.UnionIteration;
+import info.aduna.iteration.*;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -48,14 +40,9 @@ import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -146,6 +133,8 @@ public class KiWiConnection {
 
     private static long numberOfCommits = 0;
 
+    private long transactionId;
+
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
@@ -156,6 +145,7 @@ public class KiWiConnection {
         this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
         this.deletedStatementsLog = new HashSet<Long>();
+        this.transactionId = getNextSequence("seq.tx");
 
         initCachePool();
         initStatementCache();
@@ -2049,6 +2039,8 @@ public class KiWiConnection {
                 return null;
             }
         });
+
+        this.transactionId = getNextSequence("seq.tx");
     }
 
     /**
@@ -2076,6 +2068,8 @@ public class KiWiConnection {
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
+
+        this.transactionId = getNextSequence("seq.tx");
     }
 
     /**
@@ -2201,6 +2195,13 @@ public class KiWiConnection {
 
     }
 
+    /**
+     * Return the current transaction ID
+     * @return
+     */
+    public long getTransactionId() {
+        return transactionId;
+    }
 
     protected static interface RetryCommand<T> {
 

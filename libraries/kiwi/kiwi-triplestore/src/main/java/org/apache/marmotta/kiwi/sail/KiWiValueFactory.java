@@ -27,13 +27,8 @@ import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.apache.marmotta.kiwi.persistence.KiWiTripleRegistry;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +39,6 @@ import java.util.Date;
 import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Add file description here!
@@ -57,23 +51,10 @@ public class KiWiValueFactory implements ValueFactory {
 
     private Random anonIdGenerator;
 
-    /**
-     * This is a hash map for storing references to resources that have not yet been persisted. It is used e.g. when
-     * one or more transactions are currently active and request the creation of same resource several times
-     * (via createResource()).
-     * <p/°
-     * The map is implemented as a hash map with weak references, i.e. the entries are volatile and
-     * will be removed by the garbage collector once they are not referred anymore somewhere else (e.g. in a
-     * transaction).
-     * <p/>
-     * The registry is not a proper cache, entries will be removed when they are no longer referred. Also, the
-     * registry should not be used to check for existence of a resource via getResource(), it is purely meant
-     * to ensure that a resource is not created multiple times.
-     */
-    private ConcurrentMap<IntArray,Statement> tripleRegistry;
 
     private KiWiStore store;
 
+    private KiWiTripleRegistry registry;
 
     private String defaultContext;
 
@@ -84,7 +65,7 @@ public class KiWiValueFactory implements ValueFactory {
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
         anonIdGenerator = new Random();
-        tripleRegistry  = store.tripleRegistry;
+        registry        = new KiWiTripleRegistry(store);
 
         this.store          = store;
         this.defaultContext = defaultContext;
@@ -627,24 +608,41 @@ public class KiWiValueFactory implements ValueFactory {
      * @return The created statement.
      */
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context, KiWiConnection connection) {
-        IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
-        KiWiTriple result = (KiWiTriple)tripleRegistry.get(cacheKey);
         try {
-            if(result == null || result.isDeleted()) {
-                KiWiResource ksubject   = convert(subject);
-                KiWiUriResource kpredicate = convert(predicate);
-                KiWiNode kobject    = convert(object);
-                KiWiResource    kcontext   = convert(context);
 
-                result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
-                result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext,true));
-                if(result.getId() < 0) {
-                    result.setMarkedForReasoning(true);
+            IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
+
+            KiWiResource ksubject   = convert(subject);
+            KiWiUriResource kpredicate = convert(predicate);
+            KiWiNode kobject    = convert(object);
+            KiWiResource    kcontext   = convert(context);
+
+            KiWiTriple result = new KiWiTriple(ksubject,kpredicate,kobject,kcontext);
+
+            synchronized (registry) {
+                long tripleId = registry.lookupKey(cacheKey);
+
+                if(tripleId >= 0) {
+                    // try getting id from registry
+                    result.setId(tripleId);
+
+                    registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
+                } else {
+                    // not found in registry, try loading from database
+                    result.setId(connection.getTripleId(ksubject,kpredicate,kobject,kcontext,true));
                 }
 
-                tripleRegistry.put(cacheKey,result);
+                // triple has no id from registry or database, so we create one and flag it for reasoning
+                if(result.getId() < 0) {
+                    result.setId(connection.getNextSequence("seq.triples"));
+                    result.setMarkedForReasoning(true);
+
+                    registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
+                }
             }
+
             return result;
+
         } catch (SQLException e) {
             log.error("database error, could not load triple", e);
             throw new IllegalStateException("database error, could not load triple",e);
@@ -656,9 +654,16 @@ public class KiWiValueFactory implements ValueFactory {
      * @param triple
      */
     protected void removeStatement(KiWiTriple triple) {
-        IntArray cacheKey = IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext());
-        tripleRegistry.remove(cacheKey);
+        if(triple.getId() >= 0) {
+            synchronized (registry) {
+                registry.deleteKey(triple.getId());
+            }
+        }
         triple.setDeleted(true);
+    }
+
+    protected void releaseRegistry(KiWiConnection connection) {
+        registry.releaseTransaction(connection.getTransactionId());
     }
 
 

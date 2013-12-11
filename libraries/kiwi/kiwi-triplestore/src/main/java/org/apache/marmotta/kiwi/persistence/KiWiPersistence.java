@@ -108,6 +108,10 @@ public class KiWiPersistence {
 
         }
 
+        idGenerator = new SnowflakeIDGenerator(configuration.getDatacenterId());
+
+        log.info("database key generation strategy: Twitter Snowflake");
+
         //garbageCollector.start();
 
         initialized = true;
@@ -177,16 +181,6 @@ public class KiWiPersistence {
         garbageCollector.addNodeTableDependency("triples","context");
         garbageCollector.addNodeTableDependency("triples","creator");
         garbageCollector.addNodeTableDependency("nodes","ltype");
-
-    }
-
-    /**
-     * Initialise in-memory sequences if the feature is enabled.
-     */
-    public void initSequences(String scriptName) {
-        idGenerator = new SnowflakeIDGenerator(configuration.getDatacenterId());
-
-        log.info("database key generation strategy: Twitter Snowflake");
 
     }
 
@@ -261,8 +255,6 @@ public class KiWiPersistence {
             connection.close();
         }
 
-        // init the in-memory sequences
-        initSequences(scriptName);
     }
 
     /**
