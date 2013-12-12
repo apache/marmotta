@@ -106,7 +106,7 @@ public class KWRLProgramPersistenceTest {
             Assert.assertThat(connection.getDatabaseTables(), hasItems(
                     "reasoner_programs", "reasoner_program_namespaces", "reasoner_program_rules",
                     "reasoner_rules", "reasoner_justifications", "reasoner_just_supp_triples", "reasoner_just_supp_rules"));
-            Assert.assertEquals(2, connection.getDatabaseVersion());
+            Assert.assertEquals(3, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
