@@ -22,12 +22,7 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.openrdf.query.BooleanQuery;
@@ -79,7 +74,7 @@ public class FacebookProviderTest {
     @Test
     public void testMovie() throws Exception {
 
-        String uriMovie = "http://graph.facebook.com/160617097307237";
+        String uriMovie = "https://graph.facebook.com/160617097307237";
 
         Assume.assumeTrue(ldclient.ping(uriMovie));
 

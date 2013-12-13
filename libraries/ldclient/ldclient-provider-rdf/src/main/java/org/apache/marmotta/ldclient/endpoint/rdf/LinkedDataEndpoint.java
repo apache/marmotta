@@ -29,7 +29,7 @@ import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 public class LinkedDataEndpoint extends Endpoint {
 
     public LinkedDataEndpoint() {
-        super("Linked Data", "Linked Data", "http://.*", null, 86400L);
+        super("Linked Data", "Linked Data", "http(s?)://.*", null, 86400L);
         setPriority(PRIORITY_LOW);
         addContentType(new ContentType("application", "rdf+xml", 0.8));
         addContentType(new ContentType("text", "turtle", 1.0));

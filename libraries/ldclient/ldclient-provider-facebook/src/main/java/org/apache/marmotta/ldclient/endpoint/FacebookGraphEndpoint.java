@@ -30,7 +30,7 @@ public class FacebookGraphEndpoint extends Endpoint {
 
     public FacebookGraphEndpoint() {
 
-        super("Facebook Graph API Provider", FacebookGraphProvider.PROVIDER_NAME, "^http://([^.]+)\\.facebook\\.com/.*", null, 86400L);
+        super("Facebook Graph API Provider", FacebookGraphProvider.PROVIDER_NAME, "^http(s?)://([^.]+)\\.facebook\\.com/.*", null, 86400L);
         setPriority(PRIORITY_HIGH);
         addContentType(new ContentType("application", "json"));
 

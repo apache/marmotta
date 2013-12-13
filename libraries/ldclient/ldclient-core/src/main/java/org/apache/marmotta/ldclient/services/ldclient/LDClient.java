@@ -17,11 +17,7 @@
  */
 package org.apache.marmotta.ldclient.services.ldclient;
 
-import org.apache.http.Header;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.ProtocolException;
+import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -31,6 +27,7 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
@@ -48,13 +45,11 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -128,8 +123,19 @@ public final class LDClient implements LDClientService {
             httpParams.setIntParameter(ClientPNames.MAX_REDIRECTS,3);
 
             SchemeRegistry schemeRegistry = new SchemeRegistry();
-            schemeRegistry.register(
-                    new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+            schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+
+            try {
+                SSLContext sslcontext = SSLContext.getInstance("TLS");
+                sslcontext.init(null, null, null);
+                SSLSocketFactory sf = new SSLSocketFactory(sslcontext, SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+
+                schemeRegistry.register(new Scheme("https", 443, sf));
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+            }
 
             PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
             cm.setMaxTotal(20);
@@ -148,11 +154,11 @@ public final class LDClient implements LDClientService {
             log.info("data provider: {}",provider.getName());
         }
     }
-    
+
     @Override
     public boolean ping(String resource) {
         //crappy implementation only for http
-        if (resource.startsWith("http://")) {
+        if (resource.startsWith("http://") || resource.startsWith("https://")) {
             try {
                 return (200 == client.execute(new HttpHead(resource)).getStatusLine().getStatusCode());
             } catch (Exception e) {
@@ -406,5 +412,5 @@ public final class LDClient implements LDClientService {
         }
 
     }
-    
+
 }

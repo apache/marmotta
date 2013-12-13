@@ -17,23 +17,18 @@
  */
 package org.apache.marmotta.ldclient.test.rdf;
 
-import java.io.InputStream;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryConnection;
+
+import java.io.InputStream;
 
 /**
  * Test if the LinkedDataProvider is working properly.
@@ -48,7 +43,8 @@ public class TestLinkedDataProvider {
     private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
     private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
     private static final String EXAMPLE = "http://example.org/foo";
-    
+    private static final String SSL = "https://example.org/foo";
+
     private LDClientService ldclient;
 
     @Before
@@ -172,6 +168,22 @@ public class TestLinkedDataProvider {
     public void testNotRDF() throws Exception {
         ClientResponse response = ldclient.retrieveResource(EXAMPLE);
         RepositoryConnection conn = response.getTriples().getConnection(); 
+        conn.begin();
+        Assert.assertTrue(conn.size() == 0);
+        conn.commit();
+        conn.close();
+    }
+
+    /**
+     * This method tests accessing a SSL resource - should throw a DataRetrievalException but otherwise work
+     *
+     * @throws Exception
+     *
+     */
+    @Test(expected=DataRetrievalException.class)
+    public void testSSL() throws Exception {
+        ClientResponse response = ldclient.retrieveResource(SSL);
+        RepositoryConnection conn = response.getTriples().getConnection();
         conn.begin();
         Assert.assertTrue(conn.size() == 0);
         conn.commit();
