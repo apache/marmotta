@@ -21,6 +21,7 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -35,11 +36,12 @@ import java.util.Arrays;
  */
 public final class IntArray implements Comparable<IntArray> {
 
-    private static HashFunction hashFunction = Hashing.goodFastHash(32);
+    private static HashFunction hashFunction32 = Hashing.goodFastHash(32);
+    private static HashFunction hashFunction64 = Hashing.goodFastHash(64);
 
     private int[] data;
 
-    private HashCode goodHashCode;
+    private HashCode hashCode32, hashCode64;
 
 
     public IntArray(int[] data) {
@@ -47,13 +49,24 @@ public final class IntArray implements Comparable<IntArray> {
     }
 
     private void ensureHashCode() {
-        if(goodHashCode == null) {
-            Hasher hasher = hashFunction.newHasher();
+        if(hashCode32 == null) {
+            Hasher hasher = hashFunction32.newHasher();
             for(int i : data) {
                 hasher.putInt(i);
             }
-            goodHashCode = hasher.hash();
+            hashCode32 = hasher.hash();
         }
+    }
+
+    private void ensureLongHashCode() {
+        if(hashCode64 == null) {
+            Hasher hasher = hashFunction64.newHasher();
+            for(int i : data) {
+                hasher.putInt(i);
+            }
+            hashCode64 = hasher.hash();
+        }
+
     }
 
     public static final IntArray createSPOCKey(Resource subject, URI property, Value object, Resource context){
@@ -63,7 +76,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MIN_VALUE;
         int p = property != null ? property.hashCode() : Integer.MIN_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MIN_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MIN_VALUE;
         int c = context != null ? context.hashCode() : Integer.MIN_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -83,7 +96,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MAX_VALUE;
         int p = property != null ? property.hashCode() : Integer.MAX_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MAX_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MAX_VALUE;
         int c = context != null ? context.hashCode() : Integer.MAX_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -103,7 +116,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MIN_VALUE;
         int p = property != null ? property.hashCode() : Integer.MIN_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MIN_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MIN_VALUE;
         int c = context != null ? context.hashCode() : Integer.MIN_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -123,7 +136,7 @@ public final class IntArray implements Comparable<IntArray> {
 
         int s = subject != null ? subject.hashCode() : Integer.MAX_VALUE;
         int p = property != null ? property.hashCode() : Integer.MAX_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MAX_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MAX_VALUE;
         int c = context != null ? context.hashCode() : Integer.MAX_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -134,6 +147,25 @@ public final class IntArray implements Comparable<IntArray> {
 
         return new IntArray(bb.array());
 
+    }
+
+    private static int calcObjectHash(Value value) {
+        if(value instanceof Literal) {
+            int i = value.stringValue().hashCode();
+            if(((Literal) value).getLanguage() != null) {
+                i = i*31 + ((Literal) value).getLanguage().hashCode();
+            } else {
+                i = i*31;
+            }
+            if(((Literal) value).getDatatype() != null) {
+                i = i*31 + ((Literal) value).getDatatype().hashCode();
+            } else {
+                i = i*31;
+            }
+            return i;
+        } else {
+            return value.hashCode();
+        }
     }
 
     @Override
@@ -170,6 +202,11 @@ public final class IntArray implements Comparable<IntArray> {
     @Override
     public int hashCode() {
         ensureHashCode();
-        return goodHashCode.hashCode();
+        return hashCode32.asInt();
+    }
+
+    public long longHashCode() {
+        ensureLongHashCode();
+        return hashCode64.asLong();
     }
 }
