@@ -1,4 +1,4 @@
-DROP INDEX IF EXISTS idx_triples_op;
+DROP INDEX IF EXISTS idx_triples_p;
 DROP INDEX IF EXISTS idx_triples_spo;
 DROP INDEX IF EXISTS idx_triples_cspo;
 DROP INDEX IF EXISTS idx_node_dcontent;

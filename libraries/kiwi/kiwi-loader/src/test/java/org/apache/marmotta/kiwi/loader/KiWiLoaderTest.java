@@ -20,11 +20,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
@@ -237,7 +233,13 @@ public class KiWiLoaderTest {
         public Repository getRepository() {
             return super.repository;
         }
-        
+
+        @Override
+        public synchronized void shutdown() throws RepositoryException, RDFHandlerException {
+            store.setDropTablesOnShutdown(true);
+
+            super.shutdown();
+        }
     }
     
 

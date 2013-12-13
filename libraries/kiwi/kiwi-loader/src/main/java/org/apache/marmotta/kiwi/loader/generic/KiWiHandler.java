@@ -7,16 +7,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
@@ -65,6 +63,9 @@ public class KiWiHandler implements RDFHandler {
 
     private Statistics statistics;
 
+    // only used when statement existance check is enabled
+    protected KiWiTripleRegistry registry;
+
 
     protected Date importDate;
 
@@ -112,6 +113,9 @@ public class KiWiHandler implements RDFHandler {
                 });
 
 
+        if(config.isStatementExistanceCheck()) {
+            registry = new KiWiTripleRegistry(store);
+        }
     }
 
 
@@ -163,6 +167,9 @@ public class KiWiHandler implements RDFHandler {
     @Override
     public void endRDF() throws RDFHandlerException {
 
+        if(registry != null) {
+            registry.releaseTransaction(connection.getTransactionId());
+        }
 
         try {
             connection.commit();
@@ -246,9 +253,33 @@ public class KiWiHandler implements RDFHandler {
             }
 
             KiWiTriple result = new KiWiTriple(subject,predicate,object,context, importDate);
+
+            // statement existance check; use the triple registry to lookup if there are any concurrent triple creations
             if(config.isStatementExistanceCheck()) {
-                result.setId(connection.getTripleId(subject, predicate, object, context, true));
+                IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
+                long tripleId = registry.lookupKey(cacheKey);
+
+                if(tripleId >= 0) {
+                    // try getting id from registry
+                    result.setId(tripleId);
+
+                    registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
+                } else {
+                    // not found in registry, try loading from database
+                    result.setId(connection.getTripleId(subject,predicate,object,context,true));
+                }
+
+                // triple has no id from registry or database, so we create one and flag it for reasoning
+                if(result.getId() < 0) {
+                    result.setId(connection.getNextSequence("seq.triples"));
+                    result.setNewTriple(true);
+
+                    registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
+                }
+            } else {
+                result.setId(connection.getNextSequence("triples"));
             }
+
             storeTriple(result);
 
         } catch (SQLException | ExecutionException e) {
@@ -459,6 +490,10 @@ public class KiWiHandler implements RDFHandler {
         triples++;
 
         if(triples % config.getCommitBatchSize() == 0) {
+            if(registry != null) {
+                registry.releaseTransaction(connection.getTransactionId());
+            }
+
             connection.commit();
 
             printStatistics();

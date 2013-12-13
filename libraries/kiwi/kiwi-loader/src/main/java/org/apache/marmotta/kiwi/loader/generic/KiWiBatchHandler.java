@@ -19,11 +19,7 @@ package org.apache.marmotta.kiwi.loader.generic;
 
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.loader.pgsql.KiWiPostgresHandler;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.model.Literal;
 import org.openrdf.rio.RDFHandler;
@@ -201,9 +197,6 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
     @Override
     protected void storeTriple(KiWiTriple result) throws SQLException {
-        if(result.getId() < 0) {
-            result.setId(connection.getNextSequence("triples"));
-        }
 
         tripleBacklog.add(result);
 
@@ -212,6 +205,9 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         if(triples % config.getCommitBatchSize() == 0) {
             try {
                 flushBacklog();
+                if(registry != null) {
+                    registry.releaseTransaction(connection.getTransactionId());
+                }
                 connection.commit();
             } catch (SQLException ex) {
                 log.warn("could not flush out data ({}), retrying with fresh connection", ex.getCause().getMessage());

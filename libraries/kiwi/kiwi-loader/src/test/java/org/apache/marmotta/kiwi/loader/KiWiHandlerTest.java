@@ -8,11 +8,7 @@ import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -20,10 +16,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
+import org.openrdf.rio.*;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,13 +47,13 @@ public class KiWiHandlerTest {
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException, SailException {
         store = new KiWiStore(dbConfig);
+        store.setDropTablesOnShutdown(true);
         repository = new SailRepository(store);
         repository.initialize();
     }
 
     @After
     public void dropDatabase() throws RepositoryException, SQLException, SailException {
-        store.getPersistence().dropDatabase();
         repository.shutDown();
     }
 
@@ -79,41 +72,56 @@ public class KiWiHandlerTest {
     };
 
     @Test
-    public void testImport() throws Exception {
+    public void testImportNoCheck() throws Exception {
+        testImport(new KiWiLoaderConfiguration());
+    }
 
+    @Test
+    public void testImportExistanceCheck() throws Exception {
+        KiWiLoaderConfiguration cfg = new KiWiLoaderConfiguration();
+        cfg.setStatementExistanceCheck(true);
+        testImport(cfg);
+    }
+
+
+    private void testImport(KiWiLoaderConfiguration c) throws RDFParseException, IOException, RDFHandlerException {
         KiWiHandler handler;
         if(store.getPersistence().getDialect() instanceof PostgreSQLDialect) {
-            handler = new KiWiPostgresHandler(store, new KiWiLoaderConfiguration());
+            handler = new KiWiPostgresHandler(store, c);
         } else if(store.getPersistence().getDialect() instanceof MySQLDialect) {
-            handler = new KiWiMySQLHandler(store, new KiWiLoaderConfiguration());
+            handler = new KiWiMySQLHandler(store, c);
         } else {
-            handler = new KiWiHandler(store,new KiWiLoaderConfiguration());
+            handler = new KiWiHandler(store, c);
         }
 
-        // bulk import
-        long start = System.currentTimeMillis();
-        RDFParser parser = Rio.createParser(RDFFormat.RDFXML);
-        parser.setRDFHandler(handler);
-        parser.parse(this.getClass().getResourceAsStream("demo-data.foaf"),"");
-
-        logger.info("bulk import in {} ms", System.currentTimeMillis() - start);
-
-        // check presence of data
         try {
-            RepositoryConnection con = repository.getConnection();
+            // bulk import
+            long start = System.currentTimeMillis();
+            RDFParser parser = Rio.createParser(RDFFormat.RDFXML);
+            parser.setRDFHandler(handler);
+            parser.parse(this.getClass().getResourceAsStream("demo-data.foaf"),"");
+
+            logger.info("bulk import in {} ms", System.currentTimeMillis() - start);
+
+            // check presence of data
             try {
-                con.begin();
+                RepositoryConnection con = repository.getConnection();
+                try {
+                    con.begin();
 
-                Assert.assertTrue(con.hasStatement(null,null,null,true));
+                    Assert.assertTrue(con.hasStatement(null,null,null,true));
 
-                con.commit();
+                    con.commit();
+                } catch(RepositoryException ex) {
+                    con.rollback();
+                } finally {
+                    con.close();
+                }
             } catch(RepositoryException ex) {
-                con.rollback();
-            } finally {
-                con.close();
+                ex.printStackTrace(); // TODO: handle error
             }
-        } catch(RepositoryException ex) {
-            ex.printStackTrace(); // TODO: handle error
+        } finally {
+            handler.shutdown();
         }
 
     }

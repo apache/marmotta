@@ -4,14 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.pgsql.PGCopyUtil;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -32,11 +25,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -76,6 +65,7 @@ public class PGCopyUtilTest {
         rnd = new Random();
 
         store = new KiWiStore(psql);
+        store.setDropTablesOnShutdown(true);
         repository = new SailRepository(store);
         repository.initialize();
     }
@@ -84,10 +74,11 @@ public class PGCopyUtilTest {
     public void dropDatabase() throws RepositoryException, SQLException, SailException {
         log.info("cleaning up test setup...");
         if (store != null && store.isInitialized()) {
+            try {
             assertTrue(store.checkConsistency());
-            store.closeValueFactory(); // release all connections before dropping the database
-            store.getPersistence().dropDatabase();
-            repository.shutDown();
+            } finally {
+                repository.shutDown();
+            }
         }
     }
 

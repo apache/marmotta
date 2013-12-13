@@ -176,6 +176,7 @@ public class KiWiStore extends NotifyingSailBase {
 
         if(dropTablesOnShutdown) {
             try {
+                logger.info("dropping database tables ...");
                 persistence.dropDatabase();
             } catch (SQLException e) {
                 logger.error("error dropping database: {}", e.getMessage());
