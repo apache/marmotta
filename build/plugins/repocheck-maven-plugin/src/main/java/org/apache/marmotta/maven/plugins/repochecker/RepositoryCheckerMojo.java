@@ -30,9 +30,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -101,8 +101,10 @@ public class RepositoryCheckerMojo extends AbstractMojo {
 	}
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		ClientConnectionManager manager = new PoolingClientConnectionManager();
-		final DefaultHttpClient client = new DefaultHttpClient(manager);
+	    PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager();
+		final CloseableHttpClient client = HttpClients.custom()
+		        .setConnectionManager(manager)
+		        .build();
 
 		final MatrixPrinter printer;
 		if (silent) {
@@ -163,13 +165,18 @@ public class RepositoryCheckerMojo extends AbstractMojo {
 			throw new MojoExecutionException(
 					"Cannot build project dependency graph", e);
 		} finally {
-			client.getConnectionManager().shutdown();
+		    try {
+		        manager.shutdown();
+                client.close();
+            } catch (IOException e) {
+                getLog().warn("IOExeption while closing the HttpClient: " + e.getMessage());
+            }
 		}
 	}
 
 	private Set<Artifact> checkDepNode(final DependencyNode rootNode,
 			final List<ArtifactRepository> repositories, final int level,
-			DefaultHttpClient client, MatrixPrinter printer)
+			CloseableHttpClient client, MatrixPrinter printer)
 			throws MojoFailureException {
 		if (!(level < depth))
 			return Collections.emptySet();
@@ -206,7 +213,7 @@ public class RepositoryCheckerMojo extends AbstractMojo {
 	}
 
 	private Result lookupArtifact(Artifact artifact, ArtifactRepository rep,
-			DefaultHttpClient client) {
+			CloseableHttpClient client) {
 
 		if (artifact.isSnapshot() && !rep.getSnapshots().isEnabled()) {
 			return Result.NOT_FOUND;

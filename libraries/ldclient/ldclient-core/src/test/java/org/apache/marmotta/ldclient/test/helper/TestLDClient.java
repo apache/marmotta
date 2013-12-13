@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
@@ -112,7 +112,7 @@ public class TestLDClient implements LDClientService {
 	}
 	
     @Override
-	public HttpClient getClient() {
+	public CloseableHttpClient getClient() {
 		return delegate.getClient();
 	}
 

@@ -17,15 +17,21 @@
  */
 package org.apache.marmotta.client.clients;
 
-import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentProducer;
 import org.apache.http.entity.EntityTemplate;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.exception.MarmottaClientException;
@@ -35,12 +41,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import com.google.common.io.ByteStreams;
 
 /**
  * This client class provides support for importing ontologies in various formats into the Apache Marmotta.
@@ -78,14 +79,12 @@ public class ImportClient {
      * @throws MarmottaClientException
      */
     public Set<String> getSupportedTypes() throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_TYPES_SERVICE;
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", "application/json");
         
-        try {
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -117,8 +116,6 @@ public class ImportClient {
     public void uploadDataset(final InputStream in, final String mimeType) throws IOException, MarmottaClientException {
         //Preconditions.checkArgument(acceptableTypes.contains(mimeType));
 
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpPost post = HTTPUtil.createPost(URL_UPLOAD_SERVICE, config);
         post.setHeader("Content-Type", mimeType);
         
@@ -148,8 +145,8 @@ public class ImportClient {
             }
         };
 
-        try {
-            httpClient.execute(post, handler);
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
+           httpClient.execute(post, handler);
         } catch(IOException ex) {
             post.abort();
             throw ex;

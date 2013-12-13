@@ -17,11 +17,13 @@
  */
 package org.apache.marmotta.ldclient.test;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,8 +31,6 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
 
 public class TestLDClientTest {
 
@@ -64,19 +64,29 @@ public class TestLDClientTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testConnectionRefused() throws Exception {
         client.retrieveResource("http://no.host.for/this/url");
-        Assert.fail();
+        fail();
     }
 
     @Test(expected = DataRetrievalException.class)
     public void testLocalhostInvalidPort() throws Exception {
         client.retrieveResource("http://127.1.2.3:66000/");
-        Assert.fail();
+        fail();
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testMissingProvider() throws Exception {
         client.retrieveResource("ftp://no.provider.for/this/url");
-        Assert.fail();
+        fail();
+    }
+    
+    @Test
+    public void testPingHttpConnection() {
+        assertTrue("Ping http://www.google.com/", client.ping("http://www.google.com/"));
+    }
+
+    @Test
+    public void testPingHttpsConnection() {
+        assertTrue("Ping https://www.google.com/", client.ping("https://www.google.com/"));
     }
 
 }

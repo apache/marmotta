@@ -27,16 +27,16 @@ import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.ClientPNames;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.marmotta.client.ClientConfiguration;
 
@@ -50,30 +50,33 @@ public class HTTPUtil {
 
     private static final String CONTEXT = "context";
 
-	public static HttpClient createClient(ClientConfiguration config) {
+	public static CloseableHttpClient createClient(ClientConfiguration config) {
 
+	    HttpClientBuilder clientBuilder = HttpClients.custom();
+        clientBuilder.setUserAgent("Marmotta Client Library/"+ MetaUtil.getVersion());
+
+        clientBuilder.setDefaultRequestConfig(RequestConfig.custom()
+                .setSocketTimeout(config.getSoTimeout())
+                .setConnectTimeout(config.getConnectionTimeout())
+                .setRedirectsEnabled(true)
+                .setMaxRedirects(3)
+                .build());
+
+        /* FIXME: This should be allowed to be deleted, could not find any usage of this param.
         HttpParams httpParams = new BasicHttpParams();
-        httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Marmotta Client Library/"+ MetaUtil.getVersion());
-
-        httpParams.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, config.getSoTimeout());
-        httpParams.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, config.getConnectionTimeout());
-
-        httpParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS,true);
-        httpParams.setIntParameter(ClientPNames.MAX_REDIRECTS,3);
-
         if (StringUtils.isNotBlank(config.getMarmottaContext())) {
         	httpParams.setParameter(CONTEXT, config.getMarmottaContext());
         }
+        */
         
-        DefaultHttpClient client;
         if (config.getConectionManager() != null) {
-            client = new DefaultHttpClient(config.getConectionManager(), httpParams);
+            clientBuilder.setConnectionManager(config.getConectionManager());
         } else {
-            client = new DefaultHttpClient(httpParams);
+            clientBuilder.setConnectionManager(new BasicHttpClientConnectionManager());
         }
-        client.setRedirectStrategy(new MarmottaRedirectStrategy());
-        client.setHttpRequestRetryHandler(new MarmottaHttpRequestRetryHandler());
-        return client;
+        clientBuilder.setRedirectStrategy(new MarmottaRedirectStrategy());
+        clientBuilder.setRetryHandler(new MarmottaHttpRequestRetryHandler());
+        return clientBuilder.build();
     }
 	
 	public static HttpPost createPost(String path, ClientConfiguration config) {

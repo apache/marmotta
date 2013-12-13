@@ -17,14 +17,14 @@
  */
 package org.apache.marmotta.ldclient.api.ldclient;
 
-import org.apache.http.client.HttpClient;
+import java.util.Set;
+
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-
-import java.util.Set;
 
 /**
  * A service offering Linked Data client functionality for retrieving Linked Data resources from the cloud.
@@ -61,7 +61,7 @@ public interface LDClientService {
      *
      * @return
      */
-    public HttpClient getClient();
+    public CloseableHttpClient getClient();
 
 
     /**

@@ -17,9 +17,17 @@
  */
 package org.apache.marmotta.client.clients;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.exception.MarmottaClientException;
 import org.apache.marmotta.client.model.rdf.BNode;
@@ -45,14 +53,6 @@ import org.openrdf.query.resultio.UnsupportedQueryResultFormatException;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Add file description here!
@@ -81,15 +81,12 @@ public class SPARQLClient {
      * @throws MarmottaClientException
      */
     public SPARQLResult select(String query) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(query, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", TupleQueryResultFormat.JSON.getDefaultMIMEType());
         
-        try {
-
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -171,15 +168,12 @@ public class SPARQLClient {
      * @throws MarmottaClientException
      */
     public boolean ask(String askQuery) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(askQuery, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", BooleanQueryResultFormat.JSON.getDefaultMIMEType());
         
-        try {
-
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -224,14 +218,11 @@ public class SPARQLClient {
      * @throws MarmottaClientException in case the server returned and error and did not execute the update
      */
     public void update(String updateQuery) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_UPDATE_SERVICE + "?update=" + URLEncoder.encode(updateQuery, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
         
-        try {
-                
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {

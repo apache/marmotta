@@ -17,17 +17,17 @@
  */
 package org.apache.marmotta.platform.core.api.http;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 public interface HttpClientService {
 
@@ -39,7 +39,7 @@ public interface HttpClientService {
      * @param handler the {@link ResponseHandler} for the response
      * @return whatever the {@link ResponseHandler} builds.
      * 
-     * @see HttpClient#execute(HttpUriRequest, ResponseHandler)
+     * @see CloseableHttpClient#execute(HttpUriRequest, ResponseHandler)
      */
     public <T> T execute(HttpRequestBase request, ResponseHandler<? extends T> handler) throws ClientProtocolException, IOException;
 
@@ -161,8 +161,8 @@ public interface HttpClientService {
     public Date doHead(String url) throws IOException;
 
     /**
-     * Get a ready-to-use {@link HttpClient}.
+     * Get a ready-to-use {@link CloseableHttpClient}.
      */
-    public HttpClient getHttpClient();
+    public CloseableHttpClient getHttpClient();
 
 }

@@ -17,11 +17,14 @@
  */
 package org.apache.marmotta.client.clients;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.io.ByteStreams;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -30,6 +33,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentProducer;
 import org.apache.http.entity.EntityTemplate;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.exception.ContentFormatException;
@@ -43,11 +47,8 @@ import org.apache.marmotta.client.util.RDFJSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.ByteStreams;
 
 /**
  * Add file description here!
@@ -74,12 +75,9 @@ public class ResourceClient {
      * @throws IOException
      */
     public boolean createResource(String uri) throws IOException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-            
         HttpPost post = new HttpPost(getServiceUrl(uri));
         
-        try {
-            
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(post);
             
             switch(response.getStatusLine().getStatusCode()) {
@@ -112,12 +110,9 @@ public class ResourceClient {
      * @throws IOException
      */
     public boolean existsResource(String uri) throws IOException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpOptions options = new HttpOptions(getServiceUrl(uri));
         
-        try {
-                
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(options);
 
             if(response.containsHeader("Access-Control-Allow-Methods") && response.getFirstHeader("Access-Control-Allow-Methods").getValue().equals("POST")) {
@@ -148,13 +143,10 @@ public class ResourceClient {
      * @throws MarmottaClientException
      */
     public Metadata getResourceMetadata(String uri) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpGet get = new HttpGet(getServiceUrl(uri));
         get.setHeader("Accept", "application/rdf+json; rel=meta");
         
-        try {
-            
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -197,8 +189,6 @@ public class ResourceClient {
      * @throws MarmottaClientException
      */
     public void updateResourceMetadata(final String uri, final Metadata metadata) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpPut put = new HttpPut(getServiceUrl(uri));
         put.setHeader("Content-Type", "application/rdf+json; rel=meta");
         ContentProducer cp = new ContentProducer() {
@@ -209,8 +199,7 @@ public class ResourceClient {
         };
         put.setEntity(new EntityTemplate(cp));
 
-        try {
-            
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(put);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -248,13 +237,10 @@ public class ResourceClient {
      * @throws MarmottaClientException
      */
     public Content getResourceContent(String uri, String mimeType) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpGet get = new HttpGet(getServiceUrl(uri));
         get.setHeader("Accept", mimeType+"; rel=content");
         
-        try {
-
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -292,8 +278,6 @@ public class ResourceClient {
      * @throws MarmottaClientException
      */
     public void updateResourceContent(final String uri, final Content content) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpPut put = new HttpPut(getServiceUrl(uri));
         put.setHeader("Content-Type", content.getMimeType()+"; rel=content");
         ContentProducer cp = new ContentProducer() {
@@ -325,7 +309,7 @@ public class ResourceClient {
             }
         };
 
-        try {
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             httpClient.execute(put, handler);
         } catch(IOException ex) {
             put.abort();
@@ -338,12 +322,9 @@ public class ResourceClient {
     
     
     public void deleteResource(String uri) throws IOException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpDelete delete = new HttpDelete(getServiceUrl(uri));
         
-        try {
-            
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(delete);
 
             switch(response.getStatusLine().getStatusCode()) {

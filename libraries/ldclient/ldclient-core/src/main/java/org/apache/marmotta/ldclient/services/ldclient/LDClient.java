@@ -17,25 +17,33 @@
  */
 package org.apache.marmotta.ldclient.services.ldclient;
 
-import org.apache.http.*;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpRequestRetryHandler;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.http.Header;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.ProtocolException;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
+import org.apache.marmotta.commons.http.response.HasStatusCodeResponseHandler;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
@@ -44,14 +52,6 @@ import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Add file description here!
@@ -72,7 +72,7 @@ public final class LDClient implements LDClientService {
      */
     private static ServiceLoader<Endpoint> defaultEndpoints = ServiceLoader.load(Endpoint.class);
 
-    private HttpClient client;
+    private CloseableHttpClient client;
 
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
@@ -113,41 +113,28 @@ public final class LDClient implements LDClientService {
         } else {
             log.debug("Creating default HttpClient based on the configuration");
 
-            HttpParams httpParams = new BasicHttpParams();
-            httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Apache Marmotta LDClient");
+            HttpClientBuilder clientBuilder = HttpClients.custom();
+            clientBuilder.setUserAgent("Apache Marmotta LDClient");
 
-            httpParams.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, config.getSocketTimeout());
-            httpParams.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, config.getConnectionTimeout());
+            clientBuilder.setDefaultRequestConfig(RequestConfig.custom()
+                .setSocketTimeout(config.getSocketTimeout())
+                .setConnectTimeout(config.getConnectionTimeout())
+                .setRedirectsEnabled(true)
+                .setMaxRedirects(3)
+                .build());
 
-            httpParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS,true);
-            httpParams.setIntParameter(ClientPNames.MAX_REDIRECTS,3);
-
-            SchemeRegistry schemeRegistry = new SchemeRegistry();
-            schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-
-            try {
-                SSLContext sslcontext = SSLContext.getInstance("TLS");
-                sslcontext.init(null, null, null);
-                SSLSocketFactory sf = new SSLSocketFactory(sslcontext, SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
-
-                schemeRegistry.register(new Scheme("https", 443, sf));
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (KeyManagementException e) {
-                e.printStackTrace();
-            }
-
-            PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
+            PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
             cm.setMaxTotal(20);
             cm.setDefaultMaxPerRoute(10);
+            clientBuilder.setConnectionManager(cm);
 
-            DefaultHttpClient client = new DefaultHttpClient(cm,httpParams);
-            client.setRedirectStrategy(new LMFRedirectStrategy());
-            client.setHttpRequestRetryHandler(new LMFHttpRequestRetryHandler());
-            idleConnectionMonitorThread = new IdleConnectionMonitorThread(client.getConnectionManager());
+            clientBuilder.setRedirectStrategy(new MarmottaRedirectStrategy());
+            clientBuilder.setRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
+            
+            idleConnectionMonitorThread = new IdleConnectionMonitorThread(cm);
             idleConnectionMonitorThread.start();
-
-            this.client = client;
+            
+            this.client = clientBuilder.build();
         }
 
         for(DataProvider provider : providers) {
@@ -160,7 +147,7 @@ public final class LDClient implements LDClientService {
         //crappy implementation only for http
         if (resource.startsWith("http://") || resource.startsWith("https://")) {
             try {
-                return (200 == client.execute(new HttpHead(resource)).getStatusLine().getStatusCode());
+                return client.execute(new HttpHead(resource), new HasStatusCodeResponseHandler(200));
             } catch (Exception e) {
                 log.error(e.getMessage());
                 return false;
@@ -208,7 +195,11 @@ public final class LDClient implements LDClientService {
             // we manage our own connection pool
             if (idleConnectionMonitorThread != null)
                 idleConnectionMonitorThread.shutdown();
-            client.getConnectionManager().shutdown();
+            try {
+                client.close();
+            } catch (IOException e) {
+                log.warn("Error while closing HttpClient: {}", e.getMessage());
+            }
         }
     }
 
@@ -264,7 +255,7 @@ public final class LDClient implements LDClientService {
      * @return
      */
     @Override
-    public HttpClient getClient() {
+    public CloseableHttpClient getClient() {
         return client;
     }
 
@@ -331,7 +322,7 @@ public final class LDClient implements LDClientService {
         return null;
     }
 
-    private static class LMFRedirectStrategy extends DefaultRedirectStrategy {
+    private static class MarmottaRedirectStrategy extends DefaultRedirectStrategy {
         @Override
         public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
             if (response == null) throw new IllegalArgumentException("HTTP response may not be null");
@@ -357,30 +348,12 @@ public final class LDClient implements LDClientService {
         }
     }
 
-    private static class LMFHttpRequestRetryHandler implements HttpRequestRetryHandler  {
-        /**
-         * Determines if a method should be retried after an IOException
-         * occurs during execution.
-         *
-         * @param exception      the exception that occurred
-         * @param executionCount the number of times this method has been
-         *                       unsuccessfully executed
-         * @param context        the context for the request execution
-         * @return <code>true</code> if the method should be retried, <code>false</code>
-         *         otherwise
-         */
-        @Override
-        public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
-            return false;
-        }
-    }
-
     private static class IdleConnectionMonitorThread extends Thread {
 
-        private final ClientConnectionManager connMgr;
+        private final HttpClientConnectionManager connMgr;
         private volatile boolean shutdown;
 
-        public IdleConnectionMonitorThread(ClientConnectionManager connMgr) {
+        public IdleConnectionMonitorThread(HttpClientConnectionManager connMgr) {
             super("LD HTTP Client Idle Connection Manager");
             this.connMgr = connMgr;
             setDaemon(true);

@@ -17,9 +17,16 @@
  */
 package org.apache.marmotta.client.clients;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.exception.ContentFormatException;
 import org.apache.marmotta.client.exception.MarmottaClientException;
@@ -32,13 +39,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Add file description here!
@@ -72,16 +72,13 @@ public class LDPathClient {
      * @throws IOException
      */
     public List<RDFNode> evaluatePath(String uri, String path) throws MarmottaClientException, IOException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_PATH_SERVICE + "?path=" + URLEncoder.encode(path, "utf-8")
                                                                   + "&uri="  + URLEncoder.encode(uri, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", "application/json");
         
-        try {
-
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -117,16 +114,13 @@ public class LDPathClient {
     
     
     public Map<String,List<RDFNode>> evaluateProgram(String uri, String program) throws MarmottaClientException, IOException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_PROGRAM_SERVICE + "?program=" + URLEncoder.encode(program, "utf-8")
                                                                                    + "&uri="  + URLEncoder.encode(uri, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", "application/json");
         
-        try {
-
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(get);
 
             switch(response.getStatusLine().getStatusCode()) {

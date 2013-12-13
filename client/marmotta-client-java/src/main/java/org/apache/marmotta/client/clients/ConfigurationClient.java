@@ -17,13 +17,22 @@
  */
 package org.apache.marmotta.client.clients;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentProducer;
 import org.apache.http.entity.EntityTemplate;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.exception.MarmottaClientException;
 import org.apache.marmotta.client.exception.NotFoundException;
@@ -33,15 +42,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A client that supports accessing the configuration webservice of the Apache Marmotta. May be used for
@@ -69,12 +69,10 @@ public class ConfigurationClient {
      * @throws MarmottaClientException
      */
     public Set<String> listConfigurationKeys() throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         HttpGet get = new HttpGet(config.getMarmottaUri() + URL_CONFIG_SERVICE + "/list");
         get.setHeader("Accept", "application/json");
 
-        try {
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             
             HttpResponse response = httpClient.execute(get);
 
@@ -102,14 +100,13 @@ public class ConfigurationClient {
      * @throws MarmottaClientException
      */
     public Set<Configuration> listConfigurations(String prefix) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
 
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/list" + (prefix != null? "?prefix="+ URLEncoder.encode(prefix,"utf-8") : "");
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", "application/json");
         
-        try {
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
 
             HttpResponse response = httpClient.execute(get);
 
@@ -144,14 +141,12 @@ public class ConfigurationClient {
      * @throws MarmottaClientException
      */
     public Configuration getConfiguration(String key) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/data/" + URLEncoder.encode(key,"utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
         get.setHeader("Accept", "application/json");
         
-        try {
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
 
             HttpResponse response = httpClient.execute(get);
 
@@ -189,8 +184,6 @@ public class ConfigurationClient {
      * @throws MarmottaClientException
      */
     public void setConfiguration(String key, final Object value) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/data/" + URLEncoder.encode(key,"utf-8");
 
         HttpPost post = new HttpPost(serviceUrl);
@@ -208,8 +201,7 @@ public class ConfigurationClient {
         };
         post.setEntity(new EntityTemplate(cp));
         
-        try {
-
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(post);
 
             switch(response.getStatusLine().getStatusCode()) {
@@ -237,13 +229,11 @@ public class ConfigurationClient {
      * @throws MarmottaClientException
      */
     public void deleteConfiguration(String key) throws IOException, MarmottaClientException {
-        HttpClient httpClient = HTTPUtil.createClient(config);
-
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/data/" + URLEncoder.encode(key,"utf-8");
 
         HttpDelete delete = new HttpDelete(serviceUrl);
             
-        try {
+        try(CloseableHttpClient httpClient = HTTPUtil.createClient(config)) {
             HttpResponse response = httpClient.execute(delete);
 
             switch(response.getStatusLine().getStatusCode()) {

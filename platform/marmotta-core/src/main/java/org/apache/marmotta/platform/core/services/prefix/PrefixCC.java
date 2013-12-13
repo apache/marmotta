@@ -101,6 +101,7 @@ public class PrefixCC implements PrefixProvider {
 
                 @Override
                 public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+                    log.error("StatusCode: {}", response.getStatusLine().getStatusCode());
                     if (200 == response.getStatusLine().getStatusCode()) {
                         HttpEntity entity = response.getEntity();
 
@@ -108,6 +109,7 @@ public class PrefixCC implements PrefixProvider {
                         try {
                             while (it.hasNext()) {
                                 final String l = it.next();
+                                log.error(": {}", l);
                                 if (l.endsWith("\t" + namespace)) {
                                     return l.substring(0, l.indexOf("\t"));
                                 }

@@ -17,16 +17,16 @@
  */
 package org.apache.marmotta.client.clients;
 
+import java.io.IOException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.util.HTTPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * Context Client 
@@ -44,13 +44,12 @@ public class ContextClient {
         this.config = config;
     }
     
-    public boolean delete(String uri) {
+    public boolean delete(String uri) throws IOException {
     	boolean result = false;
-        HttpClient httpClient = HTTPUtil.createClient(config);
        
         HttpDelete delete = new HttpDelete(uri);
         
-        try {
+        try (CloseableHttpClient httpClient = HTTPUtil.createClient(config);) {
                 
             HttpResponse response = httpClient.execute(delete);
 

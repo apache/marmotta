@@ -17,11 +17,11 @@
  */
 package org.apache.marmotta.ldclient.model;
 
-import org.apache.http.client.HttpClient;
-import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 
 /**
  * Configuration options for the Linked Data Client.
@@ -71,7 +71,7 @@ public class ClientConfiguration {
     /**
      * A HttpClient used for retrieving the resource data.
      */
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
 
     public ClientConfiguration() {
         excludeUris = new HashSet<String>();
@@ -160,11 +160,11 @@ public class ClientConfiguration {
         this.endpoints = endpoints;
     }
 
-	public HttpClient getHttpClient() {
+	public CloseableHttpClient getHttpClient() {
 		return httpClient;
 	}
 
-	public void setHttpClient(HttpClient httpClient) {
+	public void setHttpClient(CloseableHttpClient httpClient) {
 		this.httpClient = httpClient;
 	}
 

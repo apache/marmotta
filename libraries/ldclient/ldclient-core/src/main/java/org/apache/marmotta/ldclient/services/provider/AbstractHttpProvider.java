@@ -17,13 +17,25 @@
  */
 package org.apache.marmotta.ldclient.services.provider;
 
+import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseContentType;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.cookie.DateParseException;
-import org.apache.http.impl.cookie.DateUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
@@ -39,19 +51,6 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-
-import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseContentType;
 
 /**
  * Add file description here!
@@ -273,11 +272,7 @@ public abstract class AbstractHttpProvider implements DataProvider {
                         if (expiresDate == null) {
                             Header expires = response.getFirstHeader("Expires");
                             if (expires != null) {
-                                try {
-                                    expiresDate = DateUtils.parseDate(expires.getValue());
-                                } catch (DateParseException e) {
-                                    log.debug("error parsing Expires: header");
-                                }
+                                expiresDate = DateUtils.parseDate(expires.getValue());
                             }
                         }
 

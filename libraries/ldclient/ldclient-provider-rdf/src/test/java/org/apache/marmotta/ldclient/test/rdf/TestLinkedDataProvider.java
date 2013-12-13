@@ -17,18 +17,28 @@
  */
 package org.apache.marmotta.ldclient.test.rdf;
 
+import java.io.InputStream;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryConnection;
-
-import java.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test if the LinkedDataProvider is working properly.
@@ -45,6 +55,9 @@ public class TestLinkedDataProvider {
     private static final String EXAMPLE = "http://example.org/foo";
     private static final String SSL = "https://example.org/foo";
 
+    private final Logger logger =
+            LoggerFactory.getLogger(this.getClass());
+
     private LDClientService ldclient;
 
     @Before
@@ -56,6 +69,17 @@ public class TestLinkedDataProvider {
     public void shutdownClient() {
         ldclient.shutdown();
     }
+    
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        /**
+         * Invoked when a test is about to start
+         */
+        @Override
+        protected void starting(Description description) {
+            logger.info("{} being run...", description.getMethodName());
+        }
+    };
 
     /**
      * This method tests accessing the DBPedia Linked Data service, which uses Virtuoso and delivers RDF/XML as
