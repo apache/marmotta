@@ -154,12 +154,6 @@ public class LDPathWebService {
                 con.begin();
                 if (ResourceUtils.isSubject(con, resourceUri)) {
                     URI resource = con.getValueFactory().createURI(resourceUri);
-                    // get list of configured namespaces; we make them available for the path language
-                    Map<String,String> namespaces = new HashMap<String, String>();
-                    for(Namespace ns : iterable(con.getNamespaces())) {
-                        namespaces.put(ns.getPrefix(),ns.getName());
-                    }
-
 
                     Map<String,List<Map<String,String>>> result = new HashMap<String, List<Map<String, String>>>();
 
