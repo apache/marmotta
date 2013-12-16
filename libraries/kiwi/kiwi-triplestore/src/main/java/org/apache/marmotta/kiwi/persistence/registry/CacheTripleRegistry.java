@@ -18,19 +18,37 @@
 package org.apache.marmotta.kiwi.persistence.registry;
 
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
-import org.infinispan.AdvancedCache;
+import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.infinispan.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * A triple registry implementation based on the Infinispan cache.
+ * A triple registry implementation based on the Infinispan cache. Registry entries are stored in a replicated,
+ * synchronized Infinispan cache. Transaction information is kept locally.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class CacheTripleRegistry implements KiWiTripleRegistry {
 
+    private static Logger log = LoggerFactory.getLogger(CacheTripleRegistry.class);
 
-    AdvancedCache<IntArray,Map<Long,Long>> cache;
+    private Cache<Long,Long> cache;
+
+
+    private Map<Long,List<Long>>  transactions;
+
+
+    public CacheTripleRegistry(KiWiCacheManager cacheManager) {
+        cache        = cacheManager.getRegistryCache();
+        transactions = new HashMap<>();
+
+    }
 
 
     /**
@@ -42,7 +60,17 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
      */
     @Override
     public void registerKey(IntArray key, long transactionId, long tripleId) {
+        List<Long> transaction = transactions.get(transactionId);
+        if(transaction == null) {
+            transaction = new ArrayList<>();
+            transactions.put(transactionId, transaction);
+        }
+        Long old = cache.put(key.longHashCode(),tripleId);
+        transaction.add(key.longHashCode());
 
+        if(old != null && old != tripleId) {
+            log.warn("registered a new triple ID for an already existing triple");
+        }
     }
 
     /**
@@ -54,7 +82,12 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
      */
     @Override
     public long lookupKey(IntArray key) {
-        return 0;
+        Long value = cache.get(key.longHashCode());
+        if(value != null) {
+            return value;
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -65,7 +98,11 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
      */
     @Override
     public void releaseTransaction(long transactionId) {
-
+        if(transactions.containsKey(transactionId)) {
+            for(long key : transactions.remove(transactionId)) {
+                cache.removeAsync(key);
+            }
+        }
     }
 
     /**
@@ -75,6 +112,6 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
      */
     @Override
     public void deleteKey(IntArray key) {
-
+        cache.remove(key.longHashCode());
     }
 }

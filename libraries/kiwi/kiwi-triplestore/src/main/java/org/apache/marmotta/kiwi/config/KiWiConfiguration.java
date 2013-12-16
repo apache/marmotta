@@ -100,6 +100,14 @@ public class KiWiConfiguration {
     private int datacenterId = 0;
 
 
+    private RegistryStrategy registryStrategy = RegistryStrategy.CACHE;
+
+    /**
+     * Enable to turn on cluster mode (e.g. for cache replication)
+     */
+    private boolean clustered = false;
+
+
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
     }
@@ -320,5 +328,38 @@ public class KiWiConfiguration {
      */
     public void setDatacenterId(int datacenterId) {
         this.datacenterId = datacenterId;
+    }
+
+
+    /**
+     * Return the strategy to use for synchronizing between transactions. Currently either "database" or "cache".
+     * @return
+     */
+    public RegistryStrategy getRegistryStrategy() {
+        return registryStrategy;
+    }
+
+    /**
+     * Change the strategy to use for synchronizing between transactions. Currently either "database" or "cache".
+     * @return
+     */
+    public void setRegistryStrategy(RegistryStrategy registryStrategy) {
+        this.registryStrategy = registryStrategy;
+    }
+
+    /**
+     * If true, support for special cluster features is enabled (e.g. replicated caches).
+     *
+     * @return
+     */
+    public boolean isClustered() {
+        return clustered;
+    }
+
+    /**
+     * If true, support for special cluster features is enabled (e.g. replicated caches).
+     */
+    public void setClustered(boolean clustered) {
+        this.clustered = clustered;
     }
 }

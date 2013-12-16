@@ -3,9 +3,6 @@ package org.apache.marmotta.kiwi.loader.generic;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -53,9 +50,6 @@ public class KiWiHandler implements RDFHandler {
 
     protected KiWiLoaderConfiguration config;
 
-    protected SelfPopulatingCache literalCache;
-    protected SelfPopulatingCache uriCache;
-    protected SelfPopulatingCache bnodeCache;
     protected LoadingCache<String,Locale> localeCache;
 
     // if non-null, all imported statements will have this context (regardless whether they specified a different context)
@@ -74,27 +68,6 @@ public class KiWiHandler implements RDFHandler {
     public KiWiHandler(KiWiStore store, KiWiLoaderConfiguration config) {
         this.config     = config;
         this.store      = store;
-
-        this.literalCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
-            @Override
-            public Object createEntry(Object key) throws Exception {
-                return createLiteral((Literal)key);
-            }
-        });
-
-        this.uriCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
-            @Override
-            public Object createEntry(Object key) throws Exception {
-                return createURI(((URI)key).stringValue());
-            }
-        });
-
-        this.bnodeCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
-            @Override
-            public Object createEntry(Object key) throws Exception {
-                return createBNode(((BNode)key).stringValue());
-            }
-        });
 
         this.localeCache = CacheBuilder.newBuilder()
                 .maximumSize(100)
@@ -295,27 +268,14 @@ public class KiWiHandler implements RDFHandler {
         } else if(value instanceof KiWiNode) {
             return (KiWiNode)value;
         } else if(value instanceof URI) {
-            Element e = uriCache.get((URI) value);
-            if(e != null) {
-                return (KiWiNode) e.getObjectValue();
-            }
+            return createURI(((URI)value).stringValue());
         } else if(value instanceof BNode) {
-            Element e = bnodeCache.get(((BNode)value));
-            if(e != null) {
-                return (KiWiNode) e.getObjectValue();
-            }
+            return createBNode(((BNode)value).stringValue());
         } else if(value instanceof Literal) {
-            Literal l = (Literal)value;
-            Element e = literalCache.get(l);
-            if(e != null) {
-                return (KiWiNode) e.getObjectValue();
-            }
-
+            return createLiteral((Literal)value);
         } else {
             throw new IllegalArgumentException("the value passed as argument does not have the correct type");
         }
-        throw new IllegalStateException("could not construct or load node");
-
     }
 
     protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {

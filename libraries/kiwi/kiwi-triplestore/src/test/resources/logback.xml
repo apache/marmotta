@@ -22,7 +22,7 @@
         </encoder>
     </appender>
 
-    <logger name="net.sf.ehcache.pool.impl" level="WARN" />
+    <logger name="org.infinispan.jmx" level="WARN" />
 
     <root level="${root-level:-INFO}">
         <appender-ref ref="CONSOLE"/>

@@ -23,7 +23,9 @@ import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
+import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.slf4j.Logger;
@@ -50,13 +52,23 @@ public class KiWiValueFactory implements ValueFactory {
 
     private KiWiStore store;
 
-    private DBTripleRegistry registry;
+    private KiWiTripleRegistry registry;
 
     private String defaultContext;
 
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
         anonIdGenerator = new Random();
-        registry        = new DBTripleRegistry(store);
+
+        switch (store.getPersistence().getConfiguration().getRegistryStrategy()) {
+            case DATABASE:
+                registry        = new DBTripleRegistry(store);
+                break;
+            case CACHE:
+                registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
+                break;
+            default:
+                registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
+        }
 
         this.store          = store;
         this.defaultContext = defaultContext;

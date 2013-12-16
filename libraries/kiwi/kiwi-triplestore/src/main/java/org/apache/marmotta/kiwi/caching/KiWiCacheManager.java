@@ -49,6 +49,8 @@ public class KiWiCacheManager {
     public static final String NAMESPACE_URI_CACHE = "namespace-uri-cache";
     public static final String NAMESPACE_PREFIX_CACHE = "namespace-prefix-cache";
     public static final String LOADER_CACHE = "loader-cache";
+    public static final String REGISTRY_CACHE = "registry-cache";
+
     private EmbeddedCacheManager cacheManager;
 
     private GlobalConfiguration globalConfiguration;
@@ -56,33 +58,58 @@ public class KiWiCacheManager {
     // default configuration: distributed cache, 100000 entries, 300 seconds expiration, 60 seconds idle
     private Configuration defaultConfiguration;
 
+    private boolean clustered;
+
     public KiWiCacheManager(KiWiConfiguration config) {
-        globalConfiguration = new GlobalConfigurationBuilder()
-                .transport()
-                    .defaultTransport()
-                    .clusterName(config.getName())
-                    .machineId("instance-" + config.getDatacenterId())
-                    .addProperty("configurationFile", "jgroups-udp.xml")
-                .build();
+
+        this.clustered = config.isClustered();
+
+        if(clustered) {
+            globalConfiguration = new GlobalConfigurationBuilder()
+                    .transport()
+                        .defaultTransport()
+                        .clusterName(config.getName())
+                        .machineId("instance-" + config.getDatacenterId())
+                        .addProperty("configurationFile", "jgroups-udp.xml")
+                    .globalJmxStatistics()
+                    .build();
 
 
-        defaultConfiguration = new ConfigurationBuilder()
-                .clustering()
-                    .cacheMode(CacheMode.DIST_SYNC)
-                    .sync()
-                    .l1()
-                        .lifespan(25, TimeUnit.SECONDS)
-                    .hash()
-                        .numOwners(2)
-                        .numSegments(100)
-                        .consistentHashFactory(new SyncConsistentHashFactory())
-                .eviction()
-                    .strategy(EvictionStrategy.LIRS)
-                    .maxEntries(100000)
-                .expiration()
-                    .lifespan(5, TimeUnit.MINUTES)
-                    .maxIdle(1, TimeUnit.MINUTES)
-                .build();
+            defaultConfiguration = new ConfigurationBuilder()
+                    .clustering()
+                        .cacheMode(CacheMode.DIST_ASYNC)
+                        .async()
+                        .l1()
+                            .lifespan(25, TimeUnit.SECONDS)
+                        .hash()
+                            .numOwners(2)
+                            .numSegments(100)
+                            .consistentHashFactory(new SyncConsistentHashFactory())
+                    .eviction()
+                        .strategy(EvictionStrategy.LIRS)
+                        .maxEntries(100000)
+                    .expiration()
+                        .lifespan(5, TimeUnit.MINUTES)
+                        .maxIdle(1, TimeUnit.MINUTES)
+                    .build();
+        } else {
+            globalConfiguration = new GlobalConfigurationBuilder()
+                    .globalJmxStatistics()
+                    .build();
+
+            defaultConfiguration = new ConfigurationBuilder()
+                    .clustering()
+                        .cacheMode(CacheMode.LOCAL)
+                    .eviction()
+                        .strategy(EvictionStrategy.LIRS)
+                        .maxEntries(100000)
+                    .expiration()
+                        .lifespan(5, TimeUnit.MINUTES)
+                        .maxIdle(1, TimeUnit.MINUTES)
+                    .build();
+
+        }
+
 
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
     }
@@ -231,6 +258,37 @@ public class KiWiCacheManager {
         return cacheManager.getCache(LOADER_CACHE);
     }
 
+
+    /**
+     * Create and return the cache used by the CacheTripleRegistry. This is an unlimited synchronous replicated
+     * cache and should be used with care.
+     * @return
+     */
+    public Cache getRegistryCache() {
+        if(!cacheManager.cacheExists(LOADER_CACHE)) {
+            if(clustered) {
+                Configuration registryConfiguration = new ConfigurationBuilder()
+                    .clustering()
+                        .cacheMode(CacheMode.REPL_SYNC)
+                        .sync()
+                        .l1()
+                            .lifespan(25, TimeUnit.SECONDS)
+                    .eviction()
+                        .strategy(EvictionStrategy.NONE)
+                    .build();
+                cacheManager.defineConfiguration(REGISTRY_CACHE, registryConfiguration);
+            } else {
+                Configuration registryConfiguration = new ConfigurationBuilder()
+                    .clustering()
+                        .cacheMode(CacheMode.LOCAL)
+                    .eviction()
+                        .strategy(EvictionStrategy.NONE)
+                    .build();
+                cacheManager.defineConfiguration(REGISTRY_CACHE, registryConfiguration);
+            }
+        }
+        return cacheManager.getCache(REGISTRY_CACHE);
+    }
 
     /**
      * Get the cache with the given name from the cache manager. Can be used to request additional
