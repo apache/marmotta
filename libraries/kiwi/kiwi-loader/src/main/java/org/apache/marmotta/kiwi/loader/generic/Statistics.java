@@ -17,15 +17,10 @@
 
 package org.apache.marmotta.kiwi.loader.generic;
 
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import org.apache.marmotta.kiwi.loader.util.UnitFormatter;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
-import org.rrd4j.core.FetchData;
-import org.rrd4j.core.FetchRequest;
-import org.rrd4j.core.RrdDb;
-import org.rrd4j.core.RrdDef;
-import org.rrd4j.core.Sample;
+import org.rrd4j.core.*;
 import org.rrd4j.graph.RrdGraph;
 import org.rrd4j.graph.RrdGraphDef;
 import org.slf4j.Logger;
@@ -85,8 +80,6 @@ public class Statistics {
         stCfg.addDatasource("triples", DsType.COUNTER, 600, Double.NaN, Double.NaN);
         stCfg.addDatasource("nodes", DsType.COUNTER, 600, Double.NaN, Double.NaN);
         stCfg.addDatasource("nodes-loaded", DsType.COUNTER, 600, Double.NaN, Double.NaN);
-        stCfg.addDatasource("cache-hits", DsType.COUNTER, 600, Double.NaN, Double.NaN);
-        stCfg.addDatasource("cache-misses", DsType.COUNTER, 600, Double.NaN, Double.NaN);
         stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);  // every five seconds for 2 hours
         stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 12, 1440); // every minute for 1 day
         stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 60, 1440); // every five minutes for five days
@@ -158,18 +151,12 @@ public class Statistics {
         @Override
         public void run() {
 
-            long cacheMisses = 0, cacheHits = 0;
-            for(SelfPopulatingCache c : new SelfPopulatingCache[] { handler.literalCache, handler.uriCache, handler.bnodeCache }) {
-                cacheHits   += c.getStatistics().getCacheHits();
-                cacheMisses += c.getStatistics().getCacheMisses();
-            }
-
             try {
                 long time = System.currentTimeMillis() / 1000;
 
                 synchronized (statSample) {
                     statSample.setTime(time);
-                    statSample.setValues(handler.triples, handler.nodes, handler.nodesLoaded, cacheHits, cacheMisses);
+                    statSample.setValues(handler.triples, handler.nodes, handler.nodesLoaded);
                     statSample.update();
                 }
 

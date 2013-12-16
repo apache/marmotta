@@ -17,13 +17,7 @@
  */
 package org.apache.marmotta.kiwi.reasoner.persistence;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.EmptyIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.Iterations;
-import info.aduna.iteration.IteratorIteration;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import info.aduna.iteration.*;
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
@@ -32,18 +26,11 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
-import org.apache.marmotta.kiwi.reasoner.model.program.Field;
-import org.apache.marmotta.kiwi.reasoner.model.program.Filter;
-import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
-import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
-import org.apache.marmotta.kiwi.reasoner.model.program.Pattern;
-import org.apache.marmotta.kiwi.reasoner.model.program.Program;
-import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
-import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
-import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
+import org.apache.marmotta.kiwi.reasoner.model.program.*;
 import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
 import org.apache.marmotta.kiwi.reasoner.parser.ParseException;
+import org.infinispan.Cache;
 import org.openrdf.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +39,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Extends the basic KiWiConnection by functionalities for storing, deleting and querying reasoner programs and rules
@@ -73,7 +53,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
     private ValueFactory valueFactory;
 
-    private Cache ruleIdCache;
+    private Cache<Long,Rule> ruleIdCache;
 
     public KiWiReasoningConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager, ValueFactory valueFactory) throws SQLException {
         super(persistence, dialect, cacheManager);
@@ -110,7 +90,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
             insertRule.executeUpdate();
         }
 
-        ruleIdCache.put(new Element(rule.getId(), rule));
+        ruleIdCache.put(rule.getId(), rule);
     }
 
     /**
@@ -122,10 +102,10 @@ public class KiWiReasoningConnection extends KiWiConnection {
      */
     public Rule loadRuleById(long ruleId, Map<String, String> namespaces) throws SQLException {
 
-        Element cached = ruleIdCache.get(ruleId);
+        Rule cached = ruleIdCache.get(ruleId);
 
         if(cached != null) {
-            return (Rule) cached.getObjectValue();
+            return cached;
         } else {
             requireJDBCConnection();
 
@@ -192,10 +172,10 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
 
     protected Rule constructRuleFromDatabase(ResultSet row, Map<String, String> namespaces) throws SQLException, ParseException {
-        Element cached = ruleIdCache.get(row.getLong("id"));
+        Rule cached = ruleIdCache.get(row.getLong("id"));
 
         if(cached != null) {
-            return (Rule) cached.getObjectValue();
+            return cached;
         } else {
 
             Rule result = KWRLProgramParser.parseRule(row.getString("body"),namespaces, valueFactory);
@@ -203,7 +183,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
             result.setName(row.getString("name"));
             result.setDescription(row.getString("description"));
 
-            ruleIdCache.put(new Element(result.getId(), result));
+            ruleIdCache.put(result.getId(), result);
 
             return result;
         }

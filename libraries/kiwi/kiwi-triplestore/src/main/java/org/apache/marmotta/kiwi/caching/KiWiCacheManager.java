@@ -87,7 +87,7 @@ public class KiWiCacheManager {
                             .consistentHashFactory(new SyncConsistentHashFactory())
                     .eviction()
                         .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(100000)
+                        .maxEntries(1000)
                     .expiration()
                         .lifespan(5, TimeUnit.MINUTES)
                         .maxIdle(1, TimeUnit.MINUTES)
@@ -141,6 +141,8 @@ public class KiWiCacheManager {
     public Cache getTripleCache() {
         if(!cacheManager.cacheExists(TRIPLE_CACHE)) {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                    .eviction()
+                        .maxEntries(100000)
                     .expiration()
                         .lifespan(60, TimeUnit.SECONDS)
                         .maxIdle(30, TimeUnit.SECONDS)
@@ -298,6 +300,9 @@ public class KiWiCacheManager {
      * @return
      */
     public synchronized Cache getCacheByName(String name) {
+        if(!cacheManager.cacheExists(name)) {
+            cacheManager.defineConfiguration(name, new ConfigurationBuilder().read(defaultConfiguration).build());
+        }
         return cacheManager.getCache(name);
 
     }
