@@ -128,7 +128,7 @@ public class KiWiPersistence {
 
 
     private void initCachePool() {
-        cacheManager = new KiWiCacheManager(configuration.getName());
+        cacheManager = new KiWiCacheManager(configuration);
     }
 
 

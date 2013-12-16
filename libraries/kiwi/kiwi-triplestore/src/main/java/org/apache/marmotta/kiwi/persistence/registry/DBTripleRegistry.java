@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.persistence;
+package org.apache.marmotta.kiwi.persistence.registry;
 
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,17 +39,18 @@ import java.sql.SQLException;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiTripleRegistry {
+public class DBTripleRegistry implements KiWiTripleRegistry {
 
-    private static Logger log = LoggerFactory.getLogger(KiWiTripleRegistry.class);
+    private static Logger log = LoggerFactory.getLogger(DBTripleRegistry.class);
 
     private KiWiStore store;
 
 
-    public KiWiTripleRegistry(KiWiStore store) {
+    public DBTripleRegistry(KiWiStore store) {
         this.store = store;
     }
 
+    @Override
     public void registerKey(IntArray key, long transactionId, long tripleId) {
         KiWiConnection con = aqcuireConnection();
         try {
@@ -68,6 +70,7 @@ public class KiWiTripleRegistry {
 
 
 
+    @Override
     public long lookupKey(IntArray key) {
         KiWiConnection con = aqcuireConnection();
         try {
@@ -90,6 +93,7 @@ public class KiWiTripleRegistry {
     }
 
 
+    @Override
     public void releaseTransaction(long transactionId) {
         KiWiConnection con = aqcuireConnection();
         try {
@@ -107,12 +111,13 @@ public class KiWiTripleRegistry {
     }
 
 
-    public void deleteKey(long tripleId) {
+    @Override
+    public void deleteKey(IntArray key) {
         KiWiConnection con = aqcuireConnection();
         try {
             PreparedStatement stmt = con.getPreparedStatement("registry.delete");
             synchronized (stmt) {
-                stmt.setLong(1, tripleId);
+                stmt.setLong(1, key.longHashCode());
                 stmt.executeUpdate();
             }
         } catch (SQLException e) {

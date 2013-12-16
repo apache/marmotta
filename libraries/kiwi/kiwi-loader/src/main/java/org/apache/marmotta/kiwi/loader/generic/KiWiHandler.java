@@ -12,7 +12,7 @@ import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.KiWiTripleRegistry;
+import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.URIImpl;
@@ -64,7 +64,7 @@ public class KiWiHandler implements RDFHandler {
     private Statistics statistics;
 
     // only used when statement existance check is enabled
-    protected KiWiTripleRegistry registry;
+    protected DBTripleRegistry registry;
 
 
     protected Date importDate;
@@ -114,7 +114,7 @@ public class KiWiHandler implements RDFHandler {
 
 
         if(config.isStatementExistanceCheck()) {
-            registry = new KiWiTripleRegistry(store);
+            registry = new DBTripleRegistry(store);
         }
     }
 

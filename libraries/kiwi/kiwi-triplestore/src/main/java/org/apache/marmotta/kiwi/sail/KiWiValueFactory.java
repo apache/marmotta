@@ -17,17 +17,13 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
-import org.apache.marmotta.commons.sesame.model.LiteralKey;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.KiWiTripleRegistry;
+import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.slf4j.Logger;
@@ -54,43 +50,16 @@ public class KiWiValueFactory implements ValueFactory {
 
     private KiWiStore store;
 
-    private KiWiTripleRegistry registry;
+    private DBTripleRegistry registry;
 
     private String defaultContext;
 
-
-    protected SelfPopulatingCache literalCache;
-    protected SelfPopulatingCache uriCache;
-    protected SelfPopulatingCache bnodeCache;
-
     public KiWiValueFactory(KiWiStore store, String defaultContext) {
         anonIdGenerator = new Random();
-        registry        = new KiWiTripleRegistry(store);
+        registry        = new DBTripleRegistry(store);
 
         this.store          = store;
         this.defaultContext = defaultContext;
-
-        this.literalCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
-            @Override
-            public Object createEntry(Object key) throws Exception {
-                return createLiteralInternal((LiteralKey) key);
-            }
-        });
-
-        this.uriCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
-            @Override
-            public Object createEntry(Object key) throws Exception {
-                return createURIInternal(key.toString().intern());
-            }
-        });
-
-        this.bnodeCache = new SelfPopulatingCache(store.getPersistence().getCacheManager().getLoaderCache(), new CacheEntryFactory() {
-            @Override
-            public Object createEntry(Object key) throws Exception {
-                return createBNodeInternal(key.toString().intern());
-            }
-        });
-
     }
 
     protected KiWiConnection aqcuireConnection() {
@@ -130,16 +99,6 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public URI createURI(String uri) {
-        Element e = uriCache.get(uri);
-        if(e != null) {
-            return (KiWiUriResource) e.getObjectValue();
-        } else {
-            log.error("could not load URI resource");
-            throw new IllegalStateException("database error, could not load URI resource");
-        }
-    }
-
-    private KiWiUriResource createURIInternal(String uri) {
         KiWiConnection connection = aqcuireConnection();
         try {
             // first look in the registry for newly created resources if the resource has already been created and
@@ -193,17 +152,6 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public BNode createBNode(String nodeID) {
-        Element e = bnodeCache.get(nodeID);
-        if(e != null) {
-            return (KiWiAnonResource) e.getObjectValue();
-        } else {
-            log.error("could not load BNode resource");
-            throw new IllegalStateException("database error, could not load anonymous resource");
-        }
-    }
-
-    private KiWiAnonResource createBNodeInternal(String nodeID) {
-
         KiWiConnection connection = aqcuireConnection();
         try {
             // first look in the registry for newly created resources if the resource has already been created and
@@ -311,30 +259,6 @@ public class KiWiValueFactory implements ValueFactory {
      * @return
      */
     private <T> KiWiLiteral createLiteral(T value, String lang, String type) {
-
-        if (lang != null) {
-            // FIXME: MARMOTTA-39 (no rdf:langString)
-            // type = LiteralCommons.getRDFLangStringType();
-        } else if (type == null) {
-            // FIXME: MARMOTTA-39 (no default datatype before RDF-1.1)
-            // type = LiteralCommons.getXSDType(value.getClass());
-        }
-        LiteralKey lkey = new LiteralKey(value,type, lang != null ? lang.intern() : null);
-
-
-        Element e = literalCache.get(lkey);
-        if(e != null) {
-            return (KiWiLiteral) e.getObjectValue();
-        } else {
-            log.error("could not load Literal value");
-            throw new IllegalStateException("database error, could not load literal value");
-        }
-    }
-
-    private KiWiLiteral createLiteralInternal(LiteralKey key) {
-        Object value = key.getValue();
-        String lang  = key.getLang();
-        String type  = key.getType();
         Locale locale;
         if(lang != null) {
             try {
@@ -655,8 +579,10 @@ public class KiWiValueFactory implements ValueFactory {
      */
     protected void removeStatement(KiWiTriple triple) {
         if(triple.getId() >= 0) {
+            IntArray cacheKey = IntArray.createSPOCKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext());
+
             synchronized (registry) {
-                registry.deleteKey(triple.getId());
+                registry.deleteKey(cacheKey);
             }
         }
         triple.setDeleted(true);

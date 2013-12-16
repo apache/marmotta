@@ -19,8 +19,6 @@ package org.apache.marmotta.kiwi.persistence;
 
 import com.google.common.base.Preconditions;
 import info.aduna.iteration.*;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
@@ -32,6 +30,7 @@ import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
+import org.infinispan.Cache;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -70,40 +69,40 @@ public class KiWiConnection {
     /**
      * Cache nodes by database ID
      */
-    private Cache nodeCache;
+    private Cache<Long,KiWiNode> nodeCache;
 
     /**
      * Cache triples by database ID
      */
-    private Cache tripleCache;
+    private Cache<Long,KiWiTriple> tripleCache;
 
 
     /**
      * Cache URI resources by uri
      */
-    private Cache uriCache;
+    private Cache<String,KiWiUriResource> uriCache;
 
 
     /**
      * Cache BNodes by BNode ID
      */
-    private Cache bnodeCache;
+    private Cache<String,KiWiAnonResource> bnodeCache;
 
     /**
      * Cache literals by literal cache key (LiteralCommons#createCacheKey(String,Locale,URI))
      */
-    private Cache literalCache;
+    private Cache<String,KiWiLiteral> literalCache;
 
 
     /**
      * Look up namespaces by URI
      */
-    private Cache namespaceUriCache;
+    private Cache<String,KiWiNamespace> namespaceUriCache;
 
     /**
      * Look up namespaces by prefix
      */
-    private Cache namespacePrefixCache;
+    private Cache<String,KiWiNamespace> namespacePrefixCache;
 
     /**
      * Cache instances of locales for language tags
@@ -227,9 +226,9 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public KiWiNamespace loadNamespaceByPrefix(String prefix) throws SQLException {
-        Element element = namespacePrefixCache.get(prefix);
+        KiWiNamespace element = namespacePrefixCache.get(prefix);
         if(element != null) {
-            return (KiWiNamespace)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -263,9 +262,9 @@ public class KiWiConnection {
      * @throws SQLException
      */
     public KiWiNamespace loadNamespaceByUri(String uri) throws SQLException {
-        Element element = namespaceUriCache.get(uri);
+        KiWiNamespace element = namespaceUriCache.get(uri);
         if(element != null) {
-            return (KiWiNamespace)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -315,8 +314,8 @@ public class KiWiConnection {
 
         insertNamespace.executeUpdate();
 
-        namespacePrefixCache.put(new Element(namespace.getPrefix(),namespace));
-        namespaceUriCache.put(new Element(namespace.getUri(),namespace));
+        namespacePrefixCache.put(namespace.getPrefix(), namespace);
+        namespaceUriCache.put(namespace.getUri(),namespace);
     }
 
     /**
@@ -417,9 +416,9 @@ public class KiWiConnection {
     public KiWiNode loadNodeById(Long id) throws SQLException {
 
         // look in cache
-        Element element = nodeCache.get(id);
+        KiWiNode element = nodeCache.get(id);
         if(element != null) {
-            return (KiWiNode)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -449,9 +448,9 @@ public class KiWiConnection {
     public KiWiTriple loadTripleById(Long id) throws SQLException {
 
         // look in cache
-        Element element = tripleCache.get(id);
+        KiWiTriple element = tripleCache.get(id);
         if(element != null) {
-            return (KiWiTriple)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -491,9 +490,9 @@ public class KiWiConnection {
         Preconditions.checkNotNull(uri);
 
         // look in cache
-        Element element = uriCache.get(uri);
+        KiWiUriResource element = uriCache.get(uri);
         if(element != null) {
-            return (KiWiUriResource)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -537,9 +536,9 @@ public class KiWiConnection {
      */
     public KiWiAnonResource loadAnonResource(String id) throws SQLException {
         // look in cache
-        Element element = bnodeCache.get(id);
+        KiWiAnonResource element = bnodeCache.get(id);
         if(element != null) {
-            return (KiWiAnonResource)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -587,9 +586,9 @@ public class KiWiConnection {
      */
     public KiWiLiteral loadLiteral(String value, String lang, KiWiUriResource ltype) throws SQLException {
         // look in cache
-        final Element element = literalCache.get(LiteralCommons.createCacheKey(value,getLocale(lang), ltype));
+        final KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(value,getLocale(lang), ltype));
         if(element != null) {
-            return (KiWiLiteral)element.getObjectValue();
+            return element;
         }
 
         requireJDBCConnection();
@@ -652,9 +651,9 @@ public class KiWiConnection {
      */
     public KiWiDateLiteral loadLiteral(Date date) throws SQLException {
         // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),Namespaces.NS_XSD + "dateTime"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),Namespaces.NS_XSD + "dateTime"));
         if(element != null) {
-            return (KiWiDateLiteral)element.getObjectValue();
+            return (KiWiDateLiteral)element;
         }
 
         requireJDBCConnection();
@@ -706,9 +705,9 @@ public class KiWiConnection {
      */
     public KiWiIntLiteral loadLiteral(long value) throws SQLException {
         // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,Namespaces.NS_XSD + "integer"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,Namespaces.NS_XSD + "integer"));
         if(element != null) {
-            return (KiWiIntLiteral)element.getObjectValue();
+            return (KiWiIntLiteral)element;
         }
 
         requireJDBCConnection();
@@ -761,9 +760,9 @@ public class KiWiConnection {
      */
     public synchronized KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
         if(element != null) {
-            return (KiWiDoubleLiteral)element.getObjectValue();
+            return (KiWiDoubleLiteral)element;
         }
 
         requireJDBCConnection();
@@ -815,9 +814,9 @@ public class KiWiConnection {
      */
     public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
         // look in cache
-        Element element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
         if(element != null) {
-            return (KiWiBooleanLiteral)element.getObjectValue();
+            return (KiWiBooleanLiteral)element;
         }
 
 
@@ -1539,8 +1538,8 @@ public class KiWiConnection {
         result.setId(row.getLong("id"));
         result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
-        namespacePrefixCache.put(new Element(result.getPrefix(),result));
-        namespaceUriCache.put(new Element(result.getUri(),result));
+        namespacePrefixCache.put(result.getPrefix(),result);
+        namespaceUriCache.put(result.getUri(),result);
 
         return result;
     }
@@ -1555,11 +1554,11 @@ public class KiWiConnection {
 
         long id = row.getLong("id");
 
-        Element cached = nodeCache.get(id);
+        KiWiNode cached = nodeCache.get(id);
 
         // lookup element in cache first, so we can avoid reconstructing it if it is already there
         if(cached != null) {
-            return (KiWiNode)cached.getObjectValue();
+            return cached;
         }
 
         String ntype = row.getString("ntype");
@@ -1658,11 +1657,11 @@ public class KiWiConnection {
 
         Long id = row.getLong("id");
 
-        Element cached = tripleCache.get(id);
+        KiWiTriple cached = tripleCache.get(id);
 
         // lookup element in cache first, so we can avoid reconstructing it if it is already there
         if(cached != null) {
-            return (KiWiTriple)cached.getObjectValue();
+            return cached;
         }
 
         KiWiTriple result = new KiWiTriple();
@@ -1686,7 +1685,7 @@ public class KiWiConnection {
             // (see http://stackoverflow.com/questions/782823/handling-datetime-values-0000-00-00-000000-in-jdbc)
         }
 
-        tripleCache.put(new Element(id,result));
+        tripleCache.put(id,result);
 
         return result;
     }
@@ -1769,20 +1768,20 @@ public class KiWiConnection {
 
     private void cacheNode(KiWiNode node) {
         if(node.getId() >= 0) {
-            nodeCache.put(new Element(node.getId(), node));
+            nodeCache.put(node.getId(), node);
         }
         if(node instanceof KiWiUriResource) {
-            uriCache.put(new Element(node.stringValue(), node));
+            uriCache.put(node.stringValue(), (KiWiUriResource) node);
         } else if(node instanceof KiWiAnonResource) {
-            bnodeCache.put(new Element(node.stringValue(),node));
+            bnodeCache.put(node.stringValue(), (KiWiAnonResource) node);
         } else if(node instanceof KiWiLiteral) {
-            literalCache.put(new Element(LiteralCommons.createCacheKey((Literal) node),node));
+            literalCache.put(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
         }
     }
 
     private void cacheTriple(KiWiTriple triple) {
         if(triple.getId() >= 0) {
-            tripleCache.put(new Element(triple.getId(),triple));
+            tripleCache.put(triple.getId(),triple);
         }
     }
 
