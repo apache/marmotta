@@ -76,11 +76,12 @@ public class ContextWebService {
                 }
                 return Response.ok().entity(res).build();
             } else {
-                ArrayList<Map<String,String>> result = new ArrayList<Map<String, String>>();
+                ArrayList<Map<String,Object>> result = new ArrayList<>();
                 for(org.openrdf.model.URI r : contextService.listContexts(filter != null)) {
-                    Map<String,String> ctxDesc = new HashMap<String, String>();
+                    Map<String,Object> ctxDesc = new HashMap<String, Object>();
                     ctxDesc.put("uri",r.stringValue());
                     ctxDesc.put("label", contextService.getContextLabel(r));
+                    ctxDesc.put("size", contextService.getContextSize(r));
                     result.add(ctxDesc);
                 }
                 return Response.ok().entity(result).build();

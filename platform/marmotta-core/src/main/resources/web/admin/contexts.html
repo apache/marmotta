@@ -18,7 +18,7 @@
 
 -->
 <html>
-<head>
+    <head>
 <!--###BEGIN_HEAD###-->
     <title>Contexts</title>
     <link type="text/css" rel="stylesheet" href="../public/js/widgets/configurator/style.css" />
@@ -37,14 +37,19 @@
         in SPARQL.
     </p>
     <p>
-        Currently there are <span id="contexts-count">0</span> contexts in Marmotta:
+        Currently there are <strong><span id="contexts-count">0 contexts</span></strong> in Marmotta:
     </p>    
     <table id="contexts" class="simple_table">
-      <tr class="subtitle">
-        <th>Context</th>
-        <th>Label</th>
-        <th>&nbsp;</th>
-      </tr>    
+      <thead>
+        <tr class="subtitle">
+          <th>Label</th>
+          <th>Context</th>
+          <th>Size</th>
+          <th>Download</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody></tbody>    
     </table>  
     
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
@@ -52,36 +57,65 @@
         jQuery(document).ready(function() {
 
             function appendContext(ctx, id) {
-                var uri = ctx["uri"];
-                var label = (ctx["label"] ? ctx["label"] : "");
-            	$("table#contexts > tbody:last").append("<tr id=\"context" + id + "\"><td><a href=\"" + uri + "\">" + uri + "</a></td><td>" + label + "</td><td><a href=\"#contexts\" class=\"deleteContext\">delete</a></td></tr>");
+                var uri = ctx["uri"],
+                    label = (ctx["label"] ? ctx["label"] : uri.replace(/.*[\/#](.*)/, "$1")),
+                    size = ctx["size"];
+        
+                $("<tr>", {"id": "context_"+id})
+                    .append($("<td>", {"text": label}))
+                    .append($("<td>").append($("<a>", {"text": uri, "href": uri})))
+                    .append($("<td>").append(size?$("<span>", {"text":size+" triple"+(size==1?"":"s")}):$("<em>", {"text":"unknown"})))
+                    .append(appendDownloadLinks($("<td>"), ctx))
+                    .append($("<td>").append($("<button>", {"text": "delete"}).click(deleteContext(uri, id, size))))
+                    .appendTo($("table#contexts > tbody:last"));        
+            }
+            function appendDownloadLinks(target, ctx) {
+                function dl(format) {
+                    return _SERVER_URL + "export/download?"
+                            + "context=" + encodeURIComponent(ctx["uri"])
+                            + "&format=" + encodeURIComponent(format);
+                }
+                return target
+                    .append($("<a>", {"text": "rdf+xml", "href": dl("application/rdf+xml")}))
+                    .append("&nbsp;")
+                    .append($("<a>", {"text": "turtle", "href": dl("text/turtle")}))
+                    .append("&nbsp;")
+                    .append($("<a>", {"text": "ld+json", "href": dl("application/ld+json")}));
             }
 
-            function deleteContext(uri, id) {
-            	$.ajax({
-            	    url: "../../context?graph=" + encodeURIComponent(uri),
-            	    type: "DELETE",
-            	    success: function(result) {
-            	    	alert("Context " + uri + " deleted!");
-            	        $("tr#" + id).remove();
-            	    }
-            	});
+            function deleteContext(uri, id, size) {
+                var question = "This will DELETE context <" + uri + ">";
+                if (size) {
+                    question += " and all " + size + " triple" + (size==1?"":"s") + " contained in it";
+                }
+                return function() {
+                    if (!confirm(question)) return;
+                    $.ajax({
+                        url: "../../context?graph=" + encodeURIComponent(uri),
+                        type: "DELETE",
+                        success: function(result) {
+                            alert("Context " + uri + " deleted!");
+                            $("tr#context_" + id).slideUp(function() {
+                                $(this).remove();
+                                var c = $("span#contexts-count"),
+                                    count = c.attr("data-count") -1;
+                                c.attr("data-count", count)
+                                    .text(count + " context" + (count==1?"":"s"));
+                            });
+                        }
+                    });
+                }
             }        
             
             $.getJSON("../../context/list", {labels:"true"}, function(data) {
                 var count = 0;
                 for (i in data) {                  
-                	appendContext(data[i], count);
-                	$("span#contexts-count").html(++count);
+                	appendContext(data[i], count++);
                 }
-                $("a.deleteContext").click(function() {
-                    var row = $(this).closest("td").closest("tr");
-                    var uri = row.find("td:first").text();
-                    var id = row.attr("id");
-                    deleteContext(uri, id);
-                });
+                $("span#contexts-count")
+                    .attr("data-count", count)
+                    .text(count + " context" + (count==1?"":"s"));
             });        
-            
         });
     </script>
 <!--###END_CONTENT###-->
