@@ -72,6 +72,7 @@ public class KiWiCacheManager {
                         .machineId("instance-" + config.getDatacenterId())
                         .addProperty("configurationFile", "jgroups-kiwi.xml")
                     .globalJmxStatistics()
+                        .jmxDomain("org.apache.marmotta.kiwi")
                     .build();
 
 
@@ -95,6 +96,7 @@ public class KiWiCacheManager {
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .globalJmxStatistics()
+                        .jmxDomain("org.apache.marmotta.kiwi")
                     .build();
 
             defaultConfiguration = new ConfigurationBuilder()

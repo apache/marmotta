@@ -65,9 +65,8 @@ public class CDIContext {
             try {
                 return (BeanManager) new InitialContext().lookup(location);
             } catch (NameNotFoundException e) {
-                log.error(
-                        "NameNotFoundException for path {}",
-                        location, e);
+                // do nothing: it is ok to throw an exception here because we will look anyways in other locations and
+                // throw an exception at the end of the method
             } catch (NamingException e) {
                 log.error(
                         "naming exception for path {}; this probably means that JNDI is not set up properly (see e.g. http://code.google.com/p/lmf/wiki/InstallationSetup#Specific_Settings_for_Tomcat )",

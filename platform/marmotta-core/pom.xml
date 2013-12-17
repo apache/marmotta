@@ -341,10 +341,12 @@
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
         </dependency>
+        <!-- TODO: we still use our own CDI implementation here...
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-cdi</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>

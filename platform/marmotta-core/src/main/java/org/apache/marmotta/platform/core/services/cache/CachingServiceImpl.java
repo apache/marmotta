@@ -86,6 +86,7 @@ public class CachingServiceImpl implements CachingService {
                         .machineId(configurationService.getServerName())
                         .addProperty("configurationFile", "jgroups-marmotta.xml")
                     .globalJmxStatistics()
+                        .jmxDomain("org.apache.marmotta.platform")
                     .build();
 
 
@@ -109,6 +110,7 @@ public class CachingServiceImpl implements CachingService {
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .globalJmxStatistics()
+                        .jmxDomain("org.apache.marmotta.platform")
                     .build();
 
             defaultConfiguration = new ConfigurationBuilder()

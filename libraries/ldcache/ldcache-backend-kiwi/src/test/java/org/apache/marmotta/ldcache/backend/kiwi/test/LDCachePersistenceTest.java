@@ -28,11 +28,7 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -171,7 +167,7 @@ public class LDCachePersistenceTest {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(), hasItems("ldcache_entries"));
-            Assert.assertEquals(2, connection.getDatabaseVersion());
+            Assert.assertEquals(3, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
