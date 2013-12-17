@@ -104,7 +104,7 @@ public class KiWiStoreProvider implements StoreProvider {
         String dbUser  = configurationService.getStringConfiguration("database.user");
         String dbPass  = configurationService.getStringConfiguration("database.password");
 
-        KiWiConfiguration configuration = new KiWiConfiguration("lmf", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
+        KiWiConfiguration configuration = new KiWiConfiguration(configurationService.getStringConfiguration("clustering.name", "Marmotta") + " KiWi", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
         configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration(DEBUG_SLOWQUERIES, false));
         configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration("database.triples.batchcommit", true));
         configuration.setTripleBatchSize(configurationService.getIntConfiguration("database.triples.batchsize", 10000));

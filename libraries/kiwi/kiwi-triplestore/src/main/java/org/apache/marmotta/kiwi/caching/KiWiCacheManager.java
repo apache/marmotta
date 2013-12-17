@@ -28,6 +28,9 @@ import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.remoting.transport.Address;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -40,6 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class KiWiCacheManager {
 
+    private static Logger log = LoggerFactory.getLogger(KiWiCacheManager.class);
 
     public static final String NODE_CACHE = "node-cache";
     public static final String TRIPLE_CACHE = "triple-cache";
@@ -114,6 +118,12 @@ public class KiWiCacheManager {
 
 
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
+        if(log.isInfoEnabled()) {
+            log.info("Members in Apache Marmotta KiWi cache cluster:");
+            for(Address a : cacheManager.getMembers()) {
+                log.info(" - {}",a);
+            }
+        }
     }
 
     /**

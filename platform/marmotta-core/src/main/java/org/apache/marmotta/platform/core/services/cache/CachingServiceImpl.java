@@ -31,6 +31,7 @@ import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.remoting.transport.Address;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -82,7 +83,7 @@ public class CachingServiceImpl implements CachingService {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .transport()
                         .defaultTransport()
-                        .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
+                        .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta") + " Platform")
                         .machineId(configurationService.getServerName())
                         .addProperty("configurationFile", "jgroups-marmotta.xml")
                     .globalJmxStatistics()
@@ -128,6 +129,13 @@ public class CachingServiceImpl implements CachingService {
 
 
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
+
+        if(log.isInfoEnabled()) {
+            log.info("Members in Apache Marmotta cache cluster:");
+            for(Address a : cacheManager.getMembers()) {
+                log.info(" - {}",a);
+            }
+        }
     }
 
     /**
