@@ -58,6 +58,6 @@ public class CacheLoggingModule extends BaseLoggingModule {
      */
     @Override
     public Collection<String> getPackages() {
-        return ImmutableSet.of("net.sf.ehcache", "org.apache.marmotta.platform.core.services.cache");
+        return ImmutableSet.of("org.infinispan", "org.apache.marmotta.platform.core.services.cache");
     }
 }

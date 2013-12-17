@@ -18,8 +18,6 @@
 package org.apache.marmotta.ldcache.backend.kiwi.persistence;
 
 import info.aduna.iteration.CloseableIteration;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -27,6 +25,7 @@ import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.infinispan.Cache;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,13 +52,13 @@ public class LDCachingKiWiPersistenceConnection  {
     /**
      * Cache entries by resource
      */
-    private Cache entryResourceCache;
+    private Cache<String,KiWiCacheEntry> entryResourceCache;
 
 
     /**
      * Cache entries by ID
      */
-    private Cache entryIdCache;
+    private Cache<Long,KiWiCacheEntry> entryIdCache;
 
 
     public LDCachingKiWiPersistenceConnection(KiWiConnection connection) throws SQLException {
@@ -72,11 +71,11 @@ public class LDCachingKiWiPersistenceConnection  {
     public KiWiCacheEntry constructCacheEntry(ResultSet row) throws SQLException {
         Long id = row.getLong("id");
 
-        Element cached = entryIdCache.get(id);
+        KiWiCacheEntry cached = entryIdCache.get(id);
 
         // lookup element in cache first, so we can avoid reconstructing it if it is already there
         if(cached != null) {
-            return (KiWiCacheEntry)cached.getObjectValue();
+            return cached;
         }
 
         KiWiCacheEntry entry = new KiWiCacheEntry();
@@ -87,8 +86,8 @@ public class LDCachingKiWiPersistenceConnection  {
         entry.setResource((URI) connection.loadNodeById(row.getLong("resource_id")));
         entry.setTripleCount(row.getInt("triple_count"));
 
-        entryIdCache.put(new Element(id,entry));
-        entryResourceCache.put(new Element(entry.getResource().stringValue(),entry));
+        entryIdCache.put(id,entry);
+        entryResourceCache.put(entry.getResource().stringValue(),entry);
 
         return entry;
     }
@@ -103,11 +102,11 @@ public class LDCachingKiWiPersistenceConnection  {
      */
     public KiWiCacheEntry getCacheEntry(String uri) throws SQLException {
 
-        Element cached = entryResourceCache.get(uri);
+        KiWiCacheEntry cached = entryResourceCache.get(uri);
 
         // lookup element in cache first, so we can avoid reconstructing it if it is already there
         if(cached != null) {
-            return (KiWiCacheEntry)cached.getObjectValue();
+            return cached;
         }
 
         PreparedStatement query = connection.getPreparedStatement("load.entry_by_uri");
@@ -169,8 +168,8 @@ public class LDCachingKiWiPersistenceConnection  {
 
         log.debug("persisted ld-cache entry with id {}", kEntry.getId());
         
-        entryIdCache.put(new Element(kEntry.getId(),kEntry));
-        entryResourceCache.put(new Element(kEntry.getResource().stringValue(),kEntry));
+        entryIdCache.put(kEntry.getId(),kEntry);
+        entryResourceCache.put(kEntry.getResource().stringValue(),kEntry);
 
     }
 
@@ -205,11 +204,11 @@ public class LDCachingKiWiPersistenceConnection  {
         deleteEntry.setString(1,uri);
         deleteEntry.executeUpdate();
 
-        Element cached = entryResourceCache.get(uri);
+        KiWiCacheEntry cached = entryResourceCache.get(uri);
 
         if(cached != null) {
             entryResourceCache.remove(uri);
-            entryIdCache.remove(((KiWiCacheEntry) cached.getObjectValue()).getId());
+            entryIdCache.remove(cached.getId());
         }
     }
 

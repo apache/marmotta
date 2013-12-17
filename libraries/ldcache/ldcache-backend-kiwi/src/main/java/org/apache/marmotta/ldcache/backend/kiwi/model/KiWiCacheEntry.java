@@ -19,12 +19,14 @@ package org.apache.marmotta.ldcache.backend.kiwi.model;
 
 import org.apache.marmotta.ldcache.model.CacheEntry;
 
+import java.io.Serializable;
+
 /**
  * Add file description here!
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiCacheEntry extends CacheEntry {
+public class KiWiCacheEntry extends CacheEntry implements Serializable {
 
     Long id;
 

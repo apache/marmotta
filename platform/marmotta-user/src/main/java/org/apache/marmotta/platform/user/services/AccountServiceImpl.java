@@ -18,8 +18,6 @@
 package org.apache.marmotta.platform.user.services;
 
 import com.google.common.base.Preconditions;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -32,6 +30,7 @@ import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.apache.marmotta.platform.user.model.UserAccount.PasswordHash;
+import org.infinispan.Cache;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Inject
     @MarmottaCache("user-cache")
-    private Ehcache              userCache;
+    private Cache<String,UserAccount>  userCache;
 
     private PasswordHash         hashAlgo;
 
@@ -120,8 +119,8 @@ public class AccountServiceImpl implements AccountService {
 
 
         for (UserAccount userAccount : list) {
-            userCache.put(new Element(userAccount.getLogin(), userAccount));
-            userCache.put(new Element(userAccount.getWebId(), userAccount));
+            userCache.put(userAccount.getLogin(), userAccount);
+            userCache.put(userAccount.getWebId(), userAccount);
         }
         return list;
     }
@@ -185,7 +184,7 @@ public class AccountServiceImpl implements AccountService {
         if (StringUtils.isBlank(login)) return null;
         UserAccount account = null;
         if (userCache != null && userCache.get(login) != null) {
-            account = (UserAccount) userCache.get(login).getObjectValue();
+            account = (UserAccount) userCache.get(login);
         } else {
             if (configurationService.isConfigurationSet("user."+login+".webid")) {
                 account = new UserAccount();
@@ -195,8 +194,8 @@ public class AccountServiceImpl implements AccountService {
                 account.setRoles(new HashSet<String>(configurationService.getListConfiguration("user."+login+".roles")));
                 account.setWebId(configurationService.getStringConfiguration("user."+login+".webid"));
 
-                userCache.put(new Element(account.getLogin(), account));
-                userCache.put(new Element(account.getWebId(), account));
+                userCache.put(account.getLogin(), account);
+                userCache.put(account.getWebId(), account);
             } else {
                 log.info("UserAccount {} not found", login);
             }
@@ -210,7 +209,7 @@ public class AccountServiceImpl implements AccountService {
 
         UserAccount account = null;
         if (userCache != null && userCache.get(resource) != null) {
-            account = (UserAccount) userCache.get(resource).getObjectValue();
+            account = userCache.get(resource);
         } else {
             for(UserAccount a : listAccounts()) {
                 if(a.getWebId().equals(resource.stringValue())) {
@@ -219,8 +218,8 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
             if (account != null) {
-                userCache.put(new Element(account.getLogin(), account));
-                userCache.put(new Element(account.getWebId(), account));
+                userCache.put(account.getLogin(), account);
+                userCache.put(account.getWebId(), account);
             } else {
                 log.warn("UserAccount {} not found", resource);
             }

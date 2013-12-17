@@ -27,15 +27,13 @@ import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
+import org.infinispan.Cache;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
@@ -66,7 +64,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
 
 
     @Inject @MarmottaCache("resource-cache")
-    private Ehcache resourceCache;
+    private Cache resourceCache;
 
     /**
      * Used for detecting the mime type of resources contained in KiWi modules
@@ -219,12 +217,12 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
 
 
     private boolean isCached(String key) {
-        return isCacheEnabled() && resourceCache.isKeyInCache(key) && resourceCache.get(key) != null;
+        return isCacheEnabled() && resourceCache.containsKey(key) && resourceCache.get(key) != null;
     }
 
     private ResourceEntry getFromCache(String key) {
         if (isCacheEnabled())
-            return (ResourceEntry) resourceCache.get(key).getObjectValue();
+            return (ResourceEntry) resourceCache.get(key);
         else
             return null;
     }
@@ -232,7 +230,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
     // Store in the cache
     private void putInCache(String key, ResourceEntry data) {
         if(isCacheEnabled()) {
-            resourceCache.put(new Element(key,data));
+            resourceCache.put(key,data);
         }
     }
 

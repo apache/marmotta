@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.api.modules;
 
+import java.io.Serializable;
 import java.net.URL;
 
 /**
@@ -24,7 +25,7 @@ import java.net.URL;
  * <p/>
  * User: sschaffe
  */
-public class ResourceEntry {
+public class ResourceEntry implements Serializable {
 
     /**
      * The path relative to the web application root under which this resource is accessed.

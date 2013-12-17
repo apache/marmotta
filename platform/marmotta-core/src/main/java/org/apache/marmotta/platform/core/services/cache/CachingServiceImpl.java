@@ -18,10 +18,19 @@
 package org.apache.marmotta.platform.core.services.cache;
 
 import org.apache.marmotta.platform.core.api.cache.CachingService;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.SystemRestartingEvent;
 import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
+import org.infinispan.Cache;
+import org.infinispan.configuration.cache.CacheMode;
+import org.infinispan.configuration.cache.Configuration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfiguration;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.distribution.ch.SyncConsistentHashFactory;
+import org.infinispan.eviction.EvictionStrategy;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -31,7 +40,9 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-import java.net.URL;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A service that offers a EHCache system cache implementation for use by other components
@@ -47,8 +58,16 @@ public class CachingServiceImpl implements CachingService {
     @Inject
     private Logger log;
 
+    @Inject
+    private ConfigurationService configurationService;
 
-    private CacheManager manager;
+    private EmbeddedCacheManager cacheManager;
+
+    private GlobalConfiguration globalConfiguration;
+
+    // default configuration: distributed cache, 100000 entries, 300 seconds expiration, 60 seconds idle
+    private Configuration defaultConfiguration;
+
 
     public CachingServiceImpl() {
     }
@@ -56,15 +75,57 @@ public class CachingServiceImpl implements CachingService {
 
     @PostConstruct
     public void initialize() {
-        URL url = this.getClass().getClassLoader().getResource("ehcache-marmotta.xml");
+        boolean clustered = configurationService.getBooleanConfiguration("clustering.enabled", false);
 
-        // backwards compatibility
-        if(url == null) {
-            url = this.getClass().getClassLoader().getResource("ehcache-lmf.xml");
+        log.info("Apache Marmotta Caching Service starting up ({}) ...", clustered ? "clustering" : "single host" );
+        if(clustered) {
+            globalConfiguration = new GlobalConfigurationBuilder()
+                    .transport()
+                        .defaultTransport()
+                        .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
+                        .machineId(configurationService.getServerName())
+                        .addProperty("configurationFile", "jgroups-marmotta.xml")
+                    .globalJmxStatistics()
+                    .build();
+
+
+            defaultConfiguration = new ConfigurationBuilder()
+                    .clustering()
+                        .cacheMode(CacheMode.DIST_ASYNC)
+                        .async()
+                        .l1()
+                            .lifespan(25, TimeUnit.SECONDS)
+                        .hash()
+                            .numOwners(2)
+                            .numSegments(100)
+                            .consistentHashFactory(new SyncConsistentHashFactory())
+                    .eviction()
+                        .strategy(EvictionStrategy.LIRS)
+                        .maxEntries(1000)
+                    .expiration()
+                        .lifespan(5, TimeUnit.MINUTES)
+                        .maxIdle(1, TimeUnit.MINUTES)
+                    .build();
+        } else {
+            globalConfiguration = new GlobalConfigurationBuilder()
+                    .globalJmxStatistics()
+                    .build();
+
+            defaultConfiguration = new ConfigurationBuilder()
+                    .clustering()
+                        .cacheMode(CacheMode.LOCAL)
+                    .eviction()
+                        .strategy(EvictionStrategy.LIRS)
+                        .maxEntries(1000)
+                    .expiration()
+                        .lifespan(5, TimeUnit.MINUTES)
+                        .maxIdle(1, TimeUnit.MINUTES)
+                    .build();
+
         }
 
-        log.info("Apache Marmotta Caching Service starting up (configuration at {}) ...",url);
-        manager = CacheManager.create(url);
+
+        cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
     }
 
     /**
@@ -82,35 +143,39 @@ public class CachingServiceImpl implements CachingService {
      */
     @Override
     @Produces @MarmottaCache("")
-    public Ehcache getCache(InjectionPoint injectionPoint) {
+    public Cache getCache(InjectionPoint injectionPoint) {
         String cacheName = injectionPoint.getAnnotated().getAnnotation(MarmottaCache.class).value();
 
         return getCacheByName(cacheName);
     }
 
 
-    @Override
-    public Ehcache getCacheByName(String cacheName) {
-        if(!manager.cacheExists(cacheName)) {
-            log.info("added new cache with name {}",cacheName);
-            manager.addCache(cacheName);
-        }
-
-        Ehcache cache = manager.getEhcache(cacheName);
-        cache.setStatisticsEnabled(true);
-
-        return cache;
+    /**
+     * Allow CDI injection of the default cache
+     * @return
+     */
+    @Produces
+    public Configuration getDefaultConfiguration() {
+        return defaultConfiguration;
     }
 
 
     @Override
-    public String[] getCacheNames() {
-        return manager.getCacheNames();
+    public Cache getCacheByName(String cacheName) {
+        return cacheManager.getCache(cacheName, true);
+    }
+
+
+    @Override
+    public Set<String> getCacheNames() {
+        return cacheManager.getCacheNames();
     }
 
     @Override
-    public CacheManager getCacheManager() {
-        return manager;
+    @Produces
+    @ApplicationScoped
+    public EmbeddedCacheManager getCacheManager() {
+        return cacheManager;
     }
 
 
@@ -120,27 +185,27 @@ public class CachingServiceImpl implements CachingService {
      */
     public void systemRestart(@Observes SystemRestartingEvent e) {
         log.warn("system restarted, flushing caches ...");
-        manager.clearAll();
+        cacheManager.stop();
+        cacheManager.start();
     }
 
 
     @Override
     public void clearAll() {
-        manager.clearAll();
+        Set<String> set =  cacheManager.getCacheNames();
+        Iterator<String> iterator =  set.iterator();
+        while(iterator.hasNext()){
+            String cacheName = iterator.next();
+            Cache<String,Object> cache = cacheManager.getCache(cacheName);
+            cache.clear();
+        }
     }
 
 
     @PreDestroy
     public void destroy() {
         log.info("Apache Marmotta Caching Service shutting down ...");
-        /*
-        for(String cacheName : manager.getCacheNames()) {
-            log.info("Disposing cache {} ...",cacheName);
-            Cache cache = manager.getCache(cacheName);
-            cache.dispose();
-        }
-         */
-        manager.shutdown();
+        cacheManager.stop();
         log.info("Apache Marmotta Caching Service shut down successfully.");
     }
 }

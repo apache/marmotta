@@ -112,7 +112,7 @@ public class KiWiStoreProvider implements StoreProvider {
         configuration.setDatacenterId(configurationService.getIntConfiguration(DATACENTER_ID,0));
         configuration.setFulltextEnabled(configurationService.getBooleanConfiguration(FULLTEXT_ENABLED, true));
         configuration.setFulltextLanguages(configurationService.getListConfiguration(FULLTEXT_LANGUAGES, ImmutableList.of("en")));
-        configuration.setClustered(configurationService.getBooleanConfiguration("database.clustered", false));
+        configuration.setClustered(configurationService.getBooleanConfiguration("clustering.enabled", false));
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
             return new KiWiSparqlSail(new KiWiStore(configuration));

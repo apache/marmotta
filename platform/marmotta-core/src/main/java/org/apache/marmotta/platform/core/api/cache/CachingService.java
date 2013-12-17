@@ -17,10 +17,11 @@
  */
 package org.apache.marmotta.platform.core.api.cache;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
+import org.infinispan.Cache;
+import org.infinispan.manager.EmbeddedCacheManager;
 
 import javax.enterprise.inject.spi.InjectionPoint;
+import java.util.Set;
 
 /**
  * Add file description here!
@@ -29,13 +30,15 @@ import javax.enterprise.inject.spi.InjectionPoint;
  */
 public interface CachingService {
 
-    public Ehcache getCache(InjectionPoint injectionPoint);
 
-    public String[] getCacheNames();
+
+    public Cache getCache(InjectionPoint injectionPoint);
+
+    public Set<String> getCacheNames();
 
     public void clearAll();
 
-    Ehcache getCacheByName(String cacheName);
+    public Cache getCacheByName(String cacheName);
 
-    CacheManager getCacheManager();
+    public EmbeddedCacheManager getCacheManager();
 }

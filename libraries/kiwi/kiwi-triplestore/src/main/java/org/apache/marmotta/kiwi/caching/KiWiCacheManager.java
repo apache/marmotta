@@ -70,7 +70,7 @@ public class KiWiCacheManager {
                         .defaultTransport()
                         .clusterName(config.getName())
                         .machineId("instance-" + config.getDatacenterId())
-                        .addProperty("configurationFile", "jgroups-udp.xml")
+                        .addProperty("configurationFile", "jgroups-kiwi.xml")
                     .globalJmxStatistics()
                     .build();
 
@@ -151,6 +151,28 @@ public class KiWiCacheManager {
         }
         return cacheManager.getCache(TRIPLE_CACHE);
     }
+
+
+    /**
+     * Return the triple id -> triple cache from the cache manager. This cache is used for speeding up the
+     * construction of query results.
+     *
+     * @return
+     */
+    public Cache getQueryCache() {
+        if(!cacheManager.cacheExists(TRIPLE_CACHE)) {
+            Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                    .eviction()
+                        .maxEntries(100000)
+                    .expiration()
+                        .lifespan(5, TimeUnit.MINUTES)
+                        .maxIdle(60, TimeUnit.SECONDS)
+                    .build();
+            cacheManager.defineConfiguration(TRIPLE_CACHE, tripleConfiguration);
+        }
+        return cacheManager.getCache(TRIPLE_CACHE);
+    }
+
 
 
     /**
@@ -318,7 +340,8 @@ public class KiWiCacheManager {
             String cacheName = iterator.next();
             Cache<String,Object> cache = cacheManager.getCache(cacheName);
             cache.clear();
-        }      }
+        }
+    }
 
     /**
      * Shutdown this cache manager instance. Will shutdown the underlying EHCache cache manager.

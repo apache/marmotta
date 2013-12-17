@@ -17,14 +17,12 @@
  */
 package org.apache.marmotta.platform.core.services.http;
 
-import net.sf.ehcache.Ehcache;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.cache.CacheResponseStatus;
-import org.apache.http.client.cache.HttpCacheStorage;
+import org.apache.http.client.cache.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.conn.ClientConnectionManager;
@@ -38,7 +36,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.impl.client.cache.CachingHttpClient;
-import org.apache.http.impl.client.cache.ehcache.EhcacheHttpCacheStorage;
+import org.apache.http.impl.client.cache.DefaultHttpCacheEntrySerializer;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.*;
 import org.apache.http.pool.PoolStats;
@@ -56,14 +54,16 @@ import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import org.apache.marmotta.platform.core.services.http.response.LastModifiedResponseHandler;
 import org.apache.marmotta.platform.core.services.http.response.StatusCodeResponseHandler;
 import org.apache.marmotta.platform.core.services.http.response.StringBodyResponseHandler;
+import org.infinispan.Cache;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -101,7 +101,7 @@ public class HttpClientServiceImpl implements HttpClientService {
 
     @Inject
     @MarmottaCache("http-client-cache")
-    private Instance<Ehcache>            ehcache;
+    private Cache httpCache;
 
     private HttpClient                   httpClient;
     private IdleConnectionMonitorThread  idleConnectionMonitorThread;
@@ -308,7 +308,7 @@ public class HttpClientServiceImpl implements HttpClientService {
                 cacheConfig.setMaxCacheEntries(1000);
                 cacheConfig.setMaxObjectSize(81920);
 
-                final HttpCacheStorage cacheStore = new EhcacheHttpCacheStorage(ehcache.get(), cacheConfig);
+                final HttpCacheStorage cacheStore = new InfinispanHttpCacheStorage(httpCache);
 
                 this.httpClient = new MonitoredHttpClient(new CachingHttpClient(hc, cacheStore, cacheConfig));
             } else {
@@ -805,5 +805,102 @@ public class HttpClientServiceImpl implements HttpClientService {
             return processResponse(responseHandler, response);
         }
 
+    }
+
+
+
+    private static class InfinispanHttpCacheStorage implements HttpCacheStorage {
+
+        Cache<String, byte[]> cache;
+
+        private final HttpCacheEntrySerializer serializer;
+
+
+        private InfinispanHttpCacheStorage(Cache<String, byte[]> cache) {
+            this.cache      = cache;
+            this.serializer = new DefaultHttpCacheEntrySerializer();
+        }
+
+        /**
+         * Store a given cache entry under the given key.
+         *
+         * @param key   where in the cache to store the entry
+         * @param entry cached response to store
+         * @throws java.io.IOException
+         */
+        @Override
+        public void putEntry(String key, HttpCacheEntry entry) throws IOException {
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            serializer.writeTo(entry, bos);
+
+            cache.put(key,bos.toByteArray());
+        }
+
+        /**
+         * Retrieves the cache entry stored under the given key
+         * or null if no entry exists under that key.
+         *
+         * @param key cache key
+         * @return an {@link org.apache.http.client.cache.HttpCacheEntry} or {@code null} if no
+         * entry exists
+         * @throws java.io.IOException
+         */
+        @Override
+        public HttpCacheEntry getEntry(String key) throws IOException {
+            byte[] data = cache.get(key);
+            if(data == null) {
+                return null;
+            } else {
+                return serializer.readFrom(new ByteArrayInputStream(data));
+            }
+        }
+
+        /**
+         * Deletes/invalidates/removes any cache entries currently
+         * stored under the given key.
+         *
+         * @param key
+         * @throws java.io.IOException
+         */
+        @Override
+        public void removeEntry(String key) throws IOException {
+            cache.remove(key);
+        }
+
+        /**
+         * Atomically applies the given callback to update an existing cache
+         * entry under a given key.
+         *
+         * @param key      indicates which entry to modify
+         * @param callback performs the update; see
+         *                 {@link org.apache.http.client.cache.HttpCacheUpdateCallback} for details, but roughly the
+         *                 callback expects to be handed the current entry and will return
+         *                 the new value for the entry.
+         * @throws java.io.IOException
+         * @throws org.apache.http.client.cache.HttpCacheUpdateException
+         */
+        @Override
+        public void updateEntry(String key, HttpCacheUpdateCallback callback) throws IOException, HttpCacheUpdateException {
+            final byte[] oldData = cache.get(key);
+
+            HttpCacheEntry existingEntry = null;
+            if(oldData != null){
+                existingEntry = serializer.readFrom(new ByteArrayInputStream(oldData));
+            }
+
+            final HttpCacheEntry updatedEntry = callback.update(existingEntry);
+
+            if (existingEntry == null) {
+                putEntry(key, updatedEntry);
+                return;
+            } else {
+                // Attempt to do a CAS replace, if we fail then retry
+                // While this operation should work fine within this instance, multiple instances
+                //  could trample each others' data
+                final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                serializer.writeTo(updatedEntry, bos);
+                cache.replace(key, oldData, bos.toByteArray());
+            }
+        }
     }
 }

@@ -1449,11 +1449,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>ldcache-backend-ehcache</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-sail-kiwi</artifactId>
                 <version>${project.version}</version>
             </dependency>
