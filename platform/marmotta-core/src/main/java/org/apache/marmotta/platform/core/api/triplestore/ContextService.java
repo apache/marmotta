@@ -158,6 +158,12 @@ public interface ContextService {
      * @return
      */
     String getContextLabel(URI context);
+
+    /**
+     * Return the number of triples for the context.
+     * @param context
+     */
+    long getContextSize(org.openrdf.model.URI context);
     
     /**
      * Import content into the context
@@ -185,5 +191,6 @@ public interface ContextService {
      * @return operation result, false if context does not exist
      */
     boolean removeContext(URI context);
+
 
 }

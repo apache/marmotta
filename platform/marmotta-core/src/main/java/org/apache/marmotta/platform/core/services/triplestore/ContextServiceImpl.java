@@ -314,6 +314,27 @@ public class ContextServiceImpl implements ContextService {
         }
         return null;
     }
+    
+    /**
+     * Return the number of triples for the context.
+     * @param context
+     */
+    @Override
+    public long getContextSize(URI context) {
+        try {
+            RepositoryConnection conn = sesameService.getConnection();
+            try {
+                conn.begin();
+                return conn.size(context);
+            } finally {
+                conn.commit();
+                conn.close();
+            }
+        } catch (RepositoryException e) {
+            handleRepositoryException(e, ContextServiceImpl.class);
+        }
+        return 0;
+    }
 
     /**
      * Import content into the context

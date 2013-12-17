@@ -17,8 +17,7 @@
     limitations under the License.
 
 -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <html>
 <head>
 <!--###BEGIN_HEAD###-->
@@ -45,15 +44,28 @@
         table{
             border: 1px dotted black !important;
         }
+        .CodeMirror {
+            border: 1px solid black;
+        }
+        #reasoner li .CodeMirror {
+            height: auto;
+        }
+        #reasoner li .CodeMirror-scroll {
+            overflow-y: hidden;
+            overflow-x: auto;
+        }
     </style>
 <!--###END_HEAD###-->
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
-<h1>Reasoning Configurator</h1>
-        <p>
-            Here you can configure the Reasoner.
-        </p>
+    <h1>Reasoning Configurator</h1>
+    <p>Here you can configure the Reasoner.</p>
+    <p>A detailed howto is available on the 
+        <a href="http://marmotta.apache.org/kiwi/reasoner.html">Marmotta Webpage (KiWi Reasoner)</a>
+        and collection of example reasoning programs is available 
+        <a href="http://wiki.apache.org/marmotta/Reasoner/ExamplePrograms">in the Wiki</a>.
+    </p> 
         <div id="reasoner">
             <h4>Loading reasoning configurator</h4>
         </div>

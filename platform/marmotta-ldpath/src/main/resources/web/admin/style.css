@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -20,7 +20,7 @@ h2 {
 }
 
 .CodeMirror {
-    border: 1px solid #eee;
+    border: 1px solid #0B61A4;
     line-height: 1.25em !important;
 }
 
@@ -62,11 +62,19 @@ h2 {
     margin: 1px;
     display: inline-block;
 }
+
 #test_context span.context > .context {
     text-decoration: none;
     color: black;
 }
+
 #test_context span.context > .delete {
     text-decoration: none;
     color: red;
+}
+
+button#runTest {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px;
 }

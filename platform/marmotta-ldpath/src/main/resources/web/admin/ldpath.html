@@ -42,14 +42,15 @@
 <body>
   <!--###BEGIN_CONTENT###-->
   <h1>LDPath Test Suite</h1>
-  <p>
-    This is the LDPath playground.
-  </p>
+  <p>This is the LDPath playground.</p>
+  <p>Add a number of prototypical Resources (URIs) from your dataset to test the result of your program.</p>
+  <p>Information about LDPath and Syntax of the language is available on the <a href="http://marmotta.apache.org/ldpath/">Website</a> and in the <a href="http://wiki.apache.org/marmotta/LDPath">Wiki</a>.</p>
   <div id="playground">
     <div id="context">
-      <h2>Context</h2>
+      <h2>Test Resources</h2>
+      <p>URIs where to start evaluating the LDPath program below.</p>
       <div id="test_context"></div>
-      <div><input id="addContextUri" type=text /><button id="addContext">Add Context</button></div>
+      <div><input id="addContextUri" type=text /><button id="addContext">Add URI</button></div>
     </div>
     <div id="editor">
       <div>
@@ -69,7 +70,7 @@
     <div id="result">
       <h2>Results</h2>
       <div>
-        <table id="testResults">
+        <table id="testResults" class="simple_table">
           <thead><tr><th>&nbsp;</th><th>Field</th><th>Result</th></tr></thead>
           <tbody></tbody>
         </table>

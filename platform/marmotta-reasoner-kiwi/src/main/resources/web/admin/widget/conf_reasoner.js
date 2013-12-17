@@ -29,13 +29,17 @@
     var title_input;
     var program_input;
     var list;
+    
+    CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.showHint(cm, CodeMirror.hint.skwrl);
+    };
 
     $.fn.reasoning_config = function(options) {
         var settings = {
             host: 'http://localhost:8080/LMF/',
             samples :{
-                skos:"@prefix: skos: <http://www.w3.org/2004/02/skos/core#>\n($1 skos:broader $2) -> ($1 skos:broaderTransitive $2)\n($1 skos:narrower $2) -> ($1 skos:narrowerTransitive $2)\n($1 skos:broaderTransitive $2), ($2 skos:broaderTransitive $3) -> ($1 skos:broaderTransitive $3)\n($1 skos:narrowerTransitive $2), ($2 skos:narrowerTransitive $3) -> ($1 skos:narrowerTransitive $3)\n($1 skos:broader $2) -> ($2 skos:narrower $1)\n($1 skos:narrower $2) -> ($2 skos:broader $1)\n($1 skos:broader $2) -> ($1 skos:related $2)\n($1 skos:narrower $2) -> ($1 skos:related $2)\n($1 skos:related $2) -> ($2 skos:related $1)",
-                rdfs:"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n($1 rdfs:subClassOf $2), ($2 rdfs:subClassOf $3) -> ($1 rdfs:subClassOf $3)\n($1 rdfs:subPropertyOf $2), ($2 rdfs:subPropertyOf $3) -> ($1 rdfs:subPropertyOf $3)\n($1 rdf:type $2), ($2 rdfs:subClassOf $3) -> ($1 rdf:type $3)\n($p rdfs:range $r), ($1 $p $2) -> ($2 rdf:type $r)\n($p rdfs:domain $d), ($1 $p $2) -> ($1 rdf:type $d)"
+                skos:"@prefix: skos: <http://www.w3.org/2004/02/skos/core#>\n\n($1 skos:broader $2) -> ($1 skos:broaderTransitive $2)\n($1 skos:narrower $2) -> ($1 skos:narrowerTransitive $2)\n($1 skos:broaderTransitive $2), ($2 skos:broaderTransitive $3) -> ($1 skos:broaderTransitive $3)\n($1 skos:narrowerTransitive $2), ($2 skos:narrowerTransitive $3) -> ($1 skos:narrowerTransitive $3)\n($1 skos:broader $2) -> ($2 skos:narrower $1)\n($1 skos:narrower $2) -> ($2 skos:broader $1)\n($1 skos:broader $2) -> ($1 skos:related $2)\n($1 skos:narrower $2) -> ($1 skos:related $2)\n($1 skos:related $2) -> ($2 skos:related $1)",
+                rdfs:"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\n($1 rdfs:subClassOf $2), ($2 rdfs:subClassOf $3) -> ($1 rdfs:subClassOf $3)\n($1 rdfs:subPropertyOf $2), ($2 rdfs:subPropertyOf $3) -> ($1 rdfs:subPropertyOf $3)\n($1 rdf:type $2), ($2 rdfs:subClassOf $3) -> ($1 rdf:type $3)\n($p rdfs:range $r), ($1 $p $2) -> ($2 rdf:type $r)\n($p rdfs:domain $d), ($1 $p $2) -> ($1 rdf:type $d)"
             },
             loader:"../../core/public/img/ajax-loader_small.gif"
         }
@@ -104,13 +108,14 @@
                     button.bind("click",function(){
                         do_remove($(this).attr('name'));
                     });
-                    var title = $("<h4></h4>").text(name);
-                    var pr = $("<pre style='width:863px;font-size:11px;margin:0;'></pre>").text(ps[i].rules);
+                    var title = $("<h4>").text(name);
+                    var pr = $("<div>");
                     li.append(title);
                     li.append(pr);
                     li.append(button);
                     li.append('<img class="loader" src="'+settings.loader+'" style="display:none;float:right;margin:5px"></div>');
                     list.append(li);
+                    createCodeMirror(pr, ps[i].rules, true);
                 }
             }
 
@@ -118,6 +123,41 @@
                 writePS(programs)
             } else {
                 list.html("<li>no programs loaded</li>");
+            }
+        }
+        
+        function createCodeMirror(target, content, readOnly) {
+            target = $(target)[0];
+            if (target._cmEditor || false) {
+                removeCodeMirror(target);
+            }
+            if (readOnly) {
+                target._cmEditor = new CodeMirror(target, {
+                    readOnly: true,
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    mode: "skwrl"
+                });
+                target._cmEditor.toTextArea = function() {}; // To avoid errors because of a missing function in removeCodeMirror()
+            } else {
+                target._cmEditor = CodeMirror.fromTextArea(target, {
+                    readOnly: false,
+                    lineNumbers : true,
+                    matchBrackets : true,
+                    extraKeys: {"Ctrl-Space": "autocomplete"},
+                    mode : "skwrl"
+                });
+            }
+            if (content !== undefined) {
+                target._cmEditor.setValue(content);
+                if (!readOnly)
+                    target._cmEditor.save();
+            }
+        }
+        function removeCodeMirror(target) {
+            if (target._cmEditor || false) {
+                target._cmEditor.toTextArea();
+                target._cmEditor = null;
             }
         }
 
@@ -144,7 +184,7 @@
             var button2 = $("<button style='position:relative;left:50%;margin-top:10px;margin-left:-50px;'></button>").text("clear");
             button2.bind("click",function(){
                 title_input.val("");
-                program_input.val("");
+                createCodeMirror(program_input, "");
             });
 
             table.append(tr1);
@@ -161,11 +201,11 @@
                 var x = $(this).val();
                 if(x=="---"){
                     title_input.val("");
-                    program_input.val("");
+                    createCodeMirror(program_input, "");
                     return;
                 }
                 title_input.val(x);
-                program_input.val(settings.samples[x]);
+                createCodeMirror(program_input, settings.samples[x]);
             });
             var sam_div = $('<div style="position: relative; float: right; margin-bottom: 5px; margin-top: -20px;"><span style="font-size:12px;margin-right:5px">Samples:</span>');
             sam_div.append(sam);
@@ -179,6 +219,8 @@
             div.append(button);
             div.append('<img class="loader" src="'+settings.loader+'" style="display:none;float:right;margin:5px"></div>');
 
+            createCodeMirror(program_input)
+            
             writePrograms(programs);
         }
 
