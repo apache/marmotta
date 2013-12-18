@@ -96,8 +96,10 @@ public class CachingServiceImpl implements CachingService {
                     .clustering()
                         .cacheMode(CacheMode.DIST_ASYNC)
                         .async()
+                            .asyncMarshalling()
+                            .useReplQueue(true)
                         .l1()
-                            .lifespan(25, TimeUnit.SECONDS)
+                            .lifespan(5, TimeUnit.MINUTES)
                         .hash()
                             .numOwners(2)
                             .numSegments(100)
@@ -106,8 +108,8 @@ public class CachingServiceImpl implements CachingService {
                         .strategy(EvictionStrategy.LIRS)
                         .maxEntries(10000)
                     .expiration()
-                        .lifespan(5, TimeUnit.MINUTES)
-                        .maxIdle(1, TimeUnit.MINUTES)
+                        .lifespan(30, TimeUnit.MINUTES)
+                        .maxIdle(10, TimeUnit.MINUTES)
                     .build();
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
