@@ -185,8 +185,8 @@ public class KiWiCacheManager {
                     .eviction()
                         .maxEntries(kiWiConfiguration.getTripleCacheSize())
                     .expiration()
-                        .lifespan(60, TimeUnit.SECONDS)
-                        .maxIdle(30, TimeUnit.SECONDS)
+                        .lifespan(60, TimeUnit.MINUTES)
+                        .maxIdle(30, TimeUnit.MINUTES)
                     .build();
             cacheManager.defineConfiguration(TRIPLE_CACHE, tripleConfiguration);
         }
@@ -348,6 +348,30 @@ public class KiWiCacheManager {
 
     }
 
+    /**
+     * Return the Infinispan cache manager used by the caching infrastructure.
+     *
+     * @return
+     */
+    public EmbeddedCacheManager getCacheManager() {
+        return cacheManager;
+    }
+
+    /**
+     * Return the global cache manager configuration used by the caching infrastructure.
+     * @return
+     */
+    public GlobalConfiguration getGlobalConfiguration() {
+        return globalConfiguration;
+    }
+
+    /**
+     * Return the default cache configuration used by the caching infrastructure.
+     * @return
+     */
+    public Configuration getDefaultConfiguration() {
+        return defaultConfiguration;
+    }
 
     /**
      * Clear all caches managed by this cache manager.

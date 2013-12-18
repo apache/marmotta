@@ -107,6 +107,7 @@
         <module>kiwi-reasoner</module>
         <module>kiwi-sparql</module>
         <module>kiwi-loader</module>
+        <module>kiwi-caching</module>
     </modules>
 
 </project>
