@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.sail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailBase;
@@ -95,6 +96,10 @@ public class KiWiStore extends NotifyingSailBase {
 
     public KiWiStore(KiWiConfiguration configuration) {
         this(new KiWiPersistence(configuration), configuration.getDefaultContext(), configuration.getInferredContext());
+    }
+
+    public KiWiStore(KiWiConfiguration configuration, EmbeddedCacheManager infinispan) {
+        this(new KiWiPersistence(configuration, infinispan), configuration.getDefaultContext(), configuration.getInferredContext());
     }
 
     /**

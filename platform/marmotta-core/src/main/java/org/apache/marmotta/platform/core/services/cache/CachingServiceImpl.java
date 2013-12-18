@@ -29,9 +29,9 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
+import org.infinispan.lifecycle.ComponentStatus;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.remoting.transport.Address;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -78,16 +78,17 @@ public class CachingServiceImpl implements CachingService {
     public void initialize() {
         boolean clustered = configurationService.getBooleanConfiguration("clustering.enabled", false);
 
-        log.info("Apache Marmotta Caching Service starting up ({}) ...", clustered ? "clustering" : "single host" );
+        log.info("Apache Marmotta Caching Service starting up ({}) ...", clustered ? "cluster name: " + configurationService.getStringConfiguration("clustering.name", "Marmotta") : "single host" );
         if(clustered) {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .transport()
                         .defaultTransport()
-                        .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta") + " Platform")
+                        .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
                         .machineId(configurationService.getServerName())
                         .addProperty("configurationFile", "jgroups-marmotta.xml")
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.platform")
+                        .allowDuplicateDomains(true)
                     .build();
 
 
@@ -103,7 +104,7 @@ public class CachingServiceImpl implements CachingService {
                             .consistentHashFactory(new SyncConsistentHashFactory())
                     .eviction()
                         .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(1000)
+                        .maxEntries(10000)
                     .expiration()
                         .lifespan(5, TimeUnit.MINUTES)
                         .maxIdle(1, TimeUnit.MINUTES)
@@ -112,6 +113,7 @@ public class CachingServiceImpl implements CachingService {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.platform")
+                        .allowDuplicateDomains(true)
                     .build();
 
             defaultConfiguration = new ConfigurationBuilder()
@@ -130,12 +132,7 @@ public class CachingServiceImpl implements CachingService {
 
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        if(log.isInfoEnabled()) {
-            log.info("Members in Apache Marmotta cache cluster:");
-            for(Address a : cacheManager.getMembers()) {
-                log.info(" - {}",a);
-            }
-        }
+        log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
     }
 
     /**
@@ -215,7 +212,11 @@ public class CachingServiceImpl implements CachingService {
     @PreDestroy
     public void destroy() {
         log.info("Apache Marmotta Caching Service shutting down ...");
-        cacheManager.stop();
+        if(cacheManager.getStatus() == ComponentStatus.RUNNING) {
+            log.info("- shutting down Infinispan cache manager ...");
+            cacheManager.stop();
+            log.info("  ... success!");
+        }
         log.info("Apache Marmotta Caching Service shut down successfully.");
     }
 }

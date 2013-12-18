@@ -24,7 +24,7 @@ public class CacheLoggingModule extends BaseLoggingModule {
      */
     @Override
     public Level getDefaultLevel() {
-        return Level.WARN;
+        return Level.INFO;
     }
 
     /**

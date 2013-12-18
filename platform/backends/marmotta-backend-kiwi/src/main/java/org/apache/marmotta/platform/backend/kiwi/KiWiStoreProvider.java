@@ -30,6 +30,7 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
@@ -64,6 +65,12 @@ public class KiWiStoreProvider implements StoreProvider {
     public static final String FULLTEXT_ENABLED   = "database.fulltext.enabled";
     public static final String FULLTEXT_LANGUAGES = "database.fulltext.languages";
     public static final String DEBUG_SLOWQUERIES = "database.debug.slowqueries";
+    public static final String CLUSTERING_ENABLED = "clustering.enabled";
+    public static final String CACHING_LITERAL_SIZE = "caching.literal.size";
+    public static final String CACHING_BNODE_SIZE = "caching.bnode.size";
+    public static final String CACHING_URI_SIZE = "caching.uri.size";
+    public static final String CACHING_TRIPLE_SIZE = "caching.triple.size";
+    public static final String CLUSTERING_NAME = "clustering.name";
 
     @Inject
     private Logger log;
@@ -74,6 +81,9 @@ public class KiWiStoreProvider implements StoreProvider {
     @Inject
     private SesameService sesameService;
 
+
+    @Inject
+    private EmbeddedCacheManager cacheManager;
 
     /**
      * Create the store provided by this SailProvider
@@ -104,7 +114,7 @@ public class KiWiStoreProvider implements StoreProvider {
         String dbUser  = configurationService.getStringConfiguration("database.user");
         String dbPass  = configurationService.getStringConfiguration("database.password");
 
-        KiWiConfiguration configuration = new KiWiConfiguration(configurationService.getStringConfiguration("clustering.name", "Marmotta") + " KiWi", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
+        KiWiConfiguration configuration = new KiWiConfiguration(configurationService.getStringConfiguration(CLUSTERING_NAME, "Marmotta") + " KiWi", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
         configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration(DEBUG_SLOWQUERIES, false));
         configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration("database.triples.batchcommit", true));
         configuration.setTripleBatchSize(configurationService.getIntConfiguration("database.triples.batchsize", 10000));
@@ -112,12 +122,21 @@ public class KiWiStoreProvider implements StoreProvider {
         configuration.setDatacenterId(configurationService.getIntConfiguration(DATACENTER_ID,0));
         configuration.setFulltextEnabled(configurationService.getBooleanConfiguration(FULLTEXT_ENABLED, true));
         configuration.setFulltextLanguages(configurationService.getListConfiguration(FULLTEXT_LANGUAGES, ImmutableList.of("en")));
-        configuration.setClustered(configurationService.getBooleanConfiguration("clustering.enabled", false));
+
+        configuration.setClustered(configurationService.getBooleanConfiguration(CLUSTERING_ENABLED, false));
+        configuration.setClusterName(configurationService.getStringConfiguration(CLUSTERING_NAME, "Marmotta"));
+
+        configuration.setLiteralCacheSize(configurationService.getIntConfiguration(CACHING_LITERAL_SIZE, 100000));
+        configuration.setBNodeCacheSize(configurationService.getIntConfiguration(CACHING_BNODE_SIZE, 10000));
+        configuration.setUriCacheSize(configurationService.getIntConfiguration(CACHING_URI_SIZE, 500000));
+        configuration.setTripleCacheSize(configurationService.getIntConfiguration(CACHING_TRIPLE_SIZE, 100000));
+
+
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
-            return new KiWiSparqlSail(new KiWiStore(configuration));
+            return new KiWiSparqlSail(new KiWiStore(configuration, cacheManager));
         } else {
-            return new KiWiStore(configuration);
+            return new KiWiStore(configuration, cacheManager);
         }
     }
 
@@ -159,7 +178,12 @@ public class KiWiStoreProvider implements StoreProvider {
                 e.containsChangedKey(DATACENTER_ID) ||
                 e.containsChangedKey(FULLTEXT_ENABLED) ||
                 e.containsChangedKey(FULLTEXT_LANGUAGES) ||
-                e.containsChangedKey(DEBUG_SLOWQUERIES)
+                e.containsChangedKey(DEBUG_SLOWQUERIES) ||
+                e.containsChangedKey(CLUSTERING_ENABLED) ||
+                e.containsChangedKey(CACHING_LITERAL_SIZE) ||
+                e.containsChangedKey(CACHING_TRIPLE_SIZE) ||
+                e.containsChangedKey(CACHING_URI_SIZE) ||
+                e.containsChangedKey(CACHING_BNODE_SIZE)
                 ) {
             log.info("KiWi backend configuration changed, re-initialising triple store");
 

@@ -97,6 +97,10 @@ public class KiWiConfiguration {
 
     private int literalCacheSize = 100000;
 
+    private int tripleCacheSize = 100000;
+
+    private int namespaceCacheSize = 500;
+
     private int datacenterId = 0;
 
 
@@ -106,6 +110,9 @@ public class KiWiConfiguration {
      * Enable to turn on cluster mode (e.g. for cache replication)
      */
     private boolean clustered = false;
+
+
+    private String clusterName = "Marmotta";
 
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
@@ -312,6 +319,36 @@ public class KiWiConfiguration {
         this.uriCacheSize = uriCacheSize;
     }
 
+
+    /**
+     * The maximum size of the triple cache used for looking up triples by id
+     * @return
+     */
+    public int getTripleCacheSize() {
+        return tripleCacheSize;
+    }
+
+    /**
+     * The maximum size of the triple cache used for looking up triples by id
+     */
+    public void setTripleCacheSize(int tripleCacheSize) {
+        this.tripleCacheSize = tripleCacheSize;
+    }
+
+    /**
+     * The maximum size of the namespace cache used for looking up namespaces by prefix and uri
+     */
+    public int getNamespaceCacheSize() {
+        return namespaceCacheSize;
+    }
+
+    /**
+     * The maximum size of the namespace cache used for looking up namespaces by prefix and uri
+     */
+    public void setNamespaceCacheSize(int namespaceCacheSize) {
+        this.namespaceCacheSize = namespaceCacheSize;
+    }
+
     /**
      * The datacenter ID of this server for generating unique database IDs. If not given, a random value will
      * be generated.
@@ -361,5 +398,24 @@ public class KiWiConfiguration {
      */
     public void setClustered(boolean clustered) {
         this.clustered = clustered;
+    }
+
+
+    /**
+     * Return the name of the cluster. This name is e.g. used by the Infinispan cache to identify other cache members
+     * in the same cluster,
+     *
+     * @return
+     */
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    /**
+     * Change the name of the cluster. This name is e.g. used by the Infinispan cache to identify other cache members
+     * in the same cluster,
+     */
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
     }
 }

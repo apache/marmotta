@@ -25,6 +25,7 @@ import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +79,10 @@ public class KiWiPersistence {
      */
     private boolean         maintenance;
 
-    private boolean         droppedDatabase = false;
-
     private boolean         initialized = false;
+
+    // in case the cache manager comes from outside, it is passed over here
+    private EmbeddedCacheManager infinispan;
 
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
@@ -92,11 +94,18 @@ public class KiWiPersistence {
         this.maintenance = false;
     }
 
+    public KiWiPersistence(KiWiConfiguration configuration, EmbeddedCacheManager infinispan) {
+        this.configuration = configuration;
+        this.maintenance = false;
+        this.infinispan = infinispan;
+    }
+
+
     public void initialise() {
         // init JDBC connection pool
         initConnectionPool();
 
-        // init EHCache caches
+        // init Infinispan caches
         initCachePool();
 
         // init garbage collector thread
@@ -128,7 +137,11 @@ public class KiWiPersistence {
 
 
     private void initCachePool() {
-        cacheManager = new KiWiCacheManager(configuration);
+        if(infinispan != null) {
+            cacheManager = new KiWiCacheManager(infinispan,configuration);
+        } else {
+            cacheManager = new KiWiCacheManager(configuration);
+        }
     }
 
 
@@ -320,8 +333,6 @@ public class KiWiPersistence {
         } catch(SQLException ex) {
             log.error("SQL exception while acquiring database connection");
         }
-
-        droppedDatabase = true;
     }
 
     /**
@@ -437,6 +448,7 @@ public class KiWiPersistence {
 
 
     public void shutdown() {
+        log.info("shutting down KiWi persistence ...");
         initialized = false;
 
         idGenerator.shutdown(this);

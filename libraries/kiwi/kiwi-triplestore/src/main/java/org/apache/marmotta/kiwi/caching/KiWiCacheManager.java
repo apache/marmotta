@@ -26,9 +26,9 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
+import org.infinispan.lifecycle.ComponentStatus;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.infinispan.remoting.transport.Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,21 +62,30 @@ public class KiWiCacheManager {
     // default configuration: distributed cache, 100000 entries, 300 seconds expiration, 60 seconds idle
     private Configuration defaultConfiguration;
 
-    private boolean clustered;
+    private boolean clustered, embedded;
 
+    private KiWiConfiguration kiWiConfiguration;
+
+    /**
+     * Create a new cache manager with its own automatically created Infinispan instance.
+     *
+     * @param config
+     */
     public KiWiCacheManager(KiWiConfiguration config) {
 
         this.clustered = config.isClustered();
+        this.kiWiConfiguration = config;
 
         if(clustered) {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .transport()
                         .defaultTransport()
-                        .clusterName(config.getName())
+                        .clusterName(config.getClusterName())
                         .machineId("instance-" + config.getDatacenterId())
                         .addProperty("configurationFile", "jgroups-kiwi.xml")
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.kiwi")
+                        .allowDuplicateDomains(true)
                     .build();
 
 
@@ -101,6 +110,7 @@ public class KiWiCacheManager {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.kiwi")
+                        .allowDuplicateDomains(true)
                     .build();
 
             defaultConfiguration = new ConfigurationBuilder()
@@ -118,12 +128,29 @@ public class KiWiCacheManager {
 
 
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
-        if(log.isInfoEnabled()) {
-            log.info("Members in Apache Marmotta KiWi cache cluster:");
-            for(Address a : cacheManager.getMembers()) {
-                log.info(" - {}",a);
-            }
-        }
+
+        log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
+
+        this.embedded = true;
+    }
+
+    /**
+     * Create a cache manager from an existing Infinispan cache manager.
+     *
+     * @param cacheManager
+     * @param kiWiConfiguration
+     */
+    public KiWiCacheManager(EmbeddedCacheManager cacheManager, KiWiConfiguration kiWiConfiguration) {
+        this.cacheManager = cacheManager;
+        this.globalConfiguration = cacheManager.getCacheManagerConfiguration();
+        this.defaultConfiguration = cacheManager.getDefaultCacheConfiguration();
+        this.kiWiConfiguration = kiWiConfiguration;
+
+        this.clustered = kiWiConfiguration.isClustered();
+
+        log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
+
+        this.embedded = false;
     }
 
     /**
@@ -154,7 +181,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(TRIPLE_CACHE)) {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(100000)
+                        .maxEntries(kiWiConfiguration.getTripleCacheSize())
                     .expiration()
                         .lifespan(60, TimeUnit.SECONDS)
                         .maxIdle(30, TimeUnit.SECONDS)
@@ -163,28 +190,6 @@ public class KiWiCacheManager {
         }
         return cacheManager.getCache(TRIPLE_CACHE);
     }
-
-
-    /**
-     * Return the triple id -> triple cache from the cache manager. This cache is used for speeding up the
-     * construction of query results.
-     *
-     * @return
-     */
-    public Cache getQueryCache() {
-        if(!cacheManager.cacheExists(TRIPLE_CACHE)) {
-            Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
-                    .eviction()
-                        .maxEntries(100000)
-                    .expiration()
-                        .lifespan(5, TimeUnit.MINUTES)
-                        .maxIdle(60, TimeUnit.SECONDS)
-                    .build();
-            cacheManager.defineConfiguration(TRIPLE_CACHE, tripleConfiguration);
-        }
-        return cacheManager.getCache(TRIPLE_CACHE);
-    }
-
 
 
     /**
@@ -197,7 +202,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(URI_CACHE)) {
             Configuration uriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(50000)
+                        .maxEntries(kiWiConfiguration.getUriCacheSize())
                     .build();
             cacheManager.defineConfiguration(URI_CACHE, uriConfiguration);
         }
@@ -215,7 +220,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(BNODE_CACHE)) {
             Configuration bnodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(5000)
+                        .maxEntries(kiWiConfiguration.getBNodeCacheSize())
                     .build();
             cacheManager.defineConfiguration(BNODE_CACHE, bnodeConfiguration);
         }
@@ -233,7 +238,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(LITERAL_CACHE)) {
             Configuration literalConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(10000)
+                        .maxEntries(kiWiConfiguration.getLiteralCacheSize())
                     .build();
             cacheManager.defineConfiguration(LITERAL_CACHE, literalConfiguration);
         }
@@ -249,7 +254,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(NAMESPACE_URI_CACHE)) {
             Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(1000)
+                        .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
                     .expiration()
                         .lifespan(1, TimeUnit.HOURS)
                     .build();
@@ -266,7 +271,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(NAMESPACE_PREFIX_CACHE)) {
             Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(1000)
+                        .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
                     .expiration()
                         .lifespan(1, TimeUnit.HOURS)
                     .build();
@@ -359,6 +364,12 @@ public class KiWiCacheManager {
      * Shutdown this cache manager instance. Will shutdown the underlying EHCache cache manager.
      */
     public void shutdown() {
-        cacheManager.stop();
+        if(embedded && cacheManager.getStatus() == ComponentStatus.RUNNING) {
+            log.warn("shutting down cache manager ...");
+            if(cacheManager.getTransport() != null) {
+                cacheManager.getTransport().stop();
+            }
+            cacheManager.stop();
+        }
     }
 }
