@@ -38,6 +38,8 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.aduna.iteration.Iterations;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,7 +91,7 @@ public class TestVCardParser {
         }
         assertTrue(connection.size() > 0);
 
-        int count = connection.getStatements(null, null, null, false).asList().size();
+        int count = Iterations.asList(connection.getStatements(null, null, null, false)).size();
         assertTrue(count > 0);
 
         BooleanQuery sparqlQuery = (BooleanQuery)connection.prepareQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql).replaceAll("http://rdfa.digitalbazaar.com/test-suite/test-cases/xhtml1/rdfa1.1/","http://localhost/rdfa/"));

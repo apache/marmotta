@@ -1018,7 +1018,7 @@ public class PersistenceTest {
                 connection.storeTriple(triple2);
 
                 // check querying within transaction
-                List<Statement> result1 = connection.listTriples(subject,null,null,null,false, true).asList();
+                List<Statement> result1 = Iterations.asList(connection.listTriples(subject,null,null,null,false, true));
                 Assert.assertThat(result1,hasItems((Statement)triple1,(Statement)triple2));
 
                 Assert.assertEquals(2, connection.getSize());
@@ -1027,7 +1027,7 @@ public class PersistenceTest {
 
                 connection.commit();
 
-                List<Statement> result2 = connection.listTriples(subject,null,null,null,false, true).asList();
+                List<Statement> result2 = Iterations.asList(connection.listTriples(subject,null,null,null,false, true));
                 Assert.assertThat(result2,hasItems((Statement)triple1,(Statement)triple2));
 
                 Assert.assertEquals(2, connection.getSize());
@@ -1039,7 +1039,7 @@ public class PersistenceTest {
                 // clear cache and test again
                 persistence.clearCache();
 
-                List<Statement> result3 = connection.listTriples(subject,null,null,null,false, true).asList();
+                List<Statement> result3 = Iterations.asList(connection.listTriples(subject,null,null,null,false, true));
                 Assert.assertThat(result3,hasItems((Statement)triple1,(Statement)triple2));
 
 

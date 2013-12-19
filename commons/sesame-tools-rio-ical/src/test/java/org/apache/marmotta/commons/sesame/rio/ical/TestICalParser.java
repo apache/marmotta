@@ -20,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
+import info.aduna.iteration.Iterations;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,7 +95,7 @@ public class TestICalParser {
         }
         assertTrue(connection.size() > 0);
 
-        int count = connection.getStatements(null, null, null, false).asList().size();
+        int count = Iterations.asList(connection.getStatements(null, null, null, false)).size();
         assertTrue(count > 0);
 
         BooleanQuery sparqlQuery = (BooleanQuery)connection.prepareQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
