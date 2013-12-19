@@ -17,7 +17,14 @@
 
 package org.apache.marmotta.platform.core.test.ld;
 
-import com.jayway.restassured.RestAssured;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Random;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
@@ -26,8 +33,11 @@ import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.resource.ContentWebService;
 import org.apache.marmotta.platform.core.webservices.resource.MetaWebService;
 import org.apache.marmotta.platform.core.webservices.resource.ResourceWebService;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
@@ -40,14 +50,8 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.memory.MemoryStore;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Random;
-
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.form;
-import static com.jayway.restassured.RestAssured.given;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.restassured.RestAssured;
 
 /**
  * This test verifies the functionality of the Linked Data endpoint

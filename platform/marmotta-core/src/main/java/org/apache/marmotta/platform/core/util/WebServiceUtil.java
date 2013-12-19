@@ -17,14 +17,16 @@
  */
 package org.apache.marmotta.platform.core.util;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import javax.ws.rs.Path;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.ws.rs.Path;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Utility methods for web services

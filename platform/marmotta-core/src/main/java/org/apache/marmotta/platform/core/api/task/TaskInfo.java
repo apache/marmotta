@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.platform.core.api.task;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class TaskInfo {
 

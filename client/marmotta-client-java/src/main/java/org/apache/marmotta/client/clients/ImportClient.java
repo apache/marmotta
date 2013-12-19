@@ -17,7 +17,13 @@
  */
 package org.apache.marmotta.client.clients;
 
-import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -30,17 +36,12 @@ import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.client.ClientConfiguration;
 import org.apache.marmotta.client.exception.MarmottaClientException;
 import org.apache.marmotta.client.util.HTTPUtil;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteStreams;
 
 /**
  * This client class provides support for importing ontologies in various formats into the Apache Marmotta.
