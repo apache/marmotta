@@ -20,8 +20,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import net.fortuna.ical4j.util.CompatibilityHints;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.commons.sesame.rio.ical.ICalFormat;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -33,10 +39,6 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Add file description here!
@@ -60,6 +62,12 @@ public class TestICalParser {
         list.add(new Object[] { "kmt" });
         list.add(new Object[] { "vacation" });
         return list;
+    }
+    
+    @BeforeClass
+    public static void beforeClass() {
+        // The test files contain old date format: 
+        CompatibilityHints.setHintEnabled(CompatibilityHints.KEY_RELAXED_PARSING, true);
     }
 
 
