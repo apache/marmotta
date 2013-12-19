@@ -94,12 +94,11 @@ public class KiWiCacheManager {
                         .cacheMode(CacheMode.DIST_ASYNC)
                         .async()
                             .asyncMarshalling()
-                            .useReplQueue(true)
                         .l1()
                             .lifespan(5, TimeUnit.MINUTES)
                         .hash()
                             .numOwners(2)
-                            .numSegments(100)
+                            .numSegments(40)
                             .consistentHashFactory(new SyncConsistentHashFactory())
                     .eviction()
                         .strategy(EvictionStrategy.LIRS)
@@ -314,8 +313,7 @@ public class KiWiCacheManager {
                     .clustering()
                         .cacheMode(CacheMode.REPL_SYNC)
                         .sync()
-                        .l1()
-                            .lifespan(25, TimeUnit.SECONDS)
+                            .replTimeout(15, TimeUnit.SECONDS)
                     .eviction()
                         .strategy(EvictionStrategy.NONE)
                     .build();
@@ -393,9 +391,12 @@ public class KiWiCacheManager {
         if(embedded && cacheManager.getStatus() == ComponentStatus.RUNNING) {
             log.warn("shutting down cache manager ...");
             if(cacheManager.getTransport() != null) {
+                log.info("... shutting down transport ...");
                 cacheManager.getTransport().stop();
             }
+            log.info("... shutting down main component ...");
             cacheManager.stop();
+            log.info("... done!");
         }
     }
 }

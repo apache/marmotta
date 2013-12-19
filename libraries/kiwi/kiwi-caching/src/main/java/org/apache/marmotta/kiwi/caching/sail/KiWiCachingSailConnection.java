@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.caching.sail;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.Iteration;
 import info.aduna.iteration.UnionIteration;
@@ -65,11 +65,6 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
         this.queryCache = queryCache;
         this.limit      = limit;
 
-        try {
-            queryCache.getAdvancedCache().getTransactionManager().begin();
-        } catch (NotSupportedException | SystemException e) {
-            log.error("error starting cache transaction: ",e);
-        }
     }
 
 
@@ -104,30 +99,52 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
 
     @Override
     public void addStatement(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        tripleUpdated(subj, pred, obj, contexts);
+        tripleUpdated(subj, pred, obj, resolveContexts(contexts));
 
         super.addStatement(subj, pred, obj, contexts);
     }
 
     @Override
     public void removeStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        tripleUpdated(subj, pred, obj, contexts);
+        // TODO: too aggressive, but currently we cannot remove with wildcards
+        queryCache.clear();
 
         super.removeStatements(subj, pred, obj, contexts);
     }
 
     @Override
     public void addStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        tripleUpdated(subj, pred, obj, contexts);
+        tripleUpdated(subj, pred, obj, resolveContexts(contexts));
 
         super.addStatement(modify, subj, pred, obj, contexts);
     }
 
     @Override
     public void removeStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        tripleUpdated(subj, pred, obj, contexts);
+        // TODO: too aggressive, but currently we cannot remove with wildcards
+        queryCache.clear();
 
         super.removeStatement(modify, subj, pred, obj, contexts);
+    }
+
+
+    @Override
+    public void clear(Resource... contexts) throws SailException {
+        // TODO: too aggressive, but currently we cannot remove with wildcards
+        queryCache.clear();
+
+        super.clear(contexts);
+    }
+
+    @Override
+    public void begin() throws SailException {
+        super.begin();
+
+        try {
+            queryCache.getAdvancedCache().getTransactionManager().begin();
+        } catch (NotSupportedException | SystemException e) {
+            log.error("error starting cache transaction: ",e);
+        }
     }
 
     @Override
@@ -153,11 +170,22 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
     }
 
 
-    private Set<Resource> resolveContexts(Resource... contexts) {
+    @Override
+    public void close() throws SailException {
+        try {
+            queryCache.getAdvancedCache().getTransactionManager().suspend();
+        } catch (SystemException e) {
+            log.error("error suspending transaction",e);
+        }
+
+        super.close();
+    }
+
+    private List<Resource> resolveContexts(Resource... contexts) {
         if(contexts.length == 0) {
-            return Collections.singleton((Resource)defaultContext);
+            return Collections.singletonList((Resource) defaultContext);
         } else  {
-            return Sets.newHashSet(contexts);
+            return Lists.newArrayList(contexts);
         }
     }
 
@@ -195,7 +223,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
 
         // cache the query result
         IntArray key = createCacheKey(subject,property,object,context,inferred);
-        queryCache.put(key,result);
+        queryCache.putAsync(key, result);
 
         // cache the nodes of the triples and the triples themselves
         Set<Value> nodes = new HashSet<Value>();
@@ -203,7 +231,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
             if(stmt instanceof KiWiTriple) {
                 KiWiTriple triple = (KiWiTriple)stmt;
                 Collections.addAll(nodes, new Value[]{triple.getSubject(), triple.getObject(), triple.getPredicate(), triple.getContext()});
-                queryCache.put(createCacheKey(triple.getSubject(),triple.getPredicate(),triple.getObject(),triple.getContext(),triple.isInferred()), ImmutableList.of(stmt));
+                queryCache.putAsync(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()), ImmutableList.of(stmt));
             }
         }
 
@@ -221,7 +249,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
             }
             for(Map.Entry<URI,List<Statement>> entry : properties.entrySet()) {
                 IntArray key2 = createCacheKey(subject,entry.getKey(),null,context,inferred);
-                queryCache.put(key2,entry.getValue());
+                queryCache.putAsync(key2, entry.getValue());
             }
         }
 
@@ -244,7 +272,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
      * the triple update need to be cleared.
      *
      */
-    private void tripleUpdated(Resource subject, URI predicate, Value object, Resource... contexts) {
+    private void tripleUpdated(Resource subject, URI predicate, Value object, Iterable<Resource> contexts) {
         queryCache.remove(createCacheKey(null,null,null,null,false));
         queryCache.remove(createCacheKey(null,null,null,null,true));
 

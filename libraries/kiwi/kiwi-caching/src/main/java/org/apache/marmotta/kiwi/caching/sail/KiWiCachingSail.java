@@ -18,13 +18,13 @@
 package org.apache.marmotta.kiwi.caching.sail;
 
 import org.apache.marmotta.kiwi.caching.config.KiWiQueryCacheConfiguration;
+import org.apache.marmotta.kiwi.caching.transaction.GeronimoTransactionManagerLookup;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.transaction.TransactionMode;
-import org.infinispan.transaction.lookup.GenericTransactionManagerLookup;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.Sail;
@@ -63,10 +63,16 @@ public class KiWiCachingSail extends NotifyingSailWrapper {
         super(baseSail);
 
         this.parent = getRootSail(baseSail);
-        this.cacheManager = parent.getPersistence().getCacheManager().getCacheManager();
         this.configuration = configuration;
     }
 
+
+    @Override
+    public void initialize() throws SailException {
+        super.initialize();
+
+        this.cacheManager = parent.getPersistence().getCacheManager().getCacheManager();
+    }
 
     @Override
     public NotifyingSailConnection getConnection() throws SailException {
@@ -86,7 +92,8 @@ public class KiWiCachingSail extends NotifyingSailWrapper {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(cacheManager.getDefaultCacheConfiguration())
                     .transaction()
                         .transactionMode(TransactionMode.TRANSACTIONAL)
-                        .transactionManagerLookup(new GenericTransactionManagerLookup())
+                        .transactionManagerLookup(new GeronimoTransactionManagerLookup())
+                        .cacheStopTimeout(1, TimeUnit.SECONDS)
                     .eviction()
                     .   maxEntries(configuration.getMaxCacheSize())
                     .expiration()

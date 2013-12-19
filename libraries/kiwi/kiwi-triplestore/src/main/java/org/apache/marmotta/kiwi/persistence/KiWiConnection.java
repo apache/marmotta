@@ -116,6 +116,8 @@ public class KiWiConnection {
 
     private boolean batchCommit = true;
 
+    private boolean closed = false;
+
     private int batchSize = 1000;
 
     private ReentrantLock commitLock;
@@ -992,12 +994,12 @@ public class KiWiConnection {
             Double dbl_value = null;
             Long   lng_value = null;
             if(stringLiteral.getContent().length() < 64 && NumberUtils.isNumber(stringLiteral.getContent()))
-            try {
-                dbl_value = Double.parseDouble(stringLiteral.getContent());
-                lng_value = Long.parseLong(stringLiteral.getContent());
-            } catch (NumberFormatException ex) {
-                // ignore, keep NaN
-            }
+                try {
+                    dbl_value = Double.parseDouble(stringLiteral.getContent());
+                    lng_value = Long.parseLong(stringLiteral.getContent());
+                } catch (NumberFormatException ex) {
+                    // ignore, keep NaN
+                }
 
 
             PreparedStatement insertNode = getPreparedStatement("store.sliteral");
@@ -2107,6 +2109,8 @@ public class KiWiConnection {
      * @exception java.sql.SQLException SQLException if a database access error occurs
      */
     public void close() throws SQLException {
+        closed = true;
+
         if(connection != null) {
             // close all prepared statements
             try {
@@ -2187,7 +2191,7 @@ public class KiWiConnection {
         return transactionId;
     }
 
-    protected static interface RetryCommand<T> {
+    protected interface RetryCommand<T> {
 
         public T run() throws SQLException;
     }
@@ -2197,7 +2201,7 @@ public class KiWiConnection {
      * and should be retried several times before giving up completely.
      *
      */
-    protected static class RetryExecution<T>  {
+    protected class RetryExecution<T>  {
 
         // counter for current number of retries
         private int retries = 0;
@@ -2259,43 +2263,46 @@ public class KiWiConnection {
         }
 
         public T execute(Connection connection, RetryCommand<T> command) throws SQLException {
-            Savepoint savepoint = null;
-            if(useSavepoint) {
-                savepoint = connection.setSavepoint();
-            }
-            try {
-                T result = command.run();
-
-                if(useSavepoint && savepoint != null) {
-                    connection.releaseSavepoint(savepoint);
+            if(!closed) {
+                Savepoint savepoint = null;
+                if(useSavepoint) {
+                    savepoint = connection.setSavepoint();
                 }
+                try {
+                    T result = command.run();
 
-                return result;
-            } catch (SQLException ex) {
-                if(retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
                     if(useSavepoint && savepoint != null) {
-                        connection.rollback(savepoint);
+                        connection.releaseSavepoint(savepoint);
                     }
-                    Random rnd = new Random();
-                    long sleep = retryInterval - 250 + rnd.nextInt(500);
-                    log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, sleep, Thread.currentThread().getName(), retries);
-                    try {
-                        Thread.sleep(sleep);
-                    } catch (InterruptedException e) {}
-                    retries++;
-                    T result = execute(connection, command);
-                    retries--;
 
                     return result;
-                } else {
-                    log.error("{}: temporary conflict could not be solved! (error: {})", name, ex.getMessage());
+                } catch (SQLException ex) {
+                    if(retries < maxRetries && (sqlStates.size() == 0 || sqlStates.contains(ex.getSQLState()))) {
+                        if(useSavepoint && savepoint != null) {
+                            connection.rollback(savepoint);
+                        }
+                        Random rnd = new Random();
+                        long sleep = retryInterval - 250 + rnd.nextInt(500);
+                        log.warn("{}: temporary conflict, retrying in {} ms ... (thread={}, retry={})", name, sleep, Thread.currentThread().getName(), retries);
+                        try {
+                            Thread.sleep(sleep);
+                        } catch (InterruptedException e) {}
+                        retries++;
+                        T result = execute(connection, command);
+                        retries--;
 
-                    log.debug("main exception:",ex);
-                    log.debug("next exception:",ex.getNextException());
-                    throw ex;
+                        return result;
+                    } else {
+                        log.error("{}: temporary conflict could not be solved! (error: {})", name, ex.getMessage());
+
+                        log.debug("main exception:",ex);
+                        log.debug("next exception:",ex.getNextException());
+                        throw ex;
+                    }
                 }
+            } else {
+                return null;
             }
-
 
         }
 

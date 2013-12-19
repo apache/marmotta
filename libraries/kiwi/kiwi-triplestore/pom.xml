@@ -65,7 +65,6 @@
             <artifactId>infinispan-core</artifactId>
         </dependency>
 
-
         <!-- JDBC connection pooling -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
