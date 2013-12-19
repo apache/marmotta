@@ -12,19 +12,19 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-DROP INDEX idx_node_content;
-DROP INDEX idx_literal_lang;
+DROP INDEX IF EXISTS idx_node_content;
+DROP INDEX IF EXISTS idx_literal_lang;
 
-DROP INDEX idx_triples_p;
-DROP INDEX idx_triples_spo;
-DROP INDEX idx_triples_cspo;
+DROP INDEX IF EXISTS idx_triples_p;
+DROP INDEX IF EXISTS idx_triples_spo;
+DROP INDEX IF EXISTS idx_triples_cspo;
 
-DROP INDEX idx_namespaces_uri;
-DROP INDEX idx_namespaces_prefix;
+DROP INDEX IF EXISTS idx_namespaces_uri;
+DROP INDEX IF EXISTS idx_namespaces_prefix;
 
-DROP INDEX idx_reg_triple;
-DROP INDEX idx_reg_key;
-DROP INDEX idx_reg_tx;
+DROP INDEX IF EXISTS idx_reg_triple;
+DROP INDEX IF EXISTS idx_reg_key;
+DROP INDEX IF EXISTS idx_reg_tx;
 
 DROP TABLE IF EXISTS triples;
 DROP TABLE IF EXISTS namespaces;

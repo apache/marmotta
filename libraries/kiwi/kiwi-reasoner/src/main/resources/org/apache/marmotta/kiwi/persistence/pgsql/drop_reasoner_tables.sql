@@ -12,11 +12,11 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-DROP INDEX idx_justification_triple;
-DROP INDEX idx_just_supp_rules_just;
-DROP INDEX idx_just_supp_rules_rule;
-DROP INDEX idx_just_supp_triples_just;
-DROP INDEX idx_just_supp_triples_triple;
+DROP INDEX IF EXISTS idx_justification_triple;
+DROP INDEX IF EXISTS idx_just_supp_rules_just;
+DROP INDEX IF EXISTS idx_just_supp_rules_rule;
+DROP INDEX IF EXISTS idx_just_supp_triples_just;
+DROP INDEX IF EXISTS idx_just_supp_triples_triple;
 
 DROP TABLE IF EXISTS reasoner_just_supp_rules;
 DROP TABLE IF EXISTS reasoner_just_supp_triples;
