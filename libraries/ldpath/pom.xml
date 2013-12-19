@@ -31,14 +31,6 @@
     <name>LDPath: Reactor</name>
     <description>A path-based query language for RDF and Linked Data.</description>
 
-    <properties>
-        <sesameVersion>2.6.10</sesameVersion>
-        <jenaVersion>2.7.3</jenaVersion>
-        <sl4jVersion>1.7.2</sl4jVersion>
-        <logbackVersion>1.0.7</logbackVersion>
-        <jacksonVersion>1.9.10</jacksonVersion>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
