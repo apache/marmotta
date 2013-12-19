@@ -64,7 +64,7 @@
                 $("<tr>", {"id": "context_"+id})
                     .append($("<td>", {"text": label}))
                     .append($("<td>").append($("<a>", {"text": uri, "href": uri})))
-                    .append($("<td>").append(size?$("<span>", {"text":size+" triple"+(size==1?"":"s")}):$("<em>", {"text":"unknown"})))
+                    .append($("<td>").append(size!==undefined?$("<span>", {"text":size+" triple"+(size==1?"":"s")}):$("<em>", {"text":"unknown"})))
                     .append(appendDownloadLinks($("<td>"), ctx))
                     .append($("<td>").append($("<button>", {"text": "delete"}).click(deleteContext(uri, id, size))))
                     .appendTo($("table#contexts > tbody:last"));        
