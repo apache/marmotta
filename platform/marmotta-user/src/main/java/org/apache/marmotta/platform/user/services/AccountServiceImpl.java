@@ -58,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Inject
     @MarmottaCache("user-cache")
-    private Cache<String,UserAccount>  userCache;
+    private Cache  userCache;
 
     private PasswordHash         hashAlgo;
 
@@ -209,7 +209,7 @@ public class AccountServiceImpl implements AccountService {
 
         UserAccount account = null;
         if (userCache != null && userCache.get(resource) != null) {
-            account = userCache.get(resource);
+            account = (UserAccount) userCache.get(resource);
         } else {
             for(UserAccount a : listAccounts()) {
                 if(a.getWebId().equals(resource.stringValue())) {
