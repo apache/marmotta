@@ -50,7 +50,7 @@
         <postgresql.version>9.2-1003-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.0.3.v20130506</jetty.version>
-        <resteasy.version>3.0.5.Final</resteasy.version>
+        <resteasy.version>3.0.6.Final</resteasy.version>
     </properties>
 
     <prerequisites>
