@@ -1260,6 +1260,11 @@
                 <artifactId>kiwi-reasoner</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-caching</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Marmotta Sesame Tools -->
             <dependency>

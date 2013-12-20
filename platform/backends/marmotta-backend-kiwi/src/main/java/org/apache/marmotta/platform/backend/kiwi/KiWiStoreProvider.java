@@ -18,6 +18,8 @@
 package org.apache.marmotta.platform.backend.kiwi;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.marmotta.kiwi.caching.config.KiWiQueryCacheConfiguration;
+import org.apache.marmotta.kiwi.caching.sail.KiWiCachingSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -71,6 +73,9 @@ public class KiWiStoreProvider implements StoreProvider {
     public static final String CACHING_URI_SIZE = "caching.uri.size";
     public static final String CACHING_TRIPLE_SIZE = "caching.triple.size";
     public static final String CLUSTERING_NAME = "clustering.name";
+    public static final String CACHING_QUERY_ENABLED = "caching.query.enabled";
+    public static final String CACHING_QUERY_SIZE = "caching.query.size";
+    public static final String CACHING_QUERY_LIMIT = "caching.query.limit";
 
     @Inject
     private Logger log;
@@ -131,13 +136,21 @@ public class KiWiStoreProvider implements StoreProvider {
         configuration.setUriCacheSize(configurationService.getIntConfiguration(CACHING_URI_SIZE, 500000));
         configuration.setTripleCacheSize(configurationService.getIntConfiguration(CACHING_TRIPLE_SIZE, 100000));
 
+        NotifyingSail base = new KiWiStore(configuration, cacheManager);
+
+        if(configurationService.getBooleanConfiguration(CACHING_QUERY_ENABLED,true)) {
+            KiWiQueryCacheConfiguration qcfg = new KiWiQueryCacheConfiguration();
+            qcfg.setMaxCacheSize(configurationService.getIntConfiguration(CACHING_QUERY_SIZE, 100000));
+            qcfg.setMaxEntrySize(configurationService.getIntConfiguration(CACHING_QUERY_LIMIT, 150));
+            base = new KiWiCachingSail(base, qcfg);
+        }
 
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
-            return new KiWiSparqlSail(new KiWiStore(configuration, cacheManager));
-        } else {
-            return new KiWiStore(configuration, cacheManager);
+            base = new KiWiSparqlSail(base);
         }
+
+        return base;
     }
 
     /**
@@ -183,7 +196,8 @@ public class KiWiStoreProvider implements StoreProvider {
                 e.containsChangedKey(CACHING_LITERAL_SIZE) ||
                 e.containsChangedKey(CACHING_TRIPLE_SIZE) ||
                 e.containsChangedKey(CACHING_URI_SIZE) ||
-                e.containsChangedKey(CACHING_BNODE_SIZE)
+                e.containsChangedKey(CACHING_BNODE_SIZE) ||
+                e.containsChangedKey(CACHING_QUERY_ENABLED)
                 ) {
             log.info("KiWi backend configuration changed, re-initialising triple store");
 
