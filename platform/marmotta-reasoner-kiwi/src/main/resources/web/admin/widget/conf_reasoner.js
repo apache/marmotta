@@ -38,7 +38,7 @@
         var settings = {
             host: 'http://localhost:8080/LMF/',
             samples :{
-                skos:"@prefix: skos: <http://www.w3.org/2004/02/skos/core#>\n\n($1 skos:broader $2) -> ($1 skos:broaderTransitive $2)\n($1 skos:narrower $2) -> ($1 skos:narrowerTransitive $2)\n($1 skos:broaderTransitive $2), ($2 skos:broaderTransitive $3) -> ($1 skos:broaderTransitive $3)\n($1 skos:narrowerTransitive $2), ($2 skos:narrowerTransitive $3) -> ($1 skos:narrowerTransitive $3)\n($1 skos:broader $2) -> ($2 skos:narrower $1)\n($1 skos:narrower $2) -> ($2 skos:broader $1)\n($1 skos:broader $2) -> ($1 skos:related $2)\n($1 skos:narrower $2) -> ($1 skos:related $2)\n($1 skos:related $2) -> ($2 skos:related $1)",
+                skos:"@prefix skos: <http://www.w3.org/2004/02/skos/core#>\n\n($1 skos:broader $2) -> ($1 skos:broaderTransitive $2)\n($1 skos:narrower $2) -> ($1 skos:narrowerTransitive $2)\n($1 skos:broaderTransitive $2), ($2 skos:broaderTransitive $3) -> ($1 skos:broaderTransitive $3)\n($1 skos:narrowerTransitive $2), ($2 skos:narrowerTransitive $3) -> ($1 skos:narrowerTransitive $3)\n($1 skos:broader $2) -> ($2 skos:narrower $1)\n($1 skos:narrower $2) -> ($2 skos:broader $1)\n($1 skos:broader $2) -> ($1 skos:related $2)\n($1 skos:narrower $2) -> ($1 skos:related $2)\n($1 skos:related $2) -> ($2 skos:related $1)",
                 rdfs:"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n\n($1 rdfs:subClassOf $2), ($2 rdfs:subClassOf $3) -> ($1 rdfs:subClassOf $3)\n($1 rdfs:subPropertyOf $2), ($2 rdfs:subPropertyOf $3) -> ($1 rdfs:subPropertyOf $3)\n($1 rdf:type $2), ($2 rdfs:subClassOf $3) -> ($1 rdf:type $3)\n($p rdfs:range $r), ($1 $p $2) -> ($2 rdf:type $r)\n($p rdfs:domain $d), ($1 $p $2) -> ($1 rdf:type $d)"
             },
             loader:"../../core/public/img/ajax-loader_small.gif"
@@ -69,6 +69,10 @@
         }
 
         var do_upload = function() {
+            var editor = $(program_input)[0]._cmEditor || {};
+            if (editor && editor.save) {
+                editor.save();
+            }
             var data = program_input.val();
             if(data=="" || title_input.val() == "") {
                 alert("Values may not be empty!");

@@ -17,6 +17,13 @@
  */
 package org.apache.marmotta.client.clients;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -27,18 +34,12 @@ import org.apache.marmotta.client.exception.NotFoundException;
 import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.util.HTTPUtil;
 import org.apache.marmotta.client.util.RDFJSONParser;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Add file description here!

@@ -57,6 +57,7 @@ public class UUIDTimeTest {
         while(System.currentTimeMillis() < start + 5000) {
             long id = generator.getId(null,null);
             count++;
+            log.trace("Generated ID: {}", id);
         }
 
         log.info("generated {} ids ({}/sec)", count, count/5);

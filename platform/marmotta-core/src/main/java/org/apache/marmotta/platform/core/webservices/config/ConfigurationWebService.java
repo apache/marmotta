@@ -17,13 +17,13 @@
  */
 package org.apache.marmotta.platform.core.webservices.config;
 
-import org.apache.commons.configuration.ConversionException;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.slf4j.Logger;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -38,13 +38,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.apache.commons.configuration.ConversionException;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  *  Manage the system configuration of the Apache Marmotta Server. Provides methods for displaying and updating the configuration

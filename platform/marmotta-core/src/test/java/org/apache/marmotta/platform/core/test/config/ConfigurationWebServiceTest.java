@@ -19,19 +19,20 @@ package org.apache.marmotta.platform.core.test.config;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 
 import java.io.IOException;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.config.ConfigurationWebService;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.jayway.restassured.RestAssured;
 

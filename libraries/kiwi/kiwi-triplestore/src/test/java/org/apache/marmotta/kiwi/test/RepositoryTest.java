@@ -44,6 +44,8 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.aduna.iteration.Iterations;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -53,9 +55,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeThat;
 
 /**
@@ -162,6 +162,7 @@ public class RepositoryTest {
      * @throws RepositoryException
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testNamespaces() throws RepositoryException {
         RepositoryConnection connection = repository.getConnection();
 
@@ -173,9 +174,9 @@ public class RepositoryTest {
 
         Assert.assertEquals("http://localhost/ns1/", connection.getNamespace("ns1"));
         Assert.assertEquals("http://localhost/ns2/", connection.getNamespace("ns2"));
-        Assert.assertEquals(2, connection.getNamespaces().asList().size());
+        Assert.assertEquals(2, Iterations.asList(connection.getNamespaces()).size());
         Assert.assertThat(
-                connection.getNamespaces().asList(),
+                Iterations.asList(connection.getNamespaces()),
                 CoreMatchers.<Namespace>hasItems(
                         hasProperty("name", is("http://localhost/ns1/")),
                         hasProperty("name", is("http://localhost/ns2/"))
@@ -189,7 +190,7 @@ public class RepositoryTest {
 
         Assert.assertEquals("http://localhost/ns3/", connection.getNamespace("ns1"));
         Assert.assertThat(
-                connection.getNamespaces().asList(),
+                Iterations.asList(connection.getNamespaces()),
                 CoreMatchers.<Namespace>hasItems(
                         hasProperty("name", is("http://localhost/ns3/")),
                         hasProperty("name", is("http://localhost/ns2/"))
@@ -203,7 +204,7 @@ public class RepositoryTest {
         connection.commit();
 
         connection.begin();
-        Assert.assertEquals(1, connection.getNamespaces().asList().size());
+        Assert.assertEquals(1, Iterations.asList(connection.getNamespaces()).size());
 
 
         connection.commit();
@@ -313,7 +314,7 @@ public class RepositoryTest {
             connectionRDF.add(rdfXML, "http://localhost/srfg/", RDFFormat.RDFXML);
             connectionRDF.commit();
 
-            oldTriples = connectionRDF.getStatements(null,null,null,true).asList();
+            oldTriples = Iterations.asList(connectionRDF.getStatements(null,null,null,true));
             oldsize = connectionRDF.size();
         } finally {
             connectionRDF.close();
@@ -329,7 +330,7 @@ public class RepositoryTest {
             connection.add(rdfXML, "http://localhost/srfg/", RDFFormat.RDFXML);
             connection.commit();
 
-            newTriples = connection.getStatements(null,null,null,true).asList();
+            newTriples = Iterations.asList(connection.getStatements(null,null,null,true));
             newsize = connection.size();
         } finally {
             connection.commit();

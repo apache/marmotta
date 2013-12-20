@@ -17,13 +17,23 @@
 
 package org.apache.marmotta.ldclient.provider.facebook;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.cookie.DateParseException;
-import org.apache.http.impl.cookie.DateUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.apache.http.util.EntityUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
@@ -34,10 +44,6 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
@@ -50,11 +56,10 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A provider that accesses objects exposed by the Facebook Graph API (in JSON format). The provider will map the
@@ -248,8 +253,8 @@ public class FacebookGraphProvider implements DataProvider {
                     con.add(subject,FOAF.nick, vf.createLiteral(data.get("username").toString()));
                 }
 
-                if(data.get("cover") != null && data.get("cover") instanceof Map && ((Map)data.get("cover")).get("source") != null) {
-                    con.add(subject,FOAF.thumbnail, vf.createURI(((Map) data.get("cover")).get("source").toString()));
+                if(data.get("cover") != null && data.get("cover") instanceof Map && ((Map<?,?>)data.get("cover")).get("source") != null) {
+                    con.add(subject,FOAF.thumbnail, vf.createURI(((Map<?,?>) data.get("cover")).get("source").toString()));
                 }
 
 
@@ -278,7 +283,7 @@ public class FacebookGraphProvider implements DataProvider {
             throw new DataRetrievalException("error while accessing Facebook Graph API",e);
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     /**
@@ -421,7 +426,7 @@ public class FacebookGraphProvider implements DataProvider {
     }
 
 
-    private class ResponseHandler implements org.apache.http.client.ResponseHandler<List<String>> {
+    protected class ResponseHandler implements org.apache.http.client.ResponseHandler<List<String>> {
 
         private Date             expiresDate;
 
@@ -468,11 +473,7 @@ public class FacebookGraphProvider implements DataProvider {
                         if (expiresDate == null) {
                             Header expires = response.getFirstHeader("Expires");
                             if (expires != null) {
-                                try {
-                                    expiresDate = DateUtils.parseDate(expires.getValue());
-                                } catch (DateParseException e) {
-                                    log.debug("error parsing Expires: header");
-                                }
+                                expiresDate = DateUtils.parseDate(expires.getValue());
                             }
                         }
 
@@ -505,6 +506,14 @@ public class FacebookGraphProvider implements DataProvider {
             }
 
             return requestUrls;
+        }
+
+        public Endpoint getEndpoint() {
+            return endpoint;
+        }
+
+        public int getHttpStatus() {
+            return httpStatus;
         }
 
     }

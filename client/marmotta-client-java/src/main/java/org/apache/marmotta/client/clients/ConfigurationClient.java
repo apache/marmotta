@@ -17,6 +17,15 @@
  */
 package org.apache.marmotta.client.clients;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
@@ -29,19 +38,11 @@ import org.apache.marmotta.client.exception.MarmottaClientException;
 import org.apache.marmotta.client.exception.NotFoundException;
 import org.apache.marmotta.client.model.config.Configuration;
 import org.apache.marmotta.client.util.HTTPUtil;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A client that supports accessing the configuration webservice of the Apache Marmotta. May be used for

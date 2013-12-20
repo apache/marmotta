@@ -22,12 +22,43 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
- * Add file description here!
+ * ICal Format is using ical4j for parsing.
  * <p/>
- * Author: Sebastian Schaffert
+ * If you encounter problems parsing iCal files, e.g. a {@link net.fortuna.ical4j.data.ParserException}, 
+ * try enabling the relaxed/compatibility mode:
+ * <ul>
+ * <li>use {@link net.fortuna.ical4j.util.CompatibilityHints#setHintEnabled(String, boolean)}, or
+ * <li>create a file called {@code ical4j.properties} in the root of your classpath, or
+ * <li>specify a compatibility hint as {@code system property}
+ * </ul>
+ * 
+ * @author Sebastian Schaffert
+ * @see http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility
  */
 public class ICalFormat {
 
+    /**
+     * ICal Format is using ical4j for parsing.
+     * <p/>
+     * If you encounter problems parsing iCal files, e.g. a {@link net.fortuna.ical4j.data.ParserException}, 
+     * try enabling the relaxed/compatibility mode:
+     * <ul>
+     * <li>use {@link net.fortuna.ical4j.util.CompatibilityHints#setHintEnabled(String, boolean)}, or
+     * <li>create a file called {@code ical4j.properties} in the root of your classpath, or
+     * <li>specify a compatibility hint as {@code system property}
+     * </ul>
+     * <p/>
+     * Complete list of <strong>hints</strong> (valid settings: {@code true}/{@code false}):
+     * <ul>
+     * <li>{@code ical4j.unfolding.relaxed}
+     * <li>{@code ical4j.parsing.relaxed}
+     * <li>{@code ical4j.validation.relaxed}
+     * <li>{@code ical4j.compatibility.outlook}
+     * <li>{@code ical4j.compatibility.notes}
+     * </ul>
+     * 
+     * @see http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility
+     */
     public static final RDFFormat FORMAT = new RDFFormat(
             "ICal",
             Arrays.asList("text/calendar"),

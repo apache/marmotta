@@ -54,7 +54,9 @@ import java.util.*;
  * data using the iCal vocabulary (http://www.w3.org/2002/12/cal/icaltzd,
  * http://www.w3.org/wiki/RdfCalendarDocumentation)
  * <p/>
- * Author: Sebastian Schaffert
+ * @author Sebastian Schaffert
+ * @see http://wiki.modularity.net.au/ical4j/index.php
+ * @see http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility
  */
 public class ICalParser extends RDFParserBase {
     private static Logger log = LoggerFactory.getLogger(ICalParser.class);
