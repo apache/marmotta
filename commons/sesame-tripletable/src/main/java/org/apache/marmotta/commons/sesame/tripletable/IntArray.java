@@ -26,6 +26,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
+import java.io.Serializable;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
@@ -34,7 +35,7 @@ import java.util.Arrays;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public final class IntArray implements Comparable<IntArray> {
+public final class IntArray implements Comparable<IntArray>, Serializable {
 
     private static HashFunction hashFunction32 = Hashing.goodFastHash(32);
     private static HashFunction hashFunction64 = Hashing.goodFastHash(64);
