@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.caching.sail;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.Iteration;
@@ -27,6 +27,8 @@ import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.kiwi.caching.iteration.BufferingIteration;
 import org.apache.marmotta.kiwi.caching.iteration.CachingIteration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.infinispan.Cache;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -34,14 +36,17 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.sail.NotifyingSailConnection;
+import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailConnectionListener;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.*;
 import java.nio.IntBuffer;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -60,7 +65,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
 
     private static Logger log = LoggerFactory.getLogger(KiWiCachingSailConnection.class);
 
-    private Cache<IntArray,List<Statement>> queryCache;
+    private Cache<Long,long[]> queryCache;
 
     // a dummy default context to work around the double meaning of the null value
     private final static URI defaultContext = new URIImpl("http://marmotta.apache.org/contexts/default");
@@ -73,11 +78,14 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
 
     private static long connectionIdCounter = 0;
 
-    public KiWiCachingSailConnection(NotifyingSailConnection wrappedCon, Cache<IntArray, List<Statement>> queryCache, int limit) {
+    private KiWiConnection kiWiConnection;
+
+    public KiWiCachingSailConnection(NotifyingSailConnection wrappedCon, Cache<Long, long[]> queryCache, int limit) {
         super(wrappedCon);
 
         this.queryCache = queryCache;
         this.limit      = limit;
+        this.kiWiConnection = getKiWiConnection(wrappedCon);
 
         this.addConnectionListener(this);
 
@@ -276,9 +284,20 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
 
         IntArray key = createCacheKey(subject,property,object,context,inferred);
         try {
-            if(queryCache.get(key) != null) return queryCache.get(key);
-            else
+            long[] ids = queryCache.get(key.longHashCode());
+            if(ids == null) {
                 return null;
+            } else {
+                ArrayList<Statement> statements = new ArrayList<>(ids.length);
+                for(long id : ids) {
+                    try {
+                        statements.add(kiWiConnection.loadTripleById(id));
+                    } catch (SQLException e) {
+                        log.warn("could not load triple from database: {}",id);
+                    }
+                }
+                return statements;
+            }
         } finally {
             if(implicitTx) {
                 closeTransaction();
@@ -297,7 +316,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
      * @param inferred if true, inferred triples are included in the result; if false not
      * @param result   the result of the triple query to cache
      */
-    private void cacheTriples(Resource subject, URI property, Value object, Resource context, boolean inferred, List<Statement> result) {
+    private void cacheTriples(final Resource subject, final URI property, final Value object, final Resource context, boolean inferred, List<Statement> result) {
         boolean implicitTx = tx == null;
 
         resumeTransaction();
@@ -305,7 +324,14 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
         try {
             // cache the query result
             IntArray key = createCacheKey(subject,property,object,context,inferred);
-            queryCache.put(key, result);
+            long[] data = new long[result.size()];
+            for(int i=0; i<result.size(); i++) {
+                Statement stmt = result.get(i);
+                if(stmt instanceof KiWiTriple) {
+                    data[i] = ((KiWiTriple) stmt).getId();
+                }
+            }
+            queryCache.put(key.longHashCode(), data);
 
             // cache the nodes of the triples and the triples themselves
             Set<Value> nodes = new HashSet<Value>();
@@ -313,25 +339,31 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
                 if(stmt instanceof KiWiTriple) {
                     KiWiTriple triple = (KiWiTriple)stmt;
                     Collections.addAll(nodes, new Value[]{triple.getSubject(), triple.getObject(), triple.getPredicate(), triple.getContext()});
-                    queryCache.put(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()), ImmutableList.of(stmt));
+                    queryCache.put(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()).longHashCode(), new long[] {triple.getId()});
                 }
             }
 
             // special optimisation: when only the subject (and optionally context) is given, we also fill the caches for
             // all property values
             if(subject != null && property == null && object == null) {
-                HashMap<URI,List<Statement>> properties = new HashMap<>();
+                HashMap<URI,ArrayList<Long>> properties = new HashMap<>();
                 for(Statement triple : result) {
-                    List<Statement> values = properties.get(triple.getPredicate());
+                    ArrayList<Long> values = properties.get(triple.getPredicate());
                     if(values == null) {
-                        values = new LinkedList<>();
+                        values = new ArrayList<>();
                         properties.put(triple.getPredicate(),values);
                     }
-                    values.add(triple);
+                    if(triple instanceof KiWiTriple) {
+                        values.add(((KiWiTriple) triple).getId());
+                    }
                 }
-                for(Map.Entry<URI,List<Statement>> entry : properties.entrySet()) {
+                for(Map.Entry<URI,ArrayList<Long>> entry : properties.entrySet()) {
                     IntArray key2 = createCacheKey(subject,entry.getKey(),null,context,inferred);
-                    queryCache.put(key2, entry.getValue());
+                    long[] dvalues = new long[entry.getValue().size()];
+                    for(int i=0; i<entry.getValue().size(); i++) {
+                        dvalues[i] = entry.getValue().get(i);
+                    }
+                    queryCache.put(key2.longHashCode(), dvalues);
                 }
             }
 
@@ -360,51 +392,51 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
      *
      */
     private void tripleUpdated(Resource subject, URI predicate, Value object, Iterable<Resource> contexts) {
-        queryCache.remove(createCacheKey(null,null,null,null,false));
-        queryCache.remove(createCacheKey(null,null,null,null,true));
+        queryCache.remove(createCacheKey(null, null, null, null, false).longHashCode());
+        queryCache.remove(createCacheKey(null,null,null,null,true).longHashCode());
 
-        queryCache.remove(createCacheKey(null,null,null,defaultContext,false));
-        queryCache.remove(createCacheKey(null,null,null,defaultContext,true));
+        queryCache.remove(createCacheKey(null,null,null,defaultContext,false).longHashCode());
+        queryCache.remove(createCacheKey(null,null,null,defaultContext,true).longHashCode());
 
 
         // remove all possible combinations of this triple as they may appear in the cache
-        queryCache.remove(createCacheKey(subject,null,null,null,false));
-        queryCache.remove(createCacheKey(subject,null,null,null,true));
-        queryCache.remove(createCacheKey(null,predicate,null,null,false));
-        queryCache.remove(createCacheKey(null,predicate,null,null,true));
-        queryCache.remove(createCacheKey(null,null,object,null,false));
-        queryCache.remove(createCacheKey(null,null,object,null,true));
+        queryCache.remove(createCacheKey(subject,null,null,null,false).longHashCode());
+        queryCache.remove(createCacheKey(subject,null,null,null,true).longHashCode());
+        queryCache.remove(createCacheKey(null,predicate,null,null,false).longHashCode());
+        queryCache.remove(createCacheKey(null,predicate,null,null,true).longHashCode());
+        queryCache.remove(createCacheKey(null,null,object,null,false).longHashCode());
+        queryCache.remove(createCacheKey(null,null,object,null,true).longHashCode());
 
-        queryCache.remove(createCacheKey(subject,predicate,null,null,false));
-        queryCache.remove(createCacheKey(subject,predicate,null,null,true));
-        queryCache.remove(createCacheKey(subject,null,object,null,false));
-        queryCache.remove(createCacheKey(subject,null,object,null,true));
-        queryCache.remove(createCacheKey(null,predicate,object,null,false));
-        queryCache.remove(createCacheKey(null,predicate,object,null,true));
+        queryCache.remove(createCacheKey(subject,predicate,null,null,false).longHashCode());
+        queryCache.remove(createCacheKey(subject,predicate,null,null,true).longHashCode());
+        queryCache.remove(createCacheKey(subject,null,object,null,false).longHashCode());
+        queryCache.remove(createCacheKey(subject,null,object,null,true).longHashCode());
+        queryCache.remove(createCacheKey(null,predicate,object,null,false).longHashCode());
+        queryCache.remove(createCacheKey(null,predicate,object,null,true).longHashCode());
 
 
-        queryCache.remove(createCacheKey(subject,predicate,object,null,false));
-        queryCache.remove(createCacheKey(subject,predicate,object,null,true));
+        queryCache.remove(createCacheKey(subject,predicate,object,null,false).longHashCode());
+        queryCache.remove(createCacheKey(subject,predicate,object,null,true).longHashCode());
 
         for(Resource context : contexts) {
-            queryCache.remove(createCacheKey(null,null,null,context,false));
-            queryCache.remove(createCacheKey(null,null,null,context,true));
-            queryCache.remove(createCacheKey(subject,null,null,context,false));
-            queryCache.remove(createCacheKey(subject,null,null,context,true));
-            queryCache.remove(createCacheKey(null,predicate,null,context,false));
-            queryCache.remove(createCacheKey(null,predicate,null,context,true));
-            queryCache.remove(createCacheKey(null,null,object,context,false));
-            queryCache.remove(createCacheKey(null,null,object,context,true));
+            queryCache.remove(createCacheKey(null,null,null,context,false).longHashCode());
+            queryCache.remove(createCacheKey(null,null,null,context,true).longHashCode());
+            queryCache.remove(createCacheKey(subject,null,null,context,false).longHashCode());
+            queryCache.remove(createCacheKey(subject,null,null,context,true).longHashCode());
+            queryCache.remove(createCacheKey(null,predicate,null,context,false).longHashCode());
+            queryCache.remove(createCacheKey(null,predicate,null,context,true).longHashCode());
+            queryCache.remove(createCacheKey(null,null,object,context,false).longHashCode());
+            queryCache.remove(createCacheKey(null,null,object,context,true).longHashCode());
 
-            queryCache.remove(createCacheKey(subject,predicate,null,context,false));
-            queryCache.remove(createCacheKey(subject,predicate,null,context,true));
-            queryCache.remove(createCacheKey(subject,null,object,context,false));
-            queryCache.remove(createCacheKey(subject,null,object,context,true));
-            queryCache.remove(createCacheKey(null,predicate,object,context,false));
-            queryCache.remove(createCacheKey(null,predicate,object,context,true));
+            queryCache.remove(createCacheKey(subject,predicate,null,context,false).longHashCode());
+            queryCache.remove(createCacheKey(subject,predicate,null,context,true).longHashCode());
+            queryCache.remove(createCacheKey(subject,null,object,context,false).longHashCode());
+            queryCache.remove(createCacheKey(subject,null,object,context,true).longHashCode());
+            queryCache.remove(createCacheKey(null,predicate,object,context,false).longHashCode());
+            queryCache.remove(createCacheKey(null,predicate,object,context,true).longHashCode());
 
-            queryCache.remove(createCacheKey(subject,predicate,object,context,false));
-            queryCache.remove(createCacheKey(subject,predicate,object,context,true));
+            queryCache.remove(createCacheKey(subject,predicate,object,context,false).longHashCode());
+            queryCache.remove(createCacheKey(subject,predicate,object,context,true).longHashCode());
         }
     }
 
@@ -431,4 +463,41 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
     }
 
 
+    /**
+     * Get the root sail in the wrapped sail stack
+     * @param sail
+     * @return
+     */
+    private KiWiConnection getKiWiConnection(SailConnection sail) {
+        if(sail instanceof KiWiSailConnection) {
+            return ((KiWiSailConnection) sail).getDatabaseConnection();
+        } else if(sail instanceof SailConnectionWrapper) {
+            return getKiWiConnection(((SailConnectionWrapper) sail).getWrappedConnection());
+        } else {
+            throw new IllegalArgumentException("root sail connection is not a KiWiSailConnection or could not be found");
+        }
+    }
+
+    private class IDTripleLoader implements Function<Long,Statement> {
+        @Override
+        public Statement apply(Long input) {
+            try {
+                return kiWiConnection.loadTripleById(input);
+            } catch (SQLException e) {
+                log.error("could not load triple with ID {}", input);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private class IDTripleExtractor implements Function<Statement,Long> {
+        @Override
+        public Long apply(Statement input) {
+            if(input instanceof KiWiTriple) {
+                return ((KiWiTriple) input).getId();
+            } else {
+                return -1L;
+            }
+        }
+    }
 }

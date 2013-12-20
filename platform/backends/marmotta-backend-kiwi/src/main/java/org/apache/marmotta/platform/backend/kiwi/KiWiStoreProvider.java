@@ -18,8 +18,6 @@
 package org.apache.marmotta.platform.backend.kiwi;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.marmotta.kiwi.caching.config.KiWiQueryCacheConfiguration;
-import org.apache.marmotta.kiwi.caching.sail.KiWiCachingSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -138,6 +136,7 @@ public class KiWiStoreProvider implements StoreProvider {
 
         NotifyingSail base = new KiWiStore(configuration, cacheManager);
 
+        /*
         if(configurationService.getBooleanConfiguration(CACHING_QUERY_ENABLED,true)) {
             log.info(" - enabling query caching support");
             KiWiQueryCacheConfiguration qcfg = new KiWiQueryCacheConfiguration();
@@ -145,6 +144,7 @@ public class KiWiStoreProvider implements StoreProvider {
             qcfg.setMaxEntrySize(configurationService.getIntConfiguration(CACHING_QUERY_LIMIT, 150));
             base = new KiWiCachingSail(base, qcfg);
         }
+        */
 
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {

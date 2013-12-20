@@ -24,6 +24,7 @@ import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
+import org.infinispan.context.Flag;
 import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.lifecycle.ComponentStatus;
@@ -171,7 +172,7 @@ public class KiWiCacheManager {
             cacheManager.defineConfiguration(NODE_CACHE, nodeConfiguration);
         }
 
-        return cacheManager.getCache(NODE_CACHE);
+        return cacheManager.getCache(NODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
     /**
@@ -191,7 +192,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(TRIPLE_CACHE, tripleConfiguration);
         }
-        return cacheManager.getCache(TRIPLE_CACHE);
+        return cacheManager.getCache(TRIPLE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
 
@@ -209,7 +210,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(URI_CACHE, uriConfiguration);
         }
-        return cacheManager.getCache(URI_CACHE);
+        return cacheManager.getCache(URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
 
@@ -227,7 +228,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(BNODE_CACHE, bnodeConfiguration);
         }
-        return cacheManager.getCache(BNODE_CACHE);
+        return cacheManager.getCache(BNODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
     /**
@@ -245,7 +246,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(LITERAL_CACHE, literalConfiguration);
         }
-        return cacheManager.getCache(LITERAL_CACHE);
+        return cacheManager.getCache(LITERAL_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
 
@@ -263,7 +264,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
         }
-        return cacheManager.getCache(NAMESPACE_URI_CACHE);
+        return cacheManager.getCache(NAMESPACE_URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
     /**
@@ -280,7 +281,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
         }
-        return cacheManager.getCache(NAMESPACE_PREFIX_CACHE);
+        return cacheManager.getCache(NAMESPACE_PREFIX_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
 
@@ -299,7 +300,7 @@ public class KiWiCacheManager {
                     .build();
             cacheManager.defineConfiguration(LOADER_CACHE, loaderConfiguration);
         }
-        return cacheManager.getCache(LOADER_CACHE);
+        return cacheManager.getCache(LOADER_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
 
@@ -330,7 +331,7 @@ public class KiWiCacheManager {
                 cacheManager.defineConfiguration(REGISTRY_CACHE, registryConfiguration);
             }
         }
-        return cacheManager.getCache(REGISTRY_CACHE);
+        return cacheManager.getCache(REGISTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
     /**
@@ -344,7 +345,7 @@ public class KiWiCacheManager {
         if(!cacheManager.cacheExists(name)) {
             cacheManager.defineConfiguration(name, new ConfigurationBuilder().read(defaultConfiguration).build());
         }
-        return cacheManager.getCache(name);
+        return cacheManager.getCache(name).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
 
     }
 

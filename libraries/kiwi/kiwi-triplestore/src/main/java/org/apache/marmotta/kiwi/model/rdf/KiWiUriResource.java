@@ -31,12 +31,6 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
 	private static final long serialVersionUID = -6399293877969640084L;
 
-    /**
-     * The MemURI's hash code, 0 if not yet initialized.
-     */
-    private int hashCode = 0;
-
-
     private String uri;
 
 
@@ -139,11 +133,7 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     @Override
     public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = toString().hashCode();
-        }
-
-        return hashCode;
+        return toString().hashCode();
     }
 
 

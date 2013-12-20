@@ -1770,20 +1770,20 @@ public class KiWiConnection {
 
     private void cacheNode(KiWiNode node) {
         if(node.getId() >= 0) {
-            nodeCache.putAsync(node.getId(), node);
+            nodeCache.putForExternalRead(node.getId(), node);
         }
         if(node instanceof KiWiUriResource) {
-            uriCache.putAsync(node.stringValue(), (KiWiUriResource) node);
+            uriCache.putForExternalRead(node.stringValue(), (KiWiUriResource) node);
         } else if(node instanceof KiWiAnonResource) {
-            bnodeCache.putAsync(node.stringValue(), (KiWiAnonResource) node);
+            bnodeCache.putForExternalRead(node.stringValue(), (KiWiAnonResource) node);
         } else if(node instanceof KiWiLiteral) {
-            literalCache.putAsync(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
+            literalCache.putForExternalRead(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
         }
     }
 
     private void cacheTriple(KiWiTriple triple) {
         if(triple.getId() >= 0) {
-            tripleCache.putAsync(triple.getId(),triple);
+            tripleCache.putForExternalRead(triple.getId(),triple);
         }
     }
 

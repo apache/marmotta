@@ -21,9 +21,12 @@ import org.apache.marmotta.kiwi.caching.config.KiWiQueryCacheConfiguration;
 import org.apache.marmotta.kiwi.caching.transaction.GeronimoTransactionManagerLookup;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.infinispan.Cache;
+import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.VersioningScheme;
+import org.infinispan.context.Flag;
+import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.transaction.TransactionMode;
 import org.infinispan.util.concurrent.IsolationLevel;
@@ -91,27 +94,55 @@ public class KiWiCachingSail extends NotifyingSailWrapper {
      */
     private Cache getQueryCache() {
         if(!cacheManager.cacheExists(QUERY_CACHE)) {
-            Configuration tripleConfiguration = new ConfigurationBuilder().read(cacheManager.getDefaultCacheConfiguration())
-                    .storeAsBinary()
-                    .transaction()
-                        .transactionMode(TransactionMode.TRANSACTIONAL)
-                        .transactionManagerLookup(new GeronimoTransactionManagerLookup())
-                        .cacheStopTimeout(1, TimeUnit.SECONDS)
-                    .locking()
-                        .isolationLevel(IsolationLevel.READ_COMMITTED)
-                        .concurrencyLevel(5)
-                    .versioning()
-                        .enabled(true)
-                        .scheme(VersioningScheme.SIMPLE)
-                    .eviction()
-                    .   maxEntries(configuration.getMaxCacheSize())
-                    .expiration()
-                        .lifespan(60, TimeUnit.MINUTES)
-                        .maxIdle(30, TimeUnit.MINUTES)
-                    .build();
-            cacheManager.defineConfiguration(QUERY_CACHE, tripleConfiguration);
+            if(parent.getPersistence().getConfiguration().isClustered()) {
+                Configuration tripleConfiguration = new ConfigurationBuilder()
+                        .clustering()
+                            .cacheMode(CacheMode.DIST_SYNC)
+                            .sync()
+                                .replTimeout(60, TimeUnit.SECONDS)
+                            .hash()
+                                .numOwners(2)
+                                .numSegments(40)
+                                .consistentHashFactory(new SyncConsistentHashFactory())
+                        .transaction()
+                            .transactionMode(TransactionMode.TRANSACTIONAL)
+                            .transactionManagerLookup(new GeronimoTransactionManagerLookup())
+                            .cacheStopTimeout(1, TimeUnit.SECONDS)
+                        .locking()
+                            .isolationLevel(IsolationLevel.READ_COMMITTED)
+                            .concurrencyLevel(5)
+                        .versioning()
+                            .enabled(true)
+                            .scheme(VersioningScheme.SIMPLE)
+                        .eviction()
+                            .maxEntries(configuration.getMaxCacheSize())
+                        .expiration()
+                            .lifespan(60, TimeUnit.MINUTES)
+                            .maxIdle(30, TimeUnit.MINUTES)
+                        .build();
+                cacheManager.defineConfiguration(QUERY_CACHE, tripleConfiguration);
+            } else {
+                Configuration tripleConfiguration = new ConfigurationBuilder().read(cacheManager.getDefaultCacheConfiguration())
+                        .transaction()
+                            .transactionMode(TransactionMode.TRANSACTIONAL)
+                            .transactionManagerLookup(new GeronimoTransactionManagerLookup())
+                            .cacheStopTimeout(1, TimeUnit.SECONDS)
+                        .locking()
+                            .isolationLevel(IsolationLevel.READ_COMMITTED)
+                            .concurrencyLevel(5)
+                        .versioning()
+                            .enabled(true)
+                            .scheme(VersioningScheme.SIMPLE)
+                        .eviction()
+                            .maxEntries(configuration.getMaxCacheSize())
+                        .expiration()
+                            .lifespan(60, TimeUnit.MINUTES)
+                            .maxIdle(30, TimeUnit.MINUTES)
+                        .build();
+                cacheManager.defineConfiguration(QUERY_CACHE, tripleConfiguration);
+            }
         }
-        return cacheManager.getCache(QUERY_CACHE);
+        return cacheManager.getCache(QUERY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
     }
 
 
