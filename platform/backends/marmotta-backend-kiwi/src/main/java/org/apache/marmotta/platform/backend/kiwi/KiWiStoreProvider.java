@@ -139,6 +139,7 @@ public class KiWiStoreProvider implements StoreProvider {
         NotifyingSail base = new KiWiStore(configuration, cacheManager);
 
         if(configurationService.getBooleanConfiguration(CACHING_QUERY_ENABLED,true)) {
+            log.info(" - enabling query caching support");
             KiWiQueryCacheConfiguration qcfg = new KiWiQueryCacheConfiguration();
             qcfg.setMaxCacheSize(configurationService.getIntConfiguration(CACHING_QUERY_SIZE, 100000));
             qcfg.setMaxEntrySize(configurationService.getIntConfiguration(CACHING_QUERY_LIMIT, 150));
@@ -147,6 +148,7 @@ public class KiWiStoreProvider implements StoreProvider {
 
 
         if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
+            log.info(" - enabling native SPARQL support");
             base = new KiWiSparqlSail(base);
         }
 

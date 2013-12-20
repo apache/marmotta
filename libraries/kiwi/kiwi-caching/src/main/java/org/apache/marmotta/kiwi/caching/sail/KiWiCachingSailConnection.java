@@ -305,7 +305,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
         try {
             // cache the query result
             IntArray key = createCacheKey(subject,property,object,context,inferred);
-            queryCache.putAsync(key, result);
+            queryCache.put(key, result);
 
             // cache the nodes of the triples and the triples themselves
             Set<Value> nodes = new HashSet<Value>();
@@ -313,7 +313,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
                 if(stmt instanceof KiWiTriple) {
                     KiWiTriple triple = (KiWiTriple)stmt;
                     Collections.addAll(nodes, new Value[]{triple.getSubject(), triple.getObject(), triple.getPredicate(), triple.getContext()});
-                    queryCache.putAsync(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()), ImmutableList.of(stmt));
+                    queryCache.put(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()), ImmutableList.of(stmt));
                 }
             }
 
@@ -331,7 +331,7 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper im
                 }
                 for(Map.Entry<URI,List<Statement>> entry : properties.entrySet()) {
                     IntArray key2 = createCacheKey(subject,entry.getKey(),null,context,inferred);
-                    queryCache.putAsync(key2, entry.getValue());
+                    queryCache.put(key2, entry.getValue());
                 }
             }
 
