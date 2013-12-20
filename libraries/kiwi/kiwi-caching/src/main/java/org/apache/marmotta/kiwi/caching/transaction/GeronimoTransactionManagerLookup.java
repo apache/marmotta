@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.caching.transaction;
 
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.GeronimoTransactionManager;
 import org.infinispan.transaction.lookup.TransactionManagerLookup;
 
 import javax.transaction.TransactionManager;
@@ -39,7 +39,7 @@ public class GeronimoTransactionManagerLookup implements TransactionManagerLooku
     @Override
     public TransactionManager getTransactionManager() throws Exception {
         if(manager == null) {
-            manager = new TransactionManagerImpl();
+            manager = new GeronimoTransactionManager();
         }
         return manager;
     }

@@ -20,6 +20,8 @@ package org.apache.marmotta.kiwi.caching.iteration;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.CloseableIterationBase;
 import info.aduna.iteration.CloseableIteratorIteration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -29,6 +31,8 @@ import java.util.List;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class CachingIteration<E,X extends Exception> extends CloseableIterationBase<E,X> implements CloseableIteration<E,X> {
+
+    private static Logger log = LoggerFactory.getLogger(CachingIteration.class);
 
     private CloseableIteration<E,X> wrapped;
 
@@ -40,8 +44,10 @@ public class CachingIteration<E,X extends Exception> extends CloseableIterationB
 
         List<E> cached = cacheFunction.getResult();
         if(cached != null) {
+            log.debug("cache hit, using iterator over cached result (size={})!", cached.size());
             this.wrapped = new CloseableIteratorIteration<>(cached.iterator());
         } else {
+            log.debug("cache miss, querying backend!");
             this.wrapped = producer.getIteration();
         }
     }

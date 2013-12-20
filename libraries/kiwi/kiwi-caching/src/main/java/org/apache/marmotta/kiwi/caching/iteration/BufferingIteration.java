@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Add file description here!
+ * An iterator that buffers iteration results up to a configurable limit.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */

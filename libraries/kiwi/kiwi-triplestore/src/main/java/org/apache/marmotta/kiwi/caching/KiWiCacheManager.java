@@ -78,6 +78,7 @@ public class KiWiCacheManager {
 
         if(clustered) {
             globalConfiguration = new GlobalConfigurationBuilder()
+                    .classLoader(KiWiCacheManager.class.getClassLoader())
                     .transport()
                         .defaultTransport()
                         .clusterName(config.getClusterName())
@@ -109,6 +110,7 @@ public class KiWiCacheManager {
                     .build();
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
+                    .classLoader(KiWiCacheManager.class.getClassLoader())
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.kiwi")
                         .allowDuplicateDomains(true)

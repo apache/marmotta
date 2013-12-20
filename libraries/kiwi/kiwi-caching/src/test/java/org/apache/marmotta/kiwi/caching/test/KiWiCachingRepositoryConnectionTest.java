@@ -22,7 +22,6 @@ import org.apache.marmotta.kiwi.caching.sail.KiWiCachingSail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnectionTest;
@@ -34,7 +33,6 @@ import org.openrdf.repository.sail.SailRepository;
  *
  */
 @RunWith(KiWiDatabaseRunner.class)
-@Ignore
 public class KiWiCachingRepositoryConnectionTest extends RepositoryConnectionTest {
 
     private final KiWiConfiguration config;

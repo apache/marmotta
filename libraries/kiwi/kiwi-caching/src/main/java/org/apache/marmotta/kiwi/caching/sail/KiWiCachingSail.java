@@ -23,8 +23,10 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.cache.VersioningScheme;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.transaction.TransactionMode;
+import org.infinispan.util.concurrent.IsolationLevel;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.Sail;
@@ -90,10 +92,17 @@ public class KiWiCachingSail extends NotifyingSailWrapper {
     private Cache getQueryCache() {
         if(!cacheManager.cacheExists(QUERY_CACHE)) {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(cacheManager.getDefaultCacheConfiguration())
+                    .storeAsBinary()
                     .transaction()
                         .transactionMode(TransactionMode.TRANSACTIONAL)
                         .transactionManagerLookup(new GeronimoTransactionManagerLookup())
                         .cacheStopTimeout(1, TimeUnit.SECONDS)
+                    .locking()
+                        .isolationLevel(IsolationLevel.READ_COMMITTED)
+                        .concurrencyLevel(5)
+                    .versioning()
+                        .enabled(true)
+                        .scheme(VersioningScheme.SIMPLE)
                     .eviction()
                     .   maxEntries(configuration.getMaxCacheSize())
                     .expiration()

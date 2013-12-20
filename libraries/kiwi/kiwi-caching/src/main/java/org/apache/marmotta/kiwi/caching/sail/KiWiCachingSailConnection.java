@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.Iteration;
 import info.aduna.iteration.UnionIteration;
+import org.apache.geronimo.transaction.manager.TransactionImpl;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
 import org.apache.marmotta.kiwi.caching.iteration.BufferingIteration;
 import org.apache.marmotta.kiwi.caching.iteration.CachingIteration;
@@ -33,8 +34,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.sail.NotifyingSailConnection;
+import org.openrdf.sail.SailConnectionListener;
 import org.openrdf.sail.SailException;
-import org.openrdf.sail.UpdateContext;
 import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +45,18 @@ import java.nio.IntBuffer;
 import java.util.*;
 
 /**
- * Add file description here!
+ * A sail connection with Infinispan caching support. It will dynamically cache getStatements results up to a certain
+ * result size and invalidate the cache on updates.
+ *
+ * <p/>
+ * Since Infinispan uses JTA for transaction management, we need to align Sesame transactions with JTA. JTA transactions
+ * are associated per-thread, while Sesame transactions are per-connection. This makes this combination a bit tricky:
+ * every time a relevant method on the sesame connection is called we need to suspend the existing thread transaction
+ * and resume the connection that is associated with the connection.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
+public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper implements SailConnectionListener {
 
     private static Logger log = LoggerFactory.getLogger(KiWiCachingSailConnection.class);
 
@@ -59,17 +67,32 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
 
     private int limit = 150;
 
+    private Transaction tx;
+
+    private long connectionId;
+
+    private static long connectionIdCounter = 0;
+
     public KiWiCachingSailConnection(NotifyingSailConnection wrappedCon, Cache<IntArray, List<Statement>> queryCache, int limit) {
         super(wrappedCon);
 
         this.queryCache = queryCache;
         this.limit      = limit;
 
+        this.addConnectionListener(this);
+
+        connectionId = ++connectionIdCounter;
+
     }
 
 
     @Override
     public CloseableIteration<? extends Statement, SailException> getStatements(final Resource subj, final URI pred, final Value obj, final boolean includeInferred, final Resource... contexts) throws SailException {
+        if(tx != null) {
+            log.debug("CONN({}) LIST: listing statements for transaction: {}", connectionId, ((TransactionImpl) tx).getTransactionKey());
+        } else {
+            log.debug("CONN({}) LIST: listing statements (no transaction)", connectionId);
+        }
         List<Iteration<? extends Statement, SailException>> cResults = new ArrayList<>(contexts.length + 1);
         for(final Resource context : resolveContexts(contexts)) {
             cResults.add(new CachingIteration<>(
@@ -81,7 +104,8 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
 
                         @Override
                         public void cacheResult(List<Statement> buffer) {
-                            cacheTriples(subj,pred,obj,context,includeInferred,buffer);
+                            log.debug("CONN({}) CACHE: caching result for query ({},{},{},{},{}): {}", connectionId, subj, pred, obj, context, includeInferred, buffer);
+                            cacheTriples(subj, pred, obj, context, includeInferred, buffer);
                         }
                     },
                     new CachingIteration.BufferingIterationProducer<Statement, SailException>() {
@@ -97,62 +121,58 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
 
     }
 
-    @Override
-    public void addStatement(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        tripleUpdated(subj, pred, obj, resolveContexts(contexts));
 
-        super.addStatement(subj, pred, obj, contexts);
+    /**
+     * Notifies the listener that a statement has been added in a transaction
+     * that it has registered itself with.
+     *
+     * @param st The statement that was added.
+     */
+    @Override
+    public void statementAdded(Statement st) {
+        resumeTransaction();
+        log.debug("CONN({}) ADD: updating cache for statement {} (transaction: {})", connectionId, st, ((TransactionImpl) tx).getTransactionKey());
+        if(st.getContext() == null) {
+            tripleUpdated(st.getSubject(), st.getPredicate(), st.getObject(), Collections.singleton((Resource)defaultContext));
+        } else {
+            tripleUpdated(st.getSubject(), st.getPredicate(), st.getObject(), Collections.singleton(st.getContext()));
+        }
     }
 
+    /**
+     * Notifies the listener that a statement has been removed in a transaction
+     * that it has registered itself with.
+     *
+     * @param st The statement that was removed.
+     */
     @Override
-    public void removeStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        // TODO: too aggressive, but currently we cannot remove with wildcards
-        queryCache.clear();
-
-        super.removeStatements(subj, pred, obj, contexts);
-    }
-
-    @Override
-    public void addStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        tripleUpdated(subj, pred, obj, resolveContexts(contexts));
-
-        super.addStatement(modify, subj, pred, obj, contexts);
-    }
-
-    @Override
-    public void removeStatement(UpdateContext modify, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        // TODO: too aggressive, but currently we cannot remove with wildcards
-        queryCache.clear();
-
-        super.removeStatement(modify, subj, pred, obj, contexts);
-    }
-
-
-    @Override
-    public void clear(Resource... contexts) throws SailException {
-        // TODO: too aggressive, but currently we cannot remove with wildcards
-        queryCache.clear();
-
-        super.clear(contexts);
+    public void statementRemoved(Statement st) {
+        log.debug("CONN({}) DEL: updating cache for statement {} (transaction: {})", connectionId, st, ((TransactionImpl)tx).getTransactionKey());
+        resumeTransaction();
+        if(st.getContext() == null) {
+            tripleUpdated(st.getSubject(), st.getPredicate(), st.getObject(), Collections.singleton((Resource)defaultContext));
+        } else {
+            tripleUpdated(st.getSubject(), st.getPredicate(), st.getObject(), Collections.singleton(st.getContext()));
+        }
     }
 
     @Override
     public void begin() throws SailException {
         super.begin();
 
-        try {
-            queryCache.getAdvancedCache().getTransactionManager().begin();
-        } catch (NotSupportedException | SystemException e) {
-            log.error("error starting cache transaction: ",e);
-        }
+        resumeTransaction();
     }
 
     @Override
     public void commit() throws SailException {
+        TransactionManager txmgr = queryCache.getAdvancedCache().getTransactionManager();
         try {
-            queryCache.getAdvancedCache().getTransactionManager().commit();
+            resumeTransaction();
+            log.debug("CONN({}) COMMIT: transaction: {}", connectionId, ((TransactionImpl) tx).getTransactionKey());
+            txmgr.commit();
+            closeTransaction();
         } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException e) {
-            log.error("error committing cache transaction: ",e);
+            log.error("error committing cache transaction: ", e);
         }
 
         super.commit();
@@ -160,8 +180,11 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
 
     @Override
     public void rollback() throws SailException {
+        TransactionManager txmgr = queryCache.getAdvancedCache().getTransactionManager();
         try {
-            queryCache.getAdvancedCache().getTransactionManager().rollback();
+            resumeTransaction();
+            txmgr.rollback();
+            closeTransaction();
         } catch (SystemException e) {
             log.error("error rolling back cache transaction: ",e);
         }
@@ -169,16 +192,62 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
         super.rollback();
     }
 
-
     @Override
     public void close() throws SailException {
-        try {
-            queryCache.getAdvancedCache().getTransactionManager().suspend();
-        } catch (SystemException e) {
-            log.error("error suspending transaction",e);
-        }
+        closeTransaction();
 
         super.close();
+    }
+
+    private void resumeTransaction() {
+        TransactionManager txmgr = queryCache.getAdvancedCache().getTransactionManager();
+        try {
+            // cases:
+            // 1. there is a transaction in this connection, the transaction is active, and associated with the current
+            //    thread -> nothing to do
+            // 2. there is a transaction in this connection, the transaction is active, bit another transactionis 
+            //    associated with the current thread -> suspend thread transaction, resume connection transaction
+            // 3. there is no transaction in this connection, or the transaction in this connection is invalid
+            //    -> create and start new transaction
+            if(tx != null && tx.getStatus() == Status.STATUS_ACTIVE && txmgr.getTransaction() == tx) {
+                log.debug("CONN({}) RESUME: using active transaction: {}, status {}", connectionId, ((TransactionImpl)tx).getTransactionKey(), tx.getStatus());
+            } else if(tx != null && tx.getStatus() == Status.STATUS_ACTIVE && txmgr.getTransaction() != tx) {
+                txmgr.suspend();
+                txmgr.resume(tx);
+
+                log.debug("CONN({}) RESUME: resumed transaction: {}, status {}", connectionId, ((TransactionImpl)tx).getTransactionKey(), tx.getStatus());
+            } else {
+                if(txmgr.getTransaction() != null) {
+                    Transaction old = txmgr.suspend();
+                    log.debug("CONN({}) BEGIN: suspended transaction not belonging to this connection: {}", connectionId, ((TransactionImpl)old).getTransactionKey());
+                }
+                txmgr.begin();
+                tx = txmgr.getTransaction();
+
+                log.debug("CONN({}) BEGIN: created and started new transaction: {}", connectionId, ((TransactionImpl)tx).getTransactionKey());
+
+            }
+
+
+        } catch (NotSupportedException | SystemException | InvalidTransactionException e) {
+            log.error("error resuming transaction");
+        }
+    }
+
+    private void closeTransaction() {
+        TransactionManager txmgr = queryCache.getAdvancedCache().getTransactionManager();
+        try {
+            if(tx != null && txmgr.getTransaction() == tx) {
+                log.debug("CONN({}) CLOSE: closing transaction: {}", connectionId, ((TransactionImpl)tx).getTransactionKey());
+                if(tx.getStatus() == Status.STATUS_ACTIVE) {
+                    tx.commit();
+                }
+                txmgr.suspend();
+                tx = null;
+            }
+        } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException e) {
+            log.error("error while closing transaction", e);
+        }
     }
 
     private List<Resource> resolveContexts(Resource... contexts) {
@@ -202,10 +271,19 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
      */
     @SuppressWarnings("unchecked")
     private List<Statement> listTriples(Resource subject, URI property, Value object, Resource context, boolean inferred) {
+        boolean implicitTx = tx == null;
+        resumeTransaction();
+
         IntArray key = createCacheKey(subject,property,object,context,inferred);
-        if(queryCache.get(key) != null) return queryCache.get(key);
-        else
-            return null;
+        try {
+            if(queryCache.get(key) != null) return queryCache.get(key);
+            else
+                return null;
+        } finally {
+            if(implicitTx) {
+                closeTransaction();
+            }
+        }
     }
 
 
@@ -220,39 +298,48 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
      * @param result   the result of the triple query to cache
      */
     private void cacheTriples(Resource subject, URI property, Value object, Resource context, boolean inferred, List<Statement> result) {
+        boolean implicitTx = tx == null;
 
-        // cache the query result
-        IntArray key = createCacheKey(subject,property,object,context,inferred);
-        queryCache.putAsync(key, result);
+        resumeTransaction();
 
-        // cache the nodes of the triples and the triples themselves
-        Set<Value> nodes = new HashSet<Value>();
-        for(Statement stmt : result) {
-            if(stmt instanceof KiWiTriple) {
-                KiWiTriple triple = (KiWiTriple)stmt;
-                Collections.addAll(nodes, new Value[]{triple.getSubject(), triple.getObject(), triple.getPredicate(), triple.getContext()});
-                queryCache.putAsync(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()), ImmutableList.of(stmt));
-            }
-        }
+        try {
+            // cache the query result
+            IntArray key = createCacheKey(subject,property,object,context,inferred);
+            queryCache.putAsync(key, result);
 
-        // special optimisation: when only the subject (and optionally context) is given, we also fill the caches for
-        // all property values
-        if(subject != null && property == null && object == null) {
-            HashMap<URI,List<Statement>> properties = new HashMap<>();
-            for(Statement triple : result) {
-                List<Statement> values = properties.get(triple.getPredicate());
-                if(values == null) {
-                    values = new LinkedList<>();
-                    properties.put(triple.getPredicate(),values);
+            // cache the nodes of the triples and the triples themselves
+            Set<Value> nodes = new HashSet<Value>();
+            for(Statement stmt : result) {
+                if(stmt instanceof KiWiTriple) {
+                    KiWiTriple triple = (KiWiTriple)stmt;
+                    Collections.addAll(nodes, new Value[]{triple.getSubject(), triple.getObject(), triple.getPredicate(), triple.getContext()});
+                    queryCache.putAsync(createCacheKey(triple.getSubject(), triple.getPredicate(), triple.getObject(), triple.getContext(), triple.isInferred()), ImmutableList.of(stmt));
                 }
-                values.add(triple);
             }
-            for(Map.Entry<URI,List<Statement>> entry : properties.entrySet()) {
-                IntArray key2 = createCacheKey(subject,entry.getKey(),null,context,inferred);
-                queryCache.putAsync(key2, entry.getValue());
+
+            // special optimisation: when only the subject (and optionally context) is given, we also fill the caches for
+            // all property values
+            if(subject != null && property == null && object == null) {
+                HashMap<URI,List<Statement>> properties = new HashMap<>();
+                for(Statement triple : result) {
+                    List<Statement> values = properties.get(triple.getPredicate());
+                    if(values == null) {
+                        values = new LinkedList<>();
+                        properties.put(triple.getPredicate(),values);
+                    }
+                    values.add(triple);
+                }
+                for(Map.Entry<URI,List<Statement>> entry : properties.entrySet()) {
+                    IntArray key2 = createCacheKey(subject,entry.getKey(),null,context,inferred);
+                    queryCache.putAsync(key2, entry.getValue());
+                }
+            }
+
+        } finally {
+            if(implicitTx) {
+                closeTransaction();
             }
         }
-
 
     }
 
@@ -275,6 +362,10 @@ public class KiWiCachingSailConnection extends NotifyingSailConnectionWrapper {
     private void tripleUpdated(Resource subject, URI predicate, Value object, Iterable<Resource> contexts) {
         queryCache.remove(createCacheKey(null,null,null,null,false));
         queryCache.remove(createCacheKey(null,null,null,null,true));
+
+        queryCache.remove(createCacheKey(null,null,null,defaultContext,false));
+        queryCache.remove(createCacheKey(null,null,null,defaultContext,true));
+
 
         // remove all possible combinations of this triple as they may appear in the cache
         queryCache.remove(createCacheKey(subject,null,null,null,false));
