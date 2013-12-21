@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.caching.TripleExternalizer;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.generator.IDGenerator;
 import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
@@ -138,9 +139,9 @@ public class KiWiPersistence {
 
     private void initCachePool() {
         if(infinispan != null) {
-            cacheManager = new KiWiCacheManager(infinispan,configuration);
+            cacheManager = new KiWiCacheManager(infinispan,configuration, new TripleExternalizer(this));
         } else {
-            cacheManager = new KiWiCacheManager(configuration);
+            cacheManager = new KiWiCacheManager(configuration, new TripleExternalizer(this));
         }
     }
 
@@ -491,4 +492,6 @@ public class KiWiPersistence {
     public IDGenerator getIdGenerator() {
         return idGenerator;
     }
+
+
 }

@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.caching;
 
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.infinispan.Cache;
+import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
@@ -72,7 +73,7 @@ public class KiWiCacheManager {
      *
      * @param config
      */
-    public KiWiCacheManager(KiWiConfiguration config) {
+    public KiWiCacheManager(KiWiConfiguration config, AdvancedExternalizer...externalizers) {
 
         this.clustered = config.isClustered();
         this.kiWiConfiguration = config;
@@ -88,7 +89,10 @@ public class KiWiCacheManager {
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.kiwi")
                         .allowDuplicateDomains(true)
+                    .serialization()
+                        .addAdvancedExternalizer(externalizers)
                     .build();
+
 
 
             defaultConfiguration = new ConfigurationBuilder()
@@ -144,13 +148,17 @@ public class KiWiCacheManager {
      * @param cacheManager
      * @param kiWiConfiguration
      */
-    public KiWiCacheManager(EmbeddedCacheManager cacheManager, KiWiConfiguration kiWiConfiguration) {
+    public KiWiCacheManager(EmbeddedCacheManager cacheManager, KiWiConfiguration kiWiConfiguration, AdvancedExternalizer...externalizers) {
         this.cacheManager = cacheManager;
         this.globalConfiguration = cacheManager.getCacheManagerConfiguration();
         this.defaultConfiguration = cacheManager.getDefaultCacheConfiguration();
         this.kiWiConfiguration = kiWiConfiguration;
 
         this.clustered = kiWiConfiguration.isClustered();
+
+        for(AdvancedExternalizer e : externalizers) {
+            this.globalConfiguration.serialization().advancedExternalizers().put(e.getId(), e);
+        }
 
         log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
 

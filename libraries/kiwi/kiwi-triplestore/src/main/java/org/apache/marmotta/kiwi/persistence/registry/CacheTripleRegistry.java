@@ -65,12 +65,8 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
             transaction = new ArrayList<>();
             transactions.put(transactionId, transaction);
         }
-        Long old = cache.put(key.longHashCode(),tripleId);
+        cache.putForExternalRead(key.longHashCode(),tripleId);
         transaction.add(key.longHashCode());
-
-        if(old != null && old != tripleId) {
-            log.warn("registered a new triple ID for an already existing triple");
-        }
     }
 
     /**
@@ -112,6 +108,6 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
      */
     @Override
     public void deleteKey(IntArray key) {
-        cache.remove(key.longHashCode());
+        cache.removeAsync(key.longHashCode());
     }
 }

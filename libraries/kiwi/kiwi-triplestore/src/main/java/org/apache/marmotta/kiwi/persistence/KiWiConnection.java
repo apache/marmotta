@@ -18,6 +18,8 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import com.google.common.base.Preconditions;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import info.aduna.iteration.*;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
@@ -51,7 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiConnection {
+public class KiWiConnection implements AutoCloseable {
 
     private static Logger log = LoggerFactory.getLogger(KiWiConnection.class);
 
@@ -80,13 +82,13 @@ public class KiWiConnection {
     /**
      * Cache URI resources by uri
      */
-    private Cache<String,KiWiUriResource> uriCache;
+    private Cache<Long,KiWiUriResource> uriCache;
 
 
     /**
      * Cache BNodes by BNode ID
      */
-    private Cache<String,KiWiAnonResource> bnodeCache;
+    private Cache<Long,KiWiAnonResource> bnodeCache;
 
     /**
      * Cache literals by literal cache key (LiteralCommons#createCacheKey(String,Locale,URI))
@@ -492,7 +494,7 @@ public class KiWiConnection {
         Preconditions.checkNotNull(uri);
 
         // look in cache
-        KiWiUriResource element = uriCache.get(uri);
+        KiWiUriResource element = uriCache.get(createCacheKey(uri));
         if(element != null) {
             return element;
         }
@@ -538,7 +540,7 @@ public class KiWiConnection {
      */
     public KiWiAnonResource loadAnonResource(String id) throws SQLException {
         // look in cache
-        KiWiAnonResource element = bnodeCache.get(id);
+        KiWiAnonResource element = bnodeCache.get(createCacheKey(id));
         if(element != null) {
             return element;
         }
@@ -1773,9 +1775,9 @@ public class KiWiConnection {
             nodeCache.putForExternalRead(node.getId(), node);
         }
         if(node instanceof KiWiUriResource) {
-            uriCache.putForExternalRead(node.stringValue(), (KiWiUriResource) node);
+            uriCache.putForExternalRead(createCacheKey(node.stringValue()), (KiWiUriResource) node);
         } else if(node instanceof KiWiAnonResource) {
-            bnodeCache.putForExternalRead(node.stringValue(), (KiWiAnonResource) node);
+            bnodeCache.putForExternalRead(createCacheKey(node.stringValue()), (KiWiAnonResource) node);
         } else if(node instanceof KiWiLiteral) {
             literalCache.putForExternalRead(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
         }
@@ -1783,7 +1785,7 @@ public class KiWiConnection {
 
     private void cacheTriple(KiWiTriple triple) {
         if(triple.getId() >= 0) {
-            tripleCache.putForExternalRead(triple.getId(),triple);
+            tripleCache.putForExternalRead(triple.getId(), triple);
         }
     }
 
@@ -2307,4 +2309,12 @@ public class KiWiConnection {
         }
 
     }
+
+    private static Long createCacheKey(String svalue) {
+        Hasher hasher = Hashing.goodFastHash(64).newHasher();
+        hasher.putString(svalue);
+        return hasher.hash().asLong();
+    }
+
+
 }
