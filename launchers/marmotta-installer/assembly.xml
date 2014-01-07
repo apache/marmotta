@@ -48,12 +48,6 @@
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../../DISCLAIMER.txt</source>
-            <outputDirectory>/</outputDirectory>
-            <fileMode>0644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
             <source>${project.build.directory}/marmotta-installer-${project.version}.jar</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
