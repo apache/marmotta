@@ -19,7 +19,12 @@ package org.apache.marmotta.platform.core.services.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.AbstractConfiguration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -44,10 +49,6 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -352,9 +353,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (!config.getBoolean("kiwi.setup.database")) {
             log.info("SETUP: Setting up initial Apache Marmotta database configuration ...");
             String db_type = config.getString("database.type", "h2");
-            config.setProperty("database.h2.url", "jdbc:h2:" + getWorkDir() + "/db/marmotta;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
+            config.setProperty("database.h2.url", "jdbc:h2:" + getHome() + "/db/marmotta;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
             if (db_type.equals("h2")) {
-                config.setProperty("database.url", "jdbc:h2:" + getWorkDir() + "/db/marmotta;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
+                config.setProperty("database.url", "jdbc:h2:" + getHome() + "/db/marmotta;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
                 config.setProperty("database.user", "sa");
                 config.setProperty("database.password", "sa");
                 config.setProperty("database.mode", "create");
@@ -1126,6 +1127,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * The work directory for marmotta, where all applications will create their own subdirectories
+     * @deprecated This name is misleading, use {@link #getHome()} instead.
      */
 
     @Override
@@ -1137,27 +1139,72 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     protected void save() {
         if(saveConfiguration instanceof PropertiesConfiguration) {
             try {
-                Path tmpFile = Files.createTempFile(FileSystems.getDefault().getPath(getHome()),"system-config",".properties");
-
-                ((PropertiesConfiguration) saveConfiguration).save(tmpFile.toFile());
-
-                Files.move(tmpFile, FileSystems.getDefault().getPath(configFileName), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (ConfigurationException | IOException e) {
-                log.error("could not save system configuration: #0", e.getMessage());
+                log.debug("Saving configuration values");
+                final PropertiesConfiguration conf = (PropertiesConfiguration)saveConfiguration;
+                saveSecure(conf);
+            } catch (ConfigurationException e) {
+                log.error("could not save system configuration: {}", e.getMessage());
             }
         }
 
         if(saveMetadata instanceof PropertiesConfiguration) {
             try {
-                Path tmpFile = Files.createTempFile(FileSystems.getDefault().getPath(getHome()),"system-meta",".properties");
-
-                ((PropertiesConfiguration)saveMetadata).save(tmpFile.toFile());
-
-
-                Files.move(tmpFile, FileSystems.getDefault().getPath(metaFileName), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (ConfigurationException | IOException e) {
-                log.error("could not save system metadata: #0", e.getMessage());
+                log.debug("Saving configuration description");
+                final PropertiesConfiguration conf = (PropertiesConfiguration)saveMetadata;
+                saveSecure(conf);
+            } catch (ConfigurationException e) {
+                log.error("could not save system metadata: {}", e.getMessage());
             }
+        }
+    }
+
+    protected void saveSecure(final PropertiesConfiguration conf) throws ConfigurationException {
+        final File file = conf.getFile();
+        try {
+            if (file == null) {
+                throw new ConfigurationException("No file name has been set!");
+            } else if ((file.createNewFile() || true) && !file.canWrite()) {
+                throw new IOException("Cannot write to file " + file.getAbsolutePath() + ". Is it read-only?");
+            }
+        } catch (IOException e) {
+            throw new ConfigurationException(e.getMessage(), e);
+        }
+        log.debug("Saving {}", file.getAbsolutePath());
+        
+        final String fName = file.getName();
+        try {
+            int lastDot = fName.lastIndexOf('.');
+            lastDot = lastDot > 0 ? lastDot : fName.length();
+
+            final Path configPath = file.toPath();
+            // Create a tmp file next to the original
+            final Path tmp = Files.createTempFile(configPath.getParent(), fName.substring(0, lastDot)+".", fName.substring(lastDot));
+            try {
+                Files.copy(configPath, tmp, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException iox) {
+                log.error("Could not create temp-file {}: {}", tmp, iox.getMessage());
+                throw iox;
+            }
+            log.trace("using temporary file: {}", tmp);
+            // Save the config to the tmp file
+            conf.save(tmp.toFile());
+
+            log.trace("tmp saved, now replacing the original file: {}", configPath);
+            // Replace the original with the tmp file
+            try {
+                try {
+                    Files.move(tmp, configPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                } catch (AtomicMoveNotSupportedException amnx) {
+                    log.trace("atomic move not available: {}, trying without", amnx.getMessage());
+                    Files.move(tmp, configPath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException iox) {
+                log.error("Could not write to {}, a backup was created in {}", configPath, tmp);
+                throw iox;
+            }
+            log.info("configuration successfully saved to {}", configPath);
+        } catch (final Throwable t) {
+            throw new ConfigurationException("Unable to save the configuration to the file " + fName, t);
         }
     }
 
@@ -1189,8 +1236,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * Set the LMF_HOME value to the correct path. Used during the initialization process.
-     *
-     * @param home
+     * @deprecated LMF_HOME is deprecated, use {@link #setHome(String)} instead!
      */
     @Override
     @Deprecated
@@ -1211,8 +1257,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     /**
      * Return the value of the LMF_HOME setting. Used during the initialization process.
-     *
-     * @return
+     * @deprecated use {@link #getHome()} instead
      */
     @Override
     @Deprecated
