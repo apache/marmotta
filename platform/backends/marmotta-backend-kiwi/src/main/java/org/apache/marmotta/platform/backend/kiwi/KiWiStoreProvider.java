@@ -74,6 +74,8 @@ public class KiWiStoreProvider implements StoreProvider {
     public static final String CACHING_QUERY_ENABLED = "caching.query.enabled";
     public static final String CACHING_QUERY_SIZE = "caching.query.size";
     public static final String CACHING_QUERY_LIMIT = "caching.query.limit";
+    public static final String CONTEXTS_DEFAULT = "contexts.default";
+    public static final String CONTEXTS_INFERRED = "contexts.inferred";
 
     @Inject
     private Logger log;
@@ -191,6 +193,8 @@ public class KiWiStoreProvider implements StoreProvider {
         log.info("configuration changed: {}", e.getKeys());
         if(e.containsChangedKey(SPARQL_STRATEGY) ||
                 e.containsChangedKey(DATACENTER_ID) ||
+                e.containsChangedKey(CONTEXTS_DEFAULT) ||
+                e.containsChangedKey(CONTEXTS_INFERRED) ||
                 e.containsChangedKey(FULLTEXT_ENABLED) ||
                 e.containsChangedKey(FULLTEXT_LANGUAGES) ||
                 e.containsChangedKey(DEBUG_SLOWQUERIES) ||

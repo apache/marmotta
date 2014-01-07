@@ -1258,7 +1258,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getInferredContext() {
-        return getBaseUri() + CONTEXT_PATH + "/" + CONTEXT_INFERRED;
+        if(StringUtils.isBlank(config.getString("contexts.inferred",null))) {
+            return null;
+        } else {
+            return config.getString("contexts.inferred",null);
+        }
     }
 
     /**
@@ -1268,8 +1272,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getDefaultContext() {
-        //return getBaseUri() + CONTEXT_PATH + "/" + CONTEXT_DEFAULT;
-        return null;
+        if(StringUtils.isBlank(config.getString("contexts.default",null))) {
+            return null;
+        } else {
+            return config.getString("contexts.default",null);
+        }
     }
 
     /**
