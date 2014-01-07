@@ -762,7 +762,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return a KiWiDoubleLiteral with the correct value, or null if it does not exist
      * @throws SQLException
      */
-    public synchronized KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
+    public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
         KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
         if(element != null) {

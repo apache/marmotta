@@ -18,31 +18,26 @@
 package org.apache.marmotta.kiwi.sparql.test;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.sesame.model.StatementCommons;
+import org.apache.marmotta.commons.vocabulary.FOAF;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -267,6 +262,13 @@ public class KiWiSparqlJoinTest {
         testQuery("query21.sparql");
     }
 
+    // INSERT/UPDATE
+    @Test
+    public void testUpdate01() throws Exception {
+        testUpdate("update01.sparql", FOAF.name);
+    }
+
+
     // fulltext search filter
     @Test
     public void testQuery22() throws Exception {
@@ -354,6 +356,56 @@ public class KiWiSparqlJoinTest {
 
 
             compareResults(result1,result2);
+
+        } catch(RepositoryException ex) {
+            con1.rollback();
+        } finally {
+            con1.close();
+            con2.close();
+        }
+    }
+
+    private void testUpdate(String filename, URI... properties) throws Exception {
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
+
+        RepositoryConnection con1 = repository.getConnection();
+        RepositoryConnection con2 = reference.getConnection();
+        try {
+            con2.begin();
+
+            Update query2 = con2.prepareUpdate(QueryLanguage.SPARQL, queryString);
+            query2.execute();
+
+            con2.commit();
+
+            con1.begin();
+
+            Update query1 = con1.prepareUpdate(QueryLanguage.SPARQL, queryString);
+            query1.execute();
+
+            con1.commit();
+
+
+            con1.begin();
+            Set<Statement> set1 = new HashSet<>();
+            for(URI u : properties) {
+                set1.addAll(Collections2.transform(Iterations.asSet(con1.getStatements(null, u, null, true)), new StatementCommons.TripleEquality()));
+            }
+            con1.commit();
+
+            con2.begin();
+            Set<Statement> set2 = new HashSet<>();
+            for(URI u : properties) {
+                set2.addAll(Collections2.transform(Iterations.asSet(con2.getStatements(null,u,null,true)), new StatementCommons.TripleEquality()));
+            }
+            con2.commit();
+
+            for(Statement stmt : set1) {
+                Assert.assertTrue(stmt + " not contained in set 2", set2.contains(stmt));
+            }
+            for(Statement stmt : set2) {
+                Assert.assertTrue(stmt + " not contained in set 1", set1.contains(stmt));
+            }
 
         } catch(RepositoryException ex) {
             con1.rollback();

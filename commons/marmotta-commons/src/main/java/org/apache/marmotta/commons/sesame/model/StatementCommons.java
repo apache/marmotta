@@ -18,11 +18,15 @@
 package org.apache.marmotta.commons.sesame.model;
 
 import com.google.common.base.Equivalence;
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import javolution.util.FastMap;
 import javolution.util.FastSet;
 import javolution.util.function.Equality;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 
 import java.util.Map;
 import java.util.Set;
@@ -188,4 +192,46 @@ public class StatementCommons {
         };
     }
 
+    public static class TripleEquality implements Function<Statement,Statement> {
+
+        @Override
+        public Statement apply(final Statement input) {
+            return new Statement() {
+                @Override
+                public Resource getSubject() {
+                    return input.getSubject();
+                }
+
+                @Override
+                public URI getPredicate() {
+                    return input.getPredicate();
+                }
+
+                @Override
+                public Value getObject() {
+                    return input.getObject();
+                }
+
+                @Override
+                public Resource getContext() {
+                    return input.getContext();
+                }
+
+                @Override
+                public int hashCode() {
+                    return TRIPLE_EQUIVALENCE.hash(input);
+                }
+
+                @Override
+                public boolean equals(Object obj) {
+                    return TRIPLE_EQUIVALENCE.equivalent(input, (Statement) obj);
+                }
+
+                @Override
+                public String toString() {
+                    return input.toString();
+                }
+            };
+        }
+    }
 }
