@@ -1791,7 +1791,7 @@ public class KiWiConnection implements AutoCloseable {
 
     private void removeCachedTriple(KiWiTriple triple) {
         if(triple.getId() >= 0) {
-            tripleCache.remove(triple.getId());
+            tripleCache.removeAsync(triple.getId());
         }
     }
 
