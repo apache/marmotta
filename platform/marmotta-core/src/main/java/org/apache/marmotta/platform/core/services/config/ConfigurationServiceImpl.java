@@ -44,6 +44,10 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -1133,16 +1137,25 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     protected void save() {
         if(saveConfiguration instanceof PropertiesConfiguration) {
             try {
-                ((PropertiesConfiguration)saveConfiguration).save();
-            } catch (ConfigurationException e) {
+                Path tmpFile = Files.createTempFile(FileSystems.getDefault().getPath(getHome()),"system-config",".properties");
+
+                ((PropertiesConfiguration) saveConfiguration).save(tmpFile.toFile());
+
+                Files.move(tmpFile, FileSystems.getDefault().getPath(configFileName), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (ConfigurationException | IOException e) {
                 log.error("could not save system configuration: #0", e.getMessage());
             }
         }
 
         if(saveMetadata instanceof PropertiesConfiguration) {
             try {
-                ((PropertiesConfiguration)saveMetadata).save();
-            } catch (ConfigurationException e) {
+                Path tmpFile = Files.createTempFile(FileSystems.getDefault().getPath(getHome()),"system-meta",".properties");
+
+                ((PropertiesConfiguration)saveMetadata).save(tmpFile.toFile());
+
+
+                Files.move(tmpFile, FileSystems.getDefault().getPath(metaFileName), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (ConfigurationException | IOException e) {
                 log.error("could not save system metadata: #0", e.getMessage());
             }
         }
