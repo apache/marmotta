@@ -89,20 +89,28 @@
             <file src="tomcat/index.jsp" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT" override="true" />
             <file src="log/catalina.out" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/logs" />
             <file src="lib/marmotta-splash-${MARMOTTA_VERSION}.jar" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/lib" />
+            <!-- macos specific -->
             <file src="macos/Start Apache Marmotta.app" targetdir="\$INSTALL_PATH" os="mac" />
             <file src="images/icon_start.icns" targetdir="\$INSTALL_PATH/Start Apache Marmotta.app/Contents/Resources" os="mac" />
             <file src="macos/Stop Apache Marmotta.app" targetdir="\$INSTALL_PATH" os="mac" />
             <file src="images/icon_stop.icns" targetdir="\$INSTALL_PATH/Stop Apache Marmotta.app/Contents/Resources" os="mac" />
+            <!-- linux specific -->
+            <file src="unix/startup.sh" targetdir="\$INSTALL_PATH/" os="unix" />
+            <file src="unix/shutdown.sh" targetdir="\$INSTALL_PATH/" os="unix" />
             <parsable type="shell" targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/setenv.sh" parse="yes" />
             <parsable type="shell" targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/setenv.bat" parse="yes" />
             <parsable type="shell" targetfile="\$INSTALL_PATH/Start Apache Marmotta.app/Contents/MacOS/run.sh" parse="yes" os="mac" />
             <parsable type="shell" targetfile="\$INSTALL_PATH/Stop Apache Marmotta.app/Contents/MacOS/run.sh" parse="yes" os="mac" />
+            <parsable type="shell" targetfile="\$INSTALL_PATH/startup.sh" parse="yes" os="unix" />
+            <parsable type="shell" targetfile="\$INSTALL_PATH/shutdown.sh" parse="yes" os="unix" />
             <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/setenv.sh" stage="never" />
             <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/catalina.sh" stage="never" />
             <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/startup.sh" stage="never" />
             <executable targetfile="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/bin/shutdown.sh" stage="never" />
             <executable targetfile="\$INSTALL_PATH/Start Apache Marmotta.app/Contents/MacOS/run.sh" stage="never" os="mac" />
             <executable targetfile="\$INSTALL_PATH/Stop Apache Marmotta.app/Contents/MacOS/run.sh" stage="never" os="mac" />
+            <executable targetfile="\$INSTALL_PATH/startup.sh" stage="never" os="unix" />
+            <executable targetfile="\$INSTALL_PATH/shutdown.sh" stage="never" os="unix" />
         </pack>
         <refpack file="refpacks/marmotta-webapp.xml" />
         <refpack file="refpacks/marmotta-core.xml" />

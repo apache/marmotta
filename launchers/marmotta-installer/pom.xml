@@ -129,6 +129,10 @@
                                             <targetPath>macos</targetPath>
                                         </resource>
                                         <resource>
+                                            <directory>src/main/resources/unix</directory>
+                                            <targetPath>unix</targetPath>
+                                        </resource>
+                                        <resource>
                                             <directory>src/main/resources/log</directory>
                                             <targetPath>log</targetPath>
                                         </resource>
