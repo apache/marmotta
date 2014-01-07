@@ -19,12 +19,7 @@ package org.apache.marmotta.platform.core.services.config;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.AbstractConfiguration;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -1260,7 +1255,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getDefaultContext() {
-        return getBaseUri() + CONTEXT_PATH + "/" + CONTEXT_DEFAULT;
+        //return getBaseUri() + CONTEXT_PATH + "/" + CONTEXT_DEFAULT;
+        return null;
     }
 
     /**

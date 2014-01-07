@@ -37,7 +37,9 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.*;
+import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -381,6 +383,16 @@ public class KiWiSparqlJoinTest {
             con1.begin();
 
             Update query1 = con1.prepareUpdate(QueryLanguage.SPARQL, queryString);
+            // workaround for a Sesame bug: we explicitly set the context for the query in the dataset
+
+            URI context = new URIImpl("http://localhost/mycontext");
+            DatasetImpl ds = new DatasetImpl();
+            //ds.addDefaultGraph(context);
+            //ds.addNamedGraph(context);
+            //ds.addDefaultRemoveGraph(context);
+            ds.setDefaultInsertGraph(context);
+            query1.setDataset(ds);
+
             query1.execute();
 
             con1.commit();

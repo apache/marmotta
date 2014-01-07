@@ -17,20 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.triplestore;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
@@ -53,6 +39,19 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * The context (named graphs in Apache Marmotta, formerly "knowledge space" in KiWi) service offers convenience
@@ -177,6 +176,9 @@ public class ContextServiceImpl implements ContextService {
 
     @Override
     public URI createContext(String uri, String label) throws URISyntaxException {
+        if(uri == null) {
+            return null;
+        }
     	if (!UriUtil.validate(uri)) {
     		uri = configurationService.getBaseContext() + uri;
     		if (!UriUtil.validate(uri)) {
