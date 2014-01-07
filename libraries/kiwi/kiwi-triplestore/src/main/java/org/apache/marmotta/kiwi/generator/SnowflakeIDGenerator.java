@@ -64,7 +64,7 @@ public class SnowflakeIDGenerator implements IDGenerator {
         if(datacenterId == 0) {
             try {
                 this.datacenterId = getDatacenterId();
-            } catch (SocketException | UnknownHostException e) {
+            } catch (SocketException | UnknownHostException | NullPointerException e) {
                 log.warn("SNOWFLAKE: could not determine machine address; using random datacenter ID");
                 Random rnd = new Random();
                 this.datacenterId = rnd.nextInt((int)maxDatacenterId) + 1;
