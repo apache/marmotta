@@ -109,12 +109,13 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- We have to use the kiwi-triplestore here because it supports transaction isolation -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
             <scope>test</scope>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>

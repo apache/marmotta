@@ -29,7 +29,6 @@ import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
@@ -67,11 +66,10 @@ public class ConcurrentFacadingTest extends AbstractFacadingTest {
             if (cO.isActive()) cO.rollback();
             cX.close();
             cO.close();
-        }
+        }        
     }
 
     @Test
-    @Ignore("currently fails for H2 database because of transaction locking")
     public void testParallelFacading() throws RepositoryException {
         final RepositoryConnection fc = repositoryRDF.getConnection();
         try {
@@ -128,7 +126,7 @@ public class ConcurrentFacadingTest extends AbstractFacadingTest {
         try {
             mainCon.begin();
             Assert.assertFalse(ResourceUtils.hasType(mainCon, subject, TypeFacade.TYPE));
-            
+
             final Facading facading = FacadingFactory.createFacading(mainCon);
             Assert.assertFalse(facading.isFacadeable(subject, TypeFacade.class));
             Assert.assertFalse(ResourceUtils.hasType(mainCon, subject, TypeFacade.TYPE));

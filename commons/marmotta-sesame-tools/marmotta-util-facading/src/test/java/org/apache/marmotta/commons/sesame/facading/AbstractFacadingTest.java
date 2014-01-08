@@ -19,6 +19,7 @@ package org.apache.marmotta.commons.sesame.facading;
 
 import java.io.IOException;
 
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.junit.After;
@@ -36,11 +37,11 @@ public abstract class AbstractFacadingTest {
     public void setup() throws RepositoryException, IOException, RDFParseException {
         // jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10
         repositoryRDF = new SailRepository(
-                new KiWiStore(
+                new KiWiStore(new KiWiConfiguration(
                         "kiwiTest",
                         "jdbc:h2:mem:facading;MVCC=true;DB_CLOSE_ON_EXIT=TRUE;DB_CLOSE_DELAY=10",
                         "", "", new H2Dialect(),
-                        "http://example.com/ctx/default", "http://example.com/ctx/inferred"));
+                        "http://example.com/ctx/default", "http://example.com/ctx/inferred")));
         repositoryRDF.initialize();
     }
 
