@@ -26,11 +26,7 @@ import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
+import org.openrdf.sail.*;
 import org.openrdf.sail.helpers.NotifyingSailWrapper;
 import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.openrdf.sail.helpers.SailWrapper;
@@ -64,7 +60,15 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
     @Override
     public void initialize() throws SailException {
         super.initialize();
-        prepareFulltext(this.parent.getPersistence().getConfiguration());
+
+        // start fulltext indexing in a separate thread (MARMOTTA-415)
+        Thread indexer = new Thread("Fulltext Indexer") {
+            @Override
+            public void run() {
+                prepareFulltext(parent.getPersistence().getConfiguration());
+            }
+        };
+        indexer.start();
     }
 
     /**
