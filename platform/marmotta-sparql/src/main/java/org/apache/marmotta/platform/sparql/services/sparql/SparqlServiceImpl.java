@@ -110,7 +110,9 @@ public class SparqlServiceImpl implements SparqlService {
      * @deprecated beginning with Sesame 2.8, use {@link RDFFormat#getStandardURI()} or {@link QueryResultFormat#etStandardURI()}
      */
     @Deprecated
-    private static final Map<FileFormat, String> w3cFormatID = new HashMap<FileFormat, String>() {{
+    private static final Map<FileFormat, String> w3cFormatID = new HashMap<FileFormat, String>() {
+        private static final long serialVersionUID = 1L;
+        {
         put(RDFFormat.JSONLD, "http://www.w3.org/ns/formats/JSON-LD");
         put(RDFFormat.N3, "http://www.w3.org/ns/formats/N3");
         put(RDFFormat.NTRIPLES, "http://www.w3.org/ns/formats/N-Triples");
@@ -257,7 +259,6 @@ public class SparqlServiceImpl implements SparqlService {
     public void query(final QueryLanguage queryLanguage, final String query, final QueryResultWriter writer, final int timeoutInSeconds) throws MarmottaException, MalformedQueryException, QueryEvaluationException, TimeoutException {
         log.debug("executing SPARQL query:\n{}", query);
         Future<Boolean> future = executorService.submit(new Callable<Boolean>() {
-            @SuppressWarnings("deprecation")
             @Override
             public Boolean call() throws Exception {
                 long start = System.currentTimeMillis();

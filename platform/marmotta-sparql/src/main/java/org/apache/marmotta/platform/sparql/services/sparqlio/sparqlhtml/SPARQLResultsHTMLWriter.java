@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * SPARQL results to HTML writer usong Freemarker
+ * SPARQL results to HTML writer using Freemarker
  * 
  * @author Sergio Fernández
  */
@@ -63,7 +63,7 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
 	    SUPPORTED_SETTINGS = Collections.unmodifiableSet(tempSettings);
 	}
 	
-    private OutputStream out;
+    final private OutputStream out;
     
     private List<String> vars;
     
@@ -73,6 +73,7 @@ public class SPARQLResultsHTMLWriter extends TupleQueryResultHandlerBase impleme
     
     public SPARQLResultsHTMLWriter(OutputStream out) {
         this.out = out;
+        this.config = new WriterConfig(); 
     }
     
     public SPARQLResultsHTMLWriter(OutputStream out, TemplatingService templatingService) {

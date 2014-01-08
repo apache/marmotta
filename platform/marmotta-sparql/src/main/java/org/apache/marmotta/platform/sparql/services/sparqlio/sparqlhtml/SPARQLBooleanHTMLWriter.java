@@ -20,9 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.transform.Source;
@@ -162,7 +161,7 @@ public class SPARQLBooleanHTMLWriter implements BooleanQueryResultWriter
     @Override
     public Collection<RioSetting<?>> getSupportedSettings()
     {
-        return new ArrayList<RioSetting<?>>();
+        return Collections.emptySet();
     }
     
     @Override
