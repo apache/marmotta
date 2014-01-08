@@ -19,11 +19,7 @@ package org.apache.marmotta.platform.core.services.templating;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
