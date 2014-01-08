@@ -84,23 +84,25 @@ public class TemplatingServiceImpl implements TemplatingService {
 
         if (!templateDir.exists()) templateDir.mkdirs();
 
-        for (String fName: new String[] { 
-        		TemplatingService.ADMIN_TPL, 
-        		TemplatingService.ERROR_404_TPL, 
-        		TemplatingService.RDF_HTML_TPL }) {
-	        final File dT = new File(templateDir, fName);
-	        if (!dT.exists()) {
-	            try {
-	                log.warn("Default template not found at {}, copying fallback...", dT.getAbsolutePath());
-	                final InputStream str = this.getClass().getResourceAsStream(TemplatingService.PATH + fName);
-	                FileUtils.copyInputStreamToFile(str, dT);
-	            } catch (IOException e) {
-	                log.error("Could not create fallback template, templating might react weird!", e);
-	            }
-	        }                                     
-        }
 	}
-	
+
+    private void loadTemplateFromClasspath(String templateName, Class<?> clazz) {
+        final String src = TemplatingService.PATH + templateName;
+        final File dT = new File(templateDir, templateName);
+        if (!dT.exists()) {
+            try {
+                log.info("template {} not found in {}, copying fallback...", templateName, templateDir.getAbsolutePath());
+                final InputStream str = clazz.getResourceAsStream(src);
+                if (str == null) {
+                    throw new IOException("Resource " + src + " not found in ClassLoader (" + clazz + ")");
+                }
+                FileUtils.copyInputStreamToFile(str, dT);
+            } catch (IOException e) {
+                log.error("Could not load template from classpath, templating might react weird!", e);
+            }
+        }
+    }
+    
     /**
      * Update the data model in case an important value has changed
      * @param event
@@ -135,11 +137,17 @@ public class TemplatingServiceImpl implements TemplatingService {
 
     @Override
     public Template getTemplate(String name) throws IOException {
+        // make sure template exists
+        loadTemplateFromClasspath(name, TemplatingServiceImpl.class);
+        
         return getConfiguration().getTemplate(name);
     }
 	
     @Override
     public Template getTemplate(Class<?> cls, String name) throws IOException {
+        // make sure template exists
+        loadTemplateFromClasspath(name, cls);
+        
         return getConfiguration(cls).getTemplate(name);
     }
 	
