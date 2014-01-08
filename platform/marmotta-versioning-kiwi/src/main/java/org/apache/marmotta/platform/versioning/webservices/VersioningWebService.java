@@ -18,7 +18,25 @@
 package org.apache.marmotta.platform.versioning.webservices;
 
 import info.aduna.iteration.Iterations;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
@@ -33,13 +51,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import java.util.*;
 
 /**
  * Webservice allowing access to the versioning functionality of the LMF. Provides the following functionalities:
@@ -98,7 +109,7 @@ public class VersioningWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 if(resource_uri != null) {
-                    URI resource = ResourceUtils.getUriResource(conn,resource_uri);
+                    URI resource = conn.getValueFactory().createURI(resource_uri);
                     if(resource != null && resource instanceof KiWiUriResource) {
 
                         if(dateFrom == null && dateTo == null) {

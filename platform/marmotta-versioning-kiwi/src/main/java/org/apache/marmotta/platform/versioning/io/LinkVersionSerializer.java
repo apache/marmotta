@@ -17,6 +17,16 @@
  */
 package org.apache.marmotta.platform.versioning.io;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -24,15 +34,6 @@ import org.apache.marmotta.platform.versioning.utils.MementoUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Serializes an ordered list of versions in application/link-format into an output stream
@@ -46,9 +47,7 @@ public class LinkVersionSerializer implements VersionSerializer {
     ConfigurationService configurationService;
 
     //a static list thta contains the contentTypes
-    private static final List<ContentType> contentTypes = new ArrayList(){{
-        add(new ContentType("application","link-format"));
-    }};
+    private static final List<ContentType> contentTypes = Arrays.asList(new ContentType("application","link-format"));
 
     /**
      * return the content type that will be produced

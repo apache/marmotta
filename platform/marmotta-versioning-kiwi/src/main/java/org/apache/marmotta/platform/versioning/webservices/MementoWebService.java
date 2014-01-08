@@ -17,11 +17,27 @@
  */
 package org.apache.marmotta.platform.versioning.webservices;
 
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -45,18 +61,7 @@ import org.openrdf.rio.Rio;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.google.common.base.Preconditions;
 
 /**
  * Webservice manages memento related services, namely:
@@ -107,12 +112,11 @@ public class MementoWebService {
             Preconditions.checkNotNull(resource_string,"Resource URI may not null");
             Preconditions.checkNotNull(date_string, "Accept-Datetime Header may not be null");
 
-            RepositoryConnection conn = sesameService.getConnection();
-
+            final RepositoryConnection conn = sesameService.getConnection();
             try {
                 Date date = DateUtils.parseDate(date_string);
 
-                URI resource = ResourceUtils.getUriResource(conn, resource_string);
+                URI resource = conn.getValueFactory().createURI(resource_string);
 
                 //get versions
                 MementoVersionSet versions = mementoService.getVersionSet(resource, date);
@@ -175,7 +179,7 @@ public class MementoWebService {
             try {
                 final Date date = MementoUtils.MEMENTO_DATE_FORMAT.parse(date_string);
 
-                final URI resource = ResourceUtils.getUriResource(conn, resource_string);
+                final URI resource = conn.getValueFactory().createURI(resource_string);
 
                 final ContentType type = getContentType(types_string);
 
@@ -260,7 +264,7 @@ public class MementoWebService {
 
             try {
 
-                final URI resource = ResourceUtils.getUriResource(conn, resource_string);
+                final URI resource = conn.getValueFactory().createURI(resource_string);
 
                 List<ContentType> types = MarmottaHttpUtils.parseAcceptHeader(types_string);
 
