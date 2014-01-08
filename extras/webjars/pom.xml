@@ -26,6 +26,7 @@
         <relativePath>../../parent/</relativePath>
     </parent>
 
+    <name>Marmotta WebJars Reactor</name>
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>webjars</artifactId>
     <packaging>pom</packaging>

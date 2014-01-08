@@ -26,15 +26,14 @@
         <relativePath>../../../parent/</relativePath> 
     </parent>
 
-    <properties>
-        <webjar.version>1.3</webjar.version>
-    </properties>
-
-
+    <name>Marmotta WebJar: strftime</name>
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>strftime</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <webjar.version>1.3</webjar.version>
+    </properties>
 
     <build>
         <plugins>

@@ -26,14 +26,14 @@
         <relativePath>../../../parent/</relativePath> 
     </parent>
 
-    <properties>
-        <webjar.version>0.5.1</webjar.version>
-    </properties>
-
+    <name>Marmotta WebJar: sgvizler</name>
     <groupId>org.apache.marmotta.webjars</groupId>
     <artifactId>sgvizler</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <webjar.version>0.5.1</webjar.version>
+    </properties>
 
     <build>
         <plugins>
