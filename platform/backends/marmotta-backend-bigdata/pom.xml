@@ -166,7 +166,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-transactions</artifactId>
+            <artifactId>marmotta-sail-transactions</artifactId>
         </dependency>
         <dependency>
             <groupId>com.bigdata</groupId>

@@ -22,39 +22,24 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../../parent</relativePath>
+        <relativePath>../../../parent/</relativePath>
     </parent>
 
-    <artifactId>sesame-transactions</artifactId>
+    <artifactId>marmotta-util-tripletable</artifactId>
     <packaging>jar</packaging>
 
-    <name>Sesame Tools: Transactions</name>
-    <description>Extended transaction support for Sesame Notifying Sails.</description>
+    <name>Marmotta Sesame Tools: Triple Table</name>
+
+    <description>
+        Provides a simple in-memory table using the Java Collections API to access triples. Additionally, the
+        triple table offers in-memory indexes for typical query operations (e.g. listing by subject).
+    </description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tripletable</artifactId>
-        </dependency>
-
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-        </dependency>
-
-         <!-- Sesame dependencies -->
+        <!-- data model -->
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-model</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-api</artifactId>
         </dependency>
 
         <!-- Utilities -->
@@ -63,20 +48,10 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-commons</artifactId>
         </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
 
-
-        <!-- Testing -->
         <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
@@ -93,11 +68,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <scope>test</scope>
@@ -108,37 +78,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>test</scope>
-            <optional>true</optional> <!-- GPL licensed, no dependency -->
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-rdfxml</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-sail</artifactId>
-            <scope>test</scope>
-        </dependency>
+
 
     </dependencies>
-
 </project>

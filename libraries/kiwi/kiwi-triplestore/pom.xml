@@ -103,7 +103,7 @@
         <!-- Utilities -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tripletable</artifactId>
+            <artifactId>marmotta-util-tripletable</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

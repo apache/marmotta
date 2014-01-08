@@ -22,33 +22,26 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../../parent/</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
-    <artifactId>sesame-contextaware</artifactId>
+    <name>Marmotta Sesame I/O: API</name>
+    <artifactId>marmotta-rio-api</artifactId>
     <packaging>jar</packaging>
-
-    <name>Sesame Tools: Contextual Sail</name>
-
-    <description>
-        This module provides a Sesame SailWrapper that allows defining a context that overwrites all
-        contexts defined in statements to be added, read, or deleted. It can be used to have a view
-        on repositories that only allows accessing a single named graph.
-    </description>
 
     <dependencies>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-model</artifactId>
+            <artifactId>sesame-rio-api</artifactId>
         </dependency>
+            
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
+
+
 </project>

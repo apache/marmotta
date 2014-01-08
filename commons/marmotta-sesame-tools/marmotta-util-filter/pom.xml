@@ -25,37 +25,13 @@
         <relativePath>../../../parent</relativePath>
     </parent>
 
-    <artifactId>ldcache-sail-generic</artifactId>
-    <name>LDCache: Sesame SAIL (Generic)</name>
+    <artifactId>marmotta-util-filter</artifactId>
+    <name>Marmotta Sesame Tools: Resource Filters</name>
 
     <description>
-        Stacked Sail that allows transparent access to resources through the Linked Data Cache, retrieving them
-        on demand when needed. Can be wrapped around other Sesame SAILs.
+        This module provides generic components for composite resource filtering, e.g. checking if
+        a resource conforms to a certain pattern.
     </description>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin> <!-- generate JRebel Configuration -->
-                    <groupId>org.zeroturnaround</groupId>
-                    <artifactId>jrebel-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>generate-rebel-xml</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <relativePath>../../../</relativePath>
-                        <rootPath>$${rebel.root}</rootPath>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <dependencies>
         <dependency>
@@ -63,70 +39,72 @@
             <artifactId>sesame-model</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-util-filter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-core</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
 
         <!-- Testing -->
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-backend-file</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-turtle</artifactId>
+            <artifactId>sesame-sail-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>junit</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sail</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-rdfxml</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>hamcrest-core</artifactId>
             <groupId>org.hamcrest</groupId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
 
 
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
 </project>

@@ -22,32 +22,91 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../../parent</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
-    <artifactId>sesame-tools-facading</artifactId>
-    <name>Sesame Tools: Facading</name>
-    <description>
-        Allows using annotated Java interfaces (facades) to access an underlying 
-        Sesame repository, similar to JPA.
-    </description>
+    <name>Marmotta Sesame I/O: RSS/Atom</name>
+    <artifactId>marmotta-rio-rss</artifactId>
+    <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>add-ext</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/ext/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-ext-test</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <sources>
+                                <source>src/ext-test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/ext/resources</directory>
+            </resource>
+        </resources>
+    </build>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-commons</artifactId>
+            <artifactId>marmotta-rio-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-model</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-api</artifactId>
+            <artifactId>sesame-rio-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-query</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
@@ -79,14 +138,10 @@
             <artifactId>sesame-repository-sail</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-rdfxml</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -95,31 +150,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-triplestore</artifactId>
-            <scope>test</scope>
-        </dependency>
-                <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
     </dependencies>
 
 </project>

@@ -531,19 +531,19 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-filter</artifactId>
+            <artifactId>marmotta-util-filter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-vcard</artifactId>
+            <artifactId>marmotta-rio-vcard</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-ical</artifactId>
+            <artifactId>marmotta-rio-ical</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-rio-rss</artifactId>
+            <artifactId>marmotta-rio-rss</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.jsonld-java</groupId>
@@ -551,7 +551,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-tools-facading</artifactId>
+            <artifactId>marmotta-util-facading</artifactId>
         </dependency>
         <dependency>
             <groupId>org.semarglproject</groupId>
@@ -581,7 +581,7 @@
 
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-transactions</artifactId>
+            <artifactId>marmotta-sail-transactions</artifactId>
         </dependency>
 
     </dependencies>

@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-transactions</artifactId>
+            <artifactId>marmotta-sail-transactions</artifactId>
         </dependency>
 
         <!-- Logging -->
@@ -83,7 +83,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-filter</artifactId>
+            <artifactId>marmotta-util-filter</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

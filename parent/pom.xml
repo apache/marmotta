@@ -1275,32 +1275,32 @@
             <!-- Marmotta Sesame Tools -->
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-transactions</artifactId>
+                <artifactId>marmotta-sail-transactions</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tripletable</artifactId>
+                <artifactId>marmotta-util-tripletable</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-contextaware</artifactId>
+                <artifactId>marmotta-sail-contextaware</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-filter</artifactId>
+                <artifactId>marmotta-util-filter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-vcard</artifactId>
+                <artifactId>marmotta-rio-vcard</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-ical</artifactId>
+                <artifactId>marmotta-rio-ical</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
@@ -1311,17 +1311,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-api</artifactId>
+                <artifactId>marmotta-rio-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-rio-rss</artifactId>
+                <artifactId>marmotta-rio-rss</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>sesame-tools-facading</artifactId>
+                <artifactId>marmotta-util-facading</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
