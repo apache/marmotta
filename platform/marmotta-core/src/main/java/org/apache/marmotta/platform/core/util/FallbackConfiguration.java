@@ -42,7 +42,7 @@ public class FallbackConfiguration extends CompositeConfiguration {
     }
 
     @Override
-    public List<Object> getList(String key, List<Object> defaultValue) {
+    public List<Object> getList(String key, List<?> defaultValue) {
         final Configuration mem = getInMemoryConfiguration();
         if (mem.containsKey(key))
             return mem.getList(key, defaultValue);
