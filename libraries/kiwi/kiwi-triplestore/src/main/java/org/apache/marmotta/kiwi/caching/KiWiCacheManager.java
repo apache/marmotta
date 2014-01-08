@@ -68,6 +68,10 @@ public class KiWiCacheManager {
 
     private KiWiConfiguration kiWiConfiguration;
 
+
+    private Cache nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, loaderCache, registryCache;
+
+
     /**
      * Create a new cache manager with its own automatically created Infinispan instance.
      *
@@ -172,15 +176,17 @@ public class KiWiCacheManager {
      * @return an EHCache Cache instance containing the node id -> node mappings
      */
     public Cache getNodeCache() {
-        if(!cacheManager.cacheExists(NODE_CACHE)) {
+        if(nodeCache == null) {
             Configuration nodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(500000)
                     .build();
             cacheManager.defineConfiguration(NODE_CACHE, nodeConfiguration);
+
+            nodeCache = cacheManager.getCache(NODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
 
-        return cacheManager.getCache(NODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return nodeCache;
     }
 
     /**
@@ -190,7 +196,7 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getTripleCache() {
-        if(!cacheManager.cacheExists(TRIPLE_CACHE)) {
+        if(tripleCache == null) {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getTripleCacheSize())
@@ -199,8 +205,10 @@ public class KiWiCacheManager {
                         .maxIdle(30, TimeUnit.MINUTES)
                     .build();
             cacheManager.defineConfiguration(TRIPLE_CACHE, tripleConfiguration);
+
+            tripleCache = cacheManager.getCache(TRIPLE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(TRIPLE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return tripleCache;
     }
 
 
@@ -211,14 +219,16 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getUriCache() {
-        if(!cacheManager.cacheExists(URI_CACHE)) {
+        if(uriCache == null) {
             Configuration uriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getUriCacheSize())
                     .build();
             cacheManager.defineConfiguration(URI_CACHE, uriConfiguration);
+
+            uriCache = cacheManager.getCache(URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return uriCache;
     }
 
 
@@ -229,14 +239,16 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getBNodeCache() {
-        if(!cacheManager.cacheExists(BNODE_CACHE)) {
+        if(bnodeCache == null) {
             Configuration bnodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getBNodeCacheSize())
                     .build();
             cacheManager.defineConfiguration(BNODE_CACHE, bnodeConfiguration);
+
+            bnodeCache = cacheManager.getCache(BNODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(BNODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return bnodeCache;
     }
 
     /**
@@ -247,14 +259,16 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getLiteralCache() {
-        if(!cacheManager.cacheExists(LITERAL_CACHE)) {
+        if(literalCache == null) {
             Configuration literalConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getLiteralCacheSize())
                     .build();
             cacheManager.defineConfiguration(LITERAL_CACHE, literalConfiguration);
+
+            literalCache = cacheManager.getCache(LITERAL_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(LITERAL_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return literalCache;
     }
 
 
@@ -263,7 +277,7 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getNamespaceUriCache() {
-        if(!cacheManager.cacheExists(NAMESPACE_URI_CACHE)) {
+        if(nsUriCache == null) {
             Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
@@ -271,8 +285,10 @@ public class KiWiCacheManager {
                         .lifespan(1, TimeUnit.HOURS)
                     .build();
             cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
+
+            nsUriCache = cacheManager.getCache(NAMESPACE_URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(NAMESPACE_URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return nsUriCache;
     }
 
     /**
@@ -280,7 +296,7 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getNamespacePrefixCache() {
-        if(!cacheManager.cacheExists(NAMESPACE_PREFIX_CACHE)) {
+        if(nsPrefixCache == null) {
             Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
@@ -288,8 +304,10 @@ public class KiWiCacheManager {
                         .lifespan(1, TimeUnit.HOURS)
                     .build();
             cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
+
+            nsPrefixCache = cacheManager.getCache(NAMESPACE_PREFIX_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(NAMESPACE_PREFIX_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return nsPrefixCache;
     }
 
 
@@ -298,7 +316,7 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getLoaderCache() {
-        if(!cacheManager.cacheExists(LOADER_CACHE)) {
+        if(loaderCache == null) {
             Configuration loaderConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
                         .maxEntries(100000)
@@ -307,8 +325,10 @@ public class KiWiCacheManager {
                         .maxIdle(30, TimeUnit.SECONDS)
                     .build();
             cacheManager.defineConfiguration(LOADER_CACHE, loaderConfiguration);
+
+            loaderCache = cacheManager.getCache(LOADER_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(LOADER_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return loaderCache;
     }
 
 
@@ -318,7 +338,7 @@ public class KiWiCacheManager {
      * @return
      */
     public Cache getRegistryCache() {
-        if(!cacheManager.cacheExists(LOADER_CACHE)) {
+        if(registryCache == null) {
             if(clustered) {
                 Configuration registryConfiguration = new ConfigurationBuilder()
                     .clustering()
@@ -338,8 +358,10 @@ public class KiWiCacheManager {
                     .build();
                 cacheManager.defineConfiguration(REGISTRY_CACHE, registryConfiguration);
             }
+
+            registryCache = cacheManager.getCache(REGISTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
-        return cacheManager.getCache(REGISTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        return registryCache;
     }
 
     /**
@@ -393,6 +415,16 @@ public class KiWiCacheManager {
             Cache<String,Object> cache = cacheManager.getCache(cacheName);
             cache.clear();
         }
+
+        nodeCache     = null;
+        tripleCache   = null;
+        uriCache      = null;
+        literalCache  = null;
+        bnodeCache    = null;
+        nsPrefixCache = null;
+        nsUriCache    = null;
+        loaderCache   = null;
+        registryCache = null;
     }
 
     /**
