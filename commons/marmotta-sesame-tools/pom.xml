@@ -22,14 +22,14 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <artifactId>commons-reactor</artifactId>
+    <artifactId>marmotta-sesame-tools</artifactId>
     <packaging>pom</packaging>
 
-    <name>Apache Marmotta Commons: Reactor</name>
-    <description>A collection of support modules for Marmotta, adding additional functionality like parsers or writers.</description>
+    <name>Apache Marmotta Commons: Sesame Tools Reactor</name>
+    <description>A collection of support modules for Sesame, used in Marmotta but also valuable outside.</description>
 
     <!-- release management -->
     <build>
@@ -52,8 +52,15 @@
 
 
     <modules>
-        <module>marmotta-commons</module>
-        <module>marmotta-sesame-tools</module>
+        <module>marmotta-rio-api</module>
+        <module>marmotta-rio-ical</module>
+        <module>marmotta-rio-rss</module>
+        <module>marmotta-rio-vcard</module>
+        <module>marmotta-sail-contextaware</module>
+        <module>marmotta-sail-transactions</module>
+        <module>marmotta-util-facading</module>
+        <module>marmotta-util-filter</module>
+        <module>marmotta-util-tripletable</module>
     </modules>
 
 </project>

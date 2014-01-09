@@ -22,38 +22,33 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
+        <relativePath>../../../parent/</relativePath>
     </parent>
 
-    <artifactId>commons-reactor</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>marmotta-sail-contextaware</artifactId>
+    <packaging>jar</packaging>
 
-    <name>Apache Marmotta Commons: Reactor</name>
-    <description>A collection of support modules for Marmotta, adding additional functionality like parsers or writers.</description>
+    <name>Marmotta Sesame Tools: Contextual Sail</name>
 
-    <!-- release management -->
-    <build>
-        <plugins>
-            <!-- do not install / deploy reactor -->
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <description>
+        This module provides a Sesame SailWrapper that allows defining a context that overwrites all
+        contexts defined in statements to be added, read, or deleted. It can be used to have a view
+        on repositories that only allows accessing a single named graph.
+    </description>
 
-
-    <modules>
-        <module>marmotta-commons</module>
-        <module>marmotta-sesame-tools</module>
-    </modules>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-model</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

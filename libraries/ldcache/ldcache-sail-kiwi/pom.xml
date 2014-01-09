@@ -117,7 +117,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-filter</artifactId>
+            <artifactId>marmotta-util-filter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

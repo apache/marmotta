@@ -20,28 +20,21 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>kiwi-parent</artifactId>
+        <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../../../parent</relativePath>
     </parent>
 
-    <artifactId>kiwi-versioning</artifactId>
+    <artifactId>marmotta-sail-transactions</artifactId>
     <packaging>jar</packaging>
 
-    <name>KiWi Triplestore: Versioning</name>
-    <description>
-        Provides versioning functionality on top of the KiWi triplestore, i.e. allows keeping a log
-        of all changes carried out on the triple store as well as reverting to previous states.
-    </description>
+    <name>Marmotta Sesame Tools: Sail Transactions</name>
+    <description>Extended transaction support for Sesame Notifying Sails.</description>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-triplestore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-sail-transactions</artifactId>
+            <artifactId>marmotta-util-tripletable</artifactId>
         </dependency>
 
         <!-- Logging -->
@@ -54,7 +47,7 @@
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
 
-        <!-- Sesame dependencies -->
+         <!-- Sesame dependencies -->
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-model</artifactId>
@@ -62,10 +55,6 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-sail</artifactId>
         </dependency>
 
         <!-- Utilities -->
@@ -82,10 +71,6 @@
             <artifactId>marmotta-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-util-filter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -98,12 +83,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>org.apache.marmotta</groupId>
-        	<artifactId>kiwi-triplestore</artifactId>
-        	<type>test-jar</type>
-        	<scope>test</scope>
-        </dependency>
-        <dependency>
             <artifactId>hamcrest-core</artifactId>
             <groupId>org.hamcrest</groupId>
             <scope>test</scope>
@@ -111,6 +90,11 @@
         <dependency>
             <artifactId>hamcrest-library</artifactId>
             <groupId>org.hamcrest</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -142,6 +126,7 @@
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
@@ -150,12 +135,7 @@
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-queryparser-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-queryparser-sparql</artifactId>
+            <artifactId>sesame-repository-sail</artifactId>
             <scope>test</scope>
         </dependency>
 

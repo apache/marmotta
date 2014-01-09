@@ -25,39 +25,18 @@
         <relativePath>../../../parent</relativePath>
     </parent>
 
-    <artifactId>ldcache-sail-generic</artifactId>
-    <name>LDCache: Sesame SAIL (Generic)</name>
-
+    <artifactId>marmotta-util-facading</artifactId>
+    <name>Marmotta Sesame Tools: Facading</name>
     <description>
-        Stacked Sail that allows transparent access to resources through the Linked Data Cache, retrieving them
-        on demand when needed. Can be wrapped around other Sesame SAILs.
+        Allows using annotated Java interfaces (facades) to access an underlying 
+        Sesame repository, similar to JPA.
     </description>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin> <!-- generate JRebel Configuration -->
-                    <groupId>org.zeroturnaround</groupId>
-                    <artifactId>jrebel-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>generate-rebel-xml</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <relativePath>../../../</relativePath>
-                        <rootPath>$${rebel.root}</rootPath>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
     <dependencies>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-commons</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-model</artifactId>
@@ -67,66 +46,81 @@
             <artifactId>sesame-repository-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-commons</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-query</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-util-filter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-core</artifactId>
-        </dependency>
-
-
-        <!-- Testing -->
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-backend-file</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-queryparser-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-turtle</artifactId>
+            <artifactId>sesame-queryparser-sparql</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>junit</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-queryalgebra-model</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-queryalgebra-evaluation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sail</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-rdfxml</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>hamcrest-core</artifactId>
             <groupId>org.hamcrest</groupId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- We have to use the kiwi-triplestore here because it supports transaction isolation -->
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>kiwi-triplestore</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-
+        
     </dependencies>
+
 </project>

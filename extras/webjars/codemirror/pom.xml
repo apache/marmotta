@@ -26,14 +26,16 @@
         <relativePath>../../../parent/</relativePath>
     </parent>
 
+    <name>Marmotta WebJar: CodeMirror Modes</name>
+    <groupId>org.apache.marmotta.webjars</groupId>
+    <artifactId>codemirror-modes</artifactId>
+    <packaging>jar</packaging>
+    <description>CodeMirror modes for ldpath and skwrl</description>
+
     <properties>
         <webjar.version>3.16</webjar.version>
         <webjar.path>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}</webjar.path>
     </properties>
-
-    <groupId>org.apache.marmotta.webjars</groupId>
-    <artifactId>codemirror-modes</artifactId>
-    <packaging>jar</packaging>
 
     <build>
         <plugins>

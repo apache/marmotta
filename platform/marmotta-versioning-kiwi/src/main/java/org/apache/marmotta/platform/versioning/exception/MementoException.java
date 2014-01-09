@@ -24,6 +24,8 @@ package org.apache.marmotta.platform.versioning.exception;
  */
 public class MementoException extends Exception {
 
+    private static final long serialVersionUID = 1L;
+
     public MementoException() {}
 
     public MementoException(String m) {

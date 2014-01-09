@@ -98,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>sesame-contextaware</artifactId>
+            <artifactId>marmotta-sail-contextaware</artifactId>
         </dependency>
 
         <!-- Logging -->

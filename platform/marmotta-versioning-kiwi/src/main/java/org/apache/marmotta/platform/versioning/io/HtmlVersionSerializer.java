@@ -17,27 +17,28 @@
  */
 package org.apache.marmotta.platform.versioning.io;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.versioning.utils.MementoUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import freemarker.template.TemplateException;
 
 /**
  * Serializes an ordered list of versions in text/html into an output stream
@@ -47,23 +48,17 @@ import java.util.Map;
 @ApplicationScoped
 public class HtmlVersionSerializer implements VersionSerializer {
 
+    private static final String TEMPLATE = "memento_timemap.ftl";
+
     @Inject
-    ConfigurationService configurationService;
+    private ConfigurationService configurationService;
+    
+    @Inject
+    private TemplatingService templatingService;
 
-    private Configuration configuration;
-
-    private static final String TEMPLATE = "timemap";
-
-    @PostConstruct
-    private void initialize() {
-        configuration = new Configuration();
-        configuration.setClassForTemplateLoading(HtmlVersionSerializer.class, "/template/");
-    }
 
     //a static list that contains the contentTypes
-    private static final List<ContentType> contentTypes = new ArrayList(){{
-        add(new ContentType("text","html"));
-    }};
+    private static final List<ContentType> contentTypes = Arrays.asList(new ContentType("text","html"));
 
     /**
      * return the content type that will be produced
@@ -84,7 +79,6 @@ public class HtmlVersionSerializer implements VersionSerializer {
 
     /**
      * writes serialized version list (text/html) to output stream
-     * TODO use temmplating engine
      * @param original the original (current) resource
      * @param versions a list of versions in ascending order
      * @param out an output stream
@@ -118,19 +112,15 @@ public class HtmlVersionSerializer implements VersionSerializer {
             data.put("SERVER_URL",configurationService.getServerUri());
             data.put("baseUri", configurationService.getServerUri());
 
-            //create template
-            Template template = configuration.getTemplate("timemap.ftl");
-
             //create writer
             OutputStreamWriter writer = new OutputStreamWriter(out);
 
             //process
-            template.process(data, writer);
+            templatingService.process(this.getClass(), TEMPLATE, data, writer);
 
             //flush and close writer
             writer.flush();
             writer.close();
-
         } catch (RepositoryException e) {
             throw new IOException("cannot serialize versions in text/html format");
         } catch (TemplateException e) {

@@ -1,5 +1,5 @@
 Apache Marmotta
-Copyright 2012-2013 The Apache Software Foundation
+Copyright 2012-2014 The Apache Software Foundation
 
 This product includes software developed at 
 The Apache Software Foundation (http://www.apache.org/).
@@ -15,8 +15,8 @@ This product also includes some third-party source components:
  * The module extras/webjars/snorql constains a adapted version of the D2R 
    Snorql library, which was originally created by Richard Cyganaik for the D2R 
    Server project (http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/). It is 
-   licensed under the Apache Software License 2.0. The source code is available 
-   from http://github.com/kurtjx/SNORQL
+   licensed under the Apache Software License 2.0. The original source code is
+   available from http://github.com/kurtjx/SNORQL
 
  * The module commons/marmotta-commons contains a modified and reduced version
    of the Javolution library. Javolution has copyright (c) 2012, Javolution and
