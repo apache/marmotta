@@ -17,16 +17,13 @@
  */
 package org.apache.marmotta.ldclient.provider.rdf;
 
+import javolution.util.function.Predicate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.event.InterceptingRepositoryConnection;
-import org.openrdf.repository.event.base.InterceptingRepositoryConnectionWrapper;
-import org.openrdf.repository.event.base.RepositoryConnectionInterceptorAdapter;
+import org.openrdf.model.Model;
+import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParserRegistry;
@@ -62,51 +59,26 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
      * repository. The content type returned by the web service is passed as argument to help the implementation
      * decide how to parse the data.
      *
+     *
      * @param resourceUri
-     * @param in input stream as returned by the remote webservice
-     * @param contentType content type as returned in the HTTP headers of the remote webservice
-     * @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
+     * @param triples
+     *@param in input stream as returned by the remote webservice
+     * @param contentType content type as returned in the HTTP headers of the remote webservice   @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
     @Override
-    public List<String> parseResponse(final String resourceUri, String requestUrl, Repository triples, InputStream in, String contentType) throws DataRetrievalException {
+    public List<String> parseResponse(final String resourceUri, String requestUrl, Model triples, InputStream in, String contentType) throws DataRetrievalException {
         RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForMIMEType(contentType, RDFFormat.RDFXML);
 
         try {
-            InterceptingRepositoryConnection con =
-                    new InterceptingRepositoryConnectionWrapper(triples,triples.getConnection());
-
-            con.addRepositoryConnectionInterceptor(new RepositoryConnectionInterceptorAdapter() {
+            ModelCommons.add(triples, in, resourceUri, format, new Predicate<Statement>() {
                 @Override
-                public boolean add(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
-                    if(s instanceof org.openrdf.model.URI) {
-                        // if s is a URI and subject a KiWiUriResource, return true if they are different
-                        return !s.stringValue().equals(resourceUri);
-                    } else {
-                        // in all other cases, return true to filter out the triple
-                        return true;
-                    }
-                };
-
-                @Override
-                public boolean remove(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
-                    if(s instanceof org.openrdf.model.URI) {
-                        // if s is a URI and subject a KiWiUriResource, return true if they are different
-                        return !s.stringValue().equals(resourceUri);
-                    } else {
-                        // in all other cases, return true to filter out the triple
-                        return true;
-                    }
+                public boolean test(Statement param) {
+                    return StringUtils.equals(param.getSubject().stringValue(), resourceUri);
                 }
             });
 
-            con.add(in, resourceUri,format);
-            con.commit();
-            con.close();
-
             return Collections.emptyList();
-        } catch (RepositoryException e) {
-            throw new DataRetrievalException("error while initializing temporary RDF store",e);
         } catch (RDFParseException e) {
             throw new DataRetrievalException("parse error while trying to parse remote RDF content",e);
         } catch (IOException e) {

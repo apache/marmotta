@@ -106,23 +106,19 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-queryresultio-api</artifactId>
         </dependency>
-
         <dependency>
-        <!-- TODO: this should be removed -->
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-repository-sail</artifactId>
-            <optional>true</optional>
         </dependency>
 
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

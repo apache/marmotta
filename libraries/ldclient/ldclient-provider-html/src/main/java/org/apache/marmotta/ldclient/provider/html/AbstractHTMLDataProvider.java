@@ -26,14 +26,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,14 +77,15 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
      * decide how to parse the data.
      *
      *
+     *
      * @param resource    the subject of the data retrieval
-     * @param in          input stream as returned by the remote webservice
-     * @param contentType content type as returned in the HTTP headers of the remote webservice
-     * @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
+     * @param triples
+     *@param in          input stream as returned by the remote webservice
+     * @param contentType content type as returned in the HTTP headers of the remote webservice   @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
     @Override
-    public List<String> parseResponse(String resource, String requestUrl, Repository triples, InputStream in, String contentType) throws DataRetrievalException {
+    public List<String> parseResponse(String resource, String requestUrl, Model triples, InputStream in, String contentType) throws DataRetrievalException {
         String charset = null;
         Pattern pattern = Pattern.compile("charset=([a-zA-Z0-9-_]+)");
         Matcher matcher = pattern.matcher(contentType);
@@ -101,8 +96,7 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
         try {
             Document htmlDoc = Jsoup.parse(in,charset,requestUrl);
 
-            RepositoryConnection con = triples.getConnection();
-            ValueFactory vf = con.getValueFactory();
+            ValueFactory vf = ValueFactoryImpl.getInstance();
             URI subject = vf.createURI(resource);
 
             for (Map.Entry<String, JSoupMapper> mapping : getMappings(resource, requestUrl).entrySet()) {
@@ -113,7 +107,7 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
                     List<Value> objects = mapping.getValue().map(resource, value, vf);
                     for(Value object : objects) {
                         Statement stmt = vf.createStatement(subject, predicate, object);
-                        con.add(stmt);
+                        triples.add(stmt);
                     }
                 }
             }
@@ -122,16 +116,12 @@ public abstract class AbstractHTMLDataProvider extends AbstractHttpProvider impl
 
             for(String typeUri : getTypes(subject)) {
                 Resource type_resource = vf.createURI(typeUri);
-                con.add(vf.createStatement(subject, ptype, type_resource));
+                triples.add(vf.createStatement(subject, ptype, type_resource));
             }
 
-            con.commit();
-            con.close();
 
             return findAdditionalRequestUrls(resource, htmlDoc, requestUrl);
 
-        } catch (RepositoryException e) {
-            throw new DataRetrievalException("repository error while parsing XML response",e);
         } catch (IOException e) {
             throw new DataRetrievalException("I/O error while parsing HTML response",e);
         }

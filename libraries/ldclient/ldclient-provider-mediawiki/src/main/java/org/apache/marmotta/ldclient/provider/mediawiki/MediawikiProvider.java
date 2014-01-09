@@ -29,13 +29,8 @@ import org.jdom2.filter.ElementFilter;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 import org.jdom2.xpath.XPathFactory;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +40,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -188,7 +177,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
     }
 
     @Override
-    public List<String> parseResponse(String resource, String requestUrl, Repository repository, InputStream in, String contentType)
+    public List<String> parseResponse(String resource, String requestUrl, Model model, InputStream in, String contentType)
             throws DataRetrievalException {
         try {
             log.trace("PARSE {}", urlDecode(requestUrl).replaceFirst(".*=xml&", ""));
@@ -198,22 +187,21 @@ public class MediawikiProvider extends AbstractHttpProvider {
             final Document doc = new SAXBuilder(XMLReaders.NONVALIDATING).build(in);
 
             ArrayList<String> followUp = new ArrayList<String>();
-            final RepositoryConnection con = repository.getConnection();
-            final ValueFactory valueFactory = con.getValueFactory();
+            final ValueFactory valueFactory = new ValueFactoryImpl();
 
             switch (context) {
                 case SITE:
-                    followUp.addAll(parseSiteMeta(resource, requestUrl, doc, repository));
+                    followUp.addAll(parseSiteMeta(resource, requestUrl, doc, model));
                     break;
                 case META:
                 case META_CONTINUED:
                     // For Articles: Retrieve article info (sioc:WikiArticle)
                     // Follow-Up: resolve titles: links, categories
                     // For Categories: Retrieve as skos:Concept/sioc:Category
-                    followUp.addAll(parseArticleMeta(resource, requestUrl, doc, context, repository));
+                    followUp.addAll(parseArticleMeta(resource, requestUrl, doc, context, model));
                     break;
                 case CONTENT:
-                    followUp.addAll(parseRevision(valueFactory.createURI(resource), requestUrl, con, valueFactory, queryElement(doc, "/api/query/pages/page[1]/revisions"),
+                    followUp.addAll(parseRevision(valueFactory.createURI(resource), requestUrl, model, valueFactory, queryElement(doc, "/api/query/pages/page[1]/revisions"),
                             context));
                     break;
                 /* Links from an Article */
@@ -224,7 +212,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
                 case SUPERCATEGORIES:
                 case SUBCATEGORIES:
                 case PAGES:
-                    followUp.addAll(addLinks(resource, requestUrl, doc, context, repository));
+                    followUp.addAll(addLinks(resource, requestUrl, doc, context, model));
                     break;
                 default:
                     log.error("Unhandled MediawikiProvider.Context: {}", context);
@@ -248,39 +236,38 @@ public class MediawikiProvider extends AbstractHttpProvider {
         }
     }
 
-    protected List<String> parseSiteMeta(String resource, String requestUrl, Document doc, Repository repository) throws RepositoryException {
+    protected List<String> parseSiteMeta(String resource, String requestUrl, Document doc, Model model) throws RepositoryException {
         final Element general = queryElement(doc, "/api/query/general");
         if (general != null) {
             final String title = general.getAttributeValue("sitename");
             final String server = general.getAttributeValue("server");
             final String homepage = general.getAttributeValue("base");
 
-            final RepositoryConnection con = repository.getConnection();
-            final ValueFactory valueFactory = con.getValueFactory();
+            final ValueFactory valueFactory = ValueFactoryImpl.getInstance();
             final Resource subject = valueFactory.createURI(resource);
 
             if (title != null) {
-                addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "title", title, null, con, valueFactory);
+                addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "title", title, null, model, valueFactory);
             }
             if (server != null) {
                 if (server.matches("^https?://")) {
-                    addTriple(subject, Namespaces.NS_SIOC + "has_host", server, con, valueFactory);
+                    addTriple(subject, Namespaces.NS_SIOC + "has_host", server, model, valueFactory);
                 } else if (server.startsWith("//")) {
-                    addTriple(subject, Namespaces.NS_SIOC + "has_host", "http:" + server, con, valueFactory);
+                    addTriple(subject, Namespaces.NS_SIOC + "has_host", "http:" + server, model, valueFactory);
                 } else {
                     log.warn("Found invalid host {} for wiki {}, ignoring", server, resource);
                 }
             }
             if (homepage != null) {
-                addTriple(subject, Namespaces.NS_FOAF + "homepage", homepage, con, valueFactory);
+                addTriple(subject, Namespaces.NS_FOAF + "homepage", homepage, model, valueFactory);
             }
-            addTypeTriple(subject, Namespaces.NS_SIOC_TYPES + "Wiki", con, valueFactory);
+            addTypeTriple(subject, Namespaces.NS_SIOC_TYPES + "Wiki", model, valueFactory);
         }
 
         return Collections.emptyList();
     }
 
-    protected List<String> addLinks(String resource, String requestUrl, Document doc, Context context, Repository repository)
+    protected List<String> addLinks(String resource, String requestUrl, Document doc, Context context, Model model)
             throws RepositoryException {
         final String predicate;
         switch (context) {
@@ -306,8 +293,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
                 return Collections.emptyList();
         }
 
-        final RepositoryConnection con = repository.getConnection();
-        final ValueFactory valueFactory = con.getValueFactory();
+        final ValueFactory valueFactory = ValueFactoryImpl.getInstance();
         final Resource subject = valueFactory.createURI(resource);
 
         for (Element page : queryElements(doc, "/api/query/pages/page")) {
@@ -318,9 +304,9 @@ public class MediawikiProvider extends AbstractHttpProvider {
             final String url = page.getAttributeValue("fullurl");
             if (url != null) {
                 if (context == Context.PAGES) {
-                    addTriple(valueFactory.createURI(url), predicate, resource, con, valueFactory);
+                    addTriple(valueFactory.createURI(url), predicate, resource, model, valueFactory);
                 } else {
-                    addTriple(subject, predicate, url, con, valueFactory);
+                    addTriple(subject, predicate, url, model, valueFactory);
                 }
             }
         }
@@ -328,15 +314,14 @@ public class MediawikiProvider extends AbstractHttpProvider {
     }
 
     protected List<String> parseArticleMeta(String resource, String requestUrl, Document doc, Context context,
-                                            Repository repository) throws RepositoryException {
+                                            Model model) throws RepositoryException {
         ArrayList<String> followUp = new ArrayList<String>();
 
         Element page = queryElement(doc, "/api/query/pages/page[1]");
         if (page != null) {
             if (page.getAttributeValue("missing") != null) return Collections.emptyList();
 
-            final RepositoryConnection con = repository.getConnection();
-            final ValueFactory valueFactory = con.getValueFactory();
+            final ValueFactory valueFactory = ValueFactoryImpl.getInstance();
             final URI subject = valueFactory.createURI(resource);
 
             final String title = page.getAttributeValue("title");
@@ -347,24 +332,24 @@ public class MediawikiProvider extends AbstractHttpProvider {
             final String wiki = page.getAttributeValue("fullurl");
             if (wiki != null) {
                 String wikiUrl = wiki.replaceFirst("(?i:" + Pattern.quote(title.replaceAll(" ", "_")) + ")$", "");
-                addTriple(subject, Namespaces.NS_SIOC + "has_container", wikiUrl, con, valueFactory);
+                addTriple(subject, Namespaces.NS_SIOC + "has_container", wikiUrl, model, valueFactory);
             }
 
             if (context == Context.META) {
                 if ("0".equals(namespace)) {
-                    addTypeTriple(subject, Namespaces.NS_SIOC_TYPES + "WikiArticle", con, valueFactory);
-                    addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "title", title, null, con, valueFactory);
+                    addTypeTriple(subject, Namespaces.NS_SIOC_TYPES + "WikiArticle", model, valueFactory);
+                    addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "title", title, null, model, valueFactory);
                 } else if ("14".equals(namespace)) {
                     // Category is a subType of skoc:Concept
-                    addTypeTriple(subject, Namespaces.NS_SIOC_TYPES + "Category", con, valueFactory);
+                    addTypeTriple(subject, Namespaces.NS_SIOC_TYPES + "Category", model, valueFactory);
                     Matcher m = COLON_PREFIX_PATTERN.matcher(title);
                     if (m.find()) {
-                        addLiteralTriple(subject, Namespaces.NS_SKOS + "prefLabel", m.replaceFirst(""), null, con,
+                        addLiteralTriple(subject, Namespaces.NS_SKOS + "prefLabel", m.replaceFirst(""), null, model,
                                 valueFactory);
-                        addLiteralTriple(subject, Namespaces.NS_SKOS + "altLabel", title, null, con,
+                        addLiteralTriple(subject, Namespaces.NS_SKOS + "altLabel", title, null, model,
                                 valueFactory);
                     } else {
-                        addLiteralTriple(subject, Namespaces.NS_SKOS + "prefLabel", title, null, con,
+                        addLiteralTriple(subject, Namespaces.NS_SKOS + "prefLabel", title, null, model,
                                 valueFactory);
                     }
 
@@ -374,12 +359,12 @@ public class MediawikiProvider extends AbstractHttpProvider {
                     followUp.add(buildApiListQueryUrl(requestUrl, "categorymembers", cmParams, Context.META));
                 }
 
-                addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "identifier", ident, Namespaces.NS_XSD + "string", con, valueFactory);
+                addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "identifier", ident, Namespaces.NS_XSD + "string", model, valueFactory);
                 addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "modified", page.getAttributeValue("touched"), Namespaces.NS_XSD
-                        + "dateTime", con, valueFactory);
-                followUp.addAll(parseRevision(subject, requestUrl, con, valueFactory, page.getChild("revisions"), Context.META));
+                        + "dateTime", model, valueFactory);
+                followUp.addAll(parseRevision(subject, requestUrl, model, valueFactory, page.getChild("revisions"), Context.META));
                 if (page.getAttributeValue("fullurl") != null && !resource.equals(page.getAttributeValue("fullurl"))) {
-                    addTriple(subject, Namespaces.NS_OWL + "sameAs", page.getAttributeValue("fullurl"), con, valueFactory);
+                    addTriple(subject, Namespaces.NS_OWL + "sameAs", page.getAttributeValue("fullurl"), model, valueFactory);
                 }
             }
 
@@ -503,7 +488,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         return followUp;
     }
 
-    protected List<String> parseRevision(URI resource, String requestUrl, RepositoryConnection con, ValueFactory valueFactory,
+    protected List<String> parseRevision(URI resource, String requestUrl, Model model, ValueFactory valueFactory,
                                          Element revisions, Context context) throws RepositoryException {
         List<String> followUp = Collections.emptyList();
         if (revisions == null) return followUp;
@@ -513,7 +498,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
 
         if (context == Context.META && "0".equals(rev.getAttributeValue("parentid"))) {
             // This is the first revision, so we use the creation date
-            addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "created", rev.getAttributeValue("timestamp"), Namespaces.NS_XSD + "dateTime", con,
+            addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "created", rev.getAttributeValue("timestamp"), Namespaces.NS_XSD + "dateTime", model,
                     valueFactory);
         }
         if (context == Context.CONTENT && rev.getValue() != null && rev.getValue().trim().length() > 0) {
@@ -523,13 +508,13 @@ public class MediawikiProvider extends AbstractHttpProvider {
                 followUp = Collections.singletonList(buildApiPropQueryUrl(requestUrl, m.group(1), "info", getDefaultParams("info", null),
                         Context.REDIRECT));
             } else {
-                addLiteralTriple(subject, Namespaces.NS_RSS_CONTENT + "encoded", content, Namespaces.NS_XSD + "string", con, valueFactory);
+                addLiteralTriple(subject, Namespaces.NS_RSS_CONTENT + "encoded", content, Namespaces.NS_XSD + "string", model, valueFactory);
             }
         }
         return followUp;
     }
 
-    private String buildApiListQueryUrl(String url, String list, Map<String, String> extraArgs, Context context) {
+    private static String buildApiListQueryUrl(String url, String list, Map<String, String> extraArgs, Context context) {
         HashMap<String, String> params = new LinkedHashMap<String, String>();
         params.put("action", "query");
         params.put("list", list);
@@ -539,7 +524,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         return buildApiRequestUrl(url, params, context);
     }
 
-    private String buildApiPropQueryUrl(String url, String titleQuery, String prop, Map<String, String> extraArgs, Context context) {
+    private static String buildApiPropQueryUrl(String url, String titleQuery, String prop, Map<String, String> extraArgs, Context context) {
         HashMap<String, String> params = new LinkedHashMap<String, String>();
         params.put("action", "query");
         params.put("titles", titleQuery);
@@ -550,7 +535,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         return buildApiRequestUrl(url, params, context);
     }
 
-    private String buildApiRequestUrl(String url, Map<String, String> params, Context context) {
+    private static String buildApiRequestUrl(String url, Map<String, String> params, Context context) {
         StringBuilder sb = new StringBuilder(url.replaceAll("\\?.*", ""));
         sb.append("?format=xml");
 
@@ -565,7 +550,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         return sb.toString();
     }
 
-    private Map<String, String> getDefaultParams(String prop, Element queryContinue) {
+    private static Map<String, String> getDefaultParams(String prop, Element queryContinue) {
         HashMap<String, String> params = new LinkedHashMap<String, String>();
         final String limit = "max";
 
@@ -597,7 +582,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         return params;
     }
 
-    private String urlEncode(String string) {
+    private static String urlEncode(String string) {
         try {
             return URLEncoder.encode(string, "utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -605,7 +590,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         }
     }
 
-    private String urlDecode(String string) {
+    private static String urlDecode(String string) {
         try {
             return URLDecoder.decode(string, "utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -629,18 +614,18 @@ public class MediawikiProvider extends AbstractHttpProvider {
 
     }
 
-    private void addTriple(Resource subject, String predicate, String object, RepositoryConnection con, ValueFactory valueFactory)
+    private static void addTriple(Resource subject, String predicate, String object, Model model, ValueFactory valueFactory)
             throws RepositoryException {
         if (predicate == null || object == null) return;
         final URI predUri = valueFactory.createURI(predicate);
         final URI objUri = valueFactory.createURI(object);
 
         Statement stmt = valueFactory.createStatement(subject, predUri, objUri);
-        con.add(stmt);
+        model.add(stmt);
 
     }
 
-    private void addLiteralTriple(Resource subject, String predicate, String label, String datatype, RepositoryConnection con,
+    private static void addLiteralTriple(Resource subject, String predicate, String label, String datatype, Model model,
                                   ValueFactory valueFactory) throws RepositoryException {
         if (predicate == null || label == null) return;
         final URI predUri = valueFactory.createURI(predicate);
@@ -654,32 +639,25 @@ public class MediawikiProvider extends AbstractHttpProvider {
         }
 
         Statement stmt = valueFactory.createStatement(subject, predUri, lit);
-        con.add(stmt);
+        model.add(stmt);
 
     }
 
-    private void addTypeTriple(Resource subject, String type, RepositoryConnection con, ValueFactory valueFactory) throws RepositoryException {
+    private static void addTypeTriple(Resource subject, String type, Model model, ValueFactory valueFactory) throws RepositoryException {
         if (type == null) return;
         final URI predUri = valueFactory.createURI(Namespaces.NS_RDF + "type");
         final URI rdfType = valueFactory.createURI(type);
 
         Statement stmt = valueFactory.createStatement(subject, predUri, rdfType);
-        con.add(stmt);
+        model.add(stmt);
 
     }
 
-    protected Element queryElement(Document n, String query) {
-        return XPathFactory.instance().compile(query, new ElementFilter()).evaluateFirst(n);
-    }
-    protected Element queryElement(Element n, String query) {
+    protected static Element queryElement(Document n, String query) {
         return XPathFactory.instance().compile(query, new ElementFilter()).evaluateFirst(n);
     }
 
-    protected List<Element> queryElements(Document n, String query) {
-        return XPathFactory.instance().compile(query, new ElementFilter()).evaluate(n);
-    }
-
-    protected List<Element> queryElements(Element n, String query) {
+    protected static List<Element> queryElements(Document n, String query) {
         return XPathFactory.instance().compile(query, new ElementFilter()).evaluate(n);
     }
 

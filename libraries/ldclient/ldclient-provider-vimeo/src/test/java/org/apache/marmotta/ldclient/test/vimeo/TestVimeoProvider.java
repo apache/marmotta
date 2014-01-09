@@ -17,63 +17,15 @@
  */
 package org.apache.marmotta.ldclient.test.vimeo;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
-import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.apache.marmotta.ldclient.services.ldclient.LDClient;
-import org.apache.marmotta.ldclient.test.helper.TestLDClient;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
+import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.io.StringWriter;
 
 /**
  * Add file description here!
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public class TestVimeoProvider {
-
-    private LDClientService ldclient;
-
-    private static Logger log = LoggerFactory.getLogger(TestVimeoProvider.class);
-
-    @Before
-    public void setupClient() {
-        ldclient = new TestLDClient(new LDClient());
-    }
-
-    @After
-    public void shutdownClient() {
-        ldclient.shutdown();
-    }
-
-    final Logger logger =
-            LoggerFactory.getLogger(this.getClass());
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
+public class TestVimeoProvider extends ProviderTestBase {
 
     /**
      * This method tests accessing the Youtube Video service via the GData API.
@@ -82,31 +34,7 @@ public class TestVimeoProvider {
      */
     @Test
     public void testVideo() throws Exception {
-
-        String uriLMFVideo = "http://vimeo.com/7223527";
-        ClientResponse respLMFVideo = ldclient.retrieveResource(uriLMFVideo);
-
-        RepositoryConnection conLMFVideo = respLMFVideo.getTriples().getConnection();
-        conLMFVideo.begin();
-        Assert.assertTrue(conLMFVideo.size() > 0);
-
-        conLMFVideo.export(Rio.createWriter(RDFFormat.TURTLE, System.out));
-
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("vimeo-video.sparql");
-        BooleanQuery testLabel = conLMFVideo.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            conLMFVideo.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
-        }
-
-        conLMFVideo.commit();
-        conLMFVideo.close();
+        testResource("http://vimeo.com/7223527", "vimeo-video.sparql");
     }
 
     /**
@@ -116,31 +44,7 @@ public class TestVimeoProvider {
      */
     @Test
     public void testChannel() throws Exception {
-
-        String uriChannel = "http://vimeo.com/channels/ninlive09";
-        ClientResponse respChannel = ldclient.retrieveResource(uriChannel);
-
-        RepositoryConnection conChannel = respChannel.getTriples().getConnection();
-        conChannel.begin();
-        Assert.assertTrue(conChannel.size() > 0);
-
-        conChannel.export(Rio.createWriter(RDFFormat.TURTLE, System.out));
-
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("vimeo-channel.sparql");
-        BooleanQuery testLabel = conChannel.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            conChannel.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
-        }
-
-        conChannel.commit();
-        conChannel.close();
+        testResource("http://vimeo.com/channels/ninlive09", "vimeo-channel.sparql");
     }
 
 

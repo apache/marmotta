@@ -17,29 +17,7 @@
  */
 package org.apache.marmotta.platform.ldcache.webservices;
 
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
@@ -49,10 +27,19 @@ import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
 import org.openrdf.model.URI;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.slf4j.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.ByteArrayOutputStream;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Add file description here!
@@ -83,16 +70,10 @@ public class LinkedDataCachingWebService {
             try {
                 ClientResponse response = cacheSailProvider.getLDClient().retrieveResource(uri);
 
-                RepositoryConnection con = response.getTriples().getConnection();
-                con.begin();
-
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 RDFHandler handler = new RDFXMLPrettyWriter(out);
-                con.export(handler);
 
-                con.commit();
-                con.close();
-
+                ModelCommons.export(response.getData(), handler);
 
                 return Response.ok().entity( new String(out.toByteArray(), "utf-8")).build();
             } catch (Exception e) {

@@ -32,24 +32,15 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.model.Model;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseContentType;
 
@@ -85,14 +76,15 @@ public abstract class AbstractHttpProvider implements DataProvider {
      *
      *
      *
+     *
      * @param resourceUri
-     * @param repository   an RDF repository for storing an RDF representation of the dataset located at the remote resource.
+     * @param model   an RDF repository for storing an RDF representation of the dataset located at the remote resource.
      * @param in           input stream as returned by the remote webservice
      * @param contentType  content type as returned in the HTTP headers of the remote webservice
      * @return a possibly empty list of URLs of additional resources to retrieve to complete the content
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
-    protected abstract List<String> parseResponse(String resourceUri, String requestUrl, Repository repository, InputStream in, String contentType) throws DataRetrievalException;
+    protected abstract List<String> parseResponse(String resourceUri, String requestUrl, Model model, InputStream in, String contentType) throws DataRetrievalException;
 
     /**
      * Retrieve the data for a resource using the given http client and endpoint definition. The service is
@@ -171,9 +163,7 @@ public abstract class AbstractHttpProvider implements DataProvider {
             }
 
             if(log.isInfoEnabled()) {
-                RepositoryConnection con = handler.triples.getConnection();
-                log.info("retrieved {} triples for resource {}; expiry date: {}",new Object[] {con.size(),resource,expiresDate});
-                con.close();
+                log.info("retrieved {} triples for resource {}; expiry date: {}", new Object[]{handler.triples.size(), resource, expiresDate});
             }
 
             ClientResponse result = new ClientResponse(handler.httpStatus, handler.triples);
@@ -223,7 +213,7 @@ public abstract class AbstractHttpProvider implements DataProvider {
         private String                requestUrl;
 
         // the repository where the triples will be stored in case the data providers return them
-        private final Repository triples;
+        private final Model triples;
 
         private final Endpoint   endpoint;
 
@@ -235,8 +225,7 @@ public abstract class AbstractHttpProvider implements DataProvider {
             this.resource = resource;
             this.endpoint = endpoint;
 
-            triples = new SailRepository(new MemoryStore());
-            triples.initialize();
+            triples = new TreeModel();
         }
 
         @Override

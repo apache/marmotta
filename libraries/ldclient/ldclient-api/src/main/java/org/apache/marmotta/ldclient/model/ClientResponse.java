@@ -18,20 +18,24 @@
 package org.apache.marmotta.ldclient.model;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
+import org.openrdf.model.Model;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryException;
 
 import java.util.Date;
 
 /**
  * LDCache Client Response
- * 
+ *
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
 public class ClientResponse {
 
-	private static final int DEFAULT_HTTP_CODE = 200;
-	
+    private static final int DEFAULT_HTTP_CODE = 200;
+
     private static final int DEFAULT_EXPIRATION_IN_DAYS = 7;
 
     /**
@@ -39,26 +43,40 @@ public class ClientResponse {
      */
     private int httpStatus;
 
-    private Repository triples;
+    private Model data;
 
     private Date expires;
-    
-    public ClientResponse(Repository triples) {
-    	this(DEFAULT_HTTP_CODE, triples);
+
+    @Deprecated
+    public ClientResponse(int httpStatus, Repository triples) {
+        this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
+        this.httpStatus = httpStatus;
+
+        try {
+        this.data = ModelCommons.asModel(triples);
+        } catch (RepositoryException e) {
+            this.data = new TreeModel();
+        }
     }
 
-    public ClientResponse(int httpStatus, Repository triples) {
-        this.triples = triples;
+    public ClientResponse(int httpStatus, Model triples) {
+        this.data = triples;
         this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
         this.httpStatus = httpStatus;
     }
 
+
+    @Deprecated
     public Repository getTriples() {
-        return triples;
+        try {
+            return ModelCommons.asRepository(this.data);
+        } catch (RepositoryException e) {
+            return null;
+        }
     }
 
-    public void setTriples(Repository triples) {
-        this.triples = triples;
+    public Model getData() {
+        return data;
     }
 
     public Date getExpires() {

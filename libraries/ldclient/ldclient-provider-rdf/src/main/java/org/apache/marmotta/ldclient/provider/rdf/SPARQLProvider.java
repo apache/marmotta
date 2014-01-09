@@ -21,8 +21,10 @@ import com.google.common.base.Preconditions;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryResultHandlerException;
 import org.openrdf.query.TupleQueryResultHandler;
@@ -30,9 +32,6 @@ import org.openrdf.query.TupleQueryResultHandlerException;
 import org.openrdf.query.resultio.QueryResultIO;
 import org.openrdf.query.resultio.QueryResultParseException;
 import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,14 +118,15 @@ public class SPARQLProvider extends AbstractHttpProvider {
      *
      *
      *
+     *
      * @param resourceUri
-     * @param in          input stream as returned by the remote webservice
-     * @param contentType content type as returned in the HTTP headers of the remote webservice
-     * @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
+     * @param triples
+     *@param in          input stream as returned by the remote webservice
+     * @param contentType content type as returned in the HTTP headers of the remote webservice   @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
     @Override
-    public List<String> parseResponse(final String resourceUri, String requestUrl, final Repository triples, InputStream in, String contentType) throws DataRetrievalException {
+    public List<String> parseResponse(final String resourceUri, String requestUrl, final Model triples, InputStream in, String contentType) throws DataRetrievalException {
         TupleQueryResultFormat format = QueryResultIO.getParserFormatForMIMEType(contentType, TupleQueryResultFormat.SPARQL);
 
 
@@ -135,65 +135,44 @@ public class SPARQLProvider extends AbstractHttpProvider {
             QueryResultIO.parse(in,format,
                     new TupleQueryResultHandler() {
 
-                        RepositoryConnection con;
                         URI subject;
 
                         @Override
                         public void startQueryResult(List<String> bindingNames) throws TupleQueryResultHandlerException {
-                            subject = triples.getValueFactory().createURI(resourceUri);
-                            try {
-                                con = triples.getConnection();
-                            } catch (RepositoryException e) {
-                                throw new TupleQueryResultHandlerException("error while creating repository connection",e);
-                            }
+                            subject = ValueFactoryImpl.getInstance().createURI(resourceUri);
                         }
 
                         @Override
                         public void endQueryResult() throws TupleQueryResultHandlerException   {
-                            try {
-                                con.commit();
-                            } catch (RepositoryException e) {
-                                throw new TupleQueryResultHandlerException("error while committing repository connection",e);
-                            } finally {
-                                try {
-                                    con.close();
-                                } catch(RepositoryException e) {
-                                    throw new TupleQueryResultHandlerException("error while closing repository connection",e);
-                                }
-                            }
                         }
 
                         @Override
                         public void handleSolution(BindingSet bindingSet) throws TupleQueryResultHandlerException {
 
-                            try {
-                                Value predicate = bindingSet.getValue("p");
-                                Value object    = bindingSet.getValue("o");
+                            Value predicate = bindingSet.getValue("p");
+                            Value object    = bindingSet.getValue("o");
 
-                                if(predicate instanceof URI) {
-                                    con.add(triples.getValueFactory().createStatement(subject,(URI)predicate,object));
-                                } else {
-                                    log.error("ignoring binding as predicate {} is not a URI",predicate);
-                                }
-                            } catch (RepositoryException e) {
-                                throw new TupleQueryResultHandlerException("error while adding triple to repository connection",e);
+                            if(predicate instanceof URI) {
+                                triples.add(ValueFactoryImpl.getInstance().createStatement(subject,(URI)predicate,object));
+                            } else {
+                                log.error("ignoring binding as predicate {} is not a URI",predicate);
                             }
                         }
 
-						@Override
-						public void handleBoolean(boolean bool	) throws QueryResultHandlerException {
-							// TODO Auto-generated method stub
-							
-						}
+                        @Override
+                        public void handleBoolean(boolean bool	) throws QueryResultHandlerException {
+                            // TODO Auto-generated method stub
 
-						@Override
-						public void handleLinks(List<String> links) throws QueryResultHandlerException {
-							// TODO Auto-generated method stub
-							
-						}
-						
+                        }
+
+                        @Override
+                        public void handleLinks(List<String> links) throws QueryResultHandlerException {
+                            // TODO Auto-generated method stub
+
+                        }
+
                     },
-                    triples.getValueFactory());
+                    ValueFactoryImpl.getInstance());
 
             return Collections.emptyList();
         } catch (QueryResultParseException e) {

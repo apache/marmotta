@@ -17,17 +17,10 @@
 
 package org.apache.marmotta.ldclient.provider.facebook;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -44,22 +37,22 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.TreeModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.SKOS;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A provider that accesses objects exposed by the Facebook Graph API (in JSON format). The provider will map the
@@ -187,94 +180,82 @@ public class FacebookGraphProvider implements DataProvider {
      * retrieve for completing the data of the resource
      *
      * @param resourceUri
-     * @param repository  an RDF repository for storing an RDF representation of the dataset located at the remote resource.
+     * @param model       an RDF model for storing an RDF representation of the dataset located at the remote resource.
      * @param in          input stream as returned by the remote webservice
      * @param language    content language as returned in the HTTP headers of the remote webservice
      * @return a possibly empty list of URLs of additional resources to retrieve to complete the content
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
-    protected List<String> parseResponse(String resourceUri, String requestUrl, Repository repository, InputStream in, String language) throws DataRetrievalException {
+    protected List<String> parseResponse(String resourceUri, String requestUrl, Model model, InputStream in, String language) throws DataRetrievalException {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
             Map<String,Object> data = mapper.readValue(in, new TypeReference<Map<String,Object>>() { });
 
-            RepositoryConnection con = repository.getConnection();
-            try {
-                con.begin();
+            ValueFactory vf = ValueFactoryImpl.getInstance();
 
-                ValueFactory vf = repository.getValueFactory();
+            URI subject = vf.createURI(resourceUri);
 
-                URI subject = vf.createURI(resourceUri);
-
-                // add the type based on the facebook category
-                if(data.get("category") != null) {
-                    con.add(subject, RDF.TYPE, getType(data.get("category").toString()));
-                }
-
-                con.add(subject,DCTERMS.identifier,vf.createLiteral(data.get("id").toString()));
-
-                // schema:name is the facebook name (can have multiple languages)
-                con.add(subject, SCHEMA.name, vf.createLiteral(data.get("name").toString(), language));
-                con.add(subject, DCTERMS.title, vf.createLiteral(data.get("name").toString(), language));
-
-                // dct:description in case a description or about is present (all content in English)
-                if(data.get("description") != null) {
-                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("description").toString(), "en"));
-                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("description").toString(), "en"));
-                }
-                if(data.get("about") != null) {
-                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("about").toString(), "en"));
-                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("about").toString(), "en"));
-                }
-
-                // if there is genre information, add it using schema:genre and dct:subject
-                if(data.get("genre") != null) {
-                    con.add(subject,SCHEMA.genre, vf.createLiteral(data.get("genre").toString()));
-                    con.add(subject,DCTERMS.subject, vf.createLiteral(data.get("genre").toString()));
-                }
-                if(data.get("directed_by") != null) {
-                    con.add(subject,SCHEMA.director, vf.createLiteral(data.get("directed_by").toString()));
-                    con.add(subject,DCTERMS.creator, vf.createLiteral(data.get("directed_by").toString()));
-                }
-                if(data.get("studio") != null) {
-                    con.add(subject,SCHEMA.publisher, vf.createLiteral(data.get("studio").toString()));
-                    con.add(subject,DCTERMS.publisher, vf.createLiteral(data.get("studio").toString()));
-                }
-                if(data.get("plot_outline") != null) {
-                    con.add(subject,SCHEMA.description, vf.createLiteral(data.get("plot_outline").toString()));
-                    con.add(subject,DCTERMS.description, vf.createLiteral(data.get("plot_outline").toString()));
-                }
-                if(data.get("phone") != null) {
-                    con.add(subject,SCHEMA.telephone, vf.createLiteral(data.get("phone").toString()));
-                    con.add(subject,FOAF.phone, vf.createLiteral(data.get("phone").toString()));
-                }
-                if(data.get("username") != null) {
-                    con.add(subject,FOAF.nick, vf.createLiteral(data.get("username").toString()));
-                }
-
-                if(data.get("cover") != null && data.get("cover") instanceof Map && ((Map<?,?>)data.get("cover")).get("source") != null) {
-                    con.add(subject,FOAF.thumbnail, vf.createURI(((Map<?,?>) data.get("cover")).get("source").toString()));
-                }
-
-
-
-                // website
-                if(data.get("website") != null && UriUtil.validate(data.get("website").toString())) {
-                    con.add(subject, FOAF.homepage, vf.createURI(data.get("website").toString()));
-                }
-                if(data.get("link") != null) {
-                    con.add(subject, FOAF.homepage, vf.createURI(data.get("link").toString()));
-                }
-
-                con.commit();
-            } catch(RepositoryException ex) {
-                con.rollback();
-            } finally {
-                con.close();
+            // add the type based on the facebook category
+            if(data.get("category") != null) {
+                model.add(subject, RDF.TYPE, getType(data.get("category").toString()));
             }
-        } catch(RepositoryException ex) {
-            log.error("error while storing retrieved triples in repository",ex);
+
+            model.add(subject,DCTERMS.identifier,vf.createLiteral(data.get("id").toString()));
+
+            // schema:name is the facebook name (can have multiple languages)
+            model.add(subject, SCHEMA.name, vf.createLiteral(data.get("name").toString(), language));
+            model.add(subject, DCTERMS.title, vf.createLiteral(data.get("name").toString(), language));
+
+            // dct:description in case a description or about is present (all content in English)
+            if(data.get("description") != null) {
+                model.add(subject,SCHEMA.description, vf.createLiteral(data.get("description").toString(), "en"));
+                model.add(subject,DCTERMS.description, vf.createLiteral(data.get("description").toString(), "en"));
+            }
+            if(data.get("about") != null) {
+                model.add(subject,SCHEMA.description, vf.createLiteral(data.get("about").toString(), "en"));
+                model.add(subject,DCTERMS.description, vf.createLiteral(data.get("about").toString(), "en"));
+            }
+
+            // if there is genre information, add it using schema:genre and dct:subject
+            if(data.get("genre") != null) {
+                model.add(subject,SCHEMA.genre, vf.createLiteral(data.get("genre").toString()));
+                model.add(subject,DCTERMS.subject, vf.createLiteral(data.get("genre").toString()));
+            }
+            if(data.get("directed_by") != null) {
+                model.add(subject,SCHEMA.director, vf.createLiteral(data.get("directed_by").toString()));
+                model.add(subject,DCTERMS.creator, vf.createLiteral(data.get("directed_by").toString()));
+            }
+            if(data.get("studio") != null) {
+                model.add(subject,SCHEMA.publisher, vf.createLiteral(data.get("studio").toString()));
+                model.add(subject,DCTERMS.publisher, vf.createLiteral(data.get("studio").toString()));
+            }
+            if(data.get("plot_outline") != null) {
+                model.add(subject,SCHEMA.description, vf.createLiteral(data.get("plot_outline").toString()));
+                model.add(subject,DCTERMS.description, vf.createLiteral(data.get("plot_outline").toString()));
+            }
+            if(data.get("phone") != null) {
+                model.add(subject,SCHEMA.telephone, vf.createLiteral(data.get("phone").toString()));
+                model.add(subject,FOAF.phone, vf.createLiteral(data.get("phone").toString()));
+            }
+            if(data.get("username") != null) {
+                model.add(subject,FOAF.nick, vf.createLiteral(data.get("username").toString()));
+            }
+
+            if(data.get("cover") != null && data.get("cover") instanceof Map && ((Map<?,?>)data.get("cover")).get("source") != null) {
+                model.add(subject,FOAF.thumbnail, vf.createURI(((Map<?,?>) data.get("cover")).get("source").toString()));
+            }
+
+
+
+            // website
+            if(data.get("website") != null && UriUtil.validate(data.get("website").toString())) {
+                model.add(subject, FOAF.homepage, vf.createURI(data.get("website").toString()));
+            }
+            if(data.get("link") != null) {
+                model.add(subject, FOAF.homepage, vf.createURI(data.get("link").toString()));
+            }
+
         } catch (JsonMappingException e) {
             throw new DataRetrievalException("error while mapping JSON response",e);
         } catch (JsonParseException e) {
@@ -401,9 +382,7 @@ public class FacebookGraphProvider implements DataProvider {
             }
 
             if(log.isInfoEnabled()) {
-                RepositoryConnection con = handler.triples.getConnection();
-                log.info("retrieved {} triples for resource {}; expiry date: {}",new Object[] {con.size(),resourceUri,expiresDate});
-                con.close();
+                log.info("retrieved {} triples for resource {}; expiry date: {}", new Object[]{handler.triples.size(), resourceUri, expiresDate});
             }
 
             ClientResponse result = new ClientResponse(200, handler.triples);
@@ -433,7 +412,7 @@ public class FacebookGraphProvider implements DataProvider {
         private String                requestUrl;
 
         // the repository where the triples will be stored in case the data providers return them
-        private final Repository triples;
+        private final Model triples;
 
         private final Endpoint   endpoint;
 
@@ -448,8 +427,7 @@ public class FacebookGraphProvider implements DataProvider {
             this.resource = resource;
             this.endpoint = endpoint;
 
-            triples = new SailRepository(new MemoryStore());
-            triples.initialize();
+            triples = new TreeModel();
         }
 
         @Override

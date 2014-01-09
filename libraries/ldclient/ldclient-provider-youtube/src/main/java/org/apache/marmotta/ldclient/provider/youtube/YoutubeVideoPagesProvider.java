@@ -26,13 +26,10 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.URIImpl;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +41,7 @@ import java.util.List;
 /**
  * A data provider that allows to wrap the different Youtube Videos pages, linking with the actual
  * entity
- * 
+ *
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
@@ -74,16 +71,7 @@ public class YoutubeVideoPagesProvider implements DataProvider {
     @Override
     public ClientResponse retrieveResource(String resource, LDClientService client, Endpoint endpoint) throws DataRetrievalException {
 
-        Repository triples = new SailRepository(new MemoryStore());
-        RepositoryConnection conn;
-        try {
-            triples.initialize();
-            conn = triples.getConnection();
-        } catch (RepositoryException e) {
-            String msg = "Error initializing in-memory repository connection: " + e.getMessage();
-            log.error(msg);
-            throw new RuntimeException(msg, e);
-        }
+        Model model = new TreeModel();
 
         String uri = resource;
         URI objUri;
@@ -113,16 +101,10 @@ public class YoutubeVideoPagesProvider implements DataProvider {
             log.error(msg);
             throw new DataRetrievalException(msg);
         } else {
-            try {
-                conn.add(new URIImpl(uri), new URIImpl(FOAF_PRIMARY_TOPIC), new URIImpl(YoutubeVideoProvider.YOUTUBE_BASE_URI + video_id), (Resource)null);
-                // FIXME: add inverse triple, but maybe at the YoutubeVideoProvider
-                conn.close();
-            } catch (RepositoryException e) {
-                String msg = "Error adding triples: " + e.getMessage();
-                log.error(msg);
-                throw new RuntimeException(msg, e);
-            }
-            ClientResponse clientResponse = new ClientResponse(200, triples);
+            model.add(new URIImpl(uri), new URIImpl(FOAF_PRIMARY_TOPIC), new URIImpl(YoutubeVideoProvider.YOUTUBE_BASE_URI + video_id), (Resource)null);
+            // FIXME: add inverse triple, but maybe at the YoutubeVideoProvider
+
+            ClientResponse clientResponse = new ClientResponse(200, model);
             clientResponse.setExpires(DateUtils.addYears(new Date(), 10));
             return clientResponse;
         }

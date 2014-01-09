@@ -22,10 +22,8 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
+import org.openrdf.model.Model;
+import org.openrdf.model.impl.TreeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,13 +41,7 @@ public class BlockingProvider implements DataProvider {
 
     private static Logger log = LoggerFactory.getLogger(BlockingProvider.class);
 
-    private static final Repository empty_repository = new SailRepository(new MemoryStore());
-    static {
-        try {
-            empty_repository.initialize();
-        } catch (RepositoryException e) {
-        }
-    }
+    private static final Model empty_repository = new TreeModel();
 
     /**
      * Return the name of this data provider. To be used e.g. in the configuration and in log messages.

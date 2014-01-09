@@ -17,18 +17,12 @@
  */
 package org.apache.marmotta.ldclient.test.rdf;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.apache.marmotta.ldclient.services.ldclient.LDClient;
-import org.apache.marmotta.ldclient.test.helper.TestLDClient;
-import org.junit.*;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.RepositoryConnection;
-
-import java.io.InputStream;
+import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Test if the LinkedDataProvider is working properly.
@@ -36,7 +30,7 @@ import java.io.InputStream;
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
-public class TestLinkedDataProvider {
+public class TestLinkedDataProvider extends ProviderTestBase {
 
     private static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
@@ -44,18 +38,6 @@ public class TestLinkedDataProvider {
     private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
     private static final String EXAMPLE = "http://example.org/foo";
     private static final String SSL = "https://example.org/foo";
-
-    private LDClientService ldclient;
-
-    @Before
-    public void setupClient() {
-        ldclient = new TestLDClient(new LDClient());
-    }
-
-    @After
-    public void shutdownClient() {
-        ldclient.shutdown();
-    }
 
     /**
      * This method tests accessing the DBPedia Linked Data service, which uses Virtuoso and delivers RDF/XML as
@@ -67,21 +49,7 @@ public class TestLinkedDataProvider {
     @Test 
     @Ignore("dbpedia is not reliable")
     public void testDBPedia() throws Exception {
-        Assume.assumeTrue(ldclient.ping(DBPEDIA));
-        
-        ClientResponse respBerlin = ldclient.retrieveResource(DBPEDIA);
-
-        RepositoryConnection conBerlin = respBerlin.getTriples().getConnection();
-        conBerlin.begin();
-        Assert.assertTrue(conBerlin.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("dbpedia-berlin.sparql");
-        BooleanQuery testLabel = conBerlin.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        conBerlin.commit();
-        conBerlin.close();
+        testResource(DBPEDIA, "dbpedia-berlin.sparql" );
     }
 
     /**
@@ -92,21 +60,7 @@ public class TestLinkedDataProvider {
      */
     @Test
     public void testGeoNames() throws Exception {
-        Assume.assumeTrue(ldclient.ping(GEONAMES));
-        
-        ClientResponse respEmbrun = ldclient.retrieveResource(GEONAMES);
-
-        RepositoryConnection conEmbrun = respEmbrun.getTriples().getConnection();
-        conEmbrun.begin();
-        Assert.assertTrue(conEmbrun.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("geonames-embrun.sparql");
-        BooleanQuery testLabel = conEmbrun.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        conEmbrun.commit();
-        conEmbrun.close();
+        testResource(GEONAMES, "geonames-embrun.sparql");
     }
 
     /**
@@ -119,20 +73,7 @@ public class TestLinkedDataProvider {
     @Test
     @Ignore("test failing for the moment because the data returned by the service is wrong")
     public void testRDFOhloh() throws Exception {
-    	Assume.assumeTrue(ldclient.ping(MARMOTTA));
-        ClientResponse response = ldclient.retrieveResource(MARMOTTA);
-
-        RepositoryConnection conn = response.getTriples().getConnection();
-        conn.begin();
-        Assert.assertTrue(conn.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("ohloh-marmotta.sparql");
-        BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        conn.commit();
-        conn.close();
+        testResource(MARMOTTA, "ohloh-marmotta.sparql");
     }
     
     /**
@@ -144,19 +85,7 @@ public class TestLinkedDataProvider {
      */
     @Test
     public void testFoafWikier() throws Exception {
-        ClientResponse response = ldclient.retrieveResource(WIKIER);
-
-        RepositoryConnection conn = response.getTriples().getConnection();
-        conn.begin();
-        Assert.assertTrue(conn.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("foaf-wikier.sparql");
-        BooleanQuery testLabel = conn.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql, "UTF-8"));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        conn.commit();
-        conn.close();
+        testResource(WIKIER, "foaf-wikier.sparql");
     }
     
     /**
@@ -168,11 +97,7 @@ public class TestLinkedDataProvider {
     @Test(expected=DataRetrievalException.class)
     public void testNotRDF() throws Exception {
         ClientResponse response = ldclient.retrieveResource(EXAMPLE);
-        RepositoryConnection conn = response.getTriples().getConnection(); 
-        conn.begin();
-        Assert.assertTrue(conn.size() == 0);
-        conn.commit();
-        conn.close();
+        Assert.assertTrue(response.getData().size() == 0);
     }
 
     /**
@@ -184,11 +109,7 @@ public class TestLinkedDataProvider {
     @Test(expected=DataRetrievalException.class)
     public void testSSL() throws Exception {
         ClientResponse response = ldclient.retrieveResource(SSL);
-        RepositoryConnection conn = response.getTriples().getConnection();
-        conn.begin();
-        Assert.assertTrue(conn.size() == 0);
-        conn.commit();
-        conn.close();
+        Assert.assertTrue(response.getData().size() == 0);
     }
 
 }

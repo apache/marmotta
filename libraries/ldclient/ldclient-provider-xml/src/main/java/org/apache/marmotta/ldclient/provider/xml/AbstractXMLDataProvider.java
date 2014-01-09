@@ -21,33 +21,17 @@ import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
 import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.jdom2.Attribute;
-import org.jdom2.CDATA;
-import org.jdom2.Comment;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
+import org.jdom2.*;
 import org.jdom2.Namespace;
-import org.jdom2.Text;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
 import org.jdom2.xpath.XPathExpression;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Abstract implementation of a data provider based on XML documents. Implementing classes need to provide
@@ -62,7 +46,7 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
     /**
      * Return a mapping table mapping from RDF properties to XPath Value Mappers. Each entry in the map is evaluated
      * in turn; in case the XPath expression yields a result, the property is added for the processed resource.
-     * 
+     *
      * @return
      * @param requestUrl
      */
@@ -71,7 +55,7 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
 
     /**
      * Return a list of URIs that should be added as types for each processed resource.
-     * 
+     *
      * @return
      * @param resource
      */
@@ -87,22 +71,23 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
     protected Map<String,String> getNamespaceMappings() {
         return Collections.emptyMap();
     }
-    
-    
+
+
     /**
      * Parse the HTTP response entity returned by the web service call and return its contents as a Sesame RDF
      * repository. The content type returned by the web service is passed as argument to help the implementation
      * decide how to parse the data.
      *
      *
+     *
      * @param resource    the subject of the data retrieval
-     * @param in          input stream as returned by the remote webservice
-     * @param contentType content type as returned in the HTTP headers of the remote webservice
-     * @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
+     * @param triples
+     *@param in          input stream as returned by the remote webservice
+     * @param contentType content type as returned in the HTTP headers of the remote webservice   @return an RDF repository containing an RDF representation of the dataset located at the remote resource.
      * @throws java.io.IOException in case an error occurs while reading the input stream
      */
     @Override
-    public List<String> parseResponse(String resource, String requestUrl, Repository triples, InputStream in, String contentType) throws DataRetrievalException {
+    public List<String> parseResponse(String resource, String requestUrl, Model triples, InputStream in, String contentType) throws DataRetrievalException {
         // build a JDOM document
         try {
             SAXBuilder parser = new SAXBuilder(XMLReaders.NONVALIDATING);
@@ -115,8 +100,7 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
             }
 
 
-            RepositoryConnection con = triples.getConnection();
-            ValueFactory vf = con.getValueFactory();
+            ValueFactory vf = new ValueFactoryImpl();
 
             Resource subject = vf.createURI(resource);
 
@@ -142,20 +126,17 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
                     List<Value> objects = mapping.getValue().map(resource, str_value,triples.getValueFactory());
                     for(Value object : objects) {
                         Statement stmt = triples.getValueFactory().createStatement(subject,predicate,object);
-                        con.add(stmt);
+                        triples.add(stmt);
                     }
                 }
             }
 
             org.openrdf.model.URI ptype = triples.getValueFactory().createURI(Namespaces.NS_RDF + "type");
-            
+
             for(String typeUri : getTypes(vf.createURI(resource))) {
                 Resource type_resource = vf.createURI(typeUri);
-                con.add(vf.createStatement(subject, ptype, type_resource));
+                triples.add(vf.createStatement(subject, ptype, type_resource));
             }
-
-            con.commit();
-            con.close();
 
             return Collections.emptyList();
 
@@ -163,11 +144,9 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
             throw new DataRetrievalException("could not parse XML response. It is not in proper XML format",e);
         } catch (IOException e) {
             throw new DataRetrievalException("I/O error while parsing XML response",e);
-        } catch (RepositoryException e) {
-            throw new DataRetrievalException("repository error while parsing XML response",e);
         }
 
     }
 
-    
+
 }

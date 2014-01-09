@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldclient.test.rdf;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.endpoint.rdf.StanbolEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
@@ -59,7 +60,7 @@ public class TestStanbolProvider {
         String uriBerlin = "http://dbpedia.org/resource/Berlin";
         ClientResponse respBerlin = ldclient.retrieveResource(uriBerlin);
 
-        RepositoryConnection conBerlin = respBerlin.getTriples().getConnection();
+        RepositoryConnection conBerlin = ModelCommons.asRepository(respBerlin.getData()).getConnection();
         conBerlin.begin();
         Assert.assertTrue(conBerlin.size() > 0);
 

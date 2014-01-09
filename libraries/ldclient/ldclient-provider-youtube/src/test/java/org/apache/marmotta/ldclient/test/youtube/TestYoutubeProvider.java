@@ -17,64 +17,15 @@
  */
 package org.apache.marmotta.ldclient.test.youtube;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
-import org.apache.marmotta.ldclient.model.ClientResponse;
-import org.apache.marmotta.ldclient.services.ldclient.LDClient;
-import org.apache.marmotta.ldclient.test.helper.TestLDClient;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
+import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.io.StringWriter;
 
 /**
  * Add file description here!
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public class TestYoutubeProvider {
-
-    private LDClientService ldclient;
-
-    private static Logger log = LoggerFactory.getLogger(TestYoutubeProvider.class);
-
-    @Before
-    public void setupClient() {
-        ldclient = new TestLDClient(new LDClient());
-    }
-
-    @After
-    public void shutdownClient() {
-        ldclient.shutdown();
-    }
-
-    final Logger logger =
-            LoggerFactory.getLogger(this.getClass());
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
-        @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
-        }
-    };
+public class TestYoutubeProvider extends ProviderTestBase {
 
     /**
      * This method tests accessing the Youtube Video service via the GData API.
@@ -83,31 +34,7 @@ public class TestYoutubeProvider {
      */
     @Test
     public void testVideo() throws Exception {
-
-        String uriLMFVideo = "http://youtu.be/_3BmNcHW4Ew";
-
-        Assume.assumeTrue(ldclient.ping(uriLMFVideo));
-
-        ClientResponse respLMFVideo = ldclient.retrieveResource(uriLMFVideo);
-
-        RepositoryConnection conLMFVideo = respLMFVideo.getTriples().getConnection();
-        conLMFVideo.begin();
-        Assert.assertTrue(conLMFVideo.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("youtube-lmf-video.sparql");
-        BooleanQuery testLabel = conLMFVideo.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            conLMFVideo.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
-        }
-
-        conLMFVideo.commit();
-        conLMFVideo.close();
+        testResource("http://youtu.be/_3BmNcHW4Ew", "youtube-lmf-video.sparql");
     }
 
     /**
@@ -117,31 +44,7 @@ public class TestYoutubeProvider {
      */
     @Test
     public void testVideoPage() throws Exception {
-
-        String uriLMFVideo = "http://www.youtube.com/watch?v=_3BmNcHW4Ew";
-
-        Assume.assumeTrue(ldclient.ping(uriLMFVideo));
-
-        ClientResponse respLMFVideo = ldclient.retrieveResource(uriLMFVideo);
-
-        RepositoryConnection conLMFVideo = respLMFVideo.getTriples().getConnection();
-        conLMFVideo.begin();
-        Assert.assertTrue(conLMFVideo.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("youtube-lmf-video-page.sparql");
-        BooleanQuery testLabel = conLMFVideo.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            conLMFVideo.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
-        }
-
-        conLMFVideo.commit();
-        conLMFVideo.close();
+        testResource("http://www.youtube.com/watch?v=_3BmNcHW4Ew", "youtube-lmf-video-page.sparql");
     }
 
     /**
@@ -151,32 +54,7 @@ public class TestYoutubeProvider {
      */
     @Test
     public void testChannel() throws Exception {
-
-        String uriChannel = "http://www.youtube.com/user/dieSpringer";
-
-        Assume.assumeTrue(ldclient.ping("http://gdata.youtube.com/feeds/api/users/dieSpringer/uploads"));
-
-        ClientResponse respChannel = ldclient.retrieveResource(uriChannel);
-
-        RepositoryConnection conChannel = respChannel.getTriples().getConnection();
-        conChannel.begin();
-        Assert.assertTrue(conChannel.size() > 0);
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("youtube-channel.sparql");
-        BooleanQuery testLabel = conChannel.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            conChannel.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
-        }
-
-        conChannel.commit();
-        conChannel.close();
+        testResource("http://www.youtube.com/user/dieSpringer", "youtube-channel.sparql");
     }
 
     /**
@@ -186,34 +64,7 @@ public class TestYoutubeProvider {
      */
     @Test
     public void testPlaylist() throws Exception {
-
-        String uriPlaylist = "http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g";
-
-        Assume.assumeTrue(ldclient.ping("http://gdata.youtube.com/feeds/api/playlists/FLsrORDOimfQf42SDGJgRY4g"));
-
-        ClientResponse respPlaylist = ldclient.retrieveResource(uriPlaylist);
-
-        RepositoryConnection conPlaylist = respPlaylist.getTriples().getConnection();
-        conPlaylist.begin();
-        Assert.assertTrue(conPlaylist.size() > 0);
-
-        conPlaylist.export(Rio.createWriter(RDFFormat.TURTLE, System.out));
-
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream("youtube-playlist.sparql");
-        BooleanQuery testLabel = conPlaylist.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
-
-
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            conPlaylist.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
-        }
-
-        conPlaylist.commit();
-        conPlaylist.close();
+        testResource("http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g", "youtube-playlist.sparql");
     }
 
 }
