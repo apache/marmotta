@@ -164,6 +164,13 @@
 
         <!-- Testing -->
         <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <artifactId>junit</artifactId>
             <groupId>junit</groupId>
             <scope>test</scope>

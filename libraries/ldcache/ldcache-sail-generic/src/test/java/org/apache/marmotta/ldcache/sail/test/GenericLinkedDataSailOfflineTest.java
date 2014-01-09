@@ -17,13 +17,13 @@
 package org.apache.marmotta.ldcache.sail.test;
 
 import com.google.common.io.Files;
-import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.Iterations;
 import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
 import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
-import org.apache.marmotta.ldcache.sail.test.dummy.DummyEndpoint;
+import org.apache.marmotta.ldcache.services.test.dummy.DummyEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -39,8 +39,6 @@ import org.openrdf.sail.memory.MemoryStore;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.allOf;
@@ -70,7 +68,7 @@ public class GenericLinkedDataSailOfflineTest {
 
     @Before
     public void initDatabase() throws RepositoryException {
-        cacheFilter = new UriPrefixFilter("http://remote/");
+        cacheFilter = new UriPrefixFilter("http://localhost/");
 
         ClientConfiguration config = new ClientConfiguration();
         config.addEndpoint(new DummyEndpoint());
@@ -98,15 +96,15 @@ public class GenericLinkedDataSailOfflineTest {
      */
     @Test
     public void testCachedResources() throws Exception {
-        String uri1 = "http://remote/resource1";
-        String uri2 = "http://remote/resource2";
-        String uri3 = "http://remote/resource3";
+        String uri1 = "http://localhost/resource1";
+        String uri2 = "http://localhost/resource2";
+        String uri3 = "http://localhost/resource3";
 
         RepositoryConnection con = repository.getConnection();
         try {
             con.begin();
 
-            List<Statement> list1 = asList(con.getStatements(con.getValueFactory().createURI(uri1), null, null, true));
+            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri1), null, null, true));
 
             Assert.assertEquals(3,list1.size());
             Assert.assertThat(list1, allOf(
@@ -119,7 +117,7 @@ public class GenericLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list2 = asList(con.getStatements(con.getValueFactory().createURI(uri2), null, null, true));
+            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri2), null, null, true));
 
             Assert.assertEquals(2, list2.size());
             Assert.assertThat(list2, allOf(
@@ -131,7 +129,7 @@ public class GenericLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list3 = asList(con.getStatements(con.getValueFactory().createURI(uri3), null, null, true));
+            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri3), null, null, true));
 
             Assert.assertEquals(2, list3.size());
             Assert.assertThat(list3, allOf(
@@ -145,28 +143,6 @@ public class GenericLinkedDataSailOfflineTest {
             con.rollback();
         } finally {
             con.close();
-        }
-    }
-
-    /**
-     * Workaround for https://openrdf.atlassian.net/browse/SES-1702 in Sesame 2.7.0-beta1
-     * @param <E>
-     * @return
-     */
-    public static <E,X extends Exception> List<E> asList(CloseableIteration<E,X> result) throws RepositoryException {
-        ArrayList<E> collection = new ArrayList<E>();
-        try {
-            try {
-                while (result.hasNext()) {
-                    collection.add(result.next());
-                }
-
-                return collection;
-            } finally {
-                result.close();
-            }
-        } catch(Throwable ex) {
-            throw new RepositoryException(ex);
         }
     }
 

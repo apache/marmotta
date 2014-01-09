@@ -83,6 +83,13 @@
         <!-- Testing -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldcache-backend-file</artifactId>
             <scope>test</scope>
         </dependency>

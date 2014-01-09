@@ -177,6 +177,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-turtle</artifactId>
             <scope>test</scope>
