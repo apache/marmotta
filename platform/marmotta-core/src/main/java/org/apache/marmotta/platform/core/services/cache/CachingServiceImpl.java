@@ -103,6 +103,8 @@ public class CachingServiceImpl implements CachingService {
                             .numOwners(2)
                             .numSegments(40)
                             .consistentHashFactory(new SyncConsistentHashFactory())
+                    .stateTransfer()
+                        .fetchInMemoryState(false)
                     .eviction()
                         .strategy(EvictionStrategy.LIRS)
                         .maxEntries(10000)

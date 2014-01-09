@@ -28,8 +28,10 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -182,6 +184,38 @@ public class LDCache implements LDCachingService {
         } catch(RepositoryException ex) {
             ex.printStackTrace(); // TODO: handle error
         }
+
+    }
+
+
+    /**
+     * Return the triples for the linked data resource given as argument. Will transparently retrieve triples from
+     * remote servers if needed or retrieve them from the cache.
+     *
+     * @param resource
+     * @return
+     * @throws RepositoryException
+     */
+    public Model get(URI resource) throws RepositoryException {
+        refreshResource(resource,false);
+
+        Model m = new TreeModel();
+
+        LDCachingConnection c = getCacheConnection(resource.stringValue());
+        try {
+            c.begin();
+            RepositoryResult<Statement> triples = c.getStatements(resource,null,null,false);
+            try {
+                while(triples.hasNext()) {
+                    m.add(triples.next());
+                }
+            } finally {
+                triples.close();
+            }
+        } finally {
+            c.close();
+        }
+        return m;
 
     }
 
