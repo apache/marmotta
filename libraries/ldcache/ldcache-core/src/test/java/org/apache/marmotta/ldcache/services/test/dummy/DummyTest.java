@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldcache.services.test.dummy;
 
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
@@ -49,7 +50,7 @@ public class DummyTest {
     @Test
     public void testDummyProvider() throws Exception {
         ClientResponse resp1 = ldclient.retrieveResource("http://localhost/resource1");
-        RepositoryConnection con1 = resp1.getTriples().getConnection();
+        RepositoryConnection con1 = ModelCommons.asRepository(resp1.getData()).getConnection();
         try {
             con1.begin();
             Assert.assertEquals(3, con1.size());
@@ -59,7 +60,7 @@ public class DummyTest {
         }
 
         ClientResponse resp2 = ldclient.retrieveResource("http://localhost/resource2");
-        RepositoryConnection con2 = resp2.getTriples().getConnection();
+        RepositoryConnection con2 = ModelCommons.asRepository(resp2.getData()).getConnection();
         try {
             con2.begin();
             Assert.assertEquals(2, con2.size());
@@ -69,7 +70,7 @@ public class DummyTest {
         }
 
         ClientResponse resp3 = ldclient.retrieveResource("http://localhost/resource3");
-        RepositoryConnection con3 = resp3.getTriples().getConnection();
+        RepositoryConnection con3 = ModelCommons.asRepository(resp3.getData()).getConnection();
         try {
             con3.begin();
             Assert.assertEquals(2, con3.size());

@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap;
 
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
@@ -57,7 +58,7 @@ public class TestLdapFoafProvider {
         config.addEndpoint(endpoint); 
         LDClientService ldclient = new TestLDClient(new LDClient(config));
         ClientResponse response = ldclient.retrieveResource(resource);
-        RepositoryConnection connection = response.getTriples().getConnection();
+        RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
         connection.begin();
         Assert.assertTrue(connection.size() > 0);
         connection.commit();
