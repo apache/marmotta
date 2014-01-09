@@ -19,6 +19,7 @@ package org.apache.marmotta.ldcache.model;
 
 import org.openrdf.model.URI;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Date;
  * <p/>
  * User: Sebastian Schaffert
  */
-public class CacheEntry {
+public class CacheEntry implements Serializable {
 
     /**
      * The URI resource managed by this cache entry.

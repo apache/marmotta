@@ -1514,6 +1514,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
+                <artifactId>ldcache-backend-infinispan</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldcache-sail-generic</artifactId>
                 <version>${project.version}</version>
             </dependency>

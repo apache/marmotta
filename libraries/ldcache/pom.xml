@@ -59,5 +59,6 @@
         <module>ldcache-sail-generic</module>
         <module>ldcache-backend-kiwi</module>
         <module>ldcache-backend-file</module>
+        <module>ldcache-backend-infinispan</module>
     </modules>
 </project>
