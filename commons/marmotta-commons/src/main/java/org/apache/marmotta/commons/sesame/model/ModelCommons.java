@@ -126,7 +126,7 @@ public class ModelCommons {
      * @throws IOException
      * @throws RDFParseException
      */
-    public static <X extends Exception> void add(Model model, CloseableIteration<Statement,X> triples, Predicate<Statement>... filters) throws X {
+    public static <X extends Exception> void add(Model model, CloseableIteration<? extends Statement,X> triples, Predicate<Statement>... filters) throws X {
         try {
             rloop: while(triples.hasNext()) {
                 Statement st = triples.next();

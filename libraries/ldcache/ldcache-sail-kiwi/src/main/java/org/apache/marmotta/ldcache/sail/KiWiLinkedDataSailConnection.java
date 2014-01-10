@@ -18,14 +18,9 @@
 package org.apache.marmotta.ldcache.sail;
 
 import info.aduna.iteration.CloseableIteration;
-
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.ldcache.services.LDCache;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.openrdf.model.*;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
@@ -37,11 +32,11 @@ import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
  */
 public class KiWiLinkedDataSailConnection extends NotifyingSailConnectionWrapper {
 
-    private LDCache ldcache;
+    private LDCacheNG ldcache;
 
     private SesameFilter<Resource> acceptor;
 
-    public KiWiLinkedDataSailConnection(NotifyingSailConnection wrappedCon, LDCache ldcache, SesameFilter<Resource> acceptor) {
+    public KiWiLinkedDataSailConnection(NotifyingSailConnection wrappedCon, LDCacheNG ldcache, SesameFilter<Resource> acceptor) {
         super(wrappedCon);
 
         this.ldcache = ldcache;
@@ -59,7 +54,7 @@ public class KiWiLinkedDataSailConnection extends NotifyingSailConnectionWrapper
     @Override
     public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
         if(subj != null && isAcceptable(subj)) {
-            ldcache.refreshResource((URI)subj,false);
+            ldcache.refresh((URI) subj);
         }
 
         // the refreshed resources will anyways be stored in the same triple store, so we can simply delegate the query

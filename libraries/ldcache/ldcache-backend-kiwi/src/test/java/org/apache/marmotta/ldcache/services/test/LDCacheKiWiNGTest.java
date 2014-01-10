@@ -129,7 +129,7 @@ public class LDCacheKiWiNGTest extends BaseLDCacheNGTest {
     protected LDCachingBackendNG createBackend() {
         try {
             KiWiStore store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
-            Repository repository = new SailRepository(store);
+            final Repository repository = new SailRepository(store);
             repository.initialize();
 
             LDCachingKiWiBackendNG backend = new LDCachingKiWiBackendNG(repository, CACHE_CONTEXT) {
@@ -141,7 +141,7 @@ public class LDCacheKiWiNGTest extends BaseLDCacheNGTest {
 
                     try {
                         persistence.dropDatabase();
-                        getStore(repository).getPersistence().dropDatabase();
+                        store.getPersistence().dropDatabase();
 
                         super.shutdown();
 

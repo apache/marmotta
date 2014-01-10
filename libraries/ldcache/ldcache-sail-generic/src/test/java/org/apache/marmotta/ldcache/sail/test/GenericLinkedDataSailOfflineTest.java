@@ -21,7 +21,7 @@ import info.aduna.iteration.Iterations;
 import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
-import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackendNG;
 import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
 import org.apache.marmotta.ldcache.services.test.dummy.DummyEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
@@ -60,7 +60,7 @@ public class GenericLinkedDataSailOfflineTest {
 
     private Repository repository;
 
-    private LDCachingFileBackend backend;
+    private LDCachingFileBackendNG backend;
 
     private GenericLinkedDataSail lsail;
 
@@ -76,7 +76,7 @@ public class GenericLinkedDataSailOfflineTest {
 
         tmpDirectory = Files.createTempDir();
 
-        backend = new LDCachingFileBackend(tmpDirectory);
+        backend = new LDCachingFileBackendNG(tmpDirectory);
         lsail = new GenericLinkedDataSail(new MemoryStore(),backend, cacheFilter, config);
         repository = new SailRepository(lsail);
         repository.initialize();

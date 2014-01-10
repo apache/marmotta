@@ -18,19 +18,13 @@
 package org.apache.marmotta.ldcache.sail;
 
 import info.aduna.iteration.CloseableIteration;
-
-import info.aduna.iteration.ExceptionConvertingIteration;
+import info.aduna.iteration.CloseableIteratorIteration;
 import info.aduna.iteration.UnionIteration;
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.ldcache.api.LDCachingConnection;
-import org.apache.marmotta.ldcache.services.LDCache;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryException;
+import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.openrdf.model.*;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
@@ -49,15 +43,15 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
 
     private static Logger log = LoggerFactory.getLogger(GenericLinkedDataSailConnection.class);
 
-    private final LDCache ldcache;
+    private final LDCacheNG ldcache;
     private final SesameFilter<Resource> acceptForCaching;
 
-    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCache ldcache) {
+    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCacheNG ldcache) {
         this(connection, ldcache, new AlwaysTrueFilter<Resource>());
     }
 
 
-    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCache ldcache, SesameFilter<Resource> acceptForCaching) {
+    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCacheNG ldcache, SesameFilter<Resource> acceptForCaching) {
         super(connection);
         this.ldcache = ldcache;
         this.acceptForCaching = acceptForCaching;
@@ -81,34 +75,13 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
 
         if (accept(subj)) {
             log.debug("Refreshing resource: {}", subj.stringValue());
-            ldcache.refreshResource((URI) subj, false);
+            final Model cached = ldcache.get((URI)subj);
 
-            try {
-                final LDCachingConnection cachingConnection = ldcache.getCacheConnection(subj.stringValue());
-                // join the results of the cache connection and the wrapped connection in a single result
-                return new UnionIteration<Statement, SailException>(
-                        new ExceptionConvertingIteration<Statement, SailException>(cachingConnection.getStatements(subj,pred,obj,includeInferred, contexts)) {
-                            @Override
-                            protected SailException convert(Exception e) {
-                                return new SailException("error while accessing cache connection",e);
-                            }
-
-                            @Override
-                            protected void handleClose() throws SailException {
-                                super.handleClose();
-
-                                try {
-                                    cachingConnection.close();
-                                } catch (RepositoryException e) {
-                                    throw new SailException("error while closing cache connection",e);
-                                }
-                            }
-                        },
-                        super.getStatements(subj, pred, obj, includeInferred, contexts)
-                );
-            } catch (RepositoryException e) {
-                throw new SailException("error while accessing cache connection",e);
-            }
+            // join the results of the cache connection and the wrapped connection in a single result
+            return new UnionIteration<Statement, SailException>(
+                    new CloseableIteratorIteration<Statement,SailException>(cached.iterator()),
+                    super.getStatements(subj, pred, obj, includeInferred, contexts)
+            );
         } else {
             return super.getStatements(subj, pred, obj, includeInferred, contexts);
         }

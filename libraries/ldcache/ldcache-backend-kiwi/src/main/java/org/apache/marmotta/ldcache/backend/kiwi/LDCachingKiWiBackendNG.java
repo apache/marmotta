@@ -27,14 +27,15 @@ import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersist
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.base.RepositoryWrapper;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.Sail;
+import org.openrdf.sail.SailConnection;
+import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
     /**
      * Repository API access to the cache data
      */
-    protected Repository repository;
+    protected KiWiStore store;
 
 
     /**
@@ -75,7 +76,19 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
      */
     public LDCachingKiWiBackendNG(Repository repository, String cacheContext) {
         this.cacheContext = cacheContext;
-        this.repository   = repository;
+        this.store   = getStore(repository);
+        this.persistence  = new LDCachingKiWiPersistence(getStore(repository).getPersistence());
+    }
+
+    /**
+     * Create a new LDCache KiWi backend using the given store and context for caching triples and storing cache
+     * metadata via JDBC in the database.
+     *
+     * @param cacheContext
+     */
+    public LDCachingKiWiBackendNG(Sail repository, String cacheContext) {
+        this.cacheContext = cacheContext;
+        this.store   = getStore(repository);
         this.persistence  = new LDCachingKiWiPersistence(getStore(repository).getPersistence());
     }
 
@@ -124,16 +137,16 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
 
                 // if entry exists, load triples for the resource from the cache context of the repository
                 if(ce != null) {
-                    RepositoryConnection con = repository.getConnection();
+                    SailConnection con = store.getConnection();
                     try {
                         con.begin();
 
                         Model triples = new TreeModel();
-                        ModelCommons.add(triples,con.getStatements(resource,null,null,true,con.getValueFactory().createURI(cacheContext)));
+                        ModelCommons.add(triples,con.getStatements(resource,null,null,true,store.getValueFactory().createURI(cacheContext)));
                         ce.setTriples(triples);
 
                         con.commit();
-                    } catch(RepositoryException ex) {
+                    } catch(SailException ex) {
                         con.rollback();
                     } finally {
                         con.close();
@@ -143,7 +156,7 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
 
             }
 
-        } catch (RepositoryException | SQLException e) {
+        } catch (SailException | SQLException e) {
             log.error("could not retrieve cached triples from repository",e);
         }
 
@@ -165,19 +178,21 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
                 dbcon.removeCacheEntry(resource.stringValue());
 
                 // update triples in cache
-                RepositoryConnection con = repository.getConnection();
+                SailConnection con = store.getConnection();
                 try {
                     con.begin();
 
-                    con.remove(resource,null,null,con.getValueFactory().createURI(cacheContext));
-                    con.add(entry.getTriples(),con.getValueFactory().createURI(cacheContext));
+                    con.removeStatements(resource, null, null, store.getValueFactory().createURI(cacheContext));
+                    for(Statement stmt : entry.getTriples()) {
+                        con.addStatement(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), store.getValueFactory().createURI(cacheContext));
+                    }
 
                     con.commit();
 
-                    entry.setResource(con.getValueFactory().createURI(resource.stringValue()));
+                    entry.setResource(store.getValueFactory().createURI(resource.stringValue()));
 
                     dbcon.storeCacheEntry(entry);
-                } catch(RepositoryException ex) {
+                } catch(SailException ex) {
                     con.rollback();
                 } finally {
                     con.close();
@@ -185,7 +200,7 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
 
             }
 
-        } catch (RepositoryException | SQLException e) {
+        } catch (SailException | SQLException e) {
             log.error("could not retrieve cached triples from repository",e);
         }
 
@@ -205,14 +220,14 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
                 dbcon.removeCacheEntry(resource.stringValue());
 
                 // update triples in cache
-                RepositoryConnection con = repository.getConnection();
+                SailConnection con = store.getConnection();
                 try {
                     con.begin();
 
-                    con.remove(resource, null, null, con.getValueFactory().createURI(cacheContext));
+                    con.removeStatements(resource, null, null, store.getValueFactory().createURI(cacheContext));
 
                     con.commit();
-                } catch(RepositoryException ex) {
+                } catch(SailException ex) {
                     con.rollback();
                 } finally {
                     con.close();
@@ -220,8 +235,8 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
 
             }
 
-        } catch (RepositoryException | SQLException e) {
-            log.error("could not retrieve cached triples from repository",e);
+        } catch (SailException | SQLException e) {
+            log.error("could not remove cached triples from repository",e);
         }
     }
 
@@ -240,14 +255,14 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
                 }
 
                 // update triples in cache
-                RepositoryConnection con = repository.getConnection();
+                SailConnection con = store.getConnection();
                 try {
                     con.begin();
 
-                    con.remove((Resource)null,null,null,con.getValueFactory().createURI(cacheContext));
+                    con.removeStatements((Resource) null, null, null, store.getValueFactory().createURI(cacheContext));
 
                     con.commit();
-                } catch(RepositoryException ex) {
+                } catch(SailException ex) {
                     con.rollback();
                 } finally {
                     con.close();
@@ -255,8 +270,8 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
 
             }
 
-        } catch (RepositoryException | SQLException e) {
-            log.error("could not retrieve cached triples from repository",e);
+        } catch (SailException | SQLException e) {
+            log.error("could not remove cached triples from repository",e);
         }
 
     }
@@ -273,7 +288,7 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
         }
 
         // register cache context in database
-        repository.getValueFactory().createURI(cacheContext);
+        store.getValueFactory().createURI(cacheContext);
 
     }
 
@@ -282,5 +297,9 @@ public class LDCachingKiWiBackendNG implements LDCachingBackendNG {
      */
     @Override
     public void shutdown() {
+    }
+
+    public LDCachingKiWiPersistence getPersistence() {
+        return persistence;
     }
 }

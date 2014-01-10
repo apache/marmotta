@@ -19,9 +19,9 @@ package org.apache.marmotta.ldcache.sail;
 
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackend;
+import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackendNG;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
-import org.apache.marmotta.ldcache.services.LDCache;
+import org.apache.marmotta.ldcache.services.LDCacheNG;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.openrdf.model.Resource;
 import org.openrdf.sail.NotifyingSail;
@@ -39,9 +39,9 @@ public class KiWiLinkedDataSail extends NotifyingSailWrapper {
 
     private KiWiStore store;
 
-    private LDCachingKiWiBackend backend;
+    private LDCachingKiWiBackendNG backend;
 
-    private LDCache ldcache;
+    private LDCacheNG ldcache;
 
     private SesameFilter<Resource> acceptor;
 
@@ -88,10 +88,10 @@ public class KiWiLinkedDataSail extends NotifyingSailWrapper {
     public void initialize() throws SailException {
         super.initialize();
 
-        backend = new LDCachingKiWiBackend(store, cache_context);
+        backend = new LDCachingKiWiBackendNG(store, cache_context);
         backend.initialize();
 
-        ldcache = new LDCache(config,backend);
+        ldcache = new LDCacheNG(config,backend);
 
     }
 
@@ -126,11 +126,11 @@ public class KiWiLinkedDataSail extends NotifyingSailWrapper {
         }
     }
 
-    public LDCachingKiWiBackend getBackend() {
+    public LDCachingKiWiBackendNG getBackend() {
         return backend;
     }
 
-    public LDCache getLDCache() {
+    public LDCacheNG getLDCache() {
         return ldcache;
     }
 }

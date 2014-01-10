@@ -22,7 +22,7 @@ import org.apache.marmotta.commons.sesame.filter.NotFilter;
 import org.apache.marmotta.commons.sesame.filter.OneOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.ldcache.sail.KiWiLinkedDataSail;
-import org.apache.marmotta.ldcache.services.LDCache;
+import org.apache.marmotta.ldcache.services.LDCacheNG;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
@@ -85,7 +85,7 @@ public class KiWiLDCacheSailProvider extends LDCacheSailProvider {
      */
     public LDClientService getLDClient() {
         if(sail != null) {
-            return sail.getLDCache().getLDClient();
+            return sail.getLDCache().getClient();
         } else {
             return null;
         }
@@ -95,7 +95,7 @@ public class KiWiLDCacheSailProvider extends LDCacheSailProvider {
      * Return the caching backend used by the caching system (e.g. for debugging)
      * @return
      */
-    public LDCache getLDCache() {
+    public LDCacheNG getLDCache() {
         if(sail != null) {
             return sail.getLDCache();
         } else {

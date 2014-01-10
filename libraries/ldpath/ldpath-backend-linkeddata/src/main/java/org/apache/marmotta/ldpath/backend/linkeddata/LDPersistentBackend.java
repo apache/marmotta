@@ -19,7 +19,7 @@ package org.apache.marmotta.ldpath.backend.linkeddata;
 
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackendNG;
 import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.apache.marmotta.ldpath.backend.sesame.SesameRepositoryBackend;
@@ -43,7 +43,7 @@ import java.io.IOException;
 public class LDPersistentBackend extends SesameRepositoryBackend {
     private static final Logger log = LoggerFactory.getLogger(LDPersistentBackend.class);
 
-    private LDCachingFileBackend backend;
+    private LDCachingFileBackendNG backend;
 
     private GenericLinkedDataSail sail;
 
@@ -72,7 +72,7 @@ public class LDPersistentBackend extends SesameRepositoryBackend {
         try {
             ClientConfiguration config = new ClientConfiguration();
 
-            backend = new LDCachingFileBackend(dataDirectory);
+            backend = new LDCachingFileBackendNG(dataDirectory);
             sail = new GenericLinkedDataSail(new MemoryStore(),backend, cacheFilter, config);
             Repository repository = new SailRepository(sail);
             repository.initialize();
