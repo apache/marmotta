@@ -19,9 +19,11 @@ package org.apache.marmotta.ldcache.services;
 
 import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.commons.locking.ObjectLocks;
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.api.LDCachingConnection;
 import org.apache.marmotta.ldcache.api.LDCachingService;
+import org.apache.marmotta.ldcache.api.LDCachingServiceNG;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
@@ -29,12 +31,10 @@ import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.openrdf.model.Model;
-import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public class LDCache implements LDCachingService {
+public class LDCache implements LDCachingService, LDCachingServiceNG {
 
     private static Logger log = LoggerFactory.getLogger(LDCache.class);
 
@@ -152,6 +152,22 @@ public class LDCache implements LDCachingService {
         }
     }
 
+
+    /**
+     * Return true in case the cache contains an entry for the resource given as argument.
+     *
+     * @param resource the resource to check
+     * @return true in case the resource is contained in the cache
+     */
+    @Override
+    public boolean contains(URI resource) {
+        try {
+            return isCached(resource.stringValue());
+        } catch (RepositoryException e) {
+            return false;
+        }
+    }
+
     /**
      * Manually expire the caching information for the given resource. The resource will be
      * re-retrieved upon the next access.
@@ -196,27 +212,57 @@ public class LDCache implements LDCachingService {
      * @return
      * @throws RepositoryException
      */
-    public Model get(URI resource) throws RepositoryException {
+    public Model get(URI resource, RefreshOpts... options)  {
         refreshResource(resource,false);
 
         Model m = new TreeModel();
 
-        LDCachingConnection c = getCacheConnection(resource.stringValue());
         try {
-            c.begin();
-            RepositoryResult<Statement> triples = c.getStatements(resource,null,null,false);
+            LDCachingConnection c = getCacheConnection(resource.stringValue());
             try {
-                while(triples.hasNext()) {
-                    m.add(triples.next());
-                }
+                c.begin();
+
+                ModelCommons.add(m, c.getStatements(resource,null,null,false));
+
+                c.commit();
             } finally {
-                triples.close();
+                c.close();
             }
-        } finally {
-            c.close();
+        } catch (RepositoryException e) {
+            log.error("error adding cached triples to model:",e);
         }
         return m;
 
+    }
+
+
+    /**
+     * Refresh the resource passed as argument. If the resource is not yet cached or the cache entry is
+     * expired or refreshing is forced, the remote resource is retrieved using LDClient and the result stored
+     * in the cache. Otherwise the method does nothing.
+     *
+     * @param resource the resource to refresh
+     * @param options  options for refreshing
+     */
+    @Override
+    public void refresh(URI resource, RefreshOpts... options) {
+        boolean force = false;
+        for(RefreshOpts opt : options) {
+            if(opt == RefreshOpts.FORCE) {
+                force = true;
+            }
+        }
+
+        refreshResource(resource, force);
+    }
+
+
+    /**
+     * Manually expire all cached resources.
+     */
+    @Override
+    public void clear() {
+        expireAll();
     }
 
     /**

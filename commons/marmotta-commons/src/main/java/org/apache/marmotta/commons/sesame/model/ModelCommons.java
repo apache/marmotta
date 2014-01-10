@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.commons.sesame.model;
 
+import info.aduna.iteration.CloseableIteration;
 import javolution.util.function.Predicate;
 import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
@@ -24,7 +25,6 @@ import org.openrdf.model.impl.TreeModel;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.RDFHandlerBase;
@@ -73,6 +73,7 @@ public class ModelCommons {
      * @param in      input stream to read the statements from
      * @param baseURI base URI to resolve relative URIs
      * @param format  RDF format of the data in the input stream
+     * @param filters an optional list of filters; if any of the filters rejects the statement it is not added
      * @throws IOException
      * @throws RDFParseException
      */
@@ -98,6 +99,7 @@ public class ModelCommons {
      * @param in      reader to read the statements from
      * @param baseURI base URI to resolve relative URIs
      * @param format  RDF format of the data in the reader
+     * @param filters an optional list of filters; if any of the filters rejects the statement it is not added
      * @throws IOException
      * @throws RDFParseException
      */
@@ -113,6 +115,35 @@ public class ModelCommons {
         }
 
     }
+
+
+    /**
+     * Add statements from the given statement iteration to the given model.
+     *
+     * @param model   the model to add the statements to
+     * @param triples a closeable iteration of triples to add (e.g. a RepositoryResult<Statement>)
+     * @param filters an optional list of filters; if any of the filters rejects the statement it is not added
+     * @throws IOException
+     * @throws RDFParseException
+     */
+    public static <X extends Exception> void add(Model model, CloseableIteration<Statement,X> triples, Predicate<Statement>... filters) throws X {
+        try {
+            rloop: while(triples.hasNext()) {
+                Statement st = triples.next();
+
+                for(Predicate<Statement> f : filters) {
+                    if(!f.test(st)) {
+                        continue rloop;
+                    }
+                }
+
+                model.add(st);
+            }
+        } finally {
+            triples.close();
+        }
+    }
+
 
 
     /**
@@ -174,22 +205,7 @@ public class ModelCommons {
         try {
             con.begin();
 
-            RepositoryResult<Statement> r = con.getStatements(null,null,null,true);
-            try {
-                rloop: while(r.hasNext()) {
-                    Statement st = r.next();
-
-                    for(Predicate<Statement> f : filters) {
-                        if(!f.test(st)) {
-                            continue rloop;
-                        }
-                    }
-
-                    model.add(st);
-                }
-            } finally {
-                r.close();
-            }
+            add(model,con.getStatements(null,null,null,true), filters);
 
             con.commit();
         } catch(RepositoryException ex) {

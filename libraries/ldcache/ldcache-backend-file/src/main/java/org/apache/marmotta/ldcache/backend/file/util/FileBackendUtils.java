@@ -17,21 +17,16 @@
 
 package org.apache.marmotta.ldcache.backend.file.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
+import org.apache.marmotta.commons.util.HashUtils;
+import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.apache.marmotta.ldcache.model.CacheEntryNG;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+
+import java.io.*;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.marmotta.commons.util.HashUtils;
-import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
 
 public class FileBackendUtils {
 
@@ -108,8 +103,27 @@ public class FileBackendUtils {
 				br.close();
 			}
 	}
-	
-	public static void writeCacheEntry(CacheEntry ce, File baseDir) throws IOException {
+
+    public static CacheEntryNG readCacheEntryNG(File metaFile, ValueFactory valueFactory) throws IOException {
+        BufferedReader br;
+        br = new BufferedReader(new FileReader(metaFile));
+        try {
+            final CacheEntryNG ce = new CacheEntryNG();
+
+            ce.setResource(valueFactory.createURI(br.readLine()));
+            ce.setLastRetrieved(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
+            ce.setExpiryDate(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
+            ce.setUpdateCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));
+            ce.setTripleCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));
+
+            return ce;
+        } finally {
+            br.close();
+        }
+    }
+
+
+    public static void writeCacheEntry(CacheEntry ce, File baseDir) throws IOException {
 		File metaFile = getMetaFile(ce.getResource(), baseDir);
 
         // ensure that the directory where we write the file exists

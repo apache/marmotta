@@ -96,7 +96,7 @@ public class LDCachingInfinispanRepositoryConnection extends RepositoryConnectio
      */
     @Override
     public void addCacheEntry(URI resource, CacheEntry entry) throws RepositoryException {
-        backend.getEntryCache().putAsync(resource.stringValue(),entry,entry.getExpiryDate().getTime() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        backend.getEntryCache().put(resource.stringValue(),entry,entry.getExpiryDate().getTime() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
 
         Model model = new TreeModel();
 
@@ -109,7 +109,7 @@ public class LDCachingInfinispanRepositoryConnection extends RepositoryConnectio
             triples.close();
         }
 
-        backend.getTripleCache().putAsync(resource.stringValue(),model,entry.getExpiryDate().getTime() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        backend.getTripleCache().put(resource.stringValue(),model,entry.getExpiryDate().getTime() - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -119,8 +119,8 @@ public class LDCachingInfinispanRepositoryConnection extends RepositoryConnectio
      */
     @Override
     public void removeCacheEntry(URI resource) throws RepositoryException {
-        backend.getEntryCache().removeAsync(resource.stringValue());
-        backend.getTripleCache().removeAsync(resource.stringValue());
+        backend.getEntryCache().remove(resource.stringValue());
+        backend.getTripleCache().remove(resource.stringValue());
     }
 
     @Override
