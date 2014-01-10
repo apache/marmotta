@@ -30,6 +30,7 @@ import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,7 +43,7 @@ import java.util.Set;
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
-public class LDCachingKiWiPersistenceConnection  {
+public class LDCachingKiWiPersistenceConnection implements Closeable {
 
     private static Logger log = LoggerFactory.getLogger(LDCachingKiWiPersistenceConnection.class);
 
@@ -280,8 +281,12 @@ public class LDCachingKiWiPersistenceConnection  {
      *
      * @exception java.sql.SQLException SQLException if a database access error occurs
      */
-    public void close() throws SQLException {
-        connection.close();
+    public void close()  {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            log.error("error closing connection",e);
+        }
     }
 
     /**

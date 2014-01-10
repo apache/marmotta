@@ -21,7 +21,7 @@ import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.ldcache.api.LDCachingBackendNG;
 import org.apache.marmotta.ldcache.api.LDCachingServiceNG;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
-import org.apache.marmotta.ldcache.model.CacheEntryNG;
+import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
@@ -105,7 +105,7 @@ public class LDCacheNG implements LDCachingServiceNG {
         resourceLocks.lock(resource.stringValue());
         try {
             // check if the resource is already cached; if yes, and refresh is not forced, return immediately
-            CacheEntryNG entry = backend.getEntry(resource);
+            CacheEntry entry = backend.getEntry(resource);
             if(!optionSet.contains(RefreshOpts.FORCE) && entry != null && entry.getExpiryDate().after(new Date())) {
                 log.debug("not refreshing resource {}, as the cached entry is not yet expired",resource);
                 return;
@@ -120,7 +120,7 @@ public class LDCacheNG implements LDCachingServiceNG {
                 if(response != null) {
                     log.info("refreshed resource {}",resource);
 
-                    CacheEntryNG newEntry = new CacheEntryNG();
+                    CacheEntry newEntry = new CacheEntry();
                     newEntry.setResource(resource);
                     newEntry.setExpiryDate(response.getExpires());
                     newEntry.setLastRetrieved(new Date());
@@ -139,7 +139,7 @@ public class LDCacheNG implements LDCachingServiceNG {
             } catch (DataRetrievalException e) {
 
                 // on exception, save an expiry information and retry in one day
-                CacheEntryNG newEntry = new CacheEntryNG();
+                CacheEntry newEntry = new CacheEntry();
                 newEntry.setResource(resource);
                 newEntry.setExpiryDate(new Date(System.currentTimeMillis() + config.getDefaultExpiry()*1000));
                 newEntry.setLastRetrieved(new Date());
@@ -176,7 +176,7 @@ public class LDCacheNG implements LDCachingServiceNG {
     public Model get(URI resource, RefreshOpts... options) {
         refresh(resource, options);
 
-        CacheEntryNG entry =  backend.getEntry(resource);
+        CacheEntry entry =  backend.getEntry(resource);
 
         if(entry != null) {
             return entry.getTriples();

@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.ldcache.model;
 
+import org.apache.marmotta.commons.util.DateUtils;
+import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
 import java.io.Serializable;
@@ -30,6 +32,7 @@ import java.util.Date;
  */
 public class CacheEntry implements Serializable {
 
+    protected Model triples;
     /**
      * The URI resource managed by this cache entry.
      */
@@ -132,4 +135,25 @@ public class CacheEntry implements Serializable {
     public void setTripleCount(Integer tripleCount) {
         this.tripleCount = tripleCount;
     }
+
+    /**
+     * The triples cached for the resource by this entry.
+     */
+    public Model getTriples() {
+        return triples;
+    }
+
+    /**
+     * The triples cached for the resource by this entry.
+     */
+    public void setTriples(Model triples) {
+        this.triples = triples;
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format("CacheEntry(resource=%s,triples=%d,expiry=%s)", getResource().stringValue(), getTripleCount(), DateUtils.ISO8601FORMAT.format(getExpiryDate()));
+    }
+
 }

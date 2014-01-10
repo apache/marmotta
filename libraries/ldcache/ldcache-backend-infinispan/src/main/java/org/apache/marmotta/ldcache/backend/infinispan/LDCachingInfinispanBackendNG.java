@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.backend.infinispan;
 
 import org.apache.marmotta.ldcache.api.LDCachingBackendNG;
-import org.apache.marmotta.ldcache.model.CacheEntryNG;
+import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -56,7 +56,7 @@ public class LDCachingInfinispanBackendNG implements LDCachingBackendNG {
 
     private boolean clustered;
 
-    private Cache<String,CacheEntryNG> entryCache;
+    private Cache<String,CacheEntry> entryCache;
 
     /**
      * Create a non-clustered instance of the infinispan cache.
@@ -132,7 +132,7 @@ public class LDCachingInfinispanBackendNG implements LDCachingBackendNG {
     }
 
 
-    public synchronized Cache<String,CacheEntryNG> getEntryCache() {
+    public synchronized Cache<String,CacheEntry> getEntryCache() {
         return entryCache;
 
     }
@@ -141,12 +141,13 @@ public class LDCachingInfinispanBackendNG implements LDCachingBackendNG {
     /**
      * Return the cache entry for the given resource, or null if this entry does not exist.
      *
+     *
      * @param resource the resource to retrieve the cache entry for
      * @return
      */
     @Override
-    public CacheEntryNG getEntry(URI resource) {
-        CacheEntryNG entry = getEntryCache().get(resource.stringValue());
+    public CacheEntry getEntry(URI resource) {
+        CacheEntry entry = getEntryCache().get(resource.stringValue());
 
         log.debug("retrieved entry for resource {}: {}", resource.stringValue(), entry);
 
@@ -160,7 +161,7 @@ public class LDCachingInfinispanBackendNG implements LDCachingBackendNG {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntryNG entry) {
+    public void putEntry(URI resource, CacheEntry entry) {
         log.debug("updating entry for resource {} to {}", resource.stringValue(), entry);
 
         getEntryCache().put(resource.stringValue(), entry);
@@ -196,7 +197,7 @@ public class LDCachingInfinispanBackendNG implements LDCachingBackendNG {
         if(entryCache == null) {
             cacheManager.defineConfiguration(LDCACHE_ENTRY_CACHE, defaultConfiguration);
 
-            entryCache = cacheManager.<String,CacheEntryNG>getCache(LDCACHE_ENTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            entryCache = cacheManager.<String,CacheEntry>getCache(LDCACHE_ENTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
 
 

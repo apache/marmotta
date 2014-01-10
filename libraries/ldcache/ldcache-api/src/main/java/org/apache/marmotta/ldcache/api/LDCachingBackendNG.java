@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.ldcache.api;
 
-import org.apache.marmotta.ldcache.model.CacheEntryNG;
+import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.URI;
 
 /**
@@ -31,10 +31,11 @@ public interface LDCachingBackendNG {
     /**
      * Return the cache entry for the given resource, or null if this entry does not exist.
      *
+     *
      * @param resource the resource to retrieve the cache entry for
      * @return
      */
-    public CacheEntryNG getEntry(URI resource);
+    public CacheEntry getEntry(URI resource);
 
 
     /**
@@ -43,7 +44,7 @@ public interface LDCachingBackendNG {
      * @param resource the resource to update
      * @param entry    the entry for the resource
      */
-    public void putEntry(URI resource, CacheEntryNG entry);
+    public void putEntry(URI resource, CacheEntry entry);
 
 
     /**

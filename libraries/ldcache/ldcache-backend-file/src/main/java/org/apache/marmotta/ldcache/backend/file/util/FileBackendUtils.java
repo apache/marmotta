@@ -19,7 +19,6 @@ package org.apache.marmotta.ldcache.backend.file.util;
 
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.apache.marmotta.ldcache.model.CacheEntryNG;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 
@@ -103,24 +102,6 @@ public class FileBackendUtils {
 				br.close();
 			}
 	}
-
-    public static CacheEntryNG readCacheEntryNG(File metaFile, ValueFactory valueFactory) throws IOException {
-        BufferedReader br;
-        br = new BufferedReader(new FileReader(metaFile));
-        try {
-            final CacheEntryNG ce = new CacheEntryNG();
-
-            ce.setResource(valueFactory.createURI(br.readLine()));
-            ce.setLastRetrieved(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
-            ce.setExpiryDate(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
-            ce.setUpdateCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));
-            ce.setTripleCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));
-
-            return ce;
-        } finally {
-            br.close();
-        }
-    }
 
 
     public static void writeCacheEntry(CacheEntry ce, File baseDir) throws IOException {

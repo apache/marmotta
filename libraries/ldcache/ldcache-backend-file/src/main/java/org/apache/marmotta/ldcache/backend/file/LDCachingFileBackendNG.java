@@ -20,7 +20,7 @@ package org.apache.marmotta.ldcache.backend.file;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldcache.api.LDCachingBackendNG;
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
-import org.apache.marmotta.ldcache.model.CacheEntryNG;
+import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
@@ -60,16 +60,17 @@ public class LDCachingFileBackendNG implements LDCachingBackendNG {
     /**
      * Return the cache entry for the given resource, or null if this entry does not exist.
      *
+     *
      * @param resource the resource to retrieve the cache entry for
      * @return
      */
     @Override
-    public CacheEntryNG getEntry(URI resource) {
+    public CacheEntry getEntry(URI resource) {
         try {
             // load metadata from disk
             final File dataFile = FileBackendUtils.getMetaFile(resource, storageDir);
             if (!(dataFile.exists())) return null;
-            final CacheEntryNG ce = FileBackendUtils.readCacheEntryNG(dataFile, getValueFactory());
+            final CacheEntry ce = FileBackendUtils.readCacheEntry(dataFile, getValueFactory());
             if (FileBackendUtils.isExpired(ce)) return null;
 
             // read triples for this entry from cache repository
@@ -104,7 +105,7 @@ public class LDCachingFileBackendNG implements LDCachingBackendNG {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntryNG entry) {
+    public void putEntry(URI resource, CacheEntry entry) {
         try {
             FileBackendUtils.writeCacheEntry(entry, storageDir);
 
