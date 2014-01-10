@@ -89,6 +89,7 @@
             <file src="tomcat/index.jsp" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/webapps/ROOT" override="true" />
             <file src="log/catalina.out" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/logs" />
             <file src="lib/marmotta-splash-${MARMOTTA_VERSION}.jar" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/lib" />
+            <file src="lib/apache-commons-lang3.jar" targetdir="\$INSTALL_PATH/apache-tomcat-${TOMCAT_VERSION}/lib" />
             <!-- macos specific -->
             <file src="macos/Start Apache Marmotta.app" targetdir="\$INSTALL_PATH" os="mac" />
             <file src="images/icon_start.icns" targetdir="\$INSTALL_PATH/Start Apache Marmotta.app/Contents/Resources" os="mac" />

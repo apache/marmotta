@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -37,10 +37,12 @@ import java.util.Properties;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
-import org.oxbow.swingbits.dialog.task.CommandLink;
-import org.oxbow.swingbits.dialog.task.TaskDialogs;
+import org.apache.marmotta.splash.common.ui.MessageDialog;
+import org.apache.marmotta.splash.common.ui.SelectionDialog;
+import org.apache.marmotta.splash.common.ui.SelectionDialog.Option;
 
 /**
  * Add file description here!
@@ -87,7 +89,7 @@ public class StartupListener implements LifecycleListener {
 
 
                         if(!checkServerName(serverName) || serverPort != getServerPort()) {
-                            TaskDialogs.inform(null,
+                            MessageDialog.show("Warning",
                                     "Configured server name not found",
                                     "The host name ("+serverName+") that has been used to configure this \n" +
                                     "installation is no longer available on this server. The system \n" +
@@ -99,16 +101,17 @@ public class StartupListener implements LifecycleListener {
                     } else {
                         // show a dialog listing all available addresses of this server and allowing the user to
                         // chose
-                        List<CommandLink> choices = new ArrayList<CommandLink>();
+                        List<Option> choices = new ArrayList<>();
 
                         Map<String,List<InetAddress>> addressList = listHostAddresses();
 
                         List<String> hostNames = new ArrayList<String>(addressList.keySet());
                         Collections.sort(hostNames);
 
+                        String loopback = "localhost";
                         for(String hostName : hostNames) {
                             List<InetAddress> addresses = addressList.get(hostName);
-                            String label = hostName + " (";
+                            String label = hostName + " \n(";
                             for(Iterator<InetAddress> it = addresses.iterator(); it.hasNext(); ) {
                                 label += it.next().getHostAddress();
                                 if(it.hasNext()) {
@@ -121,17 +124,21 @@ public class StartupListener implements LifecycleListener {
 
                             if(addresses.get(0).isLoopbackAddress()) {
                                 text = "Local IP-Address. Recommended for Laptop use or Demonstration purposes";
+                                loopback = hostName;
                             } else {
                                 text = "Public IP-Address. Recommended for Workstation or Server use";
                             }
 
-                            choices.add(new CommandLink(label,text));
+                            choices.add(new Option(label, text));
                         }
 
-                        int choice = TaskDialogs.choice(null,
-                                "Select host address to use for configuring the Apache Marmotta.",
-                                "For demonstration purposes or laptop installations it is recommended to select \n\"localhost\" below. For server and workstation installations, please select a \npublic IP address.", 0, choices);
+                        int choice = SelectionDialog.select("Select Server Address",
+                                "Select host address to use for configuring the\nApache Marmotta Platform.",
+                                WordUtils.wrap("For demonstration purposes or laptop installations it is recommended to select \""+loopback+"\" below. For server and workstation installations, please select a public IP address.", 60), 
+                                choices, 0);
 
+                        
+                        if (choice < 0) return;
 
                         serverName = hostNames.get(choice);
                         serverPort = getServerPort();
