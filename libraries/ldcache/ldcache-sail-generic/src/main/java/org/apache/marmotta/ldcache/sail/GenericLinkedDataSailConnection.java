@@ -23,7 +23,7 @@ import info.aduna.iteration.UnionIteration;
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.apache.marmotta.ldcache.services.LDCache;
 import org.openrdf.model.*;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailException;
@@ -43,15 +43,15 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
 
     private static Logger log = LoggerFactory.getLogger(GenericLinkedDataSailConnection.class);
 
-    private final LDCacheNG ldcache;
+    private final LDCache ldcache;
     private final SesameFilter<Resource> acceptForCaching;
 
-    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCacheNG ldcache) {
+    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCache ldcache) {
         this(connection, ldcache, new AlwaysTrueFilter<Resource>());
     }
 
 
-    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCacheNG ldcache, SesameFilter<Resource> acceptForCaching) {
+    public GenericLinkedDataSailConnection(NotifyingSailConnection connection, LDCache ldcache, SesameFilter<Resource> acceptForCaching) {
         super(connection);
         this.ldcache = ldcache;
         this.acceptForCaching = acceptForCaching;

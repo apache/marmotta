@@ -19,9 +19,9 @@ package org.apache.marmotta.ldcache.sail;
 
 import org.apache.marmotta.commons.sesame.filter.AlwaysTrueFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.ldcache.api.LDCachingBackendNG;
+import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
-import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.openrdf.model.Resource;
 import org.openrdf.sail.NotifyingSail;
@@ -37,32 +37,32 @@ import org.openrdf.sail.helpers.NotifyingSailWrapper;
  */
 public class GenericLinkedDataSail extends NotifyingSailWrapper {
 
-	private final LDCachingBackendNG cachingBackend;
+	private final LDCachingBackend cachingBackend;
 	private CacheConfiguration config;
-	private LDCacheNG ldcache;
+	private LDCache ldcache;
 	private SesameFilter<Resource> acceptForCaching;
 
-	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackendNG cachingBackend) {
+	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackend cachingBackend) {
 		this(base, cachingBackend, new AlwaysTrueFilter<Resource>(), createCacheConfiguration(null));
 	}
 
-	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackendNG cachingBackend, ClientConfiguration clientConfig) {
+	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackend cachingBackend, ClientConfiguration clientConfig) {
 		this(base, cachingBackend, new AlwaysTrueFilter<Resource>(), clientConfig);
 	}
 
-	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackendNG cachingBackend, CacheConfiguration cacheConfig) {
+	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackend cachingBackend, CacheConfiguration cacheConfig) {
 		this(base, cachingBackend, new AlwaysTrueFilter<Resource>(), cacheConfig);
 	}
 	
-	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackendNG cachingBackend, SesameFilter<Resource> acceptForCaching) {
+	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackend cachingBackend, SesameFilter<Resource> acceptForCaching) {
 		this(base, cachingBackend, acceptForCaching, createCacheConfiguration(null));
 	}
 
-	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackendNG cachingBackend, SesameFilter<Resource> acceptForCaching, ClientConfiguration clientConfig) {
+	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackend cachingBackend, SesameFilter<Resource> acceptForCaching, ClientConfiguration clientConfig) {
 		this(base, cachingBackend, acceptForCaching, createCacheConfiguration(clientConfig));
 	}
 
-	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackendNG cachingBackend, SesameFilter<Resource> acceptForCaching, CacheConfiguration cacheConfig) {
+	public GenericLinkedDataSail(NotifyingSail base, LDCachingBackend cachingBackend, SesameFilter<Resource> acceptForCaching, CacheConfiguration cacheConfig) {
 		super(base);
 		this.cachingBackend = cachingBackend;
 		this.acceptForCaching = acceptForCaching;
@@ -88,7 +88,7 @@ public class GenericLinkedDataSail extends NotifyingSailWrapper {
 		
 		cachingBackend.initialize();
 		
-		ldcache = new LDCacheNG(this.config,cachingBackend);
+		ldcache = new LDCache(this.config,cachingBackend);
 	}
 	
 	@Override
@@ -102,14 +102,14 @@ public class GenericLinkedDataSail extends NotifyingSailWrapper {
 	
 	public void reinit() {
 		ldcache.shutdown();
-		ldcache = new LDCacheNG(this.config,cachingBackend);
+		ldcache = new LDCache(this.config,cachingBackend);
 	}
 	
 	public CacheConfiguration getCacheConfiguration() {
 		return config;
 	}
 
-    public LDCacheNG getLDCache() {
+    public LDCache getLDCache() {
         return ldcache;
     }
 }

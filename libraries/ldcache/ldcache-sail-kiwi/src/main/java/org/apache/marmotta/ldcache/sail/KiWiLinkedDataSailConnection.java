@@ -19,7 +19,7 @@ package org.apache.marmotta.ldcache.sail;
 
 import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.apache.marmotta.ldcache.services.LDCache;
 import org.openrdf.model.*;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.SailException;
@@ -32,11 +32,11 @@ import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
  */
 public class KiWiLinkedDataSailConnection extends NotifyingSailConnectionWrapper {
 
-    private LDCacheNG ldcache;
+    private LDCache ldcache;
 
     private SesameFilter<Resource> acceptor;
 
-    public KiWiLinkedDataSailConnection(NotifyingSailConnection wrappedCon, LDCacheNG ldcache, SesameFilter<Resource> acceptor) {
+    public KiWiLinkedDataSailConnection(NotifyingSailConnection wrappedCon, LDCache ldcache, SesameFilter<Resource> acceptor) {
         super(wrappedCon);
 
         this.ldcache = ldcache;

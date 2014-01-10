@@ -19,9 +19,9 @@ package org.apache.marmotta.ldcache.services.test.ng;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
-import org.apache.marmotta.ldcache.api.LDCachingBackendNG;
+import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
-import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.apache.marmotta.ldcache.services.LDCache;
 import org.junit.*;
 import org.openrdf.model.Model;
 import org.openrdf.model.ValueFactory;
@@ -42,16 +42,16 @@ import java.io.StringWriter;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public abstract class BaseLDCacheNGTest {
+public abstract class BaseLDCacheTest {
 
     private static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
     private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
     private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
 
-    private static Logger log = LoggerFactory.getLogger(BaseLDCacheNGTest.class);
+    private static Logger log = LoggerFactory.getLogger(BaseLDCacheTest.class);
 
-    protected LDCacheNG ldcache;
+    protected LDCache ldcache;
 
 
     protected ValueFactory valueFactory = ValueFactoryImpl.getInstance();
@@ -61,13 +61,13 @@ public abstract class BaseLDCacheNGTest {
      *
      * @return
      */
-    protected abstract LDCachingBackendNG createBackend();
+    protected abstract LDCachingBackend createBackend();
 
 
 
     @Before
     public void setup() {
-        ldcache = new LDCacheNG(new CacheConfiguration(), createBackend());
+        ldcache = new LDCache(new CacheConfiguration(), createBackend());
     }
 
 
@@ -140,7 +140,7 @@ public abstract class BaseLDCacheNGTest {
         connection.begin();
 
         // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = BaseLDCacheNGTest.class.getResourceAsStream(sparqlFile);
+        InputStream sparql = BaseLDCacheTest.class.getResourceAsStream(sparqlFile);
         BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 

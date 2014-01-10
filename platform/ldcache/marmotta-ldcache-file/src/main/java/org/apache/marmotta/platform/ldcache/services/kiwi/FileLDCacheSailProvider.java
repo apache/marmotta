@@ -20,9 +20,9 @@ import com.google.common.collect.Lists;
 import org.apache.marmotta.commons.sesame.filter.NotFilter;
 import org.apache.marmotta.commons.sesame.filter.OneOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackendNG;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
 import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
-import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
@@ -51,7 +51,7 @@ public class FileLDCacheSailProvider extends LDCacheSailProvider {
 
     private static Logger log = LoggerFactory.getLogger(FileLDCacheSailProvider.class);
 
-    private LDCachingFileBackendNG backend;
+    private LDCachingFileBackend backend;
 
     private GenericLinkedDataSail sail;
 
@@ -87,7 +87,7 @@ public class FileLDCacheSailProvider extends LDCacheSailProvider {
         directory = new File(configurationService.getHome() + File.separator + "ldcache");
 
         try {
-            backend = new LDCachingFileBackendNG(directory);
+            backend = new LDCachingFileBackend(directory);
             sail = new GenericLinkedDataSail(parent, backend, new NotFilter<Resource>(cacheFilters), ldclientConfig);
             return sail;
         } catch (RepositoryException e) {
@@ -113,7 +113,7 @@ public class FileLDCacheSailProvider extends LDCacheSailProvider {
      * Return the caching backend used by the caching system (e.g. for debugging)
      * @return
      */
-    public LDCacheNG getLDCache() {
+    public LDCache getLDCache() {
         if(sail != null) {
             return sail.getLDCache();
         } else {

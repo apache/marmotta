@@ -1,13 +1,12 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,22 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.marmotta.ldcache.backend.kiwi;
 
 import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
-import org.apache.marmotta.ldcache.api.LDCachingConnection;
+import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistence;
 import org.apache.marmotta.ldcache.backend.kiwi.persistence.LDCachingKiWiPersistenceConnection;
-import org.apache.marmotta.ldcache.backend.kiwi.repository.LDCachingSailRepositoryConnection;
-import org.apache.marmotta.ldcache.backend.kiwi.sail.LDCachingKiWiSail;
-import org.apache.marmotta.ldcache.backend.kiwi.sail.LDCachingKiWiSailConnection;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.impl.TreeModel;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.base.RepositoryWrapper;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.Sail;
+import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
+import org.openrdf.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +44,8 @@ import java.sql.SQLException;
 
 /**
  * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert (sschaffert@apache.org)
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class LDCachingKiWiBackend implements LDCachingBackend {
 
@@ -53,155 +59,221 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
     private String cacheContext;
 
 
-    /**
-     * Direct access to the caching SAIL with its caching maintenance functionality.
-     */
-    private LDCachingKiWiSail sail;
 
-
-    private LDCachingKiWiPersistence persistence;
+    protected LDCachingKiWiPersistence persistence;
 
     /**
      * Repository API access to the cache data
      */
-    private SailRepository repository;
+    protected KiWiStore store;
+
 
     /**
      * Create a new LDCache KiWi backend using the given store and context for caching triples and storing cache
      * metadata via JDBC in the database.
      *
-     * @param store
      * @param cacheContext
      */
-    public LDCachingKiWiBackend(KiWiStore store, String cacheContext) {
+    public LDCachingKiWiBackend(Repository repository, String cacheContext) {
         this.cacheContext = cacheContext;
-        this.sail         = new LDCachingKiWiSail(store);
-        this.repository   = new SailRepository(sail);
-        this.persistence  = new LDCachingKiWiPersistence(store.getPersistence());
+        this.store   = getStore(repository);
+        this.persistence  = new LDCachingKiWiPersistence(getStore(repository).getPersistence());
     }
 
     /**
-     * Return a repository connection that can be used for caching. The LDCache will first remove all statements for
-     * the newly cached resources and then add retrieved statements as-is to this connection and properly commit and
-     * close it after use.
-     * <p/>
-     * Note that in case the statements should be rewritten this method must take care of providing the proper
-     * connection, e.g. by using a ContextAwareRepositoryConnection to add a context to all statements when adding them.
+     * Create a new LDCache KiWi backend using the given store and context for caching triples and storing cache
+     * metadata via JDBC in the database.
      *
-     *
-     * @param resource the resource that will be cached
-     * @return a repository connection that can be used for storing retrieved triples for caching
+     * @param cacheContext
      */
-    @Override
-    public LDCachingConnection getCacheConnection(String resource) throws RepositoryException {
-        try {
-            LDCachingKiWiSailConnection sailConnection = sail.getConnection();
+    public LDCachingKiWiBackend(Sail repository, String cacheContext) {
+        this.cacheContext = cacheContext;
+        this.store   = getStore(repository);
+        this.persistence  = new LDCachingKiWiPersistence(getStore(repository).getPersistence());
+    }
 
-            return new LDCachingSailRepositoryConnection(repository,sailConnection,cacheContext);
-        } catch (SailException e) {
-            throw new RepositoryException(e);
+
+    protected KiWiStore getStore(Repository repository) {
+        if(repository instanceof SailRepository) {
+            return getStore(((SailRepository) repository).getSail());
+        } else if(repository instanceof RepositoryWrapper) {
+            return getStore(((RepositoryWrapper) repository).getDelegate());
+        } else {
+            throw new IllegalArgumentException("the repository is not backed by a KiWiStore");
         }
     }
 
+
     /**
-     * Return an iterator over all expired cache entries (can e.g. be used for refreshing).
+     * Get the root sail in the wrapped sail stack
+     * @param sail
+     * @return
+     */
+    protected KiWiStore getStore(Sail sail) {
+        if(sail instanceof KiWiStore) {
+            return (KiWiStore) sail;
+        } else if(sail instanceof SailWrapper) {
+            return getStore(((SailWrapper) sail).getBaseSail());
+        } else {
+            throw new IllegalArgumentException("root sail is not a KiWiStore or could not be found");
+        }
+    }
+
+
+    /**
+     * Return the cache entry for the given resource, or null if this entry does not exist.
      *
+     *
+     * @param resource the resource to retrieve the cache entry for
      * @return
      */
     @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries()  throws RepositoryException {
+    public CacheEntry getEntry(URI resource) {
         try {
-            final LDCachingKiWiSailConnection sailConnection = sail.getConnection();
-            sailConnection.begin();
+            try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
 
-            return new ExceptionConvertingIteration<CacheEntry, RepositoryException>(sailConnection.listExpired()) {
-                @Override
-                protected RepositoryException convert(Exception e) {
-                    return new RepositoryException(e);
-                }
+                // load cache entry from database
+                CacheEntry ce = dbcon.getCacheEntry(resource.stringValue());
 
-                /**
-                 * Closes this Iteration as well as the wrapped Iteration if it happens to be
-                 * a {@link info.aduna.iteration.CloseableIteration}.
-                 */
-                @Override
-                protected void handleClose() throws RepositoryException {
-                    super.handleClose();
+                // if entry exists, load triples for the resource from the cache context of the repository
+                if(ce != null) {
+                    SailConnection con = store.getConnection();
                     try {
-                        sailConnection.commit();
-                        sailConnection.close();
-                    } catch (SailException ex) {
-                        throw new RepositoryException(ex);
+                        con.begin();
+
+                        Model triples = new TreeModel();
+                        ModelCommons.add(triples,con.getStatements(resource,null,null,true,store.getValueFactory().createURI(cacheContext)));
+                        ce.setTriples(triples);
+
+                        con.commit();
+                    } catch(SailException ex) {
+                        con.rollback();
+                    } finally {
+                        con.close();
                     }
                 }
-            };
-        } catch (SailException e) {
-            throw new RepositoryException(e);
-        }
-    }
+                return ce;
 
-    /**
-     * Return an iterator over all cache entries (can e.g. be used for refreshing or expiring).
-     *
-     * @return
-     */
-    @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listCacheEntries()  throws RepositoryException {
-        try {
-            final LDCachingKiWiSailConnection sailConnection = sail.getConnection();
-            sailConnection.begin();
-
-            return new ExceptionConvertingIteration<CacheEntry, RepositoryException>(sailConnection.listAll()) {
-                @Override
-                protected RepositoryException convert(Exception e) {
-                    return new RepositoryException(e);
-                }
-
-                /**
-                 * Closes this Iteration as well as the wrapped Iteration if it happens to be
-                 * a {@link info.aduna.iteration.CloseableIteration}.
-                 */
-                @Override
-                protected void handleClose() throws RepositoryException {
-                    super.handleClose();
-                    try {
-                        sailConnection.commit();
-                        sailConnection.close();
-                    } catch (SailException ex) {
-                        throw new RepositoryException(ex);
-                    }
-                }
-            };
-        } catch (SailException e) {
-            throw new RepositoryException(e);
-        }
-    }
-
-
-    /**
-     * Return true in case the resource is a cached resource.
-     *
-     * @param resource the URI of the resource to check
-     * @return true in case the resource is a cached resource
-     */
-    @Override
-    public boolean isCached(String resource) throws RepositoryException {
-        try {
-            LDCachingKiWiPersistenceConnection con = persistence.getConnection();
-            try {
-                CacheEntry entry = con.getCacheEntry(resource);
-                return  entry != null && entry.getTripleCount() > 0;
-            } finally {
-                con.commit();
-                con.close();
             }
-        } catch (SQLException e) {
-            throw new RepositoryException(e);
+
+        } catch (SailException | SQLException e) {
+            log.error("could not retrieve cached triples from repository",e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Update the cache entry for the given resource with the given entry.
+     *
+     * @param resource the resource to update
+     * @param entry    the entry for the resource
+     */
+    @Override
+    public void putEntry(URI resource, CacheEntry entry) {
+        try {
+            try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
+
+                // store cache entry in database
+                dbcon.removeCacheEntry(resource.stringValue());
+
+                // update triples in cache
+                SailConnection con = store.getConnection();
+                try {
+                    con.begin();
+
+                    con.removeStatements(resource, null, null, store.getValueFactory().createURI(cacheContext));
+                    for(Statement stmt : entry.getTriples()) {
+                        con.addStatement(stmt.getSubject(), stmt.getPredicate(), stmt.getObject(), store.getValueFactory().createURI(cacheContext));
+                    }
+
+                    con.commit();
+
+                    entry.setResource(store.getValueFactory().createURI(resource.stringValue()));
+
+                    dbcon.storeCacheEntry(entry);
+                } catch(SailException ex) {
+                    con.rollback();
+                } finally {
+                    con.close();
+                }
+
+            }
+
+        } catch (SailException | SQLException e) {
+            log.error("could not retrieve cached triples from repository",e);
+        }
+
+    }
+
+    /**
+     * Remove the cache entry for the given resource if it exists. Does nothing otherwise.
+     *
+     * @param resource the resource to remove the entry for
+     */
+    @Override
+    public void removeEntry(URI resource) {
+        try {
+            try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
+
+                // store cache entry in database
+                dbcon.removeCacheEntry(resource.stringValue());
+
+                // update triples in cache
+                SailConnection con = store.getConnection();
+                try {
+                    con.begin();
+
+                    con.removeStatements(resource, null, null, store.getValueFactory().createURI(cacheContext));
+
+                    con.commit();
+                } catch(SailException ex) {
+                    con.rollback();
+                } finally {
+                    con.close();
+                }
+
+            }
+
+        } catch (SailException | SQLException e) {
+            log.error("could not remove cached triples from repository",e);
         }
     }
 
-    public LDCachingKiWiPersistence getPersistence() {
-        return persistence;
+    /**
+     * Clear all entries in the cache backend.
+     */
+    @Override
+    public void clear() {
+        try {
+            try(LDCachingKiWiPersistenceConnection dbcon = persistence.getConnection()) {
+
+                // list all entries and remove them
+                CloseableIteration<KiWiCacheEntry, SQLException> entries = dbcon.listAll();
+                while (entries.hasNext()) {
+                    dbcon.removeCacheEntry(entries.next());
+                }
+
+                // update triples in cache
+                SailConnection con = store.getConnection();
+                try {
+                    con.begin();
+
+                    con.removeStatements((Resource) null, null, null, store.getValueFactory().createURI(cacheContext));
+
+                    con.commit();
+                } catch(SailException ex) {
+                    con.rollback();
+                } finally {
+                    con.close();
+                }
+
+            }
+
+        } catch (SailException | SQLException e) {
+            log.error("could not remove cached triples from repository",e);
+        }
+
     }
 
     /**
@@ -210,19 +282,13 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
     @Override
     public void initialize() {
         try {
-            repository.initialize();
-        } catch (RepositoryException e) {
-            log.error("error initializing secondary repository",e);
-        }
-
-        try {
             persistence.initDatabase();
         } catch (SQLException e) {
             log.error("error initializing LDCache database tables",e);
         }
 
         // register cache context in database
-        repository.getValueFactory().createURI(cacheContext);
+        store.getValueFactory().createURI(cacheContext);
 
     }
 
@@ -231,12 +297,9 @@ public class LDCachingKiWiBackend implements LDCachingBackend {
      */
     @Override
     public void shutdown() {
-        try {
-            repository.shutDown();
-        } catch (RepositoryException e) {
-            log.error("error shutting down secondary repository",e);
-        }
     }
 
-
+    public LDCachingKiWiPersistence getPersistence() {
+        return persistence;
+    }
 }

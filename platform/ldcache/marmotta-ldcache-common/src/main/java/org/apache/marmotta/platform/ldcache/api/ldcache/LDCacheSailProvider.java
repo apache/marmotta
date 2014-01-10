@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.platform.ldcache.api.ldcache;
 
-import org.apache.marmotta.ldcache.services.LDCacheNG;
+import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
@@ -155,7 +155,7 @@ public abstract class LDCacheSailProvider implements NotifyingSailProvider {
      * Return the caching backend used by the caching system (e.g. for debugging)
      * @return
      */
-    public abstract LDCacheNG getLDCache();
+    public abstract LDCache getLDCache();
 
     /**
      * Add a volatile (in-memory) endpoint to the LDClient configuration. Can be used by other services for auto-registering

@@ -15,38 +15,32 @@
  * limitations under the License.
  */
 
-/**
- *
- */
 package org.apache.marmotta.ldcache.backend.file;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.ConvertingIteration;
-import info.aduna.iteration.FilterIteration;
-import info.aduna.iteration.IteratorIteration;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
-import org.apache.marmotta.ldcache.api.LDCachingConnection;
-import org.apache.marmotta.ldcache.backend.file.repository.LDCachingFileRepositoryConnection;
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.openrdf.model.Model;
+import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.SailException;
 import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
- * @author jakob
+ * File-based implementation of the next generation LDCaching Backend API
  *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class LDCachingFileBackend implements LDCachingBackend {
 
@@ -62,74 +56,134 @@ public class LDCachingFileBackend implements LDCachingBackend {
 
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#getCacheConnection(java.lang.String)
-     */
-    @Override
-    public LDCachingConnection getCacheConnection(String resource) throws RepositoryException {
-
-        return new LDCachingFileRepositoryConnection(cacheRepository, cacheRepository.getConnection(), storageDir);
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listExpiredEntries()
-     */
-    @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries() throws RepositoryException {
-        final Date now = new Date();
-        return new FilterIteration<CacheEntry, RepositoryException>(listCacheEntries()) {
-
-            @Override
-            protected boolean accept(CacheEntry object)
-                    throws RepositoryException {
-                return object.getExpiryDate().before(now);
-            }
-        };
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.marmotta.ldcache.api.LDCachingBackend#listCacheEntries()
-     */
-    @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listCacheEntries()
-            throws RepositoryException {
-
-        final IteratorIteration<File, RepositoryException> ii = new IteratorIteration<File, RepositoryException>(FileBackendUtils.listMetaFiles(storageDir).iterator());
-        return new ConvertingIteration<File, CacheEntry, RepositoryException>(ii) {
-
-            @Override
-            protected CacheEntry convert(File sourceObject)
-                    throws RepositoryException {
-                try {
-                    return FileBackendUtils.readCacheEntry(sourceObject, cacheRepository.getValueFactory());
-                } catch (IOException e) {
-                    log.warn("Could not read caching properties from '{}'", sourceObject.getPath());
-                    throw new RepositoryException(e);
-                }
-            }
-
-        };
-    }
 
     /**
-     * Return true in case the resource is a cached resource.
+     * Return the cache entry for the given resource, or null if this entry does not exist.
      *
-     * @param resource the URI of the resource to check
-     * @return true in case the resource is a cached resource
+     *
+     * @param resource the resource to retrieve the cache entry for
+     * @return
      */
     @Override
-    public boolean isCached(String resource) throws RepositoryException {
+    public CacheEntry getEntry(URI resource) {
         try {
+            // load metadata from disk
             final File dataFile = FileBackendUtils.getMetaFile(resource, storageDir);
-            if (!(dataFile.exists())) return false;
-            final CacheEntry ce = FileBackendUtils.readCacheEntry(dataFile, new ValueFactoryImpl());
-            //return ce != null && !FileBackendUtils.isExpired(ce) && ce.getTripleCount() > 0;
-            return ce != null && ce.getTripleCount() > 0;
-        } catch (IOException e) {
-            throw new RepositoryException(e);
+            if (!(dataFile.exists())) return null;
+            final CacheEntry ce = FileBackendUtils.readCacheEntry(dataFile, getValueFactory());
+            if (FileBackendUtils.isExpired(ce)) return null;
+
+            // read triples for this entry from cache repository
+            RepositoryConnection con = cacheRepository.getConnection();
+            try {
+                con.begin();
+
+                Model triples = new TreeModel();
+                ModelCommons.add(triples, con.getStatements(resource,null,null,true));
+                ce.setTriples(triples);
+
+                con.commit();
+            } catch(RepositoryException ex) {
+                con.rollback();
+            } finally {
+                con.close();
+            }
+
+            return ce;
+        } catch (IOException | RepositoryException e) {
+            log.error("error while loading cache entry from file system:",e);
+
+            return null;
         }
     }
 
+
+    /**
+     * Update the cache entry for the given resource with the given entry.
+     *
+     * @param resource the resource to update
+     * @param entry    the entry for the resource
+     */
+    @Override
+    public void putEntry(URI resource, CacheEntry entry) {
+        try {
+            FileBackendUtils.writeCacheEntry(entry, storageDir);
+
+            // update the repository with the triples from the entry
+            RepositoryConnection con = cacheRepository.getConnection();
+            try {
+                con.begin();
+
+                con.remove(resource,null,null);
+                con.add(entry.getTriples());
+
+                con.commit();
+            } catch(RepositoryException ex) {
+                con.rollback();
+            } finally {
+                con.close();
+            }
+        } catch (IOException | RepositoryException e) {
+            log.error("could not store cache entry for {}: {}", resource.stringValue(), e.getMessage());
+        }
+
+    }
+
+    /**
+     * Remove the cache entry for the given resource if it exists. Does nothing otherwise.
+     *
+     * @param resource the resource to remove the entry for
+     */
+    @Override
+    public void removeEntry(URI resource) {
+        try {
+            final File metaFile = FileBackendUtils.getMetaFile(resource, storageDir);
+            if (metaFile.exists()) metaFile.delete();
+
+            // update the repository with the triples from the entry
+            RepositoryConnection con = cacheRepository.getConnection();
+            try {
+                con.begin();
+
+                con.remove(resource, null, null);
+
+                con.commit();
+            } catch(RepositoryException ex) {
+                con.rollback();
+            } finally {
+                con.close();
+            }
+        } catch (RepositoryException e) {
+            log.error("could not remove cache entry for {}: {}", resource.stringValue(), e.getMessage());
+        }
+    }
+
+    /**
+     * Clear all entries in the cache backend.
+     */
+    @Override
+    public void clear() {
+        for(File metaFile : FileBackendUtils.listMetaFiles(storageDir)) {
+            metaFile.delete();
+        }
+
+        try {
+            RepositoryConnection con = cacheRepository.getConnection();
+            try {
+                con.begin();
+
+                con.clear();
+
+                con.commit();
+            } catch(RepositoryException ex) {
+                con.rollback();
+            } finally {
+                con.close();
+            }
+        } catch(RepositoryException ex) {
+            log.error("could not clear cache: {}", ex.getMessage());
+        }
+    }
 
     /* (non-Javadoc)
      * @see org.apache.marmotta.ldcache.api.LDCachingBackend#initialize()
@@ -163,6 +217,11 @@ public class LDCachingFileBackend implements LDCachingBackend {
             log.error("error while shutting down cache repository", e);
         }
 
+    }
+
+
+    private ValueFactory getValueFactory() {
+        return ValueFactoryImpl.getInstance();
     }
 
 }

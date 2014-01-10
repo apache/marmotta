@@ -14,14 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.marmotta.ldcache.backend.infinispan;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.CloseableIteratorIteration;
-import info.aduna.iteration.EmptyIteration;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
-import org.apache.marmotta.ldcache.api.LDCachingConnection;
-import org.apache.marmotta.ldcache.backend.infinispan.repository.LDCachingInfinispanRepositoryConnection;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -34,8 +30,7 @@ import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.openrdf.model.Model;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +43,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class LDCachingInfinispanBackend implements LDCachingBackend {
 
+    private static Logger log = LoggerFactory.getLogger(LDCachingInfinispanBackend.class);
+
     public static final String LDCACHE_ENTRY_CACHE = "ldcache-entry-cache";
     public static final String LDCACHE_TRIPLE_CACHE = "ldcache-triple-cache";
-    private static Logger log = LoggerFactory.getLogger(LDCachingInfinispanBackend.class);
 
     private EmbeddedCacheManager cacheManager;
 
@@ -61,7 +57,6 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
     private boolean clustered;
 
     private Cache<String,CacheEntry> entryCache;
-    private Cache<String,Model>      tripleCache;
 
     /**
      * Create a non-clustered instance of the infinispan cache.
@@ -137,73 +132,59 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
     }
 
 
-    public Cache<String,CacheEntry> getEntryCache() {
-        if(entryCache == null) {
-            cacheManager.defineConfiguration(LDCACHE_ENTRY_CACHE, defaultConfiguration);
-
-            entryCache = cacheManager.<String,CacheEntry>getCache(LDCACHE_ENTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
-        }
-
+    public synchronized Cache<String,CacheEntry> getEntryCache() {
         return entryCache;
 
     }
 
-    public Cache<String,Model> getTripleCache() {
-        if(tripleCache == null) {
-            cacheManager.defineConfiguration(LDCACHE_TRIPLE_CACHE, defaultConfiguration);
-
-            tripleCache = cacheManager.<String,Model>getCache(LDCACHE_TRIPLE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
-        }
-
-        return tripleCache;
-
-    }
 
     /**
-     * Return a repository connection that can be used for caching. The LDCache will first remove all statements for
-     * the newly cached resources and then add retrieved statements as-is to this connection and properly commit and
-     * close it after use.
-     * <p/>
-     * Note that in case the statements should be rewritten this method must take care of providing the proper
-     * connection, e.g. by using a ContextAwareRepositoryConnection to add a context to all statements when adding them.
+     * Return the cache entry for the given resource, or null if this entry does not exist.
      *
-     * @param resource the resource that will be cached
-     * @return a repository connection that can be used for storing retrieved triples for caching
-     */
-    @Override
-    public LDCachingConnection getCacheConnection(String resource) throws RepositoryException {
-        return new LDCachingInfinispanRepositoryConnection(this, resource);
-    }
-
-    /**
-     * Return an iterator over all expired cache entries (can e.g. be used for refreshing).
      *
+     * @param resource the resource to retrieve the cache entry for
      * @return
      */
     @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listExpiredEntries() throws RepositoryException {
-        return new EmptyIteration<>();  // Infinispan does not allow listing expired entries
+    public CacheEntry getEntry(URI resource) {
+        CacheEntry entry = getEntryCache().get(resource.stringValue());
+
+        log.debug("retrieved entry for resource {}: {}", resource.stringValue(), entry);
+
+        return entry;
     }
 
     /**
-     * Return an iterator over all cache entries (can e.g. be used for refreshing or expiring).
+     * Update the cache entry for the given resource with the given entry.
      *
-     * @return
+     * @param resource the resource to update
+     * @param entry    the entry for the resource
      */
     @Override
-    public CloseableIteration<CacheEntry, RepositoryException> listCacheEntries() throws RepositoryException {
-        return new CloseableIteratorIteration<>(getEntryCache().values().iterator());
+    public void putEntry(URI resource, CacheEntry entry) {
+        log.debug("updating entry for resource {} to {}", resource.stringValue(), entry);
+
+        getEntryCache().put(resource.stringValue(), entry);
     }
 
     /**
-     * Return true in case the resource is a cached resource.
+     * Remove the cache entry for the given resource if it exists. Does nothing otherwise.
      *
-     * @param resource the URI of the resource to check
-     * @return true in case the resource is a cached resource
+     * @param resource the resource to remove the entry for
      */
     @Override
-    public boolean isCached(String resource) throws RepositoryException {
-        return getEntryCache().containsKey(resource);
+    public void removeEntry(URI resource) {
+        log.debug("removing entry for resource {}", resource.stringValue());
+
+        getEntryCache().remove(resource.stringValue());
+    }
+
+    /**
+     * Clear all entries in the cache backend.
+     */
+    @Override
+    public void clear() {
+        getEntryCache().clear();
     }
 
     /**
@@ -213,8 +194,12 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
     public void initialize() {
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        getEntryCache();
-        getTripleCache();
+        if(entryCache == null) {
+            cacheManager.defineConfiguration(LDCACHE_ENTRY_CACHE, defaultConfiguration);
+
+            entryCache = cacheManager.<String,CacheEntry>getCache(LDCACHE_ENTRY_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+        }
+
 
         log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
 

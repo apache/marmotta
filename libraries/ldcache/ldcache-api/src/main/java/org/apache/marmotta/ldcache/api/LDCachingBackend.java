@@ -1,13 +1,12 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,57 +14,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.marmotta.ldcache.api;
 
-import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.repository.RepositoryException;
+import org.openrdf.model.URI;
 
 /**
- * This interface defines the API for different backends for storing the caching results.
- * <p/>
- * Author: Sebastian Schaffert (sschaffert@apache.org)
+ * Next generation caching backend API. Needs to be implemented by backend providers to offer caching support.
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public interface LDCachingBackend {
 
-    /**
-     * Return a repository connection that can be used for caching. The LDCache will first remove all statements for
-     * the newly cached resources and then add retrieved statements as-is to this connection and properly commit and
-     * close it after use.
-     * <p/>
-     * Note that in case the statements should be rewritten this method must take care of providing the proper
-     * connection, e.g. by using a ContextAwareRepositoryConnection to add a context to all statements when adding them.
-     *
-     *
-     * @param  resource the resource that will be cached
-     * @return a repository connection that can be used for storing retrieved triples for caching
-     */
-    public LDCachingConnection getCacheConnection(String resource) throws RepositoryException;
-
 
     /**
-     * Return an iterator over all expired cache entries (can e.g. be used for refreshing).
+     * Return the cache entry for the given resource, or null if this entry does not exist.
      *
+     *
+     * @param resource the resource to retrieve the cache entry for
      * @return
      */
-    public CloseableIteration<CacheEntry,RepositoryException> listExpiredEntries() throws RepositoryException;
+    public CacheEntry getEntry(URI resource);
 
 
     /**
-     * Return an iterator over all cache entries (can e.g. be used for refreshing or expiring).
+     * Update the cache entry for the given resource with the given entry.
      *
-     * @return
+     * @param resource the resource to update
+     * @param entry    the entry for the resource
      */
-    public CloseableIteration<CacheEntry,RepositoryException> listCacheEntries() throws RepositoryException;
+    public void putEntry(URI resource, CacheEntry entry);
 
 
     /**
-     * Return true in case the resource is a cached resource.
+     * Remove the cache entry for the given resource if it exists. Does nothing otherwise.
      *
-     * @param resource the URI of the resource to check
-     * @return true in case the resource is a cached resource
+     * @param resource the resource to remove the entry for
      */
-    public boolean isCached(String resource)  throws RepositoryException;
+    public void removeEntry(URI resource);
+
+
+    /**
+     * Clear all entries in the cache backend.
+     */
+    public void clear();
+
+
 
     /**
      * Carry out any initialization tasks that might be necessary
@@ -76,4 +71,5 @@ public interface LDCachingBackend {
      * Shutdown the backend and free all runtime resources.
      */
     public void shutdown();
+
 }

@@ -19,9 +19,9 @@ package org.apache.marmotta.ldcache.backend.file.test;
 
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
-import org.apache.marmotta.ldcache.api.LDCachingBackendNG;
-import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackendNG;
-import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheNGTest;
+import org.apache.marmotta.ldcache.api.LDCachingBackend;
+import org.apache.marmotta.ldcache.backend.file.LDCachingFileBackend;
+import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
 import org.junit.internal.AssumptionViolatedException;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -35,9 +35,9 @@ import java.io.IOException;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class LDCacheFileNGTest extends BaseLDCacheNGTest {
+public class LDCacheFileTest extends BaseLDCacheTest {
 
-    private static Logger log = LoggerFactory.getLogger(LDCacheFileNGTest.class);
+    private static Logger log = LoggerFactory.getLogger(LDCacheFileTest.class);
 
     /**
      * Needs to be implemented by tests to provide the correct backend. Backend needs to be properly initialised.
@@ -45,12 +45,12 @@ public class LDCacheFileNGTest extends BaseLDCacheNGTest {
      * @return
      */
     @Override
-    protected LDCachingBackendNG createBackend() {
+    protected LDCachingBackend createBackend() {
         final File storageDir = Files.createTempDir();
 
-        LDCachingBackendNG backend = null;
+        LDCachingBackend backend = null;
         try {
-            backend = new LDCachingFileBackendNG(storageDir) {
+            backend = new LDCachingFileBackend(storageDir) {
                 @Override
                 public void shutdown() {
                     super.shutdown();

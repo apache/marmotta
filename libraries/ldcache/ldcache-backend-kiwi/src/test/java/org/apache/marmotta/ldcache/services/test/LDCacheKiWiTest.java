@@ -1,13 +1,12 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,27 +16,22 @@
  */
 package org.apache.marmotta.ldcache.services.test;
 
-import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackend;
-import org.apache.marmotta.ldcache.model.CacheConfiguration;
-import org.apache.marmotta.ldcache.services.LDCache;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
+import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +68,7 @@ import java.util.List;
  * Author: Sebastian Schaffert
  */
 @RunWith(Parameterized.class)
-public class LDCacheKiWiTest {
+public class LDCacheKiWiTest extends BaseLDCacheTest {
 
     public static final String CACHE_CONTEXT = "http://localhost/context/cache";
 
@@ -110,13 +104,6 @@ public class LDCacheKiWiTest {
 
     private String jdbcPass;
 
-    private KiWiStore store;
-
-    private LDCachingKiWiBackend backend;
-
-    private Repository repository;
-
-    private LDCache ldcache;
 
     public LDCacheKiWiTest(String database, String jdbcUrl, String jdbcUser, String jdbcPass) {
         this.jdbcPass = jdbcPass;
@@ -133,175 +120,49 @@ public class LDCacheKiWiTest {
     }
 
 
-    @Before
-    public void initDatabase() throws RepositoryException {
-        store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
-        repository = new SailRepository(store);
-        repository.initialize();
-
-        backend = new LDCachingKiWiBackend(store, CACHE_CONTEXT);
-        backend.initialize();
-
-        ldcache = new LDCache(new CacheConfiguration(),backend);
-    }
-
-    @After
-    public void dropDatabase() throws RepositoryException, SQLException {
-        backend.getPersistence().dropDatabase();
-        store.getPersistence().dropDatabase();
-        backend.shutdown();
-        repository.shutDown();
-    }
-
-
     /**
-     * Test retrieving and caching some resources (provided by DummyProvider).
-     */
-    @Test
-    public void textCacheResources() throws Exception {
-        String uri1 = "http://localhost/resource1";
-        String uri2 = "http://localhost/resource2";
-        String uri3 = "http://localhost/resource3";
-
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri1),false);
-
-        Assert.assertEquals(1,asList(ldcache.listCacheEntries()).size());
-
-        RepositoryConnection con1 = ldcache.getCacheConnection(uri1);
-        try {
-            con1.begin();
-            Assert.assertEquals(3, asList(con1.getStatements(con1.getValueFactory().createURI(uri1), null, null, false)).size());
-            con1.commit();
-        } finally {
-            con1.close();
-        }
-
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri2),false);
-
-        Assert.assertEquals(2,asList(ldcache.listCacheEntries()).size());
-
-        RepositoryConnection con2 = ldcache.getCacheConnection(uri2);
-        try {
-            con2.begin();
-            Assert.assertEquals(2, asList(con2.getStatements(con2.getValueFactory().createURI(uri2), null, null, false)).size());
-            con2.commit();
-        } finally {
-            con2.close();
-        }
-
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri3),false);
-
-        Assert.assertEquals(3,asList(ldcache.listCacheEntries()).size());
-
-        RepositoryConnection con3 = ldcache.getCacheConnection(uri3);
-        try {
-            con3.begin();
-            Assert.assertEquals(2, asList(con3.getStatements(con3.getValueFactory().createURI(uri3), null, null, false)).size());
-            con3.commit();
-        } finally {
-            con3.close();
-        }
-    }
-
-
-    /**
-     * Test retrieving and caching some resources (provided by DummyProvider).
-     */
-    @Test
-    public void textExpire() throws Exception {
-        String uri1 = "http://localhost/resource1";
-        String uri2 = "http://localhost/resource2";
-        String uri3 = "http://localhost/resource3";
-
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri1),false);
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri2),false);
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri3),false);
-
-        Assert.assertEquals(3,asList(ldcache.listCacheEntries()).size());
-        Assert.assertEquals(0,asList(ldcache.listExpiredEntries()).size());
-
-        ldcache.expire(repository.getValueFactory().createURI(uri1));
-
-        mysqlSleep();
-
-        Assert.assertEquals(1,asList(ldcache.listExpiredEntries()).size());
-
-        ldcache.refreshExpired();
-
-        mysqlSleep();
-
-        Assert.assertEquals(0,asList(ldcache.listExpiredEntries()).size());
-
-    }
-
-    /**
-     * Test retrieving and caching some resources (provided by DummyProvider).
-     */
-    @Test
-    public void textExpireAll() throws Exception {
-        String uri1 = "http://localhost/resource1";
-        String uri2 = "http://localhost/resource2";
-        String uri3 = "http://localhost/resource3";
-
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri1),false);
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri2),false);
-        ldcache.refreshResource(repository.getValueFactory().createURI(uri3),false);
-
-        Assert.assertEquals(3,asList(ldcache.listCacheEntries()).size());
-        Assert.assertEquals(0,asList(ldcache.listExpiredEntries()).size());
-
-        ldcache.expireAll();
-
-        mysqlSleep();
-
-        Assert.assertEquals(3,asList(ldcache.listExpiredEntries()).size());
-
-        ldcache.refreshExpired();
-
-        mysqlSleep();
-
-        Assert.assertEquals(0,asList(ldcache.listExpiredEntries()).size());
-
-    }
-
-
-    /*
-     * MYSQL rounds timestamps to the second, so it is sometimes necessary to sleep before doing a test
-     */
-    private  void mysqlSleep() {
-        if(this.dialect instanceof MySQLDialect) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        } else {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-            }
-        }
-    }
-
-    /**
-     * Workaround for https://openrdf.atlassian.net/browse/SES-1702 in Sesame 2.7.0-beta1
-     * @param <E>
+     * Needs to be implemented by tests to provide the correct backend. Backend needs to be properly initialised.
+     *
      * @return
      */
-    public static <E,X extends Exception> List<E> asList(CloseableIteration<E,X> result) throws RepositoryException {
-        ArrayList<E> collection = new ArrayList<E>();
+    @Override
+    protected LDCachingBackend createBackend() {
         try {
-            try {
-                while (result.hasNext()) {
-                    collection.add(result.next());
-                }
+            KiWiStore store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
+            final Repository repository = new SailRepository(store);
+            repository.initialize();
 
-                return collection;
-            } finally {
-                result.close();
-            }
-        } catch(Throwable ex) {
-            throw new RepositoryException(ex);
+            LDCachingKiWiBackend backend = new LDCachingKiWiBackend(repository, CACHE_CONTEXT) {
+                /**
+                 * Shutdown the backend and free all runtime resources.
+                 */
+                @Override
+                public void shutdown() {
+
+                    try {
+                        persistence.dropDatabase();
+                        store.getPersistence().dropDatabase();
+
+                        super.shutdown();
+
+                        repository.shutDown();
+                    } catch (Exception e) { }
+                }
+            };
+            backend.initialize();
+
+
+            return backend;
+        } catch (RepositoryException e) {
+            throw new AssertionError(e);
         }
     }
 
+
+
+    @Override
+    @Test
+    @Ignore("does not work due to a bug in Sesame (SES-1993)")
+    public void testGeonames() throws Exception {
+    }
 }
