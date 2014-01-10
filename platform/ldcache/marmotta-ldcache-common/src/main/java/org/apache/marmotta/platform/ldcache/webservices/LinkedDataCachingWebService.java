@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldcache.webservices;
 
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.ldcache.api.LDCachingService;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.model.ClientResponse;
@@ -93,7 +94,7 @@ public class LinkedDataCachingWebService {
 
 
             try {
-                cacheSailProvider.getLDCache().refreshResource(resource, false);
+                cacheSailProvider.getLDCache().refresh(resource);
 
                 return Response.ok().build();
             } catch (Exception e) {
@@ -115,7 +116,7 @@ public class LinkedDataCachingWebService {
 
 
             try {
-                cacheSailProvider.getLDCache().refreshResource(resource, true);
+                cacheSailProvider.getLDCache().refresh(resource, LDCachingService.RefreshOpts.FORCE);
 
                 return Response.ok().build();
             } catch (Exception e) {
@@ -137,7 +138,7 @@ public class LinkedDataCachingWebService {
                 URI resource = sesameService.getValueFactory().createURI(uri);
                 cacheSailProvider.getLDCache().expire(resource);
             } else {
-                cacheSailProvider.getLDCache().expireAll();
+                cacheSailProvider.getLDCache().clear();
             }
 
             return Response.ok().build();
