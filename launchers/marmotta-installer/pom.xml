@@ -210,6 +210,24 @@
                                 </configuration>
                             </execution>
                             <execution>
+                                <id>copy</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.apache.commons</groupId>
+                                            <artifactId>commons-lang3</artifactId>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${stagingDir}/lib</outputDirectory>
+                                            <destFileName>apache-commons-lang3.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>unpack</id>
                                 <phase>package</phase>
                                 <goals>

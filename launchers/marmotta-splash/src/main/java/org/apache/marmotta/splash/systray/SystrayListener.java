@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -47,7 +47,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.marmotta.splash.common.MarmottaContext;
-import org.oxbow.swingbits.dialog.task.TaskDialogs;
+import org.apache.marmotta.splash.common.ui.MessageDialog;
 
 /**
  * Add file description here!
@@ -84,6 +84,8 @@ public class SystrayListener implements LifecycleListener {
         if(event.getType().equals(Lifecycle.AFTER_START_EVENT) && SystemTray.isSupported()) {
             initContextLinks();
             initSysTray();
+        } else if (event.getType().equals(Lifecycle.BEFORE_STOP_EVENT) && SystemTray.isSupported()) {
+            SystemTray.getSystemTray().remove(icon);
         }
     }
 
@@ -132,8 +134,7 @@ public class SystrayListener implements LifecycleListener {
 
             //MenuItem mainPage = createMenuItem("Start Page", "http://"+getServerName()+":"+getServerPort()+"/");
             //popup.add(mainPage);
-
-            popup.addSeparator();
+            //popup.addSeparator();
 
 
             // launch browser action
@@ -163,8 +164,10 @@ public class SystrayListener implements LifecycleListener {
             }
             popup.add(shutdown);
 
-            popup.addSeparator();
-
+            
+            if (!demoLinks.isEmpty()) {
+                popup.addSeparator();
+            }
             for(final Map.Entry<String,String> linkEntry : demoLinks.entrySet()) {
                 boolean containsEntry = false;
                 for(int i = 0; i < popup.getItemCount(); i++) {
@@ -182,14 +185,13 @@ public class SystrayListener implements LifecycleListener {
             }
 
             popup.addSeparator();
-
             MenuItem about = new MenuItem("About");
             about.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    TaskDialogs.inform(null,
+                    MessageDialog.show("Apache Marmotta",
                             "About Apache Marmotta \n",
-                            "(c)2013 The Apache Software Foundation \n" +
+                            "(c)2014 The Apache Software Foundation \n" +
                             "Visit http://marmotta.apache.org for further details");
                 }
             });

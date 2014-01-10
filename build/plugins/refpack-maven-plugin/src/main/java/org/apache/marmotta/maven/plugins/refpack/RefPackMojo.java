@@ -175,7 +175,7 @@ public class RefPackMojo extends AbstractMojo {
     private void collectLibraryDependencies(DependencyNode node, Artifact currentModule) {
 		String groupId = node.getDependency().getArtifact().getGroupId();
         String artifactId = node.getDependency().getArtifact().getArtifactId();
-        if(!groupId.equals(moduleGroupId) || !artifactId.startsWith("marmotta-") || artifactId.equals("marmotta-commons") || artifactId.equals("marmotta-client-js")) {
+        if(!isPackDependency(groupId, artifactId)) {
             // first check if the current artifact is already covered by a module the current module depends on
             for(Artifact dependentArtifact : moduleDependencies.get(currentModule)) {
                 if(moduleLibraries.containsKey(dependentArtifact) &&
@@ -193,6 +193,15 @@ public class RefPackMojo extends AbstractMojo {
         }
     }
 
+    private boolean isPackDependency(String groupId, String artifactId) {
+        // only marmotta group-id and artifacts starting with marmotta-
+        return groupId.equals(moduleGroupId) && artifactId.startsWith("marmotta-")
+                // but not the commons and the JS-client
+                && !artifactId.equals("marmotta-commons") && !artifactId.equals("marmotta-client-js") 
+                // and not the marmotta-sesame-tools
+                && !artifactId.startsWith("marmotta-util-") && !artifactId.startsWith("marmotta-sail-") && !artifactId.startsWith("marmotta-rio-");
+    }
+
     /**
      * Collect the dependencies to other modules inside the same project
      * @param node
@@ -201,7 +210,7 @@ public class RefPackMojo extends AbstractMojo {
     private void collectModuleDependencies(DependencyNode node, Artifact currentModule) {
 		String groupId = node.getDependency().getArtifact().getGroupId();
         String artifactId = node.getDependency().getArtifact().getArtifactId();
-		if(groupId.equals(moduleGroupId) && artifactId.startsWith("marmotta-") && !artifactId.equals("marmotta-commons") && !artifactId.equals("marmotta-client-js")) {
+		if(isPackDependency(groupId, artifactId)) {
             moduleDependencies.get(currentModule).add(node.getDependency().getArtifact());
         }
     }
