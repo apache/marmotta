@@ -108,8 +108,9 @@ public class StartupListener implements LifecycleListener {
                         List<String> hostNames = new ArrayList<String>(addressList.keySet());
                         Collections.sort(hostNames);
 
-                        String loopback = "localhost";
-                        for(String hostName : hostNames) {
+                        int loopback = -1;
+                        for (int i = 0; i < hostNames.size(); i++) {
+                            String hostName = hostNames.get(i);
                             List<InetAddress> addresses = addressList.get(hostName);
                             String label = hostName + " \n(";
                             for(Iterator<InetAddress> it = addresses.iterator(); it.hasNext(); ) {
@@ -124,7 +125,7 @@ public class StartupListener implements LifecycleListener {
 
                             if(addresses.get(0).isLoopbackAddress()) {
                                 text = "Local IP-Address. Recommended for Laptop use or Demonstration purposes";
-                                loopback = hostName;
+                                loopback = loopback<0?i:loopback;
                             } else {
                                 text = "Public IP-Address. Recommended for Workstation or Server use";
                             }
@@ -134,11 +135,14 @@ public class StartupListener implements LifecycleListener {
 
                         int choice = SelectionDialog.select("Select Server Address",
                                 "Select host address to use for configuring the\nApache Marmotta Platform.",
-                                WordUtils.wrap("For demonstration purposes or laptop installations it is recommended to select \""+loopback+"\" below. For server and workstation installations, please select a public IP address.", 60), 
-                                choices, 0);
+                                WordUtils.wrap("For demonstration purposes or laptop installations it is recommended to select \""+(loopback<0?"localhost":hostNames.get(loopback))+"\" below. For server and workstation installations, please select a public IP address.", 60), 
+                                choices, loopback);
 
                         
-                        if (choice < 0) return;
+                        if (choice < 0) {
+                            log.error("No Server Address selected, server will shut down.");
+                            throw new IllegalArgumentException("No Server Addess was selected");
+                        }
 
                         serverName = hostNames.get(choice);
                         serverPort = getServerPort();

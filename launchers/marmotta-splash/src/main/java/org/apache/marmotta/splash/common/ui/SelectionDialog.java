@@ -143,7 +143,7 @@ public class SelectionDialog {
             defaultBtn = close;
         }
         
-        
+
         dialog.pack();
         dialog.setLocationRelativeTo(null);
         defaultBtn.requestFocusInWindow();
@@ -151,9 +151,6 @@ public class SelectionDialog {
         dialog.setVisible(true);
         dialog.dispose();
 
-        
-        
-        
         return result.get();
     }
     
