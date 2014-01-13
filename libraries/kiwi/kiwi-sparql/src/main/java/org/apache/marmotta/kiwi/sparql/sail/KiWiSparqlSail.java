@@ -20,7 +20,6 @@ package org.apache.marmotta.kiwi.sparql.sail;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
@@ -151,6 +150,7 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
                             }
                         }
 
+                        /*
                     } else if(configuration.getDialect() instanceof MySQLDialect) {
 
                         // for MySQL, just create a fulltext index (no language support)

@@ -13,7 +13,6 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-DROP INDEX kiwi_ft_idx ON nodes;
 CREATE FULLTEXT INDEX kiwi_ft_idx ON nodes(svalue);
 
 INSERT INTO metadata(mkey,mvalue) VALUES ('ft.idx','true');
