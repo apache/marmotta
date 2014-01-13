@@ -19,6 +19,7 @@ package org.apache.marmotta.ldclient.model;
 
 import org.apache.http.client.HttpClient;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +43,7 @@ public class ClientConfiguration {
     private int connectionTimeout = 10000;
 
     /**
-     * Maximum number of HTTP requests to run in parallel
+     * Maximum number of HTTP requests to run in parallel. Default: 10.
      */
     private int maxParallelRequests = 10;
 
@@ -64,70 +65,123 @@ public class ClientConfiguration {
     private Set<String> excludeUris;
 
     /**
-     * A collection of endpoint definitions to use by this Linked Data Client.
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
      */
     private Set<Endpoint> endpoints;
-    
+
+    /**
+     * A collection of provider definitions to use by this Linked Data Client. Can be used in case the
+     * ServiceLoader is not working (e.g. in OSGi environments)
+     */
+    private Set<DataProvider> providers;
+
+
     /**
      * A HttpClient used for retrieving the resource data.
      */
     private HttpClient httpClient;
 
     public ClientConfiguration() {
-        excludeUris = new HashSet<String>();
-        endpoints   = new HashSet<Endpoint>();
+        excludeUris = new HashSet<>();
+        endpoints   = new HashSet<>();
+        providers   = new HashSet<>();
         httpClient = null;
     }
 
+    /**
+     * HTTP connection timeout in milliseconds; default 10 seconds, because we don't want slow servers to slow down
+     * batch retrievals
+     */
     public int getConnectionTimeout() {
         return connectionTimeout;
     }
 
+    /**
+     * HTTP connection timeout in milliseconds; default 10 seconds, because we don't want slow servers to slow down
+     * batch retrievals
+     */
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
+    /**
+     * Socket timeout in milliseconds; maximum time a socket may be idle; default 60 seconds
+     */
     public int getSocketTimeout() {
         return socketTimeout;
     }
 
+    /**
+     * Socket timeout in milliseconds; maximum time a socket may be idle; default 60 seconds
+     */
     public void setSocketTimeout(int socketTimeout) {
         this.socketTimeout = socketTimeout;
     }
 
+    /**
+     * Maximum number of HTTP requests to run in parallel. Default: 10.
+     */
     public int getMaxParallelRequests() {
         return maxParallelRequests;
     }
 
+    /**
+     * Maximum number of HTTP requests to run in parallel. Default: 10.
+     */
     public void setMaxParallelRequests(int maxParallelRequests) {
         this.maxParallelRequests = maxParallelRequests;
     }
 
 
+    /**
+     * Default expiry time in seconds if not given by the server.
+     */
     public long getDefaultExpiry() {
         return defaultExpiry;
     }
 
+    /**
+     * Default expiry time in seconds if not given by the server.
+     */
     public void setDefaultExpiry(long defaultExpiry) {
         this.defaultExpiry = defaultExpiry;
     }
 
+    /**
+     * Minimum expiry time in seconds in case the server returns a lower expiry time
+     */
     public long getMinimumExpiry() {
         return minimumExpiry;
     }
 
+    /**
+     * Minimum expiry time in seconds in case the server returns a lower expiry time
+     */
     public void setMinimumExpiry(long minimumExpiry) {
         this.minimumExpiry = minimumExpiry;
     }
 
+    /**
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
+     */
     public void addExcludeUri(String uriPrefix) {
         excludeUris.add(uriPrefix);
     }
 
+    /**
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
+     */
     public Set<String> getExcludeUris() {
         return excludeUris;
     }
 
+    /**
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
+     */
     public void setExcludeUris(Set<String> excludeUris) {
         this.excludeUris = excludeUris;
     }
@@ -148,19 +202,56 @@ public class ClientConfiguration {
     }
 
 
+    /**
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
+     */
     public void addEndpoint(Endpoint endpoint) {
         endpoints.add(endpoint);
     }
 
+    /**
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
+     */
     public Set<Endpoint> getEndpoints() {
         return endpoints;
     }
 
+    /**
+     * A collection of endpoint definitions to use by this Linked Data Client. Can be used to define custom
+     * endpoint access strategies or in case the ServiceLoader is not working (e.g. in OSGi environments).
+     */
     public void setEndpoints(Set<Endpoint> endpoints) {
         this.endpoints = endpoints;
     }
 
-	public HttpClient getHttpClient() {
+
+    /**
+     * A collection of provider definitions to use by this Linked Data Client. Can be used in case the
+     * ServiceLoader is not working (e.g. in OSGi environments)
+     */
+    public void addProvider(DataProvider provider) {
+        providers.add(provider);
+    }
+
+    /**
+     * A collection of provider definitions to use by this Linked Data Client. Can be used in case the
+     * ServiceLoader is not working (e.g. in OSGi environments)
+     */
+    public Set<DataProvider> getProviders() {
+        return providers;
+    }
+
+    /**
+     * A collection of provider definitions to use by this Linked Data Client. Can be used in case the
+     * ServiceLoader is not working (e.g. in OSGi environments)
+     */
+    public void setProviders(Set<DataProvider> providers) {
+        this.providers = providers;
+    }
+
+    public HttpClient getHttpClient() {
 		return httpClient;
 	}
 

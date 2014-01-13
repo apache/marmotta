@@ -65,7 +65,7 @@ public final class LDClient implements LDClientService {
     /**
      * A Java service loader loading all implementations of data providers registered on the classpath.
      */
-    private static ServiceLoader<DataProvider> providers = ServiceLoader.load(DataProvider.class);
+    private static ServiceLoader<DataProvider> defaultProviders = ServiceLoader.load(DataProvider.class);
 
     /**
      * A Java service loader loading all auto-registered endpoint configurations on the classpath.
@@ -81,6 +81,7 @@ public final class LDClient implements LDClientService {
 
     private ClientConfiguration config;
 
+    private List<DataProvider> providers;
     private List<Endpoint> endpoints;
 
     public LDClient() {
@@ -92,7 +93,7 @@ public final class LDClient implements LDClientService {
 
         this.config = config;
 
-        endpoints = new ArrayList<Endpoint>();
+        endpoints = new ArrayList<>();
         for(Endpoint endpoint : defaultEndpoints) {
             endpoints.add(endpoint);
         }
@@ -104,6 +105,18 @@ public final class LDClient implements LDClientService {
                 log.info("- LDClient Endpoint: {}", endpoint.getName());
             }
         }
+
+        providers = new ArrayList<>();
+        for(DataProvider provider : defaultProviders) {
+            providers.add(provider);
+        }
+        providers.addAll(config.getProviders());
+        if(log.isInfoEnabled()) {
+            for(DataProvider provider : providers) {
+                log.info("- LDClient Probvider: {}", provider.getName());
+            }
+        }
+
 
         retrievalSemaphore = new Semaphore(config.getMaxParallelRequests());
 
@@ -148,10 +161,6 @@ public final class LDClient implements LDClientService {
             idleConnectionMonitorThread.start();
 
             this.client = client;
-        }
-
-        for(DataProvider provider : providers) {
-            log.info("data provider: {}",provider.getName());
         }
     }
 
