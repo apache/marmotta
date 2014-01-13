@@ -21,7 +21,6 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.XMLSchema;
@@ -72,9 +71,10 @@ public class MySQLDialect extends KiWiDialect {
         supportedFunctions.add(XMLSchema.DECIMAL);
         supportedFunctions.add(XMLSchema.DATETIME);
         supportedFunctions.add(XMLSchema.BOOLEAN);
-
+        /*
         supportedFunctions.add(FN_MARMOTTA.SEARCH_FULLTEXT);
         supportedFunctions.add(FN_MARMOTTA.QUERY_FULLTEXT);
+        */
     }
 
     /**
@@ -210,6 +210,7 @@ public class MySQLDialect extends KiWiDialect {
         } else if(XMLSchema.BOOLEAN.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 1);
             return String.format("(lower(%s) = 'true' OR %s > 0)", args[0]);
+            /*
         } else if(FN_MARMOTTA.SEARCH_FULLTEXT.equals(fnUri)) {
             Preconditions.checkArgument(args.length == 2 || args.length == 3); // no specific language support in MySQL
             return String.format("(MATCH (%1$s) AGAINST (%2$s))", args[0], args[1]);
@@ -225,6 +226,7 @@ public class MySQLDialect extends KiWiDialect {
             }
 
             return String.format("(MATCH (%1$s) AGAINST (%2$s IN BOOLEAN MODE))", args[0], query);
+            */
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
     }
