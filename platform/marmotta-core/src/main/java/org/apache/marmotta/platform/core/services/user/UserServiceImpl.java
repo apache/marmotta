@@ -17,12 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.user;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-import static org.apache.marmotta.commons.sesame.model.Namespaces.ADMIN_LOGIN;
-import static org.apache.marmotta.commons.sesame.model.Namespaces.ANONYMOUS_LOGIN;
-
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
@@ -44,9 +39,12 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.apache.marmotta.commons.sesame.model.Namespaces.ADMIN_LOGIN;
+import static org.apache.marmotta.commons.sesame.model.Namespaces.ANONYMOUS_LOGIN;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * Add file description here!
@@ -266,16 +264,23 @@ public class UserServiceImpl implements UserService {
         lock.lock();
         try {
             if(!userExists(login)) {
-
                 String webId_str = buildUserUri(login);
+
+                log.info("creating user with webId: {} ", webId_str);
+
+
+                String template = "user.%s.%s";
+
+                configurationService.setConfiguration(String.format(template, login, "webid"), webId_str);
+                configurationService.setConfiguration(String.format(template, login, "first"), firstName);
+                configurationService.setConfiguration(String.format(template, login, "last"),  lastName);
+
 
                 try {
                     RepositoryConnection conn = sesameService.getConnection();
                     try {
                         conn.begin();
                         URI webId = conn.getValueFactory().createURI(webId_str);
-
-                        log.info("creating user with webId: {} ", webId.stringValue());
 
                         if (!login.equals(ANONYMOUS_LOGIN) && !login.equals(ADMIN_LOGIN)) {
                             MarmottaUser u = FacadingFactory.createFacading(conn).createFacade(webId, MarmottaUser.class);
@@ -339,24 +344,11 @@ public class UserServiceImpl implements UserService {
      * @return the user with the given login, or null if no such user exists
      */
     private URI getUserByLogin(String login) {
-        try {
-            RepositoryConnection conn = sesameService.getConnection();
-            try {
-                conn.begin();
-                String userUri = buildUserUri(login);
-                if (ResourceUtils.existsResource(conn, userUri))
-                    return conn.getValueFactory().createURI(userUri);
-                else
-                    return null;
-            } finally {
-                // TODO: this is not the perfect way to do it, but the only way to avoid cycles
-                // with the versioning
-                conn.rollback();
-                conn.close();
-            }
-        } catch (RepositoryException e) {
-            handleRepositoryException(e, UserServiceImpl.class);
+        String webId = configurationService.getStringConfiguration(String.format("user.%s.webid", login));
 
+        if(webId != null) {
+            return sesameService.getRepository().getValueFactory().createURI(webId);
+        } else {
             return null;
         }
     }
