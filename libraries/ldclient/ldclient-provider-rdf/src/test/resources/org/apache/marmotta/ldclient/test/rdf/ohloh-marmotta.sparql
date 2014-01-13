@@ -21,6 +21,6 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX doap: <http://usefulinc.com/ns/doap#>
 ASK {
     <http://rdfohloh.wikier.org/project/marmotta> rdf:type doap:Project ; 
-        doap:name "Apache Marmotta (incubator)" ;
+        doap:name "Apache Marmotta" ;
         doap:homepage <http://marmotta.incubator.apache.org>  .
 }
