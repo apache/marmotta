@@ -18,13 +18,12 @@
 package org.apache.marmotta.kiwi.sparql.sail;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStatistics;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStrategyImpl;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiTripleSource;
+import org.apache.marmotta.kiwi.sparql.optimizer.DistinctLimitOptimizer;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -34,7 +33,6 @@ import org.openrdf.query.algebra.evaluation.EvaluationStrategy;
 import org.openrdf.query.algebra.evaluation.impl.*;
 import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
 import org.slf4j.Logger;
@@ -84,6 +82,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             new IterativeEvaluationOptimizer().optimize(tupleExpr, dataset, bindings);
             new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
             new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
+            new DistinctLimitOptimizer().optimize(tupleExpr, dataset, bindings);
 
             log.debug("evaluating SPARQL query:\n {}", tupleExpr);
 

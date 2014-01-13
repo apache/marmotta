@@ -31,11 +31,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.SESAME;
@@ -44,6 +40,7 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.*;
+import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,20 +50,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.Pattern;
 
 /**
@@ -105,14 +90,18 @@ public class KiWiSparqlConnection {
      * @return
      */
     public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings, final Dataset dataset) throws SQLException, InterruptedException {
-        Preconditions.checkArgument(join instanceof Join || join instanceof Filter || join instanceof StatementPattern);
+        Preconditions.checkArgument(join instanceof Join || join instanceof Filter || join instanceof StatementPattern || join instanceof Distinct || join instanceof Slice || join instanceof Reduced);
 
         // some definitions
         String[] positions = new String[] {"subject","predicate","object","context"};
 
         // collect all patterns in a list, using depth-first search over the join
-        List<StatementPattern> patterns = new ArrayList<StatementPattern>();
-        collectPatterns(join, patterns);
+        List<StatementPattern> patterns = new PatternCollector(join).patterns;
+
+        long offset = new LimitFinder(join).offset;
+        long limit  = new LimitFinder(join).limit;
+
+        boolean distinct = new DistinctFinder(join).distinct;
 
         // associate a name with each pattern; the names are used in the database query to refer to the triple
         // that matched this pattern and in the construction of variable names for the HQL query
@@ -221,6 +210,11 @@ public class KiWiSparqlConnection {
 
         // build the select clause by projecting for each query variable the first name
         StringBuilder selectClause = new StringBuilder();
+
+        if(distinct) {
+            selectClause.append("DISTINCT ");
+        }
+
         final List<Var> selectVariables = new LinkedList<Var>();
         for(Iterator<Var> it = queryVariableIds.keySet().iterator(); it.hasNext(); ) {
             Var v = it.next();
@@ -352,8 +346,7 @@ public class KiWiSparqlConnection {
 
 
         // 5. for each filter condition, add a statement to the where clause
-        List<ValueExpr> filters = new ArrayList<ValueExpr>();
-        collectFilters(join, filters);
+        List<ValueExpr> filters = new FilterCollector(join).filters;
         for(ValueExpr expr : filters) {
             whereConditions.add(evaluateExpression(expr,queryVariables, null));
         }
@@ -399,12 +392,26 @@ public class KiWiSparqlConnection {
             }
         }
 
+        // construct limit and offset
+        StringBuilder limitClause = new StringBuilder();
+        if(limit > 0) {
+            limitClause.append("LIMIT ");
+            limitClause.append(limit);
+            limitClause.append(" ");
+        }
+        if(offset >= 0) {
+            limitClause.append("OFFSET ");
+            limitClause.append(offset);
+            limitClause.append(" ");
+        }
+
 
         // build the query string
         String queryString =
                 "SELECT " + selectClause + "\n " +
                         "FROM " + fromClause + "\n " +
-                        "WHERE " + whereClause;
+                        "WHERE " + whereClause + "\n " +
+                        limitClause;
 
         log.debug("original SPARQL syntax tree:\n {}", join);
         log.debug("constructed SQL query string:\n {}",queryString);
@@ -667,49 +674,6 @@ public class KiWiSparqlConnection {
                 return arg;
         }
     }
-
-    /**
-     * Collect all statement patterns in a tuple expression in depth-first order. The tuple expression may only
-     * contain Join or StatementPattern expressions, otherwise an IllegalArgumentException is thrown.
-     * @param expr
-     * @param patterns
-     */
-    private void collectPatterns(TupleExpr expr, List<StatementPattern> patterns) {
-        if(expr instanceof Join) {
-            collectPatterns(((Join) expr).getLeftArg(), patterns);
-            collectPatterns(((Join) expr).getRightArg(), patterns);
-        } else if(expr instanceof Filter) {
-            collectPatterns(((Filter) expr).getArg(), patterns);
-        } else if(expr instanceof StatementPattern) {
-            patterns.add((StatementPattern)expr);
-        } else {
-            throw new IllegalArgumentException("the tuple expression was neither a join nor a statement pattern: "+expr);
-        }
-
-    }
-
-
-    /**
-     * Collect all filter conditions in a tuple expression in depth-first order. The tuple expression may only
-     * contain Join or StatementPattern expressions, otherwise an IllegalArgumentException is thrown.
-     * @param expr
-     * @param filters
-     */
-    private void collectFilters(TupleExpr expr, List<ValueExpr> filters) {
-        if(expr instanceof Join) {
-            collectFilters(((Join) expr).getLeftArg(), filters);
-            collectFilters(((Join) expr).getRightArg(), filters);
-        } else if(expr instanceof Filter) {
-            filters.add(((Filter) expr).getCondition());
-            collectFilters(((Filter)expr).getArg(), filters);
-        } else if(expr instanceof StatementPattern) {
-            // do nothing
-        } else {
-            throw new IllegalArgumentException("the tuple expression was neither a join nor a statement pattern: "+expr);
-        }
-
-    }
-
 
     /**
      * Check if a variable selecting a node actually has any attached condition; if not return false. This is used to
@@ -995,4 +959,74 @@ public class KiWiSparqlConnection {
 
     }
 
+
+    private static class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
+
+        long limit = -1, offset = -1;
+
+        private LimitFinder(TupleExpr expr) {
+            expr.visit(this);
+        }
+
+        @Override
+        public void meet(Slice node) throws RuntimeException {
+            if(node.hasLimit())
+                limit = node.getLimit();
+            if(node.hasOffset())
+                offset = node.getOffset();
+        }
+    }
+
+    private static class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
+
+        boolean distinct = false;
+
+        private DistinctFinder(TupleExpr expr) {
+            expr.visit(this);
+        }
+
+        @Override
+        public void meet(Distinct node) throws RuntimeException {
+            distinct = true;
+        }
+
+        @Override
+        public void meet(Reduced node) throws RuntimeException {
+            distinct = true;
+        }
+    }
+
+
+    private static class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
+
+        List<StatementPattern> patterns = new ArrayList<>();
+
+        private PatternCollector(TupleExpr expr) {
+            expr.visit(this);
+        }
+
+        @Override
+        public void meet(StatementPattern node) throws RuntimeException {
+            patterns.add(node);
+
+            super.meet(node);
+        }
+    }
+
+
+    private static class FilterCollector extends QueryModelVisitorBase<RuntimeException> {
+
+        List<ValueExpr> filters = new ArrayList<>();
+
+        private FilterCollector(TupleExpr expr) {
+            expr.visit(this);
+        }
+
+        @Override
+        public void meet(Filter node) throws RuntimeException {
+            filters.add(node.getCondition());
+
+            super.meet(node);
+        }
+    }
 }

@@ -120,9 +120,77 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     @Override
-    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(LeftJoin leftJoin, BindingSet bindings) throws QueryEvaluationException {
-        return super.evaluate(leftJoin, bindings);
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Slice slice, BindingSet bindings) throws QueryEvaluationException {
+        if(isSupported(slice)) {
+            log.debug("applying KiWi SLICE optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(slice, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e);
+            }
+        } else {
+            return super.evaluate(slice, bindings);
+        }
     }
+
+    @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Reduced reduced, BindingSet bindings) throws QueryEvaluationException {
+        if(isSupported(reduced)) {
+            log.debug("applying KiWi REDUCED optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(reduced, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e);
+            }
+        } else {
+            return super.evaluate(reduced, bindings);
+        }
+    }
+
+    @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Distinct distinct, BindingSet bindings) throws QueryEvaluationException {
+        if(isSupported(distinct)) {
+            log.debug("applying KiWi DISTINCT optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(distinct, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e);
+            }
+        } else {
+            return super.evaluate(distinct, bindings);
+        }
+    }
+
 
     /**
      * Test if a tuple expression is supported nby the optimized evaluation; in this case we can apply a specific optimization.
@@ -136,6 +204,12 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Filter) expr).getArg()) && isSupported(((Filter) expr).getCondition());
         } else if(expr instanceof StatementPattern) {
             return true;
+        } else if(expr instanceof Slice) {
+            return isSupported(((Slice) expr).getArg());
+        } else if(expr instanceof Reduced) {
+            return isSupported(((Reduced) expr).getArg());
+        } else if(expr instanceof Distinct) {
+            return isSupported(((Distinct) expr).getArg());
         } else {
             return false;
         }
