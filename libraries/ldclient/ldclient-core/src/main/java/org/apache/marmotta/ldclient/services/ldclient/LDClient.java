@@ -178,36 +178,6 @@ public final class LDClient implements LDClientService {
             throw new UnsupportedOperationException("protocol not supportted");
         }
         
-        /*
-        and here what must be the actual implementation
-        try {
-            retrievalSemaphore.acquire();
-            if(!config.isExcludedUri(resource)) {
-
-                Endpoint endpoint = getEndpoint(resource);
-
-                if(endpoint != null) {
-                    DataProvider provider = getDataProvider(endpoint);
-                    if(provider != null) {
-                        return provider.ping(resource, this, endpoint);
-                    } else {
-                        log.error("no service provider for type {}",endpoint.getType());
-                    }
-                } else {
-                    // TODO: the fallback should at least be a Linked Data handler, so maybe we should merge the ldclient-provider-rdf?
-                    // TODO: determine service provider from connection handshaking / MIME type
-                    throw new UnsupportedOperationException("not implemented: determine service provider from connection handshaking / MIME type");
-                }
-            } else {
-                log.error("cannot retrieve a local resource; linked data caching only allowed for remote resources");
-            }
-        } catch (InterruptedException e) {
-            log.warn("retrieval of resource was interruped: {}",resource);
-        } finally {
-            retrievalSemaphore.release();
-        }
-        return false;
-        */
     }
 
 
