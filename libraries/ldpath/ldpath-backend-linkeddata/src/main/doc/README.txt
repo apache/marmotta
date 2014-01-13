@@ -1,3 +1,4 @@
+
 LDPath Linked Data Backend
 ==========================
 
@@ -31,7 +32,7 @@ java -jar ldpath-${project.version}.jar \
 LDPath allows for very complex path expression. The full language documen-
 tation is available at:
 
-http://marmotta.incubator.apache.org/ldpath/language.html
+http://marmotta.apache.org/ldpath/language.html
 
 
 2. Path Programs
@@ -77,7 +78,7 @@ java -jar ldpath-${project.version}.jar \
 
 A full list of supported providers with usage instructions is given on:
 
-http://marmotta.incubator.apache.org/ldclient/modules.html
+http://marmotta.apache.org/ldclient/modules.html
 
 
 

@@ -12,7 +12,7 @@ However, most other servers should also work without problems.
 The following sections give a short introduction how to deploy the Marmotta
 Web Application in your server. More detailed instructions are available at:
 
-http://marmotta.incubator.apache.org/installation.html
+http://marmotta.apache.org/installation.html
 
 
 1. Requirements

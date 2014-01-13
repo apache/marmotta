@@ -29,7 +29,7 @@
         <appname>Apache Marmotta</appname>
         <appversion>${MARMOTTA_VERSION}</appversion>
         <appsubpath>marmotta</appsubpath>
-        <url>http://marmotta.incubator.apache.org</url>
+        <url>http://marmotta.apache.org</url>
         <authors>
             <author name="Sebastian Schaffert" email="sschaffert@apache.org" />
             <author name="Thomas Kurz" email="tkurz@apache.org" />

@@ -190,7 +190,7 @@ public class SystrayListener implements LifecycleListener {
                     TaskDialogs.inform(null,
                             "About Apache Marmotta \n",
                             "(c)2013 The Apache Software Foundation \n" +
-                            "Visit http://marmotta.incubator.apache.org for further details");
+                            "Visit http://marmotta.apache.org for further details");
                 }
             });
             popup.add(about);
@@ -198,7 +198,7 @@ public class SystrayListener implements LifecycleListener {
             MenuItem issues = createMenuItem("Issues Reports", "https://issues.apache.org/jira/browse/MARMOTTA");
             popup.add(issues);
 
-            MenuItem homepage = createMenuItem("Project Homepage", "http://marmotta.incubator.apache.org");
+            MenuItem homepage = createMenuItem("Project Homepage", "http://marmotta.apache.org");
             popup.add(homepage);
 
 

@@ -1,5 +1,5 @@
-Apache Marmotta (incubating)
-===========================
+Apache Marmotta 
+===============
 
 This code repository is still working in progress for the importation of LMF 
 into Marmotta.
@@ -7,7 +7,7 @@ into Marmotta.
 For more information about the incubation status of the Marmotta project you
 can go to the following page:
 
-  http://marmotta.incubator.apache.org
+  http://marmotta.apache.org
 
 
 1. Building the Source Distribution
@@ -52,7 +52,7 @@ This will create a marmotta.war file in the target/ directory. You can
 deploy this archive to any Java Application Server by copying it into
 its deployment directory. More details can be found on:
 
-http://marmotta.incubator.apache.org/installation.html
+http://marmotta.apache.org/installation.html
 
 
 Alternatively, you can directly startup the Apache Marmotta Web Application
