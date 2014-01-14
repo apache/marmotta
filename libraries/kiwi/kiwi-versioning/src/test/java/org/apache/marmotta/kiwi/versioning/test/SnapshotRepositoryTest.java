@@ -193,7 +193,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionBase = repository.getConnection();
         try {
-            connectionBase.add(baseData, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionBase.add(baseData, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionBase.commit();
         } finally {
             connectionBase.close();
@@ -211,7 +211,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionUpdate1 = repository.getConnection();
         try {
-            connectionUpdate1.add(update1Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate1.add(update1Data, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionUpdate1.commit();
         } finally {
             connectionUpdate1.close();
@@ -230,7 +230,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionUpdate2 = repository.getConnection();
         try {
-            connectionUpdate2.add(update2Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate2.add(update2Data, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionUpdate2.commit();
         } finally {
             connectionUpdate2.close();
@@ -240,12 +240,12 @@ public class SnapshotRepositoryTest {
         // test snapshot connection for date2 (i.e. after base import and before updates)
         RepositoryConnection snapshot1 = repository.getSnapshot(date2);
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R1, should be exactly 3
-        List<Statement> s1_r1_triples = asList(snapshot1.getStatements(repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R1"), null, null, true));
+        // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 3
+        List<Statement> s1_r1_triples = asList(snapshot1.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
         Assert.assertEquals(3, s1_r1_triples.size());
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R2, should be zero
-        List<Statement> s1_r2_triples = asList(snapshot1.getStatements(repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R2"), null, null, true));
+        // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be zero
+        List<Statement> s1_r2_triples = asList(snapshot1.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
         Assert.assertEquals(0, s1_r2_triples.size());
 
         snapshot1.commit();
@@ -254,12 +254,12 @@ public class SnapshotRepositoryTest {
         // test snapshot connection for date3 (i.e. after first update)
         RepositoryConnection snapshot2 = repository.getSnapshot(date3);
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R1, should be exactly 4
-        List<Statement> s2_r1_triples = asList(snapshot2.getStatements(repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R1"), null, null, true));
+        // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 4
+        List<Statement> s2_r1_triples = asList(snapshot2.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
         Assert.assertEquals(3, s2_r1_triples.size());
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R2, should be 3
-        List<Statement> s2_r2_triples = asList(snapshot2.getStatements(repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R2"), null, null, true));
+        // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be 3
+        List<Statement> s2_r2_triples = asList(snapshot2.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
         Assert.assertEquals(3, s2_r2_triples.size());
 
         snapshot2.commit();
@@ -269,12 +269,12 @@ public class SnapshotRepositoryTest {
         // test snapshot connection for now (i.e. after both updates)
         RepositoryConnection snapshot3 = repository.getSnapshot(new Date());
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R1, should be exactly 4
-        List<Statement> s3_r1_triples = asList(snapshot3.getStatements(repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R1"), null, null, true));
+        // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 4
+        List<Statement> s3_r1_triples = asList(snapshot3.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
         Assert.assertEquals(4, s3_r1_triples.size());
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R2, should be 3
-        List<Statement> s3_r2_triples = asList(snapshot3.getStatements(repository.getValueFactory().createURI("http://marmotta.incubator.apache.org/testing/ns1/R2"), null, null, true));
+        // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be 3
+        List<Statement> s3_r2_triples = asList(snapshot3.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
         Assert.assertEquals(3, s3_r2_triples.size());
 
         snapshot3.commit();
@@ -296,7 +296,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionBase = repository.getConnection();
         try {
-            connectionBase.add(baseData, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionBase.add(baseData, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionBase.commit();
         } finally {
             connectionBase.close();
@@ -314,7 +314,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionUpdate1 = repository.getConnection();
         try {
-            connectionUpdate1.add(update1Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate1.add(update1Data, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionUpdate1.commit();
         } finally {
             connectionUpdate1.close();
@@ -333,7 +333,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionUpdate2 = repository.getConnection();
         try {
-            connectionUpdate2.add(update2Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate2.add(update2Data, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionUpdate2.commit();
         } finally {
             connectionUpdate2.close();
@@ -343,12 +343,12 @@ public class SnapshotRepositoryTest {
         // test snapshot connection for date2 (i.e. after base import and before updates)
         RepositoryConnection snapshot1 = repository.getSnapshot(date2);
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R1, should be exactly 3
-        BooleanQuery query1_1 = snapshot1.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.incubator.apache.org/testing/ns1/R1> ?p ?o }");
+        // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 3
+        BooleanQuery query1_1 = snapshot1.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.apache.org/testing/ns1/R1> ?p ?o }");
         Assert.assertTrue("SPARQL query for R1 did not return true", query1_1.evaluate());
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R2, should be zero
-        BooleanQuery query1_2 = snapshot1.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.incubator.apache.org/testing/ns1/R2> ?p ?o }");
+        // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be zero
+        BooleanQuery query1_2 = snapshot1.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.apache.org/testing/ns1/R2> ?p ?o }");
         Assert.assertFalse("SPARQL query for R2 did not return false", query1_2.evaluate());
 
         snapshot1.commit();
@@ -357,12 +357,12 @@ public class SnapshotRepositoryTest {
         // test snapshot connection for date3 (i.e. after first update)
         RepositoryConnection snapshot2 = repository.getSnapshot(date3);
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R1, should be exactly 3
-        BooleanQuery query2_1 = snapshot2.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.incubator.apache.org/testing/ns1/R1> ?p ?o }");
+        // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 3
+        BooleanQuery query2_1 = snapshot2.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.apache.org/testing/ns1/R1> ?p ?o }");
         Assert.assertTrue("SPARQL query for R1 did not return true", query2_1.evaluate());
 
-        // query all triples for http://marmotta.incubator.apache.org/testing/ns1/R2, should be 3
-        BooleanQuery query2_2 = snapshot2.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.incubator.apache.org/testing/ns1/R2> ?p ?o }");
+        // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be 3
+        BooleanQuery query2_2 = snapshot2.prepareBooleanQuery(QueryLanguage.SPARQL, "ASK { <http://marmotta.apache.org/testing/ns1/R2> ?p ?o }");
         Assert.assertTrue("SPARQL query for R2 did not return true", query2_2.evaluate());
 
         snapshot2.commit();

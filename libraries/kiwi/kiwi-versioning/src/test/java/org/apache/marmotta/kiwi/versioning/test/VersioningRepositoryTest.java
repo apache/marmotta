@@ -195,7 +195,7 @@ public class VersioningRepositoryTest {
 
         RepositoryConnection connectionBase = repository.getConnection();
         try {
-            connectionBase.add(baseData, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionBase.add(baseData, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionBase.commit();
         } finally {
             connectionBase.close();
@@ -213,7 +213,7 @@ public class VersioningRepositoryTest {
 
         RepositoryConnection connectionUpdate1 = repository.getConnection();
         try {
-            connectionUpdate1.add(update1Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate1.add(update1Data, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionUpdate1.commit();
         } finally {
             connectionUpdate1.close();
@@ -225,7 +225,7 @@ public class VersioningRepositoryTest {
 
         RepositoryConnection connectionUpdate2 = repository.getConnection();
         try {
-            connectionUpdate2.add(update2Data, "http://marmotta.incubator.apache.org/testing/ns1/", RDFFormat.RDFXML);
+            connectionUpdate2.add(update2Data, "http://marmotta.apache.org/testing/ns1/", RDFFormat.RDFXML);
             connectionUpdate2.commit();
         } finally {
             connectionUpdate2.close();
