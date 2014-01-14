@@ -38,11 +38,7 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -186,7 +182,7 @@ public class KiWiDatabaseRunner extends Suite {
             checkDB = new CheckDBRule(config);
             loggerRule = new ExecutionLogger();
         }
-        
+
         @Override
         protected void runChild(FrameworkMethod method, RunNotifier notifier) {
             final ForDialects forD = method.getAnnotation(ForDialects.class);

@@ -23,7 +23,6 @@ import info.aduna.iteration.CloseableIteratorIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -40,7 +39,6 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -510,13 +508,13 @@ public class KiWiSparqlConnection {
         } else if(expr instanceof Compare) {
             Compare cmp = (Compare)expr;
 
-            OPTypes ot = determineOpType(cmp.getLeftArg(), cmp.getRightArg());
+            OPTypes ot = new OPTypeFinder(cmp).coerce();
 
             return evaluateExpression(cmp.getLeftArg(),queryVariables, ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(),queryVariables, ot);
         } else if(expr instanceof MathExpr) {
             MathExpr cmp = (MathExpr)expr;
 
-            OPTypes ot = determineOpType(cmp.getLeftArg(), cmp.getRightArg());
+            OPTypes ot = new OPTypeFinder(cmp).coerce();
 
             if(ot == OPTypes.STRING) {
                 if(cmp.getOperator() == MathExpr.MathOp.PLUS) {
@@ -742,88 +740,6 @@ public class KiWiSparqlConnection {
     }
 
 
-
-    private OPTypes determineOpType(ValueExpr expr) {
-        if(expr instanceof ValueConstant) {
-            if(((ValueConstant) expr).getValue() instanceof Literal) {
-                Literal l = (Literal)((ValueConstant) expr).getValue();
-                String type = l.getDatatype() != null ? l.getDatatype().stringValue() : null;
-
-                if(StringUtils.equals(Namespaces.NS_XSD + "double", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "float", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "decimal", type)) {
-                    return OPTypes.DOUBLE;
-                } else if(StringUtils.equals(Namespaces.NS_XSD + "integer", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "long", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "int", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "short", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "nonNegativeInteger", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "nonPositiveInteger", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "negativeInteger", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "positiveInteger", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "unsignedLong", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "unsignedShort", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "byte", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "unsignedByte", type)) {
-                    return OPTypes.INT;
-                } else if(StringUtils.equals(Namespaces.NS_XSD + "dateTime", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "date", type)
-                        || StringUtils.equals(Namespaces.NS_XSD + "time", type)) {
-                    return OPTypes.DATE;
-                } else {
-                    return OPTypes.STRING;
-                }
-            } else {
-                return OPTypes.STRING;
-            }
-        } else if(expr instanceof Str) {
-            return OPTypes.STRING;
-        } else if(expr instanceof Lang) {
-            return OPTypes.STRING;
-        } else if(expr instanceof LocalName) {
-            return OPTypes.STRING;
-        } else if(expr instanceof Label) {
-            return OPTypes.STRING;
-        } else if(expr instanceof MathExpr) {
-            return determineOpType(((MathExpr) expr).getLeftArg(), ((MathExpr) expr).getRightArg());
-        } else if(expr instanceof Var) {
-            return OPTypes.ANY;
-        } else if(expr instanceof FunctionCall) {
-            FunctionCall fc = (FunctionCall)expr;
-            URI fnUri = new URIImpl(fc.getURI());
-
-            String[] args = new String[fc.getArgs().size()];
-
-            OPTypes fOpType = functionReturnTypes.get(fnUri);
-            if(fOpType == null) {
-                fOpType = OPTypes.ANY;
-            }
-            return fOpType;
-        } else {
-            throw new IllegalArgumentException("unsupported expression: "+expr);
-        }
-    }
-
-    private OPTypes determineOpType(ValueExpr expr1, ValueExpr expr2) {
-        OPTypes left  = determineOpType(expr1);
-        OPTypes right = determineOpType(expr2);
-
-        if(left == OPTypes.ANY) {
-            return right;
-        } else if(right == OPTypes.ANY) {
-            return left;
-        } else if(left == right) {
-            return left;
-        } else if( (left == OPTypes.INT && right == OPTypes.DOUBLE) || (left == OPTypes.DOUBLE && right == OPTypes.INT)) {
-            return OPTypes.DOUBLE;
-        } else if( (left == OPTypes.STRING) || (right == OPTypes.STRING)) {
-            return OPTypes.STRING;
-        } else {
-            throw new IllegalArgumentException("unsupported type coercion: " + left + " and " + right);
-        }
-    }
-
-
     /**
      * Test if the regular expression given in the pattern can be simplified to a LIKE SQL statement; these are
      * considerably more efficient to evaluate in most databases, so in case we can simplify, we return a LIKE.
@@ -908,10 +824,6 @@ public class KiWiSparqlConnection {
     }
 
 
-    private static enum OPTypes {
-        STRING, DOUBLE, INT, DATE, BOOL, ANY
-    }
-
     public KiWiDialect getDialect() {
         return parent.getDialect();
     }
@@ -960,73 +872,4 @@ public class KiWiSparqlConnection {
     }
 
 
-    private static class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
-
-        long limit = -1, offset = -1;
-
-        private LimitFinder(TupleExpr expr) {
-            expr.visit(this);
-        }
-
-        @Override
-        public void meet(Slice node) throws RuntimeException {
-            if(node.hasLimit())
-                limit = node.getLimit();
-            if(node.hasOffset())
-                offset = node.getOffset();
-        }
-    }
-
-    private static class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
-
-        boolean distinct = false;
-
-        private DistinctFinder(TupleExpr expr) {
-            expr.visit(this);
-        }
-
-        @Override
-        public void meet(Distinct node) throws RuntimeException {
-            distinct = true;
-        }
-
-        @Override
-        public void meet(Reduced node) throws RuntimeException {
-            distinct = true;
-        }
-    }
-
-
-    private static class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
-
-        List<StatementPattern> patterns = new ArrayList<>();
-
-        private PatternCollector(TupleExpr expr) {
-            expr.visit(this);
-        }
-
-        @Override
-        public void meet(StatementPattern node) throws RuntimeException {
-            patterns.add(node);
-
-            super.meet(node);
-        }
-    }
-
-
-    private static class FilterCollector extends QueryModelVisitorBase<RuntimeException> {
-
-        List<ValueExpr> filters = new ArrayList<>();
-
-        private FilterCollector(TupleExpr expr) {
-            expr.visit(this);
-        }
-
-        @Override
-        public void meet(Filter node) throws RuntimeException {
-            filters.add(node.getCondition());
-
-            super.meet(node);
-        }
-    }
 }
