@@ -20,7 +20,7 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <version>3.0.1-incubating-SNAPSHOT</version>
+        <version>3.0.1</version>
         <relativePath>../</relativePath>
         <artifactId>plugins-reactor</artifactId>
     </parent>

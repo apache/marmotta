@@ -29,7 +29,7 @@
     <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1-incubating-SNAPSHOT</version>
+    <version>3.0.1</version>
 
     <name>Apache Marmotta Parent</name>
     <description>Parent POM for the Apache Marmotta project</description>
@@ -1530,6 +1530,6 @@
     </profiles>
 
   <scm>
-    <tag>3.0.0-incubating</tag>
+    <tag>3.0.1</tag>
   </scm>
 </project>
