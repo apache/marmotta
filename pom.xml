@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.2-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -112,7 +112,7 @@
         <url>https://git-wip-us.apache.org/repos/asf/marmotta.git</url>
         <connection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</developerConnection>
-      <tag>3.0.1</tag>
+      <tag>3.0.0-incubating</tag>
   </scm>
 
     <issueManagement>
