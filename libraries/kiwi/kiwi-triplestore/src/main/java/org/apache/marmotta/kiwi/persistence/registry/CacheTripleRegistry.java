@@ -108,6 +108,6 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
      */
     @Override
     public void deleteKey(IntArray key) {
-        cache.removeAsync(key.longHashCode());
+        cache.remove(key.longHashCode());
     }
 }
