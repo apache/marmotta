@@ -33,10 +33,10 @@
     <description>Web Application bundle (WAR file) containing Apache Marmotta</description>
 
     <properties>
-        <!-- these are used for the goals tomcat6/7:run or jetty:run -->
         <marmotta.home>${java.io.tmpdir}${file.separator}marmotta</marmotta.home>
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
+        <marmotta.backend>kiwi</marmotta.backend>
     </properties>
 
     <build>
@@ -124,6 +124,64 @@
     </build>
 
     <profiles>
+
+        <!-- backend profiles -->
+        
+        <profile>
+            <id>kiwi</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>marmotta.backend</name>
+                    <value>kiwi</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-backend-kiwi</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-ldcache-kiwi</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-reasoner-kiwi</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-versioning-kiwi</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>bigdata</id>
+            <activation>
+                <property>
+                    <name>marmotta.backend</name>
+                    <value>bigdata</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-backend-bigdata</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-ldcache-file</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <profile>
             <id>cleanall</id>
             <build>
@@ -178,12 +236,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-ldpath</artifactId>
+            <artifactId>marmotta-sparql</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-backend-kiwi</artifactId>
+            <artifactId>marmotta-ldpath</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -193,17 +251,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-ldcache-kiwi</artifactId>
+            <artifactId>marmotta-versioning-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-reasoner-kiwi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-sparql</artifactId>
+            <artifactId>marmotta-user</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -211,35 +264,15 @@
             <artifactId>marmotta-security</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-versioning-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-versioning-kiwi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!-- Optional
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-zookeeper</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-templating</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
         -->
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-user</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
-        <!-- Servlet / CDI Environment -->
+        <!-- JavaEE / Servlet / CDI Environment -->
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>javax.el-api</artifactId>
@@ -261,8 +294,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-
-        <!-- CORS filter -->
         <dependency>
             <groupId>com.thetransactioncompany</groupId>
             <artifactId>cors-filter</artifactId>
