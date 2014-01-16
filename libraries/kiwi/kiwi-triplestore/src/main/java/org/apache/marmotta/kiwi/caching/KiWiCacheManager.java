@@ -200,6 +200,8 @@ public class KiWiCacheManager {
     public Cache getTripleCache() {
         if(tripleCache == null) {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                    .clustering()
+                        .cacheMode(CacheMode.LOCAL)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getTripleCacheSize())
                     .expiration()
@@ -281,6 +283,8 @@ public class KiWiCacheManager {
     public Cache getNamespaceUriCache() {
         if(nsUriCache == null) {
             Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                    .clustering()
+                        .cacheMode(CacheMode.REPL_ASYNC)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
                     .expiration()
@@ -300,6 +304,8 @@ public class KiWiCacheManager {
     public Cache getNamespacePrefixCache() {
         if(nsPrefixCache == null) {
             Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                    .clustering()
+                        .cacheMode(CacheMode.REPL_ASYNC)
                     .eviction()
                         .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
                     .expiration()

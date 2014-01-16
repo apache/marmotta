@@ -1073,9 +1073,7 @@ public class KiWiConnection implements AutoCloseable {
                 if(batchCommit) {
                     commitLock.lock();
                     try {
-                        if(!persistence.getConfiguration().isClustered()) {
-                            cacheTriple(triple);
-                        }
+                        cacheTriple(triple);
                         tripleBatch.add(triple);
                         if(tripleBatch.size() >= batchSize) {
                             flushBatch();
@@ -1109,9 +1107,7 @@ public class KiWiConnection implements AutoCloseable {
                                 insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
                                 int count = insertTriple.executeUpdate();
 
-                                if(!persistence.getConfiguration().isClustered()) {
-                                    cacheTriple(triple);
-                                }
+                                cacheTriple(triple);
 
                                 return count > 0;
                             }
