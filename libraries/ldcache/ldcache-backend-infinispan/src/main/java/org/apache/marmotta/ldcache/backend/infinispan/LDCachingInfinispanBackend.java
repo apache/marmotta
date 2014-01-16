@@ -96,7 +96,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
                     .defaultTransport()
                     .clusterName(clusterName)
                     .machineId(machineName)
-                    .addProperty("configurationFile", "jgroups-kiwi.xml")
+                    .addProperty("configurationFile", "jgroups-ldcache.xml")
                 .globalJmxStatistics()
                     .jmxDomain("org.apache.marmotta.ldcache")
                     .allowDuplicateDomains(true)
