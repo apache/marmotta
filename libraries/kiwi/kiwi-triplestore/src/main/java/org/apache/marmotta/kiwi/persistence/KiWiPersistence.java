@@ -17,8 +17,7 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
-import org.apache.marmotta.kiwi.caching.TripleExternalizer;
+import org.apache.marmotta.kiwi.caching.*;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.generator.IDGenerator;
 import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
@@ -26,6 +25,7 @@ import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,10 +138,21 @@ public class KiWiPersistence {
 
 
     private void initCachePool() {
+        AdvancedExternalizer[] externalizers =  new AdvancedExternalizer[] {
+                new TripleExternalizer(this),
+                new UriExternalizer(),
+                new BNodeExternalizer(),
+                new StringLiteralExternalizer(),
+                new DateLiteralExternalizer(),
+                new BooleanLiteralExternalizer(),
+                new IntLiteralExternalizer(),
+                new DoubleLiteralExternalizer()
+        };
+
         if(infinispan != null) {
-            cacheManager = new KiWiCacheManager(infinispan,configuration, new TripleExternalizer(this));
+            cacheManager = new KiWiCacheManager(infinispan,configuration, externalizers);
         } else {
-            cacheManager = new KiWiCacheManager(configuration, new TripleExternalizer(this));
+            cacheManager = new KiWiCacheManager(configuration, externalizers);
         }
     }
 

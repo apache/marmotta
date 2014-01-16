@@ -1073,7 +1073,9 @@ public class KiWiConnection implements AutoCloseable {
                 if(batchCommit) {
                     commitLock.lock();
                     try {
-                        cacheTriple(triple);
+                        if(!persistence.getConfiguration().isClustered()) {
+                            cacheTriple(triple);
+                        }
                         tripleBatch.add(triple);
                         if(tripleBatch.size() >= batchSize) {
                             flushBatch();
@@ -1107,7 +1109,9 @@ public class KiWiConnection implements AutoCloseable {
                                 insertTriple.setTimestamp(7, new Timestamp(triple.getCreated().getTime()));
                                 int count = insertTriple.executeUpdate();
 
-                                cacheTriple(triple);
+                                if(!persistence.getConfiguration().isClustered()) {
+                                    cacheTriple(triple);
+                                }
 
                                 return count > 0;
                             }
@@ -1267,7 +1271,9 @@ public class KiWiConnection implements AutoCloseable {
             undeleteTriple.setLong(1, triple.getId());
             undeleteTriple.executeUpdate();
 
-            cacheTriple(triple);
+            if(!persistence.getConfiguration().isClustered()) {
+                cacheTriple(triple);
+            }
         }
 
     }
@@ -1689,7 +1695,7 @@ public class KiWiConnection implements AutoCloseable {
             // (see http://stackoverflow.com/questions/782823/handling-datetime-values-0000-00-00-000000-in-jdbc)
         }
 
-        tripleCache.put(id,result);
+        cacheTriple(result);
 
         return result;
     }

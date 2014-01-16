@@ -24,6 +24,8 @@ import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -37,6 +39,8 @@ import java.util.Set;
  * IDs instead of the whole nodes.
  */
 public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
+
+    private static Logger log = LoggerFactory.getLogger(TripleExternalizer.class);
 
     private KiWiPersistence persistence;
 
@@ -65,8 +69,12 @@ public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
         output.writeBoolean(object.isDeleted());
         output.writeBoolean(object.isInferred());
         output.writeBoolean(object.isNewTriple());
-        output.writeObject(object.getCreated());
-        output.writeObject(object.getDeletedAt());
+        output.writeLong(object.getCreated().getTime());
+        if(object.getDeletedAt() != null) {
+            output.writeLong(object.getDeletedAt().getTime());
+        } else {
+            output.writeLong(0);
+        }
     }
 
     @Override
@@ -93,8 +101,12 @@ public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
                 result.setInferred(input.readBoolean());
                 result.setNewTriple(input.readBoolean());
 
-                result.setCreated((Date) input.readObject());
-                result.setDeletedAt((Date) input.readObject());
+                result.setCreated(new Date(input.readLong()));
+
+                long deletedAt = input.readLong();
+                if(deletedAt > 0) {
+                    result.setDeletedAt(new Date(deletedAt));
+                }
 
 
                 return result;

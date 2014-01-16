@@ -1,4 +1,4 @@
-CREATE INDEX idx_triples_p ON triples(object,predicate) WHERE deleted = false;
+CREATE INDEX idx_triples_p ON triples(predicate) WHERE deleted = false;
 CREATE INDEX idx_triples_spo ON triples(subject,predicate,object) WHERE deleted = false;
 CREATE INDEX idx_triples_cspo ON triples(context,subject,predicate,object) WHERE deleted = false;
 CREATE INDEX idx_node_dcontent ON nodes(dvalue) WHERE dvalue IS NOT NULL;
