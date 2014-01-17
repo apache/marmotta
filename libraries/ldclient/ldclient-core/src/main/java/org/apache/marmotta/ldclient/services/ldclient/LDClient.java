@@ -113,7 +113,7 @@ public final class LDClient implements LDClientService {
         providers.addAll(config.getProviders());
         if(log.isInfoEnabled()) {
             for(DataProvider provider : providers) {
-                log.info("- LDClient Probvider: {}", provider.getName());
+                log.info("- LDClient Provider: {}", provider.getName());
             }
         }
 
