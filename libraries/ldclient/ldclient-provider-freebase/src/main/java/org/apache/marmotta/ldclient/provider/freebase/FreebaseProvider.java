@@ -74,7 +74,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
     @Override
     public List<String> buildRequestUrl(String uri, Endpoint endpoint) {
         Preconditions.checkNotNull(uri);
-        String id = uri.substring(uri.lastIndexOf('-') + 1);
+        String id = uri.substring(uri.lastIndexOf('/') + 1);
         String url = API + id.replace('.', '/');
         return Collections.singletonList(url);
     }
