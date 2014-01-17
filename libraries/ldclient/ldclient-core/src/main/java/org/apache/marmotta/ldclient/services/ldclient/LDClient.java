@@ -219,7 +219,7 @@ public final class LDClient implements LDClientService {
                         log.error("no service provider for type {}",endpoint.getType());
                     }
                 } else {
-                    // TODO: the fallback should at least be a Linked Data handler, so maybe we should merge the ldclient-provider-freebase?
+                    // TODO: the fallback should at least be a Linked Data handler, so maybe we should merge the ldclient-provider-rdf?
                     // TODO: determine service provider from connection handshaking / MIME type
                     throw new UnsupportedOperationException("not implemented: determine service provider from connection handshaking / MIME type");
                 }
