@@ -17,12 +17,6 @@
 
 package org.apache.marmotta.kiwi.generator;
 
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-
-import java.sql.Connection;
-import java.sql.SQLException;
-
 /**
  * An interface for database ID generators.
  *
@@ -32,30 +26,13 @@ public interface IDGenerator {
 
     /**
      * Return the next unique id for the type with the given name using the generator's id generation strategy.
-     * @param name
-     *
      * @return
      */
-    public long getId(String name, KiWiConnection connection) throws SQLException;
-
-    /**
-     * Initialise the generator for the given persistence and module
-     */
-    public void init(KiWiPersistence persistence, String scriptName);
-
-    /**
-     * Commit the current state of memory sequences to the database using the connection passed as second argument.
-     *
-     * @param persistence
-     * @param con
-     * @throws java.sql.SQLException
-     */
-    void commit(KiWiPersistence persistence, Connection con) throws SQLException;
+    public long getId();
 
     /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
-     * @param persistence
      */
-    public void shutdown(KiWiPersistence persistence);
+    public void shutdown();
 }

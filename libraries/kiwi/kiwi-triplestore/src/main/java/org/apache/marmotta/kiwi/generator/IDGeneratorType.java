@@ -23,18 +23,6 @@ package org.apache.marmotta.kiwi.generator;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public enum IDGeneratorType {
-    /**
-     * Generate keys using database sequences (for databases which support it) or atomic table updates
-     */
-    DATABASE_SEQUENCE,
-
-    /**
-     * Load the sequences in-memory on startup and generate ids by incrementing an atomic counter. Much faster
-     * than database sequences and backwards-compatible, but only works for exclusive connections to the
-     * database (i.e. no other application is accessing the same database)
-     */
-    MEMORY_SEQUENCE,
-
 
     /**
      * Generate row ids using the least significant 8 bytes of time-based UUIDs as described in http://www.ietf.org/rfc/rfc4122.txt

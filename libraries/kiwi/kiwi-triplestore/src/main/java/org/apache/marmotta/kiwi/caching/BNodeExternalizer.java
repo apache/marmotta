@@ -42,7 +42,7 @@ public class BNodeExternalizer implements AdvancedExternalizer<KiWiAnonResource>
 
     @Override
     public Integer getId() {
-        return 23;
+        return ExternalizerIds.BNODE;
     }
 
     @Override

@@ -463,7 +463,7 @@ public class KiWiPersistence {
         log.info("shutting down KiWi persistence ...");
         initialized = false;
 
-        idGenerator.shutdown(this);
+        idGenerator.shutdown();
         garbageCollector.shutdown();
         cacheManager.shutdown();
         connectionPool.close();

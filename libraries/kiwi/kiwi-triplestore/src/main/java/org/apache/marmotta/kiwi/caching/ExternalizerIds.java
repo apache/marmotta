@@ -15,42 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.generator;
-
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.RandomBasedGenerator;
+package org.apache.marmotta.kiwi.caching;
 
 /**
- * Generate a long id using the least significant bits of a secure random UUDI
+ * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class UUIDRandomIDGenerator implements IDGenerator {
+public class ExternalizerIds {
 
-    RandomBasedGenerator generator;
+    public static final int URI = 17;
 
-    public UUIDRandomIDGenerator() {
-        generator = Generators.randomBasedGenerator();
-    }
+    public static final int BNODE = 23;
 
+    public static final int STRING_LITERAL = 19;
 
-    /**
-     * Shut down this id generator, performing any cleanups that might be necessary.
-     *
-     */
-    @Override
-    public void shutdown() {
+    public static final int INT_LITERAL = 39;
 
-    }
+    public static final int DOUBLE_LITERAL = 37;
 
-    /**
-     * Return the next unique id for the type with the given name using the generator's id generation strategy.
-     *
-     * @return
-     */
-    @Override
-    public long getId() {
-        return generator.generate().getMostSignificantBits();
-    }
+    public static final int DATE_LITERAL = 29;
+
+    public static final int BOOL_LITERAL = 31;
 
 }

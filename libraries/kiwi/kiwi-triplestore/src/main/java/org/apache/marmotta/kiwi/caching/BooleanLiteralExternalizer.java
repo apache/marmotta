@@ -42,7 +42,7 @@ public class BooleanLiteralExternalizer implements AdvancedExternalizer<KiWiBool
 
     @Override
     public Integer getId() {
-        return 31;
+        return ExternalizerIds.BOOL_LITERAL;
     }
 
     @Override
