@@ -97,16 +97,18 @@ public class FreebaseProvider extends AbstractHttpProvider {
             format = Rio.getWriterFormatForMIMEType(contentType, DEFAULT_RDF_FORMAT);
         }
 
-        String encoding = DEFAULT_ENCODING;
-        Matcher m = CHARSET_PATTERN.matcher(contentType);
-        if (StringUtils.isNotBlank(contentType) && m.find()) {
-            encoding = m.group(1).trim().toUpperCase();
-        } else {
-            encoding = DEFAULT_ENCODING;
-        }
-
         try {
-            ModelCommons.add(triples, fix(in, encoding), resourceUri, format, new Predicate<Statement>() {
+            if (DEFAULT_RDF_FORMAT.equals(format)) {
+                String encoding;
+                Matcher m = CHARSET_PATTERN.matcher(contentType);
+                if (StringUtils.isNotBlank(contentType) && m.find()) {
+                    encoding = m.group(1).trim().toUpperCase();
+                } else {
+                    encoding = DEFAULT_ENCODING;
+                }
+                in = fix(in, encoding);
+            }
+            ModelCommons.add(triples, in, resourceUri, format, new Predicate<Statement>() {
                 @Override
                 public boolean test(Statement param) {
                     return StringUtils.equals(param.getSubject().stringValue(), resourceUri);
