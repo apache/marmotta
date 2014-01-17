@@ -81,12 +81,13 @@
         <module>ldclient-provider-rdfa</module>
         <module>ldclient-provider-xml</module>
         <module>ldclient-provider-html</module>
-        <module>ldclient-provider-youtube</module>
-        <module>ldclient-provider-vimeo</module>
         <module>ldclient-provider-ldap</module>
         <module>ldclient-provider-mediawiki</module>
+        <module>ldclient-provider-freebase</module>
         <module>ldclient-provider-phpbb</module>
         <module>ldclient-provider-facebook</module>
+        <module>ldclient-provider-youtube</module>
+        <module>ldclient-provider-vimeo</module>
     </modules>
     
 </project>
