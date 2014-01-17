@@ -1744,7 +1744,7 @@ public class KiWiConnection implements AutoCloseable {
      * @throws SQLException
      */
     public long getNextSequence(String sequenceName) throws SQLException {
-        return persistence.getIdGenerator().getId(sequenceName,this);
+        return persistence.getIdGenerator().getId();
     }
 
     public long getDatabaseSequence(String sequenceName) throws SQLException {
@@ -2020,10 +2020,6 @@ public class KiWiConnection implements AutoCloseable {
         execution.execute(connection, new RetryCommand<Void>() {
             @Override
             public Void run() throws SQLException {
-                if(connection != null) {
-                    persistence.getIdGenerator().commit(persistence, connection);
-                }
-
                 if(tripleBatch != null && tripleBatch.size() > 0) {
                     flushBatch();
                 }

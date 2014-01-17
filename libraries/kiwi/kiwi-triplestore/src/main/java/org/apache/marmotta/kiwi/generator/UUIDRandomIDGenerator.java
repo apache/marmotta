@@ -19,11 +19,7 @@ package org.apache.marmotta.kiwi.generator;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Generate a long id using the least significant bits of a secure random UUDI
@@ -40,25 +36,6 @@ public class UUIDRandomIDGenerator implements IDGenerator {
 
 
     /**
-     * Initialise the generator for the given persistence and module
-     */
-    @Override
-    public void init(KiWiPersistence persistence, String scriptName) {
-    }
-
-    /**
-     * Commit the current state of memory sequences to the database using the connection passed as second argument.
-     *
-     * @param persistence
-     * @param con
-     * @throws java.sql.SQLException
-     */
-    @Override
-    public void commit(KiWiPersistence persistence, Connection con) throws SQLException {
-    }
-
-
-    /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
      * @param persistence
@@ -71,11 +48,10 @@ public class UUIDRandomIDGenerator implements IDGenerator {
     /**
      * Return the next unique id for the type with the given name using the generator's id generation strategy.
      *
-     * @param name
      * @return
      */
     @Override
-    public long getId(String name, KiWiConnection connection) {
+    public long getId() {
         return generator.generate().getMostSignificantBits();
     }
 

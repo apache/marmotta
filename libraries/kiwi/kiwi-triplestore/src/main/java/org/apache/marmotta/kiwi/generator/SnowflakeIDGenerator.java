@@ -17,7 +17,6 @@
 
 package org.apache.marmotta.kiwi.generator;
 
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +25,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Random;
 
@@ -116,27 +113,13 @@ public class SnowflakeIDGenerator implements IDGenerator {
     }
 
 
-
-    /**
-     * Commit the current state of memory sequences to the database using the connection passed as second argument.
-     *
-     * @param persistence
-     * @param con
-     * @throws java.sql.SQLException
-     */
-    @Override
-    public void commit(KiWiPersistence persistence, Connection con) throws SQLException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     /**
      * Return the next unique id for the type with the given name using the generator's id generation strategy.
      *
-     * @param name
      * @return
      */
     @Override
-    public synchronized long getId(String name, KiWiConnection connection) throws SQLException {
+    public synchronized long getId() {
         long timestamp = System.currentTimeMillis();
         if(timestamp<lastTimestamp) {
             log.warn("Clock moved backwards. Refusing to generate id for {} milliseconds.",(lastTimestamp - timestamp));
@@ -160,13 +143,6 @@ public class SnowflakeIDGenerator implements IDGenerator {
             log.warn("ID is smaller than 0: {}",id);
         }
         return id;
-    }
-
-    /**
-     * Initialise the generator for the given persistence and module
-     */
-    @Override
-    public void init(KiWiPersistence persistence, String scriptName) {
     }
 
     /**

@@ -41,7 +41,7 @@ public class UriExternalizer implements AdvancedExternalizer<KiWiUriResource> {
 
     @Override
     public Integer getId() {
-        return 17;
+        return ExternalizerIds.URI;
     }
 
     @Override

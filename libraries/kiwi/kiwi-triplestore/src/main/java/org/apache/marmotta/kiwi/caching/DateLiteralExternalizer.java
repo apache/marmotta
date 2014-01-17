@@ -42,7 +42,7 @@ public class DateLiteralExternalizer implements AdvancedExternalizer<KiWiDateLit
 
     @Override
     public Integer getId() {
-        return 29;
+        return ExternalizerIds.DATE_LITERAL;
     }
 
     @Override

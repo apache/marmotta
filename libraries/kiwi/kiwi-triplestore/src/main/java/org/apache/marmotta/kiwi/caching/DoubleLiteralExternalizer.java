@@ -42,7 +42,7 @@ public class DoubleLiteralExternalizer implements AdvancedExternalizer<KiWiDoubl
 
     @Override
     public Integer getId() {
-        return 37;
+        return ExternalizerIds.DOUBLE_LITERAL;
     }
 
     @Override

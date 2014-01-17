@@ -55,7 +55,7 @@ public class UUIDRandomTest {
         long start = System.currentTimeMillis();
 
         while(System.currentTimeMillis() < start + 5000) {
-            long id = generator.getId(null,null);
+            long id = generator.getId();
             count++;
             log.trace("Generated ID: {}", id);
         }
@@ -72,7 +72,7 @@ public class UUIDRandomTest {
         long oldid = 0;
 
         while(System.currentTimeMillis() < start + 5000) {
-            long id = generator.getId(null,null);
+            long id = generator.getId();
 
             Assert.assertNotEquals(oldid,id);
             oldid = id;

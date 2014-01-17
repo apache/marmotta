@@ -43,7 +43,7 @@ public class StringLiteralExternalizer implements AdvancedExternalizer<KiWiStrin
 
     @Override
     public Integer getId() {
-        return 19;
+        return ExternalizerIds.STRING_LITERAL;
     }
 
     @Override

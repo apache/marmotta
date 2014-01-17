@@ -42,7 +42,7 @@ public class IntLiteralExternalizer implements AdvancedExternalizer<KiWiIntLiter
 
     @Override
     public Integer getId() {
-        return 37;
+        return ExternalizerIds.INT_LITERAL;
     }
 
     @Override

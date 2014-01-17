@@ -15,27 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.generator;
-
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
+package org.apache.marmotta.kiwi.caching;
 
 /**
- * An interface for database ID generators.
+ * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public interface IDGenerator {
+public class ExternalizerIds {
 
-    /**
-     * Return the next unique id for the type with the given name using the generator's id generation strategy.
-     * @return
-     */
-    public long getId();
+    public static final int URI = 17;
 
-    /**
-     * Shut down this id generator, performing any cleanups that might be necessary.
-     *
-     * @param persistence
-     */
-    public void shutdown(KiWiPersistence persistence);
+    public static final int BNODE = 23;
+
+    public static final int STRING_LITERAL = 19;
+
+    public static final int INT_LITERAL = 39;
+
+    public static final int DOUBLE_LITERAL = 37;
+
+    public static final int DATE_LITERAL = 29;
+
+    public static final int BOOL_LITERAL = 31;
+
 }
