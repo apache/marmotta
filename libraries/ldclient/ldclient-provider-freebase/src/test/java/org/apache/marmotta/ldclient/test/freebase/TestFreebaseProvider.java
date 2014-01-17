@@ -44,6 +44,7 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
+    @Ignore
     public void testASF() throws Exception {
         testResource(ASF, "m.0nzm.sparql");
     }
@@ -55,6 +56,7 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
+    @Ignore
     public void testMarmotta() throws Exception {
         testResource(MARMOTTA, "m.0wqhskn.sparql");
     }
@@ -66,6 +68,7 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
+    @Ignore
     public void testSergio() throws Exception {
         testResource(SERGIO, "m.07zqbwz.sparql");
     }
