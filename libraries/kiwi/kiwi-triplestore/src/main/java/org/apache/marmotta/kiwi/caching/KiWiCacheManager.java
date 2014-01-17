@@ -282,15 +282,25 @@ public class KiWiCacheManager {
      */
     public Cache getNamespaceUriCache() {
         if(nsUriCache == null) {
-            Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
-                    .clustering()
-                        .cacheMode(CacheMode.REPL_ASYNC)
-                    .eviction()
-                        .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
-                    .expiration()
-                        .lifespan(1, TimeUnit.HOURS)
-                    .build();
-            cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
+            if(clustered) {
+                Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                        .clustering()
+                            .cacheMode(CacheMode.REPL_ASYNC)
+                        .eviction()
+                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                        .expiration()
+                            .lifespan(1, TimeUnit.DAYS)
+                        .build();
+                cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
+            } else {
+                Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                        .eviction()
+                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                        .expiration()
+                            .lifespan(1, TimeUnit.HOURS)
+                        .build();
+                cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
+            }
 
             nsUriCache = cacheManager.getCache(NAMESPACE_URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
@@ -303,16 +313,27 @@ public class KiWiCacheManager {
      */
     public Cache getNamespacePrefixCache() {
         if(nsPrefixCache == null) {
-            Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
-                    .clustering()
-                        .cacheMode(CacheMode.REPL_ASYNC)
-                    .eviction()
-                        .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
-                    .expiration()
-                        .lifespan(1, TimeUnit.HOURS)
-                    .build();
-            cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
+            if(clustered) {
+                Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                        .clustering()
+                            .cacheMode(CacheMode.REPL_ASYNC)
+                        .eviction()
+                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                        .expiration()
+                            .lifespan(1, TimeUnit.DAYS)
+                        .build();
+                cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
 
+            } else {
+                Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
+                        .eviction()
+                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                        .expiration()
+                            .lifespan(1, TimeUnit.HOURS)
+                        .build();
+                cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
+
+            }
             nsPrefixCache = cacheManager.getCache(NAMESPACE_PREFIX_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
         return nsPrefixCache;
