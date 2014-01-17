@@ -20,8 +20,8 @@ package org.apache.marmotta.ldclient.provider.freebase;
 import com.google.common.base.Preconditions;
 
 import javolution.util.function.Predicate;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
@@ -30,12 +30,16 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParserRegistry;
+import org.openrdf.rio.Rio;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Linked Data patched data provider to Freebase.
@@ -44,8 +48,12 @@ import java.util.List;
  */
 public class FreebaseProvider extends AbstractHttpProvider {
 
-    public static final String PROVIDER_NAME = "Freebase";
+    public static final String NAME = "Freebase";
+    public static final String PATTERN = "http(s?)://rdf\\.freebase\\.com/ns/.*";
     public static final String API = "https://www.googleapis.com/freebase/v1/rdf/";
+    public static final RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.TURTLE;
+    public static final String DEFAULT_ENCODING = "UTF-8";
+    private static final Pattern CHARSET_PATTERN = Pattern.compile("(?i)\\bcharset=\\s*\"?([^\\s;\"]*)");
 
     /**
      * Return the name of this data provider. To be used e.g. in the configuration and in log messages.
@@ -54,7 +62,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
      */
     @Override
     public String getName() {
-        return PROVIDER_NAME;
+        return NAME;
     }
 
     @Override
@@ -73,7 +81,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
      */
     @Override
     public List<String> buildRequestUrl(String uri, Endpoint endpoint) {
-        Preconditions.checkNotNull(uri);
+        Preconditions.checkState(StringUtils.isNotBlank(uri));
         String id = uri.substring(uri.lastIndexOf('/') + 1);
         String url = API + id.replace('.', '/');
         return Collections.singletonList(url);
@@ -81,10 +89,24 @@ public class FreebaseProvider extends AbstractHttpProvider {
 
     @Override
     public List<String> parseResponse(final String resourceUri, final String requestUrl, Model triples, InputStream in, final String contentType) throws DataRetrievalException {
-        Preconditions.checkState(contentType.contains("text/plain"), "Unexpected content type: " + contentType);
-        RDFFormat format = RDFFormat.TURTLE;
+
+        RDFFormat format;
+        if (StringUtils.isNotBlank(contentType) && (contentType.contains("text/plain")||contentType.contains("text/turtle"))) {
+            format = DEFAULT_RDF_FORMAT;
+        } else {
+            format = Rio.getWriterFormatForMIMEType(contentType, DEFAULT_RDF_FORMAT);
+        }
+
+        String encoding = DEFAULT_ENCODING;
+        Matcher m = CHARSET_PATTERN.matcher(contentType);
+        if (StringUtils.isNotBlank(contentType) && m.find()) {
+            encoding = m.group(1).trim().toUpperCase();
+        } else {
+            encoding = DEFAULT_ENCODING;
+        }
+
         try {
-            ModelCommons.add(triples, in, resourceUri, format, new Predicate<Statement>() {
+            ModelCommons.add(triples, fix(in, encoding), resourceUri, format, new Predicate<Statement>() {
                 @Override
                 public boolean test(Statement param) {
                     return StringUtils.equals(param.getSubject().stringValue(), resourceUri);
@@ -96,6 +118,21 @@ public class FreebaseProvider extends AbstractHttpProvider {
         } catch (IOException e) {
             throw new DataRetrievalException("I/O error while trying to read remote Turtle from Freebase", e);
         }
+
+    }
+
+    /**
+     * Fixes Freebase deficiencies on Turtle serialization
+     *
+     * @param in stream with the raw data
+     * @return fixed stream
+     */
+    private InputStream fix(InputStream in, String encoding) throws IOException {
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(in, writer, encoding);
+        String raw = writer.toString();
+        //TODO: perform fixes
+        return new ByteArrayInputStream(raw.getBytes(encoding));
     }
 
 }

@@ -19,16 +19,17 @@ package org.apache.marmotta.ldclient.endpoint.freebase;
 
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
+import org.apache.marmotta.ldclient.provider.freebase.FreebaseProvider;
 
 /**
- * A particular endpoint for accessing RDF from Freebase.
+ * Endpoint for accessing RDF from Freebase.
  *
  * @author Sergio Fernández
  */
 public class FreebaseEndpoint extends Endpoint {
 
     public FreebaseEndpoint() {
-        super("Freebase", "Freebase", "http(s?)://rdf\\.freebase\\.com/ns/.*", null, 86400L);
+        super(FreebaseProvider.NAME, FreebaseProvider.NAME, FreebaseProvider.PATTERN, null, 86400L);
         setPriority(PRIORITY_MEDIUM);
         addContentType(new ContentType("text", "turtle", 1.0));
         addContentType(new ContentType("text", "plain", 0.2));
