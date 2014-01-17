@@ -21,7 +21,6 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.ext.FileBasedTimestampSynchronizer;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +58,9 @@ public class UUIDTimeIDGenerator implements IDGenerator {
     /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
-     * @param persistence
      */
     @Override
-    public void shutdown(KiWiPersistence persistence) {
+    public void shutdown() {
         try {
             synchronizer.deactivate();
 

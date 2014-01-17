@@ -42,7 +42,7 @@ public class UUIDTimeTest {
 
     @After
     public void shutdown() {
-        generator.shutdown(null);
+        generator.shutdown();
     }
 
     /**

@@ -17,8 +17,6 @@
 
 package org.apache.marmotta.kiwi.generator;
 
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-
 /**
  * An interface for database ID generators.
  *
@@ -35,7 +33,6 @@ public interface IDGenerator {
     /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
-     * @param persistence
      */
-    public void shutdown(KiWiPersistence persistence);
+    public void shutdown();
 }

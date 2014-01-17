@@ -42,7 +42,7 @@ public class UUIDRandomTest {
 
     @After
     public void shutdown() {
-        generator.shutdown(null);
+        generator.shutdown();
     }
 
     /**

@@ -17,7 +17,6 @@
 
 package org.apache.marmotta.kiwi.generator;
 
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,10 +147,9 @@ public class SnowflakeIDGenerator implements IDGenerator {
     /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
-     * @param persistence
      */
     @Override
-    public void shutdown(KiWiPersistence persistence) {
+    public void shutdown() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }

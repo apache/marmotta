@@ -19,7 +19,6 @@ package org.apache.marmotta.kiwi.generator;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 
 /**
  * Generate a long id using the least significant bits of a secure random UUDI
@@ -38,10 +37,9 @@ public class UUIDRandomIDGenerator implements IDGenerator {
     /**
      * Shut down this id generator, performing any cleanups that might be necessary.
      *
-     * @param persistence
      */
     @Override
-    public void shutdown(KiWiPersistence persistence) {
+    public void shutdown() {
 
     }
 
