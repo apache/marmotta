@@ -31,7 +31,20 @@ import org.junit.Test;
  */
 public class TestFreebaseProvider extends ProviderTestBase {
 
+    private static final String MARMOTTA = "http://rdf.freebase.com/ns/m.0wqhskn";
+
     private static final String SERGIO = "http://rdf.freebase.com/ns/m.07zqbwz";
+
+    /**
+     * Tests accessing Marmotta's page from Freebase.
+     *
+     * @throws Exception
+     *
+     */
+    @Test
+    public void testMarmotta() throws Exception {
+        testResource(MARMOTTA, "m.0wqhskn.sparql");
+    }
 
     /**
      * Tests accessing Sergio's profile from Freebase.
