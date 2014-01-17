@@ -17,12 +17,25 @@
  */
 package org.apache.marmotta.ldclient.test.freebase;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openrdf.query.BooleanQuery;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.Rio;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.io.StringWriter;
 
 /**
  * Test if the FreebaseProvider is working properly.
@@ -31,11 +44,12 @@ import org.junit.Test;
  */
 public class TestFreebaseProvider extends ProviderTestBase {
 
+    private static Logger log = LoggerFactory.getLogger(TestFreebaseProvider.class);
+
     private static final String ASF = "http://rdf.freebase.com/ns/m.0nzm";
-
     private static final String MARMOTTA = "http://rdf.freebase.com/ns/m.0wqhskn";
-
     private static final String SERGIO = "http://rdf.freebase.com/ns/m.07zqbwz";
+    private static final String WAS = "http://rdf.freebase.com/ns/m.0h21k1c";
 
     /**
      * Tests accessing ASF's page from Freebase.
@@ -71,6 +85,17 @@ public class TestFreebaseProvider extends ProviderTestBase {
     @Ignore
     public void testSergio() throws Exception {
         testResource(SERGIO, "m.07zqbwz.sparql");
+    }
+
+    /**
+     * Tests accessing WAS's page from Freebase.
+     *
+     * @throws Exception
+     *
+     */
+    @Test
+    public void testWAS() throws Exception {
+        testResource(WAS, "m.0h21k1c.sparql");
     }
 
 }
