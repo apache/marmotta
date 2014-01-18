@@ -48,7 +48,7 @@ public class FreebaseFixit {
     private final static String FREEBASE_ESCAPE_CHAR = Pattern.quote("$");
 
     private final static Pattern freebaseEscape =
-            Pattern.compile(FREEBASE_ESCAPE_CHAR+"([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})");
+            Pattern.compile(FREEBASE_ESCAPE_CHAR + "([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})");
 
     private final static Pattern tripletPattern =
             Pattern.compile("^(\\S+)\\s+(\\S+)\\s+(.*)$");
@@ -118,7 +118,7 @@ public class FreebaseFixit {
 
         fixedObject = fixURI(fixedObject);
 
-        if(isLiteral(fixedObject)) {
+        if (isLiteral(fixedObject)) {
             fixedObject = removeNullChar(fixedObject);
         }
 
@@ -167,14 +167,14 @@ public class FreebaseFixit {
     public static void fix(BufferedReader br, PrintStream out) {
         try {
             String input;
-            while((input=br.readLine())!=null){
+            while ((input = br.readLine()) != null) {
                 try {
                     out.println(fixTriplet(input));
-                } catch(Exception e) {
+                } catch (Exception e) {
                     log.error(e.getMessage());
                 }
             }
-        } catch(IOException io) {
+        } catch (IOException io) {
             io.printStackTrace();
         }
     }
