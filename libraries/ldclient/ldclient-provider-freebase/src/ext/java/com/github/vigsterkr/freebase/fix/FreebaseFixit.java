@@ -27,21 +27,15 @@
  either expressed or implied, of the FreeBSD Project.
  */
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import java.util.regex.Matcher;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
+package java.com.github.vigsterkr.freebase.fix;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class FreebaseFixit {
 
