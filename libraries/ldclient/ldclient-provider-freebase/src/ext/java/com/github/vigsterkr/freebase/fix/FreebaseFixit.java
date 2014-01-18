@@ -37,39 +37,39 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class FreebaseFixit {
+public class FreebaseFixit {
 
     private final long line = 0;
 
     /* patterns */
-    private final String FREEBASE_ESCAPE_CHAR = Pattern.quote("$");
+    private final static String FREEBASE_ESCAPE_CHAR = Pattern.quote("$");
 
-    private final Pattern freebaseEscape =
+    private final static Pattern freebaseEscape =
             Pattern.compile(FREEBASE_ESCAPE_CHAR+"([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})");
 
-    private final Pattern tripletPattern =
+    private final static Pattern tripletPattern =
             Pattern.compile("^(\\S+)\\s+(\\S+)\\s+(.*)$");
 
-    private final Pattern nullChar = Pattern.compile("\\x00");
+    private final static Pattern nullChar = Pattern.compile("\\x00");
 
-    private final Pattern URIPattern = Pattern.compile("^<(.*)>$");
+    private final static Pattern URIPattern = Pattern.compile("^<(.*)>$");
 
-    private final Pattern lePattern = Pattern.compile("<");
-    private final Pattern gePattern = Pattern.compile(">");
+    private final static Pattern lePattern = Pattern.compile("<");
+    private final static Pattern gePattern = Pattern.compile(">");
 
-    private final Pattern trailingDotPattern = Pattern.compile("\\s+\\.$");
+    private final static Pattern trailingDotPattern = Pattern.compile("\\s+\\.$");
 
-    private String fixEscaping(String input) {
+    private static String fixEscaping(String input) {
         Matcher m = freebaseEscape.matcher(input);
         return m.replaceAll("%$1%$2");
     }
 
-    private String removeNullChar(String input) {
+    private static String removeNullChar(String input) {
         Matcher m = nullChar.matcher(input);
         return m.replaceAll("");
     }
 
-    private List<String> splitToTriplet(String input) {
+    private static List<String> splitToTriplet(String input) {
         Matcher m = tripletPattern.matcher(input);
         List<String> triplet = new ArrayList<String>();
         if (m.matches()) {
@@ -81,13 +81,13 @@ class FreebaseFixit {
         return triplet;
     }
 
-    private boolean isLiteral(String s) {
+    private static boolean isLiteral(String s) {
         if (s.startsWith("\""))
             return true;
         return false;
     }
 
-    private String fixURI(String uri) {
+    private static String fixURI(String uri) {
         Matcher m = URIPattern.matcher(uri);
         if (m.matches()) {
             String fixedURI = lePattern.matcher(m.group(1)).replaceAll("%3C");
@@ -98,19 +98,19 @@ class FreebaseFixit {
         return uri;
     }
 
-    public String fixSubject(String subj) {
+    public static String fixSubject(String subj) {
         String fixedSubject = fixEscaping(subj);
 
         return fixedSubject;
     }
 
-    public String fixPredicate(String pred) {
+    public static String fixPredicate(String pred) {
         String fixedPredicate = fixEscaping(pred);
 
         return fixedPredicate;
     }
 
-    public String fixObject(String obj) {
+    public static String fixObject(String obj) {
         String fixedObject = obj;
 
         fixedObject = fixURI(fixedObject);
@@ -122,14 +122,14 @@ class FreebaseFixit {
         return fixedObject;
     }
 
-    private String cleanObject(String obj) {
+    private static String cleanObject(String obj) {
         String cleanObj = obj.trim();
         cleanObj = trailingDotPattern.matcher(cleanObj).replaceAll("");
 
         return cleanObj;
     }
 
-    public String fixTriplet(String tripletLine) throws Exception {
+    public static String fixTriplet(String tripletLine) throws Exception {
         List<String> triplet = splitToTriplet(tripletLine);
         if (triplet.isEmpty())
             throw new Exception("ERROR: Failed to parse the line");
@@ -157,7 +157,7 @@ class FreebaseFixit {
         return String.format("%s %s %s .", subject, predicate, object);
     }
 
-    public void fix(BufferedReader br) {
+    public static void fix(BufferedReader br) {
         try {
             String input;
             while((input=br.readLine())!=null){
