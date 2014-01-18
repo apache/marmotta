@@ -17,25 +17,10 @@
  */
 package org.apache.marmotta.ldclient.test.freebase;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.commons.sesame.model.ModelCommons;
-import org.apache.marmotta.ldclient.exception.DataRetrievalException;
-import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.io.StringWriter;
 
 /**
  * Test if the FreebaseProvider is working properly.
@@ -58,7 +43,6 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
-    @Ignore
     public void testASF() throws Exception {
         testResource(ASF, "m.0nzm.sparql");
     }
@@ -70,7 +54,6 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
-    @Ignore
     public void testMarmotta() throws Exception {
         testResource(MARMOTTA, "m.0wqhskn.sparql");
     }
@@ -82,7 +65,6 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
-    @Ignore
     public void testSergio() throws Exception {
         testResource(SERGIO, "m.07zqbwz.sparql");
     }

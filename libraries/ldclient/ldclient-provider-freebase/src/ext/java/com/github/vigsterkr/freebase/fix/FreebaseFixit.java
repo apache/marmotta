@@ -27,7 +27,7 @@
  either expressed or implied, of the FreeBSD Project.
  */
 
-package java.com.github.vigsterkr.freebase.fix;
+package com.github.vigsterkr.freebase.fix;
 
 import java.io.BufferedReader;
 import java.io.IOException;

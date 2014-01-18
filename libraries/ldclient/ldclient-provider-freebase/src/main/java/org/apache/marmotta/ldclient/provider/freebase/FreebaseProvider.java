@@ -32,6 +32,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 
+import com.github.vigsterkr.freebase.fix.FreebaseFixit;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,8 +134,8 @@ public class FreebaseProvider extends AbstractHttpProvider {
         StringWriter writer = new StringWriter();
         IOUtils.copy(in, writer, encoding);
         String raw = writer.toString();
-        //TODO: perform fixes
-        return new ByteArrayInputStream(raw.getBytes(encoding));
+        String fixed = FreebaseFixit.fixObject(raw);
+        return new ByteArrayInputStream(fixed.getBytes(encoding));
     }
 
 }
