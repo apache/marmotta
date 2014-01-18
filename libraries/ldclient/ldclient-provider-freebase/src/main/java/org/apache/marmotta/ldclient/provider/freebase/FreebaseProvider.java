@@ -33,10 +33,8 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 
 import com.github.vigsterkr.freebase.fix.FreebaseFixit;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+
+import java.io.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -127,15 +125,17 @@ public class FreebaseProvider extends AbstractHttpProvider {
     /**
      * Fixes Freebase deficiencies on Turtle serialization
      *
-     * @param in stream with the raw data
+     * @param is stream with the raw data
      * @return fixed stream
      */
-    private InputStream fix(InputStream in, String encoding) throws IOException {
-        StringWriter writer = new StringWriter();
-        IOUtils.copy(in, writer, encoding);
-        String raw = writer.toString();
-        String fixed = FreebaseFixit.fixObject(raw);
-        return new ByteArrayInputStream(fixed.getBytes(encoding));
+    private InputStream fix(InputStream is, String encoding) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        PipedOutputStream po = new PipedOutputStream();
+        PrintStream ps = new PrintStream(po);
+        FreebaseFixit.fix(br, ps);
+        ps.flush();
+        ps.close();
+        return new PipedInputStream(po);
     }
 
 }

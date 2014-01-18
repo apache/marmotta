@@ -29,15 +29,18 @@
 
 package com.github.vigsterkr.freebase.fix;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FreebaseFixit {
+
+    private static Logger log = LoggerFactory.getLogger(FreebaseFixit.class);
 
     private final long line = 0;
 
@@ -132,7 +135,7 @@ public class FreebaseFixit {
     public static String fixTriplet(String tripletLine) throws Exception {
         List<String> triplet = splitToTriplet(tripletLine);
         if (triplet.isEmpty())
-            throw new Exception("ERROR: Failed to parse the line");
+            throw new Exception("Failed to parse empty line");
 
         String subject = triplet.get(0);
         String predicate = triplet.get(1);
@@ -146,11 +149,11 @@ public class FreebaseFixit {
 
 		/* fix object */
         if (!object.endsWith("."))
-            throw new Exception("ERROR: object doesn't end with dot");
+            throw new Exception("Object doesn't end with dot");
 
         object = cleanObject(object);
         if (object.length() == 0)
-            throw new Exception("ERROR: Unexpected empty object");
+            throw new Exception("Unexpected empty object");
 
         object = fixObject(object);
 
@@ -158,13 +161,17 @@ public class FreebaseFixit {
     }
 
     public static void fix(BufferedReader br) {
+        fix(br, System.out);
+    }
+
+    public static void fix(BufferedReader br, PrintStream out) {
         try {
             String input;
             while((input=br.readLine())!=null){
                 try {
-                    System.out.println(fixTriplet(input));
+                    out.println(fixTriplet(input));
                 } catch(Exception e) {
-                    System.err.println(e.getMessage());
+                    log.error(e.getMessage());
                 }
             }
         } catch(IOException io) {
@@ -179,4 +186,5 @@ public class FreebaseFixit {
         FreebaseFixit fbFix = new FreebaseFixit();
         fbFix.fix(br);
     }
+
 }
