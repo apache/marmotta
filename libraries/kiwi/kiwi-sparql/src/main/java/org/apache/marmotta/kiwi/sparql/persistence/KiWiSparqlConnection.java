@@ -811,18 +811,6 @@ public class KiWiSparqlConnection {
 
     }
 
-    protected Value getVarValue(Var var, BindingSet bindings) {
-        if (var == null) {
-            return null;
-        }
-        else if (var.hasValue()) {
-            return var.getValue();
-        }
-        else {
-            return bindings.getValue(var.getName());
-        }
-    }
-
 
     public KiWiDialect getDialect() {
         return parent.getDialect();
