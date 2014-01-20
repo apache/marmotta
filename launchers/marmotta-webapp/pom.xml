@@ -160,6 +160,35 @@
             </dependencies>
         </profile>
 
+
+        <profile>
+            <id>titan-berkeleydb</id>
+            <activation>
+                <property>
+                    <name>marmotta.backend</name>
+                    <value>titan-berkeleydb</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-backend-titan</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-ldcache-file</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.thinkaurelius.titan</groupId>
+                    <artifactId>titan-berkeleyje</artifactId>
+                    <version>0.4.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+
         <profile>
             <id>bigdata</id>
             <activation>
