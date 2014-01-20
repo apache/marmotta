@@ -20,7 +20,7 @@ PREFIX ns: <http://rdf.freebase.com/ns/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 ASK {
-   ns:m.07zqbwz> ns:rdf:type ns:people.person ;
-        rdfs:label: "Sergio Fernández"@en ;
+   ns:m.07zqbwz ns:rdf:type ns:people.person ;
+        rdfs:label "Sergio Fernández"@en ;
         ns:common.topic.official_website <http://www.wikier.org>  .
 }

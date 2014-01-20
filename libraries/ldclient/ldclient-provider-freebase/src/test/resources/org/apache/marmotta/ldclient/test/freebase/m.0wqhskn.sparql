@@ -20,8 +20,8 @@ PREFIX ns: <http://rdf.freebase.com/ns/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 ASK {
-   ns:m.0wqhskn> ns:rdf:type ns:computer.software ;
-        rdfs:label: "Apache Marmotta"@en ;
+   ns:m.0wqhskn ns:rdf:type ns:computer.software ;
+        rdfs:label "Apache Marmotta"@en ;
         ns:common.topic.official_website <http://marmotta.apache.org> ;
         ns:common.topic.topic_equivalent_webpage <http://en.wikipedia.org/wiki/Apache_Marmotta> .
 }
