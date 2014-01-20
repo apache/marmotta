@@ -20,7 +20,6 @@ package org.apache.marmotta.ldclient.provider.freebase;
 import com.google.common.base.Preconditions;
 
 import javolution.util.function.Predicate;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
@@ -32,7 +31,6 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 
-import com.github.vigsterkr.freebase.fix.FreebaseFixit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +55,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
     public static final RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.TURTLE;
     public static final String DEFAULT_ENCODING = "UTF-8";
     private static final Pattern CHARSET_PATTERN = Pattern.compile("(?i)\\bcharset=\\s*\"?([^\\s;\"]*)");
-    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+[a-z]+:[a-z]+(?:\\.[a-z]+)*\\s+\"(.*)\"(?:@[a-z]+)?;$");
+    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z]+(?:\\.[a-z]+)*)\\s+\"(.*)\"(@[a-z]+)?(;|\\.)$");
 
     /**
      * Return the name of this data provider. To be used e.g. in the configuration and in log messages.
@@ -142,22 +140,49 @@ public class FreebaseProvider extends AbstractHttpProvider {
             if (m.matches()) {
                 //literal found
                 try {
-                    String literal = m.group(2);
-                    log.info("Original literal: {}", literal);
-                    String fixed = FreebaseFixit.fixObject(literal);
-                    log.info("Fixed literal: {}", literal);
-                    sb.append("    " + m.group(1) + "    \"" + fixed + "\"" + m.group(3) + " ; \n");
+                    final String literal = m.group(2);
+                    final String fixed = fixLiteral(literal);
+                    //log.debug("literal: --{}--{}", literal, fixed);
+                    String triple = m.group(1) + "    \"" + fixed + "\"";
+                    if (m.group(3) != null) {
+                        triple += m.group(3);
+                    }
+                    log.debug("new triple: {}", triple);
+                    sb.append("    " + triple + m.group(4));
+                    sb.append(("\n"));
                 } catch (Exception e) {
                     log.error("Error fixing line, so triple ignored: {}", e.getMessage());
-                    log.debug("error on line: {}", line);
+                    log.error("error on line: {}", line);
+                    if (line.endsWith(".")) {
+                        sb.append((".\n"));
+                    }
                 }
             } else {
                 //not a triple with a literal as object, so pass-through
                 sb.append(line);
+                sb.append(("\n"));
             }
-            sb.append(("\n"));
         }
         return new ByteArrayInputStream(sb.toString().getBytes());
+    }
+
+    private String fixLiteral(String literal) throws UnsupportedEncodingException {
+
+        //non-escaped quotes
+        literal = literal.replaceAll("\"", "\\\"");
+
+        //wrong encoding
+        if (literal.contains("\\x")) {
+            //TODO: find a way to re-code properly the literal
+            //http://www.ic.unicamp.br/~stolfi/EXPORT/www/ISO-8859-1-Encoding.html
+            literal = literal.replaceAll("\\\\xe1", "á");
+            literal = literal.replaceAll("\\\\xe9", "é");
+            literal = literal.replaceAll("\\\\xed", "í");
+            literal = literal.replaceAll("\\\\xf3", "ó");
+            literal = literal.replaceAll("\\\\xfa", "ú");
+        }
+
+        return literal;
     }
 
 }

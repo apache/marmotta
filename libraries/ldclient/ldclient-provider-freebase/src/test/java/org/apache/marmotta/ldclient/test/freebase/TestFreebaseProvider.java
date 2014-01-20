@@ -23,13 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test if the FreebaseProvider is working properly.
+ * Test the Freebase LDClient Provider.
  *
  * @author Sergio Fernández
  */
 public class TestFreebaseProvider extends ProviderTestBase {
-
-    private static Logger log = LoggerFactory.getLogger(TestFreebaseProvider.class);
 
     private static final String ASF = "http://rdf.freebase.com/ns/m.0nzm";
     private static final String MARMOTTA = "http://rdf.freebase.com/ns/m.0wqhskn";
