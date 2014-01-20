@@ -33,6 +33,8 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 
 import com.github.vigsterkr.freebase.fix.FreebaseFixit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Collections;
@@ -47,12 +49,15 @@ import java.util.regex.Pattern;
  */
 public class FreebaseProvider extends AbstractHttpProvider {
 
+    private static Logger log = LoggerFactory.getLogger(FreebaseProvider.class);
+
     public static final String NAME = "Freebase";
     public static final String PATTERN = "http(s?)://rdf\\.freebase\\.com/ns/.*";
     public static final String API = "https://www.googleapis.com/freebase/v1/rdf/";
     public static final RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.TURTLE;
     public static final String DEFAULT_ENCODING = "UTF-8";
     private static final Pattern CHARSET_PATTERN = Pattern.compile("(?i)\\bcharset=\\s*\"?([^\\s;\"]*)");
+    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+[a-z]+:[a-z]+(?:\\.[a-z]+)*\\s+\"(.*)\"(?:@[a-z]+)?;$");
 
     /**
      * Return the name of this data provider. To be used e.g. in the configuration and in log messages.
@@ -130,12 +135,29 @@ public class FreebaseProvider extends AbstractHttpProvider {
      */
     private InputStream fix(InputStream is, String encoding) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        PipedOutputStream po = new PipedOutputStream();
-        PrintStream ps = new PrintStream(po);
-        FreebaseFixit.fix(br, ps);
-        ps.flush();
-        ps.close();
-        return new PipedInputStream(po);
+        StringBuffer sb = new StringBuffer();
+        String line;
+        while ((line = br.readLine()) != null) {
+            Matcher m = FREEBASE_LITERAL_PATTERN.matcher(line);
+            if (m.matches()) {
+                //literal found
+                try {
+                    String literal = m.group(2);
+                    log.info("Original literal: {}", literal);
+                    String fixed = FreebaseFixit.fixObject(literal);
+                    log.info("Fixed literal: {}", literal);
+                    sb.append("    " + m.group(1) + "    \"" + fixed + "\"" + m.group(3) + " ; \n");
+                } catch (Exception e) {
+                    log.error("Error fixing line, so triple ignored: {}", e.getMessage());
+                    log.debug("error on line: {}", line);
+                }
+            } else {
+                //not a triple with a literal as object, so pass-through
+                sb.append(line);
+            }
+            sb.append(("\n"));
+        }
+        return new ByteArrayInputStream(sb.toString().getBytes());
     }
 
 }
