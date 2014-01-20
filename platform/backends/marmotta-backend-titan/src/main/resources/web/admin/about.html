@@ -14,10 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <html>
 <head>
     <!--###BEGIN_HEAD###-->
-    <title>Storage Backend: BigData</title>
+    <title>Storage Backend: Titan</title>
     <!--###END_HEAD###-->
 </head>
 <body>
@@ -25,17 +26,9 @@
 <h1>Storage Backend: BigData</h1>
 
 <p>
-    This module provides an Apache Marmotta storage backend based on the <a href="http://www.systap.com/bigdata.htm">BigData</a>
-    triple store. BigData is a highly scalable, highly performant, highly concurrent triple store implementation that you can
-    use in cases where your volume of data is very high and/or you do not want/need to store your data in a relational database
-    as with the KiWi backend.
-</p>
-<p>
-    <strong>Note:</strong> The BigData triple store is licensed under
-    <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GNU General Public License (GPLv2)</a>. For you, this
-    means that you cannot distribute custom packages making use of this backend if you do not obtain a separate license from
-    Systap. For the same reason, the Apache Marmotta team also cannot offer pre-packaged distributions. However, if you
-    build the distribution for your own use, you are free to use the system without additional license requirements.
+    This module provides an Apache Marmotta storage backend based on the <a href="http://thinkaurelius.github.io/titan/">Titan</a>
+    distributed graph database. Titan in itself supports various storage backends (HBase, Cassandra, ...), which you need to
+    configure manually. This default installation uses the BerkleyDB backend for demonstration purposes.
 </p>
 <!--###END_CONTENT###-->
 </body>
