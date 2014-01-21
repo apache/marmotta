@@ -78,4 +78,11 @@ public class TestFreebaseProvider extends ProviderTestBase {
         testResource(WAS, "m.0h21k1c.sparql");
     }
 
+    @Test
+    public void testAditional() throws Exception {
+        testResource("http://rdf.freebase.com/ns/m.0b1t1");
+        testResource("http://rdf.freebase.com/ns/m.04jpl");
+        testResource("http://rdf.freebase.com/ns/m.036wy");
+    }
+
 }
