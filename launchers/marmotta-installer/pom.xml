@@ -203,28 +203,10 @@
                                     <goal>copy-dependencies</goal>
                                 </goals>
                                 <configuration>
-                                    <excludeTransitive>true</excludeTransitive>
+                                    <excludeTransitive>false</excludeTransitive>
                                     <excludeArtifactIds>izpack-standalone-compiler,marmotta-webapp</excludeArtifactIds>
-                                    <includeArtifactIds>marmotta-splash</includeArtifactIds>
-                                    <outputDirectory>${stagingDir}/lib</outputDirectory>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>org.apache.commons</groupId>
-                                            <artifactId>commons-lang3</artifactId>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${stagingDir}/lib</outputDirectory>
-                                            <destFileName>apache-commons-lang3.jar</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
+                                    <outputDirectory>${stagingDir}/lib/extra</outputDirectory>
+                                    <includeScope>runtime</includeScope>
                                 </configuration>
                             </execution>
                             <execution>

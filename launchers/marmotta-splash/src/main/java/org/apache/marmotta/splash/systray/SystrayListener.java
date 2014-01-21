@@ -84,8 +84,6 @@ public class SystrayListener implements LifecycleListener {
         if(event.getType().equals(Lifecycle.AFTER_START_EVENT) && SystemTray.isSupported()) {
             initContextLinks();
             initSysTray();
-        } else if (event.getType().equals(Lifecycle.BEFORE_STOP_EVENT) && SystemTray.isSupported()) {
-            SystemTray.getSystemTray().remove(icon);
         }
     }
 
