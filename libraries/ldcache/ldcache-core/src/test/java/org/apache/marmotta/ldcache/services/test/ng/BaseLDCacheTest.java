@@ -44,10 +44,10 @@ import java.io.StringWriter;
  */
 public abstract class BaseLDCacheTest {
 
-    private static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
-    private static final String GEONAMES = "http://sws.geonames.org/3020251/";
-    private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
-    private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
+    public static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
+    public static final String GEONAMES = "http://sws.geonames.org/3020251/";
+    public static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
+    public static final String WIKIER = "http://www.wikier.org/foaf#wikier";
 
     private static Logger log = LoggerFactory.getLogger(BaseLDCacheTest.class);
 

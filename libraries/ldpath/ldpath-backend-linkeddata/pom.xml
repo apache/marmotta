@@ -232,11 +232,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-sail-generic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldcache-backend-file</artifactId>
+            <artifactId>ldcache-backend-infinispan</artifactId>
         </dependency>
 
         <!-- Sesame Model and Parsers -->
@@ -280,18 +276,6 @@
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-trig</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-nativerdf</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>
@@ -316,6 +300,30 @@
             <artifactId>guava</artifactId>
         </dependency>
 
+
+        <!-- Testing -->
+        <dependency>
+            <artifactId>junit</artifactId>
+            <groupId>junit</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>hamcrest-core</artifactId>
+            <groupId>org.hamcrest</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>hamcrest-library</artifactId>
+            <groupId>org.hamcrest</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
