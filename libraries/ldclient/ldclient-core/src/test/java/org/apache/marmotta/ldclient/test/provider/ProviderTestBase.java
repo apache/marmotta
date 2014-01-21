@@ -72,7 +72,19 @@ public class ProviderTestBase {
         }
     };
 
+    protected void testResource(String uri) throws Exception {
 
+        Assume.assumeTrue(ldclient.ping(uri));
+
+        ClientResponse response = ldclient.retrieveResource(uri);
+
+        RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
+        connection.begin();
+        Assert.assertTrue(connection.size() > 0);
+
+        connection.commit();
+        connection.close();
+    }
 
     protected void testResource(String uri, String sparqlFile) throws Exception {
 
