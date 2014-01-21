@@ -183,7 +183,7 @@
                 <dependency>
                     <groupId>com.thinkaurelius.titan</groupId>
                     <artifactId>titan-berkeleyje</artifactId>
-                    <version>0.4.2</version>
+                    <version>${titan.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -211,7 +211,7 @@
                 <dependency>
                     <groupId>com.thinkaurelius.titan</groupId>
                     <artifactId>titan-hbase</artifactId>
-                    <version>0.4.2</version>
+                    <version>${titan.version}</version>
 
                     <exclusions>
                         <exclusion>
