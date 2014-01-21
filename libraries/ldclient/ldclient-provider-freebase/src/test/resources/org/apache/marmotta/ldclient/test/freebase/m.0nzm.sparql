@@ -20,8 +20,8 @@ PREFIX ns: <http://rdf.freebase.com/ns/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 ASK {
-   ns:m.0nzm> ns:rdf:type ns:business.brand ;
+   ns:m.0nzm ns:rdf:type ns:business.brand ;
         ns:common.topic.alias "ASF"@en;
-        rdfs:label: "Apache Software Foundation"@en ;
+        rdfs:label "Apache Software Foundation"@en ;
         ns:common.topic.official_website <http://www.apache.org/> .
 }
