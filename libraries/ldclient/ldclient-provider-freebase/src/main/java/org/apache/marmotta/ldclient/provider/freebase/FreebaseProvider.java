@@ -155,8 +155,8 @@ public class FreebaseProvider extends AbstractHttpProvider {
                     sb.append("    " + triple + literalMatcher.group(5));
                     sb.append(("\n"));
                 } catch (Exception e) {
-                    log.error("Error fixing line, so triple ignored: {}", e.getMessage());
-                    log.error("error on line: {}", line);
+                    log.debug("Error fixing line, so triple ignored: {}", e.getMessage());
+                    log.trace("error on line: {}", line);
                     warrantyClosing(sb, line);
                 }
             } else {
@@ -174,7 +174,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
                                 sb.append("    " + p + "    <" + uri.toString() + ">" + tripleMatcher.group(3));
                                 sb.append("\n");
                             } catch (RuntimeException e) {
-                                log.error("Object uri not valid: {}", o.substring(1, o.length() - 1));
+                                log.debug("Object uri not valid: {}", o.substring(1, o.length() - 1));
                                 warrantyClosing(sb, line);
                             }
                         } else {
@@ -190,6 +190,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
                         }
                     }
                 } else {
+                    log.debug("default fallback");
                     sb.append(line);
                     sb.append("\n");
                 }
