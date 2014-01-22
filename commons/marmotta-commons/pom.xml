@@ -27,6 +27,7 @@
 
     <artifactId>marmotta-commons</artifactId>
     <name>Apache Marmotta: Common Utilities</name>
+    <packaging>bundle</packaging>
 
     <build>
         <plugins>
@@ -60,6 +61,29 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <extensions>true</extensions>
+              <configuration>
+                <instructions>
+                  <Bundle-Name>Marmotta Commons</Bundle-Name>
+                  <Bundle-DocURL>http://marmotta.apache.org/commons</Bundle-DocURL>
+                  <Bundle-Vendor>Apache Software Foundation</Bundle-Vendor>
+                  <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                  <_versionpolicy>$${version;===;${@}}</_versionpolicy>
+                  <Import-Package>
+                    org.slf4j;version="[1.6.1,2)",
+                    *
+                  </Import-Package>
+                  <Export-Package>
+                    javax.realtime,
+                    javolution.*,
+                    org.apache.marmotta.commons.*;version=${project.version}
+                  </Export-Package>
+                </instructions>
+              </configuration>
             </plugin>
         </plugins>
         <resources>
