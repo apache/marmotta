@@ -195,7 +195,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
                 }
             }
         }
-        System.out.println(sb.toString());
+        //System.out.println(sb.toString());
         return new ByteArrayInputStream(sb.toString().getBytes());
     }
 
