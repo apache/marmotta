@@ -57,7 +57,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
     public static final RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.TURTLE;
     public static final String DEFAULT_ENCODING = "UTF-8";
     private static final Pattern CHARSET_PATTERN = Pattern.compile("(?i)\\bcharset=\\s*\"?([^\\s;\"]*)");
-    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z_]+(?:\\.+[a-z_]+)*)\\s+\"(.*)\"(@[a-z]+)?(;|\\.)$");
+    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z_]+(?:\\.+[a-z_]+)*)\\s+\"(.*)\"(@[a-z]+(\\-[a-z0-9]+)*)?(;|\\.)$");
     private static final  Pattern FREEBASE_TRIPLE_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z_]+(?:\\.+[a-z_]+)*)\\s+(.*)(;|\\.)$");
 
     /**
@@ -146,30 +146,26 @@ public class FreebaseProvider extends AbstractHttpProvider {
                 try {
                     final String literal = literalMatcher.group(2);
                     final String fixed = fixLiteral(literal);
-                    //log.debug("literal: --{}--{}", literal, fixed);
+                    log.debug("literal: --{}--{}", literal, fixed);
                     String triple = literalMatcher.group(1) + "    \"" + fixed + "\"";
                     if (literalMatcher.group(3) != null) {
                         triple += literalMatcher.group(3);
                     }
                     log.debug("new triple: {}", triple);
-                    sb.append("    " + triple + literalMatcher.group(4));
+                    sb.append("    " + triple + literalMatcher.group(5));
                     sb.append(("\n"));
                 } catch (Exception e) {
                     log.error("Error fixing line, so triple ignored: {}", e.getMessage());
                     log.error("error on line: {}", line);
-                    if (line.endsWith(".")) {
-                        sb.replace(sb.length() - 2, sb.length(), ".\n");
-                    }
+                    warrantyClosing(sb, line);
                 }
             } else {
                 Matcher tripleMatcher = FREEBASE_TRIPLE_PATTERN.matcher(line);
                 if (tripleMatcher.matches()) {
                     String p = tripleMatcher.group(1);
                     if (p.indexOf("..") >= 0) {
-                        log.warn("ignoring line due wrong property: {}", p);
-                        if (line.endsWith(".")) {
-                            sb.replace(sb.length()-2, sb.length(), ".\n");
-                        }
+                        log.debug("ignoring line due wrong property: {}", p);
+                        warrantyClosing(sb, line);
                     } else {
                         String o = tripleMatcher.group(2);
                         if (o.charAt(0) == '<') {
@@ -179,9 +175,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
                                 sb.append("\n");
                             } catch (RuntimeException e) {
                                 log.error("Object uri not valid: {}", o.substring(1, o.length() - 1));
-                                if (line.endsWith(".")) {
-                                    sb.replace(sb.length()-2, sb.length(), ".\n");
-                                }
+                                warrantyClosing(sb, line);
                             }
                         } else {
                             if (o.contains("$")) {
@@ -201,8 +195,14 @@ public class FreebaseProvider extends AbstractHttpProvider {
                 }
             }
         }
-        //System.out.println(sb.toString());
+        System.out.println(sb.toString());
         return new ByteArrayInputStream(sb.toString().getBytes());
+    }
+
+    private void warrantyClosing(StringBuffer sb, String line) {
+        if (line.endsWith(".")) {
+            sb.replace(sb.length()-2, sb.length(), ".\n");
+        }
     }
 
     private String fixLiteral(String literal) throws UnsupportedEncodingException {
@@ -235,61 +235,6 @@ public class FreebaseProvider extends AbstractHttpProvider {
         str = str.replaceAll("\\\\xfa", "ú");
         str = str.replaceAll("\\\\x", ""); //FIXME: wrong, wrong, wrong!
         return str;
-    }
-
-    /**
-     * Decodes Freebase.com keys using the '<code>$0000</code>' encoding for chars.
-     * This encoding uses a 4 digit hex number to represent chars See the
-     * Freebase documentation for details.
-     *
-     * NOTE: copied from Stanbol's FreebaseKeyProcessor.decodeKey()
-     * @see http://svn.apache.org/repos/asf/stanbol/trunk/entityhub/indexing/freebase/src/main/java/org/apache/stanbol/entityhub/indexing/freebase/processor/FreebaseKeyProcessor.java
-     *
-     * @param encodedKey encoded key
-     * @return decoded key
-     */
-    private static String decodeKey(String encodedKey){
-        StringBuilder key = null; //lazy initialisation for performance
-        int index = 0;
-        final int length = encodedKey.length();
-        while(index < length){
-            int next = encodedKey.indexOf('$', index);
-            if(next < 0){
-                if(key == null){
-                    return encodedKey; //no decoding needed
-                }
-                next = length;
-            }
-            if(key == null){
-                //init the StringBuilder with the maximum possible size
-                key = new StringBuilder(encodedKey.length());
-            }
-            if(next > index){ //add chars that do not need decoding
-                key.append(encodedKey, index, next);
-            }
-            if(next < length){ //decode char
-                try {
-                    if(next+4 < length){
-                        key.appendCodePoint(Integer.parseInt(
-                                encodedKey.substring(next+1, next+5), 16));
-                    } else {
-                        String section = encodedKey.substring(next, length);
-                        log.warn("Unable to decode section ["+next+"-"+(length)+"|'"
-                                + section+"'] from key '"+ encodedKey+"'! -> add plain "
-                                + "section instead!");
-                        key.append(section);
-                    }
-                } catch (NumberFormatException e) {
-                    String section = encodedKey.substring(next, next+5);
-                    log.warn("Unable to decode section ["+next+"-"+(next+5)+"|'"
-                            + section+"'] from key '"+ encodedKey+"'! -> add plain "
-                            + "section instead!");
-                    key.append(section);
-                }
-            }
-            index = next+5; //add the $0000
-        }
-        return key.toString();
     }
 
 }
