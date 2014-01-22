@@ -71,7 +71,6 @@ public class TestLinkedDataProvider extends ProviderTestBase {
      *
      */
     @Test
-    @Ignore("test failing for the moment because the data returned by the service is wrong")
     public void testRDFOhloh() throws Exception {
         testResource(MARMOTTA, "ohloh-marmotta.sparql");
     }
