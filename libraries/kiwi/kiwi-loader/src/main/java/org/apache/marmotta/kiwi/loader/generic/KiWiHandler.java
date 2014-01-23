@@ -109,10 +109,12 @@ public class KiWiHandler implements RDFHandler {
      */
     public void shutdown() throws RDFHandlerException {
         log.info("KiWiLoader: shutting down RDF handler");
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            throw new RDFHandlerException(e);
+        if(connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new RDFHandlerException(e);
+            }
         }
 
         initialised = false;
