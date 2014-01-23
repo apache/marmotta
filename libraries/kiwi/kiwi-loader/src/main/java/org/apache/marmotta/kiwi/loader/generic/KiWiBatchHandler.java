@@ -218,7 +218,6 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
                 connection.commit();
             }
 
-            printStatistics();
         }
     }
 

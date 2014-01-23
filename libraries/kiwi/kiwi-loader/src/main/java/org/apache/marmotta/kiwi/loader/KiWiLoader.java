@@ -17,13 +17,7 @@
  */
 package org.apache.marmotta.kiwi.loader;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.*;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.configuration.Configuration;
@@ -40,24 +34,12 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
+import org.openrdf.rio.*;
 import org.openrdf.rio.helpers.BasicParserSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.Console;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -123,9 +105,6 @@ public class KiWiLoader {
     protected String context;
     protected boolean isVersioningEnabled;
     protected boolean isReasoningEnabled;
-    protected boolean isStatisticsEnabled;
-
-    protected String statisticsGraph;
 
     protected KiWiStore store;
     protected SailRepository repository;
@@ -138,7 +117,6 @@ public class KiWiLoader {
 
         isVersioningEnabled = false;
         isReasoningEnabled = false;
-        isStatisticsEnabled = false;
     }
 
     /**
@@ -258,8 +236,6 @@ public class KiWiLoader {
             KiWiLoader loader = new KiWiLoader(kiwi, baseUri, context);
             loader.setVersioningEnabled(cmd.hasOption("versioning"));
             loader.setReasoningEnabled(cmd.hasOption("reasoning"));
-            loader.isStatisticsEnabled = cmd.hasOption("statistics");
-            loader.statisticsGraph = cmd.getOptionValue("statistics");
             loader.initialize();
 
             log.info("Starting import");
@@ -461,8 +437,6 @@ public class KiWiLoader {
         if (context != null) {
             config.setContext(context);
         }
-        config.setStatistics(isStatisticsEnabled);
-        config.setStatisticsGraph(statisticsGraph);
 
         if(kiwi.getDialect() instanceof PostgreSQLDialect) {
             config.setCommitBatchSize(100000);
@@ -579,7 +553,6 @@ public class KiWiLoader {
 
         options.addOption(null, "reasoning", false, "enable reasoning");
         options.addOption(null, "versioning", false, "enable versioning");
-        options.addOption("S", "statistics", true, "enable statistics collection");
 
         options.addOption(null, "drop-indexes", false, "drop indexes before importing (increases bulk-load performance but requires exclusive access)");
 
