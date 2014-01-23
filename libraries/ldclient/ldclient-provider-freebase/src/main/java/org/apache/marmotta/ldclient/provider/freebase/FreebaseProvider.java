@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -58,8 +57,8 @@ public class FreebaseProvider extends AbstractHttpProvider {
     public static final RDFFormat DEFAULT_RDF_FORMAT = RDFFormat.TURTLE;
     public static final String DEFAULT_ENCODING = "UTF-8";
     private static final Pattern CHARSET_PATTERN = Pattern.compile("(?i)\\bcharset=\\s*\"?([^\\s;\"]*)");
-    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z]+(?:\\.[a-z]+)*)\\s+\"(.*)\"(@[a-z]+)?(;|\\.)$");
-    private static final  Pattern FREEBASE_RESOURCE_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z]+(?:\\.[a-z]+)*)\\s+([a-z]+:.*(\\..*))(;|\\.)$");
+    private static final  Pattern FREEBASE_LITERAL_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z_]+(?:\\.+[a-z_]+)*)\\s+\"(.*)\"(@[a-z]+(\\-[a-z0-9]+)*)?(;|\\.)$");
+    private static final  Pattern FREEBASE_TRIPLE_PATTERN = Pattern.compile("^\\s+([a-z]+:[a-z_]+(?:\\.+[a-z_]+)*)\\s+(.*)(;|\\.)$");
 
     /**
      * Return the name of this data provider. To be used e.g. in the configuration and in log messages.
@@ -142,45 +141,69 @@ public class FreebaseProvider extends AbstractHttpProvider {
         String line;
         while ((line = br.readLine()) != null) {
             Matcher literalMatcher = FREEBASE_LITERAL_PATTERN.matcher(line);
-            Matcher resourceMatcher = FREEBASE_RESOURCE_PATTERN.matcher(line);
             if (literalMatcher.matches()) {
                 //literal found
                 try {
                     final String literal = literalMatcher.group(2);
                     final String fixed = fixLiteral(literal);
-                    //log.debug("literal: --{}--{}", literal, fixed);
+                    log.debug("literal: --{}--{}", literal, fixed);
                     String triple = literalMatcher.group(1) + "    \"" + fixed + "\"";
                     if (literalMatcher.group(3) != null) {
                         triple += literalMatcher.group(3);
                     }
                     log.debug("new triple: {}", triple);
-                    sb.append("    " + triple + literalMatcher.group(4));
+                    sb.append("    " + triple + literalMatcher.group(5));
                     sb.append(("\n"));
                 } catch (Exception e) {
-                    log.error("Error fixing line, so triple ignored: {}", e.getMessage());
-                    log.error("error on line: {}", line);
-                    if (line.endsWith(".")) {
-                        sb.append((".\n"));
-                    }
-                }
-            } else if (resourceMatcher.matches()) {
-                if (resourceMatcher.group(2).contains("$")) {
-                    //awaiting for https://openrdf.atlassian.net/browse/SES-2000
-                    if (line.endsWith(".")) {
-                        sb.append((".\n"));
-                    }
-                } else {
-                    //fine, so pass-through
-                    sb.append(line);
-                    sb.append(("\n"));
+                    log.debug("Error fixing line, so triple ignored: {}", e.getMessage());
+                    log.trace("error on line: {}", line);
+                    warrantyClosing(sb, line);
                 }
             } else {
-                //something else, so pass-through
-                sb.append(line);
-                sb.append(("\n"));
+                Matcher tripleMatcher = FREEBASE_TRIPLE_PATTERN.matcher(line);
+                if (tripleMatcher.matches()) {
+                    String p = tripleMatcher.group(1);
+                    if (p.indexOf("..") >= 0) {
+                        log.debug("ignoring line due wrong property: {}", p);
+                        warrantyClosing(sb, line);
+                    } else {
+                        String o = tripleMatcher.group(2);
+                        if (o.charAt(0) == '<') {
+                            try {
+                                URI uri = URI.create(o.substring(1, o.length() - 1));
+                                sb.append("    " + p + "    <" + uri.toString() + ">" + tripleMatcher.group(3));
+                                sb.append("\n");
+                            } catch (RuntimeException e) {
+                                log.debug("Object uri not valid: {}", o.substring(1, o.length() - 1));
+                                warrantyClosing(sb, line);
+                            }
+                        } else {
+                            if (o.contains("$")) {
+                                o = o.replaceAll(Pattern.quote("$"), Matcher.quoteReplacement("\\$"));
+                            } else if (o.contains("\\u")) {
+                                o = StringEscapeUtils.unescapeJava(o);
+                            } else if (o.contains("\\x")) {
+                                o = fixLatin1(o);
+                            }
+                            sb.append("    " + p + "    " + o + tripleMatcher.group(3));
+                            sb.append("\n");
+                        }
+                    }
+                } else {
+                    log.debug("default fallback");
+                    sb.append(line);
+                    sb.append("\n");
+                }
             }
         }
+        //System.out.println(sb.toString());
         return new ByteArrayInputStream(sb.toString().getBytes());
+    }
+
+    private void warrantyClosing(StringBuffer sb, String line) {
+        if (line.endsWith(".")) {
+            sb.replace(sb.length()-2, sb.length(), ".\n");
+        }
     }
 
     private String fixLiteral(String literal) throws UnsupportedEncodingException {
@@ -190,16 +213,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
 
         //wrong charset
         if (literal.contains("\\x")) {
-            //TODO: find a way to re-code properly the literal
-            //http://www.ic.unicamp.br/~stolfi/EXPORT/www/ISO-8859-1-Encoding.html
-            literal = literal.replaceAll("\\\\xe1", "á");
-            literal = literal.replaceAll("\\\\xe3", "ã");
-            literal = literal.replaceAll("\\\\xe7", "ç");
-            literal = literal.replaceAll("\\\\xe9", "é");
-            literal = literal.replaceAll("\\\\xed", "í");
-            literal = literal.replaceAll("\\\\xf3", "ó");
-            literal = literal.replaceAll("\\\\xfa", "ú");
-            literal = literal.replaceAll("\\\\x", ""); //FIXME: wrong, wrong, wrong!
+            literal = fixLatin1(literal);
         }
 
         //wrong unicode encoding
@@ -208,6 +222,20 @@ public class FreebaseProvider extends AbstractHttpProvider {
         }
 
         return literal;
+    }
+
+    private String fixLatin1(String str) {
+        //TODO: find a way to re-code properly the literal
+        //http://www.ic.unicamp.br/~stolfi/EXPORT/www/ISO-8859-1-Encoding.html
+        str = str.replaceAll("\\\\xe1", "á");
+        str = str.replaceAll("\\\\xe3", "ã");
+        str = str.replaceAll("\\\\xe7", "ç");
+        str = str.replaceAll("\\\\xe9", "é");
+        str = str.replaceAll("\\\\xed", "í");
+        str = str.replaceAll("\\\\xf3", "ó");
+        str = str.replaceAll("\\\\xfa", "ú");
+        str = str.replaceAll("\\\\x", ""); //FIXME: wrong, wrong, wrong!
+        return str;
     }
 
 }

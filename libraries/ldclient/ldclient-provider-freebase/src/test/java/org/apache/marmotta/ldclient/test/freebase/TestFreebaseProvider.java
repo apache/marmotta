@@ -23,7 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test the Freebase LDClient Provider.
+ * Some tests over random data to Freebase to warranty that the provider
+ * fixes some common deficiencies in the original data.
  *
  * @author Sergio Fernández
  */
@@ -76,6 +77,14 @@ public class TestFreebaseProvider extends ProviderTestBase {
     @Test
     public void testWAS() throws Exception {
         testResource(WAS, "m.0h21k1c.sparql");
+    }
+
+    @Test
+    public void testAditional() throws Exception {
+        testResource("http://rdf.freebase.com/ns/m.0b1t1");
+        testResource("http://rdf.freebase.com/ns/m.04jpl");
+        testResource("http://rdf.freebase.com/ns/m.036wy");
+        testResource("http://rdf.freebase.com/ns/m.01d0fp");
     }
 
 }
