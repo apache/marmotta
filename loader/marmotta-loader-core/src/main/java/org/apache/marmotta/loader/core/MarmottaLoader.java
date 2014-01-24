@@ -6,7 +6,9 @@ import com.google.common.collect.Sets;
 import org.apache.commons.cli.*;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2Utils;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipUtils;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
@@ -151,6 +153,9 @@ public class MarmottaLoader {
     public void loadFile(File file, LoaderHandler handler, RDFFormat format, String compression) throws RDFParseException, IOException {
         log.info("loading file {} ...", file);
 
+        CompressorStreamFactory cf = new CompressorStreamFactory();
+        cf.setDecompressConcatenated(true);
+
         // detect the file compression
         String detectedCompression = detectCompression(file);
         if(compression == null) {
@@ -187,9 +192,16 @@ public class MarmottaLoader {
         InputStream fin = new BufferedInputStream(new FileInputStream(file));
         try {
             if(compression != null) {
-                in = new CompressorStreamFactory().createCompressorInputStream(compression, fin);
+                if (CompressorStreamFactory.GZIP.equalsIgnoreCase(compression)) {
+                    in = new GzipCompressorInputStream(fin,true);
+                } else if (CompressorStreamFactory.BZIP2.equalsIgnoreCase(compression)) {
+                    in = new BZip2CompressorInputStream(fin, true);
+                } else {
+                    // does not honour decompressConcatenated
+                    in = cf.createCompressorInputStream(compression, fin);
+                }
             } else {
-                in = new CompressorStreamFactory().createCompressorInputStream(fin);
+                in = cf.createCompressorInputStream(fin);
             }
         } catch (CompressorException ex) {
             log.info("no compression detected, using plain input stream");
