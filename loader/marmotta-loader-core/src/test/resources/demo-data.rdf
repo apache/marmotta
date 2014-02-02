@@ -1,0 +1,78 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<rdf:RDF
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:foaf="http://xmlns.com/foaf/0.1/"
+        xmlns:dc="http://purl.org/dc/elements/1.1/">
+
+    <foaf:Person rdf:about="http://localhost:8080/LMF/resource/hans_meier" xmlns:foaf="http://xmlns.com/foaf/0.1/">
+        <foaf:name>Hans Meier</foaf:name>
+        <dc:description xml:lang="en">Hans Meier is a software engineer living in Salzburg</dc:description>
+        <dc:description xml:lang="de">Hans Meier ist ein Softwareentwickler aus Salzburg</dc:description>
+        <foaf:interest rdf:resource="http://rdf.freebase.com/ns/en.software_engineering"/>
+        <foaf:interest rdf:resource="http://rdf.freebase.com/ns/en.linux"/>
+        <foaf:interest rdf:resource="http://dbpedia.org/resource/Java" />
+        <foaf:interest rdf:resource="http://dbpedia.org/resource/Climbing"/>
+        <foaf:based_near rdf:resource="http://sws.geonames.org/2766824/"/>
+        <foaf:depiction rdf:resource="http://localhost:8080/LMF/resource/hans_meier.jpg"/>
+
+        <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">29</foaf:age>
+
+        <foaf:knows rdf:resource="http://localhost:8080/LMF/resource/sepp_huber" />
+        <foaf:knows rdf:resource="http://localhost:8080/LMF/resource/anna_schmidt"/>
+
+        <foaf:account>
+            <foaf:OnlineAccount>
+                <foaf:accountName>Example</foaf:accountName>
+                <foaf:accountServiceHomepage>http://www.example.com</foaf:accountServiceHomepage>
+            </foaf:OnlineAccount>
+        </foaf:account>
+    </foaf:Person>
+
+    <foaf:Person rdf:about="http://localhost:8080/LMF/resource/sepp_huber" xmlns:foaf="http://xmlns.com/foaf/0.1/">
+        <foaf:name>Sepp Huber</foaf:name>
+        <dc:description xml:lang="en">Sepp Huber is an alpinist living in Traunstein. He is a good climber, but not as famous as his cousin Alexander Huber.</dc:description>
+        <dc:description xml:lang="de-DE">Sepp Huber ist ein Bergsteiger aus Traunstein. Er ist ein guter Kletterer.</dc:description>
+        <foaf:interest rdf:resource="http://dbpedia.org/resource/Mountaineering"/>
+        <foaf:interest rdf:resource="http://dbpedia.org/resource/Climbing"/>
+        <foaf:interest rdf:resource="http://localhost:8080/LMF/resource/Chess" />
+        <foaf:based_near rdf:resource="http://dbpedia.org/resource/Traunstein"/>
+
+        <foaf:age rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">31</foaf:age>
+
+
+        <foaf:knows rdf:resource="http://dbpedia.org/resource/Alexander_Huber" />
+        <foaf:knows rdf:resource="http://localhost:8080/LMF/resource/hans_meier" />
+    </foaf:Person>
+
+    <foaf:Person rdf:about="http://localhost:8080/LMF/resource/anna_schmidt" xmlns:foaf="http://xmlns.com/foaf/0.1/">
+        <foaf:name>Anna Schmidt</foaf:name>
+        <dc:description xml:lang="en">Anna Schmidt is working as PR manager for mountaineers coming from Garmisch-Partenkirchen. She likes mountaineering and is also a Linux enthusiast.</dc:description>
+        <foaf:interest>Literal Interest</foaf:interest>
+        <foaf:interest rdf:resource="http://dbpedia.org/resource/Mountaineering"/>
+        <foaf:interest rdf:resource="http://dbpedia.org/resource/Linux"/>
+        <foaf:interest rdf:resource="http://localhost:8080/LMF/resource/Chess" />
+        <foaf:based_near rdf:resource="http://dbpedia.org/resource/Garmisch-Partenkirchen"/>
+        <foaf:depiction rdf:resource="http://localhost:8080/LMF/resource/anna_schmidt.jpg"/>
+
+        <foaf:knows rdf:resource="http://dbpedia.org/resource/Alexander_Huber" />
+        <foaf:knows rdf:resource="http://localhost:8080/LMF/resource/sepp_huber" />
+    </foaf:Person>
+
+
+</rdf:RDF>
