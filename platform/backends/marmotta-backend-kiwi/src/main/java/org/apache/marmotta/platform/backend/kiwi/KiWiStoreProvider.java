@@ -76,6 +76,8 @@ public class KiWiStoreProvider implements StoreProvider {
     public static final String CACHING_QUERY_LIMIT = "caching.query.limit";
     public static final String CONTEXTS_DEFAULT = "contexts.default";
     public static final String CONTEXTS_INFERRED = "contexts.inferred";
+    public static final String CLUSTERING_PORT = "clustering.port";
+    public static final String CLUSTERING_ADDRESS = "clustering.address";
 
     @Inject
     private Logger log;
@@ -135,6 +137,9 @@ public class KiWiStoreProvider implements StoreProvider {
         configuration.setBNodeCacheSize(configurationService.getIntConfiguration(CACHING_BNODE_SIZE, 10000));
         configuration.setUriCacheSize(configurationService.getIntConfiguration(CACHING_URI_SIZE, 500000));
         configuration.setTripleCacheSize(configurationService.getIntConfiguration(CACHING_TRIPLE_SIZE, 100000));
+
+        configuration.setClusterPort(configurationService.getIntConfiguration(CLUSTERING_PORT, 46655));
+        configuration.setClusterAddress(configurationService.getStringConfiguration(CLUSTERING_ADDRESS, "228.6.7.8"));
 
         NotifyingSail base = new KiWiStore(configuration, cacheManager);
 

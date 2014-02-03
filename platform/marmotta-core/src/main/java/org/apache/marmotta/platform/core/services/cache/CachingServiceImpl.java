@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.cache;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.platform.core.api.cache.CachingService;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.SystemRestartingEvent;
@@ -41,6 +42,7 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +54,10 @@ import java.util.concurrent.TimeUnit;
  */
 @ApplicationScoped
 public class CachingServiceImpl implements CachingService {
+
+    public static final String CLUSTERING_PORT = "clustering.port";
+    public static final String CLUSTERING_ADDRESS = "clustering.address";
+    public static final String CLUSTERING_ENABLED = "clustering.enabled";
 
     /**
      * Get the seam logger for issuing logging statements.
@@ -76,20 +82,44 @@ public class CachingServiceImpl implements CachingService {
 
     @PostConstruct
     public void initialize() {
-        boolean clustered = configurationService.getBooleanConfiguration("clustering.enabled", false);
+        boolean clustered = configurationService.getBooleanConfiguration(CLUSTERING_ENABLED, false);
 
         log.info("Apache Marmotta Caching Service starting up ({}) ...", clustered ? "cluster name: " + configurationService.getStringConfiguration("clustering.name", "Marmotta") : "single host" );
         if(clustered) {
-            globalConfiguration = new GlobalConfigurationBuilder()
-                    .transport()
-                        .defaultTransport()
-                        .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
-                        .machineId(configurationService.getServerName())
-                        .addProperty("configurationFile", "jgroups-marmotta.xml")
-                    .globalJmxStatistics()
-                        .jmxDomain("org.apache.marmotta.platform")
-                        .allowDuplicateDomains(true)
-                    .build();
+
+            try {
+                String jgroupsXml = IOUtils.toString(CachingService.class.getResourceAsStream("/jgroups-marmotta.xml"));
+
+                jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", configurationService.getStringConfiguration(CLUSTERING_ADDRESS, "228.6.7.8")));
+                jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", configurationService.getIntConfiguration(CLUSTERING_PORT, 46655)));
+
+                globalConfiguration = new GlobalConfigurationBuilder()
+                        .transport()
+                            .defaultTransport()
+                            .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
+                            .machineId(configurationService.getServerName())
+                            .addProperty("configurationXml", jgroupsXml)
+                        .globalJmxStatistics()
+                            .jmxDomain("org.apache.marmotta.platform")
+                            .allowDuplicateDomains(true)
+                        .build();
+            } catch (IOException ex) {
+                log.warn("error loading JGroups configuration from archive: {}", ex.getMessage());
+                log.warn("some configuration options will not be available");
+
+                globalConfiguration = new GlobalConfigurationBuilder()
+                        .transport()
+                            .defaultTransport()
+                            .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
+                            .machineId(configurationService.getServerName())
+                            .addProperty("configurationFile", "jgroups-marmotta.xml")
+                        .globalJmxStatistics()
+                            .jmxDomain("org.apache.marmotta.platform")
+                            .allowDuplicateDomains(true)
+                        .build();
+            }
+
+
 
 
             defaultConfiguration = new ConfigurationBuilder()
