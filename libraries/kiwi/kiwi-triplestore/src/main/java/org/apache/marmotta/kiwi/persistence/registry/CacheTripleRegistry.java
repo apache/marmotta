@@ -96,7 +96,7 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
     public void releaseTransaction(long transactionId) {
         if(transactions.containsKey(transactionId)) {
             for(long key : transactions.remove(transactionId)) {
-                cache.removeAsync(key);
+                cache.remove(key);
             }
         }
     }

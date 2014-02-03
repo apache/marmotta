@@ -17,7 +17,10 @@
 
 package org.apache.marmotta.ldcache.backend.infinispan;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
+import org.apache.marmotta.ldcache.backend.infinispan.io.ModelExternalizer;
+import org.apache.marmotta.ldcache.backend.infinispan.io.ValueExternalizer;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
@@ -34,6 +37,7 @@ import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -84,24 +88,56 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
 
     }
 
+
+    public LDCachingInfinispanBackend(String clusterName, String machineName) {
+        this(clusterName, machineName, 62333);
+    }
+
     /**
-     * Create a clustered instane of the infinispan cache backend using the provided cluster and machine name
+     * Create a clustered instance of the infinispan cache backend using the provided cluster and machine name
      * @param clusterName
      * @param machineName
+     * @param clusterPort port to use for multicast messages
      */
-    public LDCachingInfinispanBackend(String clusterName, String machineName) {
-        globalConfiguration = new GlobalConfigurationBuilder()
-                .classLoader(LDCachingInfinispanBackend.class.getClassLoader())
-                .transport()
-                    .defaultTransport()
-                    .clusterName(clusterName)
-                    .machineId(machineName)
-                    .addProperty("configurationFile", "jgroups-ldcache.xml")
-                .globalJmxStatistics()
-                    .jmxDomain("org.apache.marmotta.ldcache")
-                    .allowDuplicateDomains(true)
-                .build();
+    public LDCachingInfinispanBackend(String clusterName, String machineName, int clusterPort) {
+        try {
+            String jgroupsXml = IOUtils.toString(LDCachingInfinispanBackend.class.getResourceAsStream("/jgroups-ldcache.xml"));
 
+            jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", clusterPort));
+
+            globalConfiguration = new GlobalConfigurationBuilder()
+                    .classLoader(LDCachingInfinispanBackend.class.getClassLoader())
+                    .transport()
+                        .defaultTransport()
+                        .clusterName(clusterName)
+                        .machineId(machineName)
+                        .addProperty("configurationXml", jgroupsXml)
+                    .globalJmxStatistics()
+                        .jmxDomain("org.apache.marmotta.ldcache")
+                        .allowDuplicateDomains(true)
+                    .serialization()
+                        .addAdvancedExternalizer(new ModelExternalizer())
+                        .addAdvancedExternalizer(new ValueExternalizer())
+                    .build();
+        } catch (IOException ex) {
+            log.warn("error loading JGroups configuration from archive: {}", ex.getMessage());
+            log.warn("some configuration options will not be available");
+
+            globalConfiguration = new GlobalConfigurationBuilder()
+                    .classLoader(LDCachingInfinispanBackend.class.getClassLoader())
+                    .transport()
+                        .defaultTransport()
+                        .clusterName(clusterName)
+                        .machineId(machineName)
+                        .addProperty("configurationFile", "jgroups-ldcache.xml")
+                    .globalJmxStatistics()
+                        .jmxDomain("org.apache.marmotta.ldcache")
+                        .allowDuplicateDomains(true)
+                    .serialization()
+                        .addAdvancedExternalizer(new ModelExternalizer())
+                        .addAdvancedExternalizer(new ValueExternalizer())
+                    .build();
+        }
 
 
         defaultConfiguration = new ConfigurationBuilder()
