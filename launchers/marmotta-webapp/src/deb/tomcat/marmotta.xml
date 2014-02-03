@@ -1,0 +1,10 @@
+<Context docBase="/usr/share/marmotta/marmotta.war" unpackWAR="false" useNaming="true">
+
+  <Parameter name="marmotta.home" value="/var/lib/marmotta" override="false"/>
+
+  <Resource name="BeanManager" auth="Container"
+            type="javax.enterprise.inject.spi.BeanManager"
+            factory="org.jboss.weld.resources.ManagerObjectFactory"
+   />
+
+</Context>

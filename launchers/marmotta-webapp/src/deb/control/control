@@ -1,0 +1,8 @@
+Package: marmotta
+Version: [[version]]
+Section: java
+Priority: extra
+Architecture: all
+Description: [[description]]
+Maintainer: wikier@apache.org
+Depends: tomcat7 (>=7.0.30-1)
