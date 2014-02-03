@@ -183,7 +183,7 @@ public abstract class KiWiDialect {
         } else if("ldcache".equals(scriptName)) {
             return ImmutableSet.of("seq.ldcache");
         } else {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
 
