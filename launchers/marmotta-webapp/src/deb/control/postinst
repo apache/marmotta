@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo $(date) >> var/lib/marmotta/marmotta.txt
+
+service tomcat7 start
+
+exit 0
+

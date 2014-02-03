@@ -111,9 +111,20 @@ public class KiWiConfiguration {
      */
     private boolean clustered = false;
 
-
+    /**
+     * Name of the cache cluster this triplestore belongs to.
+     */
     private String clusterName = "Marmotta";
 
+    /**
+     * Multicast port of the cache cluster is listening on and distributing cache updates.
+     */
+    private int clusterPort = 46655;
+
+    /**
+     * Multicast address of the cache cluster is listening on and distributing cache updates.
+     */
+    private String clusterAddress = "228.6.7.8";
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
@@ -417,5 +428,57 @@ public class KiWiConfiguration {
      */
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
+    }
+
+    /**
+     * Return the multicast port used by the cache cluster this triplestore belongs to. This port number is
+     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
+     * data should use different ports or addresses,
+     * <p/>
+     * Only used in case isClustered() is true
+     *
+     * @return
+     */
+    public int getClusterPort() {
+        return clusterPort;
+    }
+
+    /**
+     * Change the multicast port used by the cache cluster this triplestore belongs to. This port number is
+     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
+     * data should use different ports or addresses.
+     * <p/>
+     * Only used in case isClustered() is true
+     *
+     * @return
+     */
+    public void setClusterPort(int clusterPort) {
+        this.clusterPort = clusterPort;
+    }
+
+    /**
+     * Return the multicast address used by the cache cluster this triplestore belongs to. This address is
+     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
+     * data should use different ports or addresses,
+     * <p/>
+     * Only used in case isClustered() is true
+     *
+     * @return
+     */
+    public String getClusterAddress() {
+        return clusterAddress;
+    }
+
+    /**
+     * Change the multicast address used by the cache cluster this triplestore belongs to. This address is
+     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
+     * data should use different ports or addresses,
+     * <p/>
+     * Only used in case isClustered() is true
+     *
+     * @return
+     */
+    public void setClusterAddress(String clusterAddress) {
+        this.clusterAddress = clusterAddress;
     }
 }

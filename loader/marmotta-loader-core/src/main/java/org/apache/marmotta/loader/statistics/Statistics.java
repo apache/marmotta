@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.loader.generic;
+package org.apache.marmotta.loader.statistics;
 
-import org.apache.marmotta.kiwi.loader.util.UnitFormatter;
+import org.apache.commons.configuration.Configuration;
+import org.apache.marmotta.loader.api.LoaderOptions;
+import org.apache.marmotta.loader.util.UnitFormatter;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.*;
@@ -44,7 +46,7 @@ public class Statistics {
 
     private static Logger log = LoggerFactory.getLogger(Statistics.class);
 
-    private KiWiHandler handler;
+    private StatisticsHandler handler;
 
 
     protected RrdDb statDB;
@@ -58,8 +60,11 @@ public class Statistics {
 
     private long start, previous;
 
-    public Statistics(KiWiHandler handler) {
-        this.handler = handler;
+    private Configuration configuration;
+
+    public Statistics(StatisticsHandler handler, Configuration configuration) {
+        this.handler       = handler;
+        this.configuration = configuration;
     }
 
 
@@ -78,8 +83,6 @@ public class Statistics {
         RrdDef stCfg = new RrdDef("kiwiloader.rrd");
         stCfg.setStep(SAMPLE_INTERVAL);
         stCfg.addDatasource("triples", DsType.COUNTER, 600, Double.NaN, Double.NaN);
-        stCfg.addDatasource("nodes", DsType.COUNTER, 600, Double.NaN, Double.NaN);
-        stCfg.addDatasource("nodes-loaded", DsType.COUNTER, 600, Double.NaN, Double.NaN);
         stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);  // every five seconds for 2 hours
         stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 12, 1440); // every minute for 1 day
         stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 60, 1440); // every five minutes for five days
@@ -131,9 +134,7 @@ public class Statistics {
                 double triplesLastHour = hourData.getAggregate("triples", ConsolFun.AVERAGE);
 
                 if(triplesLastMin != Double.NaN) {
-                    log.info("imported {} triples; statistics: {}/sec, {}/sec (last min), {}/sec (last hour)", UnitFormatter.formatSize(handler.triples), UnitFormatter.formatSize((handler.config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)), UnitFormatter.formatSize(triplesLastMin), UnitFormatter.formatSize(triplesLastHour));
-                } else {
-                    log.info("imported {} triples ({}/sec, no long-time averages available)", UnitFormatter.formatSize(handler.triples), UnitFormatter.formatSize((handler.config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)));
+                    log.info("imported {} triples; statistics: {}/sec (last min), {}/sec (last hour)", UnitFormatter.formatSize(handler.triples), UnitFormatter.formatSize(triplesLastMin), UnitFormatter.formatSize(triplesLastHour));
                 }
                 previous = System.currentTimeMillis();
 
@@ -156,7 +157,7 @@ public class Statistics {
 
                 synchronized (statSample) {
                     statSample.setTime(time);
-                    statSample.setValues(handler.triples, handler.nodes, handler.nodesLoaded);
+                    statSample.setValues(handler.triples);
                     statSample.update();
                 }
 
@@ -171,7 +172,7 @@ public class Statistics {
         @Override
         public void run() {
             try {
-                File gFile = new File(handler.config.getStatisticsGraph());
+                File gFile = new File(configuration.getString(LoaderOptions.STATISTICS_GRAPH, File.createTempFile("marmotta-loader","png").getAbsolutePath()));
 
                 if(gFile.exists()) {
                     gFile.delete();
@@ -190,28 +191,19 @@ public class Statistics {
 
 
                 gDef.datasource("triples", "kiwiloader.rrd", "triples", ConsolFun.AVERAGE);
-                gDef.datasource("nodes", "kiwiloader.rrd", "nodes", ConsolFun.AVERAGE);
-                gDef.datasource("nodes-loaded", "kiwiloader.rrd", "nodes-loaded", ConsolFun.AVERAGE);
-                gDef.datasource("cache-hits", "kiwiloader.rrd", "cache-hits", ConsolFun.AVERAGE);
-                gDef.datasource("cache-misses", "kiwiloader.rrd", "cache-misses", ConsolFun.AVERAGE);
 
                 gDef.line("triples", Color.BLUE, "Triples Written", 3F);
-                gDef.line("nodes", Color.MAGENTA, "Nodes Written", 3F);
-                gDef.line("nodes-loaded", Color.CYAN, "Nodes Loaded", 3F);
-                gDef.line("cache-hits", Color.GREEN, "Node Cache Hits");
-                gDef.line("cache-misses", Color.ORANGE, "Node Cache Misses");
 
 
                 gDef.setImageFormat("png");
                 gDef.gprint("triples", ConsolFun.AVERAGE, "average triples/sec: %,.0f\\l");
-                gDef.gprint("nodes", ConsolFun.AVERAGE, "average nodes/sec: %,.0f\\l");
 
                 RrdGraph graph = new RrdGraph(gDef);
                 BufferedImage img = new BufferedImage(900,750, BufferedImage.TYPE_INT_RGB);
                 graph.render(img.getGraphics());
                 ImageIO.write(img, "png", gFile);
 
-                log.info("updated statistics diagram generated in {}", handler.config.getStatisticsGraph());
+                log.info("updated statistics diagram generated in {}", gFile.getAbsolutePath());
 
                 statLastDump = System.currentTimeMillis();
             } catch (Exception ex) {

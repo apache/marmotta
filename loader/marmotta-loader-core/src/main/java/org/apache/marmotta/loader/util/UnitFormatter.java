@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.loader.util;
+package org.apache.marmotta.loader.util;
 
 /**
  * Provides helper methods for formatting values in different units (currently only allows to format sizes by turning

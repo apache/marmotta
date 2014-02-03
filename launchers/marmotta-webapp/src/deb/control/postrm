@@ -1,0 +1,18 @@
+#!/bin/sh
+
+operation="$1"
+
+case "$operation" in
+  remove)
+    
+    ;;
+  purge)
+    rm -rf /var/lib/marmotta
+
+    ;;
+  *)
+    ;;
+esac
+
+exit 0
+

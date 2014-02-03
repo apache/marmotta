@@ -96,26 +96,4 @@ public class KiWiLoaderConfiguration {
     }
 
 
-    /**
-     * Statistics collection (using rrd) enabled? Will generate performance graphs at certain time intervals.
-     *
-     * @return
-     */
-    public boolean isStatistics() {
-        return config.getBoolean(LOADER_STATISTICS_ENABLED, false);
-    }
-
-    public void setStatistics(boolean v) {
-        config.setProperty(LOADER_STATISTICS_ENABLED,v);
-    }
-
-
-    public String getStatisticsGraph() {
-        return config.getString(LOADER_STATISTICS_GRAPH, "kiwiloader.png");
-    }
-
-    public void setStatisticsGraph(String path) {
-        config.setProperty(LOADER_STATISTICS_GRAPH, path);
-    }
-
 }

@@ -24,8 +24,6 @@ import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import static org.apache.marmotta.kiwi.loader.util.UnitFormatter.formatSize;
-
 /**
  * A fast-lane RDF import handler that allows bulk-importing triples into a KiWi triplestore. It directly accesses
  * the database using a KiWiConnection. Note that certain configuration options will make the import "unsafe"
@@ -54,8 +52,6 @@ public class KiWiHandler implements RDFHandler {
 
     // if non-null, all imported statements will have this context (regardless whether they specified a different context)
     private KiWiResource overrideContext;
-
-    private Statistics statistics;
 
     // only used when statement existance check is enabled
     protected DBTripleRegistry registry;
@@ -104,10 +100,6 @@ public class KiWiHandler implements RDFHandler {
         }
 
 
-        if(config.isStatistics()) {
-            statistics = new Statistics(this);
-            statistics.startSampling();
-        }
         initialised = true;
     }
 
@@ -117,17 +109,16 @@ public class KiWiHandler implements RDFHandler {
      */
     public void shutdown() throws RDFHandlerException {
         log.info("KiWiLoader: shutting down RDF handler");
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            throw new RDFHandlerException(e);
+        if(connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new RDFHandlerException(e);
+            }
         }
 
         initialised = false;
 
-        if(config.isStatistics() && statistics != null) {
-            statistics.stopSampling();
-        }
     }
 
     /**
@@ -455,22 +446,9 @@ public class KiWiHandler implements RDFHandler {
             }
 
             connection.commit();
-
-            printStatistics();
         }
     }
 
-
-    protected void printStatistics() {
-        if(statistics != null) {
-            statistics.printStatistics();
-        } else {
-            log.info("imported {} triples ({}/sec)", triples, formatSize((config.getCommitBatchSize() * 1000) / (System.currentTimeMillis() - previous)) );
-            previous = System.currentTimeMillis();
-        }
-
-
-    }
 
 
     /**
