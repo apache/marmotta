@@ -17,8 +17,10 @@
  */
 package org.apache.marmotta.kiwi.caching;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.infinispan.Cache;
+import org.infinispan.commons.CacheException;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -34,6 +36,7 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -83,20 +86,45 @@ public class KiWiCacheManager {
         this.kiWiConfiguration = config;
 
         if(clustered) {
-            globalConfiguration = new GlobalConfigurationBuilder()
-                    .classLoader(KiWiCacheManager.class.getClassLoader())
-                    .transport()
-                        .defaultTransport()
-                        .clusterName(config.getClusterName())
-                        .machineId("instance-" + config.getDatacenterId())
-                        .addProperty("configurationFile", "jgroups-kiwi.xml")
-                    .globalJmxStatistics()
-                        .jmxDomain("org.apache.marmotta.kiwi")
-                        .allowDuplicateDomains(true)
-                    .serialization()
-                        .addAdvancedExternalizer(externalizers)
-                    .build();
+            try {
+                String jgroupsXml = IOUtils.toString(KiWiCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
 
+                jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", config.getClusterAddress()));
+                jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", config.getClusterPort()));
+
+
+                globalConfiguration = new GlobalConfigurationBuilder()
+                        .classLoader(KiWiCacheManager.class.getClassLoader())
+                        .transport()
+                            .defaultTransport()
+                            .clusterName(config.getClusterName())
+                            .machineId("instance-" + config.getDatacenterId())
+                            .addProperty("configurationXml", jgroupsXml)
+                        .globalJmxStatistics()
+                            .jmxDomain("org.apache.marmotta.kiwi")
+                            .allowDuplicateDomains(true)
+                        .serialization()
+                            .addAdvancedExternalizer(externalizers)
+                        .build();
+            } catch (IOException ex) {
+                log.warn("error loading JGroups configuration from archive: {}", ex.getMessage());
+                log.warn("some configuration options will not be available");
+
+                globalConfiguration = new GlobalConfigurationBuilder()
+                        .classLoader(KiWiCacheManager.class.getClassLoader())
+                            .transport()
+                            .defaultTransport()
+                            .clusterName(config.getClusterName())
+                            .machineId("instance-" + config.getDatacenterId())
+                            .addProperty("configurationFile", "jgroups-kiwi.xml")
+                        .globalJmxStatistics()
+                            .jmxDomain("org.apache.marmotta.kiwi")
+                            .allowDuplicateDomains(true)
+                        .serialization()
+                            .addAdvancedExternalizer(externalizers)
+                        .build();
+
+            }
 
 
             defaultConfiguration = new ConfigurationBuilder()
@@ -460,15 +488,19 @@ public class KiWiCacheManager {
      * Shutdown this cache manager instance. Will shutdown the underlying EHCache cache manager.
      */
     public void shutdown() {
-        if(embedded && cacheManager.getStatus() == ComponentStatus.RUNNING) {
-            log.warn("shutting down cache manager ...");
-            if(cacheManager.getTransport() != null) {
-                log.info("... shutting down transport ...");
-                cacheManager.getTransport().stop();
+        try {
+            if(embedded && cacheManager.getStatus() == ComponentStatus.RUNNING) {
+                log.warn("shutting down cache manager ...");
+//                if(cacheManager.getTransport() != null) {
+//                    log.info("... shutting down transport ...");
+//                    cacheManager.getTransport().stop();
+//                }
+                log.info("... shutting down main component ...");
+                cacheManager.stop();
+                log.info("... done!");
             }
-            log.info("... shutting down main component ...");
-            cacheManager.stop();
-            log.info("... done!");
+        } catch (CacheException ex) {
+            log.warn("error shutting down cache: {}", ex.getMessage());
         }
     }
 }
