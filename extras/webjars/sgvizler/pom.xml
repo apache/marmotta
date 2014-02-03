@@ -50,6 +50,7 @@
                 </executions>
                 <configuration>
                     <nomunge>true</nomunge>
+                    <jswarn>false</jswarn>
                     <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
                     <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/sgvizler.js</output>
                 </configuration>
