@@ -77,7 +77,16 @@
                         <rootPath>$${rebel.root}</rootPath>
                     </configuration>
                 </plugin>
-
+                <plugin>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>maven-bundle-plugin</artifactId>
+                  <inherited>true</inherited>
+                  <configuration>
+                    <instructions>
+                      <Bundle-Category>Apache Marmotta KiWi Triplestore</Bundle-Category>
+                    </instructions>
+                  </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -85,7 +94,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-
         </plugins>
     </build>
 

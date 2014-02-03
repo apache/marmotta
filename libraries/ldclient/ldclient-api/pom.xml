@@ -27,6 +27,31 @@
 
     <artifactId>ldclient-api</artifactId>
     <name>LDClient: API</name>
+    <description>
+        Interfaces and Data Model for the Linked Data Client component.
+    </description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <instructions>
+                            <Export-Package>
+                                org.apache.marmotta.ldlient.api.*;version=${project.version},
+                                org.apache.marmotta.ldcache.exception;version=${project.version},
+                                org.apache.marmotta.ldcache.model;version=${project.version}
+                            </Export-Package>
+                        </instructions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <dependencies>
         <dependency>
