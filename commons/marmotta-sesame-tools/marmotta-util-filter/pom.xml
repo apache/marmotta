@@ -33,6 +33,18 @@
         a resource conforms to a certain pattern.
     </description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>

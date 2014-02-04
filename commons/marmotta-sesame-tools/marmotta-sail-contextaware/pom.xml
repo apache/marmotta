@@ -36,6 +36,18 @@
         on repositories that only allows accessing a single named graph.
     </description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
