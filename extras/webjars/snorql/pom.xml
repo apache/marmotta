@@ -40,7 +40,6 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>yuicompressor-maven-plugin</artifactId>
-                <version>1.0.0</version>
                 <executions>
                     <execution>
                         <id>assemble-javascript</id>
@@ -48,7 +47,6 @@
                             <goal>aggregate</goal>
                         </goals>
                         <configuration>
-                            <nomunge>true</nomunge>
                             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
                             <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/snorql.js</output>
                             <includes>
@@ -86,6 +84,13 @@
                     <excludes>
                         <exclude>src/**</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
                 </configuration>
             </plugin>
         </plugins>
