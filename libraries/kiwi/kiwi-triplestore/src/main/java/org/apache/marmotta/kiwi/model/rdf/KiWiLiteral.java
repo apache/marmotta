@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.model.rdf;
 
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
@@ -350,7 +351,13 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      */
     @Override
     public XMLGregorianCalendar calendarValue() {
-        return XMLDatatypeUtil.parseCalendar(getLabel());
+        try {
+            return XMLDatatypeUtil.parseCalendar(getLabel());
+        } catch(IllegalArgumentException ex) {
+            // try harder to parse the label, sometimes they have stupid formats ...
+            Date cv = DateUtils.parseDate(getLabel());
+            return DateUtils.getXMLCalendar(cv);
+        }
     }
 
     /**
