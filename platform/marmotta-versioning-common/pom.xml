@@ -58,11 +58,12 @@
                     </executions>
                     <configuration>
                         <relativePath>../../</relativePath>
-                        <rootPath>$${rebel.root}</rootPath>
                         <classpath>
                             <resources>
                                 <resource><!-- default resource --></resource>
+                                <!--
                                 <resource><directory>src/main/resources</directory></resource>
+                                -->
                             </resources>
                         </classpath>
                     </configuration>

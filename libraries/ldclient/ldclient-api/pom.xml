@@ -28,6 +28,18 @@
     <artifactId>ldclient-api</artifactId>
     <name>LDClient: API</name>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
