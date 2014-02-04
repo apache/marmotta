@@ -1557,8 +1557,10 @@ public class KiWiConnection implements AutoCloseable {
      * @return
      */
     protected KiWiNode constructNodeFromDatabase(ResultSet row) throws SQLException {
+        // column order; id,ntype,svalue,ivalue,dvalue,tvalue,bvalue,lang,ltype,createdAt
+        //               1 ,2    ,3     ,4     ,5     ,6     ,7     ,8   ,9    ,10
 
-        long id = row.getLong("id");
+        long id = row.getLong(1);
 
         KiWiNode cached = nodeCache.get(id);
 
@@ -1567,66 +1569,66 @@ public class KiWiConnection implements AutoCloseable {
             return cached;
         }
 
-        String ntype = row.getString("ntype");
+        String ntype = row.getString(2);
         if("uri".equals(ntype)) {
-            KiWiUriResource result = new KiWiUriResource(row.getString("svalue"),new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiUriResource result = new KiWiUriResource(row.getString(3),new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
 
             cacheNode(result);
             return result;
         } else if("bnode".equals(ntype)) {
-            KiWiAnonResource result = new KiWiAnonResource(row.getString("svalue"), new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiAnonResource result = new KiWiAnonResource(row.getString(3), new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
 
             cacheNode(result);
             return result;
         } else if("string".equals(ntype)) {
-            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString("svalue"), new Date(row.getTimestamp("createdAt").getTime()));
+            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString(3), new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
 
-            if(row.getString("lang") != null) {
-                result.setLocale(getLocale(row.getString("lang")));
+            if(row.getString(8) != null) {
+                result.setLocale(getLocale(row.getString(8)));
             }
-            if(row.getLong("ltype") != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
+            if(row.getLong(9) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
             }
 
             cacheNode(result);
             return result;
         } else if("int".equals(ntype)) {
-            KiWiIntLiteral result = new KiWiIntLiteral(row.getLong("ivalue"), null, new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiIntLiteral result = new KiWiIntLiteral(row.getLong(4), null, new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
-            if(row.getLong("ltype") != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
+            if(row.getLong(9) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
             }
 
             cacheNode(result);
             return result;
         } else if("double".equals(ntype)) {
-            KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble("dvalue"), null, new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble(5), null, new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
-            if(row.getLong("ltype") != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
+            if(row.getLong(9) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
             }
 
             cacheNode(result);
             return result;
         } else if("boolean".equals(ntype)) {
-            KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean("bvalue"),null,new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean(7),null,new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
 
-            if(row.getLong("ltype") != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
+            if(row.getLong(9) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
             }
 
             cacheNode(result);
             return result;
         } else if("date".equals(ntype)) {
-            KiWiDateLiteral result = new KiWiDateLiteral(new Date(row.getTimestamp("tvalue").getTime()), null, new Date(row.getTimestamp("createdAt").getTime()));
+            KiWiDateLiteral result = new KiWiDateLiteral(new Date(row.getTimestamp(6).getTime()), null, new Date(row.getTimestamp(10).getTime()));
             result.setId(id);
 
-            if(row.getLong("ltype") != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong("ltype")));
+            if(row.getLong(9) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
             }
 
             cacheNode(result);
@@ -1661,7 +1663,10 @@ public class KiWiConnection implements AutoCloseable {
             throw new ResultInterruptedException("retrieving results has been interrupted");
         }
 
-        Long id = row.getLong("id");
+        // columns: id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt
+        //          1 ,2      ,3        ,4     ,5      ,6      ,7       ,8      ,9        ,10
+
+        Long id = row.getLong(1);
 
         KiWiTriple cached = tripleCache.get(id);
 
@@ -1672,19 +1677,19 @@ public class KiWiConnection implements AutoCloseable {
 
         KiWiTriple result = new KiWiTriple();
         result.setId(id);
-        result.setSubject((KiWiResource)loadNodeById(row.getLong("subject")));
-        result.setPredicate((KiWiUriResource) loadNodeById(row.getLong("predicate")));
-        result.setObject(loadNodeById(row.getLong("object")));
-        result.setContext((KiWiResource) loadNodeById(row.getLong("context")));
-        if(row.getLong("creator") != 0) {
-            result.setCreator((KiWiResource)loadNodeById(row.getLong("creator")));
+        result.setSubject((KiWiResource)loadNodeById(row.getLong(2)));
+        result.setPredicate((KiWiUriResource) loadNodeById(row.getLong(3)));
+        result.setObject(loadNodeById(row.getLong(4)));
+        result.setContext((KiWiResource) loadNodeById(row.getLong(5)));
+        if(row.getLong(8) != 0) {
+            result.setCreator((KiWiResource)loadNodeById(row.getLong(8)));
         }
-        result.setDeleted(row.getBoolean("deleted"));
-        result.setInferred(row.getBoolean("inferred"));
-        result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
+        result.setDeleted(row.getBoolean(6));
+        result.setInferred(row.getBoolean(7));
+        result.setCreated(new Date(row.getTimestamp(9).getTime()));
         try {
-            if(row.getDate("deletedAt") != null) {
-                result.setDeletedAt(new Date(row.getTimestamp("deletedAt").getTime()));
+            if(row.getDate(10) != null) {
+                result.setDeletedAt(new Date(row.getTimestamp(10).getTime()));
             }
         } catch (SQLException ex) {
             // work around a MySQL problem with null dates
@@ -1725,7 +1730,7 @@ public class KiWiConnection implements AutoCloseable {
 
         PreparedStatement statement = statementCache.get(key);
         if(statement == null || statement.isClosed()) {
-            statement = connection.prepareStatement(dialect.getStatement(key));
+            statement = connection.prepareStatement(dialect.getStatement(key), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             statementCache.put(key,statement);
         }
         statement.clearParameters();
