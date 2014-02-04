@@ -209,7 +209,10 @@ public class KiWiCacheManager {
         if(nodeCache == null) {
             Configuration nodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(500000)
+                        .maxEntries(1000000)
+                    .expiration()
+                        .lifespan(60, TimeUnit.MINUTES)
+                        .maxIdle(30, TimeUnit.MINUTES)
                     .build();
             cacheManager.defineConfiguration(NODE_CACHE, nodeConfiguration);
 
