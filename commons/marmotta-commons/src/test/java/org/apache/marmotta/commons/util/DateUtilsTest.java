@@ -17,10 +17,10 @@
  */
 package org.apache.marmotta.commons.util;
 
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Date;
 
 /**
  * Unit-Tests for {@link DateUtils}.
@@ -41,4 +41,13 @@ public class DateUtilsTest {
         Assert.assertEquals(now, DateUtils.getDate(DateUtils.getXMLCalendar(now)));
     }
 
+
+    @Test
+    public void testParseFreebaseDate() {
+        String dateString = "1961-08-04T19:24";
+        Date date = DateUtils.parseDate(dateString);
+
+        Assert.assertNotNull(date);
+        Assert.assertEquals(61, date.getYear());
+    }
 }
