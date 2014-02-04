@@ -141,7 +141,7 @@ public class KiWiHandler implements RDFHandler {
             throw new RDFHandlerException(e);
         }
 
-        log.info("KiWiLoader: RDF bulk import of {} triples finished after {} ms", triples, System.currentTimeMillis() - start);
+        log.debug("KiWiLoader: RDF bulk import of {} triples finished after {} ms", triples, System.currentTimeMillis() - start);
     }
 
     /**
@@ -156,7 +156,7 @@ public class KiWiHandler implements RDFHandler {
         if(!initialised) {
             initialise();
         }
-        log.info("KiWiLoader: starting RDF bulk import");
+        log.debug("KiWiLoader: starting RDF bulk import");
 
         this.start = System.currentTimeMillis();
         this.previous = System.currentTimeMillis();

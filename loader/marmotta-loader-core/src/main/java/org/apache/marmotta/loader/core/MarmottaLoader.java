@@ -25,6 +25,7 @@ import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.loader.api.LoaderOptions;
 import org.apache.marmotta.loader.context.ContextHandler;
 import org.apache.marmotta.loader.functions.BackendIdentifierFunction;
+import org.apache.marmotta.loader.rio.GeonamesFormat;
 import org.apache.marmotta.loader.statistics.StatisticsHandler;
 import org.apache.marmotta.loader.util.DirectoryFilter;
 import org.openrdf.model.impl.URIImpl;
@@ -47,6 +48,10 @@ public class MarmottaLoader {
 
 
     private static Logger log = LoggerFactory.getLogger(MarmottaLoader.class);
+
+    static {
+        RDFFormat.register(GeonamesFormat.FORMAT);
+    }
 
 
     private Configuration configuration;
@@ -288,23 +293,29 @@ public class MarmottaLoader {
             ArchiveEntry entry;
             while( (entry = zipStream.getNextEntry()) != null) {
 
-                // detect the file format
-                RDFFormat detectedFormat = RDFFormat.forFileName(entry.getName());
-                if(format == null) {
-                    if(detectedFormat != null) {
-                        log.info("auto-detected entry format: {}", detectedFormat.getName());
-                        format = detectedFormat;
+                if(! entry.isDirectory()) {
+                    log.info("loading entry {} ...", entry.getName());
+
+                    // detect the file format
+                    RDFFormat detectedFormat = RDFFormat.forFileName(entry.getName());
+                    if(format == null) {
+                        if(detectedFormat != null) {
+                            log.info("auto-detected entry format: {}", detectedFormat.getName());
+                            format = detectedFormat;
+                        } else {
+                            throw new RDFParseException("could not detect input format of entry "+ entry.getName());
+                        }
                     } else {
-                        throw new RDFParseException("could not detect input format of entry "+ entry.getName());
+                        if(detectedFormat != null && !format.equals(detectedFormat)) {
+                            log.warn("user-specified entry format ({}) overrides auto-detected format ({})", format.getName(), detectedFormat.getName());
+                        } else {
+                            log.info("user-specified entry format: {}", format.getName());
+                        }
                     }
-                } else {
-                    if(detectedFormat != null && !format.equals(detectedFormat)) {
-                        log.warn("user-specified format ({}) overrides auto-detected format ({})", format.getName(), detectedFormat.getName());
-                    }
+
+
+                    load(zipStream,handler,format);
                 }
-
-                load(zipStream,handler,format);
-
             }
 
         } else {
@@ -404,6 +415,8 @@ public class MarmottaLoader {
             return RDFFormat.RDFXML;
         } else if(StringUtils.equalsIgnoreCase(spec,"xml")) {
             return RDFFormat.RDFXML;
+        } else if(StringUtils.equalsIgnoreCase(spec,"geonames")) {
+            return GeonamesFormat.FORMAT;
         } else if(spec != null) {
             return RDFFormat.forMIMEType(spec);
         } else {
@@ -449,8 +462,8 @@ public class MarmottaLoader {
                 OptionBuilder.withArgName("backend")
                         .hasArgs(1)
                         .withDescription("backend to use (" + StringUtils.join(Iterators.transform(backends.iterator(), new BackendIdentifierFunction()), ", ") + ")")
-                                .withLongOpt("backend")
-                                .create('B');
+                        .withLongOpt("backend")
+                        .create('B');
         options.addOption(backend);
 
         final Option base =
@@ -496,7 +509,6 @@ public class MarmottaLoader {
                         .withLongOpt("dir")
                         .create('d');
         input.addOption(directories);
-        options.addOptionGroup(input);
 
         final Option archives =
                 OptionBuilder.withArgName("archive")
@@ -574,7 +586,7 @@ public class MarmottaLoader {
                 throw new ParseException("unrecognized MIME type: " + cmd.getOptionValue('t'));
             }
 
-            result.setProperty(LoaderOptions.FORMAT, fmt);
+            result.setProperty(LoaderOptions.FORMAT, fmt.getDefaultMIMEType());
         }
 
         if(cmd.hasOption('f')) {

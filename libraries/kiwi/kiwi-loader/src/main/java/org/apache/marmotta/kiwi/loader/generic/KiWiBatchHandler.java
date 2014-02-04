@@ -114,7 +114,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
      */
     @Override
     public void startRDF() throws RDFHandlerException {
-        log.info("starting import using optimized {} data loader", backend);
+        log.debug("starting import using optimized {} data loader", backend);
 
         this.tripleBacklog = new ArrayList<>(config.getStatementBatchSize());
         this.nodeBacklog   = new ArrayList<>(config.getStatementBatchSize()*2);
