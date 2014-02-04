@@ -4,6 +4,13 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.cli.*;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -18,6 +25,7 @@ import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.loader.api.LoaderOptions;
 import org.apache.marmotta.loader.context.ContextHandler;
 import org.apache.marmotta.loader.functions.BackendIdentifierFunction;
+import org.apache.marmotta.loader.rio.GeonamesFormat;
 import org.apache.marmotta.loader.statistics.StatisticsHandler;
 import org.apache.marmotta.loader.util.DirectoryFilter;
 import org.openrdf.model.impl.URIImpl;
@@ -40,6 +48,10 @@ public class MarmottaLoader {
 
 
     private static Logger log = LoggerFactory.getLogger(MarmottaLoader.class);
+
+    static {
+        RDFFormat.register(GeonamesFormat.FORMAT);
+    }
 
 
     private Configuration configuration;
@@ -76,6 +88,19 @@ public class MarmottaLoader {
                 }
             }
         }
+
+        if(configuration.containsKey(LoaderOptions.ARCHIVES)) {
+            for(String archiveName : configuration.getStringArray(LoaderOptions.ARCHIVES)) {
+                File archive = new File(archiveName);
+
+                try {
+                    loadArchive(archive, handler, getRDFFormat(configuration.getString(LoaderOptions.FORMAT)));
+                } catch (RDFParseException | IOException | ArchiveException e) {
+                    log.warn("error importing directory {}: {}", archive, e.getMessage());
+                }
+            }
+        }
+
 
         if(configuration.containsKey(LoaderOptions.FILES)) {
             for(String fname : configuration.getStringArray(LoaderOptions.FILES)) {
@@ -239,6 +264,80 @@ public class MarmottaLoader {
         }
     }
 
+
+    public void loadArchive(File archive, LoaderHandler handler, RDFFormat format) throws RDFParseException, IOException, ArchiveException {
+        log.info("loading files in archive {} ...", archive);
+
+        if(archive.exists() && archive.canRead()) {
+            InputStream in;
+
+            String archiveCompression = detectCompression(archive);
+            InputStream fin = new BufferedInputStream(new FileInputStream(archive));
+            if(archiveCompression != null) {
+                if (CompressorStreamFactory.GZIP.equalsIgnoreCase(archiveCompression)) {
+                    log.info("auto-detected archive compression: GZIP");
+                    in = new GzipCompressorInputStream(fin,true);
+                } else if (CompressorStreamFactory.BZIP2.equalsIgnoreCase(archiveCompression)) {
+                    log.info("auto-detected archive compression: BZIP2");
+                    in = new BZip2CompressorInputStream(fin, true);
+                } else {
+                    in = fin;
+                }
+            } else {
+                in = fin;
+            }
+
+            ArchiveInputStream zipStream = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(in));
+            logArchiveType(zipStream);
+
+            ArchiveEntry entry;
+            while( (entry = zipStream.getNextEntry()) != null) {
+
+                if(! entry.isDirectory()) {
+                    log.info("loading entry {} ...", entry.getName());
+
+                    // detect the file format
+                    RDFFormat detectedFormat = RDFFormat.forFileName(entry.getName());
+                    if(format == null) {
+                        if(detectedFormat != null) {
+                            log.info("auto-detected entry format: {}", detectedFormat.getName());
+                            format = detectedFormat;
+                        } else {
+                            throw new RDFParseException("could not detect input format of entry "+ entry.getName());
+                        }
+                    } else {
+                        if(detectedFormat != null && !format.equals(detectedFormat)) {
+                            log.warn("user-specified entry format ({}) overrides auto-detected format ({})", format.getName(), detectedFormat.getName());
+                        } else {
+                            log.info("user-specified entry format: {}", format.getName());
+                        }
+                    }
+
+
+                    load(zipStream,handler,format);
+                }
+            }
+
+        } else {
+            throw new RDFParseException("could not load files from archive "+archive+": it does not exist or is not readable");
+        }
+
+    }
+
+    private void logArchiveType(ArchiveInputStream stream) {
+        if(log.isInfoEnabled()) {
+            if(stream instanceof ZipArchiveInputStream) {
+                log.info("auto-detected archive format: ZIP");
+            } else if (stream instanceof TarArchiveInputStream) {
+                log.info("auto-detected archive format: TAR");
+            } else if (stream instanceof CpioArchiveInputStream) {
+                log.info("auto-detected archive format: CPIO");
+            } else {
+                log.info("unknown archive format, relying on commons-compress");
+            }
+        }
+    }
+
     /**
      * Detect the compression format from the filename, or null in case auto-detection failed.
      * @param file
@@ -316,6 +415,8 @@ public class MarmottaLoader {
             return RDFFormat.RDFXML;
         } else if(StringUtils.equalsIgnoreCase(spec,"xml")) {
             return RDFFormat.RDFXML;
+        } else if(StringUtils.equalsIgnoreCase(spec,"geonames")) {
+            return GeonamesFormat.FORMAT;
         } else if(spec != null) {
             return RDFFormat.forMIMEType(spec);
         } else {
@@ -361,8 +462,8 @@ public class MarmottaLoader {
                 OptionBuilder.withArgName("backend")
                         .hasArgs(1)
                         .withDescription("backend to use (" + StringUtils.join(Iterators.transform(backends.iterator(), new BackendIdentifierFunction()), ", ") + ")")
-                                .withLongOpt("backend")
-                                .create('B');
+                        .withLongOpt("backend")
+                        .create('B');
         options.addOption(backend);
 
         final Option base =
@@ -408,6 +509,14 @@ public class MarmottaLoader {
                         .withLongOpt("dir")
                         .create('d');
         input.addOption(directories);
+
+        final Option archives =
+                OptionBuilder.withArgName("archive")
+                        .hasArgs(Option.UNLIMITED_VALUES)
+                        .withDescription("input archives(s) to load (zip, tar.gz)")
+                        .withLongOpt("archive")
+                        .create('a');
+        input.addOption(archives);
         options.addOptionGroup(input);
 
 
@@ -477,7 +586,7 @@ public class MarmottaLoader {
                 throw new ParseException("unrecognized MIME type: " + cmd.getOptionValue('t'));
             }
 
-            result.setProperty(LoaderOptions.FORMAT, fmt);
+            result.setProperty(LoaderOptions.FORMAT, fmt.getDefaultMIMEType());
         }
 
         if(cmd.hasOption('f')) {
@@ -487,6 +596,11 @@ public class MarmottaLoader {
         if(cmd.hasOption('d')) {
             result.setProperty(LoaderOptions.DIRS, Arrays.asList(cmd.getOptionValues('d')));
         }
+
+        if(cmd.hasOption('a')) {
+            result.setProperty(LoaderOptions.ARCHIVES, Arrays.asList(cmd.getOptionValues('a')));
+        }
+
 
         if(cmd.hasOption('s')) {
             result.setProperty(LoaderOptions.STATISTICS_ENABLED, true);

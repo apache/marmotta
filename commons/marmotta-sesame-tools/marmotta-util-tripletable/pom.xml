@@ -35,6 +35,18 @@
         triple table offers in-memory indexes for typical query operations (e.g. listing by subject).
     </description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- data model -->
         <dependency>

@@ -50,6 +50,7 @@
                 </executions>
                 <configuration>
                     <nomunge>true</nomunge>
+                    <jswarn>false</jswarn>
                     <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
                     <output>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${webjar.version}/sgvizler.js</output>
                 </configuration>
@@ -62,6 +63,13 @@
                     <excludes>
                         <exclude>src/**</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
                 </configuration>
             </plugin>
         </plugins>

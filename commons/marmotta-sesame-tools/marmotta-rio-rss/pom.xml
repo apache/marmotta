@@ -62,6 +62,13 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>

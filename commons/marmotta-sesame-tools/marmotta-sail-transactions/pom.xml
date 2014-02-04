@@ -31,6 +31,18 @@
     <name>Marmotta Sesame Tools: Sail Transactions</name>
     <description>Extended transaction support for Sesame Notifying Sails.</description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <configuration>
+                    <relativePath>../../../</relativePath>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.marmotta</groupId>

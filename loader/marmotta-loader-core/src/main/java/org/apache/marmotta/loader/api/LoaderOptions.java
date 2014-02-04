@@ -47,6 +47,12 @@ public class LoaderOptions {
     public static final String DIRS        = "loader.dirs";
 
     /**
+     * Paths to archives to import
+     */
+    public static final String ARCHIVES    = "loader.archives";
+
+
+    /**
      * Enable statistics collection. Configuration value needs to be a boolean.
      */
     public static final String STATISTICS_ENABLED = "loader.statistics.enabled";

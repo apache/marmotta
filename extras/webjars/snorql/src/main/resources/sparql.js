@@ -1,20 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /**********************************************************
   Copyright (c) 2006, 2007
     Lee Feigenbaum ( lee AT thefigtrees DOT net )
@@ -272,12 +255,12 @@ SPARQL.Query = function(service, priority) {
 
 	//------------------
 	// private functions
-	function _create_json(text) {
+	function _create_json(text) { 
 		if (!text)
 			return null;
 		// make sure this is safe JSON
 		// see: http://www.ietf.org/internet-drafts/draft-crockford-jsonorg-json-03.txt
-
+		
 		// (1) strip out quoted strings
 		var no_strings = text.replace(/"(\\.|[^"\\])*"/g, '');
 		// (2) make sure that all the characters are explicitly part of the JSON grammar
@@ -292,12 +275,12 @@ SPARQL.Query = function(service, priority) {
 				return null;
 			}
 		}
-		return null;
-	}
-
-	function clone_obj(o) {
-		var o2 = o instanceof Array ? [] : {};
-		for(var x in o) {o2[x] = o[x];}
+		return null; 
+	}	
+	
+	function clone_obj(o) { 
+		var o2 = o instanceof Array ? [] : {}; 
+		for(var x in o) {o2[x] = o[x];} 
 		return o2;
 	}
 
@@ -309,12 +292,12 @@ SPARQL.Query = function(service, priority) {
 		if (which in cb) {
 			if (cb.scope) {
                 cb[which].apply(cb.scope, [arg, user_data]);
-			} else {
-				cb[which](arg, user_data);
+			} else { 
+				cb[which](arg, user_data); 
 			}
 		}
 	}
-
+	
 	this._queryFailure = function(xhr, arg) {
 		SPARQL.statistics.failures++;
 		_service._markDone(this);
@@ -328,19 +311,19 @@ SPARQL.Query = function(service, priority) {
 			_output == 'json' ? _create_json(xhr.responseText) : xhr.responseText
 		));
 	};
-
+	
 	function getXmlHttpRequest(url) {
 		// right now, this only does Firefox (Opera? Safari?)
 		return new XMLHttpRequest();
 	}
-
+	
 	this._doQuery = function(queryString, callback, transformer) {
 		_user_query = queryString;
 		if (_service._canRun()) {
 			try {
 				if (_method != 'POST' && _method != 'GET')
 					throw("HTTP methods other than GET and POST are not supported.");
-
+			
 				var url = _method == 'GET' ? this.queryUrl() : this.service().endpoint();
 				var xhr = getXmlHttpRequest(url);
 				var content = null;
@@ -348,7 +331,7 @@ SPARQL.Query = function(service, priority) {
 				try {
                     if (!document.domain || ((url.match(/^http:\/\//) && url.slice(7, document.domain.length + 7) != document.domain || url.match(/^https:\/\//) && url.slice(8, document.domain.length + 8) != document.domain) && window.netscape && netscape.security && netscape.security.PrivilegeManager)) {
 						netscape.security.PrivilegeManager.enablePrivilege( "UniversalBrowserRead");
-						netscape.security.PrivilegeManager.enablePrivilege( "UniversalXPConnect");
+						netscape.security.PrivilegeManager.enablePrivilege( "UniversalXPConnect"); 
 					}
 				} catch(e) {
 					alert("Cross-site requests prohibited. You will only be able to SPARQL the origin site: " + e);
@@ -356,7 +339,7 @@ SPARQL.Query = function(service, priority) {
 				}
 
 				xhr.open(_method, url, true /* async */);
-
+				
 				// set the headers, including the content-type for POSTed queries
 				for (var header in this.requestHeaders())
                     if (typeof(this.requestHeaders()[header]) != "function")
@@ -365,22 +348,22 @@ SPARQL.Query = function(service, priority) {
 					xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 					content = this.queryParameters();
 				}
-
+	
 				SPARQL.statistics.queries_sent++;
 				_service._markRunning(this);
-
+	
 				var callbackData = {
-					scope: this,
-					success: this._querySuccess,
+					scope: this, 
+					success: this._querySuccess, 
 					failure: this._queryFailure,
 					argument: {
 						transformer: transformer,
 						callback: callback
 					}
 				};
-
+				
 				// I've seen some strange race-condition behavior (strange since normally
-				// JS is single-threaded, so synchronization conditions don't occur barring
+				// JS is single-threaded, so synchronization conditions don't occur barring 
 				// reentrancy) with onreadystatechange. Instead, we poll asynchronously to
 				// determine when the request is done.
 				var token = window.setInterval(
@@ -396,8 +379,8 @@ SPARQL.Query = function(service, priority) {
 						}
 					},
 					200 /* maybe this should be customizable */
-				);
-
+				);			
+	
 				xhr.send(content);
 			} catch (e) {
 				alert("Error sending SPARQL query: " + e);
@@ -408,7 +391,7 @@ SPARQL.Query = function(service, priority) {
 		}
 	};
 
-
+	
 	//----------
 	// accessors
 	this.request = function() { return _conn; };
@@ -435,20 +418,20 @@ SPARQL.Query = function(service, priority) {
 		}
 		return preamble + _user_query;
 	};
-
+	
     /**
      * Returns the HTTP query parameters to invoke this query. This includes entries for
-     * all of the default graphs, the named graphs, the SPARQL query itself, and an
+     * all of the default graphs, the named graphs, the SPARQL query itself, and an 
      * output parameter to specify JSON (or other) output is desired.
      */
 	this.queryParameters = function () {
 		var urlQueryString = '';
 		var i;
-
+		
 		// add default and named graphs to the protocol invocation
 		for (i = 0; i < this.defaultGraphs().length; i++) urlQueryString += 'default-graph-uri=' + encodeURIComponent(this.defaultGraphs()[i]) + '&';
 		for (i = 0; i < this.namedGraphs().length; i++) urlQueryString += 'named-graph-uri=' + encodeURIComponent(this.namedGraphs()[i]) + '&';
-
+		
 		// specify JSON output (currently output= supported by latest Joseki) (or other output)
 		urlQueryString += 'output=' + _output + '&';
 		return urlQueryString + 'query=' + encodeURIComponent(this.queryString());
