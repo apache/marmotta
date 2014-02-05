@@ -50,7 +50,8 @@ public class ArchiveTest extends LoaderTestBase {
     public static Collection<Object[]> data() {
         Object[][] data = new Object[][] {
                 { "demo-data.tar.gz"},
-                { "demo-data.zip"}
+                { "demo-data.zip"},
+                { "demo-data.7z"}
         };
         return Arrays.asList(data);
     }
