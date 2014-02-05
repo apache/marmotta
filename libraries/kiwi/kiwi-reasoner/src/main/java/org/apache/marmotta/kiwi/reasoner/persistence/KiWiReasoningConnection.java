@@ -1152,8 +1152,15 @@ public class KiWiReasoningConnection extends KiWiConnection {
             public QueryResult apply(ResultSet row) throws SQLException {
                 QueryResult resultRow = new QueryResult();
 
-                for(VariableField v : selectVariables) {
-                    resultRow.getBindings().put(v, loadNodeById(row.getLong(variableNames.get(v))));
+                long[] nodeIds = new long[selectVariables.size()];
+                for(int i=0; i<selectVariables.size(); i++) {
+                    nodeIds[i] = row.getLong(variableNames.get(selectVariables.get(i)));
+                }
+                KiWiNode[] nodes = loadNodesByIds(nodeIds);
+
+                for(int i=0; i<selectVariables.size(); i++) {
+                    VariableField v = selectVariables.get(i);
+                    resultRow.getBindings().put(v, nodes[i]);
                 }
 
                 if(justifications) {

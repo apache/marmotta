@@ -19,6 +19,8 @@ package org.apache.marmotta.kiwi.test.sesame.repository;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnectionTest;
@@ -49,4 +51,9 @@ public class KiWiRepositoryConnectionTest extends RepositoryConnectionTest {
         return new SailRepository(store);
     }
 
+    @Ignore
+    @Test
+    @Override
+    public void testOrderByQueriesAreInterruptable() throws Exception {
+    }
 }

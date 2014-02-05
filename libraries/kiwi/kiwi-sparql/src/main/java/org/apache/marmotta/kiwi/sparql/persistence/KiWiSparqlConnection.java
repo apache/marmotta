@@ -447,8 +447,15 @@ public class KiWiSparqlConnection {
                 public BindingSet apply(ResultSet row) throws SQLException {
                     MapBindingSet resultRow = new MapBindingSet();
 
-                    for(Var v : selectVariables) {
-                        resultRow.addBinding(v.getName(), parent.loadNodeById(row.getLong(variableNames.get(v))));
+                    long[] nodeIds = new long[selectVariables.size()];
+                    for(int i=0; i<selectVariables.size(); i++) {
+                        nodeIds[i] = row.getLong(variableNames.get(selectVariables.get(i)));
+                    }
+                    KiWiNode[] nodes = parent.loadNodesByIds(nodeIds);
+
+                    for(int i=0; i<selectVariables.size(); i++) {
+                        Var v = selectVariables.get(i);
+                        resultRow.addBinding(v.getName(), nodes[i]);
                     }
 
 
