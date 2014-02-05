@@ -23,10 +23,7 @@ import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
@@ -99,6 +96,7 @@ public class ClusterTest {
 
 
     @Test
+    @Ignore
     public void testClusteredCacheSync() throws InterruptedException, RepositoryException {
         setupCluster(61222,61222);
 
@@ -125,6 +123,7 @@ public class ClusterTest {
     }
 
     @Test
+    @Ignore
     public void testDisjointClusters() throws InterruptedException, RepositoryException {
         setupCluster(61224,61225);
 
