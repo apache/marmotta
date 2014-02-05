@@ -138,6 +138,8 @@ public class KiWiConnection implements AutoCloseable {
 
     private long transactionId;
 
+    private int QUERY_BATCH_SIZE = 1024;
+
     public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
@@ -469,33 +471,54 @@ public class KiWiConnection implements AutoCloseable {
         }
 
         if(toFetch.size() > 0) {
-            PreparedStatement query = getPreparedStatement("load.nodes_by_ids", toFetch.size());
-            synchronized (query) {
+            // declare variables before to optimize stack allocation
+            int position = 0;
+            int nextBatchSize;
+            PreparedStatement query;
+            KiWiNode node;
 
-                for(int i=0; i<toFetch.size(); i++) {
-                    query.setLong(i+1, toFetch.get(i));
-                }
-                query.setMaxRows(toFetch.size());
+            while(position < toFetch.size()) {
+                nextBatchSize = computeBatchSize(position, toFetch.size());
 
-                // run the database query and if it yields a result, construct a new node; the method call will take care of
-                // caching the constructed node for future calls
-                ResultSet rows = query.executeQuery();
-                try {
-                    while(rows.next()) {
-                        KiWiNode n = constructNodeFromDatabase(rows);
-                        for(int i=0; i<ids.length; i++) {
-                            if(ids[i].longValue() == n.getId()) {
-                                result[i] = n;
+                query = getPreparedStatement("load.nodes_by_ids", nextBatchSize);
+                synchronized (query) {
+
+                    for(int i=0; i<nextBatchSize; i++) {
+                        query.setLong(i+1, toFetch.get(position + i));
+                    }
+                    query.setMaxRows(nextBatchSize);
+
+                    // run the database query and if it yields a result, construct a new node; the method call will take care of
+                    // caching the constructed node for future calls
+                    ResultSet rows = query.executeQuery();
+                    try {
+                        while(rows.next()) {
+                            node = constructNodeFromDatabase(rows);
+                            for(int i=0; i<ids.length; i++) {
+                                if(ids[i].longValue() == node.getId()) {
+                                    result[i] = node;
+                                }
                             }
                         }
+                    } finally {
+                        rows.close();
                     }
-                } finally {
-                    rows.close();
+
+                    position += nextBatchSize;
                 }
             }
 
+
         }
         return result;
+    }
+
+    private int computeBatchSize(int position, int length) {
+        int batchSize = QUERY_BATCH_SIZE;
+        while(length - position < batchSize) {
+            batchSize = batchSize >> 1;
+        }
+        return batchSize;
     }
 
     public KiWiTriple loadTripleById(Long id) throws SQLException {
@@ -1577,7 +1600,7 @@ public class KiWiConnection implements AutoCloseable {
 
             private void fetchBatch() throws SQLException {
                 if(batch == null || batch.size() <= batchPosition) {
-                    batch = constructTriplesFromDatabase(result, 100);
+                    batch = constructTriplesFromDatabase(result, QUERY_BATCH_SIZE);
                     batchPosition = 0;
                 }
             }
@@ -1803,6 +1826,10 @@ public class KiWiConnection implements AutoCloseable {
     protected List<KiWiTriple> constructTriplesFromDatabase(ResultSet row, int maxPrefetch) throws SQLException {
         int count = 0;
 
+        // declare variables to optimize stack allocation
+        KiWiTriple triple;
+        long id;
+
         List<KiWiTriple> result = new ArrayList<>();
         Map<Long,Long[]> tripleIds  = new HashMap<>();
         Set<Long> nodeIds   = new HashSet<>();
@@ -1816,16 +1843,16 @@ public class KiWiConnection implements AutoCloseable {
             // columns: id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt
             //          1 ,2      ,3        ,4     ,5      ,6      ,7       ,8      ,9        ,10
 
-            Long id = row.getLong(1);
+            id = row.getLong(1);
 
-            KiWiTriple cached = tripleCache.get(id);
+            triple = tripleCache.get(id);
 
             // lookup element in cache first, so we can avoid reconstructing it if it is already there
-            if(cached != null) {
-                result.add(cached);
+            if(triple != null) {
+                result.add(triple);
             } else {
 
-                KiWiTriple triple = new KiWiTriple();
+                triple = new KiWiTriple();
                 triple.setId(id);
 
                 // collect node ids for batch retrieval
@@ -1866,25 +1893,25 @@ public class KiWiConnection implements AutoCloseable {
             nodeMap.put(nodes[i].getId(), nodes[i]);
         }
 
-        for(KiWiTriple triple : result) {
-            if(tripleIds.containsKey(triple.getId())) {
+        for(KiWiTriple t : result) {
+            if(tripleIds.containsKey(t.getId())) {
                 // need to set subject, predicate, object, context and creator
-                Long[] ids = tripleIds.get(triple.getId());
-                triple.setSubject((KiWiResource) nodeMap.get(ids[0]));
-                triple.setPredicate((KiWiUriResource) nodeMap.get(ids[1]));
-                triple.setObject(nodeMap.get(ids[2]));
+                Long[] ids = tripleIds.get(t.getId());
+                t.setSubject((KiWiResource) nodeMap.get(ids[0]));
+                t.setPredicate((KiWiUriResource) nodeMap.get(ids[1]));
+                t.setObject(nodeMap.get(ids[2]));
 
                 if(ids[3] != 0) {
-                    triple.setContext((KiWiResource) nodeMap.get(ids[3]));
+                    t.setContext((KiWiResource) nodeMap.get(ids[3]));
                 }
 
                 if(ids[4] != 0) {
-                    triple.setCreator((KiWiResource) nodeMap.get(ids[4]));
+                    t.setCreator((KiWiResource) nodeMap.get(ids[4]));
                 }
 
             }
 
-            cacheTriple(triple);
+            cacheTriple(t);
         }
 
 
