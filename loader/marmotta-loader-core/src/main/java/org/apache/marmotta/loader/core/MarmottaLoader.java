@@ -256,8 +256,12 @@ public class MarmottaLoader {
         if(directory.exists() && directory.isDirectory()) {
             for(File f : directory.listFiles(new DirectoryFilter())) {
                 try {
-                    loadFile(f, handler,format,compression);
-                } catch (RDFParseException | IOException e) {
+                    if(isArchive(f)) {
+                        loadArchive(f, handler, format);
+                    } else {
+                        loadFile(f, handler,format,compression);
+                    }
+                } catch (RDFParseException | IOException | ArchiveException e) {
                     log.warn("error importing file {}: {}", f, e.getMessage());
                 }
             }
@@ -396,6 +400,21 @@ public class MarmottaLoader {
                 log.info("unknown archive format, relying on commons-compress");
             }
         }
+    }
+
+    private boolean isArchive(File file) {
+        if(file.getName().endsWith(".zip")) {
+            return true;
+        } else if(file.getName().endsWith(".7z")) {
+            return true;
+        } else if(file.getName().endsWith(".tar.gz")) {
+            return true;
+        } else if(file.getName().endsWith(".tar.bz2")) {
+            return true;
+        } else if(file.getName().endsWith(".tar")) {
+            return true;
+        }
+        return false;
     }
 
     /**
