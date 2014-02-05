@@ -449,6 +449,55 @@ public class KiWiConnection implements AutoCloseable {
 
     }
 
+    /**
+     * Batch load the nodes with the given ids. This method aims to offer performance improvements by reducing
+     * database roundtrips.
+     * @param ids array of ids to retrieve
+     * @return array of nodes corresponding to these ids (in the same order)
+     * @throws SQLException
+     */
+    public KiWiNode[] loadNodesByIds(Long... ids) throws SQLException {
+        KiWiNode[] result = new KiWiNode[ids.length];
+
+        // first look in the cache for any ids that have already been loaded
+        ArrayList<Long> toFetch = new ArrayList<>();
+        for(int i=0; i < ids.length; i++) {
+            result[i] = nodeCache.get(ids[i]);
+            if(result[i] == null) {
+                toFetch.add(ids[i]);
+            }
+        }
+
+        if(toFetch.size() > 0) {
+            PreparedStatement query = getPreparedStatement("load.nodes_by_ids", toFetch.size());
+            synchronized (query) {
+
+                for(int i=0; i<toFetch.size(); i++) {
+                    query.setLong(i+1, toFetch.get(i));
+                }
+                query.setMaxRows(toFetch.size());
+
+                // run the database query and if it yields a result, construct a new node; the method call will take care of
+                // caching the constructed node for future calls
+                ResultSet rows = query.executeQuery();
+                try {
+                    while(rows.next()) {
+                        KiWiNode n = constructNodeFromDatabase(rows);
+                        for(int i=0; i<ids.length; i++) {
+                            if(ids[i].longValue() == n.getId()) {
+                                result[i] = n;
+                            }
+                        }
+                    }
+                } finally {
+                    rows.close();
+                }
+            }
+
+        }
+        return result;
+    }
+
     public KiWiTriple loadTripleById(Long id) throws SQLException {
 
         // look in cache
@@ -1497,12 +1546,47 @@ public class KiWiConnection implements AutoCloseable {
 
         final ResultSet result = query.executeQuery();
 
-        return new ResultSetIteration<Statement>(result, true, new ResultTransformerFunction<Statement>() {
+
+        return new CloseableIteration<Statement, SQLException>() {
+
+            List<KiWiTriple> batch = null;
+            int batchPosition = 0;
+
             @Override
-            public Statement apply(ResultSet row) throws SQLException {
-                return constructTripleFromDatabase(result);
+            public void close() throws SQLException {
+                result.close();
             }
-        });
+
+            @Override
+            public boolean hasNext() throws SQLException {
+                fetchBatch();
+
+                return batch.size() > batchPosition;
+            }
+
+            @Override
+            public Statement next() throws SQLException {
+                fetchBatch();
+
+                if(batch.size() > batchPosition) {
+                    return batch.get(batchPosition++);
+                }  else {
+                    return null;
+                }
+            }
+
+            private void fetchBatch() throws SQLException {
+                if(batch == null || batch.size() <= batchPosition) {
+                    batch = constructTriplesFromDatabase(result, 100);
+                    batchPosition = 0;
+                }
+            }
+
+            @Override
+            public void remove() throws SQLException {
+                throw new UnsupportedOperationException("removing results not supported");
+            }
+        };
     }
 
     /**
@@ -1677,10 +1761,17 @@ public class KiWiConnection implements AutoCloseable {
 
         KiWiTriple result = new KiWiTriple();
         result.setId(id);
-        result.setSubject((KiWiResource)loadNodeById(row.getLong(2)));
-        result.setPredicate((KiWiUriResource) loadNodeById(row.getLong(3)));
-        result.setObject(loadNodeById(row.getLong(4)));
-        result.setContext((KiWiResource) loadNodeById(row.getLong(5)));
+
+        KiWiNode[] batch = loadNodesByIds(row.getLong(2), row.getLong(3), row.getLong(4), row.getLong(5));
+        result.setSubject((KiWiResource) batch[0]);
+        result.setPredicate((KiWiUriResource) batch[1]);
+        result.setObject(batch[2]);
+        result.setContext((KiWiResource) batch[3]);
+
+//        result.setSubject((KiWiResource)loadNodeById(row.getLong(2)));
+//        result.setPredicate((KiWiUriResource) loadNodeById(row.getLong(3)));
+//        result.setObject(loadNodeById(row.getLong(4)));
+//        result.setContext((KiWiResource) loadNodeById(row.getLong(5)));
         if(row.getLong(8) != 0) {
             result.setCreator((KiWiResource)loadNodeById(row.getLong(8)));
         }
@@ -1697,6 +1788,106 @@ public class KiWiConnection implements AutoCloseable {
         }
 
         cacheTriple(result);
+
+        return result;
+    }
+
+
+    /**
+     * Construct a batch of KiWiTriples from the result of an SQL query. This query differs from constructTripleFromDatabase
+     * in that it does a batch-prefetching for optimized performance
+     *
+     * @param row a database result containing the columns described above
+     * @return a KiWiTriple representation of the database result
+     */
+    protected List<KiWiTriple> constructTriplesFromDatabase(ResultSet row, int maxPrefetch) throws SQLException {
+        int count = 0;
+
+        List<KiWiTriple> result = new ArrayList<>();
+        Map<Long,Long[]> tripleIds  = new HashMap<>();
+        Set<Long> nodeIds   = new HashSet<>();
+        while(count < maxPrefetch && row.next()) {
+            count++;
+
+            if(row.isClosed()) {
+                throw new ResultInterruptedException("retrieving results has been interrupted");
+            }
+
+            // columns: id,subject,predicate,object,context,deleted,inferred,creator,createdAt,deletedAt
+            //          1 ,2      ,3        ,4     ,5      ,6      ,7       ,8      ,9        ,10
+
+            Long id = row.getLong(1);
+
+            KiWiTriple cached = tripleCache.get(id);
+
+            // lookup element in cache first, so we can avoid reconstructing it if it is already there
+            if(cached != null) {
+                result.add(cached);
+            } else {
+
+                KiWiTriple triple = new KiWiTriple();
+                triple.setId(id);
+
+                // collect node ids for batch retrieval
+                nodeIds.add(row.getLong(2));
+                nodeIds.add(row.getLong(3));
+                nodeIds.add(row.getLong(4));
+
+                if(row.getLong(5) != 0) {
+                    nodeIds.add(row.getLong(5));
+                }
+
+                if(row.getLong(8) != 0) {
+                    nodeIds.add(row.getLong(8));
+                }
+
+                // remember which node ids where relevant for the triple
+                tripleIds.put(id,new Long[] { row.getLong(2),row.getLong(3),row.getLong(4),row.getLong(5),row.getLong(8) });
+
+                triple.setDeleted(row.getBoolean(6));
+                triple.setInferred(row.getBoolean(7));
+                triple.setCreated(new Date(row.getTimestamp(9).getTime()));
+                try {
+                    if(row.getDate(10) != null) {
+                        triple.setDeletedAt(new Date(row.getTimestamp(10).getTime()));
+                    }
+                } catch (SQLException ex) {
+                    // work around a MySQL problem with null dates
+                    // (see http://stackoverflow.com/questions/782823/handling-datetime-values-0000-00-00-000000-in-jdbc)
+                }
+
+                result.add(triple);
+            }
+        }
+
+        KiWiNode[] nodes = loadNodesByIds(nodeIds.toArray(new Long[nodeIds.size()]));
+        Map<Long,KiWiNode> nodeMap = new HashMap<>();
+        for(int i=0; i<nodes.length; i++) {
+            nodeMap.put(nodes[i].getId(), nodes[i]);
+        }
+
+        for(KiWiTriple triple : result) {
+            if(tripleIds.containsKey(triple.getId())) {
+                // need to set subject, predicate, object, context and creator
+                Long[] ids = tripleIds.get(triple.getId());
+                triple.setSubject((KiWiResource) nodeMap.get(ids[0]));
+                triple.setPredicate((KiWiUriResource) nodeMap.get(ids[1]));
+                triple.setObject(nodeMap.get(ids[2]));
+
+                if(ids[3] != 0) {
+                    triple.setContext((KiWiResource) nodeMap.get(ids[3]));
+                }
+
+                if(ids[4] != 0) {
+                    triple.setCreator((KiWiResource) nodeMap.get(ids[4]));
+                }
+
+            }
+
+            cacheTriple(triple);
+        }
+
+
 
         return result;
     }
@@ -1739,6 +1930,39 @@ public class KiWiConnection implements AutoCloseable {
         }
         return statement;
     }
+
+    /**
+     * Return the prepared statement with the given identifier; first looks in the statement cache and if it does
+     * not exist there create a new statement. This method is used for building statements with variable argument
+     * numbers (e.g. in an IN).
+     *
+     * @param key the id of the statement in statements.properties
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getPreparedStatement(String key, int numberOfArguments) throws SQLException {
+        requireJDBCConnection();
+
+        PreparedStatement statement = statementCache.get(key+numberOfArguments);
+        if(statement == null || statement.isClosed()) {
+            StringBuilder s = new StringBuilder();
+            for(int i=0; i<numberOfArguments; i++) {
+                if(i != 0) {
+                    s.append(',');
+                }
+                s.append('?');
+            }
+
+            statement = connection.prepareStatement(String.format(dialect.getStatement(key),s.toString(), numberOfArguments), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            statementCache.put(key+numberOfArguments,statement);
+        }
+        statement.clearParameters();
+        if(persistence.getDialect().isCursorSupported()) {
+            statement.setFetchSize(persistence.getConfiguration().getCursorSize());
+        }
+        return statement;
+    }
+
 
     /**
      * Get next number in a sequence; for databases without sequence support (e.g. MySQL), this method will first update a
