@@ -20,11 +20,8 @@ package org.apache.marmotta.platform.versioning.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -49,6 +46,12 @@ import freemarker.template.TemplateException;
 public class HtmlVersionSerializer implements VersionSerializer {
 
     private static final String TEMPLATE = "memento_timemap.ftl";
+
+    private static final SimpleDateFormat TSTAMP;
+    static {
+        TSTAMP = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        TSTAMP.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     @Inject
     private ConfigurationService configurationService;
@@ -100,6 +103,7 @@ public class HtmlVersionSerializer implements VersionSerializer {
                 Map<String,String> m = new HashMap<String,String>();
                 m.put("date",v.getCommitTime().toString());
                 m.put("uri",MementoUtils.resourceURI(original.toString(), v.getCommitTime(), configurationService.getBaseUri()).toString());
+                m.put("tstamp", TSTAMP.format(v.getCommitTime()));
                 vs.add(m);
             }
 
