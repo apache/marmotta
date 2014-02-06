@@ -45,6 +45,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
+import java.util.Iterator;
 
 /**
  * Offers access to the Sesame repository underlying this Apache Marmotta instance. The activation/deactivation methods
@@ -140,6 +141,10 @@ public class SesameServiceImpl implements SesameService {
 
             if(storeProviders.isAmbiguous()) {
                 log.error("more than one storage backend in classpath; please only select one storage backend");
+                Iterator<StoreProvider> it = storeProviders.iterator();
+                while (it.hasNext()) {
+                    log.error("  - {}", it.next().getName());
+                }
                 return;
             }
             if(storeProviders.isUnsatisfied()) {
