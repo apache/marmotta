@@ -37,9 +37,5 @@ public class RSSFormat {
             false,
             false
     );
-    static {
-        RDFFormat.register(FORMAT);
-    }
-
 
 }

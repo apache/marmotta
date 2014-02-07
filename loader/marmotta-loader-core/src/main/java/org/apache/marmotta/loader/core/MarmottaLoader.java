@@ -48,13 +48,7 @@ public class MarmottaLoader {
 
     private static ServiceLoader<LoaderBackend> backends = ServiceLoader.load(LoaderBackend.class);
 
-
     private static Logger log = LoggerFactory.getLogger(MarmottaLoader.class);
-
-    static {
-        RDFFormat.register(GeonamesFormat.FORMAT);
-    }
-
 
     private Configuration configuration;
 
@@ -200,7 +194,7 @@ public class MarmottaLoader {
 
 
         // detect the file format
-        RDFFormat detectedFormat = RDFFormat.forFileName(uncompressedName(file));
+        RDFFormat detectedFormat = Rio.getParserFormatForFileName(uncompressedName(file));
         if(format == null) {
             if(detectedFormat != null) {
                 log.info("using auto-detected format ({})", detectedFormat.getName());
@@ -289,7 +283,7 @@ public class MarmottaLoader {
                             log.info("loading entry {} ...", entry.getName());
 
                             // detect the file format
-                            RDFFormat detectedFormat = RDFFormat.forFileName(entry.getName());
+                            RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName());
                             if(format == null) {
                                 if(detectedFormat != null) {
                                     log.info("auto-detected entry format: {}", detectedFormat.getName());
@@ -357,7 +351,7 @@ public class MarmottaLoader {
                         log.info("loading entry {} ...", entry.getName());
 
                         // detect the file format
-                        RDFFormat detectedFormat = RDFFormat.forFileName(entry.getName());
+                        RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName());
                         if(format == null) {
                             if(detectedFormat != null) {
                                 log.info("auto-detected entry format: {}", detectedFormat.getName());
@@ -497,7 +491,7 @@ public class MarmottaLoader {
         } else if(StringUtils.equalsIgnoreCase(spec,"geonames")) {
             return GeonamesFormat.FORMAT;
         } else if(spec != null) {
-            return RDFFormat.forMIMEType(spec);
+            return Rio.getParserFormatForMIMEType(spec);
         } else {
             return null;
         }

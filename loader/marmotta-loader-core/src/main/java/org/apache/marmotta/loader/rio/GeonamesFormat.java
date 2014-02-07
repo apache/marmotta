@@ -37,9 +37,5 @@ public class GeonamesFormat {
             false,
             false
     );
-    static {
-        RDFFormat.register(FORMAT);
-    }
-
 
 }
