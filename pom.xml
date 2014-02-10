@@ -48,12 +48,6 @@
 
     <developers>
         <developer>
-            <id>andy</id>
-            <name>Andy Seaborne</name>
-            <email>andy@apache.org</email>
-            <organization>The Apache Software Foundation</organization>
-        </developer>
-        <developer>
             <id>dglachs</id>
             <name>Dietmar Glachs</name>
             <email>dglachs@apache.org</email>
