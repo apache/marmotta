@@ -17,10 +17,12 @@
  */
 package org.apache.marmotta.platform.ldp.webservices;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.Path;
-
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.slf4j.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.Path;
 
 /**
  * Linked Data Platform web services
