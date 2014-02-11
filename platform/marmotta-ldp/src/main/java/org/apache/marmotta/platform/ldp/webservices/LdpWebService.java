@@ -21,26 +21,33 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.*;
 import org.slf4j.Logger;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.UUID;
 
 /**
  * Linked Data Platform web services
- * 
+ *
  * @see <a href="http://www.w3.org/TR/ldp/">http://www.w3.org/TR/ldp/</a>
- * 
+ *
  * @author Sergio Fernández
  * @author Jakob Frank
  */
 @ApplicationScoped
 /* FIXME: imho this should be root '/' (jakob) */
-@Path("/" + LdpWebService.PATH)
+@Path(LdpWebService.PATH + "{local:.*}")
 public class LdpWebService {
-	
+
     public static final String PATH = "ldp";
 
     @Inject
@@ -49,24 +56,64 @@ public class LdpWebService {
     @Inject
     private ConfigurationService configurationService;
 
+    @Inject
+    private SesameService sesameService;
+
     @PostConstruct
     protected void initialize() {
         // TODO: basic initialisation
     }
 
     @GET
-    public Response GET(@Context UriInfo uriInfo) {
-        log.error("Request: {}", uriInfo.getRequestUri());
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response GET(@Context UriInfo uriInfo, @Context Request request, @PathParam("local") String localPart) {
+        /* Both methods result in the absolute path, but which one is preferable? */
+        log.trace("RequestUri: {}", uriInfo.getRequestUri());
+        log.trace("BaseUri+LocalPart: {}ldp{}", uriInfo.getBaseUri(), localPart);
+
+        // TODO: Proper content negotiation
+        final RDFFormat format = RDFFormat.TURTLE;
+        final String subject = uriInfo.getRequestUri().toString();
+
+        // Deliver all triples with <subject> as subject.
+
+        // use #createResponse to add global Headers.
+        return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo).build();
     }
 
     @POST
-    public Response POST() {
+    public Response POST(@Context UriInfo uriInfo, @Context Request request) {
+        /*
+         * TODO: POST implementation
+         * a POST to an existing resource converts this resource into an LDP-C
+         */
+        // Honor client wishes from Slug-header (Sec. 6.4.11)
+        //    http://www.ietf.org/rfc/rfc5023.txt
+        final String localName = UUID.randomUUID().toString();
+
+        final String container = uriInfo.getRequestUri().toString();
+        final String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
+
+        // Add container triples (Sec. 6.4.3)
+
+        // use #createResponse to add global Headers.
+        // return createResponse(Response.Status.CREATED, uriInfo).location(java.net.URI.create(newResource)).build();
+
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
     @PUT
-    public Response PUT() {
+    public Response PUT(@Context UriInfo uriInfo, @Context Request request) {
+        /*
+         * TODO: PUT implementation
+         *
+         * check for If-Match header (ETag) -> 428 Precondition Required (Sec. 5.5.3)
+         * check ETag -> 412 Precondition Failed (Sec. 5.5.3)
+         * request.evaluatePreconditions(eTag)
+         *
+         * clients should not be allowed to update LDPC-membership triples -> 409 Conflict (Sec. 6.5.1)
+         *
+         * if the target resource exists, replace ALL data of the target.
+         */
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
@@ -88,5 +135,22 @@ public class LdpWebService {
     @OPTIONS
     public Response OPTIONS() {
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    }
+
+    protected Response.ResponseBuilder createResponse(int status, UriInfo uriInfo) {
+        final String targetURI = uriInfo.getRequestUri().toString();
+        final Response.ResponseBuilder rb = Response.status(status);
+
+        /* TODO: Add "global" Headers for LDP
+         * - ETag (Sec. 5.2.7)
+         * - Link rel='type' (Sec. 5.2.8 and 6.2.8)
+         * - Link rel='describedby' (Sec. 5.2.11)
+         */
+
+        return rb;
+    }
+
+    protected Response.ResponseBuilder createResponse(Response.Status status, UriInfo uriInfo) {
+        return createResponse(status.getStatusCode(), uriInfo);
     }
 }

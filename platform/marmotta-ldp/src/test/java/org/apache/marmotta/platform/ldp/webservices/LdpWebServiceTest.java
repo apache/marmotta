@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
+import org.junit.Assert;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.user.UserService;
@@ -56,6 +57,13 @@ public class LdpWebServiceTest {
         RestAssured.port = marmotta.getPort();
         RestAssured.basePath = marmotta.getContext();
 
+    }
+
+    @Test
+    public void test() {
+	// Nothing is implemented so far...
+        Assert.assertEquals(501, RestAssured.get("/ldp").statusCode());
+        Assert.assertEquals(501, RestAssured.get("/ldp/foo/bar/and/some/more").statusCode());
     }
 
     @AfterClass
