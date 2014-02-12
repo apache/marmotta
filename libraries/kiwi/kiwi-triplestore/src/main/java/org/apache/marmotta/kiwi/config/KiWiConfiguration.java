@@ -106,6 +106,9 @@ public class KiWiConfiguration {
 
     private RegistryStrategy registryStrategy = RegistryStrategy.CACHE;
 
+
+    private CacheMode cacheMode = CacheMode.DISTRIBUTED;
+
     /**
      * Enable to turn on cluster mode (e.g. for cache replication)
      */
@@ -411,6 +414,49 @@ public class KiWiConfiguration {
         this.clustered = clustered;
     }
 
+
+    /**
+     * Get the cache mode for this KiWi triple store. The following cluster modes are available:
+     * <ul>
+     *     <li>LOCAL: In local cache mode, the cache is not shared among the servers in a cluster. Each machine keeps a local cache.
+     *         This allows quick startups and eliminates network traffic in the cluster, but subsequent requests to different
+     *         cluster members cannot benefit from the cached data.</li>
+     *     <li>DISTRIBUTED: In distributed cache mode, the cluster forms a big hash table used as a cache. This allows to make efficient
+     *         use of the large amount of memory available, but requires cache rebalancing and a lot of network transfers,
+     *         especially in case cluster members are restarted often.</li>
+     *     <li>REPLICATED: In replicated cache mode, each node in the cluster has an identical copy of all cache data. This allows
+     *         very efficient cache lookups and reduces the rebalancing effort, but requires more memory.</li>
+     * </ul>
+     *
+     * This setting is only relevant if clustered = true . If the configuration is not clustered, the triple store will always
+     * use LOCAL mode.
+     *
+     */
+    public CacheMode getCacheMode() {
+        return cacheMode;
+    }
+
+    /**
+     * Set the cache mode for this KiWi triple store. The following cluster modes are available:
+     * <ul>
+     *     <li>LOCAL: In local cache mode, the cache is not shared among the servers in a cluster. Each machine keeps a local cache.
+     *         This allows quick startups and eliminates network traffic in the cluster, but subsequent requests to different
+     *         cluster members cannot benefit from the cached data.</li>
+     *     <li>DISTRIBUTED: In distributed cache mode, the cluster forms a big hash table used as a cache. This allows to make efficient
+     *         use of the large amount of memory available, but requires cache rebalancing and a lot of network transfers,
+     *         especially in case cluster members are restarted often.</li>
+     *     <li>REPLICATED: In replicated cache mode, each node in the cluster has an identical copy of all cache data. This allows
+     *         very efficient cache lookups and reduces the rebalancing effort, but requires more memory.</li>
+     * </ul>
+     *
+     * This setting is only relevant if clustered = true . If the configuration is not clustered, the triple store will always
+     * use LOCAL mode.
+     *
+     * @param cacheMode
+     */
+    public void setCacheMode(CacheMode cacheMode) {
+        this.cacheMode = cacheMode;
+    }
 
     /**
      * Return the name of the cluster. This name is e.g. used by the Infinispan cache to identify other cache members
