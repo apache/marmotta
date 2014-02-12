@@ -9,6 +9,8 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.CompressorException;
@@ -46,13 +48,7 @@ public class MarmottaLoader {
 
     private static ServiceLoader<LoaderBackend> backends = ServiceLoader.load(LoaderBackend.class);
 
-
     private static Logger log = LoggerFactory.getLogger(MarmottaLoader.class);
-
-    static {
-        RDFFormat.register(GeonamesFormat.FORMAT);
-    }
-
 
     private Configuration configuration;
 
@@ -198,7 +194,7 @@ public class MarmottaLoader {
 
 
         // detect the file format
-        RDFFormat detectedFormat = RDFFormat.forFileName(uncompressedName(file));
+        RDFFormat detectedFormat = Rio.getParserFormatForFileName(uncompressedName(file));
         if(format == null) {
             if(detectedFormat != null) {
                 log.info("using auto-detected format ({})", detectedFormat.getName());
@@ -254,8 +250,12 @@ public class MarmottaLoader {
         if(directory.exists() && directory.isDirectory()) {
             for(File f : directory.listFiles(new DirectoryFilter())) {
                 try {
-                    loadFile(f, handler,format,compression);
-                } catch (RDFParseException | IOException e) {
+                    if(isArchive(f)) {
+                        loadArchive(f, handler, format);
+                    } else {
+                        loadFile(f, handler,format,compression);
+                    }
+                } catch (RDFParseException | IOException | ArchiveException e) {
                     log.warn("error importing file {}: {}", f, e.getMessage());
                 }
             }
@@ -269,52 +269,107 @@ public class MarmottaLoader {
         log.info("loading files in archive {} ...", archive);
 
         if(archive.exists() && archive.canRead()) {
-            InputStream in;
 
-            String archiveCompression = detectCompression(archive);
-            InputStream fin = new BufferedInputStream(new FileInputStream(archive));
-            if(archiveCompression != null) {
-                if (CompressorStreamFactory.GZIP.equalsIgnoreCase(archiveCompression)) {
-                    log.info("auto-detected archive compression: GZIP");
-                    in = new GzipCompressorInputStream(fin,true);
-                } else if (CompressorStreamFactory.BZIP2.equalsIgnoreCase(archiveCompression)) {
-                    log.info("auto-detected archive compression: BZIP2");
-                    in = new BZip2CompressorInputStream(fin, true);
+            if(archive.getName().endsWith("7z")) {
+                log.info("auto-detected archive format: 7Z");
+
+                final SevenZFile sevenZFile = new SevenZFile(archive);
+
+                try {
+                    SevenZArchiveEntry entry;
+                    while( (entry = sevenZFile.getNextEntry()) != null) {
+
+                        if(! entry.isDirectory()) {
+                            log.info("loading entry {} ...", entry.getName());
+
+                            // detect the file format
+                            RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName());
+                            if(format == null) {
+                                if(detectedFormat != null) {
+                                    log.info("auto-detected entry format: {}", detectedFormat.getName());
+                                    format = detectedFormat;
+                                } else {
+                                    throw new RDFParseException("could not detect input format of entry "+ entry.getName());
+                                }
+                            } else {
+                                if(detectedFormat != null && !format.equals(detectedFormat)) {
+                                    log.warn("user-specified entry format ({}) overrides auto-detected format ({})", format.getName(), detectedFormat.getName());
+                                } else {
+                                    log.info("user-specified entry format: {}", format.getName());
+                                }
+                            }
+
+
+                            load(new InputStream() {
+                                @Override
+                                public int read() throws IOException {
+                                    return sevenZFile.read();
+                                }
+
+                                @Override
+                                public int read(byte[] b) throws IOException {
+                                    return sevenZFile.read(b);
+                                }
+
+                                @Override
+                                public int read(byte[] b, int off, int len) throws IOException {
+                                    return sevenZFile.read(b, off, len);
+                                }
+                            },handler,format);
+                        }
+                    }
+                } finally {
+                    sevenZFile.close();
+                }
+
+            } else {
+                InputStream in;
+
+                String archiveCompression = detectCompression(archive);
+                InputStream fin = new BufferedInputStream(new FileInputStream(archive));
+                if(archiveCompression != null) {
+                    if (CompressorStreamFactory.GZIP.equalsIgnoreCase(archiveCompression)) {
+                        log.info("auto-detected archive compression: GZIP");
+                        in = new GzipCompressorInputStream(fin,true);
+                    } else if (CompressorStreamFactory.BZIP2.equalsIgnoreCase(archiveCompression)) {
+                        log.info("auto-detected archive compression: BZIP2");
+                        in = new BZip2CompressorInputStream(fin, true);
+                    } else {
+                        in = fin;
+                    }
                 } else {
                     in = fin;
                 }
-            } else {
-                in = fin;
-            }
 
-            ArchiveInputStream zipStream = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(in));
-            logArchiveType(zipStream);
+                ArchiveInputStream zipStream = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(in));
+                logArchiveType(zipStream);
 
-            ArchiveEntry entry;
-            while( (entry = zipStream.getNextEntry()) != null) {
+                ArchiveEntry entry;
+                while( (entry = zipStream.getNextEntry()) != null) {
 
-                if(! entry.isDirectory()) {
-                    log.info("loading entry {} ...", entry.getName());
+                    if(! entry.isDirectory()) {
+                        log.info("loading entry {} ...", entry.getName());
 
-                    // detect the file format
-                    RDFFormat detectedFormat = RDFFormat.forFileName(entry.getName());
-                    if(format == null) {
-                        if(detectedFormat != null) {
-                            log.info("auto-detected entry format: {}", detectedFormat.getName());
-                            format = detectedFormat;
+                        // detect the file format
+                        RDFFormat detectedFormat = Rio.getParserFormatForFileName(entry.getName());
+                        if(format == null) {
+                            if(detectedFormat != null) {
+                                log.info("auto-detected entry format: {}", detectedFormat.getName());
+                                format = detectedFormat;
+                            } else {
+                                throw new RDFParseException("could not detect input format of entry "+ entry.getName());
+                            }
                         } else {
-                            throw new RDFParseException("could not detect input format of entry "+ entry.getName());
+                            if(detectedFormat != null && !format.equals(detectedFormat)) {
+                                log.warn("user-specified entry format ({}) overrides auto-detected format ({})", format.getName(), detectedFormat.getName());
+                            } else {
+                                log.info("user-specified entry format: {}", format.getName());
+                            }
                         }
-                    } else {
-                        if(detectedFormat != null && !format.equals(detectedFormat)) {
-                            log.warn("user-specified entry format ({}) overrides auto-detected format ({})", format.getName(), detectedFormat.getName());
-                        } else {
-                            log.info("user-specified entry format: {}", format.getName());
-                        }
+
+
+                        load(zipStream,handler,format);
                     }
-
-
-                    load(zipStream,handler,format);
                 }
             }
 
@@ -324,6 +379,7 @@ public class MarmottaLoader {
 
     }
 
+
     private void logArchiveType(ArchiveInputStream stream) {
         if(log.isInfoEnabled()) {
             if(stream instanceof ZipArchiveInputStream) {
@@ -332,10 +388,27 @@ public class MarmottaLoader {
                 log.info("auto-detected archive format: TAR");
             } else if (stream instanceof CpioArchiveInputStream) {
                 log.info("auto-detected archive format: CPIO");
+            } else if (stream instanceof CpioArchiveInputStream) {
+                log.info("auto-detected archive format: CPIO");
             } else {
                 log.info("unknown archive format, relying on commons-compress");
             }
         }
+    }
+
+    private boolean isArchive(File file) {
+        if(file.getName().endsWith(".zip")) {
+            return true;
+        } else if(file.getName().endsWith(".7z")) {
+            return true;
+        } else if(file.getName().endsWith(".tar.gz")) {
+            return true;
+        } else if(file.getName().endsWith(".tar.bz2")) {
+            return true;
+        } else if(file.getName().endsWith(".tar")) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -418,7 +491,7 @@ public class MarmottaLoader {
         } else if(StringUtils.equalsIgnoreCase(spec,"geonames")) {
             return GeonamesFormat.FORMAT;
         } else if(spec != null) {
-            return RDFFormat.forMIMEType(spec);
+            return Rio.getParserFormatForMIMEType(spec);
         } else {
             return null;
         }

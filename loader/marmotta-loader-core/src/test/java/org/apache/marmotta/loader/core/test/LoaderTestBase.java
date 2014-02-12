@@ -65,7 +65,7 @@ public abstract class LoaderTestBase {
 
         log.info("running loader tests from temporary directory {}", tempDir);
 
-        for(String filename : new String[] {"demo-data.rdf", "demo-data.rdf.gz", "demo-data.rdf.bz2", "demo-data.tar.gz", "demo-data.zip"}) {
+        for(String filename : new String[] {"demo-data.rdf", "demo-data.rdf.gz", "demo-data.rdf.bz2", "demo-data.tar.gz", "demo-data.zip", "demo-data.7z"}) {
             File data = new File(tempDir.toFile(), filename);
             FileUtils.copyInputStreamToFile(ArchiveTest.class.getResourceAsStream("/" + filename), data);
         }

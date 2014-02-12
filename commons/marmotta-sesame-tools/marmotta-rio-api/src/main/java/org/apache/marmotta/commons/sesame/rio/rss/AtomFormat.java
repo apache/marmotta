@@ -36,9 +36,5 @@ public class AtomFormat {
             false,
             false
     );
-    static {
-        RDFFormat.register(FORMAT);
-    }
-
 
 }

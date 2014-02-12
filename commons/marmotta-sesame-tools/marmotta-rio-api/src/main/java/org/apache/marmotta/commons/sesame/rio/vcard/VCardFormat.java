@@ -36,8 +36,5 @@ public class VCardFormat {
             false,
             false
     );
-    static {
-        RDFFormat.register(FORMAT);
-    }
 
 }

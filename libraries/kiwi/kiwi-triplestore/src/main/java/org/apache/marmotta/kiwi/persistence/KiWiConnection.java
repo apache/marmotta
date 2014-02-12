@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.persistence;
 import com.google.common.base.Preconditions;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import com.google.common.primitives.Longs;
 import info.aduna.iteration.*;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
@@ -419,7 +420,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return an instance of a KiWiNode subclass representing the node with the given database id;
      *     type depends on value of the ntype column
      */
-    public KiWiNode loadNodeById(Long id) throws SQLException {
+    public KiWiNode loadNodeById(long id) throws SQLException {
 
         // look in cache
         KiWiNode element = nodeCache.get(id);
@@ -458,15 +459,19 @@ public class KiWiConnection implements AutoCloseable {
      * @return array of nodes corresponding to these ids (in the same order)
      * @throws SQLException
      */
-    public KiWiNode[] loadNodesByIds(Long... ids) throws SQLException {
+    public KiWiNode[] loadNodesByIds(long... ids) throws SQLException {
+        requireJDBCConnection();
+
         KiWiNode[] result = new KiWiNode[ids.length];
 
         // first look in the cache for any ids that have already been loaded
-        ArrayList<Long> toFetch = new ArrayList<>();
+        ArrayList<Long> toFetch = new ArrayList<>(ids.length);
         for(int i=0; i < ids.length; i++) {
-            result[i] = nodeCache.get(ids[i]);
-            if(result[i] == null) {
-                toFetch.add(ids[i]);
+            if(ids[i] != 0) {
+                result[i] = nodeCache.get(ids[i]);
+                if(result[i] == null) {
+                    toFetch.add(ids[i]);
+                }
             }
         }
 
@@ -495,7 +500,7 @@ public class KiWiConnection implements AutoCloseable {
                         while(rows.next()) {
                             node = constructNodeFromDatabase(rows);
                             for(int i=0; i<ids.length; i++) {
-                                if(ids[i].longValue() == node.getId()) {
+                                if(ids[i] == node.getId()) {
                                     result[i] = node;
                                 }
                             }
@@ -521,7 +526,7 @@ public class KiWiConnection implements AutoCloseable {
         return batchSize;
     }
 
-    public KiWiTriple loadTripleById(Long id) throws SQLException {
+    public KiWiTriple loadTripleById(long id) throws SQLException {
 
         // look in cache
         KiWiTriple element = tripleCache.get(id);
@@ -1887,7 +1892,7 @@ public class KiWiConnection implements AutoCloseable {
             }
         }
 
-        KiWiNode[] nodes = loadNodesByIds(nodeIds.toArray(new Long[nodeIds.size()]));
+        KiWiNode[] nodes = loadNodesByIds(Longs.toArray(nodeIds));
         Map<Long,KiWiNode> nodeMap = new HashMap<>();
         for(int i=0; i<nodes.length; i++) {
             nodeMap.put(nodes[i].getId(), nodes[i]);

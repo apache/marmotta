@@ -37,8 +37,5 @@ public class RDFHtmlFormat {
             true,
             false
     );
-    static {
-        RDFFormat.register(FORMAT);
-    }
 
 }

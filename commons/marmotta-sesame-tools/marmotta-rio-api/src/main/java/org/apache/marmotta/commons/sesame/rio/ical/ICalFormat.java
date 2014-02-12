@@ -33,7 +33,7 @@ import java.util.Arrays;
  * </ul>
  * 
  * @author Sebastian Schaffert
- * @see http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility
+ * @see <a href="http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility">http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility</a>
  */
 public class ICalFormat {
 
@@ -57,7 +57,7 @@ public class ICalFormat {
      * <li>{@code ical4j.compatibility.notes}
      * </ul>
      * 
-     * @see http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility
+     * @see <a href="http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility">http://wiki.modularity.net.au/ical4j/index.php?title=Compatibility</a>
      */
     public static final RDFFormat FORMAT = new RDFFormat(
             "ICal",
@@ -67,8 +67,5 @@ public class ICalFormat {
             false,
             false
     );
-    static {
-        RDFFormat.register(FORMAT);
-    }
 
 }

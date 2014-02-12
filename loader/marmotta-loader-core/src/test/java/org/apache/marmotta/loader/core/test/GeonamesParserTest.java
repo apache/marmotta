@@ -50,7 +50,7 @@ public class GeonamesParserTest {
     public void testFormat() throws ClassNotFoundException {
         Class.forName("org.apache.marmotta.loader.rio.GeonamesFormat");
 
-        RDFFormat f = RDFFormat.forMIMEType("text/vnd.geonames.rdf");
+        RDFFormat f = Rio.getParserFormatForMIMEType("text/vnd.geonames.rdf");
 
         Assert.assertEquals(GeonamesFormat.FORMAT, f);
     }

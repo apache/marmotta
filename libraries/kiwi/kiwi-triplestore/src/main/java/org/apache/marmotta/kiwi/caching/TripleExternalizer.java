@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.kiwi.caching;
 
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
@@ -84,17 +85,22 @@ public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
             try {
                 KiWiTriple result = new KiWiTriple();
                 result.setId(input.readLong());
-                result.setSubject((KiWiResource) con.loadNodeById(input.readLong()));
-                result.setPredicate((KiWiUriResource) con.loadNodeById(input.readLong()));
-                result.setObject(con.loadNodeById(input.readLong()));
 
-                long contextId = input.readLong();
-                if(contextId > 0) {
-                    result.setContext((KiWiResource) con.loadNodeById(contextId));
+                long[] nodeIds = new long[5];
+                for(int i=0; i<5; i++) {
+                    nodeIds[0] = input.readLong();
                 }
-                long creatorId = input.readLong();
-                if(creatorId > 0) {
-                    result.setCreator((KiWiResource) con.loadNodeById(creatorId));
+                KiWiNode[] nodes = con.loadNodesByIds(nodeIds);
+
+                result.setSubject((KiWiResource) nodes[0]);
+                result.setPredicate((KiWiUriResource) nodes[1]);
+                result.setObject(nodes[2]);
+
+                if(nodes[3] != null) {
+                    result.setContext((KiWiResource) nodes[3]);
+                }
+                if(nodes[4] != null) {
+                    result.setCreator((KiWiResource) nodes[4]);
                 }
 
                 result.setDeleted(input.readBoolean());
