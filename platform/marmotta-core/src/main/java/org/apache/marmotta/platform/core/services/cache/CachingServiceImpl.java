@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.core.services.cache;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.cache.CachingService;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.SystemRestartingEvent;
@@ -58,6 +59,7 @@ public class CachingServiceImpl implements CachingService {
     public static final String CLUSTERING_PORT = "clustering.port";
     public static final String CLUSTERING_ADDRESS = "clustering.address";
     public static final String CLUSTERING_ENABLED = "clustering.enabled";
+    public static final String CLUSTERING_MODE = "clustering.mode";
 
     /**
      * Get the seam logger for issuing logging statements.
@@ -83,9 +85,11 @@ public class CachingServiceImpl implements CachingService {
     @PostConstruct
     public void initialize() {
         boolean clustered = configurationService.getBooleanConfiguration(CLUSTERING_ENABLED, false);
+        String cacheMode = configurationService.getStringConfiguration(CLUSTERING_MODE,"replicated");
+
 
         log.info("Apache Marmotta Caching Service starting up ({}) ...", clustered ? "cluster name: " + configurationService.getStringConfiguration("clustering.name", "Marmotta") : "single host" );
-        if(clustered) {
+        if(clustered && (StringUtils.equalsIgnoreCase(cacheMode,"replicated") || StringUtils.equalsIgnoreCase(cacheMode, "distributed"))) {
 
             try {
                 String jgroupsXml = IOUtils.toString(CachingService.class.getResourceAsStream("/jgroups-marmotta.xml"));
@@ -120,28 +124,43 @@ public class CachingServiceImpl implements CachingService {
             }
 
 
-
-
-            defaultConfiguration = new ConfigurationBuilder()
-                    .clustering()
-                        .cacheMode(CacheMode.DIST_ASYNC)
-                        .async()
+            if(StringUtils.equalsIgnoreCase(cacheMode, "distributed")) {
+                defaultConfiguration = new ConfigurationBuilder()
+                        .clustering()
+                            .cacheMode(CacheMode.DIST_ASYNC)
+                            .async()
+                                .asyncMarshalling()
+                            .l1()
+                                .lifespan(5, TimeUnit.MINUTES)
+                            .hash()
+                                .numOwners(2)
+                                .numSegments(40)
+                                .consistentHashFactory(new SyncConsistentHashFactory())
+                        .stateTransfer()
+                            .fetchInMemoryState(false)
+                        .eviction()
+                            .strategy(EvictionStrategy.LIRS)
+                            .maxEntries(100000)
+                        .expiration()
+                            .lifespan(30, TimeUnit.MINUTES)
+                            .maxIdle(10, TimeUnit.MINUTES)
+                        .build();
+            } else {
+                defaultConfiguration = new ConfigurationBuilder()
+                        .clustering()
+                            .cacheMode(CacheMode.REPL_ASYNC)
+                            .async()
                             .asyncMarshalling()
-                        .l1()
-                            .lifespan(5, TimeUnit.MINUTES)
-                        .hash()
-                            .numOwners(2)
-                            .numSegments(40)
-                            .consistentHashFactory(new SyncConsistentHashFactory())
-                    .stateTransfer()
-                        .fetchInMemoryState(false)
-                    .eviction()
-                        .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(10000)
-                    .expiration()
-                        .lifespan(30, TimeUnit.MINUTES)
-                        .maxIdle(10, TimeUnit.MINUTES)
-                    .build();
+                        .stateTransfer()
+                            .fetchInMemoryState(false)
+                        .eviction()
+                            .strategy(EvictionStrategy.LIRS)
+                            .maxEntries(100000)
+                        .expiration()
+                            .lifespan(30, TimeUnit.MINUTES)
+                            .maxIdle(10, TimeUnit.MINUTES)
+                        .build();
+            }
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .globalJmxStatistics()
@@ -154,7 +173,7 @@ public class CachingServiceImpl implements CachingService {
                         .cacheMode(CacheMode.LOCAL)
                     .eviction()
                         .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(1000)
+                        .maxEntries(100000)
                     .expiration()
                         .lifespan(5, TimeUnit.MINUTES)
                         .maxIdle(1, TimeUnit.MINUTES)
