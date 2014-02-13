@@ -107,7 +107,7 @@ public class KiWiConfiguration {
     private RegistryStrategy registryStrategy = RegistryStrategy.CACHE;
 
 
-    private CacheMode cacheMode = CacheMode.DISTRIBUTED;
+    private CacheMode cacheMode = CacheMode.REPLICATED;
 
     /**
      * Enable to turn on cluster mode (e.g. for cache replication)
