@@ -26,6 +26,9 @@
     <script type="text/javascript" src="${baseUri}webjars/jquery/1.8.2/jquery.min.js"></script>
     <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="http://graves.cl/timeknots/src/d3.v2.min.js"></script>
+    <script type="text/javascript" src="http://graves.cl/timeknots/src/timeknots-min.js"></script>
 </head>
 
 <body>
@@ -40,6 +43,16 @@
     </div>
     <div id="center" style="width: 100%">
         <div id="content">
+            <div id="timeknots" style="width:100%"></div>
+<script type="text/javascript">
+var v = [
+<#list versions as version>
+{'name':"${version.date}", 'date':new Date("${version.tstamp}")},
+</#list>
+{'name':"now", 'date':new Date()}
+];
+TimeKnots.draw("#timeknots", v, {dateFormat: "%Y", color: "#696", showLabels: true, labelFormat: "%Y-%m-%d %H:%M:%S"});
+</script>
             <table class="simple_table">
                 <tr>
                     <th>Verions</th>
