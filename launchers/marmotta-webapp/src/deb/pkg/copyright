@@ -1,0 +1,8 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Apache Marmotta
+Upstream-Contact: Sergio Fernández <wikier@apache.org>
+Source: http://marmotta.apache.org
+
+Files: *
+Copyright: 2012-2014 The Apache Software Foundation
+License: Apache
