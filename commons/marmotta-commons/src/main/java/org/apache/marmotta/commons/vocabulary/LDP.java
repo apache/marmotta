@@ -42,7 +42,12 @@ public class LDP {
 	 */
 	public static final URI AggregateContainer;
 
-	/**
+    /**
+     * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-02-18)
+     */
+    public static final URI BasicContainer;
+
+    /**
 	 * A Linked Data Platform Container (LDPC) that also conforms to
 	 * additional patterns and conventions for managing members.  It is distinguished from
 	 * AggregateContainer by the following behaviors:
@@ -78,7 +83,12 @@ public class LDP {
 	 */
 	public static final URI containerSortPredicates;
 
-	/**
+    /**
+     * FIXME: Not yet part of the vocab, but used in the spec. (2014-02-18)
+     */
+    public static final URI member;
+
+    /**
 	 * Indicates which predicate of the container should be used to determine the membership. 
 	 */
 	public static final URI membershipPredicate;
@@ -102,14 +112,17 @@ public class LDP {
 	static{
 		ValueFactory factory = ValueFactoryImpl.getInstance();
 		AggregateContainer = factory.createURI(LDP.NAMESPACE, "AggregateContainer");
+        BasicContainer = factory.createURI(LDP.NAMESPACE, "BasicContainer");
 		CompositeContainer = factory.createURI(LDP.NAMESPACE, "CompositeContainer");
 		Container = factory.createURI(LDP.NAMESPACE, "Container");
 		Page = factory.createURI(LDP.NAMESPACE, "Page");
 		Resource = factory.createURI(LDP.NAMESPACE, "Resource");
 		containerSortPredicates = factory.createURI(LDP.NAMESPACE, "containerSortPredicates");
+		member = factory.createURI(LDP.NAMESPACE, "member");
 		membershipPredicate = factory.createURI(LDP.NAMESPACE, "membershipPredicate");
 		membershipSubject = factory.createURI(LDP.NAMESPACE, "membershipSubject");
 		nextPage = factory.createURI(LDP.NAMESPACE, "nextPage");
 		pageOf = factory.createURI(LDP.NAMESPACE, "pageOf");
 	}
+
 }
