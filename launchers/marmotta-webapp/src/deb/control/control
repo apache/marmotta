@@ -3,6 +3,10 @@ Version: [[version]]
 Section: java
 Priority: extra
 Architecture: all
-Description: [[description]]
-Maintainer: wikier@apache.org
+Distribution: ldstack-nightly
+Maintainer: Sergio Fernández <wikier@apache.org>
 Depends: tomcat7 (>=7.0.30-1)
+Description: Apache Marmotta is an Open Platform for Linked Data
+ The goal of Apache Marmotta is to provide an open implementation of a Linked 
+ Data Platform that can be used, extended and deployed easily by organizations 
+ who want to publish Linked Data or build custom applications on Linked Data.
