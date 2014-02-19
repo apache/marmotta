@@ -37,6 +37,7 @@
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
         <marmotta.backend>kiwi</marmotta.backend>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     </properties>
 
     <build>
@@ -122,7 +123,7 @@
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
-                <!--<version>1.1-SNAPSHOT</version>-->
+                <!--required for generating proper .changes: <version>1.1-SNAPSHOT</version>-->
                 <version>1.0.1</version>
                 <executions>
                     <execution>
@@ -131,7 +132,7 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <deb>${project.build.directory}/${project.artifactId}_${project.version}.deb</deb>
+                            <deb>${project.build.directory}/${project.artifactId}_${project.version}-${maven.build.timestamp}_all.deb</deb>
                             <controlDir>${basedir}/src/deb/control</controlDir>
                             <dataSet>
                                 <data>
