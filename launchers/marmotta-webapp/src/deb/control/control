@@ -1,4 +1,4 @@
-Package: marmotta
+Package: marmotta-webapp
 Version: [[version]]
 Section: java
 Priority: extra

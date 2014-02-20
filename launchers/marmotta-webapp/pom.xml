@@ -121,6 +121,19 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                  <execution>
+                    <id>parse-version</id>
+                    <goals>
+                      <goal>parse-version</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
                 <!--required for generating proper .changes: <version>1.1-SNAPSHOT</version>-->
@@ -132,7 +145,7 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <deb>${project.build.directory}/${project.artifactId}_${project.version}-${maven.build.timestamp}_all.deb</deb>
+                            <deb>${project.build.directory}/${project.artifactId}_${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}~${maven.build.timestamp}_all.deb</deb>
                             <controlDir>${basedir}/src/deb/control</controlDir>
                             <dataSet>
                                 <data>
