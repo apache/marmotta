@@ -78,7 +78,12 @@ public class LDP {
 	 */
 	public static final URI Resource;
 
-	/**
+    /**
+     * FIXME: Not yet part of the vocab, but used in the spec. (2014-02-24)
+     */
+    public static final URI contains;
+
+    /**
 	 * List of predicates that indicate the ascending order of the members in a page. 
 	 */
 	public static final URI containerSortPredicates;
@@ -117,6 +122,7 @@ public class LDP {
 		Container = factory.createURI(LDP.NAMESPACE, "Container");
 		Page = factory.createURI(LDP.NAMESPACE, "Page");
 		Resource = factory.createURI(LDP.NAMESPACE, "Resource");
+        contains = factory.createURI(LDP.NAMESPACE, "contains");
 		containerSortPredicates = factory.createURI(LDP.NAMESPACE, "containerSortPredicates");
 		member = factory.createURI(LDP.NAMESPACE, "member");
 		membershipPredicate = factory.createURI(LDP.NAMESPACE, "membershipPredicate");
