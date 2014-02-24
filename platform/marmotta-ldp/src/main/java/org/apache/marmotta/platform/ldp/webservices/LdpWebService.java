@@ -64,6 +64,7 @@ import java.util.*;
 public class LdpWebService {
 
     public static final String PATH = "ldp";
+    public static final String APPLICATION_RDF_PATCH = "application/rdf-patch";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -85,7 +86,7 @@ public class LdpWebService {
     public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)
             throws RepositoryException {
         if (log.isDebugEnabled()) {
-            log.debug("GET to PDP-R <{}>", getResourceUri(uriInfo));
+            log.debug("GET to LDPR <{}>", getResourceUri(uriInfo));
         }
         return doGetHead(uriInfo, r ,type).build();
     }
@@ -94,7 +95,7 @@ public class LdpWebService {
     public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)
             throws RepositoryException {
         if (log.isDebugEnabled()) {
-            log.debug("HEAD to PDP-R <{}>", getResourceUri(uriInfo));
+            log.debug("HEAD to LDPR <{}>", getResourceUri(uriInfo));
         }
         return doGetHead(uriInfo, r, type).entity(null).build();
     }
@@ -166,7 +167,7 @@ public class LdpWebService {
             throws RepositoryException {
 
         final String container = getResourceUri(uriInfo);
-        log.debug("POST to LDP-R <{}>", container);
+        log.debug("POST to LDPC <{}>", container);
 
         // TODO: Check if resource (container) exists
         log.warn("NOT CHECKING EXISTENCE OF <{}>", container);
@@ -206,7 +207,7 @@ public class LdpWebService {
                 log.debug("no name clash for <{}>", newResource);
             }
 
-            log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
+            log.debug("POST to <{}> will create new LDPR <{}>", container, newResource);
 
             // Add container triples (Sec. 6.4.3)
             // container and meta triples!
@@ -225,12 +226,12 @@ public class LdpWebService {
             log.trace("Content ({}) for new resource <{}>", type, newResource);
             final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
             if (rdfFormat == null) {
-                log.debug("POST creates new LDP-BR with type {}", type);
+                log.debug("POST creates new LDP-NR with type {}", type);
                 log.warn("LDP-BR not (yet) supported!");
                 con.rollback();
-                return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo).entity("LDP-BR not (yet) supported").build();
+                return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo).entity("LDP-BR not (yet) supported\n").build();
             } else {
-                log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
+                log.debug("POST creates new LDP-RS, data provided as {}", rdfFormat.getName());
                 try {
                     // FIXME: We are (are we?) allowed to filter out server-managed properties here
                     con.add(postBody, newResource, rdfFormat, s);
@@ -346,7 +347,14 @@ public class LdpWebService {
 
 
     @PATCH
-    public Response PATCH() {
+    public Response PATCH(@Context UriInfo uriInfo,
+                          InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type) {
+
+        // Check for the supported mime-type
+        if (!type.toString().equals(APPLICATION_RDF_PATCH)) {
+            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity("Unknown Content-Type: " + type + "\n").build();
+        };
+
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
@@ -366,10 +374,11 @@ public class LdpWebService {
         builder.allow("GET", "HEAD", "POST", "OPTIONS");
 
         // Sec. 6.4.14 / Sec. 8.1
-        builder.header("Accept-Post", "text/turtle, */*");
+        // builder.header("Accept-Post", "text/turtle, */*");
+        builder.header("Accept-Post", "text/turtle");
 
         // TODO: Sec. 5.8.2
-        //builder.header("Accept-Patch", null);
+        builder.header("Accept-Patch", APPLICATION_RDF_PATCH);
 
 
         // TODO: Sec. 6.9.1
