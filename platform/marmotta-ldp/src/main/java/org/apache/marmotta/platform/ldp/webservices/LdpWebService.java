@@ -60,6 +60,8 @@ public class LdpWebService {
 
     public static final String PATH = "ldp"; //FIXME: imho this should be root '/' (jakob)
 
+    public static final String APPLICATION_RDF_PATCH = "application/rdf-patch";
+
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
     @Inject
@@ -74,19 +76,17 @@ public class LdpWebService {
     }
 
     @GET
-    public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)
-            throws RepositoryException {
+    public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type) throws RepositoryException {
         if (log.isDebugEnabled()) {
-            log.debug("GET to PDP-R <{}>", getResourceUri(uriInfo));
+            log.debug("GET to LDPR <{}>", getResourceUri(uriInfo));
         }
         return buildResourceResponse(uriInfo, r, type).build();
     }
 
     @HEAD
-    public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)
-            throws RepositoryException {
+    public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)  throws RepositoryException {
         if (log.isDebugEnabled()) {
-            log.debug("HEAD to PDP-R <{}>", getResourceUri(uriInfo));
+            log.debug("HEAD to LDPR <{}>", getResourceUri(uriInfo));
         }
         return buildResourceResponse(uriInfo, r, type).entity(null).build();
     }
@@ -132,13 +132,9 @@ public class LdpWebService {
     @POST
     public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug, InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
-        /*
-         * TODO: POST implementation
-         * a POST to an existing resource converts this resource into an LDP-C
-         */
 
         final String container = getResourceUri(uriInfo);
-        log.debug("POST to LDP-R <{}>", container);
+        log.debug("POST to LDPC <{}>", container);
 
         // TODO: Check if resource (container) exists
         log.warn("NOT CHECKING EXISTENCE OF <{}>", container);
@@ -219,7 +215,12 @@ public class LdpWebService {
     }
 
     @PATCH
-    public Response PATCH() {
+    public Response PATCH(@Context UriInfo uriInfo, InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type) {
+        // Check for the supported mime-type
+        if (!type.toString().equals(APPLICATION_RDF_PATCH)) {
+            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity("Unknown Content-Type: " + type + "\n").build();
+        };
+
         return Response.status(Response.Status.NOT_IMPLEMENTED).build();
     }
 
@@ -239,10 +240,11 @@ public class LdpWebService {
         builder.allow("GET", "HEAD", "POST", "OPTIONS");
 
         // Sec. 6.4.14 / Sec. 8.1
-        builder.header("Accept-Post", "text/turtle, */*");
+        // builder.header("Accept-Post", "text/turtle, */*");
+        builder.header("Accept-Post", "text/turtle");
 
         // TODO: Sec. 5.8.2
-        //builder.header("Accept-Patch", null);
+        builder.header("Accept-Patch", APPLICATION_RDF_PATCH);
 
 
         // TODO: Sec. 6.9.1

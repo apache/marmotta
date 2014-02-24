@@ -177,7 +177,7 @@ public class LdpServiceImpl implements LdpService {
 
             // Add the bodyContent
             log.trace("Content ({}) for new resource <{}>", type, resource);
-            final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
+            final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString(), RDFFormat.TURTLE);
             if (rdfFormat == null) {
                 log.debug("POST creates new LDP-BR with type {}", type);
                 log.warn("LDP-BR not (yet) supported!");
