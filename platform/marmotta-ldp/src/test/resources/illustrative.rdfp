@@ -1,0 +1,6 @@
+@prefix  foaf: <http://xmlns.com/foaf/0.1/> .
+
+D <http://example/bob> foaf:name "bob" .
+A <http://example/bob> foaf:name "Bob" .
+A R foaf:knows <http://example/alice> .
+D R R <http://example/charlie> .
