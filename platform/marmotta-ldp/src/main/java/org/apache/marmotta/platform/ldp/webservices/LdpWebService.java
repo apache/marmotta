@@ -23,7 +23,7 @@ import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.ldp.services.LdpServiceImpl;
+import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
 import org.openrdf.model.Literal;
@@ -59,11 +59,10 @@ import java.util.*;
  * @author Jakob Frank
  */
 @ApplicationScoped
-/* FIXME: imho this should be root '/' (jakob) */
 @Path(LdpWebService.PATH + "{local:.*}")
 public class LdpWebService {
 
-    public static final String PATH = "ldp";
+    public static final String PATH = "ldp"; //FIXME: imho this should be root '/' (jakob)
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -74,7 +73,7 @@ public class LdpWebService {
     private SesameService sesameService;
 
     @Inject
-    private LdpServiceImpl ldpService;
+    private LdpService ldpService;
 
     @PostConstruct
     protected void initialize() {

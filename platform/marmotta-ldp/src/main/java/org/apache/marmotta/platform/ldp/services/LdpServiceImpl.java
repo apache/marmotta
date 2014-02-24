@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldp.services;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,11 @@ import javax.inject.Inject;
 
 /**
  * LDP Service default implementation
+ *
+ * @author Sergio Fernández
  */
 @ApplicationScoped
-public class LdpServiceImpl {
+public class LdpServiceImpl implements LdpService {
 
     private static final Logger log = LoggerFactory.getLogger(LdpServiceImpl.class);
 
