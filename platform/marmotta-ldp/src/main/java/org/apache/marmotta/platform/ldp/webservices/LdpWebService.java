@@ -17,24 +17,20 @@
  */
 package org.apache.marmotta.platform.ldp.webservices;
 
-import info.aduna.iteration.UnionIteration;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
-import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.*;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -70,9 +66,6 @@ public class LdpWebService {
     private ConfigurationService configurationService;
 
     @Inject
-    private SesameService sesameService;
-
-    @Inject
     private LdpService ldpService;
 
     @PostConstruct
@@ -86,7 +79,7 @@ public class LdpWebService {
         if (log.isDebugEnabled()) {
             log.debug("GET to PDP-R <{}>", getResourceUri(uriInfo));
         }
-        return doGetHead(uriInfo, r ,type).build();
+        return buildResourceResponse(uriInfo, r, type).build();
     }
 
     @HEAD
@@ -95,18 +88,15 @@ public class LdpWebService {
         if (log.isDebugEnabled()) {
             log.debug("HEAD to PDP-R <{}>", getResourceUri(uriInfo));
         }
-        return doGetHead(uriInfo, r, type).entity(null).build();
+        return buildResourceResponse(uriInfo, r, type).entity(null).build();
     }
 
-    private Response.ResponseBuilder doGetHead(final UriInfo uriInfo, Request r, MediaType type)
-            throws RepositoryException {
+    private Response.ResponseBuilder buildResourceResponse(final UriInfo uriInfo, Request r, MediaType type) throws RepositoryException {
         final String subject = getResourceUri(uriInfo);
 
-        Response.ResponseBuilder rb404 = check404(subject);
-        if (rb404 != null) {
-            return createResponse(rb404, uriInfo);
+        if (!ldpService.exists(getResourceUri(uriInfo))) {
+            return Response.status(Response.Status.NOT_FOUND);
         }
-        // log.warn("NOT CHECKING EXISTENCE OF <{}>", subject);
 
         // TODO: Maybe this is a LDP-BR?
         // TODO: Proper content negotiation
@@ -121,30 +111,9 @@ public class LdpWebService {
                 @Override
                 public void write(OutputStream output) throws IOException, WebApplicationException {
                     try {
-                        RepositoryConnection con = sesameService.getConnection();
-                        try {
-                            con.begin();
-                            URI s = con.getValueFactory().createURI(subject),
-                                ldpContext = con.getValueFactory().createURI(LDP.NAMESPACE);
-                            // TODO: this should be a little more sophisticated...
-                            // TODO: non-membership triples flag / Prefer-header
-                            RDFWriter writer = Rio.createWriter(format, output);
-                            UnionIteration<Statement, RepositoryException> union = new UnionIteration<>(
-                                    con.getStatements(null, null, null, false, s),
-                                    con.getStatements(s, null, null, false, ldpContext)
-                            );
-                            try {
-                                LdpWebServiceUtils.exportIteration(writer, s, union);
-                            } finally {
-                                union.close();
-                            }
-                            con.commit();
-                        } catch (RDFHandlerException e) {
-                            con.rollback();
-                            throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).build());
-                        } finally {
-                            con.close();
-                        }
+                        ldpService.exportResource(output, subject, format);
+                    } catch (RDFHandlerException e) {
+                        throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).build());
                     } catch (RepositoryException e) {
                         throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).build());
                     }
@@ -187,75 +156,11 @@ public class LdpWebService {
         }
 
         String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
-        final RepositoryConnection con = sesameService.getConnection();
         try {
-            final URI c = con.getValueFactory().createURI(container);
-            final URI ldpContext = con.getValueFactory().createURI(LDP.NAMESPACE);
-            con.begin();
-
-            URI s = con.getValueFactory().createURI(newResource);
-            log.trace("Checking possible name clash for new resource <{}>", newResource);
-            if (con.hasStatement(s, null, null, false, ldpContext)) {
-                int i = 0;
-                final String base = newResource;
-                do {
-                    final String candidate = base + "-" + (++i);
-                    log.trace("<{}> already exists, trying <{}>", s.stringValue(), candidate);
-                    s = con.getValueFactory().createURI(candidate);
-                } while (con.hasStatement(s, null, null, false, ldpContext));
-                newResource = s.stringValue();
-                log.debug("resolved name clash, new resource will be <{}>", newResource);
-            } else {
-                log.debug("no name clash for <{}>", newResource);
-            }
-
-            log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
-
-            // Add container triples (Sec. 6.4.3)
-            // container and meta triples!
-
-            Literal now = con.getValueFactory().createLiteral(new Date());
-
-            con.add(c, RDF.TYPE, LDP.BasicContainer, ldpContext);
-            con.add(c, LDP.contains, s, ldpContext);
-            con.remove(c, DCTERMS.modified, null, ldpContext);
-            con.add(c, DCTERMS.modified, now, ldpContext);
-
-            con.add(s, RDF.TYPE, LDP.Resource, ldpContext);
-            con.add(s, DCTERMS.created, now, ldpContext);
-            con.add(s, DCTERMS.modified, now, ldpContext);
-
-            // LDP-BC for now!
-            con.commit();
-
-            // Add the bodyContent
-            log.trace("Content ({}) for new resource <{}>", type, newResource);
-            final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
-            if (rdfFormat == null) {
-                log.debug("POST creates new LDP-BR with type {}", type);
-                log.warn("LDP-BR not (yet) supported!");
-                return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo).entity("LDP-BR not (yet) supported").build();
-            } else {
-                log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
-                try {
-                    con.begin();
-
-                    // FIXME: We are (are we?) allowed to filter out server-managed properties here
-                    con.add(postBody, newResource, rdfFormat, s);
-
-                    con.commit();
-                    return createResponse(Response.Status.CREATED, uriInfo).location(java.net.URI.create(newResource)).build();
-                } catch (IOException | RDFParseException e) {
-                    return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity(e.getClass().getSimpleName() + ": "+ e.getMessage()).build();
-                }
-            }
-        } catch (final Throwable t) {
-            if (con.isActive()) {
-                con.rollback();
-            }
-            throw t;
-        } finally {
-            con.close();
+            ldpService.addResource(postBody, type, container, newResource);
+            return createResponse(Response.Status.CREATED, uriInfo).location(java.net.URI.create(newResource)).build();
+        } catch (IOException | RDFParseException e) {
+            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity(e.getClass().getSimpleName() + ": "+ e.getMessage()).build();
         }
     }
 
@@ -279,20 +184,11 @@ public class LdpWebService {
         } else {
             // check ETag -> 412 Precondition Failed (Sec. 5.5.3)
             log.trace("Checking If-Match: {}", eTag);
-            final RepositoryConnection con = sesameService.getConnection();
-            try {
-                con.begin();
-                EntityTag hasTag = generateETag(con, resource);
-                con.commit();
-
-                if (!EntityTagUtils.equals(eTag, hasTag)) {
-                    log.trace("If-Match header did not match, expected {}", hasTag);
-                    return createResponse(Response.Status.PRECONDITION_FAILED, uriInfo).build();
-                }
-            } finally {
-                con.close();
+            EntityTag hasTag = ldpService.generateETag(resource);
+            if (!EntityTagUtils.equals(eTag, hasTag)) {
+                log.trace("If-Match header did not match, expected {}", hasTag);
+                return createResponse(Response.Status.PRECONDITION_FAILED, uriInfo).build();
             }
-
         }
 
         /*
@@ -306,48 +202,21 @@ public class LdpWebService {
     }
 
     @DELETE
-    public Response DELETE(@Context UriInfo uriInfo) throws RepositoryException {
+    public Response DELETE(@Context UriInfo uriInfo) {
         /*
          * Handle delete (Sec. 5.6, Sec. 6.6)
          */
         final String resource = getResourceUri(uriInfo);
         log.debug("DELETE to <{}>", resource);
-
-        log.warn("NOT CHECKING EXISTENCE OF <{}>", resource);
-
-        final RepositoryConnection con = sesameService.getConnection();
         try {
-            con.begin();
-
-            URI s = con.getValueFactory().createURI(resource),
-                    ldpContext = con.getValueFactory().createURI(LDP.NAMESPACE);
-            Literal now = con.getValueFactory().createLiteral(new Date());
-
-            // Delete corresponding containment and membership triples (Sec. 6.6.1)
-            RepositoryResult<Statement> stmts = con.getStatements(null, LDP.member, s, false, ldpContext);
-            try {
-                while (stmts.hasNext()) {
-                    Statement st = stmts.next();
-                    con.remove(st.getSubject(), DCTERMS.modified, null);
-                    con.add(st.getSubject(), DCTERMS.modified, now);
-                    con.remove(st);
-                }
-            } finally {
-                stmts.close();
-            }
-            // Delete the resource meta
-            con.remove(s, null, null, ldpContext);
-
-            // Delete the resource data
-            con.clear(s);
-
-            con.commit();
+            ldpService.deleteResource(resource);
             return createResponse(Response.Status.NO_CONTENT, uriInfo).build();
-        } finally {
-            con.close();
+        } catch (RepositoryException e) {
+            log.error("Error deleting LDP-R: {}: {}", resource, e.getMessage());
+            return createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).entity("Error deleting LDP-R: " + e.getMessage()).build();
         }
-    }
 
+    }
 
     @PATCH
     public Response PATCH() {
@@ -383,27 +252,6 @@ public class LdpWebService {
         return builder.build();
     }
 
-    protected Response.ResponseBuilder check404(UriInfo uriInfo) throws RepositoryException {
-        return check404(getResourceUri(uriInfo));
-    }
-
-    protected Response.ResponseBuilder check404(String resourceUri) throws RepositoryException {
-        final RepositoryConnection con = sesameService.getConnection();
-        try {
-            con.begin();
-            final URI resource = con.getValueFactory().createURI(resourceUri),
-                ldpContext = con.getValueFactory().createURI(LDP.NAMESPACE);
-            if (con.hasStatement(resource, RDF.TYPE, null, true, ldpContext)) {
-                return null;
-            } else {
-                return Response.status(Response.Status.NOT_FOUND);
-            }
-        } finally {
-            con.commit();
-            con.close();
-        }
-    }
-
     protected Response.ResponseBuilder createResponse(int status, UriInfo uriInfo) {
         return createResponse(Response.status(status), uriInfo);
     }
@@ -421,31 +269,16 @@ public class LdpWebService {
 
         final String rUri = getResourceUri(uriInfo);
         try {
-            final RepositoryConnection con = sesameService.getConnection();
-            try {
-                con.begin();
-                final URI uri = con.getValueFactory().createURI(rUri),
-                        ldp = con.getValueFactory().createURI(LDP.NAMESPACE);
-
-                // Link rel='type' Headers (Sec. 5.2.8, 6.2.8)
-                RepositoryResult<Statement> types = con.getStatements(uri, RDF.TYPE, null, false, ldp);
-                try {
-                    while (types.hasNext()) {
-                        Value o = types.next().getObject();
-                        if (o instanceof URI && o.stringValue().startsWith(LDP.NAMESPACE)) {
-                            rb.link(o.stringValue(), "type");
-                        }
-                    }
-                } finally {
-                    types.close();
+            List<Statement> statements = ldpService.getStatements(rUri);
+            for (Statement stmt : statements) {
+                Value o = stmt.getObject();
+                if (o instanceof URI && o.stringValue().startsWith(LDP.NAMESPACE)) {
+                    rb.link(o.stringValue(), "type");
                 }
-
-                // ETag (Sec. 5.2.7)
-                rb.tag(generateETag(con, uri));
-                con.commit();
-            } finally {
-                con.close();
             }
+
+            // ETag (Sec. 5.2.7)
+            rb.tag(ldpService.generateETag(rUri));
         } catch (RepositoryException e) {
             log.error("Could not set ldp-response headers", e);
         }
@@ -472,36 +305,6 @@ public class LdpWebService {
         String uri = uriBuilder.build().toString();
         log.debug("RequestUri: {}", uri);
         return uri;
-    }
-
-
-    protected static EntityTag generateETag(RepositoryConnection con, String uri) throws RepositoryException {
-        return generateETag(con, con.getValueFactory().createURI(uri));
-    }
-
-    protected static EntityTag generateETag(RepositoryConnection con, URI uri) throws RepositoryException {
-        final URI ldpContext = con.getValueFactory().createURI(LDP.NAMESPACE);
-        final RepositoryResult<Statement> stmts = con.getStatements(uri, DCTERMS.modified, null, true, ldpContext);
-        try {
-            // TODO: ETag is the last-modified date (explicitly managed) thus only weak.
-            Date latest = null;
-            while (stmts.hasNext()) {
-                Value o = stmts.next().getObject();
-                if (o instanceof Literal) {
-                    Date d = ((Literal)o).calendarValue().toGregorianCalendar().getTime();
-                    if (latest == null || d.after(latest)) {
-                        latest = d;
-                    }
-                }
-            }
-            if (latest != null) {
-                return new EntityTag(String.valueOf(latest.getTime()), true);
-            } else {
-                return null;
-            }
-        } finally {
-            stmts.close();
-        }
     }
 
     /**
