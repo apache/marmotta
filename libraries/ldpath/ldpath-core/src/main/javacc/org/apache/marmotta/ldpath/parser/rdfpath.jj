@@ -212,7 +212,8 @@ public class LdPathParser<Node> {
             }
         }
 
-        public Node resolveURI(URI uri) {            return backend.createURI(uri.toString());
+        public Node resolveURI(URI uri) {
+            return backend.createURI(uri.toString());
         }
 
         public Node resolveResource(String uri) throws ParseException {
@@ -220,7 +221,8 @@ public class LdPathParser<Node> {
         }
 
         public Node resolveResource(String prefix, String local) throws ParseException {
-            return resolveResource(resolveNamespace(prefix)+local);        }
+            return resolveResource(resolveNamespace(prefix)+local);
+        }
 
 
         public String resolveNamespace(String prefix) throws ParseException {
@@ -277,9 +279,9 @@ public class LdPathParser<Node> {
             registerFunction(xsdNodeFunctionMap,function);
         }
 
-    public void registerFunction(TestFunction<Node> test) {
-        registerTest(xsdNodeTestMap, test);
-    }
+        public void registerFunction(TestFunction<Node> test) {
+            registerTest(xsdNodeTestMap, test);
+        }
 
         /**
          * Register the result transformer passed as argument for the given type uri.
@@ -320,9 +322,9 @@ public class LdPathParser<Node> {
             register.put(Constants.NS_LMF_FUNCS + function.getPathExpression(backend), function);
         }
         
-    private void registerTest(Map<String, TestFunction<Node>> register, final TestFunction<Node> test) {
-        register.put(Constants.NS_LMF_FUNCS + test.getLocalName(), test);
-    }
+        private void registerTest(Map<String, TestFunction<Node>> register, final TestFunction<Node> test) {
+            register.put(Constants.NS_LMF_FUNCS + test.getLocalName(), test);
+        }
 
         private class Namespace implements Entry<String, String> {
             private String key, val;
