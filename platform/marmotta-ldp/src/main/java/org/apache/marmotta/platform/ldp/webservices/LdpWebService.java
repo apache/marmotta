@@ -164,10 +164,6 @@ public class LdpWebService {
     @POST
     public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug, InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
-        /*
-         * TODO: POST implementation
-         * a POST to an existing resource converts this resource into an LDP-C
-         */
 
         final String container = getResourceUri(uriInfo);
         log.debug("POST to LDP-R <{}>", container);
@@ -187,7 +183,7 @@ public class LdpWebService {
             log.trace("Slug-Header urified: {}", localName);
         }
 
-        String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
+        String newResource = UriBuilder.fromUri(java.net.URI.create(container)).path(localName).build().toString();
         final RepositoryConnection con = sesameService.getConnection();
         try {
             final URI c = con.getValueFactory().createURI(container);
@@ -214,7 +210,6 @@ public class LdpWebService {
 
             // Add container triples (Sec. 6.4.3)
             // container and meta triples!
-
             Literal now = con.getValueFactory().createLiteral(new Date());
 
             con.add(c, RDF.TYPE, LDP.BasicContainer, ldpContext);
@@ -226,27 +221,24 @@ public class LdpWebService {
             con.add(s, DCTERMS.created, now, ldpContext);
             con.add(s, DCTERMS.modified, now, ldpContext);
 
-            // LDP-BC for now!
-            con.commit();
-
             // Add the bodyContent
             log.trace("Content ({}) for new resource <{}>", type, newResource);
             final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
             if (rdfFormat == null) {
                 log.debug("POST creates new LDP-BR with type {}", type);
                 log.warn("LDP-BR not (yet) supported!");
+                con.rollback();
                 return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo).entity("LDP-BR not (yet) supported").build();
             } else {
                 log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
                 try {
-                    con.begin();
-
                     // FIXME: We are (are we?) allowed to filter out server-managed properties here
                     con.add(postBody, newResource, rdfFormat, s);
 
                     con.commit();
                     return createResponse(Response.Status.CREATED, uriInfo).location(java.net.URI.create(newResource)).build();
                 } catch (IOException | RDFParseException e) {
+                    con.rollback();
                     return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity(e.getClass().getSimpleName() + ": "+ e.getMessage()).build();
                 }
             }
@@ -314,7 +306,10 @@ public class LdpWebService {
         final String resource = getResourceUri(uriInfo);
         log.debug("DELETE to <{}>", resource);
 
-        log.warn("NOT CHECKING EXISTENCE OF <{}>", resource);
+        final Response.ResponseBuilder rb404 = check404(resource);
+        if (rb404 != null) {
+            return rb404.build();
+        }
 
         final RepositoryConnection con = sesameService.getConnection();
         try {
