@@ -24,6 +24,7 @@ import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
+import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
 import org.openrdf.model.Statement;
@@ -62,8 +63,6 @@ import java.util.*;
 public class LdpWebService {
 
     public static final String PATH = "ldp"; //FIXME: imho this should be root '/' (jakob)
-
-    public static final String APPLICATION_RDF_PATCH = "application/rdf-patch";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -239,7 +238,7 @@ public class LdpWebService {
         }
 
         // Check for the supported mime-type
-        if (!type.toString().equals(APPLICATION_RDF_PATCH)) {
+        if (!type.toString().equals(RdfPatchParser.MIME_TYPE)) {
             log.trace("Incompatible Content-Type for PATCH: {}", type);
             return createResponse(Response.Status.UNSUPPORTED_MEDIA_TYPE, uriInfo).entity("Unknown Content-Type: " + type + "\n").build();
         }
@@ -276,7 +275,7 @@ public class LdpWebService {
         builder.header("Accept-Post", "text/turtle");
 
         // Sec. 5.8.2
-        builder.header("Accept-Patch", APPLICATION_RDF_PATCH);
+        builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
 
 
         // TODO: Sec. 6.9.1

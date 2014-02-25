@@ -65,7 +65,7 @@ public class RdfPatchParserTest {
         Iterator<PatchLine> it = patchLines.iterator();
 
         Assert.assertTrue(it.hasNext());
-        checkPatchLine(it.next(), PatchLine.Operator.DEL, bob, FOAF.name, lcBob);
+        checkPatchLine(it.next(), PatchLine.Operator.DELETE, bob, FOAF.name, lcBob);
 
         Assert.assertTrue(it.hasNext());
         checkPatchLine(it.next(), PatchLine.Operator.ADD, bob, FOAF.name, ucBob);
@@ -74,7 +74,7 @@ public class RdfPatchParserTest {
         checkPatchLine(it.next(), PatchLine.Operator.ADD, null, FOAF.knows, alice);
 
         Assert.assertTrue(it.hasNext());
-        checkPatchLine(it.next(), PatchLine.Operator.DEL, null, null, charlie);
+        checkPatchLine(it.next(), PatchLine.Operator.DELETE, null, null, charlie);
     }
 
     private void checkPatchLine(PatchLine line, PatchLine.Operator operator, Resource subejct, URI predicate, Value object) {

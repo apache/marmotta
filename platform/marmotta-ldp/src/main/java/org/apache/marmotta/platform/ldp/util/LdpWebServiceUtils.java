@@ -31,14 +31,14 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 
 /**
- * Created by jakob on 2/18/14.
+ * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.webservices.LdpWebService}.
  */
 public class LdpWebServiceUtils {
 
     /**
      * Urify the Slug: header value, i.e. replace all non-url chars with a single dash.
      *
-     * @param slugHeaderValue
+     * @param slugHeaderValue the client-provided Slug-header
      * @return the slugHeaderValue "urified"
      */
     public static String urify(String slugHeaderValue) {
@@ -47,6 +47,14 @@ public class LdpWebServiceUtils {
                 .replaceAll("[^\\w]+", "-");
     }
 
+    /**
+     * LDP-Style to serialize a resource.
+     * @param writer the writer to serialize to
+     * @param subject the resource to serialize
+     * @param iteration the Iteration containing the data
+     * @throws RDFHandlerException
+     * @throws RepositoryException
+     */
     public static void exportIteration(RDFWriter writer, URI subject, CloseableIteration<Statement, RepositoryException> iteration) throws RDFHandlerException, RepositoryException {
         writer.startRDF();
 

@@ -15,22 +15,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.platform.ldp.webservices;
+package org.apache.marmotta.platform.ldp.patch.parser;
 
-import javax.ws.rs.HttpMethod;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+
+import java.util.List;
 
 /**
- * Indicates that the annotated method responds to HTTP PATCH requests.
+ * Parser for the {@code application/rdf-patch} format.
  *
- * @author Jakob Frank (jakob@apache.org)
- * @see HttpMethod
+ * @see <a href="http://afs.github.io/rdf-patch/">http://afs.github.io/rdf-patch/</a>
  */
-@Target({java.lang.annotation.ElementType.METHOD})
-@Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@HttpMethod("PATCH")
-@Documented
-public @interface PATCH {
+public interface RdfPatchParser {
+
+    /**
+     * Mime-Type: {@value}
+     */
+    public static final String MIME_TYPE = "application/rdf-patch";
+
+    /**
+     * Default File extension for rdf-patch: {@value}
+     */
+    public static final String FILE_EXTENSION = "rdfp";
+
+    /**
+     * Parse the rdf-patch
+     * @return a List of {@link org.apache.marmotta.platform.ldp.patch.model.PatchLine}s
+     * @throws ParseException if the patch could not be parsed.
+     */
+    public List<PatchLine> parsePatch() throws ParseException;
 }

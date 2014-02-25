@@ -29,6 +29,7 @@ import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
+import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
@@ -57,6 +58,7 @@ import java.util.List;
  * LDP Service default implementation
  *
  * @author Sergio Fernández
+ * @author Jakob Frank
  */
 @ApplicationScoped
 public class LdpServiceImpl implements LdpService {
@@ -250,7 +252,7 @@ public class LdpServiceImpl implements LdpService {
 
 
         log.trace("parsing patch");
-        List<PatchLine> patch = new RdfPatchParser(patchData).parsePatch();
+        List<PatchLine> patch = new RdfPatchParserImpl(patchData).parsePatch();
 
         // we are allowed to restrict the patch contents (Sec. ???)
         log.trace("checking for invalid patch statements");

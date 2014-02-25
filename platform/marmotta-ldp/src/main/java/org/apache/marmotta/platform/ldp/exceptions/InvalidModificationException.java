@@ -18,9 +18,14 @@
 package org.apache.marmotta.platform.ldp.exceptions;
 
 /**
- * Created by jakob on 2/25/14.
+ * Exception to be thrown if a client operation tries to modify server-controlled data, and the operation should not be ignored.
+ *
+ * @author Jakob Frank
+ *
+ * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpr-put-servermanagedprops">LDP Spec, Sec. 5.5.2</a>
  */
 public class InvalidModificationException extends Exception {
+
     public InvalidModificationException() {
         super();
     }

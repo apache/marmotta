@@ -26,7 +26,7 @@
   //DEBUG_LOOKAHEAD=true;
 }
 
-PARSER_BEGIN(RdfPatchParser)
+PARSER_BEGIN(RdfPatchParserImpl)
 package org.apache.marmotta.platform.ldp.patch.parser;
 
 import org.openrdf.model.*;
@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RdfPatchParser {
+public class RdfPatchParserImpl implements RdfPatchParser {
 
     private HashMap<String, String> namespaces = new HashMap<String, String>();
 
@@ -82,7 +82,7 @@ public class RdfPatchParser {
     }
 
 }
-PARSER_END(RdfPatchParser)
+PARSER_END(RdfPatchParserImpl)
 
 SKIP : {
  	" "

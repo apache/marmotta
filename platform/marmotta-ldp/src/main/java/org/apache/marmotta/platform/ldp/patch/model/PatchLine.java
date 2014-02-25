@@ -20,17 +20,23 @@ package org.apache.marmotta.platform.ldp.patch.model;
 import org.openrdf.model.Statement;
 
 /**
- * Created by jakob on 2/24/14.
+ * A single PatchLine, i.e. a operation of a Patch.
+ * Can be either a {@code ADD} od {@code DELETE}
  */
 public class PatchLine {
     public enum Operator {
-        DEL("D"),
-        ADD("A");
+        ADD("A"),
+        DELETE("D");
+
 
         private final String cmd;
 
-        Operator(String cmd) {
+        private Operator(String cmd) {
             this.cmd = cmd;
+        }
+
+        public String getCommand() {
+            return cmd;
         }
 
         public static Operator fromCommand(String cmd) {
@@ -48,7 +54,6 @@ public class PatchLine {
     private final Statement statement;
 
     public PatchLine(Operator operator, Statement statement) {
-
         this.operator = operator;
         this.statement = statement;
     }

@@ -24,7 +24,8 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 /**
- * Created by jakob on 2/25/14.
+ * The Statement in a RdfPatch.
+ * {@code null}-Values represent {@code R}epeat from the <a href="http://afs.github.io/rdf-patch/#rdf-patch-details">Spec</a>.
  */
 public class WildcardStatement implements Statement {
 

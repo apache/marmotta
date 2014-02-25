@@ -18,7 +18,8 @@
 package org.apache.marmotta.platform.ldp.patch;
 
 /**
- * Created by jakob on 2/25/14.
+ * Exception thrown if a PatchDocument (i.e. a List of {@link org.apache.marmotta.platform.ldp.patch.model.PatchLine}s)
+ * cannot be evauated, e.g. because a wildcard ({@code R}) was never defined before.
  */
 public class InvalidPatchDocumentException extends Exception {
 

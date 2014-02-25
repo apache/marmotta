@@ -18,11 +18,10 @@
 package org.apache.marmotta.platform.ldp.patch;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
+import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -36,24 +35,67 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Created by jakob on 2/25/14.
+ * RdfPatchUtil - Util-Class to apply rdf-patches on a {@link Repository} or {@link org.openrdf.repository.RepositoryConnection}
+ *
+ * @author Jakob Frank
  */
 public class RdfPatchUtil {
 
+    /**
+     * Apply the provided patch to the repository
+     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param patch the patch to apply
+     * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
+     * @throws ParseException if the patch could not be parsed
+     * @throws InvalidPatchDocumentException if the patch is invalid
+     */
     public static void applyPatch(Repository repository, String patch, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
         applyPatch(repository, getPatch(patch), contexts);
     }
 
+    /**
+     * Apply the provided patch to the repository
+     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param patchSource the patch to apply
+     * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
+     * @throws ParseException if the patch could not be parsed
+     * @throws InvalidPatchDocumentException if the patch is invalid
+     */
     public static void applyPatch(Repository repository, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
         applyPatch(repository, getPatch(patchSource), contexts);
     }
-    public static void applyPatch(RepositoryConnection con, String patch, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
-        applyPatch(con, getPatch(patch), contexts);
-    }
-    public static void applyPatch(RepositoryConnection con, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
-        applyPatch(con, getPatch(patchSource), contexts);
+
+    /**
+     * Apply the provided patch to the repository
+     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param patch the patch to apply
+     * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
+     * @throws ParseException if the patch could not be parsed
+     * @throws InvalidPatchDocumentException if the patch is invalid
+     */
+    public static void applyPatch(RepositoryConnection connection, String patch, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
+        applyPatch(connection, getPatch(patch), contexts);
     }
 
+    /**
+     * Apply the provided patch to the repository
+     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param patchSource the patch to apply
+     * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
+     * @throws ParseException if the patch could not be parsed
+     * @throws InvalidPatchDocumentException if the patch is invalid
+     */
+    public static void applyPatch(RepositoryConnection connection, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
+        applyPatch(connection, getPatch(patchSource), contexts);
+    }
+
+    /**
+     * Apply the provided patch to the repository
+     * @param repository the {@link org.openrdf.repository.Repository} to patch
+     * @param patch the patch to apply
+     * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
+     * @throws InvalidPatchDocumentException if the patch is invalid
+     */
     public static void applyPatch(Repository repository, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
         RepositoryConnection con = repository.getConnection();
         try {
@@ -68,7 +110,14 @@ public class RdfPatchUtil {
         }
     }
 
-    public static void applyPatch(RepositoryConnection con, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
+    /**
+     * Apply the provided patch to the repository
+     * @param connection the {@link org.openrdf.repository.RepositoryConnection} to patch
+     * @param patch the patch to apply
+     * @param contexts restrict changes to these contexts (leave empty to apply to <em>all</em> contexts)
+     * @throws InvalidPatchDocumentException if the patch is invalid
+     */
+    public static void applyPatch(RepositoryConnection connection, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
         Resource subject = null;
         URI predicate = null;
         Value object = null;
@@ -93,10 +142,10 @@ public class RdfPatchUtil {
 
             switch (patchLine.getOperator()) {
                 case ADD:
-                    con.add(subject, predicate, object, contexts);
+                    connection.add(subject, predicate, object, contexts);
                     break;
-                case DEL:
-                    con.remove(subject, predicate, object, contexts);
+                case DELETE:
+                    connection.remove(subject, predicate, object, contexts);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown patch operation: " + patchLine.getOperator());
@@ -105,7 +154,7 @@ public class RdfPatchUtil {
     }
 
     private static List<PatchLine> getPatch(InputStream is) throws ParseException {
-        RdfPatchParser parser = new RdfPatchParser(is);
+        RdfPatchParser parser = new RdfPatchParserImpl(is);
         return parser.parsePatch();
     }
 
