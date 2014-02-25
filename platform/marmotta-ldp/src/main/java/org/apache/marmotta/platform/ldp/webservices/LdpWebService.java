@@ -31,10 +31,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
+import org.openrdf.rio.*;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -160,6 +157,8 @@ public class LdpWebService {
             return createResponse(Response.Status.CREATED, container).location(java.net.URI.create(newResource)).build();
         } catch (IOException | RDFParseException e) {
             return createResponse(Response.Status.BAD_REQUEST, container).entity(e.getClass().getSimpleName() + ": "+ e.getMessage()).build();
+        } catch (UnsupportedRDFormatException e) {
+            return createResponse(Response.Status.UNSUPPORTED_MEDIA_TYPE, container).entity(e).build();
         }
     }
 
