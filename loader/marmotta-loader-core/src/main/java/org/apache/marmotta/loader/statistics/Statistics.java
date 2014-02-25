@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,7 @@ public class Statistics {
 
     private StatisticsHandler handler;
 
-
+    protected Path statFile;
     protected RrdDb statDB;
     protected Sample statSample;
     protected long statLastDump;
@@ -61,6 +62,7 @@ public class Statistics {
     private long start, previous;
 
     private Configuration configuration;
+    private DiagramUpdater diagramUpdater;
 
     public Statistics(StatisticsHandler handler, Configuration configuration) {
         this.handler       = handler;
@@ -74,20 +76,23 @@ public class Statistics {
         this.start = System.currentTimeMillis();
         this.previous = System.currentTimeMillis();
 
-        File statFile = new File("kiwiloader.rrd");
-        if(statFile.exists()) {
-            log.info("deleting old statistics database");
-            statFile.delete();
-        }
-
-        RrdDef stCfg = new RrdDef("kiwiloader.rrd");
-        stCfg.setStep(SAMPLE_INTERVAL);
-        stCfg.addDatasource("triples", DsType.COUNTER, 600, Double.NaN, Double.NaN);
-        stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);  // every five seconds for 2 hours
-        stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 12, 1440); // every minute for 1 day
-        stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 60, 1440); // every five minutes for five days
-
         try {
+            statFile = Files.createTempFile("kiwiloader.", ".rrd");
+            Path gFile;
+            if (configuration.containsKey(LoaderOptions.STATISTICS_GRAPH)) {
+                gFile = Paths.get(configuration.getString(LoaderOptions.STATISTICS_GRAPH));
+            } else {
+                gFile = Files.createTempFile("marmotta-loader.", ".png");
+            }
+
+
+            RrdDef stCfg = new RrdDef(statFile.toString());
+            stCfg.setStep(SAMPLE_INTERVAL);
+            stCfg.addDatasource("triples", DsType.COUNTER, 600, Double.NaN, Double.NaN);
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 1, 1440);  // every five seconds for 2 hours
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 12, 1440); // every minute for 1 day
+            stCfg.addArchive(ConsolFun.AVERAGE, 0.5, 60, 1440); // every five minutes for five days
+
             statDB = new RrdDb(stCfg);
             statSample = statDB.createSample();
             statLastDump = System.currentTimeMillis();
@@ -97,7 +102,8 @@ public class Statistics {
             statSampler.scheduleAtFixedRate(new StatisticsUpdater(),0, SAMPLE_INTERVAL, TimeUnit.SECONDS);
 
             // create a statistics diagram every 5 minutes
-            statSampler.scheduleAtFixedRate(new DiagramUpdater(),DIAGRAM_INTERVAL,DIAGRAM_INTERVAL,TimeUnit.SECONDS);
+            diagramUpdater = new DiagramUpdater(gFile);
+            statSampler.scheduleAtFixedRate(diagramUpdater,DIAGRAM_INTERVAL,DIAGRAM_INTERVAL,TimeUnit.SECONDS);
         } catch (IOException e) {
             log.warn("could not initialize statistics database: {}",e.getMessage());
         }
@@ -105,8 +111,13 @@ public class Statistics {
     }
 
     public void stopSampling() {
-        DiagramUpdater du = new DiagramUpdater();
-        du.run();
+        if(statSampler != null) {
+            statSampler.shutdown();
+        }
+
+        if (diagramUpdater != null) {
+            diagramUpdater.run();
+        }
 
         if(statDB != null) {
             try {
@@ -115,8 +126,11 @@ public class Statistics {
                 log.warn("could not close statistics database...");
             }
         }
-        if(statSampler != null) {
-            statSampler.shutdown();
+
+        try {
+            Files.deleteIfExists(statFile);
+        } catch (IOException e) {
+            log.warn("could not cleanup statistics database: {}",e.getMessage());
         }
     }
 
@@ -169,15 +183,16 @@ public class Statistics {
 
 
     private class DiagramUpdater implements Runnable {
+
+        private final Path gFile;
+
+        public DiagramUpdater(Path gFile) {
+            this.gFile = gFile;
+        }
+
         @Override
         public void run() {
             try {
-                File gFile = new File(configuration.getString(LoaderOptions.STATISTICS_GRAPH, File.createTempFile("marmotta-loader","png").getAbsolutePath()));
-
-                if(gFile.exists()) {
-                    gFile.delete();
-                }
-
                 // generate PNG diagram
                 RrdGraphDef gDef = new RrdGraphDef();
                 gDef.setFilename("-");
@@ -190,7 +205,7 @@ public class Statistics {
                 gDef.setAntiAliasing(true);
 
 
-                gDef.datasource("triples", "kiwiloader.rrd", "triples", ConsolFun.AVERAGE);
+                gDef.datasource("triples", statFile.toString(), "triples", ConsolFun.AVERAGE);
 
                 gDef.line("triples", Color.BLUE, "Triples Written", 3F);
 
@@ -201,9 +216,12 @@ public class Statistics {
                 RrdGraph graph = new RrdGraph(gDef);
                 BufferedImage img = new BufferedImage(900,750, BufferedImage.TYPE_INT_RGB);
                 graph.render(img.getGraphics());
-                ImageIO.write(img, "png", gFile);
 
-                log.info("updated statistics diagram generated in {}", gFile.getAbsolutePath());
+                try (OutputStream stream = Files.newOutputStream(gFile, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    ImageIO.write(img, "png", stream);
+                }
+
+                log.info("updated statistics diagram generated in {}", gFile);
 
                 statLastDump = System.currentTimeMillis();
             } catch (Exception ex) {
