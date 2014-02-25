@@ -23,7 +23,25 @@ import org.openrdf.model.Statement;
  * Created by jakob on 2/24/14.
  */
 public class PatchLine {
-    public enum Operator {DEL, ADD}
+    public enum Operator {
+        DEL("D"),
+        ADD("A");
+
+        private final String cmd;
+
+        Operator(String cmd) {
+            this.cmd = cmd;
+        }
+
+        public static Operator fromCommand(String cmd) {
+            for (Operator op: values()) {
+                if (op.cmd.equalsIgnoreCase(cmd)) {
+                    return op;
+                }
+            }
+            throw new IllegalArgumentException("Unknown Operator: " + cmd);
+        }
+    }
 
 
     private final Operator operator;

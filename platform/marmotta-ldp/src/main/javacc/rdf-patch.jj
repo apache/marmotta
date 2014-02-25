@@ -16,18 +16,18 @@
  options
 {
   STATIC=false;
-  LOOKAHEAD=150;
+  LOOKAHEAD=1;
   CACHE_TOKENS=true;
 //  FORCE_LA_CHECK=true;
 //  CHOICE_AMBIGUITY_CHECK=5;
-//  LOOKAHEAD=2147483647;
-//  DEBUG_PARSER=true;
-//  DEBUG_TOKEN_MANAGER=true;
-//  DEBUG_LOOKAHEAD=true;
+  //LOOKAHEAD=2147483647;
+  //DEBUG_PARSER=true;
+  //DEBUG_TOKEN_MANAGER=true;
+  //DEBUG_LOOKAHEAD=true;
 }
 
 PARSER_BEGIN(RdfPatchParser)
-package org.apache.marmotta.platform.ldp.patch;
+package org.apache.marmotta.platform.ldp.patch.parser;
 
 import org.openrdf.model.*;
 import org.openrdf.model.impl.*;
@@ -56,7 +56,7 @@ public class RdfPatchParser {
     }
 
     private Literal createLiteral(String value, String lang, String type) {
-        value = TurtleUtil.decodeString(value.substring(1, value.length() -2));
+        value = TurtleUtil.decodeString(value.substring(1, value.length() - 1));
         if (lang != null) {
             return new LiteralImpl(value, lang);
         } else if (type != null) {
@@ -67,7 +67,7 @@ public class RdfPatchParser {
     }
 
     private Literal createLongLiteral(String value, String lang, String type) {
-        value = value.substring(2, value.length() - 4);
+        value = value.substring(2, value.length() - 2);
         return createLiteral(value, lang, type);
     }
 
@@ -114,8 +114,7 @@ MORE: {
 }
 
 TOKEN : {
-  < ADD:       "A" >  |
-  < DEL:       "D" >  |
+  < OP:        ["A","D"] > |
   < REPEAT:    "R" >  |
   < UNDEFINED: "U" >  |
   < PREFIX:    "@prefix" > |
@@ -135,25 +134,25 @@ SPECIAL_TOKEN : {
 
 
 public List<PatchLine> parsePatch() : {
-    Token id, prefix;
+    Token id, prefix, op;
     Statement statement;
     LinkedList<PatchLine> diff = new LinkedList<PatchLine>();
     namespaces.clear();
 }
 {
-    ( <PREFIX> id = <IDENT> <COLON> prefix = <URI> <DOT> { namespaces.put(id.image, unwrapUri(prefix.image));} )* {}
+    ( <PREFIX> id = <IDENT> <COLON> prefix = <URI> <DOT> { namespaces.put(id.image, unwrapUri(prefix.image));} )*
     (
-      ( <ADD> statement = parseStatement() <DOT> { diff.add(new PatchLine(PatchLine.Operator.ADD, statement)); } ) |
-      ( <DEL> statement = parseStatement() <DOT> { diff.add(new PatchLine(PatchLine.Operator.DEL, statement)); } )
+      op = <OP> statement = parseStatement() <DOT> { diff.add(new PatchLine(PatchLine.Operator.fromCommand(op.image), statement)); }
     )*
     <EOF>
     {
-    return diff;
+        return diff;
     }
 }
 
 private Statement parseStatement() : {
     Token t1 = null, t2 = null, t3 = null;
+    Token lVal = null, lLang = null, lType = null;
     Resource subject;
     URI predicate;
     Value object;
@@ -165,17 +164,19 @@ private Statement parseStatement() : {
         <REPEAT> { subject = null; }
     )
     ( t1 = <URI> { predicate = createURI(t1.image); } |
+        t1 = <IDENT> <COLON> t2 = <IDENT> { predicate = createURI(t1.image, t2.image); } |
         <REPEAT> { predicate = null; }
     )
     ( t1 = <URI> { object = createURI(t1.image); } |
+        t1 = <IDENT> <COLON> t2 = <IDENT> { object = createURI(t1.image, t2.image); } |
         <BNODE> t1 = <IDENT> { object = createBNode(t1.image); } |
-        t1 = <STRLIT> (<LANG> t2 = <IDENT>)? (<TYPE> t3 = <URI>)? {
-            object = createLiteral(t1.image, t2!=null?t2.image:null, t3!=null?t3.image:null);
+        lVal = <STRLIT> (<LANG> lLang = <IDENT>)? (<TYPE> lType = <URI>)? {
+            object = createLiteral(lVal.image, lLang!=null?lLang.image:null, lType!=null?lType.image:null);
         } |
-        t1 = <STRLONGLIT> (<LANG> t2 = <IDENT>)? (<TYPE> t3 = <URI>)? {
-            object = createLongLiteral(t1.image, t2!=null?t2.image:null, t3!=null?t3.image:null);
+        lVal = <STRLONGLIT> (<LANG> lLang = <IDENT>)? (<TYPE> lType = <URI>)? {
+            object = createLongLiteral(lVal.image, lLang!=null?lLang.image:null, lType!=null?lType.image:null);
         } |
         <REPEAT> { object = null; }
     )
-    { return new StatementImpl(subject, predicate, object); }
+    { return new WildcardStatement(subject, predicate, object); }
 }

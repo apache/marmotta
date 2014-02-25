@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.platform.ldp.patch;
+package org.apache.marmotta.platform.ldp.patch.parser;
 
 import org.apache.marmotta.commons.vocabulary.FOAF;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
@@ -68,7 +68,7 @@ public class RdfPatchParserTest {
         checkPatchLine(it.next(), PatchLine.Operator.DEL, bob, FOAF.name, lcBob);
 
         Assert.assertTrue(it.hasNext());
-        checkPatchLine(it.next(), PatchLine.Operator.ADD, null, FOAF.name, lcBob);
+        checkPatchLine(it.next(), PatchLine.Operator.ADD, bob, FOAF.name, ucBob);
 
         Assert.assertTrue(it.hasNext());
         checkPatchLine(it.next(), PatchLine.Operator.ADD, null, FOAF.knows, alice);

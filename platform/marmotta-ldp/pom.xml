@@ -86,7 +86,7 @@
                             <goal>javacc</goal>
                         </goals>
                         <configuration>
-                            <lookAhead>150</lookAhead>
+                            <lookAhead>1</lookAhead>
                             <isStatic>false</isStatic>
                         </configuration>
                     </execution>
