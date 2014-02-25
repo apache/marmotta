@@ -79,24 +79,25 @@ public class LdpWebService {
 
     @GET
     public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type) throws RepositoryException {
+        final String resource = getResourceUri(uriInfo);
         if (log.isDebugEnabled()) {
-            log.debug("GET to LDPR <{}>", getResourceUri(uriInfo));
+            log.debug("GET to LDPR <{}>", resource);
         }
-        return buildResourceResponse(uriInfo, r, type).build();
+        return buildGetResponse(resource, r, type).build();
     }
 
     @HEAD
     public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)  throws RepositoryException {
+        final String resource = getResourceUri(uriInfo);
         if (log.isDebugEnabled()) {
-            log.debug("HEAD to LDPR <{}>", getResourceUri(uriInfo));
+            log.debug("HEAD to LDPR <{}>", resource);
         }
-        return buildResourceResponse(uriInfo, r, type).entity(null).build();
+        return buildGetResponse(resource, r, type).entity(null).build();
     }
 
-    private Response.ResponseBuilder buildResourceResponse(final UriInfo uriInfo, Request r, MediaType type) throws RepositoryException {
-        final String subject = getResourceUri(uriInfo);
+    private Response.ResponseBuilder buildGetResponse(final String resource, Request r, MediaType type) throws RepositoryException {
 
-        if (!ldpService.exists(getResourceUri(uriInfo))) {
+        if (!ldpService.exists(resource)) {
             return Response.status(Response.Status.NOT_FOUND);
         }
 
@@ -105,23 +106,23 @@ public class LdpWebService {
 
         final RDFFormat format = Rio.getWriterFormatForMIMEType(type.toString(), RDFFormat.TURTLE);
         if (format == null) {
-            log.warn("GET to <{}> with unknown accept {}", subject, type);
-            return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo);
+            log.warn("GET to <{}> with unknown accept {}", resource, type);
+            return createResponse(Response.Status.NOT_IMPLEMENTED, resource);
         } else {
             // Deliver all triples with <subject> as subject.
             final StreamingOutput entity = new StreamingOutput() {
                 @Override
                 public void write(OutputStream output) throws IOException, WebApplicationException {
                     try {
-                        ldpService.exportResource(output, subject, format);
+                        ldpService.exportResource(output, resource, format);
                     } catch (RDFHandlerException e) {
-                        throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).build());
+                        throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, resource).build());
                     } catch (RepositoryException e) {
-                        throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).build());
+                        throw new WebApplicationException(e, createResponse(Response.Status.INTERNAL_SERVER_ERROR, resource).build());
                     }
                 }
             };
-            return createResponse(Response.Status.OK, uriInfo).entity(entity).type(format.getDefaultMIMEType());
+            return createResponse(Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
         }
     }
 
@@ -156,9 +157,9 @@ public class LdpWebService {
         String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
         try {
             ldpService.addResource(postBody, type, container, newResource);
-            return createResponse(Response.Status.CREATED, uriInfo).location(java.net.URI.create(newResource)).build();
+            return createResponse(Response.Status.CREATED, container).location(java.net.URI.create(newResource)).build();
         } catch (IOException | RDFParseException e) {
-            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity(e.getClass().getSimpleName() + ": "+ e.getMessage()).build();
+            return createResponse(Response.Status.BAD_REQUEST, container).entity(e.getClass().getSimpleName() + ": "+ e.getMessage()).build();
         }
     }
 
@@ -178,14 +179,14 @@ public class LdpWebService {
         if (eTag == null) {
             // check for If-Match header (ETag) -> 428 Precondition Required (Sec. 5.5.3)
             log.trace("No If-Match header, but that's a MUST");
-            return createResponse(428, uriInfo).build();
+            return createResponse(428, resource).build();
         } else {
             // check ETag -> 412 Precondition Failed (Sec. 5.5.3)
             log.trace("Checking If-Match: {}", eTag);
             EntityTag hasTag = ldpService.generateETag(resource);
             if (!EntityTagUtils.equals(eTag, hasTag)) {
                 log.trace("If-Match header did not match, expected {}", hasTag);
-                return createResponse(Response.Status.PRECONDITION_FAILED, uriInfo).build();
+                return createResponse(Response.Status.PRECONDITION_FAILED, resource).build();
             }
         }
 
@@ -196,7 +197,7 @@ public class LdpWebService {
          *
          * if the target resource exists, replace ALL data of the target.
          */
-        return createResponse(Response.Status.NOT_IMPLEMENTED, uriInfo).build();
+        return createResponse(Response.Status.NOT_IMPLEMENTED, resource).build();
     }
 
     @DELETE
@@ -208,10 +209,10 @@ public class LdpWebService {
         log.debug("DELETE to <{}>", resource);
         try {
             ldpService.deleteResource(resource);
-            return createResponse(Response.Status.NO_CONTENT, uriInfo).build();
+            return createResponse(Response.Status.NO_CONTENT, resource).build();
         } catch (RepositoryException e) {
             log.error("Error deleting LDP-R: {}: {}", resource, e.getMessage());
-            return createResponse(Response.Status.INTERNAL_SERVER_ERROR, uriInfo).entity("Error deleting LDP-R: " + e.getMessage()).build();
+            return createResponse(Response.Status.INTERNAL_SERVER_ERROR, resource).entity("Error deleting LDP-R: " + e.getMessage()).build();
         }
 
     }
@@ -224,7 +225,7 @@ public class LdpWebService {
         log.debug("PATCH to <{}>", resource);
 
         if (!ldpService.exists(resource)) {
-            return createResponse(Response.Status.NOT_FOUND, uriInfo).build();
+            return createResponse(Response.Status.NOT_FOUND, resource).build();
         }
 
         if (eTag != null) {
@@ -233,25 +234,25 @@ public class LdpWebService {
             EntityTag hasTag = ldpService.generateETag(resource);
             if (!EntityTagUtils.equals(eTag, hasTag)) {
                 log.trace("If-Match header did not match, expected {}", hasTag);
-                return createResponse(Response.Status.PRECONDITION_FAILED, uriInfo).build();
+                return createResponse(Response.Status.PRECONDITION_FAILED, resource).build();
             }
         }
 
         // Check for the supported mime-type
         if (!type.toString().equals(RdfPatchParser.MIME_TYPE)) {
             log.trace("Incompatible Content-Type for PATCH: {}", type);
-            return createResponse(Response.Status.UNSUPPORTED_MEDIA_TYPE, uriInfo).entity("Unknown Content-Type: " + type + "\n").build();
+            return createResponse(Response.Status.UNSUPPORTED_MEDIA_TYPE, resource).entity("Unknown Content-Type: " + type + "\n").build();
         }
 
         try {
             ldpService.patchResource(resource, postBody);
         } catch (ParseException | InvalidPatchDocumentException e) {
-            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity(e.getMessage() + "\n").build();
+            return createResponse(Response.Status.BAD_REQUEST, resource).entity(e.getMessage() + "\n").build();
         } catch (InvalidModificationException e) {
-            return createResponse(422, uriInfo).entity(e.getMessage() + "\n").build();
+            return createResponse(422, resource).entity(e.getMessage() + "\n").build();
         }
 
-        return createResponse(Response.Status.NO_CONTENT, uriInfo).build();
+        return createResponse(Response.Status.NO_CONTENT, resource).build();
 
     }
 
@@ -265,7 +266,7 @@ public class LdpWebService {
 
         log.warn("NOT CHECKING EXISTENCE OF <{}>", resource);
 
-        Response.ResponseBuilder builder = createResponse(Response.Status.OK, uriInfo);
+        Response.ResponseBuilder builder = createResponse(Response.Status.OK, resource);
 
         // Sec. 5.9.2
         builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
@@ -285,24 +286,23 @@ public class LdpWebService {
         return builder.build();
     }
 
-    protected Response.ResponseBuilder createResponse(int status, UriInfo uriInfo) {
-        return createResponse(Response.status(status), uriInfo);
+    protected Response.ResponseBuilder createResponse(int status, String resource) {
+        return createResponse(Response.status(status), resource);
     }
 
     /**
      * Add all the default headers specified in LDP to the Response
      * @param rb the ResponseBuilder
-     * @param uriInfo the uri-info to build the resource uri
+     * @param resource the uri/url of the resouce
      * @return the provided ResponseBuilder for chaining
      */
-    protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb, UriInfo uriInfo) {
+    protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb, String resource) {
 
         // Link rel='describedby' (Sec. 5.2.11)
         rb.link("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby");
 
-        final String rUri = getResourceUri(uriInfo);
         try {
-            List<Statement> statements = ldpService.getStatements(rUri);
+            List<Statement> statements = ldpService.getStatements(resource);
             for (Statement stmt : statements) {
                 Value o = stmt.getObject();
                 if (o instanceof URI && o.stringValue().startsWith(LDP.NAMESPACE)) {
@@ -311,7 +311,7 @@ public class LdpWebService {
             }
 
             // ETag (Sec. 5.2.7)
-            rb.tag(ldpService.generateETag(rUri));
+            rb.tag(ldpService.generateETag(resource));
         } catch (RepositoryException e) {
             log.error("Could not set ldp-response headers", e);
         }
@@ -319,8 +319,8 @@ public class LdpWebService {
         return new RB(rb);
     }
 
-    protected Response.ResponseBuilder createResponse(Response.Status status, UriInfo uriInfo) {
-        return createResponse(status.getStatusCode(), uriInfo);
+    protected Response.ResponseBuilder createResponse(Response.Status status, String resource) {
+        return createResponse(status.getStatusCode(), resource);
     }
 
     protected String getResourceUri(UriInfo uriInfo) {
