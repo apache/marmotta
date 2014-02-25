@@ -31,18 +31,20 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by jakob on 2/24/14.
+ * Testing the RdfPatchParserImpl
+ *
+ * @author Jakob Frank
  */
-public class RdfPatchParserTest {
+public class RdfPatchParserImplTest {
 
 
-    private RdfPatchParser parser;
+    private RdfPatchParserImpl parser;
     private URI alice, bob, charlie;
     private Literal lcBob, ucBob;
 
     @Before
     public void setUp() {
-        parser = new RdfPatchParser(this.getClass().getResourceAsStream("/illustrative.rdfp"));
+        parser = new RdfPatchParserImpl(this.getClass().getResourceAsStream("/illustrative.rdfp"));
 
         alice = new URIImpl("http://example/alice");
         bob = new URIImpl("http://example/bob");

@@ -35,7 +35,9 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.sail.memory.MemoryStore;
 
 /**
- * Created by jakob on 2/25/14.
+ * Testing RdfPatchUtil
+ *
+ * @author Jakob Frank
  */
 public class RdfPatchUtilTest {
 

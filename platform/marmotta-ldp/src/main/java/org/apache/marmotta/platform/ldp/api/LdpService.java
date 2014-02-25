@@ -22,6 +22,7 @@ import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,29 +43,35 @@ import java.util.List;
  */
 public interface LdpService {
 
-    boolean exists(String resource) throws RepositoryException;
+    boolean exists(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    boolean exists(URI resource) throws RepositoryException;
+    boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException;
 
-    boolean addResource(InputStream stream, MediaType type, String container, String resource) throws RepositoryException, IOException, RDFParseException;
+    boolean addResource(RepositoryConnection connection, String container, String resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
-    boolean addResource(InputStream stream, MediaType type, URI container, URI resource) throws RepositoryException, IOException, RDFParseException;
+    boolean addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
-    List<Statement> getStatements(String resource) throws RepositoryException;
+    List<Statement> getStatements(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    List<Statement> getStatements(URI resource) throws RepositoryException;
+    List<Statement> getStatements(RepositoryConnection conn1, URI resource) throws RepositoryException;
 
-    void exportResource(OutputStream output, String resource, RDFFormat format) throws RepositoryException, RDFHandlerException;
+    void exportResource(RepositoryConnection connection, String resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
-    void exportResource(OutputStream output, URI resouce, RDFFormat format) throws RepositoryException, RDFHandlerException;
+    void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
-    EntityTag generateETag(String uri) throws RepositoryException;
+    EntityTag generateETag(RepositoryConnection connection, String uri) throws RepositoryException;
 
-    EntityTag generateETag(URI uri) throws RepositoryException;
+    EntityTag generateETag(RepositoryConnection connection, URI uri) throws RepositoryException;
 
-    boolean deleteResource(URI resource) throws RepositoryException;
+    boolean deleteResource(RepositoryConnection connection, URI resource) throws RepositoryException;
 
-    boolean deleteResource(String resource) throws RepositoryException;
+    void patchResource(RepositoryConnection connection, URI uri, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
 
-    void patchResource(String resource, InputStream patchData) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
+    boolean deleteResource(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    Date getLastModified(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    Date getLastModified(RepositoryConnection connection, URI uri) throws RepositoryException;
+
+    void patchResource(RepositoryConnection connection, String resource, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
 }
