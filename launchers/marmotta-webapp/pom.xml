@@ -145,7 +145,8 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <deb>${project.build.directory}/${project.artifactId}_${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}~${maven.build.timestamp}_all.deb</deb>
+                            <deb>${project.build.directory}/${project.build.finalName}_${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}~${maven.build.timestamp}_all.deb</deb>
+                            <changesOut>${project.build.directory}/${project.build.finalName}_${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}~${maven.build.timestamp}_all.changes</changesOut>
                             <controlDir>${basedir}/src/deb/control</controlDir>
                             <dataSet>
                                 <data>
