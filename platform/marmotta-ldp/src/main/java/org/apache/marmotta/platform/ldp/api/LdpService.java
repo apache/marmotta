@@ -17,6 +17,9 @@
  */
 package org.apache.marmotta.platform.ldp.api;
 
+import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
+import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
+import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
@@ -62,4 +65,5 @@ public interface LdpService {
 
     boolean deleteResource(String resource) throws RepositoryException;
 
+    void patchResource(String resource, InputStream patchData) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
 }

@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldp.patch;
 
 import org.apache.marmotta.commons.vocabulary.FOAF;
+import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.sail.memory.MemoryStore;
@@ -91,6 +93,23 @@ public class RdfPatchUtilTest {
             Assert.assertFalse(con.hasStatement(bob, FOAF.knows, charlie, false));
 
             con.commit();
+        } finally {
+            con.close();
+        }
+    }
+
+    @Test(expected = InvalidPatchDocumentException.class)
+    public void testInvalidPatchDocumentException() throws RepositoryException, ParseException, InvalidPatchDocumentException {
+        RepositoryConnection con = repository.getConnection();
+        try {
+            final String invalidPatch = "A <http://example/foo> R <http://example/bar> .";
+
+            RdfPatchUtil.applyPatch(con, invalidPatch);
+
+            Assert.fail("applyPatch should throw an InvalidPatchDocumentException");
+        } catch (final Throwable t) {
+            con.rollback();
+            throw t;
         } finally {
             con.close();
         }

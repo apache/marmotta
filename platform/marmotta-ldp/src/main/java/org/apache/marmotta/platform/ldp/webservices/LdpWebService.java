@@ -21,6 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
+import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
+import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
 import org.openrdf.model.Statement;
@@ -163,7 +166,7 @@ public class LdpWebService {
     @PUT
     public Response PUT(@Context UriInfo uriInfo, @Context Request request,
                         @HeaderParam(HttpHeaders.IF_MATCH) EntityTag eTag,
-                        InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
+                        @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody)
             throws RepositoryException {
         /*
          * Handle PUT (Sec. 5.5, Sec. 6.5)
@@ -215,13 +218,42 @@ public class LdpWebService {
     }
 
     @PATCH
-    public Response PATCH(@Context UriInfo uriInfo, InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type) {
+    public Response PATCH(@Context UriInfo uriInfo,
+                          @HeaderParam(HttpHeaders.IF_MATCH) EntityTag eTag,
+                          @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody) throws RepositoryException {
+        final String resource = getResourceUri(uriInfo);
+        log.debug("PATCH to <{}>", resource);
+
+        if (!ldpService.exists(resource)) {
+            return createResponse(Response.Status.NOT_FOUND, uriInfo).build();
+        }
+
+        if (eTag != null) {
+            // check ETag if present
+            log.trace("Checking If-Match: {}", eTag);
+            EntityTag hasTag = ldpService.generateETag(resource);
+            if (!EntityTagUtils.equals(eTag, hasTag)) {
+                log.trace("If-Match header did not match, expected {}", hasTag);
+                return createResponse(Response.Status.PRECONDITION_FAILED, uriInfo).build();
+            }
+        }
+
         // Check for the supported mime-type
         if (!type.toString().equals(APPLICATION_RDF_PATCH)) {
-            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity("Unknown Content-Type: " + type + "\n").build();
-        };
+            log.trace("Incompatible Content-Type for PATCH: {}", type);
+            return createResponse(Response.Status.UNSUPPORTED_MEDIA_TYPE, uriInfo).entity("Unknown Content-Type: " + type + "\n").build();
+        }
 
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+        try {
+            ldpService.patchResource(resource, postBody);
+        } catch (ParseException | InvalidPatchDocumentException e) {
+            return createResponse(Response.Status.BAD_REQUEST, uriInfo).entity(e.getMessage() + "\n").build();
+        } catch (InvalidModificationException e) {
+            return createResponse(422, uriInfo).entity(e.getMessage() + "\n").build();
+        }
+
+        return createResponse(Response.Status.NO_CONTENT, uriInfo).build();
+
     }
 
     @OPTIONS
@@ -237,13 +269,13 @@ public class LdpWebService {
         Response.ResponseBuilder builder = createResponse(Response.Status.OK, uriInfo);
 
         // Sec. 5.9.2
-        builder.allow("GET", "HEAD", "POST", "OPTIONS");
+        builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
 
         // Sec. 6.4.14 / Sec. 8.1
         // builder.header("Accept-Post", "text/turtle, */*");
         builder.header("Accept-Post", "text/turtle");
 
-        // TODO: Sec. 5.8.2
+        // Sec. 5.8.2
         builder.header("Accept-Patch", APPLICATION_RDF_PATCH);
 
 

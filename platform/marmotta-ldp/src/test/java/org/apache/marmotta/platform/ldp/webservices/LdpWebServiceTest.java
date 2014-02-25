@@ -60,10 +60,8 @@ public class LdpWebServiceTest {
     }
 
     @Test
-    public void test() {
-	// Nothing is implemented so far...
-        Assert.assertEquals(501, RestAssured.get("/ldp").statusCode());
-        Assert.assertEquals(501, RestAssured.get("/ldp/foo/bar/and/some/more").statusCode());
+    public void testCRUD() {
+        
     }
 
     @AfterClass

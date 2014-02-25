@@ -23,6 +23,12 @@ import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
+import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
+import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
+import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
@@ -232,6 +238,36 @@ public class LdpServiceImpl implements LdpService {
         } finally {
             stmts.close();
         }
+    }
+
+    @Override
+    public void patchResource(String resource, InputStream patchData) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException {
+        final RepositoryConnection conn = sesameService.getConnection();
+        final URI rUri = conn.getValueFactory().createURI(resource);
+        final URI ldpContext = conn.getValueFactory().createURI(LDP.NAMESPACE);
+
+        final Literal now = conn.getValueFactory().createLiteral(new Date());
+
+
+        log.trace("parsing patch");
+        List<PatchLine> patch = new RdfPatchParser(patchData).parsePatch();
+
+        // we are allowed to restrict the patch contents (Sec. ???)
+        log.trace("checking for invalid patch statements");
+        for (PatchLine patchLine : patch) {
+            if (LDP.contains.equals(patchLine.getStatement().getPredicate())) {
+                throw new InvalidModificationException("must not change <" + LDP.contains.stringValue() + "> via PATCH");
+            }
+        }
+
+        log.debug("patching <{}> ({} changes)", resource, patch.size());
+
+        RdfPatchUtil.applyPatch(conn, patch, rUri);
+
+        log.trace("update resource meta");
+        conn.remove(rUri, DCTERMS.modified, null, ldpContext);
+        conn.add(rUri, DCTERMS.modified, now, ldpContext);
+
     }
 
     @Override

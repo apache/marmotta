@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldp.patch;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
@@ -39,21 +40,21 @@ import java.util.List;
  */
 public class RdfPatchUtil {
 
-    public static void applyPatch(Repository repository, String patch, Resource... contexts) throws RepositoryException, ParseException {
+    public static void applyPatch(Repository repository, String patch, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
         applyPatch(repository, getPatch(patch), contexts);
     }
 
-    public static void applyPatch(Repository repository, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException {
+    public static void applyPatch(Repository repository, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
         applyPatch(repository, getPatch(patchSource), contexts);
     }
-    public static void applyPatch(RepositoryConnection con, String patch, Resource... contexts) throws RepositoryException, ParseException {
+    public static void applyPatch(RepositoryConnection con, String patch, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
         applyPatch(con, getPatch(patch), contexts);
     }
-    public static void applyPatch(RepositoryConnection con, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException {
+    public static void applyPatch(RepositoryConnection con, InputStream patchSource, Resource... contexts) throws RepositoryException, ParseException, InvalidPatchDocumentException {
         applyPatch(con, getPatch(patchSource), contexts);
     }
 
-    public static void applyPatch(Repository repository, List<PatchLine> patch, Resource... contexts) throws RepositoryException {
+    public static void applyPatch(Repository repository, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
         RepositoryConnection con = repository.getConnection();
         try {
             con.begin();
@@ -67,7 +68,7 @@ public class RdfPatchUtil {
         }
     }
 
-    public static void applyPatch(RepositoryConnection con, List<PatchLine> patch, Resource... contexts) throws RepositoryException {
+    public static void applyPatch(RepositoryConnection con, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
         Resource subject = null;
         URI predicate = null;
         Value object = null;
@@ -77,6 +78,18 @@ public class RdfPatchUtil {
             subject = statement.getSubject()!=null? statement.getSubject():subject;
             predicate = statement.getPredicate()!=null?statement.getPredicate():predicate;
             object = statement.getObject()!=null?statement.getObject():object;
+
+            if (subject == null || predicate == null || object == null) {
+                if (subject == null) {
+                    throw new InvalidPatchDocumentException("Cannot resolve 'R' - subject was never set");
+                }
+                if (predicate == null) {
+                    throw new InvalidPatchDocumentException("Cannot resolve 'R' - predicate was never set");
+                }
+                if (object == null) {
+                    throw new InvalidPatchDocumentException("Cannot resolve 'R' - object was never set");
+                }
+            }
 
             switch (patchLine.getOperator()) {
                 case ADD:
