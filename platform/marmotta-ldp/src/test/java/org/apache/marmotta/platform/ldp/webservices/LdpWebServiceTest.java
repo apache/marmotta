@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
@@ -30,6 +31,7 @@ import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +49,14 @@ public class LdpWebServiceTest {
 	
     private static JettyMarmotta marmotta;
 
+    private static String testResourceTTL;
+
     @BeforeClass
-    public static void setUp() throws MarmottaImportException, URISyntaxException {
+    public static void setUp() throws MarmottaImportException, URISyntaxException, IOException {
         marmotta = new JettyMarmotta("/marmotta", LdpWebService.class);
         
         //TODO: initialization
+        testResourceTTL = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test.ttl"), "utf8");
         
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
@@ -61,7 +66,51 @@ public class LdpWebServiceTest {
 
     @Test
     public void testCRUD() {
-        
+        // The container
+        final String container = "/lpd/test/container1";
+        final String newResourceUri = container + "/resource1";
+
+        RestAssured.expect().statusCode(404).get(container);
+
+        // Create
+        RestAssured.given()
+                .header("Slug", "resource1")
+                .body(testResourceTTL.getBytes())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .expect()
+                .statusCode(201)
+                .header("Location", RestAssured.baseURI + newResourceUri)
+                .post(container);
+
+        // now the container exists
+        log.info("200 - container");
+        RestAssured.given()
+                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .expect()
+                .statusCode(200)
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .get(container);
+
+        // also the new resource exists
+        RestAssured.given()
+                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .expect()
+                .statusCode(200)
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .get(newResourceUri);
+
+        // delete
+        RestAssured.expect()
+                .statusCode(204)
+                .delete(newResourceUri);
+
+        // now the new resource does not exist.
+        RestAssured.given()
+                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .expect()
+                .statusCode(404)
+                .get(newResourceUri);
+
     }
 
     @AfterClass
