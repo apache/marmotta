@@ -575,6 +575,11 @@
                         <jswarn>false</jswarn>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.5</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
