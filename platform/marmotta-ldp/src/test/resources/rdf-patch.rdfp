@@ -1,0 +1,98 @@
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements. See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership. The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#>.
+@prefix foaf:    <http://xmlns.com/foaf/0.1/>.
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#>.
+@prefix ex:      <http://example/test/>.
+
+# 3 full uris
+D <http://example/test/a> <http://example/test/b> <http://example/test/c> .
+A <http://example/test/a> <http://example/test/b> <http://example/test/c> .
+
+# Repeats
+A <http://example/test/a> <http://example/test/b> <http://example/test/c> .
+A R <http://example/test/b> <http://example/test/c> .
+A R R <http://example/test/c> .
+D R R <http://example/test/d> .
+A <http://example/test/a> R <http://example/test/c> .
+A <http://example/test/b> R R .
+A R <http://example/test/b> R .
+
+# QNAME / CURL
+D ex:a ex:b ex:c .
+A ex:a ex:b ex:c .
+
+# BNODE
+D _:b1 ex:b _:b2 .
+A _:b1 ex:b _:b2 .
+
+# Plain literal
+D ex:l dcterms:title "plain literal" .
+A ex:l dcterms:title "plain literal with excapte \"quote\"" .
+
+# Language literal
+D ex:ll dcterms:description "Deutsch"@de .
+A ex:ll dcterms:description "German"@en .
+
+# Typed literal
+D ex:tl dcterms:modified "2014-02-01T15:12:51.000Z"^^xsd:dateTime .
+A ex:tl dcterms:modified "2014-02-26T15:12:55.000Z"^^<http://www.w3.org/2001/XMLSchema#xsd:dateTime> .
+
+# LongString
+D ex:long dcterms:license """
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+\"License\"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an \"AS IS\" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+""" .
+
+A ex:long dcterms:license """
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+\"License\"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an \"AS IS\" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""^^ex:License .
+
+A ex:long dcterms:description """
+Every Software requires a licese.
+"""@en .

@@ -88,4 +88,13 @@ public class RdfPatchParserImplTest {
         Assert.assertEquals("Wrong object", object, statement.getObject());
     }
 
+    @Test
+    public void testFullParsing() throws ParseException {
+        parser.ReInit(getClass().getResourceAsStream("/rdf-patch.rdfp"));
+
+        List<PatchLine> patchLines = parser.parsePatch();
+        Assert.assertNotNull(patchLines);
+        Assert.assertEquals(22, patchLines.size());
+    }
+
 }

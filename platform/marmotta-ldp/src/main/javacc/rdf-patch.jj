@@ -29,12 +29,13 @@
 PARSER_BEGIN(RdfPatchParserImpl)
 package org.apache.marmotta.platform.ldp.patch.parser;
 
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
 import org.openrdf.model.*;
-import org.openrdf.model.impl.*;
-
-import org.apache.marmotta.platform.ldp.patch.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.turtle.TurtleUtil;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,31 +43,57 @@ import java.util.List;
 public class RdfPatchParserImpl implements RdfPatchParser {
 
     private HashMap<String, String> namespaces = new HashMap<String, String>();
+    private ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+
+    public RdfPatchParserImpl(ValueFactory vf, InputStream is) {
+        this(is);
+        this.valueFactory = vf;
+    }
+
+    public RdfPatchParserImpl(ValueFactory vf, InputStream is, String enc) {
+        this(is, enc);
+        this.valueFactory = vf;
+    }
+
+    public void setValueFactory(ValueFactory vf) {
+        if (vf == null) throw new IllegalArgumentException("ValueFactory must not be null");
+        this.valueFactory = vf;
+    }
+
+    public ValueFactory getValueFactory() {
+        return this.valueFactory;
+    }
+
 
     private URI createURI(String uri) {
-        return new URIImpl(unwrapUri(uri));
+        return this.valueFactory.createURI(unwrapUri(uri));
     }
 
     private URI createURI(String prefix, String local) {
-        return new URIImpl(namespaces.get(prefix)+local);
+        return this.valueFactory.createURI(namespaces.get(prefix)+local);
+    }
+
+    private URI createURIfromQname(String qname) {
+        final String[] split = qname.split(":", 2);
+        return createURI(split[0], split[1]);
     }
 
     private BNode createBNode(String id) {
-        return new BNodeImpl(id);
+        return this.valueFactory.createBNode(id);
     }
 
-    private Literal createLiteral(String value, String lang, String type) {
+    private Literal createLiteral(String value, String lang, URI type) {
         value = TurtleUtil.decodeString(value.substring(1, value.length() - 1));
         if (lang != null) {
-            return new LiteralImpl(value, lang);
+            return this.valueFactory.createLiteral(value, lang);
         } else if (type != null) {
-            return new LiteralImpl(value, createURI(type));
+            return this.valueFactory.createLiteral(value, type);
         } else {
-            return new LiteralImpl(value);
+            return this.valueFactory.createLiteral(value);
         }
     }
 
-    private Literal createLongLiteral(String value, String lang, String type) {
+    private Literal createLongLiteral(String value, String lang, URI type) {
         value = value.substring(2, value.length() - 2);
         return createLiteral(value, lang, type);
     }
@@ -97,11 +124,11 @@ MORE: {
 }
 
 <WithinString> TOKEN: {
-  <STRLIT: "\""> : DEFAULT
+  <STRLIT: (~["\\"])"\""> : DEFAULT
 }
 
 <WithinLongString> TOKEN: {
-  <STRLONGLIT: "\"\"\""> : DEFAULT
+  <STRLONGLIT: (~["\\"]) "\"\"\""> : DEFAULT
 }
 
 
@@ -120,9 +147,10 @@ TOKEN : {
   < PREFIX:    "@prefix" > |
   < DOT:       "." >  |
   < COLON:     ":" >  |
-  < BNODE:     "_:" > |
-  < URI:       "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ ">" > |
   < IDENT:     ["a"-"z","A"-"Z","0"-"9","_"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])* > |
+  < URI:       "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ ">" > |
+  < BNODE:     "_:" <IDENT> > |
+  < QNAME:     (["a"-"z","A"-"Z","0"-"9"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])*)? <COLON> <IDENT> > |
   < LANG:      "@" >  |
   < TYPE:      "^^" >
 }
@@ -151,32 +179,37 @@ public List<PatchLine> parsePatch() : {
 }
 
 private Statement parseStatement() : {
-    Token t1 = null, t2 = null, t3 = null;
-    Token lVal = null, lLang = null, lType = null;
+    Token t1 = null;
+    Token lVal = null, lLang = null;
     Resource subject;
-    URI predicate;
+    URI predicate, type = null;
     Value object;
 }
 {
-    ( t1 = <URI> { subject = createURI(t1.image); } |
-        t1 = <IDENT> <COLON> t2 = <IDENT> { subject = createURI(t1.image, t2.image); } |
-        <BNODE> t1 = <IDENT> { subject = createBNode(t1.image); } |
+    ( subject = parseURI() |
+        t1 = <BNODE> { subject = createBNode(t1.image.substring(2)); } |
         <REPEAT> { subject = null; }
     )
-    ( t1 = <URI> { predicate = createURI(t1.image); } |
-        t1 = <IDENT> <COLON> t2 = <IDENT> { predicate = createURI(t1.image, t2.image); } |
+    ( predicate = parseURI() |
         <REPEAT> { predicate = null; }
     )
-    ( t1 = <URI> { object = createURI(t1.image); } |
-        t1 = <IDENT> <COLON> t2 = <IDENT> { object = createURI(t1.image, t2.image); } |
-        <BNODE> t1 = <IDENT> { object = createBNode(t1.image); } |
-        lVal = <STRLIT> (<LANG> lLang = <IDENT>)? (<TYPE> lType = <URI>)? {
-            object = createLiteral(lVal.image, lLang!=null?lLang.image:null, lType!=null?lType.image:null);
+    ( object = parseURI() |
+        t1 = <BNODE> { object = createBNode(t1.image.substring(2)); } |
+        lVal = <STRLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseURI())? {
+            object = createLiteral(lVal.image, lLang!=null?lLang.image:null, type);
         } |
-        lVal = <STRLONGLIT> (<LANG> lLang = <IDENT>)? (<TYPE> lType = <URI>)? {
-            object = createLongLiteral(lVal.image, lLang!=null?lLang.image:null, lType!=null?lType.image:null);
+        lVal = <STRLONGLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseURI())? {
+            object = createLongLiteral(lVal.image, lLang!=null?lLang.image:null, type);
         } |
         <REPEAT> { object = null; }
     )
     { return new WildcardStatement(subject, predicate, object); }
+}
+
+private URI parseURI() : {
+    Token u;
+}
+{
+    u = <URI> { return createURI(u.image); } |
+    u = <QNAME> { return createURIfromQname(u.image); }
 }
