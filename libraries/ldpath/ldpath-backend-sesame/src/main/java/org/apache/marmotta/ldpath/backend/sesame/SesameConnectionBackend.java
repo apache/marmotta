@@ -30,59 +30,61 @@ import org.openrdf.repository.RepositoryException;
 
 public class SesameConnectionBackend extends AbstractSesameBackend {
 
-	private final RepositoryConnection connection;
-	private final ValueFactory valueFactory;
+    private final RepositoryConnection connection;
+    private final ValueFactory valueFactory;
     private final Resource[] contexts;
+    private final boolean includeInferred;
 
     /**
      * Create a new {@link SesameConnectionBackend}. This backend is context-agnostig (ignores all context information). 
      * @param connection the {@link RepositoryConnection} to use.
      * @see ContextAwareSesameConnectionBackend#ContextAwareSesameConnectionBackend(RepositoryConnection, Resource...)
      */
-	public SesameConnectionBackend(RepositoryConnection connection) {
-	    this(connection, new Resource[] {});
-	}
+    public SesameConnectionBackend(RepositoryConnection connection) {
+        this(connection, true);
+    }
 
-	protected SesameConnectionBackend(RepositoryConnection connection, Resource[] contexts) {
-	    this.connection = connection;
+    protected SesameConnectionBackend(RepositoryConnection connection, boolean includeInferred, Resource... contexts) {
+        this.connection = connection;
         this.contexts = contexts;
-	    valueFactory = connection.getValueFactory();
+        this.valueFactory = connection.getValueFactory();
+        this.includeInferred = includeInferred;
     }
 
     @Override
-	public Literal createLiteral(String content) {
-		return createLiteralInternal(valueFactory, content);
-	}
+    public Literal createLiteral(String content) {
+        return createLiteralInternal(valueFactory, content);
+    }
 
-	@Override
-	public Literal createLiteral(String content, Locale language, URI type) {
-		return createLiteralInternal(valueFactory, content, language, type);
-	}
+    @Override
+    public Literal createLiteral(String content, Locale language, URI type) {
+        return createLiteralInternal(valueFactory, content, language, type);
+    }
 
-	@Override
-	public org.openrdf.model.URI createURI(String uri) {
-		return createURIInternal(valueFactory, uri);
-	}
+    @Override
+    public org.openrdf.model.URI createURI(String uri) {
+        return createURIInternal(valueFactory, uri);
+    }
 
-	@Override
-	public Collection<Value> listObjects(Value subject, Value property) {
-		try {
-			return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property, contexts);
-		} catch (RepositoryException e) {
-			throw new RuntimeException(
-					"error while querying Sesame repository!", e);
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException(String.format(
-					"Subject needs to be a URI or blank node, property a URI node "
-							+ "(types: [subject: %s, property: %s])",
-					debugType(subject), debugType(property)), e);
-		}
-	}
-
-	@Override
-	public Collection<Value> listSubjects(Value property, Value object) {
+    @Override
+    public Collection<Value> listObjects(Value subject, Value property) {
         try {
-        	return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object, contexts);
+            return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property, includeInferred, contexts);
+        } catch (RepositoryException e) {
+            throw new RuntimeException(
+                    "error while querying Sesame repository!", e);
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(String.format(
+                    "Subject needs to be a URI or blank node, property a URI node "
+                            + "(types: [subject: %s, property: %s])",
+                    debugType(subject), debugType(property)), e);
+        }
+    }
+
+    @Override
+    public Collection<Value> listSubjects(Value property, Value object) {
+        try {
+            return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object, includeInferred, contexts);
         } catch (RepositoryException e) {
             throw new RuntimeException("error while querying Sesame repository!",e);
         } catch (ClassCastException e) {
@@ -90,15 +92,19 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
                     "Property needs to be a URI node (property type: %s)",
                     isURI(property)?"URI":isBlank(property)?"bNode":"literal"),e);
         }
-	}
+    }
 
     /**
      * Create a new {@link SesameConnectionBackend}. This backend is context-agnostig (ignores all context information). 
      * @param connection the {@link RepositoryConnection} to use.
      * @see ContextAwareSesameConnectionBackend#withConnection(RepositoryConnection, Resource...)
      */
-	public static SesameConnectionBackend withConnection(RepositoryConnection connection) {
-		return new SesameConnectionBackend(connection);
-	}
-	
+    public static SesameConnectionBackend withConnection(RepositoryConnection connection) {
+        return new SesameConnectionBackend(connection);
+    }
+
+    public static SesameConnectionBackend withConnection(RepositoryConnection connection, boolean includeInferred) {
+        return new SesameConnectionBackend(connection, includeInferred);
+    }
+
 }

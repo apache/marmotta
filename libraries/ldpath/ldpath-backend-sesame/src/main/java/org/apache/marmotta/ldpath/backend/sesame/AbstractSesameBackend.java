@@ -36,60 +36,60 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSesameBackend extends SesameValueBackend implements RDFBackend<Value> {
 
-	private static final Logger log = LoggerFactory.getLogger(AbstractSesameBackend.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractSesameBackend.class);
 
-	protected org.openrdf.model.URI createURIInternal(final ValueFactory valueFactory, String uri) {
-		return valueFactory.createURI(uri);
-	}
+    protected org.openrdf.model.URI createURIInternal(final ValueFactory valueFactory, String uri) {
+        return valueFactory.createURI(uri);
+    }
 
-	protected Literal createLiteralInternal(final ValueFactory valueFactory, String content) {
-		log.debug("creating literal with content \"{}\"",content);
-		return valueFactory.createLiteral(content);
-	}
+    protected Literal createLiteralInternal(final ValueFactory valueFactory, String content) {
+        log.debug("creating literal with content \"{}\"",content);
+        return valueFactory.createLiteral(content);
+    }
 
-	protected Literal createLiteralInternal(final ValueFactory valueFactory, String content,
-			Locale language, URI type) {
-		log.debug("creating literal with content \"{}\", language {}, datatype {}",new Object[]{content,language,type});
-		if(language == null && type == null) {
-			return valueFactory.createLiteral(content);
-		} else if(type == null) {
-			return valueFactory.createLiteral(content,language.getLanguage());
-		} else  {
-			return valueFactory.createLiteral(content, valueFactory.createURI(type.toString()));
-		}
-	}
+    protected Literal createLiteralInternal(final ValueFactory valueFactory, String content,
+                                            Locale language, URI type) {
+        log.debug("creating literal with content \"{}\", language {}, datatype {}",new Object[]{content,language,type});
+        if(language == null && type == null) {
+            return valueFactory.createLiteral(content);
+        } else if(type == null) {
+            return valueFactory.createLiteral(content,language.getLanguage());
+        } else  {
+            return valueFactory.createLiteral(content, valueFactory.createURI(type.toString()));
+        }
+    }
 
-	protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.URI property, Resource... contexts)
-			throws RepositoryException {
+    protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.URI property, boolean includeInferred, Resource... contexts)
+            throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
-		Set<Value> result = new HashSet<Value>();
-		RepositoryResult<Statement> qResult = connection.getStatements(merge(subject, valueFactory), merge(property, valueFactory), null, true);
-		try {
-			while(qResult.hasNext()) {
-				result.add(qResult.next().getObject());
-			}
-		} finally {
-			qResult.close();
-		}
-		return  result;
-	}
+        Set<Value> result = new HashSet<Value>();
+        RepositoryResult<Statement> qResult = connection.getStatements(merge(subject, valueFactory), merge(property, valueFactory), null, includeInferred, contexts);
+        try {
+            while(qResult.hasNext()) {
+                result.add(qResult.next().getObject());
+            }
+        } finally {
+            qResult.close();
+        }
+        return  result;
+    }
 
-	protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.URI property, Value object, Resource... contexts)
-			throws RepositoryException {
-	    final ValueFactory valueFactory = connection.getValueFactory();
-	    
-		Set<Value> result = new HashSet<Value>();
-        RepositoryResult<Statement> qResult = connection.getStatements(null, merge(property, valueFactory), merge(object, valueFactory), true);
-		try {
-			while(qResult.hasNext()) {
-				result.add(qResult.next().getSubject());
-			}
-		} finally {
-			qResult.close();
-		}
-		return  result;
-	}
+    protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.URI property, Value object, boolean includeInferred, Resource... contexts)
+            throws RepositoryException {
+        final ValueFactory valueFactory = connection.getValueFactory();
+
+        Set<Value> result = new HashSet<Value>();
+        RepositoryResult<Statement> qResult = connection.getStatements(null, merge(property, valueFactory), merge(object, valueFactory), includeInferred, contexts);
+        try {
+            while(qResult.hasNext()) {
+                result.add(qResult.next().getSubject());
+            }
+        } finally {
+            qResult.close();
+        }
+        return  result;
+    }
 
     /**
      * Merge the value given as argument into the value factory given as argument
@@ -109,32 +109,32 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
         }
     }
 
-	@Override
-	public abstract Literal createLiteral(String content);
+    @Override
+    public abstract Literal createLiteral(String content);
 
-	@Override
-	public abstract Literal createLiteral(String content, Locale language, URI type);
+    @Override
+    public abstract Literal createLiteral(String content, Locale language, URI type);
 
-	@Override
-	public abstract org.openrdf.model.URI createURI(String uri);
+    @Override
+    public abstract org.openrdf.model.URI createURI(String uri);
 
-	@Override
-	public abstract Collection<Value> listObjects(Value subject, Value property);
+    @Override
+    public abstract Collection<Value> listObjects(Value subject, Value property);
 
-	@Override
-	public abstract Collection<Value> listSubjects(Value property, Value object);
+    @Override
+    public abstract Collection<Value> listSubjects(Value property, Value object);
 
-	@Override
-	@Deprecated
-	public boolean supportsThreading() {
-		return false;
-	}
+    @Override
+    @Deprecated
+    public boolean supportsThreading() {
+        return false;
+    }
 
-	@Override
-	@Deprecated
-	public ThreadPoolExecutor getThreadPool() {
-		return null;
-	}
+    @Override
+    @Deprecated
+    public ThreadPoolExecutor getThreadPool() {
+        return null;
+    }
 
 
 }
