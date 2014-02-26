@@ -550,6 +550,7 @@
                   <inherited>true</inherited>
                   <configuration>
                     <instructions>
+                      <Bundle-Category>Apache Marmotta</Bundle-Category>
                       <Bundle-DocURL>http://marmotta.apache.org</Bundle-DocURL>
                       <Bundle-Vendor>Apache Marmotta</Bundle-Vendor>
                       <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
