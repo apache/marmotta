@@ -27,7 +27,7 @@
 
     <name>LDPath Backend: File</name>
     <artifactId>ldpath-backend-file</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <build>
         <pluginManagement>
@@ -51,6 +51,28 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <instructions>
+                <Bundle-Category>Apache Marmotta LDPath</Bundle-Category>
+                <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
+                <_versionpolicy>$${version;===;${@}}</_versionpolicy>
+                <Import-Package>
+                  org.slf4j.*;version="[1.6,2)",
+                  ch.qos.logback.classic;resolution:=optional,
+                  *
+                </Import-Package>
+                <Export-Package>
+                  org.apache.marmotta.ldpath.backend.file;version=${project.version}
+                </Export-Package>
+              </instructions>
+            </configuration>
+          </plugin>
+        </plugins>
     </build>
 
     <dependencies>

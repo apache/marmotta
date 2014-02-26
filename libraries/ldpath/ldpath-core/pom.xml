@@ -27,7 +27,6 @@
 
     <name>LDPath Core</name>
     <artifactId>ldpath-core</artifactId>
-    <packaging>bundle</packaging>
 
     <dependencies>
 
@@ -176,47 +175,6 @@
                             <sources>
                                 <source>${project.build.directory}/generated-sources/javacc/</source>
                             </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Name>LDPath Core</Bundle-Name>
-                        <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
-                        <Bundle-Vendor>Apache Software Foundation</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <_versionpolicy>$${version;===;${@}}</_versionpolicy>
-                        <!-- Enable this for including your enhancement chain configuration -->
-                        <!-- <Install-Path>config</Install-Path> -->
-                        <Export-Package>
-                            org.apache.marmotta.ldpath;version=${project.version},
-                            org.apache.marmotta.ldpath.exception;version=${project.version},
-                            org.apache.marmotta.ldpath.model.*;version=${project.version},
-                            org.apache.marmotta.ldpath.util;version=${project.version}
-                            org.apache.marmotta.ldpath.parser;version=${project.version}
-                        </Export-Package>
-                        <_include>src/main/resources/META-INF/MANIFEST.MF</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-scr-scrdescriptor</id>
-                        <goals>
-                            <goal>scr</goal>
-                        </goals>
-                        <configuration>
-                            <properties>
-                                <service.vendor>Apache Software Foundation</service.vendor>
-                            </properties>
                         </configuration>
                     </execution>
                 </executions>

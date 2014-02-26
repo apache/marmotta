@@ -76,6 +76,7 @@
     <modules>
         <module>ldpath-api</module>
         <module>ldpath-core</module>
+        <module>ldpath-core-bundle</module>
         <module>ldpath-backend-sesame</module>
         <module>ldpath-backend-file</module>
         <module>ldpath-backend-linkeddata</module>

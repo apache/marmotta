@@ -48,11 +48,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
-
-    <build>
-        <plugins>
             <plugin>
                 <groupId>org.zeroturnaround</groupId>
                 <artifactId>jrebel-maven-plugin</artifactId>

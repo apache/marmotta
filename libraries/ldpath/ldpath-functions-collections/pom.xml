@@ -27,7 +27,7 @@
     <name>LDPath Functions: rdf-Collections</name>
 
     <artifactId>ldpath-functions-collections</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <description>Collection-Functions for ldpath (rdf:Bag, rdf:Sequence, rdf:Collection)</description>
 
@@ -95,43 +95,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Name>LDPath Functions: Math</Bundle-Name>
-                        <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
-                        <Bundle-Vendor>Apache Software Foundation</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <_versionpolicy>$${version;===;${@}}</_versionpolicy>
-                        <!-- Enable this for including your enhancement chain configuration -->
-                        <!-- <Install-Path>config</Install-Path> -->
-                        <Export-Package>
-                            org.apache.marmotta.ldpath.model.*;version=${project.version},
-                        </Export-Package>
-                        <_include>src/main/resources/META-INF/MANIFEST.MF</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-scr-scrdescriptor</id>
-                        <goals>
-                            <goal>scr</goal>
-                        </goals>
-                        <configuration>
-                            <properties>
-                                <service.vendor>Apache Software Foundation</service.vendor>
-                            </properties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
 
     </build>

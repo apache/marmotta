@@ -26,7 +26,7 @@
 
     <name>LDPath Functions: HTML</name>
     <artifactId>ldpath-functions-html</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
 
     <description>LDPath Functions for HTML content.</description>
@@ -109,48 +109,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Name>LDPath Functions: HTML</Bundle-Name>
-                        <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
-                        <Bundle-Vendor>Apache Software Foundation</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <_versionpolicy>$${version;===;${@}}</_versionpolicy>
-                        <!-- Enable this for including your enhancement chain configuration -->
-                        <!-- <Install-Path>config</Install-Path> -->
-                        <Export-Package>
-                            org.apache.marmotta.ldpath.model.*;version=${project.version},
-                        </Export-Package>
-                        <Import-Package>
-                            !nu.xom.*,!org.dom4j.*,!org.dom4j.io.*,*
-                        </Import-Package>
-                        <Embed-Dependency>jsoup;scope=compile</Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
-                        <_include>src/main/resources/META-INF/MANIFEST.MF</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-scr-scrdescriptor</id>
-                        <goals>
-                            <goal>scr</goal>
-                        </goals>
-                        <configuration>
-                            <properties>
-                                <service.vendor>Apache Software Foundation</service.vendor>
-                            </properties>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
 
     </build>
