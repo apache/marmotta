@@ -23,12 +23,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.loader.api.LoaderOptions;
 import org.apache.marmotta.loader.core.MarmottaLoader;
+import org.apache.marmotta.loader.core.test.dummy.DummyLoaderBackend;
 import org.apache.marmotta.loader.core.test.dummy.DummyLoaderHandler;
 import org.apache.marmotta.loader.wrapper.LoaderHandlerWrapper;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -94,6 +92,7 @@ public abstract class LoaderTestBase {
 
         cfg.setProperty(LoaderOptions.STATISTICS_ENABLED, true);
         cfg.setProperty(LoaderOptions.STATISTICS_GRAPH, new File(tempDir.toFile(), "stats.png").toString());
+        cfg.setProperty(DummyLoaderBackend.METHOD_SLEEP_MILLIS, 10);
 
         MarmottaLoader loader = new MarmottaLoader(cfg);
         DummyLoaderHandler handler = getBase(loader.load());

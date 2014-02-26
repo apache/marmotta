@@ -6,6 +6,7 @@ Architecture: all
 Distribution: ldstack-nightly
 Maintainer: Sergio Fernández <wikier@apache.org>
 Depends: tomcat7 (>=7.0.30-1)
+Replaces: marmotta-webapp
 Description: Apache Marmotta is an Open Platform for Linked Data
  The goal of Apache Marmotta is to provide an open implementation of a Linked 
  Data Platform that can be used, extended and deployed easily by organizations 

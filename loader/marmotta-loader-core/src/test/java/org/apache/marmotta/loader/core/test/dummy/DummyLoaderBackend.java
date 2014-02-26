@@ -14,6 +14,8 @@ import java.util.Collection;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class DummyLoaderBackend implements LoaderBackend {
+    public static final String METHOD_SLEEP_MILLIS = "loader.dummy.method_sleep";
+
     /**
      * Return a unique identifier for the loader; used for identifying the loader to choose on the command line
      * in case more than one loader implementation is available.
@@ -35,7 +37,7 @@ public class DummyLoaderBackend implements LoaderBackend {
      */
     @Override
     public LoaderHandler createLoader(Configuration configuration) {
-        return new DummyLoaderHandler();
+        return new DummyLoaderHandler(configuration.getLong(METHOD_SLEEP_MILLIS, 0l));
     }
 
     /**
