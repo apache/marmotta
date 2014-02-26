@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.platform.ldp.services;
 
+import info.aduna.iteration.FilterIteration;
 import info.aduna.iteration.Iterations;
 import info.aduna.iteration.UnionIteration;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
@@ -80,18 +80,24 @@ public class LdpServiceImpl implements LdpService {
     @Override
     public boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException {
         final URI ldpContext = connection.getValueFactory().createURI(LDP.NAMESPACE);
-        return connection.hasStatement(resource, RDF.TYPE, null, true, ldpContext);
+        return connection.hasStatement(resource, null, null, true, ldpContext);
     }
 
     @Override
-    public List<Statement> getStatements(RepositoryConnection connection, String resource) throws RepositoryException {
-        return getStatements(connection, buildURI(resource));
+    public List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException {
+        return getLdpTypes(connection, buildURI(resource));
     }
 
     @Override
-    public List<Statement> getStatements(RepositoryConnection connection, URI resource) throws RepositoryException {
+    public List<Statement> getLdpTypes(RepositoryConnection connection, URI resource) throws RepositoryException {
             final URI ldp = connection.getValueFactory().createURI(LDP.NAMESPACE);
-            return Iterations.asList(connection.getStatements(resource, RDF.TYPE, null, false, ldp)); //FIXME
+            return Iterations.asList(new FilterIteration<Statement, RepositoryException>(connection.getStatements(resource, RDF.TYPE, null, false, ldp)) {
+                @Override
+                protected boolean accept(Statement statement) {
+                    final Value object = statement.getObject();
+                    return object instanceof URI && object.stringValue().startsWith(LDP.NAMESPACE);
+                }
+            }); //FIXME
     }
 
     @Override
@@ -124,23 +130,6 @@ public class LdpServiceImpl implements LdpService {
     @Override
     public boolean addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         final URI ldpContext = connection.getValueFactory().createURI(LDP.NAMESPACE);
-
-        // FIXME: this should be done in LdpWebService
-        log.trace("Checking possible name clash for new resource <{}>", resource.stringValue());
-        if (connection.hasStatement(resource, null, null, false, ldpContext)) {
-            int i = 0;
-            final String base = resource.stringValue();
-            do {
-                final String candidate = base + "-" + (++i);
-                log.trace("<{}> already exists, trying <{}>", resource.stringValue(), candidate);
-                resource = connection.getValueFactory().createURI(candidate);
-            } while (connection.hasStatement(resource, null, null, false, ldpContext));
-            log.debug("resolved name clash, new resource will be <{}>", resource.stringValue());
-        } else {
-            log.debug("no name clash for <{}>", resource);
-        }
-
-        log.debug("POST to <{}> will create new LDP-R <{}>", container, resource);
 
         // Add container triples (Sec. 6.4.3)
         // container and meta triples!

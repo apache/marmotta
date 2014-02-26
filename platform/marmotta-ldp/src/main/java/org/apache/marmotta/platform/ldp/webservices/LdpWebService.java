@@ -177,6 +177,7 @@ public class LdpWebService {
             final String localName;
             if (StringUtils.isBlank(slug)) {
                 /* Sec. 6.4.9) */
+                // FIXME: Maybe us a shorter uid?
                 localName = UUID.randomUUID().toString();
             } else {
                 // Honor client wishes from Slug-header (Sec. 6.4.11)
@@ -187,6 +188,24 @@ public class LdpWebService {
             }
 
             String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
+
+            log.trace("Checking possible name clash for new resource <{}>", newResource);
+            if (ldpService.exists(con, newResource)) {
+                int i = 0;
+                final String base = newResource;
+                do {
+                    final String candidate = base + "-" + (++i);
+                    log.trace("<{}> already exists, trying <{}>", newResource, candidate);
+                    newResource = candidate;
+                } while (ldpService.exists(con, newResource));
+                log.debug("resolved name clash, new resource will be <{}>", newResource);
+            } else {
+                log.debug("no name clash for <{}>", newResource);
+            }
+
+            log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
+
+
             try {
                 ldpService.addResource(con, container, newResource, type, postBody);
                 final Response.ResponseBuilder resp = createResponse(con, Response.Status.CREATED, container).location(java.net.URI.create(newResource));
@@ -423,7 +442,7 @@ public class LdpWebService {
 
         if (ldpService.exists(connection, resource)) {
             // Link rel='type' (Sec. 5.2.8, 6.2.8)
-            List<Statement> statements = ldpService.getStatements(connection, resource);
+            List<Statement> statements = ldpService.getLdpTypes(connection, resource);
             for (Statement stmt : statements) {
                 Value o = stmt.getObject();
                 if (o instanceof URI && o.stringValue().startsWith(LDP.NAMESPACE)) {

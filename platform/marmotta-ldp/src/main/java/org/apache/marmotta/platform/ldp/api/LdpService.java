@@ -51,9 +51,9 @@ public interface LdpService {
 
     boolean addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
-    List<Statement> getStatements(RepositoryConnection connection, String resource) throws RepositoryException;
+    List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    List<Statement> getStatements(RepositoryConnection conn1, URI resource) throws RepositoryException;
+    List<Statement> getLdpTypes(RepositoryConnection conn1, URI resource) throws RepositoryException;
 
     void exportResource(RepositoryConnection connection, String resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
