@@ -82,8 +82,12 @@ public class RdfPatchParserImpl implements RdfPatchParser {
         return this.valueFactory.createBNode(id);
     }
 
-    private Literal createLiteral(String value, String lang, URI type) {
-        value = TurtleUtil.decodeString(value.substring(1, value.length() - 1));
+    private Literal createLiteral(String value, String lang, URI type) throws ParseException {
+        try {
+            value = TurtleUtil.decodeString(value.substring(1, value.length() - 1));
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e.getMessage());
+        }
         if (lang != null) {
             return this.valueFactory.createLiteral(value, lang);
         } else if (type != null) {
@@ -93,7 +97,7 @@ public class RdfPatchParserImpl implements RdfPatchParser {
         }
     }
 
-    private Literal createLongLiteral(String value, String lang, URI type) {
+    private Literal createLongLiteral(String value, String lang, URI type) throws ParseException {
         value = value.substring(2, value.length() - 2);
         return createLiteral(value, lang, type);
     }
