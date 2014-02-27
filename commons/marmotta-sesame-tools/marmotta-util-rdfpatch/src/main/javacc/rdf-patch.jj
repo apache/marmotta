@@ -55,11 +55,13 @@ public class RdfPatchParserImpl implements RdfPatchParser {
         this.valueFactory = vf;
     }
 
+    @Override
     public void setValueFactory(ValueFactory vf) {
         if (vf == null) throw new IllegalArgumentException("ValueFactory must not be null");
         this.valueFactory = vf;
     }
 
+    @Override
     public ValueFactory getValueFactory() {
         return this.valueFactory;
     }

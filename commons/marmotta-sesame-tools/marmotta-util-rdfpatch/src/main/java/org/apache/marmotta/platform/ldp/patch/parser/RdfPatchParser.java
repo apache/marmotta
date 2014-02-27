@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldp.patch.parser;
 
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.openrdf.model.ValueFactory;
 
 import java.util.List;
 
@@ -37,6 +38,10 @@ public interface RdfPatchParser {
      * Default File extension for rdf-patch: {@value}
      */
     public static final String FILE_EXTENSION = "rdfp";
+
+    void setValueFactory(ValueFactory vf);
+
+    ValueFactory getValueFactory();
 
     /**
      * Parse the rdf-patch

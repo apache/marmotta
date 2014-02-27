@@ -19,7 +19,11 @@ package org.apache.marmotta.platform.ldp.patch;
 
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,6 +31,7 @@ import org.junit.Test;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LiteralImpl;
+import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.repository.Repository;
@@ -35,6 +40,8 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.sail.memory.MemoryStore;
+
+import java.util.List;
 
 /**
  * Testing RdfPatchUtil
@@ -117,5 +124,41 @@ public class RdfPatchUtilTest {
         } finally {
             con.close();
         }
+    }
+
+    @Test
+    public void testDiff() throws Exception {
+        final RepositoryConnection con1 = repository.getConnection();
+        final URI mbox = con1.getValueFactory().createURI("mailto:charlie@example.com");
+        try {
+            con1.begin();
+            con1.remove(bob, FOAF.KNOWS, charlie);
+            con1.add(bob, FOAF.KNOWS, alice);
+            con1.add(charlie, FOAF.MBOX, mbox);
+            con1.commit();
+        } finally {
+            con1.close();
+        }
+
+        final Repository orig = new SailRepository(new MemoryStore());
+        orig.initialize();
+        final RepositoryConnection con = orig.getConnection();
+        try {
+            con.begin();
+            con.add(this.getClass().getResourceAsStream("/illustrative.in.ttl"), BASE_URI, RDFFormat.TURTLE);
+            con.commit();
+        } finally {
+            con.close();
+        }
+
+        // Optimize here to have a predictable order of the patch lines.
+        final List<PatchLine> diff = RdfPatchUtil.diff(orig, repository, true);
+        Assert.assertEquals("Wrong patch size", 3, diff.size());
+
+        Assert.assertThat("Wrong patch", diff, IsIterableContainingInOrder.contains(
+                new PatchLine(PatchLine.Operator.DELETE, new WildcardStatement(bob, FOAF.KNOWS, charlie)),
+                new PatchLine(PatchLine.Operator.ADD, new WildcardStatement(null, null, alice)),
+                new PatchLine(PatchLine.Operator.ADD, new WildcardStatement(charlie, FOAF.MBOX, mbox))
+                ));
     }
 }

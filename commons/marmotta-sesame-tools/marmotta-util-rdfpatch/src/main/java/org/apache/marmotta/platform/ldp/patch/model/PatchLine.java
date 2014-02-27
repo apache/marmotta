@@ -65,4 +65,23 @@ public class PatchLine {
     public Statement getStatement() {
         return statement;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+
+        if (obj instanceof PatchLine) {
+            if (operator != ((PatchLine) obj).operator) return false;
+
+            return statement.equals(((PatchLine) obj).statement);
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%S %s", operator.getCommand(), statement);
+
+    }
 }
