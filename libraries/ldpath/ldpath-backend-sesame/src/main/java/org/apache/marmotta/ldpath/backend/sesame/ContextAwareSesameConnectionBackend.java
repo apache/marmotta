@@ -33,7 +33,17 @@ public class ContextAwareSesameConnectionBackend extends SesameConnectionBackend
      * @param contexts the contexts to look for, providing an empty array here will revert the functionality to {@link SesameConnectionBackend}.
      */
     public ContextAwareSesameConnectionBackend(RepositoryConnection connection, Resource... contexts) {
-        super(connection, contexts);
+        super(connection, true, contexts);
+    }
+
+    /**
+     * Create a new {@link ContextAwareSesameConnectionBackend} that considers only data from the provided contexts.
+     * @param connection the {@link RepositoryConnection} to use.
+     * @param includeInferred
+     * @param contexts the contexts to look for, providing an empty array here will revert the functionality to {@link SesameConnectionBackend}.
+     */
+    public ContextAwareSesameConnectionBackend(RepositoryConnection connection, boolean includeInferred, Resource... contexts) {
+        super(connection, includeInferred, contexts);
     }
 
     /**
@@ -43,5 +53,16 @@ public class ContextAwareSesameConnectionBackend extends SesameConnectionBackend
      */
     public static ContextAwareSesameConnectionBackend withConnection(RepositoryConnection connection, Resource... contexts) {
         return new ContextAwareSesameConnectionBackend(connection, contexts);
+    }
+
+
+    /**
+     * Create a new {@link ContextAwareSesameConnectionBackend} that considers only data from the provided contexts.
+     * @param connection the {@link RepositoryConnection} to use.
+     * @param includeInferred
+     * @param contexts the contexts to look for, providing an empty array here will revert the functionality to {@link SesameConnectionBackend}.
+     */
+    public static ContextAwareSesameConnectionBackend withConnection(RepositoryConnection connection, boolean includeInferred, Resource... contexts) {
+        return new ContextAwareSesameConnectionBackend(connection, includeInferred, contexts);
     }
 }

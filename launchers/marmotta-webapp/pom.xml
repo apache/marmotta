@@ -131,7 +131,7 @@
                         </goals>
                         <configuration>
                             <source>
-                                project.properties.setProperty("version.clean", "${project.version}".replace('-SNAPSHOT', '-${maven.build.timestamp}'))
+                                project.properties.setProperty("version.clean", "${project.version}".replace('-SNAPSHOT', '~${maven.build.timestamp}'))
                             </source>
                         </configuration>
                     </execution>
