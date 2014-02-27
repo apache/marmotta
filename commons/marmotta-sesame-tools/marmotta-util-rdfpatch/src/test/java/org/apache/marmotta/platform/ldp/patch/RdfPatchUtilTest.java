@@ -17,7 +17,8 @@
  */
 package org.apache.marmotta.platform.ldp.patch;
 
-import org.apache.marmotta.commons.vocabulary.FOAF;
+import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
+import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,6 +28,7 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -82,17 +84,17 @@ public class RdfPatchUtilTest {
         try {
             con.begin();
 
-            Assert.assertTrue(con.hasStatement(bob, FOAF.name, lcBob, false));
-            Assert.assertFalse(con.hasStatement(bob, FOAF.name, ucBob, false));
-            Assert.assertFalse(con.hasStatement(bob, FOAF.knows, alice, false));
-            Assert.assertTrue(con.hasStatement(bob, FOAF.knows, charlie, false));
+            Assert.assertTrue(con.hasStatement(bob, FOAF.NAME, lcBob, false));
+            Assert.assertFalse(con.hasStatement(bob, FOAF.NAME, ucBob, false));
+            Assert.assertFalse(con.hasStatement(bob, FOAF.KNOWS, alice, false));
+            Assert.assertTrue(con.hasStatement(bob, FOAF.KNOWS, charlie, false));
 
             RdfPatchUtil.applyPatch(con, this.getClass().getResourceAsStream("/illustrative.rdfp"));
 
-            Assert.assertFalse(con.hasStatement(bob, FOAF.name, lcBob, false));
-            Assert.assertTrue(con.hasStatement(bob, FOAF.name, ucBob, false));
-            Assert.assertTrue(con.hasStatement(bob, FOAF.knows, alice, false));
-            Assert.assertFalse(con.hasStatement(bob, FOAF.knows, charlie, false));
+            Assert.assertFalse(con.hasStatement(bob, FOAF.NAME, lcBob, false));
+            Assert.assertTrue(con.hasStatement(bob, FOAF.NAME, ucBob, false));
+            Assert.assertTrue(con.hasStatement(bob, FOAF.KNOWS, alice, false));
+            Assert.assertFalse(con.hasStatement(bob, FOAF.KNOWS, charlie, false));
 
             con.commit();
         } finally {

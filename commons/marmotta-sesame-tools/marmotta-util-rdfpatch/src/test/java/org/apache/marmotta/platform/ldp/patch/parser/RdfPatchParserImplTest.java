@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.platform.ldp.patch.parser;
 
-import org.apache.marmotta.commons.vocabulary.FOAF;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,6 +25,7 @@ import org.junit.Test;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.FOAF;
 
 import java.util.Iterator;
 import java.util.List;
@@ -67,13 +67,13 @@ public class RdfPatchParserImplTest {
         Iterator<PatchLine> it = patchLines.iterator();
 
         Assert.assertTrue(it.hasNext());
-        checkPatchLine(it.next(), PatchLine.Operator.DELETE, bob, FOAF.name, lcBob);
+        checkPatchLine(it.next(), PatchLine.Operator.DELETE, bob, FOAF.NAME, lcBob);
 
         Assert.assertTrue(it.hasNext());
-        checkPatchLine(it.next(), PatchLine.Operator.ADD, bob, FOAF.name, ucBob);
+        checkPatchLine(it.next(), PatchLine.Operator.ADD, bob, FOAF.NAME, ucBob);
 
         Assert.assertTrue(it.hasNext());
-        checkPatchLine(it.next(), PatchLine.Operator.ADD, null, FOAF.knows, alice);
+        checkPatchLine(it.next(), PatchLine.Operator.ADD, null, FOAF.KNOWS, alice);
 
         Assert.assertTrue(it.hasNext());
         checkPatchLine(it.next(), PatchLine.Operator.DELETE, null, null, charlie);
