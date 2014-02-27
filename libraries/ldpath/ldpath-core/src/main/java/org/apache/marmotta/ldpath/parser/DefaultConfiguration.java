@@ -46,10 +46,12 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     private static Logger log = LoggerFactory.getLogger(DefaultConfiguration.class);
 
     @SuppressWarnings("rawtypes")
-    private static ServiceLoader<SelectorFunction> functionLoader = ServiceLoader.load(SelectorFunction.class);
+    private static ServiceLoader<SelectorFunction> functionLoader = ServiceLoader.load(SelectorFunction.class,
+    		DefaultConfiguration.class.getClassLoader());
 
     @SuppressWarnings("rawtypes")
-    private static ServiceLoader<TestFunction> testLoader = ServiceLoader.load(TestFunction.class);
+    private static ServiceLoader<TestFunction> testLoader = ServiceLoader.load(TestFunction.class,
+    		DefaultConfiguration.class.getClassLoader());
 
     public static final Map<String, String> DEFAULT_NAMESPACES;
     static {
