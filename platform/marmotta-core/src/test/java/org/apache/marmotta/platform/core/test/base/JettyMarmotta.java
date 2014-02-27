@@ -17,10 +17,6 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.*;
-
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
@@ -28,31 +24,33 @@ import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.core.webservices.CoreApplication;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.DispatcherType;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.*;
 
 /**
- * An extended version of the EmbeddedMarmotta which also starts a jetty servlet 
+ * An extended version of the EmbeddedMarmotta which also starts a jetty servlet
  * container. The context name is passed in the constructor; port could be passed,
- * a random available port will be use otherwise. The JettyMarmotta can optionally 
- * take a set of web service classes as argument; if this argument is present, only 
- * the given web services will be instantiated; otherwise, all configured web services 
+ * a random available port will be use otherwise. The JettyMarmotta can optionally
+ * take a set of web service classes as argument; if this argument is present, only
+ * the given web services will be instantiated; otherwise, all configured web services
  * will be instantiated (as in a normal webapp installation).
- * 
+ *
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
 public class JettyMarmotta extends AbstractMarmotta {
 
     private Server jetty;
-    
+
     private int port;
 
-	private String context;
-	
+    private String context;
+
     public JettyMarmotta(String context) {
         this(context, getRandomPort());
     }
@@ -60,25 +58,25 @@ public class JettyMarmotta extends AbstractMarmotta {
     public JettyMarmotta(String context, int port) {
         this(context, port, (Set<Class<?>>) null);
     }
-    
+
     public JettyMarmotta(String context, Class<?> webservice) {
         this(context, getRandomPort(), webservice);
     }
 
     public JettyMarmotta(String context, int port, Class<?> webservice) {
-        this(context,port, Collections.<Class<?>>singleton(webservice));
+        this(context, port, Collections.<Class<?>>singleton(webservice));
     }
-    
+
     public JettyMarmotta(String context, Class<?>... webservices) {
         this(context, getRandomPort(), webservices);
     }
 
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
-        this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
+        this(context, port, new HashSet<Class<?>>(Arrays.asList(webservices)));
     }
-    
+
     public JettyMarmotta(String context, Set<Class<?>> webservices) {
-    	this(context, getRandomPort(), webservices);
+        this(context, getRandomPort(), webservices);
     }
 
     public JettyMarmotta(String context, int port, Set<Class<?>> webservices) {
@@ -86,7 +84,7 @@ public class JettyMarmotta extends AbstractMarmotta {
 
         this.port = port;
         this.context = (context != null ? context : "/");
-        
+
         // create a new jetty & run it on port 8080
         jetty = new Server(this.port);
 
@@ -110,10 +108,10 @@ public class JettyMarmotta extends AbstractMarmotta {
 
         // if a single web service is given, only register that webservice, otherwise startup the default configuration
         //FilterHolder restEasyFilter = new FilterHolder(org.jboss.resteasy.plugins.server.servlet.FilterDispatcher.class);
-        ServletHolder restEasyFilter  = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
+        ServletHolder restEasyFilter = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
         restEasyFilter.setInitParameter("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
 
-        if(webservices != null) {
+        if (webservices != null) {
             TestApplication.setTestedWebServices(webservices);
             //restEasyFilter.setInitParameter("resteasy.resources", webservice.getName());
             restEasyFilter.setInitParameter("javax.ws.rs.Application", TestApplication.class.getCanonicalName());
@@ -125,7 +123,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         ctx.addServlet(restEasyFilter, "/*");
 
         try {
-            jetty.start(); 
+            jetty.start();
             String url = "http://localhost:" + this.port + this.context + "/";
             startupService.startupHost(url, url);
         } catch (Exception e) {
@@ -138,47 +136,47 @@ public class JettyMarmotta extends AbstractMarmotta {
         try {
             jetty.stop();
         } catch (Exception e) {
-            log.error("could not shutdown embedded jetty server" ,e);
+            log.error("could not shutdown embedded jetty server", e);
         }
         super.shutdown();
     }
-    
+
     public int getPort() {
-		return port;
-	}
+        return port;
+    }
 
-	public String getContext() {
-		return context;
-	}
-	
-	public static int getRandomPort() {
-		Random ran = new Random();
-	    int port = 0;
-	    do {
-	    	port = ran.nextInt(2000) + 8000;
-	    } while (!isPortAvailable(port));
+    public String getContext() {
+        return context;
+    }
 
-	    return port;
-	}
-	
-	public static boolean isPortAvailable(final int port) {
-	    ServerSocket ss = null;
-	    try {
-	        ss = new ServerSocket(port);
-	        ss.setReuseAddress(true);
-	        return true;
-	    } catch (final IOException e) {
-	    	
-	    } finally {
-	        if (ss != null) {
-	            try {
-					ss.close();
-				} catch (IOException e) {
-					
-				}
-	        }
-	    }
-	    return false;
-	}
+    public static int getRandomPort() {
+        Random ran = new Random();
+        int port = 0;
+        do {
+            port = ran.nextInt(2000) + 8000;
+        } while (!isPortAvailable(port));
+
+        return port;
+    }
+
+    public static boolean isPortAvailable(final int port) {
+        ServerSocket ss = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            return true;
+        } catch (final IOException e) {
+
+        } finally {
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return false;
+    }
 
 }

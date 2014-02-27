@@ -62,7 +62,8 @@ public class LdpWebServiceTest {
 
     @AfterClass
     public static void shutdown() {
-        marmotta.shutdown();
+        //marmotta.shutdown();
+        marmotta = null;
         testResourceTTL = null;
     }
 

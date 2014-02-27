@@ -57,7 +57,7 @@ public class MarmottaStartupService {
 
     private static final String DEFAULT_KIWI_VERSION = "undefined";
 
-    private Logger log  = LoggerFactory.getLogger(MarmottaStartupService.class);
+    private Logger log = LoggerFactory.getLogger(MarmottaStartupService.class);
 
     @Inject
     private ConfigurationService configurationService;
@@ -65,10 +65,12 @@ public class MarmottaStartupService {
     @Inject
     private ModuleService moduleService;
 
-    @Inject @Any
+    @Inject
+    @Any
     private Event<SystemStartupEvent> startupEvent;
 
-    @Inject @Any
+    @Inject
+    @Any
     private Event<SesameStartupEvent> sesameEvent;
 
     private boolean configurationStarted = false;
@@ -88,9 +90,9 @@ public class MarmottaStartupService {
      * The parameters lmfHome and configurationOverride can be used to override the default settings
      * of the Apache Marmotta.
      *
-     * @param lmfHome                 home directory of the Apache Marmotta instance (may be null, in which case the default will be used)
-     * @param configurationOverride   configuration options that should override the default values from default-config.properties (may be null)
-     * @param context                 the servlet context the Apache Marmotta is running in (may be null)
+     * @param lmfHome               home directory of the Apache Marmotta instance (may be null, in which case the default will be used)
+     * @param configurationOverride configuration options that should override the default values from default-config.properties (may be null)
+     * @param context               the servlet context the Apache Marmotta is running in (may be null)
      */
     public void startupConfiguration(String home, Configuration configurationOverride, ServletContext context) {
         lock.lock();
@@ -99,14 +101,14 @@ public class MarmottaStartupService {
         String versionNumber = DEFAULT_KIWI_VERSION;
 
         try {
-            if(configurationStarted) {
+            if (configurationStarted) {
                 log.warn("Apache Marmotta Startup: configuration already started; ignoring second request");
                 return;
             }
 
             ModuleConfiguration coreConfiguration = moduleService.getModuleConfiguration(this.getClass());
 
-            if(coreConfiguration.hasBuildInfo()) {
+            if (coreConfiguration.hasBuildInfo()) {
                 log.info("Apache Marmotta Core Version {} starting up ... ", coreConfiguration.getModuleVersion());
                 log.info("Build Information:");
                 log.info(" - Build User: {}", coreConfiguration.getBuildUser());
@@ -119,76 +121,76 @@ public class MarmottaStartupService {
                 log.info("Apache Marmotta Core (Development Version) starting up ... ");
             }
 
-            if(StringUtils.isBlank(home)) {
+            if (StringUtils.isBlank(home)) {
                 home = System.getProperty("marmotta.home");
-                if(StringUtils.isNotBlank(home)) {
+                if (StringUtils.isNotBlank(home)) {
                     log.info("Configured working directory {} from system property marmotta.home", home);
                 } else {
                     home = System.getProperty("lmf.home");
-                    if(StringUtils.isNotBlank(home)) {
+                    if (StringUtils.isNotBlank(home)) {
                         log.info("Configured working directory {} from system property lmf.home", home);
                     } else {
                         home = System.getProperty("kiwi.home");
-                        if(StringUtils.isNotBlank(home)) {
+                        if (StringUtils.isNotBlank(home)) {
                             log.info("Configured working directory {} from system property kiwi.home", home);
-                        } else {                    
-		                    home = System.getenv("MARMOTTA_HOME");
-		                    if(StringUtils.isNotBlank(home)) {
-		                        log.info("Configured working directory {} from environment variable MARMOTTA_HOME", home);
-		                    } else {
-		                        home = System.getenv("LMF_HOME");
-		                        if(StringUtils.isNotBlank(home)) {
-		                            log.info("Configured working directory {} from environment variable LMF_HOME", home);
-		                        } else {
-		                            home = System.getenv("KIWI_HOME");
-		                            if(StringUtils.isNotBlank(home)) {
-		                                log.info("Configured working directory {} from environment variable KIWI_HOME", home);
-		                            } else {
-		                            	if (context != null) {
-			                                home = context.getInitParameter("marmotta.home");
-			                                if(StringUtils.isNotBlank(home)) {
-			                                    log.info("Configured working directory {} from servlet context parameter marmotta.home", home);
-			                                }
-		                            	} else {
-		                            		log.error("could not determine Apache Marmotta home directory, please set the environment variable MARMOTTA_HOME");
-		                            	}
-		                            }
-		                        }
-		                    }
+                        } else {
+                            home = System.getenv("MARMOTTA_HOME");
+                            if (StringUtils.isNotBlank(home)) {
+                                log.info("Configured working directory {} from environment variable MARMOTTA_HOME", home);
+                            } else {
+                                home = System.getenv("LMF_HOME");
+                                if (StringUtils.isNotBlank(home)) {
+                                    log.info("Configured working directory {} from environment variable LMF_HOME", home);
+                                } else {
+                                    home = System.getenv("KIWI_HOME");
+                                    if (StringUtils.isNotBlank(home)) {
+                                        log.info("Configured working directory {} from environment variable KIWI_HOME", home);
+                                    } else {
+                                        if (context != null) {
+                                            home = context.getInitParameter("marmotta.home");
+                                            if (StringUtils.isNotBlank(home)) {
+                                                log.info("Configured working directory {} from servlet context parameter marmotta.home", home);
+                                            }
+                                        } else {
+                                            log.error("could not determine Apache Marmotta home directory, please set the environment variable MARMOTTA_HOME");
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            if(StringUtils.isNotBlank(home)) {
-            	if (home.startsWith("~" + File.separator)) {
-            	    home = System.getProperty("user.home") + home.substring(1);
-            	}
+            if (StringUtils.isNotBlank(home)) {
+                if (home.startsWith("~" + File.separator)) {
+                    home = System.getProperty("user.home") + home.substring(1);
+                }
                 configurationService.setHome(home);
             } else {
-            	log.error("home directory not properly initialized!!!");
+                log.error("home directory not properly initialized!!!");
             }
 
-            if(context != null) {
+            if (context != null) {
                 configurationService.setServletContext(context);
             }
 
-            configurationService.initialize(home,configurationOverride);
+            configurationService.initialize(home, configurationOverride);
 
 
             configurationService.setConfiguration("kiwi.version", versionNumber);
 
-            if(context != null) {
+            if (context != null) {
                 configurationService.setConfiguration("kiwi.path", context.getContextPath());
 
                 // register the systray links provided by the different components
-                Map<String, String> demoLinks  = new HashMap<String, String>();
+                Map<String, String> demoLinks = new HashMap<String, String>();
                 Map<String, String> adminLinks = new HashMap<String, String>();
 
-                for(MarmottaSystrayLink link : CDIContext.getInstances(MarmottaSystrayLink.class)) {
-                    if(link.getSection() == MarmottaSystrayLink.Section.DEMO) {
+                for (MarmottaSystrayLink link : CDIContext.getInstances(MarmottaSystrayLink.class)) {
+                    if (link.getSection() == MarmottaSystrayLink.Section.DEMO) {
                         demoLinks.put(link.getLabel(), link.getLink());
-                    } else if(link.getSection() == MarmottaSystrayLink.Section.ADMIN) {
+                    } else if (link.getSection() == MarmottaSystrayLink.Section.ADMIN) {
                         adminLinks.put(link.getLabel(), link.getLink());
                     }
                 }
@@ -212,14 +214,14 @@ public class MarmottaStartupService {
      * The method expects a host URL and a context URL to be given. In case the context URL is not given,
      * it will be the same as the host URL.
      *
-     * @param hostUrl     the URL of the host, used as based URL for building the Apache Marmotta web interface
-     * @param contextUrl  the base URL used to construct Linked Data resources
+     * @param hostUrl    the URL of the host, used as based URL for building the Apache Marmotta web interface
+     * @param contextUrl the base URL used to construct Linked Data resources
      */
     public void startupHost(String hostUrl, String contextUrl) {
         lock.lock();
 
         try {
-            if(hostStarted) {
+            if (hostStarted) {
                 log.warn("Apache Marmotta Startup: host already started; ignoring subsequent startup requests");
                 return;
             }
@@ -228,7 +230,7 @@ public class MarmottaStartupService {
             boolean isSetup = configurationService.getBooleanConfiguration("kiwi.setup.host");
 
             // carry out initializations that need the server URI to be set properly
-            if(!isSetup) {
+            if (!isSetup) {
                 log.info("SETUP: Setting up initial host and resource configuration ({}) ...", hostUrl);
 
                 configurationService.setConfiguration("kiwi.context", contextUrl);
@@ -239,12 +241,12 @@ public class MarmottaStartupService {
 
             // trigger startup of the sesame service once the hostname is ready (we need the correct URIs for
             // default, cache and inferred context)
-            SesameService sesameService  = CDIContext.getInstance(SesameService.class);
+            SesameService sesameService = CDIContext.getInstance(SesameService.class);
             sesameService.initialise();
             sesameEvent.fire(new SesameStartupEvent());
 
             // trigger startup of the user service once the sesame service is ready
-            UserService   userService    = CDIContext.getInstance(UserService.class);
+            UserService userService = CDIContext.getInstance(UserService.class);
 
             userService.createDefaultUsers();
 
@@ -253,7 +255,7 @@ public class MarmottaStartupService {
             configurationService.setInitialising(false);
 
             startupEvent.fire(new SystemStartupEvent());
-            
+
         } finally {
             lock.unlock();
         }
@@ -271,5 +273,5 @@ public class MarmottaStartupService {
     public boolean isHostStarted() {
         return hostStarted;
     }
-    
+
 }
