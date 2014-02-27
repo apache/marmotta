@@ -62,7 +62,7 @@ import java.util.*;
 @Path(LdpWebService.PATH + "{local:.*}")
 public class LdpWebService {
 
-    public static final String PATH = "ldp"; //FIXME: imho this should be root '/' (jakob)
+    public static final String PATH = "/ldp"; //FIXME: imho this should be root '/' (jakob)
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 

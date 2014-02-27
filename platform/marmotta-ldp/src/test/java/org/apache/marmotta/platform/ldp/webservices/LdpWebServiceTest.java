@@ -28,83 +28,99 @@ import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
- * Tests for testing the LDP web services
- * 
- * @author Sergio Fernández
+ * Testing LDP web services
  *
+ * @author Sergio Fernández
+ * @author Jakob Frank
  */
 public class LdpWebServiceTest {
 
-	private static Logger log = LoggerFactory.getLogger(LdpWebServiceTest.class);
-	
+    private static Logger log = LoggerFactory.getLogger(LdpWebServiceTest.class);
+
     private static JettyMarmotta marmotta;
+
+    private static String baseUrl;
 
     private static String testResourceTTL;
 
     @BeforeClass
-    public static void setUp() throws MarmottaImportException, URISyntaxException, IOException {
+    public static void setup() throws MarmottaImportException, URISyntaxException, IOException {
         marmotta = new JettyMarmotta("/marmotta", LdpWebService.class);
-        
-        //TODO: initialization
-        testResourceTTL = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test.ttl"), "utf8");
-        
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
         RestAssured.basePath = marmotta.getContext();
+        baseUrl = UriBuilder.fromUri("http://localhost").port(marmotta.getPort()).path(marmotta.getContext()).build().toString();
 
+        //initialization
+        testResourceTTL = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test.ttl"), "utf8");
+    }
+
+    @AfterClass
+    public static void shutdown() {
+        marmotta.shutdown();
+        testResourceTTL = null;
     }
 
     @Test
     public void testCRUD() {
+        final String testBase = "test1";
+        final String containerName = "container1";
+        final String resourceName = "resource1";
+
         // The container
-        final String container = "/ldp/test/container1";
-        final String newResourceUri = container + "/resource1";
+        final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
+        final String newResource = UriBuilder.fromUri(container).path(resourceName).build().toString();
 
         RestAssured.expect().statusCode(404).get(container);
 
         // Create
         RestAssured
             .given()
-                .header("Slug", "resource1")
+                .header("Slug", resourceName)
                 .body(testResourceTTL.getBytes())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(201)
-                .header("Location", RestAssured.baseURI + newResourceUri)
-                .post(container);
+                .header("Location", baseUrl + newResource)
+            .post(container);
 
         // now the container exists
         log.info("200 - container");
-        RestAssured.given()
+        RestAssured
+            .given()
                 .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
-                .expect()
+            .expect()
                 .statusCode(200)
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .get(container);
+            .get(container);
 
         // also the new resource exists
-        RestAssured.given()
+        RestAssured
+            .given()
                 .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
-                .expect()
+            .expect()
                 .statusCode(200)
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .get(newResourceUri);
+            .get(newResource);
 
         // delete
-        RestAssured.expect()
+        RestAssured
+            .expect()
                 .statusCode(204)
-                .delete(newResourceUri);
+            .delete(newResource);
 
         // now the new resource does not exist.
-        RestAssured.given()
+        RestAssured
+            .given()
                 .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
-                .expect()
+            .expect()
                 .statusCode(404)
-                .get(newResourceUri);
+            .get(newResource);
 
     }
 
