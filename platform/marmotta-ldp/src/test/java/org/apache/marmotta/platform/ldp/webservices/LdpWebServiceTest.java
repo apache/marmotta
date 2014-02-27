@@ -17,15 +17,8 @@
 
 package org.apache.marmotta.platform.ldp.webservices;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-
+import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.apache.marmotta.platform.core.api.importer.ImportService;
-import org.apache.marmotta.platform.core.api.triplestore.ContextService;
-import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.junit.AfterClass;
@@ -35,7 +28,8 @@ import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.restassured.RestAssured;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Tests for testing the LDP web services
@@ -67,17 +61,18 @@ public class LdpWebServiceTest {
     @Test
     public void testCRUD() {
         // The container
-        final String container = "/lpd/test/container1";
+        final String container = "/ldp/test/container1";
         final String newResourceUri = container + "/resource1";
 
         RestAssured.expect().statusCode(404).get(container);
 
         // Create
-        RestAssured.given()
+        RestAssured
+            .given()
                 .header("Slug", "resource1")
                 .body(testResourceTTL.getBytes())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .expect()
+            .expect()
                 .statusCode(201)
                 .header("Location", RestAssured.baseURI + newResourceUri)
                 .post(container);
