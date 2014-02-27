@@ -179,13 +179,6 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-util-rdfpatch</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.api.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>

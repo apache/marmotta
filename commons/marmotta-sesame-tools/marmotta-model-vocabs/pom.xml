@@ -22,47 +22,33 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.2.0-SNAPSHOT</version>
-        <relativePath>../../parent</relativePath>
+        <relativePath>../../../parent/</relativePath>
     </parent>
 
-    <artifactId>marmotta-sesame-tools</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>marmotta-model-vocabs</artifactId>
+    <packaging>jar</packaging>
 
-    <name>Apache Marmotta Commons: Sesame Tools Reactor</name>
-    <description>A collection of support modules for Sesame, used in Marmotta but also valuable outside.</description>
+    <name>Marmotta Sesame Tools: Common Vocabularies</name>
 
-    <!-- release management -->
+    <description>Util-Methods to apply 'application/rdf-patch' changesets to Sesame</description>
+
     <build>
         <plugins>
-            <!-- do not install / deploy reactor -->
             <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-install-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
+                    <relativePath>../../../</relativePath>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
-
-    <modules>
-        <module>marmotta-model-vocabs</module>
-        <module>marmotta-rio-api</module>
-        <module>marmotta-rio-ical</module>
-        <module>marmotta-rio-rss</module>
-        <module>marmotta-rio-vcard</module>
-        <module>marmotta-sail-contextaware</module>
-        <module>marmotta-sail-transactions</module>
-        <module>marmotta-util-facading</module>
-        <module>marmotta-util-filter</module>
-        <module>marmotta-util-tripletable</module>
-        <module>marmotta-util-rdfpatch</module>
-    </modules>
-
+    <dependencies>
+        <!-- data model -->
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-model</artifactId>
+        </dependency>
+    </dependencies>
 </project>
