@@ -19,13 +19,15 @@ package org.apache.marmotta.platform.ldp.patch;
 
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
-import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openrdf.model.vocabulary.DCTERMS;
 
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Testing {@link org.apache.marmotta.platform.ldp.patch.RdfPatchIO}
@@ -35,19 +37,19 @@ public class RdfPatchIOTest {
     @Test
     public void testIllustrative() throws Exception {
         RdfPatchParserImpl parser = new RdfPatchParserImpl(getClass().getResourceAsStream("/illustrative.rdfp"));
-        checkRoundtrip(parser);
+        checkRoundtrip(parser, Collections.<String, String>emptyMap());
     }
 
     @Test
     public void testRdfPatch() throws ParseException {
         RdfPatchParserImpl parser = new RdfPatchParserImpl(getClass().getResourceAsStream("/rdf-patch.rdfp"));
-        checkRoundtrip(parser);
+        checkRoundtrip(parser, Collections.singletonMap(DCTERMS.PREFIX, DCTERMS.NAMESPACE));
     }
 
-    private void checkRoundtrip(RdfPatchParserImpl parser) throws ParseException {
+    private void checkRoundtrip(RdfPatchParserImpl parser, Map<String, String> namespaces) throws ParseException {
         final List<PatchLine> patch1 = parser.parsePatch();
 
-        final String serialized = RdfPatchIO.toString(patch1);
+        final String serialized = RdfPatchIO.toString(patch1, namespaces);
 
         parser.ReInit(new StringReader(serialized));
         final List<PatchLine> patch2 = parser.parsePatch();

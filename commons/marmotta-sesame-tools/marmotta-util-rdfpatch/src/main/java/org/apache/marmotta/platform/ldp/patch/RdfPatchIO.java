@@ -155,6 +155,8 @@ public class RdfPatchIO {
             }
             return sb.toString();
         }
+
+        // Fall through
         return v.toString();
     }
 

@@ -17,12 +17,9 @@
  */
 package org.apache.marmotta.platform.ldp.patch;
 
-import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
-import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.After;
 import org.junit.Assert;
@@ -30,9 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.StatementImpl;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
