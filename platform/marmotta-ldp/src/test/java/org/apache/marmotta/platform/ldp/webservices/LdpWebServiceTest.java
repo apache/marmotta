@@ -19,11 +19,18 @@ package org.apache.marmotta.platform.ldp.webservices;
 
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
+import org.apache.marmotta.platform.ldp.webservices.util.HasStatementMatcher;
+import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
+import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
+
+import static org.apache.marmotta.platform.ldp.webservices.util.HasStatementMatcher.hasStatement;
 
 /**
  * Testing LDP web services
@@ -76,6 +85,7 @@ public class LdpWebServiceTest {
         // The container
         final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
         final String newResource = UriBuilder.fromUri(container).path(resourceName).build().toString();
+        final String mimeType = RDFFormat.TURTLE.getDefaultMIMEType();
 
         RestAssured.expect().statusCode(404).get(container);
 
@@ -84,7 +94,7 @@ public class LdpWebServiceTest {
             .given()
                 .header("Slug", resourceName)
                 .body(testResourceTTL.getBytes())
-                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .contentType(mimeType)
             .expect()
                 .statusCode(201)
                 .header("Location", baseUrl + newResource)
@@ -94,31 +104,51 @@ public class LdpWebServiceTest {
         log.info("200 - container");
         RestAssured
             .given()
-                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .header("Accept", mimeType)
             .expect()
                 .statusCode(200)
-                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-            .get(container);
+                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIST header...
+                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
+                )
+                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .contentType(mimeType)
+                .body(
+                        hasStatement(mimeType, baseUrl + container, new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
+                        hasStatement(mimeType, baseUrl + container, new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer)
+                )
+                .get(container);
 
         // also the new resource exists
         RestAssured
             .given()
-                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .header("Accept", mimeType)
             .expect()
                 .statusCode(200)
-                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIST header...
+                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"))
+                )
+                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .contentType(mimeType)
+                .body(
+                        hasStatement(mimeType, baseUrl + newResource, new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
+                        hasStatement(mimeType, baseUrl + newResource, new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource)
+                )
             .get(newResource);
 
         // delete
         RestAssured
             .expect()
                 .statusCode(204)
+                .header("Link", HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"))
+                .header("ETag", HeaderMatchers.headerNotPresent())
             .delete(newResource);
 
         // now the new resource does not exist.
         RestAssured
             .given()
-                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .header("Accept", mimeType)
             .expect()
                 .statusCode(404)
             .get(newResource);
