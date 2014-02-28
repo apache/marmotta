@@ -59,6 +59,7 @@
         <module>marmotta-rio-vcard</module>
         <module>marmotta-sail-contextaware</module>
         <module>marmotta-sail-transactions</module>
+        <module>marmotta-sesame-matchers</module>
         <module>marmotta-util-facading</module>
         <module>marmotta-util-filter</module>
         <module>marmotta-util-tripletable</module>

@@ -1417,6 +1417,11 @@
                 <artifactId>marmotta-model-vocabs</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>marmotta-sesame-matchers</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- parsers -->
             <dependency>

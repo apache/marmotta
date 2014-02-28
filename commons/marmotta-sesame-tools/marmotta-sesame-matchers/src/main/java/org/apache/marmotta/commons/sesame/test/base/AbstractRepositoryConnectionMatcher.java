@@ -15,25 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.platform.ldp.webservices.util;
+package org.apache.marmotta.commons.sesame.test.base;
 
-import org.openrdf.repository.Repository;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFParseException;
-
-import java.io.IOException;
 
 /**
- * SPARQL Matcher
+ * BaseMatcher for Sesame RepositoryConnections
  */
-public abstract class SparqlMatcher extends BaseRdfMatcher {
+public abstract class AbstractRepositoryConnectionMatcher<T extends RepositoryConnection> extends SesameMatcher<T> implements Matcher<T> {
 
-    protected final String query;
-
-    protected SparqlMatcher(String baseUri, String mimeType, String query) {
-        super(baseUri, mimeType);
-        this.query = query;
+    @Override
+    protected final boolean matchesSafely(RepositoryConnection connection) {
+        try {
+            return matchesConnection(connection);
+        } catch (RuntimeException r) {
+            throw r;
+        } catch (Exception e) {
+            return false;
+        }
     }
+
+    protected abstract boolean matchesConnection(RepositoryConnection connection) throws RepositoryException;
 
 }

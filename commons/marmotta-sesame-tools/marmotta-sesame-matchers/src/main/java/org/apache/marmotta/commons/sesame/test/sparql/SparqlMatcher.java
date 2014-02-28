@@ -15,39 +15,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.platform.ldp.webservices.util;
+package org.apache.marmotta.commons.sesame.test.sparql;
 
-import org.openrdf.query.BooleanQuery;
+import org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher;
 import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 
 /**
- * Sparql ASK-Query Matcher
+ * SPARQL Matcher
  */
-public class SparqlAskMatcher extends SparqlMatcher {
-    protected SparqlAskMatcher(String baseUri, String mimeType, String query) {
-        super(baseUri, mimeType, query);
+public abstract class SparqlMatcher<T extends RepositoryConnection> extends AbstractRepositoryConnectionMatcher<T> {
+
+    protected final String baseUri;
+    protected final String query;
+
+    protected SparqlMatcher(String baseUri, String query) {
+        super();
+
+        if (query == null) throw new IllegalArgumentException("query must not be null");
+
+        this.baseUri = baseUri;
+        this.query = query;
     }
 
     @Override
-    protected boolean matches(RepositoryConnection con) throws Exception {
+    protected final boolean matchesConnection(RepositoryConnection connection) throws RepositoryException {
         try {
-            final BooleanQuery booleanQuery = con.prepareBooleanQuery(QueryLanguage.SPARQL, query, baseUri);
-
-            return booleanQuery.evaluate();
+            return matchesSPARQL(connection);
         } catch (MalformedQueryException e) {
             throw new IllegalArgumentException("Invalid SPARQL Query: " + query, e);
+        } catch (QueryEvaluationException e) {
+            throw new RepositoryException(e);
         }
     }
 
-    public static SparqlAskMatcher sparqlAsk(String mimeType, String baseUri, String askQuery) {
-        return new SparqlAskMatcher(baseUri, mimeType, askQuery);
-    }
-
-    public static SparqlAskMatcher sparqlAsk(String mimeType, String askQuery) {
-        return sparqlAsk(mimeType, "", askQuery);
-    }
-
-
+    protected abstract boolean matchesSPARQL(RepositoryConnection connection) throws MalformedQueryException, RepositoryException, QueryEvaluationException;
 }

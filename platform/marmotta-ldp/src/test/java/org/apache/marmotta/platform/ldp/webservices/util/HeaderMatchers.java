@@ -19,9 +19,7 @@ package org.apache.marmotta.platform.ldp.webservices.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.CustomTypeSafeMatcher;
-import org.hamcrest.Matcher;
+import org.hamcrest.*;
 import org.jboss.resteasy.plugins.delegates.EntityTagDelegate;
 import org.jboss.resteasy.plugins.delegates.LinkDelegate;
 
@@ -34,19 +32,29 @@ import javax.ws.rs.core.Link;
 public class HeaderMatchers {
 
     public static Matcher<String> headerPresent() {
-        return new CustomTypeSafeMatcher<String>("not to be empty") {
+        return new BaseMatcher<String>() {
             @Override
-            protected boolean matchesSafely(String item) {
-                return StringUtils.isNotBlank(item);
+            public boolean matches(Object item) {
+                return item != null && StringUtils.isNotBlank(item.toString());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("set");
             }
         };
     }
 
     public static Matcher<String> headerNotPresent() {
-        return new CustomTypeSafeMatcher<String>("to be emtpy") {
+        return new BaseMatcher<String>() {
             @Override
-            protected boolean matchesSafely(String item) {
-                return StringUtils.isBlank(item);
+            public boolean matches(Object item) {
+                return item == null || StringUtils.isBlank(item.toString());
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("absent or empty");
             }
         };
     }

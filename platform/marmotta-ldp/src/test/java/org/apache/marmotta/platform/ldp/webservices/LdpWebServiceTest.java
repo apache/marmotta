@@ -19,10 +19,10 @@ package org.apache.marmotta.platform.ldp.webservices;
 
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.sesame.test.SesameMatchers;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
-import org.apache.marmotta.platform.ldp.webservices.util.HasStatementMatcher;
 import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
 import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
-
-import static org.apache.marmotta.platform.ldp.webservices.util.HasStatementMatcher.hasStatement;
 
 /**
  * Testing LDP web services
@@ -113,10 +111,10 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(
-                        hasStatement(mimeType, baseUrl + container, new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
-                        hasStatement(mimeType, baseUrl + container, new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer)
-                )
+                .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl+container,
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer)
+                ))
                 .get(container);
 
         // also the new resource exists
@@ -131,10 +129,10 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(
-                        hasStatement(mimeType, baseUrl + newResource, new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
-                        hasStatement(mimeType, baseUrl + newResource, new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource)
-                )
+                .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl + container,
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource)
+                ))
             .get(newResource);
 
         // delete
@@ -143,6 +141,7 @@ public class LdpWebServiceTest {
                 .statusCode(204)
                 .header("Link", HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"))
                 .header("ETag", HeaderMatchers.headerNotPresent())
+                .header("Last-Modified", HeaderMatchers.headerNotPresent())
             .delete(newResource);
 
         // now the new resource does not exist.

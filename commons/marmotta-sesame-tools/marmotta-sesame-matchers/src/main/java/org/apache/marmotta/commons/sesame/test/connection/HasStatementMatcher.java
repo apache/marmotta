@@ -15,9 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.platform.ldp.webservices.util;
+package org.apache.marmotta.commons.sesame.test.connection;
 
+import org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
@@ -27,15 +29,15 @@ import org.openrdf.repository.RepositoryException;
 /**
  * Has Statement Matcher
  */
-public class HasStatementMatcher extends BaseRdfMatcher {
+public class HasStatementMatcher<T extends RepositoryConnection> extends AbstractRepositoryConnectionMatcher<T> {
 
     private final Resource subject;
     private final URI predicate;
     private final Value object;
     private final Resource[] contexts;
 
-    protected HasStatementMatcher(String mimeType, String baseUri, Resource subject, URI predicate, Value object, Resource... contexts) {
-        super(mimeType, baseUri);
+    protected HasStatementMatcher(Resource subject, URI predicate, Value object, Resource... contexts) {
+        super();
         this.subject = subject;
         this.predicate = predicate;
         this.object = object;
@@ -43,25 +45,20 @@ public class HasStatementMatcher extends BaseRdfMatcher {
     }
 
     @Override
-    protected boolean matches(RepositoryConnection con) throws RepositoryException {
+    protected boolean matchesConnection(RepositoryConnection con) throws RepositoryException {
         return con.hasStatement(subject, predicate, object, true, contexts);
     }
 
     @Override
     public void describeTo(Description description) {
-        super.describeTo(description);
-        description.appendText(" containing a Statement(")
+        description.appendText(" to contain Statement(")
                 .appendValue(subject).appendText(" ")
                 .appendValue(predicate).appendText(" ")
                 .appendValue(object).appendText(")");
     }
 
 
-    public static HasStatementMatcher hasStatement(String mimeType, Resource subject, URI predicate, Value object) {
-        return hasStatement(mimeType, "", subject, predicate, object);
-    }
-
-    public static HasStatementMatcher hasStatement(String mimeType, String baseUri, Resource subject, URI predicate, Value object) {
-        return new HasStatementMatcher(mimeType, baseUri, subject, predicate, object);
+    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+        return new HasStatementMatcher<T>(subject, predicate, object, contexts);
     }
 }
