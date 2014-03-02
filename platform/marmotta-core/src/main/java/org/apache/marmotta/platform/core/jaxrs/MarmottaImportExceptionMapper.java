@@ -19,7 +19,6 @@ package org.apache.marmotta.platform.core.jaxrs;
 
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
