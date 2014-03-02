@@ -59,6 +59,10 @@ public interface LdpService {
 
     void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
+    void exportResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException;
+
+    void exportResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException;
+
     EntityTag generateETag(RepositoryConnection connection, String uri) throws RepositoryException;
 
     EntityTag generateETag(RepositoryConnection connection, URI uri) throws RepositoryException;

@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldp.api;
 
 import org.openrdf.model.URI;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 
@@ -33,8 +34,8 @@ public interface LdpBinaryStoreService {
 
     boolean store(URI resource, InputStream stream);
 
-    InputStream read(String resource);
+    InputStream read(String resource) throws IOException;
 
-    InputStream read(URI resource);
+    InputStream read(URI resource) throws IOException;
 
 }

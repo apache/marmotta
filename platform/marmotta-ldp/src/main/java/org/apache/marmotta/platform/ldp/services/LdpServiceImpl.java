@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.ldp.services;
 import info.aduna.iteration.FilterIteration;
 import info.aduna.iteration.Iterations;
 import info.aduna.iteration.UnionIteration;
+import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -124,6 +125,23 @@ public class LdpServiceImpl implements LdpService {
         } finally {
             union.close();
         }
+    }
+
+    @Override
+    public void exportResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException {
+        //TODO: check (resource, dct:format, type)
+        InputStream in = binaryStore.read(resource);
+        if (in != null) {
+            IOUtils.copy(in, out);
+        } else {
+            throw new IOException("Cannot read reosurce " + resource);
+        }
+
+    }
+
+    @Override
+    public void exportResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException {
+        exportResource(connection, resource.stringValue(), out);
     }
 
     @Override

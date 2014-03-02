@@ -114,9 +114,19 @@ public class LdpWebService {
 
             final RDFFormat format = Rio.getWriterFormatForMIMEType(type.toString(), RDFFormat.TURTLE);
             if (format == null) {
-                log.warn("GET to <{}> with unknown accept {}", resource, type);
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_IMPLEMENTED, resource);
-                con.rollback();
+                log.warn("GET to <{}> with non-RDF format {}, so looking for a LDP-BR", resource, type);
+                final StreamingOutput entity = new StreamingOutput() {
+                    @Override
+                    public void write(OutputStream out) throws IOException, WebApplicationException {
+                        try {
+                            ldpService.exportResource(con, resource, out);
+                        } catch (RepositoryException | IOException e) {
+                            throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
+                        }
+                    }
+                };
+                final Response.ResponseBuilder resp = createResponse(con, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
+                con.commit();
                 return resp;
             } else {
                 // Deliver all triples with <subject> as subject.

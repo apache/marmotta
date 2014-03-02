@@ -96,12 +96,22 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     }
 
     @Override
-    public InputStream read(String resource) {
-        return null;
+    public InputStream read(String resource) throws IOException {
+        try {
+            File file = getFile(resource);
+            if (!file.exists()) {
+                throw new IOException("File " + file.getAbsolutePath() + " not found");
+            } else {
+                return new FileInputStream(file);
+            }
+        } catch (URISyntaxException e) {
+            log.error("Error reading resource {}: {}", resource, e.getMessage());
+            return null;
+        }
     }
 
     @Override
-    public InputStream read(URI resource) {
+    public InputStream read(URI resource) throws IOException {
         return read(resource.stringValue());
     }
 
