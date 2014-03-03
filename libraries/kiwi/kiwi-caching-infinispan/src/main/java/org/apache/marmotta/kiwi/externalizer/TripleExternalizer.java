@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.externalizer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.io.DataIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
@@ -49,7 +50,7 @@ public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
 
     @Override
     public Integer getId() {
-        return 13;
+        return ExternalizerIds.TRIPLE;
     }
 
     @Override
@@ -64,19 +65,16 @@ public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
             String prefix = StringUtils.getCommonPrefix(sUri,oUri);
 
             output.writeByte(MODE_PREFIX);
-            output.writeInt(prefix.length());
-            output.writeChars(prefix);
+            DataIO.writeString(output,prefix);
 
             output.writeLong(object.getSubject().getId());
-            output.writeInt(sUri.length() - prefix.length());
-            output.writeChars(sUri.substring(prefix.length()));
+            DataIO.writeString(output, sUri.substring(prefix.length()));
             output.writeLong(object.getSubject().getCreated().getTime());
 
             output.writeObject(object.getPredicate());
 
             output.writeLong(object.getObject().getId());
-            output.writeInt(oUri.length() - prefix.length());
-            output.writeChars(oUri.substring(prefix.length()));
+            DataIO.writeString(output, oUri.substring(prefix.length()));
             output.writeLong(object.getObject().getCreated().getTime());
         } else {
             output.writeByte(MODE_DEFAULT);
@@ -105,15 +103,33 @@ public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
         KiWiTriple result = new KiWiTriple();
         result.setId(input.readLong());
 
-        int mode = input.readInt();
+        int mode = input.readByte();
         if(mode == MODE_PREFIX) {
-            String prefix =
+            String prefix = DataIO.readString(input);
+
+            long sId = input.readLong();
+            String sUri = prefix + DataIO.readString(input);
+            long sTime = input.readLong();
+            KiWiUriResource s = new KiWiUriResource(sUri);
+            s.setId(sId);
+            s.setCreated(new Date(sTime));
+            result.setSubject(s);
+
+            result.setPredicate((KiWiUriResource) input.readObject());
+
+            long oId = input.readLong();
+            String oUri = prefix + DataIO.readString(input);
+            long oTime = input.readLong();
+            KiWiUriResource o = new KiWiUriResource(oUri);
+            o.setId(oId);
+            o.setCreated(new Date(oTime));
+            result.setObject(o);
+
+        } else {
+            result.setSubject((KiWiResource) input.readObject());
+            result.setPredicate((KiWiUriResource) input.readObject());
+            result.setObject((KiWiNode) input.readObject());
         }
-
-
-        result.setSubject((KiWiResource) input.readObject());
-        result.setPredicate((KiWiUriResource) input.readObject());
-        result.setObject((KiWiNode) input.readObject());
         result.setContext((KiWiResource) input.readObject());
         result.setCreator((KiWiResource) input.readObject());
         result.setDeleted(input.readBoolean());

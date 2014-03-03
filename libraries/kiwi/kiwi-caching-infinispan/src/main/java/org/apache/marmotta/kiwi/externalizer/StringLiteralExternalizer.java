@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.kiwi.externalizer;
 
+import org.apache.marmotta.commons.io.DataIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
@@ -49,14 +50,9 @@ public class StringLiteralExternalizer implements AdvancedExternalizer<KiWiStrin
     @Override
     public void writeObject(ObjectOutput output, KiWiStringLiteral object) throws IOException {
         output.writeLong(object.getId());
-        output.writeInt(object.getContent().length());
-        output.writeChars(object.getContent());
-        if(object.getLanguage() != null) {
-            output.writeInt(object.getLanguage().length());
-            output.writeChars(object.getLanguage());
-        } else {
-            output.writeInt(0);
-        }
+
+        DataIO.writeString(output, object.getContent());
+        DataIO.writeString(output, object.getLanguage());
 
         output.writeObject(object.getDatatype());
 
@@ -67,27 +63,15 @@ public class StringLiteralExternalizer implements AdvancedExternalizer<KiWiStrin
     @Override
     public KiWiStringLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
         long id = input.readLong();
-        int clen = input.readInt();
-        char[] content = new char[clen];
-        for(int i=0; i<clen; i++) {
-            content[i]=input.readChar();
-        }
 
-        int llen = input.readInt();
-        String lang = null;
-        if(llen > 0) {
-            char[] lb = new char[llen];
-            for(int i=0; i<llen; i++) {
-                lb[i] = input.readChar();
-            }
-            lang = new String(lb);
-        }
+        String content = DataIO.readString(input);
+        String lang    = DataIO.readString(input);
 
         KiWiUriResource dtype = (KiWiUriResource) input.readObject();
 
         Date created = new Date(input.readLong());
 
-        KiWiStringLiteral r = new KiWiStringLiteral(new String(content), lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
+        KiWiStringLiteral r = new KiWiStringLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
         r.setId(id);
 
         return r;

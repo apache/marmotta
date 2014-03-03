@@ -24,6 +24,8 @@ package org.apache.marmotta.kiwi.externalizer;
  */
 public class ExternalizerIds {
 
+    public static final int TRIPLE = 13;
+
     public static final int URI = 17;
 
     public static final int BNODE = 23;

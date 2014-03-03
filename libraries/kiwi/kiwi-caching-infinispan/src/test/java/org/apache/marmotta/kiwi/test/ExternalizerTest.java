@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.test.externalizer;
+package org.apache.marmotta.kiwi.test;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.externalizer.*;
 import org.apache.marmotta.kiwi.model.rdf.*;
-import org.apache.marmotta.kiwi.test.TestValueFactory;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.marshall.StreamingMarshaller;
 import org.infinispan.configuration.cache.CacheMode;
@@ -35,6 +35,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.OWL;
+import org.openrdf.model.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +68,8 @@ public class ExternalizerTest {
                 new DateLiteralExternalizer(),
                 new BooleanLiteralExternalizer(),
                 new IntLiteralExternalizer(),
-                new DoubleLiteralExternalizer()
+                new DoubleLiteralExternalizer(),
+                new TripleExternalizer()
         };
 
 
@@ -93,6 +96,14 @@ public class ExternalizerTest {
     public void testUriResource() throws Exception {
         marshall((KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriExternalizer());
     }
+
+    @Test
+    public void testCompressedUriResource() throws Exception {
+        marshall((KiWiUriResource) valueFactory.createURI(XSD.Double.stringValue()), new UriExternalizer());
+        marshall((KiWiUriResource) valueFactory.createURI(RDFS.LABEL.stringValue()), new UriExternalizer());
+        marshall((KiWiUriResource) valueFactory.createURI(OWL.SAMEAS.stringValue()), new UriExternalizer());
+    }
+
 
     @Test
     public void testBNode() throws Exception {
@@ -130,6 +141,17 @@ public class ExternalizerTest {
 
         marshall(t, new TripleExternalizer());
     }
+
+    @Test
+    public void testPrefixCompressedTriple() throws Exception {
+        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource o = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
+
+        marshall(t, new TripleExternalizer());
+    }
+
 
     /**
      * Run the given object through the marshaller using an in-memory stream.
