@@ -17,10 +17,28 @@
 
 package org.apache.marmotta.kiwi.hazelcast.caching;
 
+import org.apache.marmotta.kiwi.caching.CacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManagerFactory;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class HazelcastCacheManagerFactory {
+public class HazelcastCacheManagerFactory implements CacheManagerFactory {
+
+    public HazelcastCacheManagerFactory() {
+    }
+
+    /**
+     * Create a new cache manager instance using the KiWiConfiguration passed as argument.
+     *
+     * @param configuration KiWi configuration used by the underlying triple store
+     * @return a new cache manager instance for this triple store
+     */
+    @Override
+    public CacheManager createCacheManager(KiWiConfiguration configuration) {
+        return new HazelcastCacheManager(configuration);
+    }
 }
