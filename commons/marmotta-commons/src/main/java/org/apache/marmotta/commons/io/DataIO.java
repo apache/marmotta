@@ -33,7 +33,9 @@ public class DataIO {
     public static void writeString(DataOutput out, String s) throws IOException {
         if(s != null) {
             out.writeInt(s.length());
-            out.writeChars(s);
+            for(int i=0; i<s.length(); i++) {
+                out.writeChar(s.charAt(i));
+            }
         } else {
             out.writeInt(-1);
         }
@@ -44,11 +46,12 @@ public class DataIO {
         int len = in.readInt();
 
         if(len >= 0) {
-            StringBuilder builder = new StringBuilder();
+            char[] result = new char[len];
+
             for(int i=0; i<len; i++) {
-                builder.append(in.readChar());
+                result[i] = in.readChar();
             }
-            return builder.toString();
+            return new String(result);
         } else {
             return null;
         }

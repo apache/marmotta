@@ -129,7 +129,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                 .build();
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        log.info("initialised local cache manager");
+        log.info("initialised Infinispan local cache manager");
     }
 
     /**
@@ -182,7 +182,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                 .build();
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        log.info("initialised distributed cache manager (cluster name: {})",  globalConfiguration.transport().clusterName());
+        log.info("initialised Infinispan distributed cache manager (cluster name: {})",  globalConfiguration.transport().clusterName());
 
     }
 
@@ -229,7 +229,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                 .build();
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        log.info("initialised replicated cache manager (cluster name: {})",  globalConfiguration.transport().clusterName());
+        log.info("initialised Infinispan replicated cache manager (cluster name: {})",  globalConfiguration.transport().clusterName());
     }
 
 

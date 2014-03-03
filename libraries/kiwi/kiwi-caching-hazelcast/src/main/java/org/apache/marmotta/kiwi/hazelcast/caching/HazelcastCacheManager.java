@@ -18,11 +18,19 @@
 package org.apache.marmotta.kiwi.hazelcast.caching;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.marmotta.kiwi.caching.CacheManager;
+import org.apache.marmotta.kiwi.config.CacheMode;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.hazelcast.serializer.*;
+import org.apache.marmotta.kiwi.hazelcast.util.AsyncMap;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -33,16 +41,56 @@ import java.util.Map;
  */
 public class HazelcastCacheManager implements CacheManager {
 
+    public static final String TRIPLE_CACHE = "triple-cache";
+    public static final String URI_CACHE = "uri-cache";
+    public static final String BNODE_CACHE = "bnode-cache";
+    public static final String LITERAL_CACHE = "literal-cache";
+    public static final String NODE_CACHE = "node-cache";
+    public static final String NS_PREFIX_CACHE = "ns-prefix-cache";
+    public static final String NS_URI_CACHE = "ns-uri-cache";
+    public static final String REGISTRY_CACHE = "registry-cache";
+
+    private static Logger log = LoggerFactory.getLogger(HazelcastCacheManager.class);
+
     private KiWiConfiguration configuration;
 
     private Config hcConfiguration;
+
+    private HazelcastInstance hazelcast;
+
+    private AsyncMap<Long,KiWiNode> nodeCache;
+    private AsyncMap<Long,KiWiTriple> tripleCache;
+    private AsyncMap<String,KiWiUriResource> uriCache;
+    private AsyncMap<String,KiWiAnonResource> bnodeCache;
+    private AsyncMap<String,KiWiLiteral> literalCache;
+    private AsyncMap<String,KiWiNamespace> nsPrefixCache;
+    private AsyncMap<String,KiWiNamespace> nsUriCache;
+
+    private Map<Long,Long> registryCache;
 
     public HazelcastCacheManager(KiWiConfiguration configuration) {
         this.configuration = configuration;
 
         hcConfiguration = new Config();
+        hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(true);
+        hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setMulticastPort(configuration.getClusterPort());
+        hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setMulticastGroup(configuration.getClusterAddress());
+        hcConfiguration.getGroupConfig().setName(configuration.getClusterName());
+
+
+
 
         setupSerializers();
+        setupCaches();
+
+        hazelcast = Hazelcast.newHazelcastInstance(hcConfiguration);
+
+
+        log.info("initialised Hazelcast distributed cache manager (cluster name: {})",  configuration.getClusterName());
+
+        if(configuration.getCacheMode() != CacheMode.DISTRIBUTED) {
+            log.warn("Hazelcast only supports distributed cache mode (mode configuration was {})", configuration.getCacheMode());
+        }
     }
 
     private void setupSerializers() {
@@ -71,6 +119,30 @@ public class HazelcastCacheManager implements CacheManager {
         hcConfiguration.getSerializationConfig().addSerializerConfig(scUri);
     }
 
+    private void setupCaches() {
+        setupMapConfig(NODE_CACHE, configuration.getNodeCacheSize());
+        setupMapConfig(TRIPLE_CACHE, configuration.getTripleCacheSize());
+        setupMapConfig(URI_CACHE, configuration.getUriCacheSize());
+        setupMapConfig(BNODE_CACHE, configuration.getBNodeCacheSize());
+        setupMapConfig(LITERAL_CACHE, configuration.getLiteralCacheSize());
+        setupMapConfig(NS_PREFIX_CACHE, configuration.getNamespaceCacheSize());
+        setupMapConfig(NS_URI_CACHE, configuration.getNamespaceCacheSize());
+
+    }
+
+
+    private void setupMapConfig(String name, int size) {
+        MapConfig cfg = new MapConfig(NODE_CACHE);
+        cfg.setMaxSizeConfig(new MaxSizeConfig(size, MaxSizeConfig.MaxSizePolicy.PER_PARTITION));
+        cfg.setAsyncBackupCount(1);
+        cfg.setBackupCount(0);
+        cfg.setEvictionPolicy(MapConfig.EvictionPolicy.LRU);
+        cfg.setMaxIdleSeconds(600);     // 10 minutes
+        cfg.setTimeToLiveSeconds(3600); // 1 hour
+
+        hcConfiguration.addMapConfig(cfg);
+    }
+
     /**
      * Return the node id -> node cache from the cache manager. This cache is heavily used to lookup
      * nodes when querying or loading triples and should therefore have a decent size (default 500.000 elements).
@@ -79,7 +151,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<Long, KiWiNode> getNodeCache() {
-        return null;
+        if(nodeCache == null) {
+            nodeCache = new AsyncMap<>(hazelcast.<Long,KiWiNode>getMap(NODE_CACHE));
+        }
+
+        return nodeCache;
     }
 
     /**
@@ -90,7 +166,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<Long, KiWiTriple> getTripleCache() {
-        return null;
+        if(tripleCache == null) {
+            tripleCache = new AsyncMap<>(hazelcast.<Long,KiWiTriple>getMap(TRIPLE_CACHE));
+        }
+
+        return tripleCache;
     }
 
     /**
@@ -101,7 +181,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiUriResource> getUriCache() {
-        return null;
+        if(uriCache == null) {
+            uriCache = new AsyncMap<>(hazelcast.<String,KiWiUriResource>getMap(URI_CACHE));
+        }
+
+        return uriCache;
     }
 
     /**
@@ -112,7 +196,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiAnonResource> getBNodeCache() {
-        return null;
+        if(bnodeCache == null) {
+            bnodeCache = new AsyncMap<>(hazelcast.<String,KiWiAnonResource>getMap(BNODE_CACHE));
+        }
+
+        return bnodeCache;
     }
 
     /**
@@ -124,7 +212,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiLiteral> getLiteralCache() {
-        return null;
+        if(literalCache == null) {
+            literalCache = new AsyncMap<>(hazelcast.<String,KiWiLiteral>getMap(LITERAL_CACHE));
+        }
+
+        return literalCache;
     }
 
     /**
@@ -134,7 +226,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiNamespace> getNamespaceUriCache() {
-        return null;
+        if(nsUriCache == null) {
+            nsUriCache = new AsyncMap<>(hazelcast.<String,KiWiNamespace>getMap(NS_URI_CACHE));
+        }
+
+        return nsUriCache;
     }
 
     /**
@@ -144,7 +240,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiNamespace> getNamespacePrefixCache() {
-        return null;
+        if(nsPrefixCache == null) {
+            nsPrefixCache = new AsyncMap<>(hazelcast.<String,KiWiNamespace>getMap(NS_PREFIX_CACHE));
+        }
+
+        return nsPrefixCache;
     }
 
     /**
@@ -155,7 +255,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map<Long, Long> getRegistryCache() {
-        return null;
+        if(registryCache == null) {
+            registryCache = hazelcast.<Long, Long>getMap(REGISTRY_CACHE);
+        }
+
+        return registryCache;
     }
 
     /**
@@ -167,7 +271,7 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public Map getCacheByName(String name) {
-        return null;
+        return hazelcast.getMap(name);
     }
 
     /**
@@ -175,7 +279,11 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public void clear() {
-
+        for(Map m : new Map[] { nodeCache, tripleCache, uriCache, bnodeCache, literalCache, nsPrefixCache, nsUriCache, registryCache}) {
+            if(m != null) {
+                m.clear();
+            }
+        }
     }
 
     /**
@@ -183,6 +291,6 @@ public class HazelcastCacheManager implements CacheManager {
      */
     @Override
     public void shutdown() {
-
+        hazelcast.shutdown();
     }
 }
