@@ -131,10 +131,10 @@ public class KiWiPersistence {
     private void initCachePool() {
 
         try {
-            Class factory = Class.forName(configuration.getCacheManagerFactory());
+            Class factory = Class.forName(configuration.getCacheManager().getFactoryClass());
             cacheManager = ((CacheManagerFactory)factory.newInstance()).createCacheManager(configuration);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!", configuration.getCacheManagerFactory(), e.getMessage());
+            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!", configuration.getCacheManager(), e.getMessage());
 
             CacheManagerFactory factory = new GuavaCacheManagerFactory();
             cacheManager = factory.createCacheManager(configuration);

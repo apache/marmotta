@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.config;
 
+import org.apache.marmotta.kiwi.caching.CacheManagerType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class KiWiConfiguration {
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    private String cacheManagerFactory = "org.apache.marmotta.kiwi.caching.GuavaCacheManagerFactory";
+    private CacheManagerType cacheManager = CacheManagerType.GUAVA;
 
     private int nodeCacheSize = 1000000;
 
@@ -300,16 +301,16 @@ public class KiWiConfiguration {
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    public String getCacheManagerFactory() {
-        return cacheManagerFactory;
+    public CacheManagerType getCacheManager() {
+        return cacheManager;
     }
 
     /**
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    public void setCacheManagerFactory(String cacheManagerFactory) {
-        this.cacheManagerFactory = cacheManagerFactory;
+    public void setCacheManager(CacheManagerType cacheManager) {
+        this.cacheManager = cacheManager;
     }
 
     /**

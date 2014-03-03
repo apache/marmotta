@@ -58,7 +58,7 @@ public class ClusterTest {
                 new H2Dialect());
         config1.setDatacenterId(1);
         config1.setClustered(true);
-        config1.setCacheManagerFactory(InfinispanEmbeddedCacheManagerFactory.class.getName());
+        config1.setCacheManager(InfinispanEmbeddedCacheManagerFactory.class.getName());
 
         config2 = new KiWiConfiguration(
                 "default-H2",
@@ -67,7 +67,7 @@ public class ClusterTest {
                 new H2Dialect());
         config2.setDatacenterId(2);
         config2.setClustered(true);
-        config2.setCacheManagerFactory(InfinispanEmbeddedCacheManagerFactory.class.getName());
+        config2.setCacheManager(InfinispanEmbeddedCacheManagerFactory.class.getName());
 
 
 
