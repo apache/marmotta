@@ -85,10 +85,10 @@ public class MarmottaStartupService {
     /**
      * Startup the Apache Marmotta Configuration. This method ensures that the Apache Marmotta home directory is created and the
      * ConfigurationService is properly initialised. It must be called first in the startup sequence.
-     * The parameters lmfHome and configurationOverride can be used to override the default settings
+     * The parameters home and configurationOverride can be used to override the default settings
      * of the Apache Marmotta.
      *
-     * @param lmfHome                 home directory of the Apache Marmotta instance (may be null, in which case the default will be used)
+     * @param home                    home directory of the Apache Marmotta instance (may be null, in which case the default will be used)
      * @param configurationOverride   configuration options that should override the default values from default-config.properties (may be null)
      * @param context                 the servlet context the Apache Marmotta is running in (may be null)
      */
