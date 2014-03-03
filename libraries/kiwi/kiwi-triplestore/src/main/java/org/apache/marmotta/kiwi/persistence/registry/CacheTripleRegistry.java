@@ -18,8 +18,7 @@
 package org.apache.marmotta.kiwi.persistence.registry;
 
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
-import org.infinispan.Cache;
+import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +37,13 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
 
     private static Logger log = LoggerFactory.getLogger(CacheTripleRegistry.class);
 
-    private Cache<Long,Long> cache;
+    private Map<Long,Long> cache;
 
 
     private Map<Long,List<Long>>  transactions;
 
 
-    public CacheTripleRegistry(KiWiCacheManager cacheManager) {
+    public CacheTripleRegistry(CacheManager cacheManager) {
         cache        = cacheManager.getRegistryCache();
         transactions = new HashMap<>();
 
@@ -65,7 +64,7 @@ public class CacheTripleRegistry implements KiWiTripleRegistry {
             transaction = new ArrayList<>();
             transactions.put(transactionId, transaction);
         }
-        cache.putForExternalRead(key.longHashCode(),tripleId);
+        cache.put(key.longHashCode(), tripleId);
         transaction.add(key.longHashCode());
     }
 

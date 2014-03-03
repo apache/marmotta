@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.caching;
+package org.apache.marmotta.kiwi.externalizer;
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
@@ -33,22 +33,22 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class DateLiteralExternalizer implements AdvancedExternalizer<KiWiDateLiteral> {
+public class BooleanLiteralExternalizer implements AdvancedExternalizer<KiWiBooleanLiteral> {
 
     @Override
-    public Set<Class<? extends KiWiDateLiteral>> getTypeClasses() {
-        return Util.<Class<? extends KiWiDateLiteral>>asSet(KiWiDateLiteral.class);
+    public Set<Class<? extends KiWiBooleanLiteral>> getTypeClasses() {
+        return Util.<Class<? extends KiWiBooleanLiteral>>asSet(KiWiBooleanLiteral.class);
     }
 
     @Override
     public Integer getId() {
-        return ExternalizerIds.DATE_LITERAL;
+        return ExternalizerIds.BOOL_LITERAL;
     }
 
     @Override
-    public void writeObject(ObjectOutput output, KiWiDateLiteral object) throws IOException {
+    public void writeObject(ObjectOutput output, KiWiBooleanLiteral object) throws IOException {
         output.writeLong(object.getId());
-        output.writeLong(object.getDateContent().getTime());
+        output.writeBoolean(object.booleanValue());
         output.writeObject(object.getDatatype());
 
         output.writeLong(object.getCreated().getTime());
@@ -56,15 +56,15 @@ public class DateLiteralExternalizer implements AdvancedExternalizer<KiWiDateLit
     }
 
     @Override
-    public KiWiDateLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
+    public KiWiBooleanLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
         long id = input.readLong();
-        Date content = new Date(input.readLong());
+        boolean content = input.readBoolean();
 
         KiWiUriResource dtype = (KiWiUriResource) input.readObject();
 
         Date created = new Date(input.readLong());
 
-        KiWiDateLiteral r = new KiWiDateLiteral(content, dtype, created);
+        KiWiBooleanLiteral r = new KiWiBooleanLiteral(content, dtype, created);
         r.setId(id);
 
         return r;

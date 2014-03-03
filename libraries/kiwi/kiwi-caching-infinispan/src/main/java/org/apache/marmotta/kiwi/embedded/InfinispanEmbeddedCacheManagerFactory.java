@@ -15,27 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.caching;
+package org.apache.marmotta.kiwi.embedded;
+
+import org.apache.marmotta.kiwi.caching.CacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManagerFactory;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class ExternalizerIds {
+public class InfinispanEmbeddedCacheManagerFactory implements CacheManagerFactory {
 
-    public static final int URI = 17;
+    public InfinispanEmbeddedCacheManagerFactory() {
+    }
 
-    public static final int BNODE = 23;
-
-    public static final int STRING_LITERAL = 19;
-
-    public static final int INT_LITERAL = 39;
-
-    public static final int DOUBLE_LITERAL = 37;
-
-    public static final int DATE_LITERAL = 29;
-
-    public static final int BOOL_LITERAL = 31;
-
+    /**
+     * Create a new cache manager instance using the KiWiConfiguration passed as argument.
+     *
+     * @param configuration KiWi configuration used by the underlying triple store
+     * @return a new cache manager instance for this triple store
+     */
+    @Override
+    public CacheManager createCacheManager(KiWiConfiguration configuration) {
+        return new InfinispanEmbeddedCacheManager(configuration);
+    }
 }

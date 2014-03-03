@@ -18,8 +18,6 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import com.google.common.base.Preconditions;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
 import com.google.common.primitives.Longs;
 import info.aduna.iteration.*;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -27,13 +25,12 @@ import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.commons.util.DateUtils;
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
-import org.infinispan.Cache;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -65,47 +62,47 @@ public class KiWiConnection implements AutoCloseable {
 
     protected KiWiPersistence  persistence;
 
-    protected KiWiCacheManager cacheManager;
+    protected CacheManager cacheManager;
 
     protected TripleTable<KiWiTriple> tripleBatch;
 
     /**
      * Cache nodes by database ID
      */
-    private Cache<Long,KiWiNode> nodeCache;
+    private Map<Long,KiWiNode> nodeCache;
 
     /**
      * Cache triples by database ID
      */
-    private Cache<Long,KiWiTriple> tripleCache;
+    private Map<Long,KiWiTriple> tripleCache;
 
 
     /**
      * Cache URI resources by uri
      */
-    private Cache<Long,KiWiUriResource> uriCache;
+    private Map<String,KiWiUriResource> uriCache;
 
 
     /**
      * Cache BNodes by BNode ID
      */
-    private Cache<Long,KiWiAnonResource> bnodeCache;
+    private Map<String,KiWiAnonResource> bnodeCache;
 
     /**
      * Cache literals by literal cache key (LiteralCommons#createCacheKey(String,Locale,URI))
      */
-    private Cache<String,KiWiLiteral> literalCache;
+    private Map<String,KiWiLiteral> literalCache;
 
 
     /**
      * Look up namespaces by URI
      */
-    private Cache<String,KiWiNamespace> namespaceUriCache;
+    private Map<String,KiWiNamespace> namespaceUriCache;
 
     /**
      * Look up namespaces by prefix
      */
-    private Cache<String,KiWiNamespace> namespacePrefixCache;
+    private Map<String,KiWiNamespace> namespacePrefixCache;
 
     /**
      * Cache instances of locales for language tags
@@ -141,7 +138,7 @@ public class KiWiConnection implements AutoCloseable {
 
     private int QUERY_BATCH_SIZE = 1024;
 
-    public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
+    public KiWiConnection(KiWiPersistence persistence, KiWiDialect dialect, CacheManager cacheManager) throws SQLException {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
         this.persistence  = persistence;
@@ -211,7 +208,7 @@ public class KiWiConnection implements AutoCloseable {
      * Return the cache manager used by this connection
      * @return
      */
-    public KiWiCacheManager getCacheManager() {
+    public CacheManager getCacheManager() {
         return cacheManager;
     }
 
@@ -571,7 +568,7 @@ public class KiWiConnection implements AutoCloseable {
         Preconditions.checkNotNull(uri);
 
         // look in cache
-        KiWiUriResource element = uriCache.get(createCacheKey(uri));
+        KiWiUriResource element = uriCache.get(uri);
         if(element != null) {
             return element;
         }
@@ -617,7 +614,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiAnonResource loadAnonResource(String id) throws SQLException {
         // look in cache
-        KiWiAnonResource element = bnodeCache.get(createCacheKey(id));
+        KiWiAnonResource element = bnodeCache.get(id);
         if(element != null) {
             return element;
         }
@@ -1272,7 +1269,6 @@ public class KiWiConnection implements AutoCloseable {
 
                     if (triple.getId() < 0) {
                         log.warn("attempting to remove non-persistent triple: {}", triple);
-                        removeCachedTriple(triple);
                     } else {
                         if (batchCommit) {
                             // need to remove from triple batch and from database
@@ -1302,8 +1298,8 @@ public class KiWiConnection implements AutoCloseable {
 
 
                         }
-                        removeCachedTriple(triple);
                     }
+                    removeCachedTriple(triple);
                 }
 
                 return null;
@@ -2035,26 +2031,26 @@ public class KiWiConnection implements AutoCloseable {
 
     private void cacheNode(KiWiNode node) {
         if(node.getId() >= 0) {
-            nodeCache.putForExternalRead(node.getId(), node);
+            nodeCache.put(node.getId(), node);
         }
         if(node instanceof KiWiUriResource) {
-            uriCache.putForExternalRead(createCacheKey(node.stringValue()), (KiWiUriResource) node);
+            uriCache.put(node.stringValue(), (KiWiUriResource) node);
         } else if(node instanceof KiWiAnonResource) {
-            bnodeCache.putForExternalRead(createCacheKey(node.stringValue()), (KiWiAnonResource) node);
+            bnodeCache.put(node.stringValue(), (KiWiAnonResource) node);
         } else if(node instanceof KiWiLiteral) {
-            literalCache.putForExternalRead(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
+            literalCache.put(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral) node);
         }
     }
 
     private void cacheTriple(KiWiTriple triple) {
         if(triple.getId() >= 0) {
-            tripleCache.putForExternalRead(triple.getId(), triple);
+            tripleCache.put(triple.getId(), triple);
         }
     }
 
     private void removeCachedTriple(KiWiTriple triple) {
         if(triple.getId() >= 0) {
-            tripleCache.removeAsync(triple.getId());
+            tripleCache.remove(triple.getId());
         }
     }
 
@@ -2567,12 +2563,6 @@ public class KiWiConnection implements AutoCloseable {
 
         }
 
-    }
-
-    private static Long createCacheKey(String svalue) {
-        Hasher hasher = Hashing.goodFastHash(64).newHasher();
-        hasher.putString(svalue);
-        return hasher.hash().asLong();
     }
 
 

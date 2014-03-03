@@ -91,6 +91,14 @@ public class KiWiConfiguration {
     private String[] fulltextLanguages;
 
 
+    /**
+     * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
+     * cache manager if not found
+     */
+    private String cacheManagerFactory = "org.apache.marmotta.kiwi.caching.GuavaCacheManagerFactory";
+
+    private int nodeCacheSize = 1000000;
+
     private int uriCacheSize = 500000;
 
     private int bNodeCacheSize = 10000;
@@ -287,6 +295,37 @@ public class KiWiConfiguration {
         this.fulltextLanguages = new ArrayList<String>(fulltextLanguages).toArray(new String[fulltextLanguages.size()]);
     }
 
+
+    /**
+     * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
+     * cache manager if not found
+     */
+    public String getCacheManagerFactory() {
+        return cacheManagerFactory;
+    }
+
+    /**
+     * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
+     * cache manager if not found
+     */
+    public void setCacheManagerFactory(String cacheManagerFactory) {
+        this.cacheManagerFactory = cacheManagerFactory;
+    }
+
+    /**
+     * The maximum size of the node ID cache used by the KiWiValueFactory (default: 1000000)
+     * @return
+     */
+    public int getNodeCacheSize() {
+        return nodeCacheSize;
+    }
+
+    /**
+     * The maximum size of the node ID cache used by the KiWiValueFactory (default: 1000000)
+     */
+    public void setNodeCacheSize(int nodeCacheSize) {
+        this.nodeCacheSize = nodeCacheSize;
+    }
 
     /**
      * The maximum size of the literal cache used by the KiWiValueFactory (default: 100000)

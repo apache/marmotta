@@ -18,7 +18,6 @@
 package org.apache.marmotta.kiwi.test.externalizer;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.caching.*;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;

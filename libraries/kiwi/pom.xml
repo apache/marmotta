@@ -111,6 +111,8 @@
 
     <modules>
         <module>kiwi-triplestore</module>
+        <module>kiwi-caching-infinispan</module>
+        <module>kiwi-caching-hazelcast</module>
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
         <module>kiwi-sparql</module>

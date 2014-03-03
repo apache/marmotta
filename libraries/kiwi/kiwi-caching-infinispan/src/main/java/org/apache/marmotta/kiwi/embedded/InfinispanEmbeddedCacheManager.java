@@ -15,10 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.caching;
+package org.apache.marmotta.kiwi.embedded;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.externalizer.*;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.infinispan.Cache;
 import org.infinispan.commons.CacheException;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
@@ -49,9 +52,9 @@ import static org.apache.marmotta.kiwi.config.CacheMode.REPLICATED;
  * <p/>
  * Author: Sebastian Schaffert
  */
-public class KiWiCacheManager {
+public class InfinispanEmbeddedCacheManager implements CacheManager {
 
-    private static Logger log = LoggerFactory.getLogger(KiWiCacheManager.class);
+    private static Logger log = LoggerFactory.getLogger(InfinispanEmbeddedCacheManager.class);
 
     public static final String NODE_CACHE = "node-cache";
     public static final String TRIPLE_CACHE = "triple-cache";
@@ -74,6 +77,8 @@ public class KiWiCacheManager {
 
     private KiWiConfiguration kiWiConfiguration;
 
+    private KiWiPersistence persistence;
+
 
     private Cache nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, loaderCache, registryCache;
 
@@ -83,21 +88,21 @@ public class KiWiCacheManager {
      *
      * @param config
      */
-    public KiWiCacheManager(KiWiConfiguration config, AdvancedExternalizer...externalizers) {
+    public InfinispanEmbeddedCacheManager(KiWiConfiguration config) {
 
         this.clustered = config.isClustered();
         this.kiWiConfiguration = config;
 
         if(clustered && (config.getCacheMode() == DISTRIBUTED || config.getCacheMode() == REPLICATED)) {
             try {
-                String jgroupsXml = IOUtils.toString(KiWiCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
+                String jgroupsXml = IOUtils.toString(InfinispanEmbeddedCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
 
                 jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", config.getClusterAddress()));
                 jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", config.getClusterPort()));
 
 
                 globalConfiguration = new GlobalConfigurationBuilder()
-                        .classLoader(KiWiCacheManager.class.getClassLoader())
+                        .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
                         .transport()
                             .defaultTransport()
                             .clusterName(config.getClusterName())
@@ -107,14 +112,14 @@ public class KiWiCacheManager {
                             .jmxDomain("org.apache.marmotta.kiwi")
                             .allowDuplicateDomains(true)
                         .serialization()
-                            .addAdvancedExternalizer(externalizers)
+                            .addAdvancedExternalizer(getExternalizers())
                         .build();
             } catch (IOException ex) {
                 log.warn("error loading JGroups configuration from archive: {}", ex.getMessage());
                 log.warn("some configuration options will not be available");
 
                 globalConfiguration = new GlobalConfigurationBuilder()
-                        .classLoader(KiWiCacheManager.class.getClassLoader())
+                        .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
                             .transport()
                             .defaultTransport()
                             .clusterName(config.getClusterName())
@@ -124,7 +129,7 @@ public class KiWiCacheManager {
                             .jmxDomain("org.apache.marmotta.kiwi")
                             .allowDuplicateDomains(true)
                         .serialization()
-                            .addAdvancedExternalizer(externalizers)
+                            .addAdvancedExternalizer(getExternalizers())
                         .build();
 
             }
@@ -168,7 +173,7 @@ public class KiWiCacheManager {
             }
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
-                    .classLoader(KiWiCacheManager.class.getClassLoader())
+                    .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
                     .globalJmxStatistics()
                         .jmxDomain("org.apache.marmotta.kiwi")
                         .allowDuplicateDomains(true)
@@ -190,32 +195,23 @@ public class KiWiCacheManager {
 
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
+        log.info("initialised Infinispan cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
 
         this.embedded = true;
     }
 
-    /**
-     * Create a cache manager from an existing Infinispan cache manager.
-     *
-     * @param cacheManager
-     * @param kiWiConfiguration
-     */
-    public KiWiCacheManager(EmbeddedCacheManager cacheManager, KiWiConfiguration kiWiConfiguration, AdvancedExternalizer...externalizers) {
-        this.cacheManager = cacheManager;
-        this.globalConfiguration = cacheManager.getCacheManagerConfiguration();
-        this.defaultConfiguration = cacheManager.getDefaultCacheConfiguration();
-        this.kiWiConfiguration = kiWiConfiguration;
 
-        this.clustered = kiWiConfiguration.isClustered();
-
-        for(AdvancedExternalizer e : externalizers) {
-            this.globalConfiguration.serialization().advancedExternalizers().put(e.getId(), e);
-        }
-
-        log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
-
-        this.embedded = false;
+    private AdvancedExternalizer[] getExternalizers() {
+        return new AdvancedExternalizer[] {
+                new TripleExternalizer(persistence),
+                new UriExternalizer(),
+                new BNodeExternalizer(),
+                new StringLiteralExternalizer(),
+                new DateLiteralExternalizer(),
+                new BooleanLiteralExternalizer(),
+                new IntLiteralExternalizer(),
+                new DoubleLiteralExternalizer()
+        };
     }
 
     /**
@@ -390,25 +386,6 @@ public class KiWiCacheManager {
     }
 
 
-    /**
-     * Return the cache used by the KiWiLoader. Used for mapping from Sesame nodes to KiWi nodes.
-     * @return
-     */
-    public Cache getLoaderCache() {
-        if(loaderCache == null) {
-            Configuration loaderConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
-                    .eviction()
-                        .maxEntries(100000)
-                    .expiration()
-                        .lifespan(10, TimeUnit.MINUTES)
-                        .maxIdle(30, TimeUnit.SECONDS)
-                    .build();
-            cacheManager.defineConfiguration(LOADER_CACHE, loaderConfiguration);
-
-            loaderCache = cacheManager.getCache(LOADER_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
-        }
-        return loaderCache;
-    }
 
 
     /**
