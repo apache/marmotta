@@ -21,7 +21,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.externalizer.*;
-import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.infinispan.Cache;
 import org.infinispan.commons.CacheException;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
@@ -44,9 +43,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.marmotta.kiwi.config.CacheMode.DISTRIBUTED;
-import static org.apache.marmotta.kiwi.config.CacheMode.REPLICATED;
-
 /**
  * A class for managing the different caches that are used by the triple store.
  * <p/>
@@ -68,19 +64,12 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
 
     private EmbeddedCacheManager cacheManager;
 
-    private GlobalConfiguration globalConfiguration;
-
     // default configuration: distributed cache, 100000 entries, 300 seconds expiration, 60 seconds idle
     private Configuration defaultConfiguration;
 
-    private boolean clustered, embedded;
+    private KiWiConfiguration config;
 
-    private KiWiConfiguration kiWiConfiguration;
-
-    private KiWiPersistence persistence;
-
-
-    private Cache nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, loaderCache, registryCache;
+    private Cache nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, registryCache;
 
 
     /**
@@ -90,120 +79,169 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      */
     public InfinispanEmbeddedCacheManager(KiWiConfiguration config) {
 
-        this.clustered = config.isClustered();
-        this.kiWiConfiguration = config;
 
-        if(clustered && (config.getCacheMode() == DISTRIBUTED || config.getCacheMode() == REPLICATED)) {
-            try {
-                String jgroupsXml = IOUtils.toString(InfinispanEmbeddedCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
+        this.config = config;
 
-                jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", config.getClusterAddress()));
-                jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", config.getClusterPort()));
-
-
-                globalConfiguration = new GlobalConfigurationBuilder()
-                        .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
-                        .transport()
-                            .defaultTransport()
-                            .clusterName(config.getClusterName())
-                            .machineId("instance-" + config.getDatacenterId())
-                            .addProperty("configurationXml", jgroupsXml)
-                        .globalJmxStatistics()
-                            .jmxDomain("org.apache.marmotta.kiwi")
-                            .allowDuplicateDomains(true)
-                        .serialization()
-                            .addAdvancedExternalizer(getExternalizers())
-                        .build();
-            } catch (IOException ex) {
-                log.warn("error loading JGroups configuration from archive: {}", ex.getMessage());
-                log.warn("some configuration options will not be available");
-
-                globalConfiguration = new GlobalConfigurationBuilder()
-                        .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
-                            .transport()
-                            .defaultTransport()
-                            .clusterName(config.getClusterName())
-                            .machineId("instance-" + config.getDatacenterId())
-                            .addProperty("configurationFile", "jgroups-kiwi.xml")
-                        .globalJmxStatistics()
-                            .jmxDomain("org.apache.marmotta.kiwi")
-                            .allowDuplicateDomains(true)
-                        .serialization()
-                            .addAdvancedExternalizer(getExternalizers())
-                        .build();
-
+        try {
+            switch (config.getCacheMode()) {
+                case DISTRIBUTED:
+                    buildDistributedConfiguration(getExternalizers());
+                    break;
+                case REPLICATED:
+                    buildReplicatedConfiguration(getExternalizers());
+                    break;
+                case LOCAL:
+                    buildLocalConfiguration();
+                    break;
             }
-
-            if(config.getCacheMode() == DISTRIBUTED) {
-                defaultConfiguration = new ConfigurationBuilder()
-                        .clustering()
-                            .cacheMode(CacheMode.DIST_ASYNC)
-                            .async()
-                                .asyncMarshalling()
-                            .l1()
-                                .lifespan(5, TimeUnit.MINUTES)
-                            .hash()
-                                .numOwners(2)
-                                .numSegments(40)
-                                .consistentHashFactory(new SyncConsistentHashFactory())
-                            .stateTransfer()
-                                .fetchInMemoryState(false)
-                        .eviction()
-                            .strategy(EvictionStrategy.LIRS)
-                            .maxEntries(100000)
-                        .expiration()
-                            .lifespan(30, TimeUnit.MINUTES)
-                            .maxIdle(10, TimeUnit.MINUTES)
-                        .build();
-            } else {
-                defaultConfiguration = new ConfigurationBuilder()
-                        .clustering()
-                            .cacheMode(CacheMode.REPL_ASYNC)
-                            .async()
-                                .asyncMarshalling()
-                        .stateTransfer()
-                            .fetchInMemoryState(false)
-                        .eviction()
-                            .strategy(EvictionStrategy.LIRS)
-                            .maxEntries(100000)
-                        .expiration()
-                            .lifespan(30, TimeUnit.MINUTES)
-                            .maxIdle(10, TimeUnit.MINUTES)
-                        .build();
-            }
-        } else {
-            globalConfiguration = new GlobalConfigurationBuilder()
-                    .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
-                    .globalJmxStatistics()
-                        .jmxDomain("org.apache.marmotta.kiwi")
-                        .allowDuplicateDomains(true)
-                    .build();
-
-            defaultConfiguration = new ConfigurationBuilder()
-                    .clustering()
-                        .cacheMode(CacheMode.LOCAL)
-                    .eviction()
-                        .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(100000)
-                    .expiration()
-                        .lifespan(5, TimeUnit.MINUTES)
-                        .maxIdle(1, TimeUnit.MINUTES)
-                    .build();
-
+        } catch (IOException ex) {
+            log.warn("error while building cache cluster configuration, reverting to local cache");
+            buildLocalConfiguration();
         }
 
 
+    }
+
+    /**
+     * Build a local cache configuration.
+     * <p/>
+     * In local cache mode, the cache is not shared among the servers in a cluster. Each machine keeps a local cache.
+     * This allows quick startups and eliminates network traffic in the cluster, but subsequent requests to different
+     * cluster members cannot benefit from the cached data.
+     */
+    protected void buildLocalConfiguration() {
+        GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
+                .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
+                .globalJmxStatistics()
+                    .jmxDomain("org.apache.marmotta.kiwi")
+                    .allowDuplicateDomains(true)
+                .build();
+
+        defaultConfiguration = new ConfigurationBuilder()
+                .clustering()
+                    .cacheMode(CacheMode.LOCAL)
+                .eviction()
+                    .strategy(EvictionStrategy.LIRS)
+                    .maxEntries(100000)
+                .expiration()
+                    .lifespan(5, TimeUnit.MINUTES)
+                    .maxIdle(1, TimeUnit.MINUTES)
+                .build();
         cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
 
-        log.info("initialised Infinispan cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
+        log.info("initialised local cache manager");
+    }
 
-        this.embedded = true;
+    /**
+     * Build a distributed cache configuration.
+     * <p/>
+     * In distributed cache mode, the cluster forms a big hash table used as a cache. This allows to make efficient
+     * use of the large amount of memory available, but requires cache rebalancing and a lot of network transfers,
+     * especially in case cluster members are restarted often.
+     */
+    protected void buildDistributedConfiguration(AdvancedExternalizer...externalizers) throws IOException {
+        String jgroupsXml = IOUtils.toString(InfinispanEmbeddedCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
+
+        jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", config.getClusterAddress()));
+        jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", config.getClusterPort()));
+
+
+        GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
+                .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
+                .transport()
+                    .defaultTransport()
+                    .clusterName(config.getClusterName())
+                    .machineId("instance-" + config.getDatacenterId())
+                    .addProperty("configurationXml", jgroupsXml)
+                .globalJmxStatistics()
+                    .jmxDomain("org.apache.marmotta.kiwi")
+                    .allowDuplicateDomains(true)
+                .serialization()
+                    .addAdvancedExternalizer(externalizers)
+                .build();
+
+        defaultConfiguration = new ConfigurationBuilder()
+                .clustering()
+                    .cacheMode(CacheMode.DIST_ASYNC)
+                    .async()
+                        .asyncMarshalling()
+                    .l1()
+                        .lifespan(5, TimeUnit.MINUTES)
+                    .hash()
+                        .numOwners(2)
+                        .numSegments(40)
+                        .consistentHashFactory(new SyncConsistentHashFactory())
+                    .stateTransfer()
+                        .fetchInMemoryState(false)
+                .eviction()
+                    .strategy(EvictionStrategy.LIRS)
+                    .maxEntries(100000)
+                .expiration()
+                    .lifespan(30, TimeUnit.MINUTES)
+                    .maxIdle(10, TimeUnit.MINUTES)
+                .build();
+        cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
+
+        log.info("initialised distributed cache manager (cluster name: {})",  globalConfiguration.transport().clusterName());
+
+    }
+
+    /**
+     * Build a replicated cache configuration.
+     * <p/>
+     * In replicated cache mode, each node in the cluster has an identical copy of all cache data. This allows
+     * very efficient cache lookups and reduces the rebalancing effort, but requires more memory.
+     */
+    protected void buildReplicatedConfiguration(AdvancedExternalizer...externalizers) throws IOException {
+        String jgroupsXml = IOUtils.toString(InfinispanEmbeddedCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
+
+        jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", config.getClusterAddress()));
+        jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", config.getClusterPort()));
+
+
+        GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
+                .classLoader(InfinispanEmbeddedCacheManager.class.getClassLoader())
+                .transport()
+                    .defaultTransport()
+                    .clusterName(config.getClusterName())
+                    .machineId("instance-" + config.getDatacenterId())
+                    .addProperty("configurationXml", jgroupsXml)
+                .globalJmxStatistics()
+                    .jmxDomain("org.apache.marmotta.kiwi")
+                    .allowDuplicateDomains(true)
+                .serialization()
+                    .addAdvancedExternalizer(externalizers)
+                .build();
+
+        defaultConfiguration = new ConfigurationBuilder()
+                .clustering()
+                    .cacheMode(CacheMode.REPL_ASYNC)
+                    .async()
+                        .asyncMarshalling()
+                    .stateTransfer()
+                        .fetchInMemoryState(false)
+                .eviction()
+                    .strategy(EvictionStrategy.LIRS)
+                    .maxEntries(100000)
+                .expiration()
+                    .lifespan(30, TimeUnit.MINUTES)
+                    .maxIdle(10, TimeUnit.MINUTES)
+                .build();
+        cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
+
+        log.info("initialised replicated cache manager (cluster name: {})",  globalConfiguration.transport().clusterName());
+    }
+
+
+    protected boolean isClustered() {
+        return config.getCacheMode() == org.apache.marmotta.kiwi.config.CacheMode.DISTRIBUTED ||
+               config.getCacheMode() == org.apache.marmotta.kiwi.config.CacheMode.REPLICATED;
     }
 
 
     private AdvancedExternalizer[] getExternalizers() {
         return new AdvancedExternalizer[] {
-                new TripleExternalizer(persistence),
+                new TripleExternalizer(),
                 new UriExternalizer(),
                 new BNodeExternalizer(),
                 new StringLiteralExternalizer(),
@@ -249,7 +287,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                     .clustering()
                         .cacheMode(CacheMode.LOCAL)
                     .eviction()
-                        .maxEntries(kiWiConfiguration.getTripleCacheSize())
+                        .maxEntries(config.getTripleCacheSize())
                     .expiration()
                         .lifespan(60, TimeUnit.MINUTES)
                         .maxIdle(30, TimeUnit.MINUTES)
@@ -272,7 +310,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
         if(uriCache == null) {
             Configuration uriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(kiWiConfiguration.getUriCacheSize())
+                        .maxEntries(config.getUriCacheSize())
                     .build();
             cacheManager.defineConfiguration(URI_CACHE, uriConfiguration);
 
@@ -292,7 +330,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
         if(bnodeCache == null) {
             Configuration bnodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(kiWiConfiguration.getBNodeCacheSize())
+                        .maxEntries(config.getBNodeCacheSize())
                     .build();
             cacheManager.defineConfiguration(BNODE_CACHE, bnodeConfiguration);
 
@@ -312,7 +350,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
         if(literalCache == null) {
             Configuration literalConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
-                        .maxEntries(kiWiConfiguration.getLiteralCacheSize())
+                        .maxEntries(config.getLiteralCacheSize())
                     .build();
             cacheManager.defineConfiguration(LITERAL_CACHE, literalConfiguration);
 
@@ -328,12 +366,12 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      */
     public Cache getNamespaceUriCache() {
         if(nsUriCache == null) {
-            if(clustered) {
+            if(isClustered()) {
                 Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                         .clustering()
                             .cacheMode(CacheMode.REPL_ASYNC)
                         .eviction()
-                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                            .maxEntries(config.getNamespaceCacheSize())
                         .expiration()
                             .lifespan(1, TimeUnit.DAYS)
                         .build();
@@ -341,7 +379,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
             } else {
                 Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                         .eviction()
-                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                            .maxEntries(config.getNamespaceCacheSize())
                         .expiration()
                             .lifespan(1, TimeUnit.HOURS)
                         .build();
@@ -359,12 +397,12 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      */
     public Cache getNamespacePrefixCache() {
         if(nsPrefixCache == null) {
-            if(clustered) {
+            if(isClustered()) {
                 Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                         .clustering()
                             .cacheMode(CacheMode.REPL_ASYNC)
                         .eviction()
-                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                            .maxEntries(config.getNamespaceCacheSize())
                         .expiration()
                             .lifespan(1, TimeUnit.DAYS)
                         .build();
@@ -373,7 +411,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
             } else {
                 Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                         .eviction()
-                            .maxEntries(kiWiConfiguration.getNamespaceCacheSize())
+                            .maxEntries(config.getNamespaceCacheSize())
                         .expiration()
                             .lifespan(1, TimeUnit.HOURS)
                         .build();
@@ -395,7 +433,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      */
     public Cache getRegistryCache() {
         if(registryCache == null) {
-            if(clustered) {
+            if(isClustered()) {
                 Configuration registryConfiguration = new ConfigurationBuilder()
                     .clustering()
                         .cacheMode(CacheMode.REPL_SYNC)
@@ -436,31 +474,6 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
     }
 
     /**
-     * Return the Infinispan cache manager used by the caching infrastructure.
-     *
-     * @return
-     */
-    public EmbeddedCacheManager getCacheManager() {
-        return cacheManager;
-    }
-
-    /**
-     * Return the global cache manager configuration used by the caching infrastructure.
-     * @return
-     */
-    public GlobalConfiguration getGlobalConfiguration() {
-        return globalConfiguration;
-    }
-
-    /**
-     * Return the default cache configuration used by the caching infrastructure.
-     * @return
-     */
-    public Configuration getDefaultConfiguration() {
-        return defaultConfiguration;
-    }
-
-    /**
      * Clear all caches managed by this cache manager.
      */
     public void clear() {
@@ -479,7 +492,6 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
         bnodeCache    = null;
         nsPrefixCache = null;
         nsUriCache    = null;
-        loaderCache   = null;
         registryCache = null;
     }
 
@@ -488,7 +500,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      */
     public void shutdown() {
         try {
-            if(embedded && cacheManager.getStatus() == ComponentStatus.RUNNING) {
+            if(cacheManager.getStatus() == ComponentStatus.RUNNING) {
                 log.warn("shutting down cache manager ...");
 //                if(cacheManager.getTransport() != null) {
 //                    log.info("... shutting down transport ...");

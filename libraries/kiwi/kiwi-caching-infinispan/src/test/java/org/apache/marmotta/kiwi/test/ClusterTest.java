@@ -19,8 +19,9 @@ package org.apache.marmotta.kiwi.test;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.embedded.InfinispanEmbeddedCacheManagerFactory;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.junit.*;
@@ -46,7 +47,7 @@ public class ClusterTest {
 
     Repository repository1, repository2;
 
-    KiWiCacheManager cacheManager1, cacheManager2;
+    CacheManager cacheManager1, cacheManager2;
 
     @Before
     public void setup() throws RepositoryException {
@@ -57,6 +58,7 @@ public class ClusterTest {
                 new H2Dialect());
         config1.setDatacenterId(1);
         config1.setClustered(true);
+        config1.setCacheManagerFactory(InfinispanEmbeddedCacheManagerFactory.class.getName());
 
         config2 = new KiWiConfiguration(
                 "default-H2",
@@ -65,6 +67,7 @@ public class ClusterTest {
                 new H2Dialect());
         config2.setDatacenterId(2);
         config2.setClustered(true);
+        config2.setCacheManagerFactory(InfinispanEmbeddedCacheManagerFactory.class.getName());
 
 
 

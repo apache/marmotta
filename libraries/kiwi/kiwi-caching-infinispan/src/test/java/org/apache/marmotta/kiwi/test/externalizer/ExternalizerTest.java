@@ -18,10 +18,8 @@
 package org.apache.marmotta.kiwi.test.externalizer;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.externalizer.*;
+import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.test.TestValueFactory;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.marshall.StreamingMarshaller;
@@ -123,6 +121,16 @@ public class ExternalizerTest {
     }
 
 
+    @Test
+    public void testTriple() throws Exception {
+        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiNode o = (KiWiNode) randomNode();
+        KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
+
+        marshall(t, new TripleExternalizer());
+    }
+
     /**
      * Run the given object through the marshaller using an in-memory stream.
      * @param origin
@@ -130,6 +138,17 @@ public class ExternalizerTest {
      * @return
      */
     private <T> void marshall(T origin, AdvancedExternalizer<T> externalizer) throws IOException, ClassNotFoundException, InterruptedException {
+        log.info("- testing Java ObjectStream ...");
+        ByteArrayOutputStream outBytesOS = new ByteArrayOutputStream();
+        ObjectOutputStream outOS = new ObjectOutputStream(outBytesOS);
+
+        outOS.writeObject(origin);
+
+        outOS.close();
+
+        log.info("  object {}: serialized with {} bytes", origin, outBytesOS.size());
+
+
         log.info("- testing externalizer directly ...");
         ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(outBytes);
