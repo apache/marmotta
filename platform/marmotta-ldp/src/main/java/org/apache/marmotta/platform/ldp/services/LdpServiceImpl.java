@@ -32,7 +32,7 @@ import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
-import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
+import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
@@ -91,6 +91,11 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
+    public boolean exists(RepositoryConnection connection, URI resource, URI type) throws RepositoryException {
+        return connection.hasStatement(resource, RDF.TYPE, type, true, ldpContext);
+    }
+
+    @Override
     public List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException {
         return getLdpTypes(connection, buildURI(resource));
     }
@@ -121,7 +126,7 @@ public class LdpServiceImpl implements LdpService {
                 connection.getStatements(resource, null, null, false, ldpContext)
         );
         try {
-            LdpWebServiceUtils.exportIteration(writer, resource, union);
+            LdpUtils.exportIteration(writer, resource, union);
         } finally {
             union.close();
         }
@@ -145,12 +150,12 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean addResource(RepositoryConnection connection, String container, String resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+    public String addResource(RepositoryConnection connection, String container, String resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         return addResource(connection, buildURI(container), buildURI(resource), type, stream);
     }
 
     @Override
-    public boolean addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+    public String addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         ValueFactory valueFactory = connection.getValueFactory();
 
         // Add container triples (Sec. 6.4.3)
@@ -158,14 +163,14 @@ public class LdpServiceImpl implements LdpService {
 
         Literal now = valueFactory.createLiteral(new Date());
 
-        connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
-        connection.add(container, LDP.contains, resource, ldpContext);
-        connection.remove(container, DCTERMS.modified, null, ldpContext);
-        connection.add(container, DCTERMS.modified, now, ldpContext);
+        if (exists(connection, container, LDP.BasicContainer)) {
+            connection.remove(container, DCTERMS.modified, null, ldpContext);
+        } else {
+            connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
+        }
 
-        connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-        connection.add(resource, DCTERMS.created, now, ldpContext);
-        connection.add(resource, DCTERMS.modified, now, ldpContext);
+        connection.add(container, LDP.contains, resource, ldpContext);
+        connection.add(container, DCTERMS.modified, now, ldpContext);
 
         // Add the bodyContent
         log.trace("Content ({}) for new resource <{}>", type, resource);
@@ -173,16 +178,33 @@ public class LdpServiceImpl implements LdpService {
         if (rdfFormat == null) {
             log.debug("POST creates new LDP-BR, because no RDF parser found for type {}", type);
             Literal format = valueFactory.createLiteral(type.toString());
-            connection.add(resource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
+            URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type.toString()));
+
+            //connection.add(resource, RDF.TYPE, LDP.NonRdfResource, ldpContext); //TODO:
+            connection.add(binaryResource, DCTERMS.created, now, ldpContext);
+            connection.add(binaryResource, DCTERMS.modified, now, ldpContext);
+
+            //extra triples
+            //TODO: check conformance with 6.2.3.12
+            connection.add(binaryResource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
+            connection.add(binaryResource, DCTERMS.isFormatOf, resource, ldpContext);
+
             //TODO: something else?
-            return binaryStore.store(resource, stream); //TODO: control exceptions
+
+            binaryStore.store(binaryResource, stream);//TODO: exceptions control
+
+            return binaryResource.stringValue();
         } else {
             log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
+
+            connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+            connection.add(resource, DCTERMS.created, now, ldpContext);
+            connection.add(resource, DCTERMS.modified, now, ldpContext);
 
             // FIXME: We are (are we?) allowed to filter out server-managed properties here
             connection.add(stream, resource.stringValue(), rdfFormat, resource);
 
-            return true;
+            return resource.stringValue();
         }
     }
 

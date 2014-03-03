@@ -40,6 +40,7 @@ import java.util.List;
  *  LDP Service
  *
  *  @author Sergio Fernández
+ *  @author Jakob Frank
  */
 public interface LdpService {
 
@@ -47,9 +48,37 @@ public interface LdpService {
 
     boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException;
 
-    boolean addResource(RepositoryConnection connection, String container, String resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+    boolean exists(RepositoryConnection connection, URI resource, URI type) throws RepositoryException;
 
-    boolean addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+    /**
+     * Add a LDP resource
+     *
+     * @param connection repository connection
+     * @param container container where add the resource
+     * @param resource resource to add
+     * @param type mimetype of the posted resource
+     * @param stream stream from where read the resource representation
+     * @return resource location
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws RDFParseException
+     */
+    String addResource(RepositoryConnection connection, String container, String resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+
+    /**
+     * Add a LDP resource
+     *
+     * @param connection repository connection
+     * @param container container where add the resource
+     * @param resource resource to add
+     * @param type mimetype of the posted resource
+     * @param stream stream from where read the resource representation
+     * @return resource location
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws RDFParseException
+     */
+    String addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
     List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException;
 

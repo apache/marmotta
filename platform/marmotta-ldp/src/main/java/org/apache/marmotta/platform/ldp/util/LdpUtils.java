@@ -18,10 +18,11 @@
 package org.apache.marmotta.platform.ldp.util;
 
 import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.Iteration;
-import info.aduna.iteration.UnionIteration;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.DCTERMS;
@@ -31,9 +32,9 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 
 /**
- * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.webservices.LdpWebService}.
+ * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
  */
-public class LdpWebServiceUtils {
+public class LdpUtils {
 
     /**
      * Urify the Slug: header value, i.e. replace all non-url chars with a single dash.
@@ -42,13 +43,32 @@ public class LdpWebServiceUtils {
      * @return the slugHeaderValue "urified"
      */
     public static String urify(String slugHeaderValue) {
-        return slugHeaderValue
+        return slugHeaderValue.trim()
                 // Replace non-url chars with '-'
                 .replaceAll("[^\\w]+", "-");
     }
 
     /**
+     * Get the preferred file extension for the content type
+     *
+     * @param contentType content type
+     * @return file extension (already including '.')
+     * @throws MimeTypeException
+     */
+    public static String getExtension(String contentType) {
+        MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+        try {
+            MimeType mimeType = allTypes.forName(contentType);
+            return mimeType.getExtension();
+        } catch (MimeTypeException e) {
+            return null; //FIXME
+        }
+
+    }
+
+    /**
      * LDP-Style to serialize a resource.
+     *
      * @param writer the writer to serialize to
      * @param subject the resource to serialize
      * @param iteration the Iteration containing the data
@@ -71,4 +91,5 @@ public class LdpWebServiceUtils {
 
         writer.endRDF();
     }
+
 }

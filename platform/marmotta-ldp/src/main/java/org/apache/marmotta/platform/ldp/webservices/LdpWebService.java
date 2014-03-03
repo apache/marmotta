@@ -27,7 +27,7 @@ import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
-import org.apache.marmotta.platform.ldp.util.LdpWebServiceUtils;
+import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -178,11 +178,8 @@ public class LdpWebService {
         final String container = getResourceUri(uriInfo);
         log.debug("POST to LDPC <{}>", container);
 
-        final RepositoryConnection con = sesameService.getConnection();
+        final RepositoryConnection conn = sesameService.getConnection();
         try {
-            con.begin();
-            // TODO: Check if resource (container) exists
-            log.warn("NOT CHECKING EXISTENCE OF <{}>", container);
 
             final String localName;
             if (StringUtils.isBlank(slug)) {
@@ -193,21 +190,23 @@ public class LdpWebService {
                 // Honor client wishes from Slug-header (Sec. 6.4.11)
                 //    http://www.ietf.org/rfc/rfc5023.txt
                 log.trace("Slug-Header is '{}'", slug);
-                localName = LdpWebServiceUtils.urify(slug);
+                localName = LdpUtils.urify(slug);
                 log.trace("Slug-Header urified: {}", localName);
             }
 
             String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
 
+            conn.begin();
+
             log.trace("Checking possible name clash for new resource <{}>", newResource);
-            if (ldpService.exists(con, newResource)) {
+            if (ldpService.exists(conn, newResource)) {
                 int i = 0;
                 final String base = newResource;
                 do {
                     final String candidate = base + "-" + (++i);
                     log.trace("<{}> already exists, trying <{}>", newResource, candidate);
                     newResource = candidate;
-                } while (ldpService.exists(con, newResource));
+                } while (ldpService.exists(conn, newResource));
                 log.debug("resolved name clash, new resource will be <{}>", newResource);
             } else {
                 log.debug("no name clash for <{}>", newResource);
@@ -215,25 +214,29 @@ public class LdpWebService {
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
 
+            //checking if resource (container) exists is done later in the service
             try {
-                ldpService.addResource(con, container, newResource, type, postBody);
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.CREATED, container).location(java.net.URI.create(newResource));
-                con.commit();
-                return resp.build();
+                String location = ldpService.addResource(conn, container, newResource, type, postBody);
+                final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
+                if (newResource.compareTo(location) != 0) {
+                    response.link(newResource, "describedby"); //Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                }
+                conn.commit();
+                return response.build();
             } catch (IOException | RDFParseException e) {
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.BAD_REQUEST, container).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
-                con.rollback();
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.BAD_REQUEST, container).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
+                conn.rollback();
                 return resp.build();
             } catch (UnsupportedRDFormatException e) {
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.UNSUPPORTED_MEDIA_TYPE, container).entity(e);
-                con.rollback();
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.UNSUPPORTED_MEDIA_TYPE, container).entity(e);
+                conn.rollback();
                 return resp.build();
             }
         } catch (final Throwable t) {
-            con.rollback();
+            conn.rollback();
             throw t;
         } finally {
-            con.close();
+            conn.close();
         }
     }
 
