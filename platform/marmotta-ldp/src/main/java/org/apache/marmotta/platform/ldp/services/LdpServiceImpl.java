@@ -173,14 +173,15 @@ public class LdpServiceImpl implements LdpService {
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
         // Add the bodyContent
-        log.trace("Content ({}) for new resource <{}>", type, resource);
+        connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
         final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
         if (rdfFormat == null) {
             log.debug("POST creates new LDP-BR, because no RDF parser found for type {}", type);
             Literal format = valueFactory.createLiteral(type.toString());
             URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type.toString()));
 
-            //connection.add(resource, RDF.TYPE, LDP.NonRdfResource, ldpContext); //TODO:
+            connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+            connection.add(resource, RDF.TYPE, LDP.NonRdfResource, ldpContext);
             connection.add(binaryResource, DCTERMS.created, now, ldpContext);
             connection.add(binaryResource, DCTERMS.modified, now, ldpContext);
 
@@ -188,6 +189,7 @@ public class LdpServiceImpl implements LdpService {
             //TODO: check conformance with 6.2.3.12
             connection.add(binaryResource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
             connection.add(binaryResource, DCTERMS.isFormatOf, resource, ldpContext);
+            connection.add(resource, DCTERMS.hasFormat, binaryResource, ldpContext);
 
             //TODO: something else?
 
@@ -198,6 +200,7 @@ public class LdpServiceImpl implements LdpService {
             log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
 
             connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+            connection.add(resource, RDF.TYPE, LDP.RdfResource, ldpContext);
             connection.add(resource, DCTERMS.created, now, ldpContext);
             connection.add(resource, DCTERMS.modified, now, ldpContext);
 
