@@ -110,7 +110,7 @@ public abstract class BaseClusterTest {
 
         CacheManagerType type;
 
-        protected ClusterTestSupport(CacheManagerType type) {
+        public ClusterTestSupport(CacheManagerType type) {
             this.type = type;
         }
 
