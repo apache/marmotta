@@ -215,7 +215,6 @@ public class LdpWebService {
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
 
-
             try {
                 ldpService.addResource(con, container, newResource, type, postBody);
                 final Response.ResponseBuilder resp = createResponse(con, Response.Status.CREATED, container).location(java.net.URI.create(newResource));

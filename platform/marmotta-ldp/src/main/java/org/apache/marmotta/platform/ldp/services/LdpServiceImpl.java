@@ -169,7 +169,7 @@ public class LdpServiceImpl implements LdpService {
 
         // Add the bodyContent
         log.trace("Content ({}) for new resource <{}>", type, resource);
-        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString(), RDFFormat.TURTLE);
+        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
         if (rdfFormat == null) {
             log.debug("POST creates new LDP-BR, because no RDF parser found for type {}", type);
             Literal format = valueFactory.createLiteral(type.toString());
