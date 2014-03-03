@@ -1040,6 +1040,11 @@
             </dependency>
             <dependency>
                 <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-client-hotrod</artifactId>
+                <version>6.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-cdi</artifactId>
                 <version>6.0.1.Final</version>
             </dependency>
