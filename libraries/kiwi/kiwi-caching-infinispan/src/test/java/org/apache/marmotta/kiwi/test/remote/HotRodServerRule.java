@@ -19,10 +19,7 @@ package org.apache.marmotta.kiwi.test.remote;
 
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.infinispan.embedded.InfinispanEmbeddedCacheManager;
-import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
 import org.infinispan.Cache;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.commons.api.BasicCacheContainer;
 import org.infinispan.commons.equivalence.ByteArrayEquivalence;
 import org.infinispan.configuration.cache.CacheMode;
@@ -35,7 +32,6 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.server.hotrod.HotRodServer;
 import org.infinispan.server.hotrod.configuration.HotRodServerConfiguration;
 import org.infinispan.server.hotrod.configuration.HotRodServerConfigurationBuilder;
-import org.junit.Assert;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -151,26 +147,6 @@ public class HotRodServerRule implements TestRule {
         cacheManager.getCache(CacheManager.REGISTRY_CACHE, true);
 
         hotRodServer.start(hotrodConfig, cacheManager);
-
-        // test if cache is available
-        org.infinispan.client.hotrod.configuration.Configuration remoteCfg = new org.infinispan.client.hotrod.configuration.ConfigurationBuilder()
-                .addServer()
-                .host("127.0.0.1")
-                .port(port)
-                .marshaller(new CustomJBossMarshaller())
-                .pingOnStartup(true)
-                .build(true);
-
-
-        RemoteCacheManager remoteCacheManager = new RemoteCacheManager(remoteCfg);
-        Assert.assertTrue(remoteCacheManager.isStarted());
-
-        RemoteCache<String, String> m = remoteCacheManager.getCache();
-
-        m.put("xyz", "abc");
-        String n = m.get("xyz");
-
-        Assert.assertNotNull(n);
 
         return hotRodServer;
     }

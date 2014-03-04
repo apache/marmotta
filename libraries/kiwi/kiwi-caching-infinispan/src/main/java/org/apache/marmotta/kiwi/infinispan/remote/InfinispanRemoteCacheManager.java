@@ -199,9 +199,14 @@ public class InfinispanRemoteCacheManager implements CacheManager {
     @Override
     public void shutdown() {
         try {
-            log.info("shutting down cache manager ...");
+            log.info("shutting down Infinispan remote cache manager ...");
             cacheManager.stop();
-        } catch (CacheException ex) {
+
+            while(cacheManager.isStarted()) {
+                log.info("waiting 100ms for cache manager to come down ...");
+                Thread.sleep(100);
+            }
+        } catch (CacheException | InterruptedException ex) {
             log.warn("error shutting down cache: {}", ex.getMessage());
         }
     }

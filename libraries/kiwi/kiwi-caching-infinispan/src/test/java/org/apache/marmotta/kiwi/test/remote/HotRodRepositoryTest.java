@@ -58,6 +58,8 @@ public class HotRodRepositoryTest extends RepositoryTest {
      */
     @Override
     protected Repository createRepository() throws Exception {
+        hotrod.clearAll();
+
         store = new KiWiStore(config);
         return new SailRepository(store);
     }
