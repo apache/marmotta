@@ -17,7 +17,6 @@
 
 package org.apache.marmotta.kiwi.test;
 
-import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.CacheManagerType;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
@@ -26,12 +25,13 @@ import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.infinispan.commons.api.BasicCacheContainer;
+import org.infinispan.commons.equivalence.ByteArrayEquivalence;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.infinispan.server.hotrod.HotRodServer;
@@ -41,8 +41,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Add file description here!
@@ -91,6 +89,8 @@ public class RemoteClusterTest extends BaseClusterTest {
                 .proxyHost("127.0.0.1")
                 .proxyPort(port)
                 .topologyStateTransfer(false)
+                .defaultCacheName(BasicCacheContainer.DEFAULT_CACHE_NAME)
+                .idleTimeout(0)
                 .workerThreads(2)
                 .build(true);
 
@@ -104,13 +104,11 @@ public class RemoteClusterTest extends BaseClusterTest {
 
         Configuration defaultConfiguration = new ConfigurationBuilder()
                 .clustering()
-                .cacheMode(CacheMode.LOCAL)
-                .eviction()
-                .strategy(EvictionStrategy.LIRS)
-                .maxEntries(100000)
-                .expiration()
-                .lifespan(5, TimeUnit.MINUTES)
-                .maxIdle(1, TimeUnit.MINUTES)
+                    .cacheMode(CacheMode.LOCAL)
+                    .sync()
+                .dataContainer()
+                    .keyEquivalence(ByteArrayEquivalence.INSTANCE)
+                    .valueEquivalence(ByteArrayEquivalence.INSTANCE)
                 .build();
 
         EmbeddedCacheManager cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
@@ -129,7 +127,7 @@ public class RemoteClusterTest extends BaseClusterTest {
         cacheManager.getCache(CacheManager.LITERAL_CACHE, true);
         cacheManager.getCache(CacheManager.NS_PREFIX_CACHE, true);
         cacheManager.getCache(CacheManager.NS_URI_CACHE, true);
-        cacheManager.getCache(CacheManager.REGISTRY_CACHE,true);
+        cacheManager.getCache(CacheManager.REGISTRY_CACHE, true);
 
         hotRodServer.start(hotrodConfig, cacheManager);
 
@@ -148,8 +146,8 @@ public class RemoteClusterTest extends BaseClusterTest {
 
         RemoteCache<String, String> m = remoteCacheManager.getCache();
 
-        m.put(XSD.AnyURI.stringValue(), XSD.AnyURI.stringValue());
-        String n = m.get(XSD.AnyURI.stringValue());
+        m.put("xyz", "abc");
+        String n = m.get("xyz");
 
         Assert.assertNotNull(n);
 
