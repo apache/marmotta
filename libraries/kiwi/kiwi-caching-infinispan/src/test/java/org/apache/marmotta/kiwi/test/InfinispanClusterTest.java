@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.test;
 
-import org.apache.marmotta.kiwi.caching.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CacheManagerType;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.junit.BeforeClass;
 

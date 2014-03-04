@@ -15,30 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.embedded;
+package org.apache.marmotta.kiwi.infinispan.remote;
 
-import org.apache.marmotta.kiwi.caching.CacheManager;
-import org.apache.marmotta.kiwi.caching.CacheManagerFactory;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.infinispan.commons.marshall.jboss.AbstractJBossMarshaller;
+import org.infinispan.commons.marshall.jboss.DefaultContextClassResolver;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class InfinispanEmbeddedCacheManagerFactory implements CacheManagerFactory {
+public class CustomJBossMarshaller extends AbstractJBossMarshaller {
 
-    public InfinispanEmbeddedCacheManagerFactory() {
+    public CustomJBossMarshaller() {
+        super();
+        baseCfg.setClassResolver(
+                new DefaultContextClassResolver(this.getClass().getClassLoader()));
+
+        baseCfg.setClassExternalizerFactory (new CustomClassExternalizerFactory());
+        baseCfg.setClassTable(new CustomClassTable());
     }
 
-    /**
-     * Create a new cache manager instance using the KiWiConfiguration passed as argument.
-     *
-     * @param configuration KiWi configuration used by the underlying triple store
-     * @return a new cache manager instance for this triple store
-     */
-    @Override
-    public CacheManager createCacheManager(KiWiConfiguration configuration) {
-        return new InfinispanEmbeddedCacheManager(configuration);
-    }
+
+
 }

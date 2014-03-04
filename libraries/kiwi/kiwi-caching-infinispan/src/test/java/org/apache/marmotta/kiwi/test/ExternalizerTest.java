@@ -19,7 +19,8 @@ package org.apache.marmotta.kiwi.test;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.externalizer.*;
+import org.apache.marmotta.kiwi.infinispan.externalizer.*;
+import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.marshall.StreamingMarshaller;
@@ -56,7 +57,7 @@ public class ExternalizerTest {
 
     private static Logger log = LoggerFactory.getLogger(ExternalizerTest.class);
 
-    private static StreamingMarshaller marshaller;
+    private static StreamingMarshaller marshaller, hotrod;
 
 
     @BeforeClass
@@ -89,6 +90,7 @@ public class ExternalizerTest {
 
         marshaller = cacheManager.getCache().getAdvancedCache().getComponentRegistry().getCacheMarshaller();
 
+        hotrod = new CustomJBossMarshaller();
     }
 
 
@@ -187,7 +189,7 @@ public class ExternalizerTest {
 
         Assert.assertEquals(origin,destination1);
 
-        log.info("- testing externalizer with infinispan marshaller ...");
+        log.info("- testing externalizer with infinispan cluster marshaller ...");
 
         byte[] bytes = marshaller.objectToByteBuffer(origin);
         log.info("  object {}: serialized with {} bytes", origin, bytes.length);
@@ -195,6 +197,17 @@ public class ExternalizerTest {
         Object destination2 = marshaller.objectFromByteBuffer(bytes);
 
         Assert.assertEquals(origin, destination2);
+
+
+
+        log.info("- testing externalizer with infinispan hotrod marshaller ...");
+
+        byte[] bytesH = hotrod.objectToByteBuffer(origin);
+        log.info("  object {}: serialized with {} bytes", origin, bytesH.length);
+
+        Object destination3 = hotrod.objectFromByteBuffer(bytesH);
+
+        Assert.assertEquals(origin, destination3);
 
     }
 

@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.kiwi.config;
 
-import org.apache.marmotta.kiwi.caching.CacheManagerType;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 
 import java.util.ArrayList;

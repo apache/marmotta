@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
 import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class BooleanLiteralExternalizer implements AdvancedExternalizer<KiWiBooleanLiteral> {
+public class BooleanLiteralExternalizer extends BaseExternalizer<KiWiBooleanLiteral> implements AdvancedExternalizer<KiWiBooleanLiteral> {
 
     @Override
     public Set<Class<? extends KiWiBooleanLiteral>> getTypeClasses() {

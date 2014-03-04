@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.io.DataIO;
@@ -36,7 +36,7 @@ import java.util.Set;
  * An externalizer for Infinispan allowing to more efficiently transport triples by only serializing the node
  * IDs instead of the whole nodes.
  */
-public class TripleExternalizer implements AdvancedExternalizer<KiWiTriple> {
+public class TripleExternalizer extends BaseExternalizer<KiWiTriple> implements AdvancedExternalizer<KiWiTriple> {
 
 
     public static final int MODE_DEFAULT = 1;

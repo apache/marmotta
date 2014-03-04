@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.test.cluster;
 
 import org.apache.marmotta.kiwi.caching.CacheManager;
-import org.apache.marmotta.kiwi.caching.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CacheManagerType;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BaseClusterTest {
 
+    public static final int REGISTRY_TESTS = 10000;
     private static Logger log = LoggerFactory.getLogger(BaseClusterTest.class);
 
     private static int datacenterIds = 1;
@@ -105,6 +106,23 @@ public abstract class BaseClusterTest {
         Assert.assertNull(u2);
     }
 
+
+    @Test
+    public void testRegistry() {
+
+        log.info("testing synchronized registry ...");
+
+        for(int i=0; i < REGISTRY_TESTS; i++) {
+            cacheManagerSync1.getRegistryCache().put((long)i,(long)i);
+
+            Long j = cacheManagerSync1.getRegistryCache().get((long)i);
+            Long k = cacheManagerSync2.getRegistryCache().get((long)i);
+
+            Assert.assertEquals("objects in same cache were not identical!", (long)i, (long)j);
+            Assert.assertEquals("objects in caches 1 and 2 were not identical!", (long)i, (long)k);
+        }
+
+    }
 
     protected static class ClusterTestSupport {
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.remote;
+package org.apache.marmotta.kiwi.infinispan.remote;
 
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
@@ -33,22 +33,22 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class DoubleLiteralExternalizer implements AdvancedExternalizer<KiWiDoubleLiteral> {
+public class DateLiteralExternalizer extends BaseExternalizer<KiWiDateLiteral> implements AdvancedExternalizer<KiWiDateLiteral> {
 
     @Override
-    public Set<Class<? extends KiWiDoubleLiteral>> getTypeClasses() {
-        return Util.<Class<? extends KiWiDoubleLiteral>>asSet(KiWiDoubleLiteral.class);
+    public Set<Class<? extends KiWiDateLiteral>> getTypeClasses() {
+        return Util.<Class<? extends KiWiDateLiteral>>asSet(KiWiDateLiteral.class);
     }
 
     @Override
     public Integer getId() {
-        return ExternalizerIds.DOUBLE_LITERAL;
+        return ExternalizerIds.DATE_LITERAL;
     }
 
     @Override
-    public void writeObject(ObjectOutput output, KiWiDoubleLiteral object) throws IOException {
+    public void writeObject(ObjectOutput output, KiWiDateLiteral object) throws IOException {
         output.writeLong(object.getId());
-        output.writeDouble(object.getDoubleContent());
+        output.writeLong(object.getDateContent().getTime());
         output.writeObject(object.getDatatype());
 
         output.writeLong(object.getCreated().getTime());
@@ -56,15 +56,15 @@ public class DoubleLiteralExternalizer implements AdvancedExternalizer<KiWiDoubl
     }
 
     @Override
-    public KiWiDoubleLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
+    public KiWiDateLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
         long id = input.readLong();
-        double content = input.readDouble();
+        Date content = new Date(input.readLong());
 
         KiWiUriResource dtype = (KiWiUriResource) input.readObject();
 
         Date created = new Date(input.readLong());
 
-        KiWiDoubleLiteral r = new KiWiDoubleLiteral(content, dtype, created);
+        KiWiDateLiteral r = new KiWiDateLiteral(content, dtype, created);
         r.setId(id);
 
         return r;

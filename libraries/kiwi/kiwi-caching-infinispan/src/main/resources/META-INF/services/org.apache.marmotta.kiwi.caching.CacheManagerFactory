@@ -1,2 +1,2 @@
-org.apache.marmotta.kiwi.embedded.InfinispanEmbeddedCacheManagerFactory
-org.apache.marmotta.kiwi.remote.InfinispanRemoteCacheManagerFactory
+org.apache.marmotta.kiwi.infinispan.embedded.InfinispanEmbeddedCacheManagerFactory
+org.apache.marmotta.kiwi.infinispan.remote.InfinispanRemoteCacheManagerFactory

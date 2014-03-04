@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.caching;
+package org.apache.marmotta.kiwi.config;
 
 /**
  * Add file description here!
@@ -32,12 +32,12 @@ public enum CacheManagerType {
     /**
      * Cache backend based on Infinispan using a dynamic cluster setup (UDP multicast)
      */
-    INFINISPAN_CLUSTERED("org.apache.marmotta.kiwi.embedded.InfinispanEmbeddedCacheManagerFactory"),
+    INFINISPAN_CLUSTERED("org.apache.marmotta.kiwi.infinispan.embedded.InfinispanEmbeddedCacheManagerFactory"),
 
     /**
      * Cache backend based on Infinispan using a client-server setup (Hotrod)
      */
-    INFINISPAN_HOTROD("org.apache.marmotta.kiwi.remote.InfinispanRemoteCacheManagerFactory"),
+    INFINISPAN_HOTROD("org.apache.marmotta.kiwi.infinispan.remote.InfinispanRemoteCacheManagerFactory"),
 
 
     /**

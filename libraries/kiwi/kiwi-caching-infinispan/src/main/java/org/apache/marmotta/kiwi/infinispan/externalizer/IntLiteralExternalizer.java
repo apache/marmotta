@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 
@@ -32,43 +33,40 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class BNodeExternalizer implements AdvancedExternalizer<KiWiAnonResource> {
-
+public class IntLiteralExternalizer extends BaseExternalizer<KiWiIntLiteral> implements AdvancedExternalizer<KiWiIntLiteral> {
 
     @Override
-    public Set<Class<? extends KiWiAnonResource>> getTypeClasses() {
-        return Util.<Class<? extends KiWiAnonResource>>asSet(KiWiAnonResource.class);
+    public Set<Class<? extends KiWiIntLiteral>> getTypeClasses() {
+        return Util.<Class<? extends KiWiIntLiteral>>asSet(KiWiIntLiteral.class);
     }
 
     @Override
     public Integer getId() {
-        return ExternalizerIds.BNODE;
+        return ExternalizerIds.INT_LITERAL;
     }
 
     @Override
-    public void writeObject(ObjectOutput output, KiWiAnonResource object) throws IOException {
+    public void writeObject(ObjectOutput output, KiWiIntLiteral object) throws IOException {
         output.writeLong(object.getId());
-        output.writeInt(object.stringValue().length());
-        output.writeChars(object.stringValue());
+        output.writeLong(object.getIntContent());
+        output.writeObject(object.getDatatype());
+
         output.writeLong(object.getCreated().getTime());
+
     }
 
     @Override
-    public KiWiAnonResource readObject(ObjectInput input) throws IOException, ClassNotFoundException {
+    public KiWiIntLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
         long id = input.readLong();
-        int len = input.readInt();
+        long content = input.readLong();
 
-        char[] anonId = new char[len];
-        for(int i=0; i<len; i++) {
-            anonId[i] = input.readChar();
-        }
+        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
 
         Date created = new Date(input.readLong());
 
-        KiWiAnonResource r = new KiWiAnonResource(new String(anonId),created);
+        KiWiIntLiteral r = new KiWiIntLiteral(content, dtype, created);
         r.setId(id);
 
         return r;
     }
-
 }

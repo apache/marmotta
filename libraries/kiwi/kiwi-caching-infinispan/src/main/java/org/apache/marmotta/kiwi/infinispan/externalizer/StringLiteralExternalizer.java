@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
 import org.apache.marmotta.commons.io.DataIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class StringLiteralExternalizer implements AdvancedExternalizer<KiWiStringLiteral> {
+public class StringLiteralExternalizer extends BaseExternalizer<KiWiStringLiteral> implements AdvancedExternalizer<KiWiStringLiteral> {
 
     @Override
     public Set<Class<? extends KiWiStringLiteral>> getTypeClasses() {

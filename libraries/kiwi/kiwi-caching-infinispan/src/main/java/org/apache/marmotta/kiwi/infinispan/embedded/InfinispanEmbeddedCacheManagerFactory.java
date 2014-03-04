@@ -15,22 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.test.cluster;
+package org.apache.marmotta.kiwi.infinispan.embedded;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
-import org.junit.BeforeClass;
+import org.apache.marmotta.kiwi.caching.CacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManagerFactory;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class HazelcastClusterTest extends BaseClusterTest {
+public class InfinispanEmbeddedCacheManagerFactory implements CacheManagerFactory {
 
+    public InfinispanEmbeddedCacheManagerFactory() {
+    }
 
-    @BeforeClass
-    public static void setup() {
-        ClusterTestSupport s = new ClusterTestSupport(CacheManagerType.HAZELCAST);
-        s.setup();
+    /**
+     * Create a new cache manager instance using the KiWiConfiguration passed as argument.
+     *
+     * @param configuration KiWi configuration used by the underlying triple store
+     * @return a new cache manager instance for this triple store
+     */
+    @Override
+    public CacheManager createCacheManager(KiWiConfiguration configuration) {
+        return new InfinispanEmbeddedCacheManager(configuration);
     }
 }

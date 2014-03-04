@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
 import org.apache.marmotta.commons.io.DataIO;
 import org.apache.marmotta.commons.vocabulary.XSD;
@@ -35,7 +35,7 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class UriExternalizer implements AdvancedExternalizer<KiWiUriResource> {
+public class UriExternalizer extends BaseExternalizer<KiWiUriResource> implements AdvancedExternalizer<KiWiUriResource> {
 
     private static final int PREFIX_UNKNOWN = 0;
     private static final int PREFIX_XSD     = 1;

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.externalizer;
+package org.apache.marmotta.kiwi.infinispan.externalizer;
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
@@ -33,22 +33,22 @@ import java.util.Set;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class IntLiteralExternalizer implements AdvancedExternalizer<KiWiIntLiteral> {
+public class DoubleLiteralExternalizer extends BaseExternalizer<KiWiDoubleLiteral> implements AdvancedExternalizer<KiWiDoubleLiteral> {
 
     @Override
-    public Set<Class<? extends KiWiIntLiteral>> getTypeClasses() {
-        return Util.<Class<? extends KiWiIntLiteral>>asSet(KiWiIntLiteral.class);
+    public Set<Class<? extends KiWiDoubleLiteral>> getTypeClasses() {
+        return Util.<Class<? extends KiWiDoubleLiteral>>asSet(KiWiDoubleLiteral.class);
     }
 
     @Override
     public Integer getId() {
-        return ExternalizerIds.INT_LITERAL;
+        return ExternalizerIds.DOUBLE_LITERAL;
     }
 
     @Override
-    public void writeObject(ObjectOutput output, KiWiIntLiteral object) throws IOException {
+    public void writeObject(ObjectOutput output, KiWiDoubleLiteral object) throws IOException {
         output.writeLong(object.getId());
-        output.writeLong(object.getIntContent());
+        output.writeDouble(object.getDoubleContent());
         output.writeObject(object.getDatatype());
 
         output.writeLong(object.getCreated().getTime());
@@ -56,15 +56,15 @@ public class IntLiteralExternalizer implements AdvancedExternalizer<KiWiIntLiter
     }
 
     @Override
-    public KiWiIntLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
+    public KiWiDoubleLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
         long id = input.readLong();
-        long content = input.readLong();
+        double content = input.readDouble();
 
         KiWiUriResource dtype = (KiWiUriResource) input.readObject();
 
         Date created = new Date(input.readLong());
 
-        KiWiIntLiteral r = new KiWiIntLiteral(content, dtype, created);
+        KiWiDoubleLiteral r = new KiWiDoubleLiteral(content, dtype, created);
         r.setId(id);
 
         return r;
