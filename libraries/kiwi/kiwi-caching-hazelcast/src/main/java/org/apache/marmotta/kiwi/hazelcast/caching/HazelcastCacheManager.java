@@ -41,15 +41,6 @@ import java.util.Map;
  */
 public class HazelcastCacheManager implements CacheManager {
 
-    public static final String TRIPLE_CACHE = "triple-cache";
-    public static final String URI_CACHE = "uri-cache";
-    public static final String BNODE_CACHE = "bnode-cache";
-    public static final String LITERAL_CACHE = "literal-cache";
-    public static final String NODE_CACHE = "node-cache";
-    public static final String NS_PREFIX_CACHE = "ns-prefix-cache";
-    public static final String NS_URI_CACHE = "ns-uri-cache";
-    public static final String REGISTRY_CACHE = "registry-cache";
-
     private static Logger log = LoggerFactory.getLogger(HazelcastCacheManager.class);
 
     private KiWiConfiguration configuration;

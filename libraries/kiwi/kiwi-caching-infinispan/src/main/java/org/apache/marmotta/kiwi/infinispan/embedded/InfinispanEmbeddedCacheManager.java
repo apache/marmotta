@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.infinispan.externalizer.*;
+import org.apache.marmotta.kiwi.infinispan.util.AsyncMap;
 import org.infinispan.Cache;
 import org.infinispan.commons.CacheException;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -52,16 +54,6 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
 
     private static Logger log = LoggerFactory.getLogger(InfinispanEmbeddedCacheManager.class);
 
-    public static final String NODE_CACHE = "node-cache";
-    public static final String TRIPLE_CACHE = "triple-cache";
-    public static final String URI_CACHE = "uri-cache";
-    public static final String BNODE_CACHE = "bnode-cache";
-    public static final String LITERAL_CACHE = "literal-cache";
-    public static final String NAMESPACE_URI_CACHE = "namespace-uri-cache";
-    public static final String NAMESPACE_PREFIX_CACHE = "namespace-prefix-cache";
-    public static final String LOADER_CACHE = "loader-cache";
-    public static final String REGISTRY_CACHE = "registry-cache";
-
     private EmbeddedCacheManager cacheManager;
 
     // default configuration: distributed cache, 100000 entries, 300 seconds expiration, 60 seconds idle
@@ -69,7 +61,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
 
     private KiWiConfiguration config;
 
-    private Cache nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, registryCache;
+    private Map nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, registryCache;
 
 
     /**
@@ -258,7 +250,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      *
      * @return an EHCache Cache instance containing the node id -> node mappings
      */
-    public Cache getNodeCache() {
+    public Map getNodeCache() {
         if(nodeCache == null) {
             Configuration nodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
@@ -269,7 +261,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                     .build();
             cacheManager.defineConfiguration(NODE_CACHE, nodeConfiguration);
 
-            nodeCache = cacheManager.getCache(NODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            nodeCache = new AsyncMap(cacheManager.getCache(NODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP));
         }
 
         return nodeCache;
@@ -281,7 +273,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      *
      * @return
      */
-    public Cache getTripleCache() {
+    public Map getTripleCache() {
         if(tripleCache == null) {
             Configuration tripleConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .clustering()
@@ -294,7 +286,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                     .build();
             cacheManager.defineConfiguration(TRIPLE_CACHE, tripleConfiguration);
 
-            tripleCache = cacheManager.getCache(TRIPLE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            tripleCache = new AsyncMap(cacheManager.getCache(TRIPLE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP));
         }
         return tripleCache;
     }
@@ -306,7 +298,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      *
      * @return
      */
-    public Cache getUriCache() {
+    public Map getUriCache() {
         if(uriCache == null) {
             Configuration uriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
@@ -314,7 +306,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                     .build();
             cacheManager.defineConfiguration(URI_CACHE, uriConfiguration);
 
-            uriCache = cacheManager.getCache(URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            uriCache = new AsyncMap(cacheManager.getCache(URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP));
         }
         return uriCache;
     }
@@ -326,7 +318,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      *
      * @return
      */
-    public Cache getBNodeCache() {
+    public Map getBNodeCache() {
         if(bnodeCache == null) {
             Configuration bnodeConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
@@ -334,7 +326,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                     .build();
             cacheManager.defineConfiguration(BNODE_CACHE, bnodeConfiguration);
 
-            bnodeCache = cacheManager.getCache(BNODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            bnodeCache = new AsyncMap(cacheManager.getCache(BNODE_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP));
         }
         return bnodeCache;
     }
@@ -346,7 +338,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      * @see org.apache.marmotta.commons.sesame.model.LiteralCommons#createCacheKey(String, java.util.Locale, String)
      * @return
      */
-    public Cache getLiteralCache() {
+    public Map getLiteralCache() {
         if(literalCache == null) {
             Configuration literalConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                     .eviction()
@@ -354,7 +346,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                     .build();
             cacheManager.defineConfiguration(LITERAL_CACHE, literalConfiguration);
 
-            literalCache = cacheManager.getCache(LITERAL_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            literalCache = new AsyncMap(cacheManager.getCache(LITERAL_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP));
         }
         return literalCache;
     }
@@ -364,7 +356,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      * Return the URI -> namespace cache from the cache manager. Used for looking up namespaces
      * @return
      */
-    public Cache getNamespaceUriCache() {
+    public Map getNamespaceUriCache() {
         if(nsUriCache == null) {
             if(isClustered()) {
                 Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
@@ -375,7 +367,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                         .expiration()
                             .lifespan(1, TimeUnit.DAYS)
                         .build();
-                cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
+                cacheManager.defineConfiguration(NS_URI_CACHE, nsuriConfiguration);
             } else {
                 Configuration nsuriConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
                         .eviction()
@@ -383,10 +375,10 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                         .expiration()
                             .lifespan(1, TimeUnit.HOURS)
                         .build();
-                cacheManager.defineConfiguration(NAMESPACE_URI_CACHE, nsuriConfiguration);
+                cacheManager.defineConfiguration(NS_URI_CACHE, nsuriConfiguration);
             }
 
-            nsUriCache = cacheManager.getCache(NAMESPACE_URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            nsUriCache = new AsyncMap(cacheManager.getCache(NS_URI_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP));
         }
         return nsUriCache;
     }
@@ -395,7 +387,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      * Return the prefix -> namespace cache from the cache manager. Used for looking up namespaces
      * @return
      */
-    public Cache getNamespacePrefixCache() {
+    public Map getNamespacePrefixCache() {
         if(nsPrefixCache == null) {
             if(isClustered()) {
                 Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
@@ -406,7 +398,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                         .expiration()
                             .lifespan(1, TimeUnit.DAYS)
                         .build();
-                cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
+                cacheManager.defineConfiguration(NS_PREFIX_CACHE, nsprefixConfiguration);
 
             } else {
                 Configuration nsprefixConfiguration = new ConfigurationBuilder().read(defaultConfiguration)
@@ -415,10 +407,10 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
                         .expiration()
                             .lifespan(1, TimeUnit.HOURS)
                         .build();
-                cacheManager.defineConfiguration(NAMESPACE_PREFIX_CACHE, nsprefixConfiguration);
+                cacheManager.defineConfiguration(NS_PREFIX_CACHE, nsprefixConfiguration);
 
             }
-            nsPrefixCache = cacheManager.getCache(NAMESPACE_PREFIX_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
+            nsPrefixCache = cacheManager.getCache(NS_PREFIX_CACHE).getAdvancedCache().withFlags(Flag.SKIP_LOCKING, Flag.SKIP_CACHE_LOAD, Flag.SKIP_REMOTE_LOOKUP);
         }
         return nsPrefixCache;
     }
@@ -431,7 +423,7 @@ public class InfinispanEmbeddedCacheManager implements CacheManager {
      * cache and should be used with care.
      * @return
      */
-    public Cache getRegistryCache() {
+    public Map getRegistryCache() {
         if(registryCache == null) {
             if(isClustered()) {
                 Configuration registryConfiguration = new ConfigurationBuilder()

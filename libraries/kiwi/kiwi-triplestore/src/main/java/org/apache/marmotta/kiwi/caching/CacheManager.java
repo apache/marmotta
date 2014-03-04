@@ -29,6 +29,16 @@ import java.util.Map;
  */
 public interface CacheManager {
 
+    // cache name constants
+    public static final String NODE_CACHE =      "node-cache";
+    public static final String TRIPLE_CACHE =    "triple-cache";
+    public static final String URI_CACHE =       "uri-cache";
+    public static final String BNODE_CACHE =     "bnode-cache";
+    public static final String LITERAL_CACHE =   "literal-cache";
+    public static final String NS_URI_CACHE =    "namespace-uri-cache";
+    public static final String NS_PREFIX_CACHE = "namespace-prefix-cache";
+    public static final String REGISTRY_CACHE =  "registry-cache";
+
 
     /**
      * Return the node id -> node cache from the cache manager. This cache is heavily used to lookup

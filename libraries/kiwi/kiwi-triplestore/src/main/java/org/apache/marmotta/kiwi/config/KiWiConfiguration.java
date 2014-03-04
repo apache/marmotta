@@ -520,7 +520,7 @@ public class KiWiConfiguration {
      * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
      * data should use different ports or addresses,
      * <p/>
-     * Only used in case isClustered() is true
+     * Only used in case isClustered() is true and the cache mode is not client-server.
      *
      * @return
      */
@@ -533,7 +533,7 @@ public class KiWiConfiguration {
      * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
      * data should use different ports or addresses.
      * <p/>
-     * Only used in case isClustered() is true
+     * Only used in case isClustered() is true and the cache mode is not client-server.
      *
      * @return
      */
@@ -542,10 +542,15 @@ public class KiWiConfiguration {
     }
 
     /**
-     * Return the multicast address used by the cache cluster this triplestore belongs to. This address is
-     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
-     * data should use different ports or addresses,
-     * <p/>
+     * The cluster address serves two purposes, depending on the kind of caching used.
+     * <ul>
+     *     <li>for distributed clusters (Infinispan, Hazelcast, ...), it specifies the multicast address used by the
+     *         cache cluster this triplestore belongs to. This address is used by JGroups to distribute and receive cache
+     *         synchronization updates. Triplestores with different data should use different ports or addresses,</li>
+     *     <li>for client-server caches (Infinispan Remote, Memcached, ...), it specifies the list of cache servers
+     *         to connect to.</li>
+     * </ul>
+     *
      * Only used in case isClustered() is true
      *
      * @return
@@ -555,9 +560,15 @@ public class KiWiConfiguration {
     }
 
     /**
-     * Change the multicast address used by the cache cluster this triplestore belongs to. This address is
-     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
-     * data should use different ports or addresses,
+     * The cluster address serves two purposes, depending on the kind of caching used.
+     * <ul>
+     *     <li>for distributed clusters (Infinispan, Hazelcast, ...), it specifies the multicast address used by the
+     *         cache cluster this triplestore belongs to. This address is used by JGroups to distribute and receive cache
+     *         synchronization updates. Triplestores with different data should use different ports or addresses,</li>
+     *     <li>for client-server caches (Infinispan Remote, Memcached, ...), it specifies the list of cache servers
+     *         to connect to.</li>
+     * </ul>
+     *
      * <p/>
      * Only used in case isClustered() is true
      *

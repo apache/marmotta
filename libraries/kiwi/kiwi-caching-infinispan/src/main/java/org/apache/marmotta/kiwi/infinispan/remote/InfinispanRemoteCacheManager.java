@@ -20,6 +20,9 @@ package org.apache.marmotta.kiwi.infinispan.remote;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.infinispan.client.hotrod.configuration.Configuration;
+import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 
 import java.util.Map;
 
@@ -32,8 +35,20 @@ public class InfinispanRemoteCacheManager implements CacheManager {
 
     private KiWiConfiguration configuration;
 
+    private RemoteCacheManager cacheManager;
+
+    private Map nodeCache, tripleCache, uriCache, literalCache, bnodeCache, nsPrefixCache, nsUriCache, registryCache;
+
+
     public InfinispanRemoteCacheManager(KiWiConfiguration configuration) {
         this.configuration = configuration;
+
+        Configuration remoteCfg = new ConfigurationBuilder()
+                .addServers(configuration.getClusterAddress())
+                .marshaller(new CustomJBossMarshaller())
+                .build();
+
+        cacheManager = new RemoteCacheManager(remoteCfg);
     }
 
 

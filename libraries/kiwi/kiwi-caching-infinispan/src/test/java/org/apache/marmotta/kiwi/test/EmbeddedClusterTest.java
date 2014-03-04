@@ -26,7 +26,7 @@ import org.junit.BeforeClass;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class InfinispanClusterTest extends BaseClusterTest {
+public class EmbeddedClusterTest extends BaseClusterTest {
 
 
     @BeforeClass
