@@ -19,10 +19,14 @@ package org.apache.marmotta.kiwi.infinispan.remote;
 
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.infinispan.util.AsyncMap;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.Configuration;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
+import org.infinispan.commons.CacheException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -32,6 +36,8 @@ import java.util.Map;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class InfinispanRemoteCacheManager implements CacheManager {
+
+    private static Logger log = LoggerFactory.getLogger(InfinispanRemoteCacheManager.class);
 
     private KiWiConfiguration configuration;
 
@@ -44,11 +50,15 @@ public class InfinispanRemoteCacheManager implements CacheManager {
         this.configuration = configuration;
 
         Configuration remoteCfg = new ConfigurationBuilder()
-                .addServers(configuration.getClusterAddress())
+                .addServer()
+                    .host(configuration.getClusterAddress())
+                    .port(configuration.getClusterPort())
                 .marshaller(new CustomJBossMarshaller())
                 .build();
 
         cacheManager = new RemoteCacheManager(remoteCfg);
+
+        log.info("initialised Infinispan remote cache manager (servers: {})",  configuration.getClusterAddress());
     }
 
 
@@ -60,7 +70,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<Long, KiWiNode> getNodeCache() {
-        return null;
+        if(nodeCache == null) {
+            nodeCache = new AsyncMap(cacheManager.getCache(NODE_CACHE));
+        }
+        return nodeCache;
     }
 
     /**
@@ -71,7 +84,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<Long, KiWiTriple> getTripleCache() {
-        return null;
+        if(tripleCache == null) {
+            tripleCache = new AsyncMap(cacheManager.getCache(TRIPLE_CACHE));
+        }
+        return tripleCache;
     }
 
     /**
@@ -82,7 +98,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiUriResource> getUriCache() {
-        return null;
+        if(uriCache == null) {
+            uriCache = new AsyncMap(cacheManager.getCache(URI_CACHE));
+        }
+        return uriCache;
     }
 
     /**
@@ -93,7 +112,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiAnonResource> getBNodeCache() {
-        return null;
+        if(bnodeCache == null) {
+            bnodeCache = new AsyncMap(cacheManager.getCache(BNODE_CACHE));
+        }
+        return bnodeCache;
     }
 
     /**
@@ -105,7 +127,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiLiteral> getLiteralCache() {
-        return null;
+        if(literalCache == null) {
+            literalCache = new AsyncMap(cacheManager.getCache(LITERAL_CACHE));
+        }
+        return literalCache;
     }
 
     /**
@@ -115,7 +140,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiNamespace> getNamespaceUriCache() {
-        return null;
+        if(nsUriCache == null) {
+            nsUriCache = new AsyncMap(cacheManager.getCache(NS_URI_CACHE));
+        }
+        return nsUriCache;
     }
 
     /**
@@ -125,7 +153,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<String, KiWiNamespace> getNamespacePrefixCache() {
-        return null;
+        if(nsPrefixCache == null) {
+            nsPrefixCache = new AsyncMap(cacheManager.getCache(NS_PREFIX_CACHE));
+        }
+        return nsPrefixCache;
     }
 
     /**
@@ -136,7 +167,10 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map<Long, Long> getRegistryCache() {
-        return null;
+        if(registryCache == null) {
+            registryCache = cacheManager.getCache(REGISTRY_CACHE);
+        }
+        return registryCache;
     }
 
     /**
@@ -148,7 +182,7 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public Map getCacheByName(String name) {
-        return null;
+        return cacheManager.getCache(name);
     }
 
     /**
@@ -164,6 +198,11 @@ public class InfinispanRemoteCacheManager implements CacheManager {
      */
     @Override
     public void shutdown() {
-
+        try {
+            log.info("shutting down cache manager ...");
+            cacheManager.stop();
+        } catch (CacheException ex) {
+            log.warn("error shutting down cache: {}", ex.getMessage());
+        }
     }
 }

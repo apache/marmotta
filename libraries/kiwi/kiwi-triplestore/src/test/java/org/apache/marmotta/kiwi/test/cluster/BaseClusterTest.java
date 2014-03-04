@@ -44,7 +44,7 @@ public abstract class BaseClusterTest {
 
     private static int datacenterIds = 1;
 
-    private static Repository repositorySync1, repositorySync2, repositoryAsync1, repositoryAsync2;
+    protected static Repository repositorySync1, repositorySync2, repositoryAsync1, repositoryAsync2;
 
     private static CacheManager cacheManagerSync1, cacheManagerSync2, cacheManagerAsync1, cacheManagerAsync2;
 
@@ -133,11 +133,15 @@ public abstract class BaseClusterTest {
         }
 
         public void setup() {
+            setup(null);
+        }
+
+        public void setup(KiWiConfiguration base) {
             try {
-                repositorySync1 = createConfiguration(61222);
-                repositorySync2 = createConfiguration(61222);
-                repositoryAsync1 = createConfiguration(61223);
-                repositoryAsync2 = createConfiguration(61224);
+                repositorySync1 = createConfiguration(base,61222);
+                repositorySync2 = createConfiguration(base,61222);
+                repositoryAsync1 = createConfiguration(base,61223);
+                repositoryAsync2 = createConfiguration(base,61224);
 
                 cacheManagerSync1 = getCacheManager(repositorySync1);
                 cacheManagerSync2 = getCacheManager(repositorySync2);
@@ -150,13 +154,22 @@ public abstract class BaseClusterTest {
             }
         }
 
-
-        private Repository createConfiguration(int port) throws RepositoryException {
-            KiWiConfiguration config = new KiWiConfiguration(
+        public KiWiConfiguration buildBaseConfiguration() {
+            return new KiWiConfiguration(
                     "default-H2",
                     "jdbc:h2:mem:kiwitest;MVCC=true;DB_CLOSE_ON_EXIT=TRUE;DB_CLOSE_DELAY=-1",
                     "kiwi", "kiwi",
                     new H2Dialect());
+        }
+
+        private Repository createConfiguration(KiWiConfiguration base, int port) throws RepositoryException {
+            KiWiConfiguration config;
+
+            if(base != null) {
+                config = base;
+            } else {
+                config = buildBaseConfiguration();
+            }
             config.setDatacenterId(datacenterIds++);
             config.setClustered(true);
             config.setCacheManager(type);
