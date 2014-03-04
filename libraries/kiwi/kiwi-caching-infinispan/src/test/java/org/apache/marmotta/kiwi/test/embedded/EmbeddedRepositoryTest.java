@@ -44,6 +44,7 @@ public class EmbeddedRepositoryTest extends RepositoryTest {
         config.setClustered(true);
         config.setClusterPort(61222);
         config.setCacheMode(CacheMode.LOCAL);
+        config.setClusterTimeout(10000);
         config.setCacheManager(CacheManagerType.INFINISPAN_CLUSTERED);
     }
 

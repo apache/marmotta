@@ -137,6 +137,12 @@ public class KiWiConfiguration {
      */
     private String clusterAddress = "228.6.7.8";
 
+
+    /**
+     * Socket timeout for cluster connections.
+     */
+    private int clusterTimeout = 60000;
+
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
     }
@@ -576,5 +582,14 @@ public class KiWiConfiguration {
      */
     public void setClusterAddress(String clusterAddress) {
         this.clusterAddress = clusterAddress;
+    }
+
+
+    public int getClusterTimeout() {
+        return clusterTimeout;
+    }
+
+    public void setClusterTimeout(int clusterTimeout) {
+        this.clusterTimeout = clusterTimeout;
     }
 }

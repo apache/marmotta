@@ -48,6 +48,7 @@ public class HotRodRepositoryTest extends RepositoryTest {
         config.setClusterAddress("127.0.0.1");
         config.setClustered(true);
         config.setClusterPort(61222);
+        config.setClusterTimeout(10000);
         config.setCacheManager(CacheManagerType.INFINISPAN_HOTROD);
     }
 

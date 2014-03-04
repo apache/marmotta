@@ -107,7 +107,9 @@ public class HotRodServerRule implements TestRule {
                 .proxyPort(port)
                 .topologyStateTransfer(false)
                 .defaultCacheName(BasicCacheContainer.DEFAULT_CACHE_NAME)
-                .idleTimeout(0)
+                .recvBufSize(4096)
+                .sendBufSize(4096)
+                        //.idleTimeout(0)
                 .workerThreads(2)
                 .build(true);
 
