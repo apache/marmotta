@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.test;
+package org.apache.marmotta.kiwi.test.remote;
 
 import org.apache.marmotta.kiwi.caching.CacheManager;
-import org.apache.marmotta.kiwi.config.CacheManagerType;
-import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.infinispan.embedded.InfinispanEmbeddedCacheManager;
 import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
-import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
+import org.infinispan.Cache;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.commons.api.BasicCacheContainer;
@@ -38,35 +36,58 @@ import org.infinispan.server.hotrod.HotRodServer;
 import org.infinispan.server.hotrod.configuration.HotRodServerConfiguration;
 import org.infinispan.server.hotrod.configuration.HotRodServerConfigurationBuilder;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class RemoteClusterTest extends BaseClusterTest {
+public class HotRodServerRule implements TestRule {
 
-    private static Logger log = LoggerFactory.getLogger(RemoteClusterTest.class);
+    HotRodServer server;
 
-    private static HotRodServer hotRodServer1, hotRodServer2, hotRodServer3;
+    int port;
 
-    @BeforeClass
-    public static void setup() {
-        hotRodServer1 = buildServer(61222);
-        hotRodServer2 = buildServer(61223);
-        hotRodServer3 = buildServer(61224);
-
-        ClusterTestSupport s = new ClusterTestSupport(CacheManagerType.INFINISPAN_HOTROD);
-
-        KiWiConfiguration base = s.buildBaseConfiguration();
-        base.setClusterAddress("127.0.0.1");
-        s.setup(base);
+    public HotRodServerRule(int port) {
+        this.port = port;
     }
 
 
+    /**
+     * Modifies the method-running {@link org.junit.runners.model.Statement} to implement this
+     * test-running rule.
+     *
+     * @param base        The {@link org.junit.runners.model.Statement} to be modified
+     * @param description A {@link org.junit.runner.Description} of the test implemented in {@code base}
+     * @return a new statement, which may be the same as {@code base},
+     * a wrapper around {@code base}, or a completely new Statement.
+     */
+    @Override
+    public Statement apply(final Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                server = buildServer(port);
+
+                try {
+                    base.evaluate();
+                } finally {
+                    server.stop();
+                }
+            }
+        };
+    }
+
+
+    public void clearAll() {
+        for(String s : server.getCacheManager().getCacheNames()) {
+            Cache c = server.getCacheManager().getCache(s);
+            c.clear();
+        }
+    }
 
     private static HotRodServer buildServer(int port) {
         HotRodServer hotRodServer = new HotRodServer() {
@@ -104,11 +125,11 @@ public class RemoteClusterTest extends BaseClusterTest {
 
         Configuration defaultConfiguration = new ConfigurationBuilder()
                 .clustering()
-                    .cacheMode(CacheMode.LOCAL)
-                    .sync()
+                .cacheMode(CacheMode.LOCAL)
+                .sync()
                 .dataContainer()
-                    .keyEquivalence(ByteArrayEquivalence.INSTANCE)
-                    .valueEquivalence(ByteArrayEquivalence.INSTANCE)
+                .keyEquivalence(ByteArrayEquivalence.INSTANCE)
+                .valueEquivalence(ByteArrayEquivalence.INSTANCE)
                 .build();
 
         EmbeddedCacheManager cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
@@ -134,8 +155,8 @@ public class RemoteClusterTest extends BaseClusterTest {
         // test if cache is available
         org.infinispan.client.hotrod.configuration.Configuration remoteCfg = new org.infinispan.client.hotrod.configuration.ConfigurationBuilder()
                 .addServer()
-                    .host("127.0.0.1")
-                    .port(port)
+                .host("127.0.0.1")
+                .port(port)
                 .marshaller(new CustomJBossMarshaller())
                 .pingOnStartup(true)
                 .build(true);
@@ -153,4 +174,5 @@ public class RemoteClusterTest extends BaseClusterTest {
 
         return hotRodServer;
     }
+
 }

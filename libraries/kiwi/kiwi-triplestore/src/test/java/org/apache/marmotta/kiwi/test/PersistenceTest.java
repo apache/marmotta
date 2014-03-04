@@ -113,7 +113,7 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(uri,testUri1);
-            //Assert.assertTrue(uri == testUri1);
+            Assert.assertEquals(uri.getId(), testUri1.getId());
 
             connection.commit();
 
@@ -121,14 +121,14 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(uri,testUri2);
-            //Assert.assertTrue(uri == testUri2);
+            Assert.assertEquals(uri.getId(), testUri2.getId());
 
 
             KiWiNode testUri3 = connection.loadUriResource(uri.stringValue());
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(uri,testUri3);
-            //Assert.assertTrue(uri == testUri3);
+            Assert.assertEquals(uri.getId(), testUri3.getId());
 
 
             connection.commit();
@@ -142,13 +142,13 @@ public class PersistenceTest {
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(uri,testUri4);
-            //Assert.assertTrue(uri != testUri4);
+            Assert.assertEquals(uri.getId(), testUri4.getId());
 
             KiWiNode testUri5 = connection.loadUriResource(uri.stringValue());
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(uri,testUri5);
-            //Assert.assertTrue(uri != testUri5);
+            Assert.assertEquals(uri.getId(), testUri5.getId());
 
             connection.commit();
 
@@ -157,7 +157,7 @@ public class PersistenceTest {
             ResultSet result = checkNodeStmt.executeQuery();
 
             Assert.assertTrue(result.next());
-            Assert.assertEquals((long) uri.getId(), result.getLong("id"));
+            Assert.assertEquals(uri.getId(), result.getLong("id"));
             Assert.assertEquals(uri.stringValue(),result.getString("svalue"));
             Assert.assertEquals("uri",result.getString("ntype"));
 
@@ -190,7 +190,7 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(bnode,testBNode1);
-            //Assert.assertTrue(bnode == testBNode1);
+            Assert.assertEquals(bnode.getId(), testBNode1.getId());
 
             connection.commit();
 
@@ -198,14 +198,14 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(bnode,testBNode2);
-            //Assert.assertTrue(bnode == testBNode2);
+            Assert.assertEquals(bnode.getId(), testBNode2.getId());
 
 
             KiWiNode testBNode3 = connection.loadAnonResource(bnode.stringValue());
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(bnode,testBNode3);
-            //Assert.assertTrue(bnode == testBNode3);
+            Assert.assertEquals(bnode.getId(), testBNode3.getId());
 
 
             connection.commit();
@@ -218,13 +218,13 @@ public class PersistenceTest {
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(bnode,testBNode4);
-            //Assert.assertTrue(bnode != testBNode4);
+            Assert.assertEquals(bnode.getId(), testBNode4.getId());
 
             KiWiNode testBNode5 = connection.loadAnonResource(bnode.stringValue());
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(bnode,testBNode5);
-            //Assert.assertTrue(bnode != testBNode5);
+            Assert.assertEquals(bnode.getId(), testBNode5.getId());
 
             connection.commit();
 
@@ -269,7 +269,7 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral1);
-            //Assert.assertTrue(literal == testLiteral1);
+            Assert.assertEquals(literal.getId(), testLiteral1.getId());
 
             connection.commit();
 
@@ -277,13 +277,13 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral2);
-            //Assert.assertTrue(literal == testLiteral2);
+            Assert.assertEquals(literal.getId(), testLiteral2.getId());
 
             KiWiNode testLiteral3 = connection.loadLiteral(literal.stringValue(), null, stype);
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral3);
-            //Assert.assertTrue(literal == testLiteral3);
+            Assert.assertEquals(literal.getId(), testLiteral3.getId());
 
             connection.commit();
 
@@ -294,13 +294,13 @@ public class PersistenceTest {
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(literal,testLiteral4);
-            //Assert.assertTrue(literal != testLiteral4);
+            Assert.assertEquals(literal.getId(), testLiteral4.getId());
 
             KiWiNode testLiteral5 = connection.loadLiteral(literal.stringValue(),null,stype);
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(literal,testLiteral5);
-            //Assert.assertTrue(literal != testLiteral5);
+            Assert.assertEquals(literal.getId(), testLiteral5.getId());
 
             connection.commit();
 
@@ -348,7 +348,7 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral1);
-            //Assert.assertTrue(literal == testLiteral1);
+            Assert.assertEquals(literal.getId(), testLiteral1.getId());
 
             connection.commit();
 
@@ -356,13 +356,13 @@ public class PersistenceTest {
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral2);
-            //Assert.assertTrue(literal == testLiteral2);
+            Assert.assertEquals(literal.getId(), testLiteral2.getId());
 
             KiWiNode testLiteral3 = connection.loadLiteral(literal.stringValue(),Locale.ENGLISH.getLanguage(),null);
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral3);
-            //Assert.assertTrue(literal == testLiteral3);
+            Assert.assertEquals(literal.getId(), testLiteral3.getId());
 
             connection.commit();
 
@@ -373,13 +373,13 @@ public class PersistenceTest {
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(literal,testLiteral4);
-            //Assert.assertTrue(literal != testLiteral4);
+            Assert.assertEquals(literal.getId(), testLiteral4.getId());
 
             KiWiNode testLiteral5 = connection.loadLiteral(literal.stringValue(),Locale.ENGLISH.getLanguage(),null);
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(literal,testLiteral5);
-            //Assert.assertTrue(literal != testLiteral5);
+            Assert.assertEquals(literal.getId(), testLiteral5.getId());
 
             connection.commit();
 
@@ -427,7 +427,7 @@ public class PersistenceTest {
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral1);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral1).getType());
-            //Assert.assertTrue(literal == testLiteral1);
+            Assert.assertEquals(literal.getId(), testLiteral1.getId());
 
             connection.commit();
 
@@ -436,14 +436,14 @@ public class PersistenceTest {
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral2);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral2).getType());
-            //Assert.assertTrue(literal == testLiteral2);
+            Assert.assertEquals(literal.getId(), testLiteral2.getId());
 
             KiWiNode testLiteral3 = connection.loadLiteral(literal.stringValue(),null,uri);
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(literal,testLiteral3);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
-            //Assert.assertTrue(literal == testLiteral3);
+            Assert.assertEquals(literal.getId(), testLiteral3.getId());
 
             connection.commit();
 
@@ -455,14 +455,14 @@ public class PersistenceTest {
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(literal,testLiteral4);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral4).getType());
-            //Assert.assertTrue(literal != testLiteral4);
+            Assert.assertEquals(literal.getId(), testLiteral4.getId());
 
             KiWiNode testLiteral5 = connection.loadLiteral(literal.stringValue(),null,uri);
 
             // needs to be equal, but now it should not be the same object!
             Assert.assertEquals(literal,testLiteral5);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
-            //Assert.assertTrue(literal != testLiteral5);
+            Assert.assertEquals(literal.getId(), testLiteral5.getId());
 
             connection.commit();
 

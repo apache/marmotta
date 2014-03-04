@@ -15,23 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.test;
+package org.apache.marmotta.kiwi.test.remote;
 
 import org.apache.marmotta.kiwi.config.CacheManagerType;
+import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class EmbeddedClusterTest extends BaseClusterTest {
+public class HotRodClusterTest extends BaseClusterTest {
 
+    private static Logger log = LoggerFactory.getLogger(HotRodClusterTest.class);
+
+
+    @ClassRule
+    public static HotRodServerRule hotrod1 = new HotRodServerRule(61222);
+
+    @ClassRule
+    public static HotRodServerRule hotrod2 = new HotRodServerRule(61223);
+
+    @ClassRule
+    public static HotRodServerRule hotrod3 = new HotRodServerRule(61224);
 
     @BeforeClass
     public static void setup() {
-        ClusterTestSupport s = new ClusterTestSupport(CacheManagerType.INFINISPAN_CLUSTERED);
-        s.setup();
+        ClusterTestSupport s = new ClusterTestSupport(CacheManagerType.INFINISPAN_HOTROD);
+
+        KiWiConfiguration base = s.buildBaseConfiguration();
+        base.setClusterAddress("127.0.0.1");
+        s.setup(base);
     }
+
+
 }

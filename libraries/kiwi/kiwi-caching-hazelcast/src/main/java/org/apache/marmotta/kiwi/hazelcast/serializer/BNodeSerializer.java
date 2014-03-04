@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.hazelcast.serializer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
+import org.apache.marmotta.commons.io.DataIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 
 import java.io.IOException;
@@ -42,24 +43,18 @@ public class BNodeSerializer implements StreamSerializer<KiWiAnonResource> {
     @Override
     public void write(ObjectDataOutput output, KiWiAnonResource object) throws IOException {
         output.writeLong(object.getId());
-        output.writeInt(object.stringValue().length());
-        output.writeChars(object.stringValue());
+        DataIO.writeString(output, object.stringValue());
         output.writeLong(object.getCreated().getTime());
     }
 
     @Override
     public KiWiAnonResource read(ObjectDataInput input) throws IOException {
-        long id = input.readLong();
-        int len = input.readInt();
-
-        char[] anonId = new char[len];
-        for(int i=0; i<len; i++) {
-            anonId[i] = input.readChar();
-        }
+        long id = input.readLong(); 
+        String anonId = DataIO.readString(input);
 
         Date created = new Date(input.readLong());
 
-        KiWiAnonResource r = new KiWiAnonResource(new String(anonId),created);
+        KiWiAnonResource r = new KiWiAnonResource(anonId,created);
         r.setId(id);
 
         return r;

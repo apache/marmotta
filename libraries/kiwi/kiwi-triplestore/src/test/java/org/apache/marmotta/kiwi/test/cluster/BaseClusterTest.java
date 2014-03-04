@@ -20,6 +20,8 @@ package org.apache.marmotta.kiwi.test.cluster;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.CacheManagerType;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.junit.AfterClass;
@@ -59,11 +61,11 @@ public abstract class BaseClusterTest {
 
 
     @Test
-    public void testClusteredCacheSync() throws InterruptedException, RepositoryException {
+    public void testClusteredCacheUri() throws InterruptedException, RepositoryException {
 
         log.info("testing cache synchronization ...");
 
-        URI u = repositorySync1.getValueFactory().createURI("http://localhost/test1");
+        KiWiUriResource u = (KiWiUriResource) repositorySync1.getValueFactory().createURI("http://localhost/test1");
 
 
         // give the cluster some time to performance asynchronous balancing
@@ -71,17 +73,48 @@ public abstract class BaseClusterTest {
 
 
         log.debug("test if resource is in cache where it was created ...");
-        URI u1 = (URI) cacheManagerSync1.getUriCache().get("http://localhost/test1");
+        KiWiUriResource u1 = cacheManagerSync1.getUriCache().get("http://localhost/test1");
+
+        Assert.assertNotNull(u1);
+        Assert.assertEquals(u, u1);
+        Assert.assertEquals(u.getId(), u1.getId());
+
+        log.debug("test if resource has been synced to other cache in cluster ...");
+        KiWiUriResource u2 = cacheManagerSync2.getUriCache().get("http://localhost/test1");
+
+        Assert.assertNotNull(u2);
+        Assert.assertEquals(u, u2);
+        Assert.assertEquals(u.getId(), u2.getId());
+    }
+
+
+    @Test
+    public void testClusteredCacheBNode() throws InterruptedException, RepositoryException {
+
+        log.info("testing cache synchronization ...");
+
+        KiWiAnonResource u = (KiWiAnonResource) repositorySync1.getValueFactory().createBNode();
+
+
+        // give the cluster some time to performance asynchronous balancing
+        Thread.sleep(100);
+
+
+        log.debug("test if resource is in cache where it was created ...");
+        KiWiAnonResource u1 = cacheManagerSync1.getBNodeCache().get(u.getID());
 
         Assert.assertNotNull(u1);
         Assert.assertEquals(u,u1);
+        Assert.assertEquals(u.getId(), u1.getId());
 
         log.debug("test if resource has been synced to other cache in cluster ...");
-        URI u2 = (URI) cacheManagerSync2.getUriCache().get("http://localhost/test1");
+        KiWiAnonResource u2 = cacheManagerSync2.getBNodeCache().get(u.getID());
 
         Assert.assertNotNull(u2);
-        Assert.assertEquals(u,u2);
+        Assert.assertEquals(u, u2);
+        Assert.assertEquals(u.getId(), u2.getId());
     }
+
 
     @Test
     public void testDisjointClusters() throws InterruptedException, RepositoryException {

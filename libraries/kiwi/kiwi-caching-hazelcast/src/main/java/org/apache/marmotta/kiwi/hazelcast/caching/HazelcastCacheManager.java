@@ -63,9 +63,13 @@ public class HazelcastCacheManager implements CacheManager {
         this.configuration = configuration;
 
         hcConfiguration = new Config();
-        hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(true);
-        hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setMulticastPort(configuration.getClusterPort());
-        hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setMulticastGroup(configuration.getClusterAddress());
+        if(configuration.isClustered()) {
+            hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(true);
+            hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setMulticastPort(configuration.getClusterPort());
+            hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setMulticastGroup(configuration.getClusterAddress());
+        } else {
+            hcConfiguration.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        }
         hcConfiguration.getGroupConfig().setName(configuration.getClusterName());
 
 
@@ -76,12 +80,16 @@ public class HazelcastCacheManager implements CacheManager {
 
         hazelcast = Hazelcast.newHazelcastInstance(hcConfiguration);
 
+        if(configuration.isClustered()) {
+            log.info("initialised Hazelcast local cache manager");
+        } else {
+            log.info("initialised Hazelcast distributed cache manager (cluster name: {})",  configuration.getClusterName());
 
-        log.info("initialised Hazelcast distributed cache manager (cluster name: {})",  configuration.getClusterName());
-
-        if(configuration.getCacheMode() != CacheMode.DISTRIBUTED) {
-            log.warn("Hazelcast only supports distributed cache mode (mode configuration was {})", configuration.getCacheMode());
+            if(configuration.getCacheMode() != CacheMode.DISTRIBUTED) {
+                log.warn("Hazelcast only supports distributed cache mode (mode configuration was {})", configuration.getCacheMode());
+            }
         }
+
     }
 
     private void setupSerializers() {

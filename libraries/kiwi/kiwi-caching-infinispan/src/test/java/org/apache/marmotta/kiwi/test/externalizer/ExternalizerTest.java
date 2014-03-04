@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.test;
+package org.apache.marmotta.kiwi.test.externalizer;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.infinispan.externalizer.*;
 import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.test.TestValueFactory;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.marshall.StreamingMarshaller;
 import org.infinispan.configuration.cache.CacheMode;
@@ -188,6 +189,7 @@ public class ExternalizerTest {
         T destination1 = externalizer.readObject(in);
 
         Assert.assertEquals(origin,destination1);
+        assertEqualsId(origin,destination1);
 
         log.info("- testing externalizer with infinispan cluster marshaller ...");
 
@@ -197,6 +199,7 @@ public class ExternalizerTest {
         Object destination2 = marshaller.objectFromByteBuffer(bytes);
 
         Assert.assertEquals(origin, destination2);
+        assertEqualsId(origin, destination2);
 
 
 
@@ -208,6 +211,7 @@ public class ExternalizerTest {
         Object destination3 = hotrod.objectFromByteBuffer(bytesH);
 
         Assert.assertEquals(origin, destination3);
+        assertEqualsId(origin, destination3);
 
     }
 
@@ -236,6 +240,15 @@ public class ExternalizerTest {
 
         }
         return object;
+    }
+      
+    private static <T> void assertEqualsId(T o1, T o2) {
+        if(o1 instanceof KiWiNode && o2 instanceof KiWiNode) {
+            Assert.assertEquals(((KiWiNode) o1).getId(), ((KiWiNode) o2).getId());
+        } else if(o1 instanceof KiWiTriple && o2 instanceof KiWiTriple) {
+            Assert.assertEquals(((KiWiTriple) o1).getId(), ((KiWiTriple) o2).getId());
+        }
+
     }
 
 }
