@@ -20,11 +20,10 @@ package org.apache.marmotta.kiwi.hazelcast.serializer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
-import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * Add file description here!
@@ -42,22 +41,12 @@ public class BNodeSerializer implements StreamSerializer<KiWiAnonResource> {
 
     @Override
     public void write(ObjectDataOutput output, KiWiAnonResource object) throws IOException {
-        output.writeLong(object.getId());
-        DataIO.writeString(output, object.stringValue());
-        output.writeLong(object.getCreated().getTime());
+        KiWiIO.writeBNode(output, object);
     }
 
     @Override
     public KiWiAnonResource read(ObjectDataInput input) throws IOException {
-        long id = input.readLong(); 
-        String anonId = DataIO.readString(input);
-
-        Date created = new Date(input.readLong());
-
-        KiWiAnonResource r = new KiWiAnonResource(anonId,created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readBNode(input);
     }
 
     @Override

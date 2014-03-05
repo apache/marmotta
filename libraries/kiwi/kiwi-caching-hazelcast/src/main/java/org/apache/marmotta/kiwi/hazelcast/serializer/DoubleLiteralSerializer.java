@@ -20,11 +20,10 @@ package org.apache.marmotta.kiwi.hazelcast.serializer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * Add file description here!
@@ -40,27 +39,12 @@ public class DoubleLiteralSerializer implements StreamSerializer<KiWiDoubleLiter
 
     @Override
     public void write(ObjectDataOutput output, KiWiDoubleLiteral object) throws IOException {
-        output.writeLong(object.getId());
-        output.writeDouble(object.getDoubleContent());
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeDoubleLiteral(output,object);
     }
 
     @Override
     public KiWiDoubleLiteral read(ObjectDataInput input) throws IOException {
-        long id = input.readLong();
-        double content = input.readDouble();
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiDoubleLiteral r = new KiWiDoubleLiteral(content, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readDoubleLiteral(input);
     }
 
     @Override

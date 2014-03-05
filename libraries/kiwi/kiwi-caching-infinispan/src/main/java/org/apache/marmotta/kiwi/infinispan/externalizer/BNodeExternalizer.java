@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.infinispan.externalizer;
 
-import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
@@ -25,7 +25,6 @@ import org.infinispan.commons.util.Util;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -48,22 +47,12 @@ public class BNodeExternalizer extends BaseExternalizer<KiWiAnonResource> implem
 
     @Override
     public void writeObject(ObjectOutput output, KiWiAnonResource object) throws IOException {
-        output.writeLong(object.getId());
-        DataIO.writeString(output, object.stringValue());
-        output.writeLong(object.getCreated().getTime());
+        KiWiIO.writeBNode(output, object);
     }
 
     @Override
     public KiWiAnonResource readObject(ObjectInput input) throws IOException, ClassNotFoundException {
-        long id = input.readLong();
-        String anonId = DataIO.readString(input);
-
-        Date created = new Date(input.readLong());
-
-        KiWiAnonResource r = new KiWiAnonResource(anonId,created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readBNode(input);
     }
 
 }

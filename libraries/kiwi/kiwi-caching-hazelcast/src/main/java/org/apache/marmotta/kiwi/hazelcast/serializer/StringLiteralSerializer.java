@@ -20,13 +20,10 @@ package org.apache.marmotta.kiwi.hazelcast.serializer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
-import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Add file description here!
@@ -43,32 +40,12 @@ public class StringLiteralSerializer implements StreamSerializer<KiWiStringLiter
 
     @Override
     public void write(ObjectDataOutput output, KiWiStringLiteral object) throws IOException {
-        output.writeLong(object.getId());
-
-        DataIO.writeString(output, object.getContent());
-        DataIO.writeString(output, object.getLanguage());
-
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeStringLiteral(output,object);
     }
 
     @Override
     public KiWiStringLiteral read(ObjectDataInput input) throws IOException {
-        long id = input.readLong();
-
-        String content = DataIO.readString(input);
-        String lang    = DataIO.readString(input);
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiStringLiteral r = new KiWiStringLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readStringLiteral(input);
     }
 
     @Override

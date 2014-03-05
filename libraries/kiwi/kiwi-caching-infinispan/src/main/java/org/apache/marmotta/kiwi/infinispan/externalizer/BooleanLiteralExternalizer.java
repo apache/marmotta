@@ -17,15 +17,14 @@
 
 package org.apache.marmotta.kiwi.infinispan.externalizer;
 
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -47,26 +46,11 @@ public class BooleanLiteralExternalizer extends BaseExternalizer<KiWiBooleanLite
 
     @Override
     public void writeObject(ObjectOutput output, KiWiBooleanLiteral object) throws IOException {
-        output.writeLong(object.getId());
-        output.writeBoolean(object.booleanValue());
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeBooleanLiteral(output,object);
     }
 
     @Override
     public KiWiBooleanLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
-        long id = input.readLong();
-        boolean content = input.readBoolean();
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiBooleanLiteral r = new KiWiBooleanLiteral(content, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readBooleanLiteral(input);
     }
 }

@@ -81,15 +81,6 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <!-- License: CPL-1.0 http://www.opensource.org/licenses/cpl1.0
-                As a MAVEN dependency it is not included in a source release. As a TEST dependency
-                it is not included in a BINARY release, so no need to mention in N&L. -->
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>1.4.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-rdfxml</artifactId>
             <scope>test</scope>

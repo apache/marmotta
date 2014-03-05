@@ -17,15 +17,14 @@
 
 package org.apache.marmotta.kiwi.infinispan.externalizer;
 
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -47,26 +46,11 @@ public class DateLiteralExternalizer extends BaseExternalizer<KiWiDateLiteral> i
 
     @Override
     public void writeObject(ObjectOutput output, KiWiDateLiteral object) throws IOException {
-        output.writeLong(object.getId());
-        output.writeLong(object.getDateContent().getTime());
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeDateLiteral(output,object);
     }
 
     @Override
     public KiWiDateLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
-        long id = input.readLong();
-        Date content = new Date(input.readLong());
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiDateLiteral r = new KiWiDateLiteral(content, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readDateLiteral(input);
     }
 }

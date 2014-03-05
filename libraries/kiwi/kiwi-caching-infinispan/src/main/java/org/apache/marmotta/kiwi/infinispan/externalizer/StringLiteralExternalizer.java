@@ -17,17 +17,14 @@
 
 package org.apache.marmotta.kiwi.infinispan.externalizer;
 
-import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -49,31 +46,11 @@ public class StringLiteralExternalizer extends BaseExternalizer<KiWiStringLitera
 
     @Override
     public void writeObject(ObjectOutput output, KiWiStringLiteral object) throws IOException {
-        output.writeLong(object.getId());
-
-        DataIO.writeString(output, object.getContent());
-        DataIO.writeString(output, object.getLanguage());
-
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeStringLiteral(output,object);
     }
 
     @Override
     public KiWiStringLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
-        long id = input.readLong();
-
-        String content = DataIO.readString(input);
-        String lang    = DataIO.readString(input);
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiStringLiteral r = new KiWiStringLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readStringLiteral(input);
     }
 }

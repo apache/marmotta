@@ -17,15 +17,14 @@
 
 package org.apache.marmotta.kiwi.infinispan.externalizer;
 
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -47,26 +46,11 @@ public class DoubleLiteralExternalizer extends BaseExternalizer<KiWiDoubleLitera
 
     @Override
     public void writeObject(ObjectOutput output, KiWiDoubleLiteral object) throws IOException {
-        output.writeLong(object.getId());
-        output.writeDouble(object.getDoubleContent());
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeDoubleLiteral(output,object);
     }
 
     @Override
     public KiWiDoubleLiteral readObject(ObjectInput input) throws IOException, ClassNotFoundException {
-        long id = input.readLong();
-        double content = input.readDouble();
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiDoubleLiteral r = new KiWiDoubleLiteral(content, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readDoubleLiteral(input);
     }
 }

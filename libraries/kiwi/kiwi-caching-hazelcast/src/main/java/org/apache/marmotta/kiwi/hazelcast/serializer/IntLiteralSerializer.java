@@ -20,11 +20,10 @@ package org.apache.marmotta.kiwi.hazelcast.serializer;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
+import org.apache.marmotta.kiwi.io.KiWiIO;
 import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 
 import java.io.IOException;
-import java.util.Date;
 
 /**
  * Add file description here!
@@ -41,27 +40,12 @@ public class IntLiteralSerializer implements StreamSerializer<KiWiIntLiteral> {
 
     @Override
     public void write(ObjectDataOutput output, KiWiIntLiteral object) throws IOException {
-        output.writeLong(object.getId());
-        output.writeLong(object.getIntContent());
-        output.writeObject(object.getDatatype());
-
-        output.writeLong(object.getCreated().getTime());
-
+        KiWiIO.writeIntLiteral(output,object);
     }
 
     @Override
     public KiWiIntLiteral read(ObjectDataInput input) throws IOException {
-        long id = input.readLong();
-        long content = input.readLong();
-
-        KiWiUriResource dtype = (KiWiUriResource) input.readObject();
-
-        Date created = new Date(input.readLong());
-
-        KiWiIntLiteral r = new KiWiIntLiteral(content, dtype, created);
-        r.setId(id);
-
-        return r;
+        return KiWiIO.readIntLiteral(input);
     }
 
     @Override

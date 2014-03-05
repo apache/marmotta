@@ -25,7 +25,6 @@ import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.infinispan.Cache;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,13 +53,13 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
     /**
      * Cache entries by resource
      */
-    private Cache<String,KiWiCacheEntry> entryResourceCache;
+    private Map<String,KiWiCacheEntry> entryResourceCache;
 
 
     /**
      * Cache entries by ID
      */
-    private Cache<Long,KiWiCacheEntry> entryIdCache;
+    private Map<Long,KiWiCacheEntry> entryIdCache;
 
 
     public LDCachingKiWiPersistenceConnection(KiWiConnection connection) throws SQLException {
