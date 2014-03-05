@@ -345,6 +345,44 @@
             </dependencies>
         </profile>
 
+
+        <!-- Caching Backends for KiWi -->
+
+        <profile>
+            <id>infinispan</id>
+            <activation>
+                <property>
+                    <name>marmotta.caching</name>
+                    <value>infinispan</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>kiwi-caching-infinispan</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>hazelcast</id>
+            <activation>
+                <property>
+                    <name>marmotta.caching</name>
+                    <value>hazelcast</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>kiwi-caching-hazelcast</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
+
         <profile>
             <id>cleanall</id>
             <build>

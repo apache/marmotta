@@ -180,7 +180,11 @@ public class KiWiStoreProvider implements StoreProvider {
                 e.containsChangedKey(KiWiOptions.CACHING_TRIPLE_SIZE) ||
                 e.containsChangedKey(KiWiOptions.CACHING_URI_SIZE) ||
                 e.containsChangedKey(KiWiOptions.CACHING_BNODE_SIZE) ||
-                e.containsChangedKey(KiWiOptions.CACHING_QUERY_ENABLED)
+                e.containsChangedKey(KiWiOptions.CACHING_QUERY_ENABLED) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_BACKEND) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_ADDRESS) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_PORT) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_MODE)
                 ) {
             log.info("KiWi backend configuration changed, re-initialising triple store");
 
