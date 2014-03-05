@@ -18,11 +18,11 @@
 package org.apache.marmotta.kiwi.config;
 
 /**
- * Add file description here!
+ * Enumeration of the different caching backends currently supported
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public enum CacheManagerType {
+public enum CachingBackends {
 
     /**
      * Simple in-memory cache backend using the Guava library; no clustering support
@@ -46,7 +46,7 @@ public enum CacheManagerType {
     HAZELCAST("org.apache.marmotta.kiwi.hazelcast.caching.HazelcastCacheManagerFactory");
 
 
-    CacheManagerType(String factoryClass) {
+    CachingBackends(String factoryClass) {
         this.factoryClass = factoryClass;
     }
 

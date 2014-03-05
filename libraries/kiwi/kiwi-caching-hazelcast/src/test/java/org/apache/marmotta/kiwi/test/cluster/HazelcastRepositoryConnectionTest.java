@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.kiwi.test.cluster;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
 import org.apache.marmotta.kiwi.config.CacheMode;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -44,7 +44,7 @@ public class HazelcastRepositoryConnectionTest extends RepositoryConnectionTest 
         config.setClustered(false);
         config.setClusterPort(61222);
         config.setCacheMode(CacheMode.DISTRIBUTED);
-        config.setCacheManager(CacheManagerType.HAZELCAST);
+        config.setCachingBackend(CachingBackends.HAZELCAST);
     }
     
     /* (non-Javadoc)

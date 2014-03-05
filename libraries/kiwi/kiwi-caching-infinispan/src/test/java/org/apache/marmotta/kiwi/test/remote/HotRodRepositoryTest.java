@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.test.remote;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -49,7 +49,7 @@ public class HotRodRepositoryTest extends RepositoryTest {
         config.setClustered(true);
         config.setClusterPort(61222);
         config.setClusterTimeout(10000);
-        config.setCacheManager(CacheManagerType.INFINISPAN_HOTROD);
+        config.setCachingBackend(CachingBackends.INFINISPAN_HOTROD);
     }
 
 

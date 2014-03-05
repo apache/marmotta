@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.test.cluster;
 
 import org.apache.marmotta.kiwi.caching.CacheManager;
-import org.apache.marmotta.kiwi.config.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
@@ -159,9 +159,9 @@ public abstract class BaseClusterTest {
 
     protected static class ClusterTestSupport {
 
-        CacheManagerType type;
+        CachingBackends type;
 
-        public ClusterTestSupport(CacheManagerType type) {
+        public ClusterTestSupport(CachingBackends type) {
             this.type = type;
         }
 
@@ -205,7 +205,7 @@ public abstract class BaseClusterTest {
             }
             config.setDatacenterId(datacenterIds++);
             config.setClustered(true);
-            config.setCacheManager(type);
+            config.setCachingBackend(type);
             config.setClusterPort(port);
 
             KiWiStore store = new KiWiStore(config);

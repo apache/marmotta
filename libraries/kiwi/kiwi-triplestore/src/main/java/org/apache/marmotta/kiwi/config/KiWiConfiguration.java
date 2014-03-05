@@ -95,7 +95,7 @@ public class KiWiConfiguration {
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    private CacheManagerType cacheManager = CacheManagerType.GUAVA;
+    private CachingBackends cachingBackend = CachingBackends.GUAVA;
 
     private int nodeCacheSize = 1000000;
 
@@ -306,16 +306,16 @@ public class KiWiConfiguration {
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    public CacheManagerType getCacheManager() {
-        return cacheManager;
+    public CachingBackends getCachingBackend() {
+        return cachingBackend;
     }
 
     /**
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    public void setCacheManager(CacheManagerType cacheManager) {
-        this.cacheManager = cacheManager;
+    public void setCachingBackend(CachingBackends cachingBackend) {
+        this.cachingBackend = cachingBackend;
     }
 
     /**

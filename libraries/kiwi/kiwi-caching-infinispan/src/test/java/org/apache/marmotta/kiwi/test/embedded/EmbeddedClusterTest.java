@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.test.embedded;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.junit.BeforeClass;
 
@@ -31,7 +31,7 @@ public class EmbeddedClusterTest extends BaseClusterTest {
 
     @BeforeClass
     public static void setup() {
-        ClusterTestSupport s = new ClusterTestSupport(CacheManagerType.INFINISPAN_CLUSTERED);
+        ClusterTestSupport s = new ClusterTestSupport(CachingBackends.INFINISPAN_CLUSTERED);
         s.setup();
     }
 }

@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.test.cluster;
-
-import org.apache.marmotta.kiwi.config.CachingBackends;
-import org.junit.BeforeClass;
+package org.apache.marmotta.platform.core.model.config;
 
 /**
- * Add file description here!
+ * Class with static constants for configuration options
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class HazelcastClusterTest extends BaseClusterTest {
+public class CoreOptions {
+    public static final String BASE_URI = "kiwi.context";
+    public static final String SERVER_URI = "kiwi.host";
 
+    public static final String CACHING_EXPIRATION = "caching.expiration";
+    public static final String CACHING_MAXIMUM_SIZE = "caching.maximum_size";
 
-    @BeforeClass
-    public static void setup() {
-        ClusterTestSupport s = new ClusterTestSupport(CachingBackends.HAZELCAST);
-        s.setup();
-    }
+    // HTTP connection service
+    public static final String HTTP_MAX_CONNECTIONS = "core.http.max_connections";
+    public static final String HTTP_MAX_CONNECTIONS_PER_ROUTE = "core.http.max_connections_per_route";
+    public static final String HTTP_CLIENT_CACHE_ENABLE = "core.http.client_cache_enable";
 }

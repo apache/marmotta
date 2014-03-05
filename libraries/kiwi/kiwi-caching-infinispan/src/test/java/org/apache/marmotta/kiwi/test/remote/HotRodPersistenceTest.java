@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.test.remote;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.test.PersistenceTest;
 import org.junit.ClassRule;
@@ -37,6 +37,6 @@ public class HotRodPersistenceTest extends PersistenceTest  {
 
         kiwiConfig.setClusterAddress("127.0.0.1");
         kiwiConfig.setClusterPort(61222);
-        kiwiConfig.setCacheManager(CacheManagerType.INFINISPAN_HOTROD);
+        kiwiConfig.setCachingBackend(CachingBackends.INFINISPAN_HOTROD);
     }
 }

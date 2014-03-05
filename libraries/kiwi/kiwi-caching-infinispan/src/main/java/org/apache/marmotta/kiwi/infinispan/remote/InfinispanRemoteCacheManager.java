@@ -55,6 +55,7 @@ public class InfinispanRemoteCacheManager implements CacheManager {
                     .port(configuration.getClusterPort())
                 .marshaller(new CustomJBossMarshaller())
                 .socketTimeout(configuration.getClusterTimeout())
+                .connectionTimeout(configuration.getClusterTimeout())
                 .build();
 
         cacheManager = new RemoteCacheManager(remoteCfg);

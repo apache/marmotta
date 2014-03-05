@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.kiwi.test.embedded;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
 import org.apache.marmotta.kiwi.config.CacheMode;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -45,7 +45,7 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
         config.setClusterPort(61222);
         config.setCacheMode(CacheMode.LOCAL);
         config.setClusterTimeout(10000);
-        config.setCacheManager(CacheManagerType.INFINISPAN_CLUSTERED);
+        config.setCachingBackend(CachingBackends.INFINISPAN_CLUSTERED);
     }
     
     /* (non-Javadoc)

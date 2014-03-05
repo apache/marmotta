@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.test.remote;
 
-import org.apache.marmotta.kiwi.config.CacheManagerType;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.junit.BeforeClass;
@@ -46,7 +46,7 @@ public class HotRodClusterTest extends BaseClusterTest {
 
     @BeforeClass
     public static void setup() {
-        ClusterTestSupport s = new ClusterTestSupport(CacheManagerType.INFINISPAN_HOTROD);
+        ClusterTestSupport s = new ClusterTestSupport(CachingBackends.INFINISPAN_HOTROD);
 
         KiWiConfiguration base = s.buildBaseConfiguration();
         base.setClusterAddress("127.0.0.1");
