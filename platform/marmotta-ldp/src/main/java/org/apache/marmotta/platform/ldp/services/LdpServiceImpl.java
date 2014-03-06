@@ -139,7 +139,7 @@ public class LdpServiceImpl implements LdpService {
         if (in != null) {
             IOUtils.copy(in, out);
         } else {
-            throw new IOException("Cannot read reosurce " + resource);
+            throw new IOException("Cannot read resource " + resource);
         }
 
     }
@@ -172,16 +172,18 @@ public class LdpServiceImpl implements LdpService {
         connection.add(container, LDP.contains, resource, ldpContext);
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
-        // Add the bodyContent
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+        connection.add(resource, RDF.TYPE, LDP.NonRdfResource, ldpContext);
+        connection.add(resource, DCTERMS.created, now, ldpContext);
+        connection.add(resource, DCTERMS.modified, now, ldpContext);
+
+        // Add the bodyContent
         final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
         if (rdfFormat == null) {
-            log.debug("POST creates new LDP-BR, because no RDF parser found for type {}", type);
+            log.debug("POST creates new LDP-NR, because no suitable RDF parser found for type {}", type);
             Literal format = valueFactory.createLiteral(type.toString());
-            URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type.toString()));
+            URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
 
-            connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-            connection.add(resource, RDF.TYPE, LDP.NonRdfResource, ldpContext);
             connection.add(binaryResource, DCTERMS.created, now, ldpContext);
             connection.add(binaryResource, DCTERMS.modified, now, ldpContext);
 
@@ -198,11 +200,6 @@ public class LdpServiceImpl implements LdpService {
             return binaryResource.stringValue();
         } else {
             log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
-
-            connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-            connection.add(resource, RDF.TYPE, LDP.RdfResource, ldpContext);
-            connection.add(resource, DCTERMS.created, now, ldpContext);
-            connection.add(resource, DCTERMS.modified, now, ldpContext);
 
             // FIXME: We are (are we?) allowed to filter out server-managed properties here
             connection.add(stream, resource.stringValue(), rdfFormat, resource);

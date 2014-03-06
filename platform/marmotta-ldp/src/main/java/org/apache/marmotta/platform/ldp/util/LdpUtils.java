@@ -31,6 +31,8 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 
+import javax.ws.rs.core.MediaType;
+
 /**
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
  */
@@ -51,11 +53,12 @@ public class LdpUtils {
     /**
      * Get the preferred file extension for the content type
      *
-     * @param contentType content type
+     * @param mediaType content type
      * @return file extension (already including '.')
      * @throws MimeTypeException
      */
-    public static String getExtension(String contentType) {
+    public static String getExtension(MediaType mediaType) {
+        String contentType = String.format("%s/%s", mediaType.getType(), mediaType.getSubtype());
         MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
         try {
             MimeType mimeType = allTypes.forName(contentType);
@@ -63,7 +66,6 @@ public class LdpUtils {
         } catch (MimeTypeException e) {
             return null; //FIXME
         }
-
     }
 
     /**
