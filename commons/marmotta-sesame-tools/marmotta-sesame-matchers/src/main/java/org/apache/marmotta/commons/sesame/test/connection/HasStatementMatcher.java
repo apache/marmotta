@@ -51,7 +51,7 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
 
     @Override
     public void describeTo(Description description) {
-        description.appendText(" to contain Statement(")
+        description.appendText("\n to contain Statement(")
                 .appendValue(subject).appendText(" ")
                 .appendValue(predicate).appendText(" ")
                 .appendValue(object).appendText(")");
