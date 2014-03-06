@@ -83,29 +83,25 @@ public class LdpWebService {
     @GET
     public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type) throws RepositoryException {
         final String resource = getResourceUri(uriInfo);
-        if (log.isDebugEnabled()) {
-            log.debug("GET to LDPR <{}>", resource);
-        }
+        log.debug("GET to LDPR <{}>", resource);
         return buildGetResponse(resource, r, type).build();
     }
 
     @HEAD
     public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)  throws RepositoryException {
         final String resource = getResourceUri(uriInfo);
-        if (log.isDebugEnabled()) {
-            log.debug("HEAD to LDPR <{}>", resource);
-        }
+        log.debug("HEAD to LDPR <{}>", resource);
         return buildGetResponse(resource, r, type).entity(null).build();
     }
 
     private Response.ResponseBuilder buildGetResponse(final String resource, Request r, MediaType type) throws RepositoryException {
-        final RepositoryConnection con = sesameService.getConnection();
+        final RepositoryConnection conn = sesameService.getConnection();
         try {
-            con.begin();
+            conn.begin();
 
-            if (!ldpService.exists(con, resource)) {
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_FOUND, resource);
-                con.rollback();
+            if (!ldpService.exists(conn, resource)) {
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.NOT_FOUND, resource);
+                conn.rollback();
                 return resp;
             }
 
@@ -119,14 +115,14 @@ public class LdpWebService {
                     @Override
                     public void write(OutputStream out) throws IOException, WebApplicationException {
                         try {
-                            ldpService.exportResource(con, resource, out);
+                            ldpService.exportResource(conn, resource, out);
                         } catch (RepositoryException | IOException e) {
                             throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
                         }
                     }
                 };
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
-                con.commit();
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
+                conn.commit();
                 return resp;
             } else {
                 // Deliver all triples with <subject> as subject.
@@ -134,34 +130,34 @@ public class LdpWebService {
                     @Override
                     public void write(OutputStream output) throws IOException, WebApplicationException {
                         try {
-                            final RepositoryConnection outputCon = sesameService.getConnection();;
+                            final RepositoryConnection outputConn = sesameService.getConnection();;
                             try {
-                                outputCon.begin();
-                                ldpService.exportResource(outputCon, resource, output, format);
-                                outputCon.commit();
+                                outputConn.begin();
+                                ldpService.exportResource(outputConn, resource, output, format);
+                                outputConn.commit();
                             } catch (RDFHandlerException e) {
-                                outputCon.rollback();
+                                outputConn.rollback();
                                 throw new NoLogWebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e.getMessage()).build());
                             } catch (final Throwable t) {
-                                outputCon.rollback();
+                                outputConn.rollback();
                                 throw t;
                             } finally {
-                                outputCon.close();
+                                outputConn.close();
                             }
                         } catch (RepositoryException e) {
                             throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
                         }
                     }
                 };
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
-                con.commit();
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
+                conn.commit();
                 return resp;
             }
         } catch (final Throwable t) {
-            con.rollback();
+            conn.rollback();
             throw t;
         } finally {
-            con.close();
+            conn.close();
         }
     }
 
