@@ -76,7 +76,7 @@ public class LdpWebServiceTest {
 
     @Test
     public void testCRUD() {
-        final String testBase = "test1";
+        final String testBase = "test";
         final String containerName = "container1";
         final String resourceName = "resource1";
 
@@ -115,7 +115,7 @@ public class LdpWebServiceTest {
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer)
                 ))
-                .get(container);
+            .get(container);
 
         // also the new resource exists
         RestAssured
@@ -154,7 +154,78 @@ public class LdpWebServiceTest {
 
     }
 
-    @AfterClass
+    @Test
+    public void testNR() throws IOException {
+        final String testBase = "test";
+        final String containerName = "container2";
+        final String resourceName = "resource1";
+
+        // The container
+        final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
+        final String newResource = UriBuilder.fromUri(container).path(resourceName).build().toString();
+        final String mimeType = "image/png";
+
+        RestAssured.expect().statusCode(404).get(container);
+
+        // Create
+        RestAssured
+            .given()
+                .header("Slug", resourceName)
+                .body(IOUtils.toByteArray(LdpWebServiceTest.class.getResourceAsStream("/test.png")))
+                .contentType(mimeType)
+            .expect()
+                .statusCode(201)
+                .header("Location", baseUrl + newResource + ".png")
+                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIST header...
+                        HeaderMatchers.isLink(baseUrl + newResource, "describedby"),
+                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
+                )
+            .post(container);
+
+        // now the container exists
+        RestAssured
+            .given()
+                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+            .expect()
+                .statusCode(200)
+                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIST header...
+                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
+                )
+                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + container,
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), LDP.contains, new URIImpl(baseUrl + newResource))
+                ))
+            .get(container);
+
+
+        // now the resource exists
+        RestAssured
+            .given()
+                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+            .expect()
+                .statusCode(200)
+                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIST header...
+                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
+                        HeaderMatchers.isLink(LDP.NonRdfResource.stringValue(), "type"))
+                )
+                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + newResource,
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.NonRdfResource),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.HAS_FORMAT, new URIImpl(baseUrl + newResource + ".png"))
+                ))
+            .get(newResource);
+    }
+
+   @AfterClass
     public static void tearDown() {
         marmotta.shutdown();
     }
