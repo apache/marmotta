@@ -98,7 +98,7 @@ public class LdpWebServiceTest {
                 .header("Location", baseUrl + newResource)
             .post(container);
 
-        // now the container exists
+        // now the container hasType
         log.info("200 - container");
         RestAssured
             .given()
@@ -117,7 +117,7 @@ public class LdpWebServiceTest {
                 ))
             .get(container);
 
-        // also the new resource exists
+        // also the new resource hasType
         RestAssured
             .given()
                 .header("Accept", mimeType)
@@ -183,7 +183,7 @@ public class LdpWebServiceTest {
                 )
             .post(container);
 
-        // now the container exists
+        // now the container hasType
         RestAssured
             .given()
                 .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
@@ -203,7 +203,7 @@ public class LdpWebServiceTest {
             .get(container);
 
 
-        // now the resource exists
+        // now the resource hasType
         RestAssured
             .given()
                 .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())

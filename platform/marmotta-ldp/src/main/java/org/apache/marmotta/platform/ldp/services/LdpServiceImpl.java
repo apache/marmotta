@@ -91,7 +91,7 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public boolean exists(RepositoryConnection connection, URI resource, URI type) throws RepositoryException {
+    public boolean hasType(RepositoryConnection connection, URI resource, URI type) throws RepositoryException {
         return connection.hasStatement(resource, RDF.TYPE, type, true, ldpContext);
     }
 
@@ -133,20 +133,37 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public void exportResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException {
+    public void exportBinaryResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException {
         //TODO: check (resource, dct:format, type)
-        InputStream in = binaryStore.read(resource);
-        if (in != null) {
-            IOUtils.copy(in, out);
-        } else {
-            throw new IOException("Cannot read resource " + resource);
+        try (InputStream in = binaryStore.read(resource)) {
+            if (in != null) {
+                IOUtils.copy(in, out);
+            } else {
+                throw new IOException("Cannot read resource " + resource);
+            }
         }
 
     }
 
     @Override
-    public void exportResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException {
-        exportResource(connection, resource.stringValue(), out);
+    public void exportBinaryResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException {
+        exportBinaryResource(connection, resource.stringValue(), out);
+    }
+
+    @Override
+    public String getMimeType(RepositoryConnection connection, String resource) throws RepositoryException {
+        return getMimeType(connection, buildURI(resource));
+    }
+
+    @Override
+    public String getMimeType(RepositoryConnection connection, URI uri) throws RepositoryException {
+        final RepositoryResult<Statement> formats = connection.getStatements(uri, DCTERMS.format, null, false, ldpContext);
+        try {
+            if (formats.hasNext()) return formats.next().getObject().stringValue();
+        } finally {
+            formats.close();
+        }
+        return null;
     }
 
     @Override
@@ -161,9 +178,9 @@ public class LdpServiceImpl implements LdpService {
         // Add container triples (Sec. 6.4.3)
         // container and meta triples!
 
-        Literal now = valueFactory.createLiteral(new Date());
+        final Literal now = valueFactory.createLiteral(new Date());
 
-        if (exists(connection, container, LDP.BasicContainer)) {
+        if (hasType(connection, container, LDP.BasicContainer)) {
             connection.remove(container, DCTERMS.modified, null, ldpContext);
         } else {
             connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
@@ -173,7 +190,7 @@ public class LdpServiceImpl implements LdpService {
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-        connection.add(resource, RDF.TYPE, LDP.NonRdfResource, ldpContext);
+        connection.add(resource, RDF.TYPE, LDP.RdfResource, ldpContext);
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
@@ -186,6 +203,8 @@ public class LdpServiceImpl implements LdpService {
 
             connection.add(binaryResource, DCTERMS.created, now, ldpContext);
             connection.add(binaryResource, DCTERMS.modified, now, ldpContext);
+            connection.add(binaryResource, RDF.TYPE, LDP.Resource, ldpContext);
+            connection.add(binaryResource, RDF.TYPE, LDP.NonRdfResource, ldpContext);
 
             //extra triples
             //TODO: check conformance with 6.2.3.12

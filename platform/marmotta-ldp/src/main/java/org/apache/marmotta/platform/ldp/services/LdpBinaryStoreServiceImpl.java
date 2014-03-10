@@ -17,19 +17,26 @@
  */
 package org.apache.marmotta.platform.ldp.services;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Very basic disk-based implementation of the LDP Binary Store
@@ -44,17 +51,16 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     @Inject
     private ConfigurationService configurationService;
 
-    private File base;
+    private Path base;
 
-    public void init(@Observes SystemStartupEvent e) {
-        base = new File(configurationService.getHome(), "data");
-        if (!base.exists()) {
-            base.mkdir();
-        }
-        log.info("Initialized binary data store over {}", base.getAbsolutePath());
+    @PostConstruct
+    public void init() {
+        base = Paths.get(configurationService.getHome(), "data");
+
+        log.info("Initialized binary data store over {}", base.toString());
     }
 
-    private File getFile(String resource) throws URISyntaxException {
+    private Path getFile(String resource) throws URISyntaxException {
         java.net.URI uri = new java.net.URI(resource);
         String schema = uri.getScheme();
         if ("http".compareTo(schema) != 0) {
@@ -62,27 +68,18 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
             log.error(msg);
             throw new RuntimeException(msg);
         }
-        return new File(base, StringUtils.removeStart(resource, "http://"));
+        return base.resolve(StringUtils.removeStart(resource, "http://"));
     }
 
     @Override
     public boolean store(String resource, InputStream stream)  {
         try {
-            File file = getFile(resource);
-            File dir = file.getParentFile();
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
+            Path file = getFile(resource);
+            Files.createDirectories(file.getParent());
 
-            OutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(file));
-            int token = -1;
-            while((token = stream.read()) != -1) {
-                bufferedOutputStream.write(token);
+            try (OutputStream outputStream = Files.newOutputStream(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                IOUtils.copy(stream, outputStream);
             }
-            bufferedOutputStream.flush();
-            bufferedOutputStream.close();
-            stream.close();
-
             return true;
         } catch (URISyntaxException | IOException e) {
             log.error("{} resource cannot be stored on disk: {}", resource, e.getMessage());
@@ -98,11 +95,12 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     @Override
     public InputStream read(String resource) throws IOException {
         try {
-            File file = getFile(resource);
-            if (!file.exists()) {
-                throw new IOException("File " + file.getAbsolutePath() + " not found");
+            Path file = getFile(resource);
+            if (Files.exists(file)) {
+                return Files.newInputStream(file, StandardOpenOption.READ);
             } else {
-                return new FileInputStream(file);
+                log.warn("{} not found in binary storage ({})", resource, file);
+                return null;
             }
         } catch (URISyntaxException e) {
             log.error("Error reading resource {}: {}", resource, e.getMessage());

@@ -48,7 +48,7 @@ public interface LdpService {
 
     boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException;
 
-    boolean exists(RepositoryConnection connection, URI resource, URI type) throws RepositoryException;
+    boolean hasType(RepositoryConnection connection, URI resource, URI type) throws RepositoryException;
 
     /**
      * Add a LDP resource
@@ -88,9 +88,9 @@ public interface LdpService {
 
     void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
-    void exportResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException;
+    void exportBinaryResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException;
 
-    void exportResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException;
+    void exportBinaryResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException;
 
     EntityTag generateETag(RepositoryConnection connection, String uri) throws RepositoryException;
 
@@ -107,4 +107,8 @@ public interface LdpService {
     Date getLastModified(RepositoryConnection connection, URI uri) throws RepositoryException;
 
     void patchResource(RepositoryConnection connection, String resource, InputStream patchData, boolean strict) throws RepositoryException, ParseException, InvalidModificationException, InvalidPatchDocumentException;
+
+    String getMimeType(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    String getMimeType(RepositoryConnection connection, URI uri) throws RepositoryException;
 }

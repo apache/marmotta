@@ -99,38 +99,54 @@ public class LdpWebService {
         try {
             conn.begin();
 
+            log.trace("Checking existence of {}", resource);
             if (!ldpService.exists(conn, resource)) {
+                log.debug("{} does not exist", resource);
                 final Response.ResponseBuilder resp = createResponse(conn, Response.Status.NOT_FOUND, resource);
                 conn.rollback();
                 return resp;
+            } else {
+                log.trace("{} hasType, continuing", resource);
             }
 
             // TODO: Maybe this is a LDP-BR?
             // TODO: Proper content negotiation
 
-            final RDFFormat format = Rio.getWriterFormatForMIMEType(type.toString(), RDFFormat.TURTLE);
+            final RDFFormat format = Rio.getWriterFormatForMIMEType(type.toString());
             if (format == null) {
                 log.warn("GET to <{}> with non-RDF format {}, so looking for a LDP-BR", resource, type);
                 final StreamingOutput entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream out) throws IOException, WebApplicationException {
                         try {
-                            ldpService.exportResource(conn, resource, out);
-                        } catch (RepositoryException | IOException e) {
+                            final RepositoryConnection outputConn = sesameService.getConnection();
+                            try {
+                                outputConn.begin();
+                                ldpService.exportBinaryResource(outputConn, resource, out);
+                                outputConn.commit();
+                            } catch (RepositoryException | IOException e) {
+                                outputConn.rollback();
+                                throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
+                            } finally {
+                                outputConn.close();
+                            }
+                        } catch (RepositoryException e) {
                             throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
                         }
                     }
                 };
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
+                final String realType = ldpService.getMimeType(conn, resource);
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(realType!=null?MediaType.valueOf(realType):type);
                 conn.commit();
                 return resp;
             } else {
                 // Deliver all triples with <subject> as subject.
+                log.info("GET to <{}> with RDF format {}, providing LPD-RR data", resource, format.getDefaultMIMEType());
                 final StreamingOutput entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream output) throws IOException, WebApplicationException {
                         try {
-                            final RepositoryConnection outputConn = sesameService.getConnection();;
+                            final RepositoryConnection outputConn = sesameService.getConnection();
                             try {
                                 outputConn.begin();
                                 ldpService.exportResource(outputConn, resource, output, format);
@@ -200,7 +216,7 @@ public class LdpWebService {
                 final String base = newResource;
                 do {
                     final String candidate = base + "-" + (++i);
-                    log.trace("<{}> already exists, trying <{}>", newResource, candidate);
+                    log.trace("<{}> already hasType, trying <{}>", newResource, candidate);
                     newResource = candidate;
                 } while (ldpService.exists(conn, newResource));
                 log.debug("resolved name clash, new resource will be <{}>", newResource);
@@ -210,7 +226,7 @@ public class LdpWebService {
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
 
-            //checking if resource (container) exists is done later in the service
+            //checking if resource (container) hasType is done later in the service
             try {
                 String location = ldpService.addResource(conn, container, newResource, type, postBody);
                 final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
@@ -280,7 +296,7 @@ public class LdpWebService {
              *
              * clients should not be allowed to update LDPC-membership triples -> 409 Conflict (Sec. 6.5.1)
              *
-             * if the target resource exists, replace ALL data of the target.
+             * if the target resource hasType, replace ALL data of the target.
              */
             final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_IMPLEMENTED, resource);
             con.rollback();
