@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -167,12 +166,12 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String addResource(RepositoryConnection connection, String container, String resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+    public String addResource(RepositoryConnection connection, String container, String resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         return addResource(connection, buildURI(container), buildURI(resource), type, stream);
     }
 
     @Override
-    public String addResource(RepositoryConnection connection, URI container, URI resource, MediaType type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+    public String addResource(RepositoryConnection connection, URI container, URI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         ValueFactory valueFactory = connection.getValueFactory();
 
         // Add container triples (Sec. 6.4.3)
@@ -195,10 +194,10 @@ public class LdpServiceImpl implements LdpService {
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
         // Add the bodyContent
-        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type.toString());
+        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
         if (rdfFormat == null) {
             log.debug("POST creates new LDP-NR, because no suitable RDF parser found for type {}", type);
-            Literal format = valueFactory.createLiteral(type.toString());
+            Literal format = valueFactory.createLiteral(type);
             URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
 
             connection.add(binaryResource, DCTERMS.created, now, ldpContext);

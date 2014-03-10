@@ -225,10 +225,10 @@ public class LdpWebService {
             }
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
-
+            final String mimeType = LdpUtils.getMimeType(type);
             //checking if resource (container) hasType is done later in the service
             try {
-                String location = ldpService.addResource(conn, container, newResource, type, postBody);
+                String location = ldpService.addResource(conn, container, newResource, mimeType, postBody);
                 final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
                 if (newResource.compareTo(location) != 0) {
                     response.link(newResource, "describedby"); //Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15

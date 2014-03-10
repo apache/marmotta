@@ -20,7 +20,6 @@ package org.apache.marmotta.platform.ldp.util;
 import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.openrdf.model.Statement;
@@ -55,17 +54,35 @@ public class LdpUtils {
      *
      * @param mediaType content type
      * @return file extension (already including '.')
-     * @throws MimeTypeException
      */
     public static String getExtension(MediaType mediaType) {
-        String contentType = String.format("%s/%s", mediaType.getType(), mediaType.getSubtype());
+        String contentType = getMimeType(mediaType);
+        return getExtension(contentType);
+    }
+
+    /**
+     * Get the preferred file extension for the content type
+     *
+     * @param mimeType mimeType
+     * @return file extension (already including '.')
+     */
+    public static String getExtension(String mimeType) {
         MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
         try {
-            MimeType mimeType = allTypes.forName(contentType);
-            return mimeType.getExtension();
+            return allTypes.forName(mimeType).getExtension();
         } catch (MimeTypeException e) {
             return null; //FIXME
         }
+    }
+
+    /**
+     * Get <b>only</b> the mimeType from the {@link javax.ws.rs.core.MediaType}
+     *
+     * @param mediaType the mediaType
+     * @return the mimeType
+     */
+    public static String getMimeType(MediaType mediaType) {
+        return String.format("%s/%s", mediaType.getType(), mediaType.getSubtype());
     }
 
     /**
