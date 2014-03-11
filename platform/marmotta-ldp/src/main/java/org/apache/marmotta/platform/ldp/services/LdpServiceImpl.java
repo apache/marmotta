@@ -252,14 +252,12 @@ public class LdpServiceImpl implements LdpService {
 
         final Literal now = valueFactory.createLiteral(new Date());
 
-        if (hasType(connection, container, LDP.BasicContainer)) {
-            connection.remove(container, DCTERMS.modified, null, ldpContext);
-        } else {
-            connection.add(container, RDF.TYPE, LDP.Container, ldpContext);
-            connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
-        }
+        connection.add(container, RDF.TYPE, LDP.Container, ldpContext);
+        // TODO: For the future we might need to check for other container types here first.
+        connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
 
         connection.add(container, LDP.contains, resource, ldpContext);
+        connection.remove(container, DCTERMS.modified, null, ldpContext);
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
@@ -348,7 +346,6 @@ public class LdpServiceImpl implements LdpService {
     public Date getLastModified(RepositoryConnection connection, URI uri) throws RepositoryException {
         final RepositoryResult<Statement> stmts = connection.getStatements(uri, DCTERMS.modified, null, true, ldpContext);
         try {
-            // TODO: ETag is the last-modified date (explicitly managed) thus only weak.
             Date latest = null;
             while (stmts.hasNext()) {
                 Value o = stmts.next().getObject();
@@ -404,7 +401,7 @@ public class LdpServiceImpl implements LdpService {
     public boolean deleteResource(RepositoryConnection connection, URI resource) throws RepositoryException {
         final Literal now = connection.getValueFactory().createLiteral(new Date());
 
-        // Delete corresponding containment and membership triples (Sec. 6.6.1)
+        // Delete corresponding containment and membership triples (Sec. 5.2.5.1)
         RepositoryResult<Statement> stmts = connection.getStatements(null, LDP.member, resource, false, ldpContext);
         try {
             while (stmts.hasNext()) {
@@ -416,11 +413,16 @@ public class LdpServiceImpl implements LdpService {
         } finally {
             stmts.close();
         }
+        // FIXME: 5.2.5.2 When an LDPR identified by the object of a containment triple is deleted, and the LDPC server created an associated LDP-RS, the LDPC server must also remove the associated LDP-RS it created.
+        // FIXME: Delete LDP-NR (binary)
+
         // Delete the resource meta
         connection.remove(resource, null, null, ldpContext);
 
         // Delete the resource data
         connection.clear(resource);
+
+        // FIXME: Sec. 5.2.3.11: LDP servers that allow member creation via POST should not re-use URIs.
 
         return true;
     }
