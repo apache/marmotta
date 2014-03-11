@@ -80,8 +80,9 @@ public class LDP {
 
     /**
      * A HTTP-addressable resource with a RDF Source representation.
+     * FIXME: Not yet part of the vocab, but used in the spec. (2014-03-11)
      */
-    public static final URI RdfResource;
+    public static final URI RDFSource;
 
     /**
      * A HTTP-addressable resource with a Non-RDF Source representation.
@@ -132,7 +133,7 @@ public class LDP {
         Container = factory.createURI(LDP.NAMESPACE, "Container");
         Page = factory.createURI(LDP.NAMESPACE, "Page");
         Resource = factory.createURI(LDP.NAMESPACE, "Resource");
-        RdfResource = factory.createURI(LDP.NAMESPACE, "RdfResource"); //TODO: missing term in the vocab
+        RDFSource = factory.createURI(LDP.NAMESPACE, "RDFSource"); //TODO: missing term in the vocab
         NonRdfResource = factory.createURI(LDP.NAMESPACE, "NonRdfResource"); //TODO: missing term in the vocab
         contains = factory.createURI(LDP.NAMESPACE, "contains");
         containerSortPredicates = factory.createURI(LDP.NAMESPACE, "containerSortPredicates");

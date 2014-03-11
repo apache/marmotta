@@ -216,13 +216,13 @@ public class LdpWebServiceTest {
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
-                        HeaderMatchers.isLink(LDP.RdfResource.stringValue(), "type"))
+                        HeaderMatchers.isLink(LDP.RDFSource.stringValue(), "type"))
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + newResource,
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.RdfResource),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.RDFSource),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.HAS_FORMAT, new URIImpl(baseUrl + newResource + ".png"))
                 ))
@@ -260,7 +260,7 @@ public class LdpWebServiceTest {
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
-                        HeaderMatchers.isLink(LDP.RdfResource.stringValue(), "type"))
+                        HeaderMatchers.isLink(LDP.RDFSource.stringValue(), "type"))
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)

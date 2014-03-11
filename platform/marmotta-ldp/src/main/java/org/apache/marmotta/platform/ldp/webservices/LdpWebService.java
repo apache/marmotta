@@ -45,13 +45,11 @@ import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Linked Data Platform web services.
- *
- * FIXME: Try using less transactions, i.e. use a single RepositoryConnection per request
  *
  * @see <a href="http://www.w3.org/TR/ldp/">http://www.w3.org/TR/ldp/</a>
  *
@@ -78,6 +76,7 @@ public class LdpWebService {
     @PostConstruct
     protected void initialize() {
         // TODO: basic initialisation
+        log.info("Starting up LDP WebService Endpoint");
     }
 
     @GET
@@ -106,15 +105,14 @@ public class LdpWebService {
                 conn.rollback();
                 return resp;
             } else {
-                log.trace("{} hasType, continuing", resource);
+                log.trace("{} exists, continuing", resource);
             }
 
-            // TODO: Maybe this is a LDP-BR?
             // TODO: Proper content negotiation
 
             final RDFFormat format = Rio.getWriterFormatForMIMEType(type.toString());
             if (format == null) {
-                log.warn("GET to <{}> with non-RDF format {}, so looking for a LDP-BR", resource, type);
+                log.debug("GET to <{}> with non-RDF format {}, so looking for a LDP-BR", resource, type);
                 final StreamingOutput entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream out) throws IOException, WebApplicationException {
@@ -140,8 +138,8 @@ public class LdpWebService {
                 conn.commit();
                 return resp;
             } else {
-                // Deliver all triples with <subject> as subject.
-                log.info("GET to <{}> with RDF format {}, providing LPD-RR data", resource, format.getDefaultMIMEType());
+                // Deliver all triples from the <subject> context.
+                log.debug("GET to <{}> with RDF format {}, providing LPD-RR data", resource, format.getDefaultMIMEType());
                 final StreamingOutput entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -216,7 +214,7 @@ public class LdpWebService {
                 final String base = newResource;
                 do {
                     final String candidate = base + "-" + (++i);
-                    log.trace("<{}> already hasType, trying <{}>", newResource, candidate);
+                    log.trace("<{}> already exists, trying <{}>", newResource, candidate);
                     newResource = candidate;
                 } while (ldpService.exists(conn, newResource));
                 log.debug("resolved name clash, new resource will be <{}>", newResource);
@@ -226,12 +224,12 @@ public class LdpWebService {
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
             final String mimeType = LdpUtils.getMimeType(type);
-            //checking if resource (container) hasType is done later in the service
+            //checking if resource (container) exists is done later in the service
             try {
                 String location = ldpService.addResource(conn, container, newResource, mimeType, postBody);
                 final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
                 if (newResource.compareTo(location) != 0) {
-                    response.link(newResource, "describedby"); //Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                    response.link(newResource, "describedby"); //FIXME: Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
                 }
                 conn.commit();
                 return response.build();
@@ -296,7 +294,7 @@ public class LdpWebService {
              *
              * clients should not be allowed to update LDPC-membership triples -> 409 Conflict (Sec. 6.5.1)
              *
-             * if the target resource hasType, replace ALL data of the target.
+             * if the target resource exists, replace ALL data of the target.
              */
             final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_IMPLEMENTED, resource);
             con.rollback();
@@ -401,7 +399,7 @@ public class LdpWebService {
     }
 
     /**
-     * Handle OPTIONS (Sec. 5.9, Sec. 6.9)
+     * Handle OPTIONS (Sec. 4.2.8, Sec. ??)
      */
     @OPTIONS
     public Response OPTIONS(@Context final UriInfo uriInfo) throws RepositoryException {
@@ -416,19 +414,14 @@ public class LdpWebService {
 
             Response.ResponseBuilder builder = createResponse(con, Response.Status.OK, resource);
 
-            // Sec. 5.9.2
+            // Sec. 4.2.8.2
             builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
 
-            // Sec. 6.4.14 / Sec. 8.1
-            // builder.header("Accept-Post", "text/turtle, */*");
-            builder.header("Accept-Post", "text/turtle");
+            // Sec. 4.2.3 / Sec. ??
+            builder.header("Accept-Post", "text/turtle, */*");
 
-            // Sec. 5.8.2
+            // Sec. 4.2.7.1
             builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
-
-
-            // TODO: Sec. 6.9.1
-            //builder.link(resource, "meta");
 
             con.commit();
             return builder.build();
@@ -474,6 +467,11 @@ public class LdpWebService {
                 }
             }
 
+            final URI rdfSource = ldpService.getRdfSourceForNonRdfSource(connection, resource);
+            if (rdfSource != null) {
+                rb.link(rdfSource.stringValue(), "describedby"); //FIXME: Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+            }
+
             // ETag (Sec. 5.2.7)
             rb.tag(ldpService.generateETag(connection, resource));
 
@@ -489,7 +487,7 @@ public class LdpWebService {
      * @param rb the ResponseBuilder to decorate
      * @return the updated ResponseBuilder for chaining
      */
-    private Response.ResponseBuilder createResponse(Response.ResponseBuilder rb) {
+    protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb) {
         // Link rel='describedby' (Sec. 5.2.11)
         rb.link("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby");
 

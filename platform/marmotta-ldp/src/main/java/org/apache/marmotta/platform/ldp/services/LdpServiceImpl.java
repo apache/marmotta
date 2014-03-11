@@ -111,6 +111,33 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
+    public URI getRdfSourceForNonRdfSource(final RepositoryConnection connection, URI uri) throws RepositoryException {
+        // FIXME: someone should double check this (jakob)
+        final FilterIteration<Statement, RepositoryException> it =
+                new FilterIteration<Statement, RepositoryException>(connection.getStatements(uri, DCTERMS.isFormatOf, null, true, ldpContext)) {
+                    @Override
+                    protected boolean accept(Statement statement) throws RepositoryException {
+                        return statement.getObject() instanceof URI
+                                && connection.hasStatement((URI) statement.getObject(), RDF.TYPE, LDP.RDFSource, true, ldpContext);
+                    }
+                };
+        try {
+            if (it.hasNext()) {
+                return (URI) it.next().getObject();
+            } else {
+                return null;
+            }
+        }finally {
+            it.close();
+        }
+    }
+
+    @Override
+    public URI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
+        return getRdfSourceForNonRdfSource(connection, buildURI(resource));
+    }
+
+    @Override
     public void exportResource(RepositoryConnection connection, String resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException {
         exportResource(connection, buildURI(resource), output, format);
     }
@@ -189,7 +216,7 @@ public class LdpServiceImpl implements LdpService {
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-        connection.add(resource, RDF.TYPE, LDP.RdfResource, ldpContext);
+        connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
