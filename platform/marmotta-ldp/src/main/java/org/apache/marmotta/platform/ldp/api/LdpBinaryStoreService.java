@@ -38,4 +38,7 @@ public interface LdpBinaryStoreService {
 
     InputStream read(URI resource) throws IOException;
 
+    String getHash(String resource);
+
+    String getHash(URI uri);
 }

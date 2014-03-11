@@ -110,7 +110,17 @@ public class LdpWebService {
 
             // TODO: Proper content negotiation
 
-            final RDFFormat format = Rio.getWriterFormatForMIMEType(type.toString());
+            final RDFFormat format;
+            if (type.isWildcardType()) { // No explicit Accept Header
+                if (ldpService.isRdfSourceResource(conn, resource)) {
+                    format = RDFFormat.TURTLE;
+                } else {
+                    format = null;
+                }
+            } else {
+                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), null);
+            }
+
             if (format == null) {
                 log.debug("GET to <{}> with non-RDF format {}, so looking for a LDP-BR", resource, type);
                 final StreamingOutput entity = new StreamingOutput() {
@@ -208,6 +218,13 @@ public class LdpWebService {
 
             conn.begin();
 
+            if (ldpService.isNonRdfSourceResource(conn, container)) {
+                log.info("POSTing to a NonRdfSource is not allowed ({})", container);
+                final Response.ResponseBuilder response = createResponse(conn, Response.Status.METHOD_NOT_ALLOWED, container).entity("POST to NonRdfSource is not allowed\n");
+                conn.commit();
+                return response.build();
+            }
+
             log.trace("Checking possible name clash for new resource <{}>", newResource);
             if (ldpService.exists(conn, newResource)) {
                 int i = 0;
@@ -229,7 +246,7 @@ public class LdpWebService {
                 String location = ldpService.addResource(conn, container, newResource, mimeType, postBody);
                 final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
                 if (newResource.compareTo(location) != 0) {
-                    response.link(newResource, "describedby"); //FIXME: Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                    response.link(newResource, "describedby"); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
                 }
                 conn.commit();
                 return response.build();
@@ -414,14 +431,18 @@ public class LdpWebService {
 
             Response.ResponseBuilder builder = createResponse(con, Response.Status.OK, resource);
 
-            // Sec. 4.2.8.2
-            builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
-
-            // Sec. 4.2.3 / Sec. ??
-            builder.header("Accept-Post", "text/turtle, */*");
-
-            // Sec. 4.2.7.1
-            builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
+            if (ldpService.isNonRdfSourceResource(con, resource)) {
+                // Sec. 4.2.8.2
+                builder.allow("GET", "HEAD", "OPTIONS");
+            } else if (ldpService.isRdfSourceResource(con, resource)) {
+                // Sec. 4.2.8.2
+                builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
+                // Sec. 4.2.3 / Sec. ??
+                // TODO: LDP Interaction Model!
+                builder.header("Accept-Post", "text/turtle, */*");
+                // Sec. 4.2.7.1
+                builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
+            }
 
             con.commit();
             return builder.build();
@@ -469,7 +490,14 @@ public class LdpWebService {
 
             final URI rdfSource = ldpService.getRdfSourceForNonRdfSource(connection, resource);
             if (rdfSource != null) {
-                rb.link(rdfSource.stringValue(), "describedby"); //FIXME: Sec. 6.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                // FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                rb.link(rdfSource.stringValue(), "meta");
+                rb.link(rdfSource.stringValue(), "describedby");
+            }
+            final URI nonRdfSource = ldpService.getNonRdfSourceForRdfSource(connection, resource);
+            if (nonRdfSource != null) {
+                // TODO: Propose to LDP-WG?
+                rb.link(nonRdfSource.stringValue(), "content");
             }
 
             // ETag (Sec. 5.2.7)

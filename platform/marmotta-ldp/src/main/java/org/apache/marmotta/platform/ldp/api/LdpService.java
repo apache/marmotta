@@ -111,7 +111,18 @@ public interface LdpService {
 
     String getMimeType(RepositoryConnection connection, URI uri) throws RepositoryException;
 
+    boolean isNonRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    boolean isNonRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException;
+
     URI getRdfSourceForNonRdfSource(RepositoryConnection connection, URI uri) throws RepositoryException;
 
     URI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    boolean isRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    boolean isRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException;
+
+    URI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
+    URI getNonRdfSourceForRdfSource(RepositoryConnection connection, URI uri) throws RepositoryException;
 }

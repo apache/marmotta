@@ -101,18 +101,38 @@ public class LdpServiceImpl implements LdpService {
 
     @Override
     public List<Statement> getLdpTypes(RepositoryConnection connection, URI resource) throws RepositoryException {
-            return Iterations.asList(new FilterIteration<Statement, RepositoryException>(connection.getStatements(resource, RDF.TYPE, null, false, ldpContext)) {
-                @Override
-                protected boolean accept(Statement statement) {
-                    final Value object = statement.getObject();
-                    return object instanceof URI && object.stringValue().startsWith(LDP.NAMESPACE);
-                }
-            }); //FIXME
+        return Iterations.asList(new FilterIteration<Statement, RepositoryException>(connection.getStatements(resource, RDF.TYPE, null, false, ldpContext)) {
+            @Override
+            protected boolean accept(Statement statement) {
+                final Value object = statement.getObject();
+                return object instanceof URI && object.stringValue().startsWith(LDP.NAMESPACE);
+            }
+        }); //FIXME
     }
 
     @Override
+    public boolean isRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException {
+        return isRdfSourceResource(connection, buildURI(resource));
+    }
+
+    @Override
+    public boolean isRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException {
+        return connection.hasStatement(uri, RDF.TYPE, LDP.RDFSource, true, ldpContext);
+    }
+
+    @Override
+    public boolean isNonRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException {
+        return isRdfSourceResource(connection, buildURI(resource));
+    }
+
+    @Override
+    public boolean isNonRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException {
+        return connection.hasStatement(uri, RDF.TYPE, LDP.NonRdfResource, true, ldpContext);
+    }
+
+
+    @Override
     public URI getRdfSourceForNonRdfSource(final RepositoryConnection connection, URI uri) throws RepositoryException {
-        // FIXME: someone should double check this (jakob)
         final FilterIteration<Statement, RepositoryException> it =
                 new FilterIteration<Statement, RepositoryException>(connection.getStatements(uri, DCTERMS.isFormatOf, null, true, ldpContext)) {
                     @Override
@@ -135,6 +155,32 @@ public class LdpServiceImpl implements LdpService {
     @Override
     public URI getRdfSourceForNonRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
         return getRdfSourceForNonRdfSource(connection, buildURI(resource));
+    }
+
+    @Override
+    public URI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException {
+        return getNonRdfSourceForRdfSource(connection, buildURI(resource));
+    }
+
+    @Override
+    public URI getNonRdfSourceForRdfSource(final RepositoryConnection connection, URI uri) throws RepositoryException {
+        final FilterIteration<Statement, RepositoryException> it =
+                new FilterIteration<Statement, RepositoryException>(connection.getStatements(uri, DCTERMS.hasFormat, null, true, ldpContext)) {
+                    @Override
+                    protected boolean accept(Statement statement) throws RepositoryException {
+                        return statement.getObject() instanceof URI
+                                && connection.hasStatement((URI) statement.getObject(), RDF.TYPE, LDP.NonRdfResource, true, ldpContext);
+                    }
+                };
+        try {
+            if (it.hasNext()) {
+                return (URI) it.next().getObject();
+            } else {
+                return null;
+            }
+        }finally {
+            it.close();
+        }
     }
 
     @Override
@@ -209,6 +255,7 @@ public class LdpServiceImpl implements LdpService {
         if (hasType(connection, container, LDP.BasicContainer)) {
             connection.remove(container, DCTERMS.modified, null, ldpContext);
         } else {
+            connection.add(container, RDF.TYPE, LDP.Container, ldpContext);
             connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
         }
 
@@ -260,26 +307,35 @@ public class LdpServiceImpl implements LdpService {
 
     @Override
     public EntityTag generateETag(RepositoryConnection connection, URI uri) throws RepositoryException {
-        final RepositoryResult<Statement> stmts = connection.getStatements(uri, DCTERMS.modified, null, true, ldpContext);
-        try {
-            // TODO: ETag is the last-modified date (explicitly managed) thus only weak.
-            Date latest = null;
-            while (stmts.hasNext()) {
-                Value o = stmts.next().getObject();
-                if (o instanceof Literal) {
-                    Date d = ((Literal)o).calendarValue().toGregorianCalendar().getTime();
-                    if (latest == null || d.after(latest)) {
-                        latest = d;
-                    }
-                }
-            }
-            if (latest != null) {
-                return new EntityTag(String.valueOf(latest.getTime()), true);
+        if (isNonRdfSourceResource(connection, uri)) {
+            final String hash = binaryStore.getHash(uri.stringValue());
+            if (hash != null) {
+                return new EntityTag(hash, false);
             } else {
                 return null;
             }
-        } finally {
-            stmts.close();
+        } else {
+            final RepositoryResult<Statement> stmts = connection.getStatements(uri, DCTERMS.modified, null, true, ldpContext);
+            try {
+                // TODO: ETag is the last-modified date (explicitly managed) thus only weak.
+                Date latest = null;
+                while (stmts.hasNext()) {
+                    Value o = stmts.next().getObject();
+                    if (o instanceof Literal) {
+                        Date d = ((Literal)o).calendarValue().toGregorianCalendar().getTime();
+                        if (latest == null || d.after(latest)) {
+                            latest = d;
+                        }
+                    }
+                }
+                if (latest != null) {
+                    return new EntityTag(String.valueOf(latest.getTime()), true);
+                } else {
+                    return null;
+                }
+            } finally {
+                stmts.close();
+            }
         }
     }
 

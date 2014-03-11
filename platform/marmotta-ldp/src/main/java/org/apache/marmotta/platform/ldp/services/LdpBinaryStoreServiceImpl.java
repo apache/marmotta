@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldp.services;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
@@ -113,4 +114,19 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
         return read(resource.stringValue());
     }
 
+
+    @Override
+    public String getHash(String resource) {
+        try(InputStream is = Files.newInputStream(getFile(resource))) {
+            return HashUtils.md5sum(is);
+        } catch (URISyntaxException | IOException e) {
+            log.error("Error calculating file-md5 of {}: {}", resource, e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getHash(URI uri) {
+        return getHash(uri.stringValue());
+    }
 }

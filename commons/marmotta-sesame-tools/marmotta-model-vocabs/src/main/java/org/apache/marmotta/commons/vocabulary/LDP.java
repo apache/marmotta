@@ -30,17 +30,9 @@ public class LDP {
     public static final String PREFIX = "ldp";
 
     /**
-     * A Linked Data Platform Container (LDPC) that also conforms to
-     * additional patterns and conventions for managing members.  It is distinguished from
-     * CompositeContainer by the following behaviors:
-     * <ol>
-     * <li>Clients cannot assume that an AggregateContainer, when deleted, deletes its members.
-     * </ol>
-     * <p/>
-     * While every attempt is made to be complete in this list, readers should also refer
-     * to the specification defining this ontology.
+     * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-03-11)
      */
-    public static final URI AggregateContainer;
+    public static final URI DirectContainer;
 
     /**
      * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-02-18)
@@ -48,17 +40,9 @@ public class LDP {
     public static final URI BasicContainer;
 
     /**
-     * A Linked Data Platform Container (LDPC) that also conforms to
-     * additional patterns and conventions for managing members.  It is distinguished from
-     * AggregateContainer by the following behaviors:
-     * <ol>
-     * <li>An CompositeContainer, when deleted, must delete all its members.
-     * </ol>
-     * <p/>
-     * While every attempt is made to be complete in this list, readers should also
-     * refer to the specification defining this ontology.
+     * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-03-11)
      */
-    public static final URI CompositeContainer;
+    public static final URI IndirectContainer;
 
     /**
      * A Linked Data Platform Resource (LDPR) that also conforms to
@@ -86,6 +70,7 @@ public class LDP {
 
     /**
      * A HTTP-addressable resource with a Non-RDF Source representation.
+     * FIXME: Not yet part of the vocab, but used in the spec. (2014-03-11)
      */
     public static final URI NonRdfResource;
 
@@ -127,9 +112,9 @@ public class LDP {
 
     static {
         ValueFactory factory = ValueFactoryImpl.getInstance();
-        AggregateContainer = factory.createURI(LDP.NAMESPACE, "AggregateContainer");
-        BasicContainer = factory.createURI(LDP.NAMESPACE, "BasicContainer");
-        CompositeContainer = factory.createURI(LDP.NAMESPACE, "CompositeContainer");
+        DirectContainer = factory.createURI(LDP.NAMESPACE, "DirectContainer"); //TODO: missing term in the vocab
+        BasicContainer = factory.createURI(LDP.NAMESPACE, "BasicContainer"); //TODO: missing term in the vocab
+        IndirectContainer = factory.createURI(LDP.NAMESPACE, "IndirectContainer"); //TODO: missing term in the vocab
         Container = factory.createURI(LDP.NAMESPACE, "Container");
         Page = factory.createURI(LDP.NAMESPACE, "Page");
         Resource = factory.createURI(LDP.NAMESPACE, "Resource");
