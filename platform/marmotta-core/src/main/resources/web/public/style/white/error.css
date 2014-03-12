@@ -16,29 +16,16 @@
  * limitations under the License.
  */
 
-div#header h1, div#center {
-    width: auto; 
-    min-height: 400px; 
-    margin: 0; 
-}
-
 div#center {
-    padding: 2em 30% 2em 30%;
+    float: none;
+    width: 60%;
+    padding-left: 20%;
+    padding-bottom: 8em;
 }
 
-div#center {
-    float: none; 
-    vertical-align: middle; 
-    padding: 2em 30% 5em 30%;
-}
-
-div#center > * {
-    margin-top: 2em;
+div#content {
+    min-height: 200px;
     font-size: 1.6em;
+    background: #ffffff url('../../img/logo/marmotta-sad.png') no-repeat right top;
+    padding-right: 220px;
 }
-
-div#center > p > a > img {
-    vertical-align: text-top;
-    margin-left: 0.15em;
-}
-
