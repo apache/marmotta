@@ -41,6 +41,9 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.marmotta.kiwi.config.CacheMode.DISTRIBUTED;
+import static org.apache.marmotta.kiwi.config.CacheMode.REPLICATED;
+
 /**
  * A class for managing the different caches that are used by the triple store.
  * <p/>
@@ -85,7 +88,7 @@ public class KiWiCacheManager {
         this.clustered = config.isClustered();
         this.kiWiConfiguration = config;
 
-        if(clustered) {
+        if(clustered && (config.getCacheMode() == DISTRIBUTED || config.getCacheMode() == REPLICATED)) {
             try {
                 String jgroupsXml = IOUtils.toString(KiWiCacheManager.class.getResourceAsStream("/jgroups-kiwi.xml"));
 
@@ -126,27 +129,43 @@ public class KiWiCacheManager {
 
             }
 
-
-            defaultConfiguration = new ConfigurationBuilder()
-                    .clustering()
-                        .cacheMode(CacheMode.DIST_ASYNC)
-                        .async()
-                            .asyncMarshalling()
-                        .l1()
-                            .lifespan(5, TimeUnit.MINUTES)
-                        .hash()
-                            .numOwners(2)
-                            .numSegments(40)
-                            .consistentHashFactory(new SyncConsistentHashFactory())
+            if(config.getCacheMode() == DISTRIBUTED) {
+                defaultConfiguration = new ConfigurationBuilder()
+                        .clustering()
+                            .cacheMode(CacheMode.DIST_ASYNC)
+                            .async()
+                                .asyncMarshalling()
+                            .l1()
+                                .lifespan(5, TimeUnit.MINUTES)
+                            .hash()
+                                .numOwners(2)
+                                .numSegments(40)
+                                .consistentHashFactory(new SyncConsistentHashFactory())
+                            .stateTransfer()
+                                .fetchInMemoryState(false)
+                        .eviction()
+                            .strategy(EvictionStrategy.LIRS)
+                            .maxEntries(100000)
+                        .expiration()
+                            .lifespan(30, TimeUnit.MINUTES)
+                            .maxIdle(10, TimeUnit.MINUTES)
+                        .build();
+            } else {
+                defaultConfiguration = new ConfigurationBuilder()
+                        .clustering()
+                            .cacheMode(CacheMode.REPL_ASYNC)
+                            .async()
+                                .asyncMarshalling()
                         .stateTransfer()
                             .fetchInMemoryState(false)
-                    .eviction()
-                        .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(100000)
-                    .expiration()
-                        .lifespan(30, TimeUnit.MINUTES)
-                        .maxIdle(10, TimeUnit.MINUTES)
-                    .build();
+                        .eviction()
+                            .strategy(EvictionStrategy.LIRS)
+                            .maxEntries(100000)
+                        .expiration()
+                            .lifespan(30, TimeUnit.MINUTES)
+                            .maxIdle(10, TimeUnit.MINUTES)
+                        .build();
+            }
         } else {
             globalConfiguration = new GlobalConfigurationBuilder()
                     .classLoader(KiWiCacheManager.class.getClassLoader())

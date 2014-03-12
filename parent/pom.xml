@@ -545,9 +545,21 @@
                     -->
                 </plugin>
                 <plugin>
-                	<groupId>org.apache.felix</groupId>
-                	<artifactId>maven-bundle-plugin</artifactId>
-                	<version>2.3.7</version>
+                  <groupId>org.apache.felix</groupId>
+                  <artifactId>maven-bundle-plugin</artifactId>
+                  <version>2.3.7</version>
+                  <inherited>true</inherited>
+                  <configuration>
+                    <instructions>
+                      <Bundle-Category>Apache Marmotta</Bundle-Category>
+                      <Bundle-DocURL>http://marmotta.apache.org</Bundle-DocURL>
+                      <Bundle-Vendor>Apache Marmotta</Bundle-Vendor>
+                      <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                      <_versionpolicy>$${version;===;${@}}</_versionpolicy>
+                      <_provider-policy>[$(version;===;$(@)),$(version;=+;$(@)))</_provider-policy>
+                      <_consumer-policy>[$(version;===;$(@)),$(version;+;$(@)))</_consumer-policy>
+                    </instructions>
+                  </configuration>
                 </plugin>
                 <plugin>
                 	<groupId>org.apache.felix</groupId>
@@ -575,6 +587,11 @@
                         <nomunge>true</nomunge>
                         <jswarn>false</jswarn>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>1.5</version>
                 </plugin>
             </plugins>
         </pluginManagement>

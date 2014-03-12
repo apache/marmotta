@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 operation="$1"
 
@@ -13,6 +13,8 @@ case "$operation" in
   *)
     ;;
 esac
+
+service tomcat7 start
 
 exit 0
 

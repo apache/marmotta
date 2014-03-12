@@ -42,20 +42,38 @@ import org.openrdf.repository.RepositoryException;
 public class SesameRepositoryBackend extends AbstractSesameBackend {
 
     private Repository repository;
+    private final boolean includeInferred;
+    private final Resource[] contexts;
 
     /**
      * Initialise a new sesame backend. Repository needs to be set using setRepository.
      */
     protected SesameRepositoryBackend() {
+        this.includeInferred = false;
+        this.contexts = new Resource[0];
     }
 
     /**
      * Initialise a new sesame backend using the repository passed as argument.
+     * Queries will include inferred statements and all contexts.
      *
      * @param repository
      */
     public SesameRepositoryBackend(Repository repository) {
+        this(repository, true);
+    }
+
+    /**
+     * Initialise a new sesame backend using the repository.
+     *
+     * @param repository
+     * @param includeInferred
+     * @param contexts
+     */
+    public SesameRepositoryBackend(Repository repository, boolean includeInferred, Resource... contexts) {
         this.repository = repository;
+        this.includeInferred = includeInferred;
+        this.contexts = contexts;
     }
 
     public Repository getRepository() {
@@ -75,7 +93,7 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
      */
     @Override
     public Literal createLiteral(String content) {
-    	return createLiteralInternal(repository.getValueFactory(), content);
+        return createLiteralInternal(repository.getValueFactory(), content);
     }
 
 
@@ -87,7 +105,7 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
      */
     @Override
     public Literal createLiteral(String content, Locale language, URI type) {
-    	return createLiteralInternal(repository.getValueFactory(), content, language, type);
+        return createLiteralInternal(repository.getValueFactory(), content, language, type);
     }
 
 
@@ -116,8 +134,8 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
             RepositoryConnection connection = repository.getConnection();
 
             try {
-            	connection.begin();
-            	return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property);
+                connection.begin();
+                return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property, includeInferred, contexts);
             } finally {
                 connection.commit();
                 connection.close();
@@ -133,7 +151,7 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
 
     }
 
-	/**
+    /**
      * List the subjects of triples in the triple store underlying this backend that have the object and
      * property given as argument.
      *
@@ -148,8 +166,8 @@ public class SesameRepositoryBackend extends AbstractSesameBackend {
             final RepositoryConnection connection = repository.getConnection();
 
             try {
-            	connection.begin();
-            	return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object);
+                connection.begin();
+                return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object, includeInferred, contexts);
             } finally {
                 connection.commit();
                 connection.close();

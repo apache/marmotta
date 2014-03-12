@@ -37,7 +37,7 @@ public class MarmottaPreStartupListener implements ServletContextListener {
 
     private static Logger log = LoggerFactory.getLogger(MarmottaPreStartupListener.class);
 
-    private MarmottaStartupService lmfStartupService;
+    private MarmottaStartupService startupService;
 
     /**
      * * Notification that the web application initialization
@@ -49,8 +49,8 @@ public class MarmottaPreStartupListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
 
-        if(lmfStartupService == null) {
-            lmfStartupService = CDIContext.getInstance(MarmottaStartupService.class);
+        if(startupService == null) {
+            startupService = CDIContext.getInstance(MarmottaStartupService.class);
         }
 
         // we check for the presence of the configuration.override init parameter; if it exists, we load this
@@ -65,7 +65,7 @@ public class MarmottaPreStartupListener implements ServletContextListener {
             }
         }
 
-        lmfStartupService.startupConfiguration(null,override,sce.getServletContext());
+        startupService.startupConfiguration(null, override, sce.getServletContext());
 
     }
 
@@ -77,7 +77,7 @@ public class MarmottaPreStartupListener implements ServletContextListener {
      */
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        lmfStartupService.shutdown();
+        startupService.shutdown();
     }
 
 }

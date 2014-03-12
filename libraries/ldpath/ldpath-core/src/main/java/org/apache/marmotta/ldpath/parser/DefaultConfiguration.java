@@ -32,7 +32,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -46,10 +48,12 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     private static Logger log = LoggerFactory.getLogger(DefaultConfiguration.class);
 
     @SuppressWarnings("rawtypes")
-    private static ServiceLoader<SelectorFunction> functionLoader = ServiceLoader.load(SelectorFunction.class);
+    private static ServiceLoader<SelectorFunction> functionLoader = ServiceLoader.load(SelectorFunction.class,
+    		DefaultConfiguration.class.getClassLoader());
 
     @SuppressWarnings("rawtypes")
-    private static ServiceLoader<TestFunction> testLoader = ServiceLoader.load(TestFunction.class);
+    private static ServiceLoader<TestFunction> testLoader = ServiceLoader.load(TestFunction.class,
+    		DefaultConfiguration.class.getClassLoader());
 
     public static final Map<String, String> DEFAULT_NAMESPACES;
     static {
@@ -111,9 +115,16 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     }
 
     private void addDefaultFunctions() {
-        for (SelectorFunction<Node> f : functionLoader) {
-            log.info("registering LDPath function: {}",f.getSignature());
-            addFunction(f);
+        Iterator<SelectorFunction> functions = functionLoader.iterator();
+        while (functions.hasNext()) {
+            try {
+                SelectorFunction<Node> f = functions.next();
+                log.info("registering LDPath function: {}", f.getSignature());
+                addFunction(f);
+            } catch (ServiceConfigurationError e) {
+                log.warn("Unable to load function because of an "
+                        + e.getClass().getSimpleName(), e);
+            }
         }
     }
 
@@ -122,10 +133,18 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     }
 
     private void addDefaultTestFunctions() {
-        for (TestFunction<Node> t : testLoader) {
-            log.info("registering LDPath test function: {}", t.getSignature());
-            addTestFunction(t);
-        }
+    	Iterator<TestFunction> testFunctions = testLoader.iterator();
+    	while(testFunctions.hasNext()){
+            try {
+        		TestFunction testFunction = testFunctions.next();
+                log.info("registering LDPath test function: {}", 
+                        testFunction.getSignature());
+                addTestFunction(testFunction);
+            } catch (ServiceConfigurationError e) {
+                log.warn("Unable to load function because of an "
+                        + e.getClass().getSimpleName(), e);
+            }
+    	}
     }
 
     private void addTestFunction(TestFunction<Node> test) {

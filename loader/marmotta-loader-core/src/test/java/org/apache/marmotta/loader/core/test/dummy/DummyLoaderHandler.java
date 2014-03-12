@@ -14,10 +14,16 @@ import org.openrdf.rio.helpers.RDFHandlerBase;
  */
 public class DummyLoaderHandler extends RDFHandlerBase implements LoaderHandler {
 
-    private Model model;
+    private final long sleep;
+    private final Model model;
 
     public DummyLoaderHandler() {
+        this(0);
+    }
+
+    public DummyLoaderHandler(long methodSleep) {
         model = new TreeModel();
+        sleep = methodSleep;
     }
 
     public Model getModel() {
@@ -36,7 +42,7 @@ public class DummyLoaderHandler extends RDFHandlerBase implements LoaderHandler 
     }
 
     /**
-     * Peform cleanup on shutdown, e.g. re-creating indexes after import completed or freeing resources acquired by
+     * Perform cleanup on shutdown, e.g. re-creating indexes after import completed or freeing resources acquired by
      * the handler.
      */
     @Override
@@ -47,5 +53,12 @@ public class DummyLoaderHandler extends RDFHandlerBase implements LoaderHandler 
     @Override
     public void handleStatement(Statement st) throws RDFHandlerException {
         model.add(st);
+        if (sleep > 0) {
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+                // ignored
+            }
+        }
     }
 }

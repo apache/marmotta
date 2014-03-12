@@ -27,6 +27,9 @@
 
     <name>LDPath API</name>
     <artifactId>ldpath-api</artifactId>
+    <description>
+        Interfaces and Data Model for the Linked Data Path component.
+    </description>
     <packaging>bundle</packaging>
 
 
@@ -59,40 +62,13 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Name>LDPath API</Bundle-Name>
-                        <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
+                        <Bundle-Category>Apache Marmotta LDPath</Bundle-Category>
                         <Bundle-Vendor>Apache Software Foundation</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <_versionpolicy>$${version;===;${@}}</_versionpolicy>
-                        <!-- Enable this for including your enhancement chain configuration -->
-                        <!-- <Install-Path>config</Install-Path> -->
-						<Export-Package>
-                            org.apache.marmotta.ldpath.api;version=${project.version},
-                            org.apache.marmotta.ldpath.api.backend;version=${project.version},
-                            org.apache.marmotta.ldpath.api.functions;version=${project.version},
-                            org.apache.marmotta.ldpath.api.selectors;version=${project.version},
-                            org.apache.marmotta.ldpath.api.tests;version=${project.version},
-                            org.apache.marmotta.ldpath.api.transformers;version=${project.version}
+                        <Export-Package>
+                            org.apache.marmotta.ldpath.api.*;version=${project.version}
                         </Export-Package>
                      </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-scr-scrdescriptor</id>
-                        <goals>
-                            <goal>scr</goal>
-                        </goals>
-                        <configuration>
-                            <properties>
-                                <service.vendor>Apache Software Foundation</service.vendor>
-                            </properties>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

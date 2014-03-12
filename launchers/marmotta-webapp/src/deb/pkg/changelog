@@ -1,0 +1,5 @@
+marmotta (3.2.0-SNAPSHOT) ldstack-nightly; urgency=low
+
+  * First Marmotta Webapp Debian package
+
+ -- Sergio Fernandez <wikier@apache.org>  Tue, 18 Feb 2014 14:36:00 +0100

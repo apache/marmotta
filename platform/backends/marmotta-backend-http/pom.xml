@@ -97,7 +97,7 @@
                             <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
 
                             <name>REST API</name>
-                            <description>REST API for LMF Webservices</description>
+                            <description>REST API for Marmotta Webservices</description>
 
                             <outputDirectory>${project.build.outputDirectory}/doc</outputDirectory>
                             <reportOutputDirectory>${project.build.outputDirectory}/web/doc</reportOutputDirectory>

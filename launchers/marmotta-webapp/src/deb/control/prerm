@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/sh -e
+
+service tomcat7 stop
 
 exit 0
 
