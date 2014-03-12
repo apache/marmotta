@@ -41,4 +41,7 @@ public interface LdpBinaryStoreService {
     String getHash(String resource);
 
     String getHash(URI uri);
+
+    boolean delete(URI uri);
+    boolean delete(String resource);
 }

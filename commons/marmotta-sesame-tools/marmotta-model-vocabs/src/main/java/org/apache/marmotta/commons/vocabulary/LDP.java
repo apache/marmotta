@@ -17,6 +17,7 @@
 package org.apache.marmotta.commons.vocabulary;
 
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
@@ -29,104 +30,46 @@ public class LDP {
 
     public static final String PREFIX = "ldp";
 
-    /**
-     * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-03-11)
-     */
-    public static final URI DirectContainer;
-
-    /**
-     * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-02-18)
-     */
+    
+    
     public static final URI BasicContainer;
-
-    /**
-     * FIXME: Not yet part of the official vocab, but used in the Spec. (2014-03-11)
-     */
-    public static final URI IndirectContainer;
-
-    /**
-     * A Linked Data Platform Resource (LDPR) that also conforms to
-     * additional patterns and conventions for managing membership.
-     * Readers should refer to the specification defining this ontology for the list of
-     * behaviors associated with it.
-     */
     public static final URI Container;
-
-    /**
-     * A resource that represents a limited set of members of a LDP Container.
-     */
-    public static final URI Page;
-
-    /**
-     * A HTTP-addressable resource with a linked data representation.
-     */
-    public static final URI Resource;
-
-    /**
-     * A HTTP-addressable resource with a RDF Source representation.
-     * FIXME: Not yet part of the vocab, but used in the spec. (2014-03-11)
-     */
-    public static final URI RDFSource;
-
-    /**
-     * A HTTP-addressable resource with a Non-RDF Source representation.
-     * FIXME: Not yet part of the vocab, but used in the spec. (2014-03-11)
-     */
-    public static final URI NonRdfResource;
-
-    /**
-     * FIXME: Not yet part of the vocab, but used in the spec. (2014-02-24)
-     */
     public static final URI contains;
-
-    /**
-     * List of predicates that indicate the ascending order of the members in a page.
-     */
-    public static final URI containerSortPredicates;
-
-    /**
-     * FIXME: Not yet part of the vocab, but used in the spec. (2014-02-18)
-     */
+    public static final URI DirectContainer;
+    public static final URI hasMemberRelation;
+    public static final URI IndirectContainer;
+    public static final URI insertedContentRelation;
+    public static final URI isMemberOfRelation;
     public static final URI member;
-
-    /**
-     * Indicates which predicate of the container should be used to determine the membership.
-     */
-    public static final URI membershipPredicate;
-
-    /**
-     * Indicates which resource is the subject for the members of the container.
-     */
-    public static final URI membershipSubject;
-
-    /**
-     * From a known page, how to indicate the next or last page as rdf:nil.
-     */
-    public static final URI nextPage;
-
-    /**
-     * Associated a page with its container.
-     */
-    public static final URI pageOf;
-
+    public static final URI membershipResource;
+    public static final URI MemberSubject;
+    public static final URI NonRdfResource;
+    public static final URI PreferContainment;
+    public static final URI PreferEmptyContainer;
+    public static final URI PreferMembership;
+    public static final URI RDFSource;
+    public static final URI Resource;
 
     static {
         ValueFactory factory = ValueFactoryImpl.getInstance();
-        DirectContainer = factory.createURI(LDP.NAMESPACE, "DirectContainer"); //TODO: missing term in the vocab
         BasicContainer = factory.createURI(LDP.NAMESPACE, "BasicContainer"); //TODO: missing term in the vocab
+        Container = factory.createURI(LDP.NAMESPACE, "Container"); //TODO: missing term in the vocab
+        contains = factory.createURI(LDP.NAMESPACE, "contains"); //TODO: missing term in the vocab
+        DirectContainer = factory.createURI(LDP.NAMESPACE, "DirectContainer"); //TODO: missing term in the vocab
+        hasMemberRelation = factory.createURI(LDP.NAMESPACE, "hasMemberRelation"); //TODO: missing term in the vocab
         IndirectContainer = factory.createURI(LDP.NAMESPACE, "IndirectContainer"); //TODO: missing term in the vocab
-        Container = factory.createURI(LDP.NAMESPACE, "Container");
-        Page = factory.createURI(LDP.NAMESPACE, "Page");
-        Resource = factory.createURI(LDP.NAMESPACE, "Resource");
-        RDFSource = factory.createURI(LDP.NAMESPACE, "RDFSource"); //TODO: missing term in the vocab
+        insertedContentRelation = factory.createURI(LDP.NAMESPACE, "insertedContentRelation"); //TODO: missing term in the vocab
+        isMemberOfRelation = factory.createURI(LDP.NAMESPACE, "isMemberOfRelation"); //TODO: missing term in the vocab
+        member = factory.createURI(LDP.NAMESPACE, "member"); //TODO: missing term in the vocab
+        membershipResource = factory.createURI(LDP.NAMESPACE, "membershipResource"); //TODO: missing term in the vocab
+        MemberSubject = factory.createURI(LDP.NAMESPACE, "MemberSubject"); //TODO: missing term in the vocab
         NonRdfResource = factory.createURI(LDP.NAMESPACE, "NonRdfResource"); //TODO: missing term in the vocab
-        contains = factory.createURI(LDP.NAMESPACE, "contains");
-        containerSortPredicates = factory.createURI(LDP.NAMESPACE, "containerSortPredicates");
-        member = factory.createURI(LDP.NAMESPACE, "member");
-        membershipPredicate = factory.createURI(LDP.NAMESPACE, "membershipPredicate");
-        membershipSubject = factory.createURI(LDP.NAMESPACE, "membershipSubject");
-        nextPage = factory.createURI(LDP.NAMESPACE, "nextPage");
-        pageOf = factory.createURI(LDP.NAMESPACE, "pageOf");
+        PreferContainment = factory.createURI(LDP.NAMESPACE, "PreferContainment"); //TODO: missing term in the vocab
+        PreferEmptyContainer = factory.createURI(LDP.NAMESPACE, "PreferEmptyContainer"); //TODO: missing term in the vocab
+        PreferMembership = factory.createURI(LDP.NAMESPACE, "PreferMembership"); //TODO: missing term in the vocab
+        RDFSource = factory.createURI(LDP.NAMESPACE, "RDFSource"); //TODO: missing term in the vocab
+        Resource = factory.createURI(LDP.NAMESPACE, "Resource"); //TODO: missing term in the vocab
+
     }
 
 }

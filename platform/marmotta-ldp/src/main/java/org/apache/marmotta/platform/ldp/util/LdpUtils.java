@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldp.util;
 
 import info.aduna.iteration.CloseableIteration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.tika.mime.MimeTypeException;
@@ -27,10 +28,14 @@ import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
 
 import javax.ws.rs.core.MediaType;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
@@ -109,6 +114,21 @@ public class LdpUtils {
         }
 
         writer.endRDF();
+    }
+
+    public static String getAcceptPostHeader(String extraFormats) {
+        final Set<RDFFormat> rdfFormats = RDFParserRegistry.getInstance().getKeys();
+        final StringBuilder sb = new StringBuilder();
+        for (RDFFormat rdfFormat : rdfFormats) {
+            sb.append(rdfFormat.getDefaultMIMEType());
+            sb.append(", ");
+        }
+        if (StringUtils.isNotBlank(extraFormats)) {
+            sb.append(extraFormats);
+        } else {
+            sb.delete(sb.length()-2, sb.length());
+        }
+        return sb.toString();
     }
 
 }

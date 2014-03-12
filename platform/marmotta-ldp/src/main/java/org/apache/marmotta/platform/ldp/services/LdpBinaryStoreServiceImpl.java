@@ -129,4 +129,20 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
     public String getHash(URI uri) {
         return getHash(uri.stringValue());
     }
+
+    @Override
+    public boolean delete(URI uri) {
+        return delete(uri.stringValue());
+    }
+
+    @Override
+    public boolean delete(String resource) {
+        try {
+            final Path file = getFile(resource);
+            return Files.deleteIfExists(file);
+        } catch (IOException | URISyntaxException e) {
+            log.error("Error while deleting {}: {}", resource, e.getMessage());
+            return false;
+        }
+    }
 }

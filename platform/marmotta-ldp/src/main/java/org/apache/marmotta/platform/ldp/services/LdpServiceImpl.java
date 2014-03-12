@@ -122,7 +122,7 @@ public class LdpServiceImpl implements LdpService {
 
     @Override
     public boolean isNonRdfSourceResource(RepositoryConnection connection, String resource) throws RepositoryException {
-        return isRdfSourceResource(connection, buildURI(resource));
+        return isNonRdfSourceResource(connection, buildURI(resource));
     }
 
     @Override
@@ -252,11 +252,14 @@ public class LdpServiceImpl implements LdpService {
 
         final Literal now = valueFactory.createLiteral(new Date());
 
+        // FIXME: This is redundant if the container already existed as a Resource!
+        connection.add(container, RDF.TYPE, LDP.Resource, ldpContext);
+        connection.add(container, RDF.TYPE, LDP.RDFSource, ldpContext);
+        // end
         connection.add(container, RDF.TYPE, LDP.Container, ldpContext);
         // TODO: For the future we might need to check for other container types here first.
         connection.add(container, RDF.TYPE, LDP.BasicContainer, ldpContext);
 
-        connection.add(container, LDP.contains, resource, ldpContext);
         connection.remove(container, DCTERMS.modified, null, ldpContext);
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
@@ -271,6 +274,8 @@ public class LdpServiceImpl implements LdpService {
             log.debug("POST creates new LDP-NR, because no suitable RDF parser found for type {}", type);
             Literal format = valueFactory.createLiteral(type);
             URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
+
+            connection.add(container, LDP.contains, binaryResource, ldpContext);
 
             connection.add(binaryResource, DCTERMS.created, now, ldpContext);
             connection.add(binaryResource, DCTERMS.modified, now, ldpContext);
@@ -290,6 +295,7 @@ public class LdpServiceImpl implements LdpService {
             return binaryResource.stringValue();
         } else {
             log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
+            connection.add(container, LDP.contains, resource, ldpContext);
 
             // FIXME: We are (are we?) allowed to filter out server-managed properties here
             connection.add(stream, resource.stringValue(), rdfFormat, resource);
@@ -402,7 +408,7 @@ public class LdpServiceImpl implements LdpService {
         final Literal now = connection.getValueFactory().createLiteral(new Date());
 
         // Delete corresponding containment and membership triples (Sec. 5.2.5.1)
-        RepositoryResult<Statement> stmts = connection.getStatements(null, LDP.member, resource, false, ldpContext);
+        RepositoryResult<Statement> stmts = connection.getStatements(null, LDP.contains, resource, false, ldpContext);
         try {
             while (stmts.hasNext()) {
                 Statement st = stmts.next();
@@ -413,8 +419,22 @@ public class LdpServiceImpl implements LdpService {
         } finally {
             stmts.close();
         }
-        // FIXME: 5.2.5.2 When an LDPR identified by the object of a containment triple is deleted, and the LDPC server created an associated LDP-RS, the LDPC server must also remove the associated LDP-RS it created.
-        // FIXME: Delete LDP-NR (binary)
+        // Sec. 5.2.5.2: When an LDPR identified by the object of a containment triple is deleted, and the LDPC server created an associated LDP-RS, the LDPC server must also remove the associated LDP-RS it created.
+        RepositoryResult<Statement> associated = connection.getStatements(resource, DCTERMS.isFormatOf, null, false, ldpContext);
+        try {
+            while (associated.hasNext()) {
+                Statement st = associated.next();
+                if (st.getObject() instanceof Resource) {
+                    connection.remove((Resource) st.getObject(), null, null);
+                }
+                connection.remove(st);
+            }
+        } finally {
+            associated.close();
+        }
+
+        // Delete LDP-NR (binary)
+        binaryStore.delete(resource);
 
         // Delete the resource meta
         connection.remove(resource, null, null, ldpContext);

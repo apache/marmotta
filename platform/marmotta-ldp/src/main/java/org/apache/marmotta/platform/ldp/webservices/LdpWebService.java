@@ -61,6 +61,7 @@ import java.util.UUID;
 public class LdpWebService {
 
     public static final String PATH = "/ldp"; //FIXME: imho this should be root '/' (jakob)
+    public static final String LDP_SERVER_CONSTRAINTS = "https://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -439,7 +440,7 @@ public class LdpWebService {
                 builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
                 // Sec. 4.2.3 / Sec. ??
                 // TODO: LDP Interaction Model!
-                builder.header("Accept-Post", "text/turtle, */*");
+                builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
                 // Sec. 4.2.7.1
                 builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
             }
@@ -517,7 +518,7 @@ public class LdpWebService {
      */
     protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb) {
         // Link rel='describedby' (Sec. 5.2.11)
-        rb.link("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby");
+        rb.link(LDP_SERVER_CONSTRAINTS, "describedby");
 
         return rb;
     }
