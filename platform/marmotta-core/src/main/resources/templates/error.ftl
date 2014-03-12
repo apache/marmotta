@@ -24,7 +24,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <title>${status} ${phrase} - Marmotta Linked Data Explorer</title>
+    <title>${status} ${reason} - Linked Data Explorer - Apache Marmotta</title>
     <script src="${SERVER_URL}webjars/jquery/1.8.2/jquery.min.js" type="text/javascript" ></script>
     <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
@@ -45,7 +45,7 @@
     <div id="center">
         <div id="content">
 
-          <h2>Error: ${status} ${phrase}</h2>
+          <h2>Error: ${status} ${reason}</h2>
         
           <p>
             <strong><a href="${SERVER_URL}resource?uri=${encoded_uri}">${uri}</a></strong><a href="${uri}"><img src="${SERVER_URL}core/public/img/icon/link.png" alt="${uri}" title="go to ${uri} directly" /></a>
