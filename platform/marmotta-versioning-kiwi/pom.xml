@@ -170,6 +170,15 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-versioning</artifactId>
         </dependency>
+
+        <!-- webjars -->
+        <dependency>
+            <!-- FIXME: Use the release when available -->
+            <groupId>org.webjars</groupId>
+            <artifactId>timeknots</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -17,18 +17,25 @@
     limitations under the License.
 
 -->
+<#-- @ftlvariable name="FOOTER" type="java.lang.String" -->
+<#-- @ftlvariable name="LOGO" type="java.lang.String" -->
+<#-- @ftlvariable name="SERVER_URL" type="java.lang.String" -->
+<#-- @ftlvariable name="DEFAULT_STYLE" type="java.lang.String" -->
+<#-- @ftlvariable name="baseUri" type="java.lang.String" -->
+<#-- @ftlvariable name="versions" type="java.util.List<java.util.Map<String, String>" -->
+<#-- @ftlvariable name="original" type="java.lang.String" -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <title>Timemap in HTML</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <script type="text/javascript" src="${baseUri}webjars/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="${SERVER_URL}webjars/jquery/1.8.2/jquery.min.js"></script>
     <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
 
-    <script type="text/javascript" src="http://graves.cl/timeknots/src/d3.v2.min.js"></script>
-    <script type="text/javascript" src="http://graves.cl/timeknots/src/timeknots-min.js"></script>
+    <script type="text/javascript" src="${SERVER_URL}webjars/d3js/3.4.1/d3.min.js"></script>
+    <script type="text/javascript" src="${SERVER_URL}webjars/timeknots/0.1/timeknots-min.js"></script>
 </head>
 
 <body>
@@ -45,13 +52,35 @@
         <div id="content">
             <div id="timeknots" style="width:100%"></div>
 <script type="text/javascript">
-var v = [
+    $(function() {
+        var target = "#timeknots",
+            v = [
 <#list versions as version>
-{'name':"${version.date}", 'date':new Date("${version.tstamp}")},
+            {'name':"${version.date}", 'date':new Date("${version.tstamp}"), 'uri':"${version.uri}"},
 </#list>
-{'name':"now", 'date':new Date()}
-];
-TimeKnots.draw("#timeknots", v, {dateFormat: "%Y", color: "#696", showLabels: true, labelFormat: "%Y-%m-%d %H:%M:%S"});
+            {'name':"now", 'date':new Date(),'lineWidth':1, 'uri':"${SERVER_URL}resource?uri=${original?url}"}
+        ];
+
+        function redraw() {
+            var t = $(target).empty();
+            TimeKnots.draw(target, v, {
+                height: "50",
+                width: t.innerWidth(),
+                dateFormat: "%Y-%m-%d %H:%M:%S",
+                color: "#0B61A4",
+                showLabels: false,
+                labelFormat: "%Y-%m-%d %H:%M:%S"
+            });
+            d3.select(target+" svg").selectAll('circle')
+               .on("click", function(d) {
+                    window.location.href = d.uri;
+            });
+
+        }
+        $(window).resize(function() { redraw(); });
+
+        redraw();
+    });
 </script>
             <table class="simple_table">
                 <tr>
