@@ -381,6 +381,23 @@
             </dependencies>
         </profile>
 
+        <profile>
+            <id>ehcache</id>
+            <activation>
+                <property>
+                    <name>marmotta.caching</name>
+                    <value>ehcache</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>kiwi-caching-ehcache</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
 
         <profile>
             <id>cleanall</id>
