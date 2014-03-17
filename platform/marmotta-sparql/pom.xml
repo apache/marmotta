@@ -191,8 +191,9 @@
             <artifactId>snorql</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
+            <groupId>org.webjars</groupId>
             <artifactId>sgvizler</artifactId>
+            <version>0.6</version>
         </dependency>
 
         <dependency>
