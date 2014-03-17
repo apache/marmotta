@@ -49,6 +49,8 @@ public abstract class LdpAbstractTestSuite {
 
     public final static String FILES_PATH = "/testsuite/";
 
+    public final static String TEST_CASES_CACHE = "LDP-Test-Cases-WD-20140317";
+
     protected Repository repo;
 
     @Rule
@@ -57,7 +59,7 @@ public abstract class LdpAbstractTestSuite {
     @Before
     public final void before() throws RepositoryException, RDFParseException, IOException {
         log.info("initializing test case {}...", name.getMethodName());
-        repo = loadData(name.getMethodName());
+        repo = loadData(TEST_CASES_CACHE);
         Assume.assumeNotNull(repo);
     }
 
@@ -100,24 +102,24 @@ public abstract class LdpAbstractTestSuite {
      * Load a dataset to the connection passed
      *
      * @param conn connection
-     * @param tc test case identifier
+     * @param file test case identifier
      * @throws RDFParseException
      * @throws RepositoryException
      * @throws IOException
      */
-    protected void loadData(RepositoryConnection conn, String tc) throws RDFParseException, RepositoryException, IOException {
-        log.debug("loading test case {}...", tc);
-        String path = FILES_PATH + "TC-" + tc + ".ttl";
+    protected void loadData(RepositoryConnection conn, String file) throws RDFParseException, RepositoryException, IOException {
+        log.debug("loading test cases {}...", file);
+        String path = FILES_PATH + file + ".ttl";
         InputStream is = getClass().getResourceAsStream(path);
         if (is == null) {
-            log.error("Data for test case {} not found where expected ({})", tc, path);
+            log.error("test cases data {} not found where expected ({})", file, path);
         } else {
             try {
                 conn.add(is, "", RDFFormat.TURTLE);
             } finally {
                 is.close();
             }
-            log.debug("data for test case {} successfully loaded", tc);
+            log.debug("test cases data {} successfully loaded ({} triples)", file, conn.size());
         }
     }
 
@@ -137,11 +139,11 @@ public abstract class LdpAbstractTestSuite {
                 try {
                     conn.setNamespace(value, key);
                 } catch (RepositoryException e) {
-                    log.error("Error adding namespace {}: {}", key, e.getMessage());
+                    log.error("error adding namespace {}: {}", key, e.getMessage());
                 }
             }
         } catch (IOException | NullPointerException e) {
-            log.error("Error loading normative namespaces at {}: {}", path, e.getMessage());
+            log.error("error loading normative namespaces at {}: {}", path, e.getMessage());
         }
 
     }
