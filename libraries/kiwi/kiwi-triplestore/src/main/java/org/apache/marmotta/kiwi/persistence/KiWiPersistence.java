@@ -153,6 +153,8 @@ public class KiWiPersistence {
         poolConfig.setCommitOnReturn(true);
         poolConfig.setValidationQuery(configuration.getDialect().getValidationQuery());
         poolConfig.setLogValidationErrors(true);
+        poolConfig.setTestWhileIdle(true);
+        poolConfig.setTimeBetweenEvictionRunsMillis(5000);
         /*
         poolConfig.setLogAbandoned(true);
         poolConfig.setRemoveAbandoned(true);
