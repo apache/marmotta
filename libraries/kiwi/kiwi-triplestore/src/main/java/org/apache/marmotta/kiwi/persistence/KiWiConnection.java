@@ -18,6 +18,8 @@
 package org.apache.marmotta.kiwi.persistence;
 
 import com.google.common.base.Preconditions;
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnels;
 import com.google.common.primitives.Longs;
 import info.aduna.iteration.*;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -130,7 +132,7 @@ public class KiWiConnection implements AutoCloseable {
     // this set keeps track of all statements that have been deleted in the active transaction of this connection
     // this is needed to be able to determine if adding the triple again will merely undo a deletion or is a
     // completely new addition to the triple store
-    private HashSet<Long> deletedStatementsLog;
+    private BloomFilter<Long> deletedStatementsLog;
 
     private static long numberOfCommits = 0;
 
@@ -147,7 +149,7 @@ public class KiWiConnection implements AutoCloseable {
         this.uriLock   = new ReentrantLock();
         this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
-        this.deletedStatementsLog = new HashSet<Long>();
+        this.deletedStatementsLog = BloomFilter.create(Funnels.longFunnel(), 100000);
         this.transactionId = getNextSequence("seq.tx");
 
         initCachePool();
@@ -1134,7 +1136,7 @@ public class KiWiConnection implements AutoCloseable {
                 triple.setId(getNextSequence("seq.triples"));
             }
 
-            if(deletedStatementsLog.contains(triple.getId())) {
+            if(deletedStatementsLog.mightContain(triple.getId())) {
                 // this is a hack for a concurrency problem that may occur in case the triple is removed in the
                 // transaction and then added again; in these cases the createStatement method might return
                 // an expired state of the triple because it uses its own database connection
@@ -1281,7 +1283,7 @@ public class KiWiConnection implements AutoCloseable {
                                         deleteTriple.setLong(1, triple.getId());
                                         deleteTriple.executeUpdate();
                                     }
-                                    deletedStatementsLog.add(triple.getId());
+                                    deletedStatementsLog.put(triple.getId());
                                 }
                             } finally {
                                 commitLock.unlock();
@@ -1294,7 +1296,7 @@ public class KiWiConnection implements AutoCloseable {
                                 deleteTriple.setLong(1, triple.getId());
                                 deleteTriple.executeUpdate();
                             }
-                            deletedStatementsLog.add(triple.getId());
+                            deletedStatementsLog.put(triple.getId());
 
 
                         }
@@ -2282,7 +2284,7 @@ public class KiWiConnection implements AutoCloseable {
                 }
 
 
-                deletedStatementsLog.clear();
+                deletedStatementsLog = BloomFilter.create(Funnels.longFunnel(), 100000);
 
                 if(connection != null) {
                     connection.commit();
@@ -2316,7 +2318,7 @@ public class KiWiConnection implements AutoCloseable {
                 tripleBatch.clear();
             }
         }
-        deletedStatementsLog.clear();
+        deletedStatementsLog = BloomFilter.create(Funnels.longFunnel(), 100000);
         if(connection != null && !connection.isClosed()) {
             connection.rollback();
         }
