@@ -46,6 +46,7 @@ public class KiWiIO {
     private static final int PREFIX_DC      = 5;
     private static final int PREFIX_DCT     = 6;
     private static final int PREFIX_OWL     = 7;
+    private static final int PREFIX_LOCAL   = 8;
 
 
     private static final int TYPE_URI       = 1;
@@ -57,8 +58,27 @@ public class KiWiIO {
     private static final int TYPE_STRING    = 7;
 
 
-    public static final int MODE_DEFAULT = 1;
-    public static final int MODE_PREFIX  = 2;
+    public static final int MODE_DEFAULT    = 1; // no compression
+    public static final int MODE_PREFIX     = 2; // prefix compression for some known URI prefixes
+    public static final int MODE_COMPRESSED = 3; // reserved: ZLIB string compression for long literals
+
+    private static final int LANG_UNKNOWN = 0;
+    private static final int LANG_EN = 1;
+    private static final int LANG_DE = 2;
+    private static final int LANG_FR = 3;
+    private static final int LANG_ES = 4;
+    private static final int LANG_NL = 5;
+    private static final int LANG_PT = 6;
+    private static final int LANG_RU = 7;
+    private static final int LANG_SV = 8;
+    private static final int LANG_NO = 9;
+    private static final int LANG_FI = 10;
+    private static final int LANG_DK = 11;
+    private static final int LANG_IT = 12;
+    private static final int LANG_PL = 13;
+
+
+    public static final String HTTP_LOCALHOST = "http://localhost";
 
 
     private static Map<Class<? extends KiWiNode>, Integer> classTable = new HashMap<>();
@@ -70,6 +90,24 @@ public class KiWiIO {
         classTable.put(KiWiDoubleLiteral.class,  TYPE_DOUBLE);
         classTable.put(KiWiIntLiteral.class,     TYPE_INT);
         classTable.put(KiWiStringLiteral.class,  TYPE_STRING);
+    }
+
+
+    private static Map<String,Integer> langTable = new HashMap<>();
+    static {
+        langTable.put("en", LANG_EN);
+        langTable.put("de", LANG_DE);
+        langTable.put("fr", LANG_FR);
+        langTable.put("es", LANG_ES);
+        langTable.put("nl", LANG_NL);
+        langTable.put("pt", LANG_PT);
+        langTable.put("ru", LANG_RU);
+        langTable.put("sv", LANG_SV);
+        langTable.put("no", LANG_NO);
+        langTable.put("fi", LANG_FI);
+        langTable.put("dk", LANG_DK);
+        langTable.put("it", LANG_IT);
+        langTable.put("pl", LANG_PL);
     }
 
     /**
@@ -184,6 +222,9 @@ public class KiWiIO {
             } else if(uri.stringValue().startsWith(OWL.NAMESPACE)) {
                 out.writeByte(PREFIX_OWL);
                 DataIO.writeString(out, uri.stringValue().substring(OWL.NAMESPACE.length()));
+            } else if(uri.stringValue().startsWith(HTTP_LOCALHOST)) {
+                out.writeByte(PREFIX_LOCAL);
+                DataIO.writeString(out, uri.stringValue().substring(HTTP_LOCALHOST.length()));
             } else {
                 out.writeByte(PREFIX_UNKNOWN);
                 DataIO.writeString(out, uri.stringValue());
@@ -234,6 +275,9 @@ public class KiWiIO {
                     break;
                 case PREFIX_OWL:
                     uriPrefix = OWL.NAMESPACE;
+                    break;
+                case PREFIX_LOCAL:
+                    uriPrefix = HTTP_LOCALHOST;
                     break;
                 default:
                     uriPrefix = "";
@@ -490,7 +534,12 @@ public class KiWiIO {
         } else {
             out.writeLong(literal.getId());
             DataIO.writeString(out, literal.getContent());
-            DataIO.writeString(out, literal.getLanguage());
+            if(langTable.containsKey(literal.getLanguage())) {
+                out.writeByte(langTable.get(literal.getLanguage()));
+            } else {
+                out.writeByte(LANG_UNKNOWN);
+                DataIO.writeString(out, literal.getLanguage());
+            }
             writeURI(out, literal.getType());
             out.writeLong(literal.getCreated().getTime());
         }
@@ -512,7 +561,54 @@ public class KiWiIO {
             return null;
         } else {
             String content = DataIO.readString(input);
-            String lang    = DataIO.readString(input);
+            byte   langB   = input.readByte();
+            String lang;
+
+            switch (langB) {
+                case LANG_EN:
+                    lang = "en";
+                    break;
+                case LANG_DE:
+                    lang = "de";
+                    break;
+                case LANG_FR:
+                    lang = "fr";
+                    break;
+                case LANG_ES:
+                    lang = "es";
+                    break;
+                case LANG_IT:
+                    lang = "it";
+                    break;
+                case LANG_PT:
+                    lang = "pt";
+                    break;
+                case LANG_NL:
+                    lang = "nl";
+                    break;
+                case LANG_SV:
+                    lang = "sv";
+                    break;
+                case LANG_NO:
+                    lang = "no";
+                    break;
+                case LANG_FI:
+                    lang = "fi";
+                    break;
+                case LANG_RU:
+                    lang = "ru";
+                    break;
+                case LANG_DK:
+                    lang = "dk";
+                    break;
+                case LANG_PL:
+                    lang = "pl";
+                    break;
+                default:
+                    lang = DataIO.readString(input);
+            }
+
+
 
             KiWiUriResource dtype = readURI(input);
 

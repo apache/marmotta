@@ -17,21 +17,21 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.common.hash.BloomFilter;
 import org.apache.commons.io.IOUtils;
+import org.apache.marmotta.commons.sesame.hashing.URIFunnel;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * A dialect provides the SQL statements necessary to access the different types of database systems. Each
@@ -44,7 +44,7 @@ public abstract class KiWiDialect {
     private static Logger log = LoggerFactory.getLogger(KiWiDialect.class);
 
     private final static int VERSION = 2;
-    protected Set<URI> supportedFunctions;
+    protected BloomFilter<URI> supportedFunctions;
 
     private Properties statements;
 
@@ -62,7 +62,7 @@ public abstract class KiWiDialect {
             log.error("could not load statement definitions (statement.properties)",e);
         }
 
-        supportedFunctions = new HashSet<>();
+        supportedFunctions = BloomFilter.create(URIFunnel.getInstance(), 1000);
     }
 
     public int getVersion() {
@@ -273,7 +273,7 @@ public abstract class KiWiDialect {
      * @return
      */
     public boolean isFunctionSupported(URI fnUri) {
-        return supportedFunctions.contains(fnUri);
+        return supportedFunctions.mightContain(fnUri);
     }
 
     /**

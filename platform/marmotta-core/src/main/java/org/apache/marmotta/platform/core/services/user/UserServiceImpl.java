@@ -71,7 +71,6 @@ public class UserServiceImpl implements UserService {
     private static InheritableThreadLocal<URI> currentUser = new InheritableThreadLocal<URI>();
 
     // marker to ensure that no other thread interferes while setting up default users ...
-    private boolean initialised = false;
     private boolean users_created = false;
 
     private final Lock lock = new ReentrantLock();
@@ -98,8 +97,6 @@ public class UserServiceImpl implements UserService {
     public  void createDefaultUsers() {
         lock.lock();
         try  {
-            initialised = true; // set marker so that functions can work; we still hold the lock!
-
             if (!userExists(ANONYMOUS_LOGIN)) {
                 log.debug("Initializing anonymous user.");
                 try {
@@ -138,7 +135,6 @@ public class UserServiceImpl implements UserService {
         clearCurrentUser();
         adminUser = null;
         anonUser  = null;
-        initialised = false;
         users_created = false;
     }
 

@@ -25,7 +25,6 @@ import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailBase;
 
 import java.sql.SQLException;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An implementation of a KiWi triple store without extended transaction support. The KiWiStore holds a reference to
@@ -64,14 +63,6 @@ public class KiWiStore extends NotifyingSailBase {
 
     private boolean initialized = false;
 
-    /**
-     * For some operations (e.g. looking up nodes and triples) we hold a store-wide lock to avoid clashes between
-     * threads. This could probably be relaxed a bit or even dropped altogether, but this approach is safer.
-     */
-    protected ReentrantLock nodeLock;
-
-    protected ReentrantLock tripleLock;
-
 
     /**
      * Drop databases when shutdown is called. This option is mostly useful for testing.
@@ -81,8 +72,6 @@ public class KiWiStore extends NotifyingSailBase {
     public KiWiStore(KiWiPersistence persistence, String defaultContext, String inferredContext) {
         this.persistence    = persistence;
         this.defaultContext = defaultContext;
-        this.nodeLock       = new ReentrantLock();
-        this.tripleLock     = new ReentrantLock();
         this.inferredContext = inferredContext;
 
 
