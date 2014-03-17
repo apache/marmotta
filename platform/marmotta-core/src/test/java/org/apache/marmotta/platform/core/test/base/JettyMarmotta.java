@@ -17,10 +17,7 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.*;
-
+import org.apache.marmotta.platform.core.api.jaxrs.ExceptionMapperService;
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
@@ -28,11 +25,15 @@ import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.core.webservices.CoreApplication;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.*;
 
 /**
  * An extended version of the EmbeddedMarmotta which also starts a jetty servlet 
@@ -124,12 +125,22 @@ public class JettyMarmotta extends AbstractMarmotta {
         //ctx.addFilter(restEasyFilter,"/*", Handler.ALL);
         ctx.addServlet(restEasyFilter, "/*");
 
+
+
         try {
             jetty.start(); 
             String url = "http://localhost:" + this.port + this.context + "/";
             startupService.startupHost(url, url);
         } catch (Exception e) {
             log.error("could not start up embedded jetty server", e);
+        }
+
+        // make sure exception mappers are loaded and registered before jetty starts up
+        ExceptionMapperService mapperService = CDIContext.getInstance(ExceptionMapperService.class);
+        try {
+            mapperService.register(((HttpServletDispatcher) restEasyFilter.getServlet()).getDispatcher().getProviderFactory());
+        } catch (ServletException e) {
+            log.warn("could not register exception mappers");
         }
     }
 

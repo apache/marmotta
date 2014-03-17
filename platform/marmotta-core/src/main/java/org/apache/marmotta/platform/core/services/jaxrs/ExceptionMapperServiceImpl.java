@@ -53,9 +53,16 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
      */
     @PostConstruct
     public void initialise() {
-        log.info("initialising JAX-RS exception mappers");
 
         ResteasyProviderFactory factory = ResteasyProviderFactory.getInstance();
+
+        register(factory);
+    }
+
+
+    @Override
+    public void register(ResteasyProviderFactory factory) {
+        log.info("initialising JAX-RS exception mappers");
 
         for(CDIExceptionMapper<?> mapper : mappers) {
             log.debug("registering exception mapper: {}", mapper.getClass().getName());
