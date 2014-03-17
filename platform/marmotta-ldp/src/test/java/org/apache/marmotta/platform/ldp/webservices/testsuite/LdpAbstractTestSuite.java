@@ -1,18 +1,41 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.marmotta.platform.ldp.webservices.testsuite;
 
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * LDP Abstract Test Suite
@@ -24,6 +47,28 @@ public abstract class LdpAbstractTestSuite {
 
     protected static Logger log = LoggerFactory.getLogger(LdpAbstractTestSuite.class);
 
+    public final static String FILES_PATH = "/testsuite/";
+
+    protected Repository repo;
+
+    @Rule
+    public TestName name = new TestName();
+
+    @Before
+    public final void before() throws RepositoryException, RDFParseException, IOException {
+        log.info("initializing test case {}...", name.getMethodName());
+        repo = loadData(name.getMethodName());
+        Assume.assumeNotNull(repo);
+    }
+
+    @After
+    public final void after() throws RepositoryException {
+        if (repo != null) {
+            repo.shutDown();
+            repo = null;
+        }
+    }
+
     /**
      * Load a dataset into a new in-memory repository
      *
@@ -33,7 +78,7 @@ public abstract class LdpAbstractTestSuite {
      * @throws RepositoryException
      * @throws IOException
      */
-    protected Repository loadDataset(String file) throws RDFParseException, RepositoryException, IOException {
+    protected Repository loadData(String file) throws RDFParseException, RepositoryException, IOException {
         log.debug("creating new in-memory repository...");
         Repository repo = new SailRepository(new MemoryStore());
         repo.initialize();
@@ -41,7 +86,9 @@ public abstract class LdpAbstractTestSuite {
         try {
             conn.begin();
             conn.clear();
-            loadDataset(conn, file);
+            conn.clearNamespaces();
+            addNormativeNamespaces(conn);
+            loadData(conn, file);
             conn.commit();
         } finally {
             conn.close();
@@ -53,21 +100,50 @@ public abstract class LdpAbstractTestSuite {
      * Load a dataset to the connection passed
      *
      * @param conn connection
-     * @param file file name
+     * @param tc test case identifier
      * @throws RDFParseException
      * @throws RepositoryException
      * @throws IOException
      */
-    protected void loadDataset(RepositoryConnection conn, String file) throws RDFParseException, RepositoryException, IOException {
-        log.debug("loading dataset from {}...", file);
-        InputStream dataset = getClass().getResourceAsStream(file);
+    protected void loadData(RepositoryConnection conn, String tc) throws RDFParseException, RepositoryException, IOException {
+        log.debug("loading test case {}...", tc);
+        String path = FILES_PATH + "TC-" + tc + ".ttl";
+        InputStream is = getClass().getResourceAsStream(path);
+        if (is == null) {
+            log.error("Data for test case {} not found where expected ({})", tc, path);
+        } else {
+            try {
+                conn.add(is, "", RDFFormat.TURTLE);
+            } finally {
+                is.close();
+            }
+            log.debug("data for test case {} successfully loaded", tc);
+        }
+    }
+
+    /**
+     * Add some normative namespaces
+     *
+     * @param conn target connection
+     * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/LDP%20Test%20Cases.html#h3_namespaces-used">Sec. 4.1 Namespaces used</a>
+     */
+    private void addNormativeNamespaces(RepositoryConnection conn) {
+        Properties properties = new Properties();
+        String path = FILES_PATH + "namespaces.properties";
         try {
-            conn.add(dataset, "", Rio.getParserFormatForFileName(file));
+            properties.load(getClass().getResourceAsStream(path));
+            for(String key : properties.stringPropertyNames()) {
+                String value = properties.getProperty(key);
+                try {
+                    conn.setNamespace(value, key);
+                } catch (RepositoryException e) {
+                    log.error("Error adding namespace {}: {}", key, e.getMessage());
+                }
+            }
+        } catch (IOException | NullPointerException e) {
+            log.error("Error loading normative namespaces at {}: {}", path, e.getMessage());
         }
-        finally {
-            dataset.close();
-        }
-        log.debug("dataset successfully loaded");
+
     }
 
 }
