@@ -324,10 +324,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>sgvizler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
             <artifactId>strftime</artifactId>
         </dependency>
         <dependency>

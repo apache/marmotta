@@ -17,30 +17,7 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
@@ -52,17 +29,31 @@ import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.exception.HttpErrorException;
 import org.apache.marmotta.platform.core.services.sesame.ResourceSubjectMetadata;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.event.InterceptingRepositoryConnection;
 import org.openrdf.repository.event.base.InterceptingRepositoryConnectionWrapper;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
+import org.openrdf.rio.*;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Meta Web Services
@@ -76,10 +67,10 @@ public class MetaWebService {
 
     @Inject
     private ConfigurationService configurationService;
-    
+
     @Inject
     private TemplatingService templatingService;
-    
+
     @Inject
     private ContextService contextService;
 
@@ -96,54 +87,50 @@ public class MetaWebService {
      * Returns remote resource metadata with the given uri and an accepted
      * return type (mimetype)
      *
-     * @param uri
-     *            , the fully-qualified URI of the resource to create in the
-     *            triple store
-     * @param mimetype
-     *            , accepted mimetype follows the pattern .+/.+
+     * @param uri      , the fully-qualified URI of the resource to create in the
+     *                 triple store
+     * @param mimetype , accepted mimetype follows the pattern .+/.+
      * @return a remote resource's metadata (body is the resource data in
-     *         requested format)
+     * requested format)
      * @HTTP 200 resource metadata found and returned
      * @HTTP 400 bad request (maybe uri is not defined)
      * @HTTP 404 resource cannot be found
      * @HTTP 406 resource cannot be found in the given format
      * @HTTP 500 Internal Error
      * @ResponseHeader Content-Type (for HTTP 406) a list of available metadata
-     *                 types
+     * types
      */
     @GET
     @Path(ResourceWebService.MIME_PATTERN)
-    public Response getMetaRemote(@QueryParam("uri") String uri, @QueryParam("genid") String genid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException {
-    	if (StringUtils.isNotBlank(uri)) {
-    		return getMeta(URLDecoder.decode(uri, "utf-8"), mimetype);
-    	} else if (StringUtils.isNotBlank(genid)) {
-    		return getMeta(URLDecoder.decode(genid, "utf-8"), mimetype);
-    	} else {
-    		return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.BAD_REQUEST, "Invalid Request", configurationService, templatingService);
-    	}
+    public Response getMetaRemote(@QueryParam("uri") String uri, @QueryParam("genid") String genid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException, HttpErrorException {
+        if (StringUtils.isNotBlank(uri)) {
+            return getMeta(URLDecoder.decode(uri, "utf-8"), mimetype);
+        } else if (StringUtils.isNotBlank(genid)) {
+            return getMeta(URLDecoder.decode(genid, "utf-8"), mimetype);
+        } else {
+            throw new HttpErrorException(Status.BAD_REQUEST, uri, "Invalid Request");
+        }
     }
 
     /**
      * Returns local resource data with the given uuid and an accepted return
      * type (mimetype)
      *
-     * @param uuid
-     *            , a unique identifier (must not contain url specific
-     *            characters like /,# etc.)
-     * @param mimetype
-     *            , accepted mimetype follows the pattern .+/.+
+     * @param uuid     , a unique identifier (must not contain url specific
+     *                 characters like /,# etc.)
+     * @param mimetype , accepted mimetype follows the pattern .+/.+
      * @return a local resource's metadata (body is the resource data in
-     *         requested format)
+     * requested format)
      * @HTTP 200 resource data found and returned
      * @HTTP 404 resource cannot be found
      * @HTTP 406 resource cannot be found in the given format
      * @HTTP 500 Internal Error
      * @ResponseHeader Content-Type (for HTTP 406) a list of available metadata
-     *                 types
+     * types
      */
     @GET
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
-    public Response getMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException {
+    public Response getMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException, HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         return getMeta(uri, mimetype);
     }
@@ -151,11 +138,9 @@ public class MetaWebService {
     /**
      * Sets metadata to a given locale resource
      *
-     * @param uuid
-     *            , a unique identifier (must not contain url specific
-     *            characters like /,# etc.)
-     * @param mimetype
-     *            content-type of the body (metadata) follows the pattern .+/.+
+     * @param uuid     , a unique identifier (must not contain url specific
+     *                 characters like /,# etc.)
+     * @param mimetype content-type of the body (metadata) follows the pattern .+/.+
      * @return HTTP response (success or error)
      * @HTTP 200 put was successful
      * @HTTP 400 bad request (e.g. body is empty)
@@ -163,11 +148,11 @@ public class MetaWebService {
      * @HTTP 415 Content-Type is not supported
      * @HTTP 500 Internal Error
      * @ResponseHeader Content-Type (for HTTP 415) a list of available types for
-     *                 metadata
+     * metadata
      */
     @PUT
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
-    public Response putMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request) {
+    public Response putMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request) throws HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         return putMeta(uri, mimetype, request);
     }
@@ -175,11 +160,9 @@ public class MetaWebService {
     /**
      * Sets metadata to a given locale resource
      *
-     * @param uri
-     *            , the fully-qualified URI of the resource to create in the
-     *            triple store
-     * @param mimetype
-     *            content-type of the body (metadata) follows the pattern .+/.+
+     * @param uri      , the fully-qualified URI of the resource to create in the
+     *                 triple store
+     * @param mimetype content-type of the body (metadata) follows the pattern .+/.+
      * @return HTTP response (success or error)
      * @HTTP 200 put was successful
      * @HTTP 400 bad request (e.g. uri is null)
@@ -187,20 +170,19 @@ public class MetaWebService {
      * @HTTP 415 Content-Type is not supported
      * @HTTP 500 Internal Error
      * @ResponseHeader Content-Type (for HTTP 415) a list of available types for
-     *                 metadata
+     * metadata
      */
     @PUT
     @Path(ResourceWebService.MIME_PATTERN)
     public Response putMetaRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request)
-            throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException, HttpErrorException {
         return putMeta(URLDecoder.decode(uri, "utf-8"), mimetype, request);
     }
 
     /**
      * Delete metadata of remote resource with given uri
      *
-     * @param uri
-     *            , the fully-qualified URI of the resource to create in the
+     * @param uri , the fully-qualified URI of the resource to create in the
      *            triple store
      * @return HTTP response (success or error)
      * @HTTP 200 resource content deleted
@@ -208,7 +190,7 @@ public class MetaWebService {
      * @HTTP 404 resource or resource metadata not found
      */
     @DELETE
-    public Response deleteMetaRemote(@QueryParam("uri") @NotNull String uri) throws UnsupportedEncodingException {
+    public Response deleteMetaRemote(@QueryParam("uri") @NotNull String uri) throws UnsupportedEncodingException, HttpErrorException {
         try {
             InterceptingRepositoryConnection connection = new InterceptingRepositoryConnectionWrapper(sesameService.getRepository(), sesameService.getConnection());
             connection.begin();
@@ -218,7 +200,7 @@ public class MetaWebService {
                 connection.addRepositoryConnectionInterceptor(new ResourceSubjectMetadata(subject));
 
                 // delete all triples for given subject
-                connection.remove(subject,null,null);
+                connection.remove(subject, null, null);
 
                 return Response.ok().build();
             } finally {
@@ -227,7 +209,7 @@ public class MetaWebService {
             }
 
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService, templatingService);
+            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, e.getMessage());
         }
     }
 
@@ -242,35 +224,34 @@ public class MetaWebService {
      */
     @DELETE
     @Path(ResourceWebService.UUID_PATTERN)
-    public Response deleteMetaLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException {
+    public Response deleteMetaLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException, HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         return deleteMetaRemote(uri);
     }
 
-    private Response getMeta(String resource, String mimetype) throws UnsupportedEncodingException {
+    private Response getMeta(String resource, String mimetype) throws UnsupportedEncodingException, HttpErrorException {
         try {
             RepositoryConnection conn = sesameService.getConnection();
 
             try {
                 conn.begin();
-                
+
                 Resource r = null;
-            	if (UriUtil.validate(resource)) {
+                if (UriUtil.validate(resource)) {
                     r = ResourceUtils.getUriResource(conn, resource);
-            	} else {
-            		r = ResourceUtils.getAnonResource(conn, resource);
-            	}
-            	
-                if (r == null || !ResourceUtils.isUsed(conn, r)) {
-                	return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "the requested resource could not be found in Marmotta right now, but may be available again in the future", configurationService, templatingService);
+                } else {
+                    r = ResourceUtils.getAnonResource(conn, resource);
                 }
-            	
+
+                if (r == null || !ResourceUtils.isUsed(conn, r)) {
+                    throw new HttpErrorException(Response.Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future");
+                }
+
                 // create parser
                 final RDFFormat serializer = kiWiIOService.getSerializer(mimetype);
                 if (serializer == null) {
-                    Response response = Response.status(406).entity("mimetype can not be processed").build();
-                    ResourceWebServiceHelper.addHeader(response, "Content-Type", ResourceWebServiceHelper.appendMetaTypes(kiWiIOService.getProducedTypes()));
-                    return response;
+                    ImmutableMap<String, String> headers = ImmutableMap.of("Content-Type", ResourceWebServiceHelper.appendMetaTypes(kiWiIOService.getProducedTypes()));
+                    throw new HttpErrorException(Status.NOT_ACCEPTABLE, resource, "mimetype can not be processed", headers);
                 }
 
                 final Resource subject = r;
@@ -279,12 +260,12 @@ public class MetaWebService {
                     @Override
                     public void write(OutputStream output) throws IOException, WebApplicationException {
                         // FIXME: This method is executed AFTER the @Transactional!
-                        RDFWriter writer = Rio.createWriter(serializer,output);
+                        RDFWriter writer = Rio.createWriter(serializer, output);
                         try {
                             RepositoryConnection connection = sesameService.getConnection();
                             try {
                                 connection.begin();
-                                connection.exportStatements(subject,null,null,true,writer);
+                                connection.exportStatements(subject, null, null, true, writer);
                             } finally {
                                 connection.commit();
                                 connection.close();
@@ -301,16 +282,16 @@ public class MetaWebService {
                 // build response
                 Response response = Response.ok(entity).lastModified(ResourceUtils.getLastModified(conn, r)).build();
                 response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
-                
+
                 if (!mimetype.contains("html")) { // then create a proper filename
                     String[] components;
                     if (resource.contains("#")) {
-                    	components = resource.split("#");	                    	
+                        components = resource.split("#");
                     } else {
-                    	components = resource.split("/");
+                        components = resource.split("/");
                     }
-                    final String fileName = components[components.length-1] + "." + serializer.getDefaultFileExtension();   
-                    response.getMetadata().add("Content-Disposition", "attachment; filename=\""+fileName+"\"");
+                    final String fileName = components[components.length - 1] + "." + serializer.getDefaultFileExtension();
+                    response.getMetadata().add("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
                 }
 
                 // create the Content-Type header for the response
@@ -325,7 +306,7 @@ public class MetaWebService {
 
                 // build the link to the human readable content of this resource (if it exists)
                 String contentLink = ResourceWebServiceHelper.buildContentLink(r, contentService.getContentType(r), configurationService);
-                if(!"".equals(contentLink)) {
+                if (!"".equals(contentLink)) {
                     links.add(contentLink);
                 }
 
@@ -333,18 +314,18 @@ public class MetaWebService {
                     response.getMetadata().add("Link", CollectionUtils.fold(links, ", "));
                 }
                 return response;
-        } finally {
+            } finally {
                 if (conn.isOpen()) {
                     conn.commit();
                     conn.close();
                 }
             }
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService, templatingService);
+            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, resource, e.getMessage());
         }
     }
 
-    public Response putMeta(String uri, String mimetype, HttpServletRequest request) {
+    public Response putMeta(String uri, String mimetype, HttpServletRequest request) throws HttpErrorException {
         try {
             // create parser
             RDFFormat parser = kiWiIOService.getParser(mimetype);
@@ -353,8 +334,9 @@ public class MetaWebService {
                 ResourceWebServiceHelper.addHeader(response, "Content-Type", ResourceWebServiceHelper.appendMetaTypes(kiWiIOService.getProducedTypes()));
                 return response;
             }
-            if (request.getContentLength() == 0)
-                return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty in resource update", configurationService, templatingService);
+            if (request.getContentLength() == 0) {
+                throw new HttpErrorException(Status.BAD_REQUEST, uri, "content may not be empty in resource update");
+            }
 
             // a intercepting connection that filters out all triples that have
             // the wrong subject
@@ -367,23 +349,21 @@ public class MetaWebService {
                 connection.addRepositoryConnectionInterceptor(new ResourceSubjectMetadata(subject));
 
                 // delete all triples for given subject
-                connection.remove(subject, null, null, (Resource)null);
+                connection.remove(subject, null, null, (Resource) null);
 
                 // add RDF data from input to the suject
                 connection.add(request.getReader(), configurationService.getBaseUri(), parser, contextService.getDefaultContext());
-			} finally {
+            } finally {
                 connection.commit();
                 connection.close();
             }
             return Response.ok().build();
         } catch (URISyntaxException e) {
-        	return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, "invalid target context", configurationService, templatingService);
+            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, "invalid target context");
+        } catch (IOException | RDFParseException e) {
+            throw new HttpErrorException(Status.NOT_ACCEPTABLE, uri, "could not parse request body");
         } catch (RepositoryException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, e.getMessage(), configurationService, templatingService);
-        } catch (IOException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.INTERNAL_SERVER_ERROR, "could not read request body", configurationService, templatingService);
-        } catch (RDFParseException e) {
-            return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.UNSUPPORTED_MEDIA_TYPE, "could not parse request body", configurationService, templatingService);
+            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, e.getMessage());
         }
     }
 
