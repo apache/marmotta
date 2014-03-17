@@ -43,7 +43,13 @@ public enum CachingBackends {
     /**
      * Cache backend based on Hazelcast using a dynamic cluster setup
      */
-    HAZELCAST("org.apache.marmotta.kiwi.hazelcast.caching.HazelcastCacheManagerFactory");
+    HAZELCAST("org.apache.marmotta.kiwi.hazelcast.caching.HazelcastCacheManagerFactory"),
+
+
+    /**
+     * Cache backend based in EHCache for single-machine production environments.
+     */
+    EHCACHE("org.apache.marmotta.kiwi.ehcache.caching.EHCacheManagerFactory");
 
 
     CachingBackends(String factoryClass) {
