@@ -49,7 +49,6 @@
     <modules>
         <module>snorql</module>
         <module>codemirror</module>
-        <module>sgvizler</module>
         <module>strftime</module>
     </modules>
     

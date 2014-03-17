@@ -1,103 +1,95 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <script type="text/javascript">
+        var _SERVER_URL = "http://localhost:8080/";
+        var _BASIC_URL = "http://localhost:8080/";
+    </script>
+
     <!--###BEGIN_HEAD###-->
     <title>Sgvizler</title>
     <meta charset="UTF-8"/>
     <script type="text/javascript" src="../../webjars/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="../../webjars/sgvizler/0.5.1/sgvizler.js" id="sgvzlr_script" ></script>
+    <script type="text/javascript" src="../../webjars/sgvizler/0.6/sgvizler.min.js" ></script>
     <script type="text/javascript" src="../../webjars/codemirror/3.16/lib/codemirror.js"></script>
     <script type="text/javascript" src="../../webjars/codemirror/3.16/addon/hint/show-hint.js"></script>
     <script type="text/javascript" src="../../webjars/codemirror/3.16/mode/sparql/sparql.js"></script>
     <script type="text/javascript">
-        // CONFIGURATION Sgvizler 0.5: Set variables to fit your setup.
-        // NB! Do not let the last item in a list end with a comma.
+        $(document).ready(function() {
+            // Default settings
+            sgvizler.defaultEndpointURL(_SERVER_URL + "sparql/select");
+            sgvizler.defaultEndpointOutputFormat("json");
+//            sgvizler.defaultLogContainer("sgMessage");
 
-        //// Query settings. The defaults settings are listed.
-        sgvizler.option.query = {
-            // Default query.
-            'query':                "SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE{ ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class",
+            // List available charts
+            var charts = sgvizler.registryChartFunctions().sort(),
+                group = undefined,
+                select = $("#sgChart").empty();
+            for (var i = 0; i < charts.length; i++) {
+                var c = charts[i],
+                    g = c.split('.')[0];
+                if (!group || group.attr('label') != g) {
+                    group = $("<optgroup />", {label: g}).appendTo(select);
+                }
+                group.append($("<option/>", {'value': c, 'title':c, 'text': c.replace(/.*\./, '') }));
+            }
 
-            // Endpoint URL.
-            'endpoint':             _BASIC_URL + 'sparql/select',
+            // preselect default query and chart
+            $("#sgQuery").val("SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE { ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class");
+            select.val("google.visualization.PieChart");
 
-            // Endpoint output format.
-            'endpoint_output':      'json'  // 'xml' or 'json'
+            // use codemirror for the SPARQL editor
+            var editor = CodeMirror.fromTextArea(document.getElementById("sgQuery"), {
+                mode: 'sparql',
+                value: "SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE { ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class",
+                extraKeys: {"Ctrl-Space": "sparqlAutocomplete"},
+                matchBrackets : true,
+                lineNumbers: true,
+                autofocus: true
+            });
 
-            // This string is appended the 'endpoint' variable and the query to it again to give a link to the "raw" query results.
-            //'endpoint_query_url':   "?output=text&amp;query=",
+            // Build the Chart
+            $("#sgSubmit").click(function(event) {
+                editor.save();
+                var Q = new sgvizler.Query();
+                Q.query(editor.getValue())
+                        .chartFunction(select.val()||"google.visualization.PieChart")
+                        .chartHeight(parseInt($("#sgHeight").val())||400)
+                        .chartWidth(parseInt($("#sgWidth").val())||800)
+                        .draw("chart");
 
-            // URL to SPARQL validation service. The query is appended to it.
-            //'validator_query_url':  "http://www.sparql.org/query-validator?languageSyntax=SPARQL&amp;outputFormat=sparql&amp;linenumbers=true&amp;query=",
-
-            // Default chart type.
-            //'chart':                'gLineChart',
-
-            // Default log level. Must be either 0, 1, or 2.
-            //'loglevel':             2
-        };
-
-        //// Prefixes
-        // Add convenient prefixes for your dataset. rdf, rdfs, xsd, owl
-        // are already set.  Examples:
-        //sgvizler.option.namespace['wd'] = 'http://sws.ifi.uio.no/d2rq/resource/';
-        //sgvizler.option.namespace['w']  = 'http://sws.ifi.uio.no/ont/world.owl#';
-
-        //// Your chart drawing preferences. The defaults are listed.
-        // See the Google visualization API for available options for
-        // Google charts, and the Sgvizler homepage for other
-        // options. Options applicable to all charts are put in the
-        // "root" of sgvizler.chartOptions. Chart specific options are
-        // put in a "child" with the chart's id as name,
-        // e.g. 'gGeoMap'.
-        sgvizler.option.chart = {
-            //'width':           '800',
-            //'height':          '400',
-            //'chartArea':       { left: '5%', top: '5%', width: '75%', height: '80%' },
-            //     'gGeoMap': {
-            //	 'dataMode':           'markers'
-            //     },
-            //     'gMap': {
-            //	 'dataMode':           'markers',
-            //     },
-            //     'sMap': {
-            //	 'dataMode':           'markers',
-            //	 'showTip':            true,
-            //	 'useMapTypeControl':  true
-            //     }
-        };
-
-        var editor;
-        $(document).ready(function(){
-            jQuery("#sgvzlr_cQuery").addClass("editor_cm");
-
+                event.preventDefault();
+            });
         });
-
-        sgvizler.ui.setElementValue = function (elementID, value) {
-            if (sgvizler.ui.isElement(elementID)) {
-                $('#' + elementID).val(value);
-            }
-            if(elementID == "sgvzlr_cQuery") {
-                if(editor) editor.toTextArea();
-                editor = CodeMirror.fromTextArea(document.getElementById("sgvzlr_cQuery"),{
-                    lineNumbers : true,
-                    matchBrackets : true,
-                    extraKeys: {"Ctrl-Space": "sparqlAutocomplete"},
-                    mode: "application/x-sparql-query"
-                });
-            }
-        };
-
-        //// Leave this as is. Ready, steady, GO!
-        $(document).ready(sgvizler.go());
-
     </script>
     <link rel="stylesheet" href="../../webjars/codemirror/3.16/lib/codemirror.css" />
+    <!--
     <link rel="stylesheet" href="../../webjars/codemirror/3.16/adon/hint/show-hint.css" />
+    -->
     <style type="text/css">
         .CodeMirror {
             background-color: #fff;
+            border: 1px solid #666;
         }
     </style>
     <!--###END_HEAD###-->
@@ -107,34 +99,22 @@
 <h2>Visualize SPARQL Query Results</h2>
 
 This page allows you to enter custom SPARQL queries and visualize their results in different kinds of charts.
-The implementation is based on <a href="http://code.google.com/p/sgvizler/">Sqvizler</a>, so you can evaluate query
-visualisations here and then build your own custom LMF+Sgvizler applications.
+The implementation is based on <a href="http://dev.data2000.no/sgvizler/">Sqvizler</a>, so you can evaluate query
+visualisations here and then build your own custom Marmotta + Sgvizler applications.
 
 <div id="queryarea">
-    <pre id="sgvzlr_cPrefix"></pre>
-    <textarea id="sgvzlr_cQuery" rows="10" cols="80"></textarea>
-    <form method="get" id="sgvzlr_formQuery">
-        <p>
-            <input type="hidden" value="" name="query" id="sgvzlr_strQuery"/>
-            Width:  <input name="width" id="sgvzlr_strWidth" type="text" size="3"/>
-            Height: <input name="height" id="sgvzlr_strHeight" type="text" size="3"/>
-            Chart Type: <select name="chart" id="sgvzlr_optChart"></select>
-            <input type="button" value="GO!" onclick="editor.save(); sgvizler.ui.submitQuery()"/>
-        </p>
-    </form>
-    <div id="sgvzlr_cMessage"></div>
-</div>
-<div id="sgvzlr_gchart" style="width:800px; height:400px;"></div>
-<div style="font-size: 80%; font-style: italic; margin-top: 10px;">
-    <!-- Please leave a link to the Sgvizler homepage -->
+    <label for="sgQuery">Query:</label><br />
+    <pre id="sgPrefix" style="display: none;"></pre>
+    <textarea id="sgQuery" rows="10" cols="80"></textarea>
     <p>
-        Sgvizler visualizes the result of SPARQL SELECT queries using
-        javascript and the Google Visualization API. For more
-        information, see
-        the <a href="http://code.google.com/p/sgvizler/">Sgvizler</a>
-        homepage. (c) 2011 Martin G. Skj&#230;veland.
+        <label for="sgWidth">Width:</label> <input name="width" id="sgWidth" type="text" value="800" size="3"/>
+        <label for="sgHeight">Height:</label> <input name="height" id="sgHeight" type="text" value="400" size="3"/>
+        <label for="sgChart">Chart Type:</label> <select name="chart" id="sgChart"></select><br />
+        <input id="sgSubmit" type="button" value="Query" />
     </p>
+    <div id="sgMessage" style="display: none;"></div>
 </div>
+<div id="chart" style="width:800px; height:400px;"></div>
 <!--###END_CONTENT###-->
 </body>
 </html>

@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* SOLR CONFIGURATION */
 $(function() {
 	var settings = {
 		host : _SERVER_URL,
