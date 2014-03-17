@@ -15,21 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.core.jaxrs;
+package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.openrdf.repository.RepositoryException;
+
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Map MarmottaExceptions to a internal server error and return the default error object
+ * Map RepositoryExceptions to a internal server error and return the default error object
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @Provider
 @Dependent
-public class IllegalStateExceptionMapper implements CDIExceptionMapper<IllegalStateException> {
+public class RepositoryExceptionMapper implements CDIExceptionMapper<RepositoryException> {
+
 
     /**
      * Map an exception to a {@link javax.ws.rs.core.Response}. Returning
@@ -41,7 +43,7 @@ public class IllegalStateExceptionMapper implements CDIExceptionMapper<IllegalSt
      * @return a response mapped from the supplied exception
      */
     @Override
-    public Response toResponse(IllegalStateException exception) {
-        return ErrorResponse.errorResponse(Response.Status.SERVICE_UNAVAILABLE, exception.getMessage());
+    public Response toResponse(RepositoryException exception) {
+        return ErrorResponse.errorResponse(Response.Status.INTERNAL_SERVER_ERROR, exception);
     }
 }

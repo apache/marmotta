@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.core.jaxrs;
+package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
 import javax.ws.rs.ext.ExceptionMapper;
 

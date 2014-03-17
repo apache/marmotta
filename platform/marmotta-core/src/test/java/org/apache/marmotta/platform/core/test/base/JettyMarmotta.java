@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.core.test.base;
 
 import org.apache.marmotta.platform.core.services.jaxrs.ExceptionMapperServiceImpl;
+import org.apache.marmotta.platform.core.services.jaxrs.InterceptorServiceImpl;
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
@@ -135,13 +136,22 @@ public class JettyMarmotta extends AbstractMarmotta {
             log.error("could not start up embedded jetty server", e);
         }
 
-        // make sure exception mappers are loaded and registered before jetty starts up
+        // make sure exception mappers are loaded and registered
         ExceptionMapperServiceImpl mapperService = CDIContext.getInstance(ExceptionMapperServiceImpl.class);
         try {
             mapperService.register(((HttpServletDispatcher) restEasyFilter.getServlet()).getDispatcher().getProviderFactory());
         } catch (ServletException e) {
             log.warn("could not register exception mappers");
         }
+
+        // make sure interceptors are loaded and registered
+        InterceptorServiceImpl interceptorService = CDIContext.getInstance(InterceptorServiceImpl.class);
+        try {
+            interceptorService.register(((HttpServletDispatcher) restEasyFilter.getServlet()).getDispatcher().getProviderFactory());
+        } catch (ServletException e) {
+            log.warn("could not register interceptors");
+        }
+
     }
 
     @Override

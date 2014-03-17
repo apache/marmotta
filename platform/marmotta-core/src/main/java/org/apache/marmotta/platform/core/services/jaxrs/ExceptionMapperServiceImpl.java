@@ -19,7 +19,7 @@ package org.apache.marmotta.platform.core.services.jaxrs;
 
 import org.apache.marmotta.platform.core.api.jaxrs.ExceptionMapperService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
-import org.apache.marmotta.platform.core.jaxrs.CDIExceptionMapper;
+import org.apache.marmotta.platform.core.jaxrs.exceptionmappers.CDIExceptionMapper;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 
