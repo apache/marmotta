@@ -194,6 +194,7 @@
             <groupId>org.webjars</groupId>
             <artifactId>sgvizler</artifactId>
             <version>0.6</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
