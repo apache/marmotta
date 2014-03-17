@@ -1091,12 +1091,12 @@
             <dependency>
                 <groupId>org.jboss.marshalling</groupId>
                 <artifactId>jboss-marshalling</artifactId>
-                <version>1.4.3.Final</version>
+                <version>1.4.5.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.marshalling</groupId>
                 <artifactId>jboss-marshalling-river</artifactId>
-                <version>1.4.3.Final</version>
+                <version>1.4.5.Final</version>
             </dependency>
             <!--
             <dependency>
