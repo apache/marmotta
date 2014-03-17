@@ -25,6 +25,7 @@ import org.openrdf.model.URI;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -67,12 +68,12 @@ public class LiteralCommons {
      */
     public static String createCacheKey(String content, Locale language, String type) {
         Hasher hasher = Hashing.goodFastHash(64).newHasher();
-        hasher.putString(content);
+        hasher.putString(content, Charset.defaultCharset());
         if(type != null) {
-            hasher.putString(type);
+            hasher.putString(type, Charset.defaultCharset());
         }
         if(language != null) {
-            hasher.putString(language.getLanguage().toLowerCase());
+            hasher.putString(language.getLanguage().toLowerCase(), Charset.defaultCharset());
         }
         return hasher.hash().toString();
     }
@@ -104,12 +105,12 @@ public class LiteralCommons {
      */
     public static String createCacheKey(Literal l) {
         Hasher hasher = Hashing.goodFastHash(64).newHasher();
-        hasher.putString(l.getLabel());
+        hasher.putString(l.getLabel(), Charset.defaultCharset());
         if(l.getDatatype() != null) {
-            hasher.putString(l.getDatatype().stringValue());
+            hasher.putString(l.getDatatype().stringValue(), Charset.defaultCharset());
         }
         if(l.getLanguage() != null) {
-            hasher.putString(l.getLanguage().toLowerCase());
+            hasher.putString(l.getLanguage().toLowerCase(), Charset.defaultCharset());
         }
         return hasher.hash().toString();
     }

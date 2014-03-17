@@ -17,8 +17,10 @@
  */
 package org.apache.marmotta.commons.http;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -26,9 +28,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
+import java.nio.charset.Charset;
 
 /**
  * HTTP ETag generator for Sesame
@@ -47,14 +47,14 @@ public class ETagGenerator {
     	if (resource == null) return "";
     	
         Hasher hasher = buildHasher();
-        hasher.putString(resource.stringValue());
+        hasher.putString(resource.stringValue(), Charset.defaultCharset());
         //FIXME: The order of the statements is not defined -> might result in different hash!
         RepositoryResult<Statement> outgoing = conn.getStatements(resource, null, null, true);
         try {
         	while (outgoing.hasNext()) {
         		Statement statement = outgoing.next();
-        		hasher.putString(statement.getPredicate().stringValue());
-            	hasher.putString(statement.getObject().stringValue());
+        		hasher.putString(statement.getPredicate().stringValue(), Charset.defaultCharset());
+            	hasher.putString(statement.getObject().stringValue(), Charset.defaultCharset());
             	//TODO: statement modification date?
         	}
         } finally {
@@ -64,8 +64,8 @@ public class ETagGenerator {
         try {
         	while (incoming.hasNext()) {
         		Statement statement = incoming.next();
-        		hasher.putString(statement.getSubject().stringValue());
-        		hasher.putString(statement.getPredicate().stringValue());
+        		hasher.putString(statement.getSubject().stringValue(), Charset.defaultCharset());
+        		hasher.putString(statement.getPredicate().stringValue(), Charset.defaultCharset());
         		//TODO: statement modification date?
         	}    
         } finally {
@@ -96,14 +96,14 @@ public class ETagGenerator {
     	if (resource == null) return "";
     	
         Hasher hasher = buildHasher();
-        hasher.putString(resource.stringValue());
+        hasher.putString(resource.stringValue(), Charset.defaultCharset());
         //FIXME: The order of the statements is not defined -> might result in different hash!
         RepositoryResult<Statement> statements = conn.getStatements(resource, null, null, true);
         try {
         	while (statements.hasNext()) {
         		Statement statement = statements.next();
-        		hasher.putString(statement.getPredicate().stringValue());
-        		hasher.putString(statement.getObject().stringValue());
+        		hasher.putString(statement.getPredicate().stringValue(), Charset.defaultCharset());
+        		hasher.putString(statement.getObject().stringValue(), Charset.defaultCharset());
         		//TODO: statement modification date?
         	}
         } finally {
