@@ -17,8 +17,6 @@
 
 package org.apache.marmotta.platform.core.api.jaxrs;
 
-import org.jboss.resteasy.spi.ResteasyProviderFactory;
-
 /**
  * This service auto-registers JAX-RS exception mappers implementing the CDIExceptionMapper interface and
  * registers them with RESTEasy. This allows applications based on Marmotta to easily implement and register their
@@ -30,5 +28,5 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public interface ExceptionMapperService {
-    void register(ResteasyProviderFactory factory);
+
 }

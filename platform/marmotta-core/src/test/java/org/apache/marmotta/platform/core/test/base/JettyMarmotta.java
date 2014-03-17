@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
-import org.apache.marmotta.platform.core.api.jaxrs.ExceptionMapperService;
+import org.apache.marmotta.platform.core.services.jaxrs.ExceptionMapperServiceImpl;
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
@@ -136,7 +136,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         }
 
         // make sure exception mappers are loaded and registered before jetty starts up
-        ExceptionMapperService mapperService = CDIContext.getInstance(ExceptionMapperService.class);
+        ExceptionMapperServiceImpl mapperService = CDIContext.getInstance(ExceptionMapperServiceImpl.class);
         try {
             mapperService.register(((HttpServletDispatcher) restEasyFilter.getServlet()).getDispatcher().getProviderFactory());
         } catch (ServletException e) {

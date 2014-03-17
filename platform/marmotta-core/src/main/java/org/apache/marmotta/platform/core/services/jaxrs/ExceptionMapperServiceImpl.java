@@ -60,7 +60,6 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
     }
 
 
-    @Override
     public void register(ResteasyProviderFactory factory) {
         log.info("initialising JAX-RS exception mappers");
 
