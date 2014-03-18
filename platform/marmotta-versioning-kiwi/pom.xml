@@ -173,10 +173,9 @@
 
         <!-- webjars -->
         <dependency>
-            <!-- FIXME: Use the release when available -->
             <groupId>org.webjars</groupId>
             <artifactId>timeknots</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.1</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
