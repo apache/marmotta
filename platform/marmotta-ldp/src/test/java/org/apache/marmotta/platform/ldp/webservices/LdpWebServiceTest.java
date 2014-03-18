@@ -110,7 +110,7 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
@@ -128,7 +128,7 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"))
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
@@ -143,7 +143,7 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(204)
-                .header("Link", HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"))
+                .header("Link", HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"))
                 .header("ETag", HeaderMatchers.headerNotPresent())
                 .header("Last-Modified", HeaderMatchers.headerNotPresent())
             .delete(newResource);
@@ -182,7 +182,7 @@ public class LdpWebServiceTest {
                 .header("Location", baseUrl + newResource + ".png")
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(baseUrl + newResource, "describedby"),
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
             .post(container);
@@ -194,16 +194,19 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + container,
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.Resource),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.RDFSource),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.Container),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), LDP.contains, new URIImpl(baseUrl + newResource))
-                ))
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), LDP.contains, new URIImpl(baseUrl + newResource + ".png")))
+                )
             .get(container);
 
 
@@ -214,7 +217,7 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
                         HeaderMatchers.isLink(LDP.RDFSource.stringValue(), "type"))
                 )
@@ -235,11 +238,11 @@ public class LdpWebServiceTest {
                 .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
                         HeaderMatchers.isLink(LDP.NonRdfResource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + newResource+".png",
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), RDF.TYPE, LDP.Resource),
@@ -258,11 +261,11 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink("http://wiki.apache.org/marmotta/LDPImplementationReport", "describedby"),
+                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
                         HeaderMatchers.isLink(LDP.RDFSource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(mimeType)
             .get(newResource + ".png")
                 .body().asByteArray();
