@@ -314,6 +314,12 @@ public class KiWiIO {
                 case PREFIX_REDLINK:
                     uriPrefix = NS_REDLINK;
                     break;
+                case PREFIX_DBPEDIA:
+                    uriPrefix = NS_DBPEDIA;
+                    break;
+                case PREFIX_FREEBASE:
+                    uriPrefix = NS_FREEBASE;
+                    break;
                 case PREFIX_LOCAL:
                     uriPrefix = HTTP_LOCALHOST;
                     break;
