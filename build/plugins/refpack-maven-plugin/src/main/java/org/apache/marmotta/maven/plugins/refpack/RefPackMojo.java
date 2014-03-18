@@ -78,7 +78,7 @@ public class RefPackMojo extends AbstractMojo {
      * the dependency tree, the process will break at each module of this group id and instead add
      * a dependency to the other module to the refpacks.
      */
-    @Parameter(property="refpack.moduleGroupId", defaultValue="org.apache.marmotta", required = true, readonly = true)
+    @Parameter(property="refpack.moduleGroupId", defaultValue="org.apache.marmotta", required = true)
     private String moduleGroupId;
 
     /**
@@ -106,7 +106,7 @@ public class RefPackMojo extends AbstractMojo {
     /**
      * The required modules of the refpack
      */
-    @Parameter(property = "refpack.requiredModules", readonly = true)
+    @Parameter(property = "refpack.requiredModules")
     private List<String> requiredModules;
 
     // we collect here the library dependencies of each module, so we can identify which of the dependencies are already
