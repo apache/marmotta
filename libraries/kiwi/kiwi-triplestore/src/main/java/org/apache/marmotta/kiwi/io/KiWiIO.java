@@ -44,6 +44,8 @@ import java.util.zip.Inflater;
  */
 public class KiWiIO {
 
+    public static final String NS_DBPEDIA = "http://dbpedia.org/resource/";
+    public static final String NS_FREEBASE = "http://rdf.freebase.com/ns/";
     private static Logger log = LoggerFactory.getLogger(KiWiIO.class);
 
     /**
@@ -62,6 +64,8 @@ public class KiWiIO {
     private static final int PREFIX_LOCAL   = 8;
     private static final int PREFIX_REDLINK = 9;
     private static final int PREFIX_SCHEMA  = 10;
+    private static final int PREFIX_DBPEDIA = 11;
+    private static final int PREFIX_FREEBASE= 12;
 
 
     private static final int TYPE_URI       = 1;
@@ -244,6 +248,12 @@ public class KiWiIO {
             } else if(uri.stringValue().startsWith(NS_REDLINK)) {
                 out.writeByte(PREFIX_REDLINK);
                 DataIO.writeString(out, uri.stringValue().substring(NS_REDLINK.length()));
+            } else if(uri.stringValue().startsWith(NS_DBPEDIA)) {
+                out.writeByte(PREFIX_DBPEDIA);
+                DataIO.writeString(out, uri.stringValue().substring(NS_DBPEDIA.length()));
+            } else if(uri.stringValue().startsWith(NS_FREEBASE)) {
+                out.writeByte(PREFIX_FREEBASE);
+                DataIO.writeString(out, uri.stringValue().substring(NS_FREEBASE.length()));
             } else if(uri.stringValue().startsWith(HTTP_LOCALHOST)) {
                 out.writeByte(PREFIX_LOCAL);
                 DataIO.writeString(out, uri.stringValue().substring(HTTP_LOCALHOST.length()));
