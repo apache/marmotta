@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.core.jaxrs;
-
-import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
+package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import java.net.URISyntaxException;
 
 /**
  * Map MarmottaExceptions to a internal server error and return the default error object
@@ -30,7 +29,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 @Dependent
-public class MarmottaImportExceptionMapper implements CDIExceptionMapper<MarmottaImportException> {
+public class URISyntaxExceptionMapper implements CDIExceptionMapper<URISyntaxException> {
 
     /**
      * Map an exception to a {@link javax.ws.rs.core.Response}. Returning
@@ -42,7 +41,7 @@ public class MarmottaImportExceptionMapper implements CDIExceptionMapper<Marmott
      * @return a response mapped from the supplied exception
      */
     @Override
-    public Response toResponse(MarmottaImportException exception) {
+    public Response toResponse(URISyntaxException exception) {
         return ErrorResponse.errorResponse(Response.Status.INTERNAL_SERVER_ERROR, exception);
     }
 }

@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.core.jaxrs;
+package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
+
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
@@ -29,7 +30,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 @Dependent
-public class UnsupportedOperationExceptionMapper implements CDIExceptionMapper<UnsupportedOperationException> {
+public class MarmottaExceptionMapper implements CDIExceptionMapper<MarmottaException> {
 
     /**
      * Map an exception to a {@link javax.ws.rs.core.Response}. Returning
@@ -41,7 +42,7 @@ public class UnsupportedOperationExceptionMapper implements CDIExceptionMapper<U
      * @return a response mapped from the supplied exception
      */
     @Override
-    public Response toResponse(UnsupportedOperationException exception) {
-        return ErrorResponse.errorResponse(Response.Status.fromStatusCode(501), exception.getMessage());
+    public Response toResponse(MarmottaException exception) {
+        return ErrorResponse.errorResponse(Response.Status.INTERNAL_SERVER_ERROR, exception);
     }
 }

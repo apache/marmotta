@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.core.jaxrs;
+package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
 import freemarker.template.TemplateException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
