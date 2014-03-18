@@ -80,7 +80,7 @@ public class HazelcastCacheManager implements CacheManager {
 
         hazelcast = Hazelcast.newHazelcastInstance(hcConfiguration);
 
-        if(configuration.isClustered()) {
+        if(!configuration.isClustered()) {
             log.info("initialised Hazelcast local cache manager");
         } else {
             log.info("initialised Hazelcast distributed cache manager (cluster name: {})",  configuration.getClusterName());
