@@ -222,6 +222,7 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
  * JBoss EJB Common Interceptor, http://github.com/jbossinterceptors/jbossinterceptors
  * RESTEasy, http://www.jboss.org/resteasy
  * Apache Xerces, http://xerces.apache.org
+ * timeknots, https://github.com/alangrafu/timeknots
  
 
 Apache Marmotta subcomponents:
