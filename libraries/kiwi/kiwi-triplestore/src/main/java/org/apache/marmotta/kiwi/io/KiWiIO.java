@@ -742,7 +742,13 @@ public class KiWiIO {
 
     }
 
-
+    /**
+     * Read a potentially compressed string from the data input.
+     *
+     * @param in
+     * @return
+     * @throws IOException
+     */
     private static String readContent(DataInput in) throws IOException {
         int mode = in.readByte();
 
@@ -792,7 +798,7 @@ public class KiWiIO {
 
             // only use compressed version if it is smaller than the number of bytes used by the string
             if(length < buffer.length) {
-                log.debug("compressed string with {} bytes; compression ratio {}", data.length, (double)length/data.length);
+                log.debug("compressed string with {} bytes; compression ratio {}", data.length, (double) length / data.length);
 
                 out.writeByte(MODE_COMPRESSED);
                 out.writeInt(data.length);
