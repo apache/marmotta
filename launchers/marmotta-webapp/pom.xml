@@ -398,6 +398,16 @@
             </dependencies>
         </profile>
 
+        <profile>
+            <id>zookeeper</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-zookeeper</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
 
         <profile>
             <id>cleanall</id>
@@ -481,13 +491,6 @@
             <artifactId>marmotta-security</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Optional
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-zookeeper</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        -->
 
         <!-- JavaEE / Servlet / CDI Environment -->
         <dependency>

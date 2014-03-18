@@ -19,9 +19,12 @@ package org.apache.marmotta.kiwi.io;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.commons.vocabulary.SCHEMA;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.openrdf.model.vocabulary.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -30,6 +33,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Add file description here!
@@ -37,6 +43,15 @@ import java.util.Map;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class KiWiIO {
+
+    public static final String NS_DBPEDIA = "http://dbpedia.org/resource/";
+    public static final String NS_FREEBASE = "http://rdf.freebase.com/ns/";
+    private static Logger log = LoggerFactory.getLogger(KiWiIO.class);
+
+    /**
+     * Minimum length of content where we start using compression.
+     */
+    private static final int LITERAL_COMPRESS_LENGTH = 500;
 
     private static final int PREFIX_UNKNOWN = 0;
     private static final int PREFIX_XSD     = 1;
@@ -47,6 +62,10 @@ public class KiWiIO {
     private static final int PREFIX_DCT     = 6;
     private static final int PREFIX_OWL     = 7;
     private static final int PREFIX_LOCAL   = 8;
+    private static final int PREFIX_REDLINK = 9;
+    private static final int PREFIX_SCHEMA  = 10;
+    private static final int PREFIX_DBPEDIA = 11;
+    private static final int PREFIX_FREEBASE= 12;
 
 
     private static final int TYPE_URI       = 1;
@@ -79,6 +98,7 @@ public class KiWiIO {
 
 
     public static final String HTTP_LOCALHOST = "http://localhost";
+    public static final String NS_REDLINK = "http://data.redlink.io";
 
 
     private static Map<Class<? extends KiWiNode>, Integer> classTable = new HashMap<>();
@@ -222,6 +242,18 @@ public class KiWiIO {
             } else if(uri.stringValue().startsWith(OWL.NAMESPACE)) {
                 out.writeByte(PREFIX_OWL);
                 DataIO.writeString(out, uri.stringValue().substring(OWL.NAMESPACE.length()));
+            } else if(uri.stringValue().startsWith(SCHEMA.NAMESPACE)) {
+                out.writeByte(PREFIX_SCHEMA);
+                DataIO.writeString(out, uri.stringValue().substring(SCHEMA.NAMESPACE.length()));
+            } else if(uri.stringValue().startsWith(NS_REDLINK)) {
+                out.writeByte(PREFIX_REDLINK);
+                DataIO.writeString(out, uri.stringValue().substring(NS_REDLINK.length()));
+            } else if(uri.stringValue().startsWith(NS_DBPEDIA)) {
+                out.writeByte(PREFIX_DBPEDIA);
+                DataIO.writeString(out, uri.stringValue().substring(NS_DBPEDIA.length()));
+            } else if(uri.stringValue().startsWith(NS_FREEBASE)) {
+                out.writeByte(PREFIX_FREEBASE);
+                DataIO.writeString(out, uri.stringValue().substring(NS_FREEBASE.length()));
             } else if(uri.stringValue().startsWith(HTTP_LOCALHOST)) {
                 out.writeByte(PREFIX_LOCAL);
                 DataIO.writeString(out, uri.stringValue().substring(HTTP_LOCALHOST.length()));
@@ -275,6 +307,12 @@ public class KiWiIO {
                     break;
                 case PREFIX_OWL:
                     uriPrefix = OWL.NAMESPACE;
+                    break;
+                case PREFIX_SCHEMA:
+                    uriPrefix = SCHEMA.NAMESPACE;
+                    break;
+                case PREFIX_REDLINK:
+                    uriPrefix = NS_REDLINK;
                     break;
                 case PREFIX_LOCAL:
                     uriPrefix = HTTP_LOCALHOST;
@@ -533,7 +571,7 @@ public class KiWiIO {
             out.writeLong(-1L);
         } else {
             out.writeLong(literal.getId());
-            DataIO.writeString(out, literal.getContent());
+            writeContent(out, literal.getContent());
             if(langTable.containsKey(literal.getLanguage())) {
                 out.writeByte(langTable.get(literal.getLanguage()));
             } else {
@@ -560,7 +598,7 @@ public class KiWiIO {
         if(id == -1) {
             return null;
         } else {
-            String content = DataIO.readString(input);
+            String content = readContent(input);
             byte   langB   = input.readByte();
             String lang;
 
@@ -728,5 +766,81 @@ public class KiWiIO {
 
         return result;
 
+    }
+
+    /**
+     * Read a potentially compressed string from the data input.
+     *
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    private static String readContent(DataInput in) throws IOException {
+        int mode = in.readByte();
+
+        if(mode == MODE_COMPRESSED) {
+            try {
+                int strlen = in.readInt();
+                int buflen = in.readInt();
+
+                byte[] buffer = new byte[buflen];
+                in.readFully(buffer);
+
+                Inflater decompressor = new Inflater(true);
+                decompressor.setInput(buffer);
+
+                byte[] data = new byte[strlen];
+                decompressor.inflate(data);
+                decompressor.end();
+
+                return new String(data,"UTF-8");
+            } catch(DataFormatException ex) {
+                throw new IllegalStateException("input data is not valid",ex);
+            }
+        } else {
+            return DataIO.readString(in);
+        }
+    }
+
+    /**
+     * Write a string to the data output. In case the string length exceeds LITERAL_COMPRESS_LENGTH, uses a LZW
+     * compressed format, otherwise writes the plain bytes.
+     *
+     * @param out      output destination to write to
+     * @param content  string to write
+     * @throws IOException
+     */
+    private static void writeContent(DataOutput out, String content) throws IOException {
+        if(content.length() > LITERAL_COMPRESS_LENGTH) {
+            // temporary buffer of the size of bytes in the content string (assuming that the compressed data will fit into it)
+            byte[] data   = content.getBytes("UTF-8");
+            byte[] buffer = new byte[data.length];
+
+            Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION, true);
+            compressor.setInput(data);
+            compressor.finish();
+
+            int length = compressor.deflate(buffer);
+
+            // only use compressed version if it is smaller than the number of bytes used by the string
+            if(length < buffer.length) {
+                log.debug("compressed string with {} bytes; compression ratio {}", data.length, (double) length / data.length);
+
+                out.writeByte(MODE_COMPRESSED);
+                out.writeInt(data.length);
+                out.writeInt(length);
+                out.write(buffer,0,length);
+            } else {
+                log.warn("compressed length exceeds string buffer: {} > {}", length, buffer.length);
+
+                out.writeByte(MODE_DEFAULT);
+                DataIO.writeString(out,content);
+            }
+
+            compressor.end();
+        } else {
+            out.writeByte(MODE_DEFAULT);
+            DataIO.writeString(out,content);
+        }
     }
 }
