@@ -72,7 +72,7 @@ public class HazelcastCacheManager implements CacheManager {
         }
         hcConfiguration.getGroupConfig().setName(configuration.getClusterName());
 
-
+        hcConfiguration.setClassLoader(HazelcastCacheManager.class.getClassLoader());
 
 
         setupSerializers();
