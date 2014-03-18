@@ -14,19 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.marmotta.platform.backend.bigdata;
 
+import com.bigdata.rdf.sail.BigdataSail;
+import com.bigdata.rdf.sail.BigdataSailRepositoryConnection;
+import com.bigdata.rdf.store.AbstractTripleStore;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.Update;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailBooleanQuery;
-import org.openrdf.repository.sail.SailGraphQuery;
-import org.openrdf.repository.sail.SailQuery;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sail.SailRepositoryConnection;
-import org.openrdf.repository.sail.SailTupleQuery;
+import org.openrdf.repository.sail.*;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
@@ -34,10 +31,6 @@ import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.openrdf.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.bigdata.rdf.sail.BigdataSail;
-import com.bigdata.rdf.sail.BigdataSailRepositoryConnection;
-import com.bigdata.rdf.store.AbstractTripleStore;
 
 /**
  * A wrapper to allow using BigData in a modular Sesame 2.7 environment. Provides a fast lane to the BigData SPARQL

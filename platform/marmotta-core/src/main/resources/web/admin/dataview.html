@@ -46,7 +46,7 @@
                 });
             }
 
-            function toGoogleDataTable(data) {
+            function toGoogleDataTable(data, missingValue) {
                 function getValue(d) {
                     return d?d.value:"";
                 }
@@ -55,9 +55,11 @@
                         c2 = data.head.vars[1];
                 tbl.addColumn('string', c1);
                 tbl.addColumn('number', c2);
+                tbl.addColumn('string', "");
                 var bind = data.results.bindings;
                 for( var i = 0; i < bind.length; i++) {
-                    tbl.addRow([ getValue(bind[i][c1]), parseInt( getValue(bind[i][c2]) )||0 ]);
+                    var g = getValue(bind[i][c1]);
+                    tbl.addRow([ g!=""?g:missingValue, parseInt( getValue(bind[i][c2]) )||0, g ]);
                 }
                 return tbl;
             }
@@ -112,7 +114,7 @@
                 }
                 sparql("SELECT ?graph (COUNT(?s) AS ?triples) WHERE { GRAPH ?graph { ?s ?p ?o }} GROUP BY ?graph",
                     function(data){
-                        var tbl = toGoogleDataTable(data),
+                        var tbl = toGoogleDataTable(data, "default graph"),
                             options = {
                                 is3D:true,
                                 height: 350,
@@ -124,7 +126,7 @@
                         google.visualization.events.addListener(chart, 'select', function() {
                             var selection = chart.getSelection()[0];
                             if (selection) {
-                                _graph = tbl.getValue(selection.row, 0);
+                                _graph = tbl.getValue(selection.row, 2);
                                 _type = undefined;
                                 if (tbl.getNumberOfRows() > 1) {
                                     if (options.slices[selection.row]) {
@@ -158,7 +160,7 @@
 
                 sparql(query,
                     function(data) {
-                        var tbl = toGoogleDataTable(data),
+                        var tbl = toGoogleDataTable(data, "no type"),
                             options = {
                                 is3D:true,
                                 height: 350,
@@ -170,7 +172,7 @@
                         google.visualization.events.addListener(chart, 'select', function() {
                             var selection = chart.getSelection()[0];
                             if (selection) {
-                                _type = tbl.getValue(selection.row, 0);
+                                _type = tbl.getValue(selection.row, 2);
                                 var _c = colors[selection.row];
                                 if (tbl.getNumberOfRows() > 1) {
                                     if (options.slices[selection.row]) {

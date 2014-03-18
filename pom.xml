@@ -194,7 +194,7 @@
                     <tagNameFormat>@{version}</tagNameFormat>
 
                     <!-- the profiles to run for the release -->
-                    <arguments>-Pinstaller,marmotta-release,sign ${arguments}</arguments>
+                    <arguments>-Pinstaller,marmotta-release,sign,kiwi ${arguments}</arguments>
 
 		    <pushChanges>false</pushChanges>
                 </configuration>
