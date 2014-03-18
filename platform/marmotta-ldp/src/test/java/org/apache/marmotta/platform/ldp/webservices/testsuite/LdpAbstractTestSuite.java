@@ -22,6 +22,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.openrdf.model.URI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -49,7 +50,9 @@ public abstract class LdpAbstractTestSuite {
 
     public final static String FILES_PATH = "/testsuite/";
 
-    public final static String TEST_CASES_CACHE = "LDP-Test-Cases-WD-20140317";
+    public final static String BASE = "http://www.w3.org/TR/ldp-test-cases/";
+
+    public final static String TEST_CASES_CACHE = "LDP-Test-Cases-Custom-20140318";
 
     protected Repository repo;
 
@@ -115,7 +118,7 @@ public abstract class LdpAbstractTestSuite {
             log.error("test cases data {} not found where expected ({})", file, path);
         } else {
             try {
-                conn.add(is, "", RDFFormat.TURTLE);
+                conn.add(is, BASE, RDFFormat.TURTLE);
             } finally {
                 is.close();
             }
@@ -146,6 +149,20 @@ public abstract class LdpAbstractTestSuite {
             log.error("error loading normative namespaces at {}: {}", path, e.getMessage());
         }
 
+    }
+
+
+    /**
+     * Load a Test Case according the specified format
+     *
+     * @param uri test case uri
+     * @return test case bean
+     * @see <a href="http://www.w3.org/TR/ldp-test-cases/#test-case-description">LDP Tests Cases</a>
+     */
+    private TestCase loadTestCase(URI uri) {
+        TestCase tc = new TestCase(uri);
+        //TODO
+        return tc;
     }
 
 }

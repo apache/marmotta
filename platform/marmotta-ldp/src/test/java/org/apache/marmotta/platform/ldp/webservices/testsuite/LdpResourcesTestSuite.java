@@ -17,7 +17,13 @@
 
 package org.apache.marmotta.platform.ldp.webservices.testsuite;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 
 /**
  * LDPRs Test Suite
@@ -27,8 +33,19 @@ import org.junit.Test;
 public class LdpResourcesTestSuite extends LdpAbstractTestSuite {
 
     @Test
-    public void R1() {
-
+    public void TCR1() throws RepositoryException {
+        //not really used, traces of the initial approach
+        RepositoryConnection conn = repo.getConnection();
+        try {
+            conn.begin();
+            ValueFactory vf = conn.getValueFactory();
+            URI uri = vf.createURI(BASE, name.getMethodName());
+            URI tdTestCase = vf.createURI("http://www.w3.org/2006/03/test-description#TestCase"); //TOD: import vocab
+            Assert.assertTrue(conn.hasStatement(uri, RDF.TYPE, tdTestCase, false));
+            //TestCase tc = loadTestCase(uri);
+        } finally {
+            conn.close();
+        }
     }
 
 }
