@@ -124,6 +124,8 @@ public class TemplatingServiceImpl implements TemplatingService {
 	@Override
     public  Configuration getConfiguration(Class<?> cls) {
         Configuration cfg = new Configuration();
+        cfg.setDefaultEncoding("utf-8");
+        cfg.setURLEscapingCharset("utf-8");
         try {
             cfg.setDirectoryForTemplateLoading(templateDir);
         } catch (IOException e) {
