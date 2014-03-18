@@ -119,6 +119,12 @@ public class ExternalizerTest {
     }
 
     @Test
+    public void testLongStringLiteral() throws Exception {
+        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.random(1000)), new StringLiteralExternalizer());
+    }
+
+
+    @Test
     public void testLangLiteral() throws Exception {
         marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),"en"), new StringLiteralExternalizer());
     }

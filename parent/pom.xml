@@ -1399,7 +1399,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>kiwi-caching</artifactId>
+                <artifactId>kiwi-caching-infinispan</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-caching-hazelcast</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-caching-ehcache</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
