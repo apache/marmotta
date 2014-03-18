@@ -21,6 +21,7 @@ import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.nio.serialization.*;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.marmotta.commons.vocabulary.SCHEMA;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.hazelcast.serializer.*;
 import org.apache.marmotta.kiwi.model.rdf.*;
@@ -104,6 +105,9 @@ public class SerializerTest {
         marshall((KiWiUriResource) valueFactory.createURI(XSD.Double.stringValue()), new UriSerializer());
         marshall((KiWiUriResource) valueFactory.createURI(RDFS.LABEL.stringValue()), new UriSerializer());
         marshall((KiWiUriResource) valueFactory.createURI(OWL.SAMEAS.stringValue()), new UriSerializer());
+        marshall((KiWiUriResource) valueFactory.createURI(SCHEMA.Place.stringValue()), new UriSerializer());
+        marshall((KiWiUriResource) valueFactory.createURI("http://dbpedia.org/resource/Colorado"), new UriSerializer());
+        marshall((KiWiUriResource) valueFactory.createURI("http://rdf.freebase.com/ns/test"), new UriSerializer());
     }
 
 
