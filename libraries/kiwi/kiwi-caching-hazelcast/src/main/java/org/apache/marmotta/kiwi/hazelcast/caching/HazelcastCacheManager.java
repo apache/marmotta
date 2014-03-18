@@ -73,7 +73,7 @@ public class HazelcastCacheManager implements CacheManager {
         hcConfiguration.getGroupConfig().setName(configuration.getClusterName());
 
         hcConfiguration.setClassLoader(HazelcastCacheManager.class.getClassLoader());
-
+        hcConfiguration.setProperty("hazelcast.logging.type", "slf4j");
 
         setupSerializers();
         setupCaches();
