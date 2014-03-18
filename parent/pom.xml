@@ -53,8 +53,6 @@
         <resteasy.version>3.0.6.Final</resteasy.version>
         <jackson.version>2.2.3</jackson.version>
         <titan.version>0.4.2</titan.version>
-
-        <rebel.root>${project.basedir}</rebel.root>
     </properties>
 
     <prerequisites>
