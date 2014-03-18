@@ -320,13 +320,6 @@
                                             </includes>
                                             <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}.jar/META-INF</outputDirectory>
                                         </fileset>
-                                        <fileset>
-                                            <directory>${project.basedir}/../..</directory>
-                                            <includes>
-                                                <include>DISCLAIMER.txt</include>
-                                            </includes>
-                                            <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}.jar/META-INF</outputDirectory>
-                                        </fileset>
                                     </filesets>
                                 </configuration>
                             </execution>
