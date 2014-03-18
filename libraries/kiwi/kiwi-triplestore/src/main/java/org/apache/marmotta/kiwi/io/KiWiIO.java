@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.io;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.commons.vocabulary.SCHEMA;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.openrdf.model.vocabulary.*;
@@ -59,6 +60,8 @@ public class KiWiIO {
     private static final int PREFIX_DCT     = 6;
     private static final int PREFIX_OWL     = 7;
     private static final int PREFIX_LOCAL   = 8;
+    private static final int PREFIX_REDLINK = 9;
+    private static final int PREFIX_SCHEMA  = 10;
 
 
     private static final int TYPE_URI       = 1;
@@ -91,6 +94,7 @@ public class KiWiIO {
 
 
     public static final String HTTP_LOCALHOST = "http://localhost";
+    public static final String NS_REDLINK = "http://data.redlink.io";
 
 
     private static Map<Class<? extends KiWiNode>, Integer> classTable = new HashMap<>();
@@ -234,6 +238,12 @@ public class KiWiIO {
             } else if(uri.stringValue().startsWith(OWL.NAMESPACE)) {
                 out.writeByte(PREFIX_OWL);
                 DataIO.writeString(out, uri.stringValue().substring(OWL.NAMESPACE.length()));
+            } else if(uri.stringValue().startsWith(SCHEMA.NAMESPACE)) {
+                out.writeByte(PREFIX_SCHEMA);
+                DataIO.writeString(out, uri.stringValue().substring(SCHEMA.NAMESPACE.length()));
+            } else if(uri.stringValue().startsWith(NS_REDLINK)) {
+                out.writeByte(PREFIX_REDLINK);
+                DataIO.writeString(out, uri.stringValue().substring(NS_REDLINK.length()));
             } else if(uri.stringValue().startsWith(HTTP_LOCALHOST)) {
                 out.writeByte(PREFIX_LOCAL);
                 DataIO.writeString(out, uri.stringValue().substring(HTTP_LOCALHOST.length()));
@@ -287,6 +297,12 @@ public class KiWiIO {
                     break;
                 case PREFIX_OWL:
                     uriPrefix = OWL.NAMESPACE;
+                    break;
+                case PREFIX_SCHEMA:
+                    uriPrefix = SCHEMA.NAMESPACE;
+                    break;
+                case PREFIX_REDLINK:
+                    uriPrefix = NS_REDLINK;
                     break;
                 case PREFIX_LOCAL:
                     uriPrefix = HTTP_LOCALHOST;
