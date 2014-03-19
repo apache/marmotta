@@ -1,0 +1,7 @@
+{
+    "name": "SquebiMarmotta",
+    "version": "0.0.1",
+    "dependencies": {
+        "squebi":"0.0.1"
+    }
+}

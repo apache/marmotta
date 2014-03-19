@@ -33,7 +33,8 @@
     <description>Web Application bundle (WAR file) containing Apache Marmotta</description>
 
     <properties>
-        <marmotta.home>${java.io.tmpdir}${file.separator}marmotta</marmotta.home>
+        <!--<marmotta.home>${java.io.tmpdir}${file.separator}marmotta</marmotta.home>-->
+        <marmotta.home>/tmp/marmotta</marmotta.home>
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
         <marmotta.backend>kiwi</marmotta.backend>

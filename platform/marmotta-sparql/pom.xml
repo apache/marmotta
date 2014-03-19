@@ -77,6 +77,27 @@
         <plugins>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>bower</executable>
+                    <arguments>
+                        <argument>install</argument>
+                    </arguments>
+                    <workingDirectory>${basedir}/src/main/resources/web/admin
+                    </workingDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>buildinfo-maven-plugin</artifactId>
                 <configuration>
@@ -178,10 +199,6 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>codemirror</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>snorql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
