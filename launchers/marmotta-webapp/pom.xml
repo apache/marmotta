@@ -37,7 +37,6 @@
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
         <marmotta.backend>kiwi</marmotta.backend>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     </properties>
 
     <build>
@@ -121,23 +120,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <source>
-                                project.properties.setProperty("version.clean", "${project.version}".replace('-SNAPSHOT', '~${maven.build.timestamp}'))
-                            </source>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
                 <version>1.1.1</version>
@@ -150,8 +132,8 @@
                         <configuration>
                             <signPackage>true</signPackage>
                             <verbose>false</verbose>
-                            <deb>${project.build.directory}/${project.build.finalName}_${version.clean}_all.deb</deb>
-                            <changesOut>${project.build.directory}/${project.build.finalName}_${version.clean}_all.changes</changesOut>
+                            <deb>${project.build.directory}/${project.build.finalName}_[[version]]_all.deb</deb>
+                            <changesOut>${project.build.directory}/${project.build.finalName}_[[version]]_all.changes</changesOut>
                             <classifier>all</classifier>
                             <snapshotExpand>true</snapshotExpand>
                             <snapshotEnv>maven.build.timestamp</snapshotEnv>
