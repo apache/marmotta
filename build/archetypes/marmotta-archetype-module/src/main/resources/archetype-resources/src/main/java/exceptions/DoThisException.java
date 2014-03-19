@@ -15,42 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ${package}.services;
+package ${package}.exceptions;
 
-import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+public class DoThisException extends Exception {
 
-import ${package}.api.MyService;
-
-/**
- * Default Implementation of {@link MyService}
- */
-@ApplicationScoped
-public class MyServiceImpl implements MyService {
-
-    @Inject
-    private Logger log;
-
-    @Override
-    public void doThis(int i) {
-        log.debug("Doing that for {} times...", i);
-        for (int j = 0; j < i; j++) {
-            doThat();
-        }
-        log.debug("Did this.");
+    public DoThisException() {
+        super();
     }
 
-    @Override
-    public void doThat() {
-        log.debug("Doing THAT");
+    public DoThisException(String message) {
+        super(message);
     }
 
-    @Override
-    public String helloWorld(String name) {
-        log.debug("Greeting {}", name);
-        return "Hello " + name;
+    public DoThisException(String message, Throwable cause) {
+        super(message, cause);
     }
 
+    public DoThisException(Throwable cause) {
+        super(cause);
+    }
 }

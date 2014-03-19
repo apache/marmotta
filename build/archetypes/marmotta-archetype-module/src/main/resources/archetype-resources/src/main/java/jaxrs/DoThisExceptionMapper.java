@@ -15,42 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ${package}.services;
+package ${package}.jaxrs;
 
-import org.slf4j.Logger;
+import org.apache.marmotta.platform.core.jaxrs.exceptionmappers.CDIExceptionMapper;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.enterprise.context.Dependent;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
-import ${package}.api.MyService;
+import ${package}.exceptions.DoThisException;
 
 /**
- * Default Implementation of {@link MyService}
+ * Map DoThisException to a HTTP Response
  */
-@ApplicationScoped
-public class MyServiceImpl implements MyService {
-
-    @Inject
-    private Logger log;
+@Provider
+@Dependent
+public class DoThisExceptionMapper implements CDIExceptionMapper<DoThisException> {
 
     @Override
-    public void doThis(int i) {
-        log.debug("Doing that for {} times...", i);
-        for (int j = 0; j < i; j++) {
-            doThat();
-        }
-        log.debug("Did this.");
+    public Response toResponse(DoThisException exception) {
+        return Response.status(444).entity(exception.getMessage()).build();
     }
-
-    @Override
-    public void doThat() {
-        log.debug("Doing THAT");
-    }
-
-    @Override
-    public String helloWorld(String name) {
-        log.debug("Greeting {}", name);
-        return "Hello " + name;
-    }
-
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -57,25 +57,25 @@ public class MyWebServiceTest {
         /*
          * GET ?name=<xxx>
          */
-        given()
-        .param("name", "Steve")
-        .expect()
-        .content(containsString("Hello Steve"))
-        .when()
-        .get("/${moduleKey}");
+        RestAssured.given()
+                .param("name", "Steve")
+            .expect()
+                .content(containsString("Hello Steve"))
+            .when()
+                .get("/${moduleKey}");
 
-        given()
-        .contentType(ContentType.HTML)
-        .param("name", "Jürgen")
-        .expect()
-        .content(containsString("Hello Jürgen"))
-        .when()
-        .get("/${moduleKey}");
+        RestAssured.given()
+                .contentType(ContentType.HTML)
+                .param("name", "Jürgen")
+            .expect()
+                .content(containsString("Hello Jürgen"))
+            .when()
+                .get("/${moduleKey}");
 
-        expect()
-        .statusCode(400)
-        .when()
-        .get("/${moduleKey}");
+        RestAssured.expect()
+                .statusCode(400)
+            .when()
+                .get("/${moduleKey}");
     }
 
     @Test
@@ -83,21 +83,31 @@ public class MyWebServiceTest {
         /*
          * POST ?turns=i default 2
          */
-        given()
-        .param("turns", 1)
-        .expect().statusCode(200)
-        .when()
-        .post("/${moduleKey}");
+        RestAssured.given()
+                .param("turns", 1)
+            .expect()
+                .statusCode(200)
+            .when()
+                .post("/${moduleKey}");
 
-        given()
-        .param("turns", 10)
-        .expect().statusCode(200)
-        .when()
-        .post("/${moduleKey}");
+        RestAssured.given()
+                .param("turns", 10)
+            .expect()
+                .statusCode(200)
+            .when()
+                .post("/${moduleKey}");
 
-        expect().statusCode(200)
-        .when()
-        .post("/${moduleKey}");
+        RestAssured.expect()
+                .statusCode(200)
+            .when()
+                .post("/${moduleKey}");
+
+        RestAssured.given()
+                .param("turns", 123)
+            .expect()
+                .statusCode(444)
+            .when()
+                .post("/${moduleKey}");
     }
 
 }

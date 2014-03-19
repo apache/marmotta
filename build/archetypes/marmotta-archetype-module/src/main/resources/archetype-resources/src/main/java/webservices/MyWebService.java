@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,6 +19,8 @@ package ${package}.webservices;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.slf4j.Logger;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -26,10 +28,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import ${package}.api.MyService;
+import ${package}.exceptions.DoThisException;
 
 @Path("/${moduleKey}")
 @ApplicationScoped
 public class MyWebService {
+
+    @Inject
+    private Logger log;
 
     @Inject
     private MyService myService;
@@ -38,16 +44,22 @@ public class MyWebService {
     @Produces("text/html")
     public Response hello(@QueryParam("name") String name) {
         if (StringUtils.isEmpty(name)) {
+            log.warn("No name given");
             // No name given? Invalid request.
             return Response.status(Status.BAD_REQUEST).entity("Missing Parameter 'name'").build();
         }
 
+        log.debug("Sending regards to {}", name);
         // Return the greeting.
         return Response.ok(myService.helloWorld(name)).build();
     }
 
     @POST
-    public Response doThis(@QueryParam("turns") @DefaultValue("2") int turns) {
+    public Response doThis(@FormParam("turns") @DefaultValue("2") int turns) throws DoThisException {
+        log.debug("Request to doThis {} times", turns);
+        if (turns > 100) throw new DoThisException("At max, 100 turns are allowed");
+        if (turns < 0) throw new DoThisException("Can't undo 'This'");
+
         myService.doThis(turns);
         return Response.ok().build();
     }

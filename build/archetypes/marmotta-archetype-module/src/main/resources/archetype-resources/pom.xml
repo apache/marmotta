@@ -18,12 +18,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
+    <groupId>\${groupId}</groupId>
+    <artifactId>\${artifactId}</artifactId>
 
     <name>Marmotta Module: ${moduleName}</name>
-    <description></description>
-    <version>${version}</version>
+    <description>The ${moduleName} Module</description>
+    <version>\${version}</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <marmotta.version>${marmottaVersion}</marmotta.version>
+        <sesame.version>${sesameVersion}</sesame.version>
+        <junit.version>${junitVersion}</junit.version>
+        <weld.version>${weldVersion}</weld.version>
+        <weld.core.version>${weldCoreVersion}</weld.core.version>
+        <rest.assured.version>${restAssuredVersion}</rest.assured.version>
+        <hamcrest.version>${hamcrestVersion}</hamcrest.version>
+        <tempus.fugit.version>${tempusFugitVersion}</tempus.fugit.version>
+        <jatl.version>${jatlVersion}</jatl.version>
+        <servlet.api.version>${servletApiVersion}</servlet.api.version>
+        <javax.el.version>${javax-elVersion}</javax.el.version>
+        <h2.version>${h2Version}</h2.version>
+        <postgresql.version>${postgresqlVersion}</postgresql.version>
+        <mysql.version>${mysqlVersion}</mysql.version>
+        <jetty.version>${jettyVersion}</jetty.version>
+        <resteasy.version>${resteasyVersion}</resteasy.version>
+        <jackson.version>${jacksonVersion}</jackson.version>
+        <titan.version>${titanVersion}</titan.version>
+    </properties>
 
     <build>
         <plugins>
@@ -34,6 +57,7 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+                    <encoding>utf-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
@@ -52,76 +76,76 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-core</artifactId>
-            <version>${marmottaVersion}</version>
+            <version>\${marmotta.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-core</artifactId>
-            <version>${marmottaVersion}</version>
+            <version>\${marmotta.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>9.0.3.v20130506</version>
+            <version>\${jetty.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>9.0.3.v20130506</version>
+            <version>\${jetty.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junitVersion}</version>
+            <version>\${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld.se</groupId>
             <artifactId>weld-se-core</artifactId>
-            <version>${weldCoreVersion}</version>
+            <version>\${weld.core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>${h2Version}</version>
+            <version>\${h2.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>${restAssuredVersion}</version>
+            <version>\${rest.assured.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>${hamcrestVersion}</version>
+            <version>\${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
-            <version>${hamcrestVersion}</version>
+            <version>\${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.code.tempus-fugit</groupId>
             <artifactId>tempus-fugit</artifactId>
-            <version>${tempusFugitVersion}</version>
+            <version>\${tempus.fugit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.googlecode.jatl</groupId>
             <artifactId>jatl</artifactId>
-            <version>${jatlVersion}</version>
+            <version>\${jatl.version}</version>
             <scope>test</scope>
         </dependency>
 

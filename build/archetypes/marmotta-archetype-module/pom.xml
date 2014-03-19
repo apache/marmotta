@@ -33,13 +33,24 @@
 
     <properties>
         <marmottaVersion>${project.version}</marmottaVersion>
+        <sesameVersion>${sesame.version}</sesameVersion>
+
         <junitVersion>${junit.version}</junitVersion>
+        <weldVersion>${weld.version}</weldVersion>
         <weldCoreVersion>${weld.core.version}</weldCoreVersion>
         <h2Version>${h2.version}</h2Version>
         <restAssuredVersion>${rest.assured.version}</restAssuredVersion>
         <hamcrestVersion>${hamcrest.version}</hamcrestVersion>
         <tempusFugitVersion>${tempus.fugit.version}</tempusFugitVersion>
         <jatlVersion>${jatl.version}</jatlVersion>
+        <servletApiVersion>${servlet.api.version}</servletApiVersion>
+        <javax-elVersion>${javax.el.version}</javax-elVersion>
+        <postgresqlVersion>${postgresql.version}</postgresqlVersion>
+        <mysqlVersion>${mysql.version}</mysqlVersion>
+        <jettyVersion>${jetty.version}</jettyVersion>
+        <resteasyVersion>${resteasy.version}</resteasyVersion>
+        <jacksonVersion>${jackson.version}</jacksonVersion>
+        <titanVersion>${titan.version}</titanVersion>
     </properties>
 
     <build>
@@ -82,6 +93,12 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <escapeString>\</escapeString>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
