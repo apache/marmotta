@@ -15,26 +15,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-#set( $symbol_pound = '#' )
-#set( $symbol_dollar = '$' )
-#set( $symbol_escape = '\' )
-
-<configuration>
-
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <logger name="org.apache.marmotta" level="WARN" />
-    <logger name="org.apache.marmotta.platform.core" level="INFO" />
-
-    <logger name="org.apache.marmotta.platform.reasoner" level="INFO" />
-
-    <logger name="${package}" level="DEBUG" />
-
-    <root level="info">
-        <appender-ref ref="STDOUT" />
-    </root>
-</configuration>
+<verifications xmlns="http://maven.apache.org/verifications/1.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/verifications/1.0.0 http://maven.apache.org/xsd/verifications-1.0.0.xsd">
+    <files>
+        <file>
+            <location>index.html</location>
+            <contains>var _SERVER_URL</contains>
+        </file>
+        <file>
+            <location>config.json</location>
+            <contains>\Q"kiwi.version":{"value":"${marmottaVersion}"\E</contains>
+        </file>
+    </files>
+</verifications>

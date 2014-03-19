@@ -24,5 +24,5 @@
 <%@ page import="org.apache.marmotta.platform.core.util.CDIContext" %>
 <%
     ConfigurationService configurationService = CDIContext.getInstance(ConfigurationService.class);
-    response.sendRedirect(configurationService.getBaseUri()+configurationService.getStringConfiguration("kiwi.pages.startup"));
+    response.sendRedirect(configurationService.getServerUri()+configurationService.getStringConfiguration("kiwi.pages.startup"));
 %>
