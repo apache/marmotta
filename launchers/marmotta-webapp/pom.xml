@@ -148,8 +148,13 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
+                            <signPackage>true</signPackage>
+                            <verbose>false</verbose>
                             <deb>${project.build.directory}/${project.build.finalName}_${version.clean}_all.deb</deb>
                             <changesOut>${project.build.directory}/${project.build.finalName}_${version.clean}_all.changes</changesOut>
+                            <classifier>all</classifier>
+                            <snapshotExpand>true</snapshotExpand>
+                            <snapshotEnv>maven.build.timestamp</snapshotEnv>
                             <controlDir>${basedir}/src/deb/control</controlDir>
                             <dataSet>
                                 <data>
@@ -193,10 +198,6 @@
                                     </mapper>
                                 </data>
                             </dataSet>
-                            <signPackage>true</signPackage>
-                            <key>5531369F</key>
-                            <timestamped>true</timestamped>
-                            <verbose>false</verbose>
                         </configuration>
                     </execution>
                 </executions>
