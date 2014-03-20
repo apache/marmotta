@@ -247,7 +247,7 @@ public class LdpServiceImpl implements LdpService {
     public String addResource(RepositoryConnection connection, URI container, URI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         ValueFactory valueFactory = connection.getValueFactory();
 
-        // Add container triples (Sec. 6.4.3)
+        // Add container triples (Sec. 5.2.3.2)
         // container and meta triples!
 
         final Literal now = valueFactory.createLiteral(new Date());
@@ -294,7 +294,7 @@ public class LdpServiceImpl implements LdpService {
 
             return binaryResource.stringValue();
         } else {
-            log.debug("POST creates new LDP-RR, data provided as {}", rdfFormat.getName());
+            log.debug("POST creates new LDP-SR, data provided as {}", rdfFormat.getName());
             connection.add(container, LDP.contains, resource, ldpContext);
 
             // FIXME: We are (are we?) allowed to filter out server-managed properties here

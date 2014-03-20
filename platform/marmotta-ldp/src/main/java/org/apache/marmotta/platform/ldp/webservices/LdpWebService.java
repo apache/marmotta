@@ -193,7 +193,8 @@ public class LdpWebService {
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpc-HTTP_POST">6.4 LDP-C POST</a>
      */
     @POST
-    public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug, InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
+    public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug,
+                         InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
 
         final String container = getResourceUri(uriInfo);
@@ -201,14 +202,17 @@ public class LdpWebService {
 
         final RepositoryConnection conn = sesameService.getConnection();
         try {
+            conn.begin();
+
+            // TODO: Check the LDP-Interaction Model (Sec. 5.2.3.4 and Sec. 4.2.1.4)
 
             final String localName;
             if (StringUtils.isBlank(slug)) {
-                /* Sec. 6.4.9) */
+                /* Sec. 5.2.3.8) */
                 // FIXME: Maybe us a shorter uid?
                 localName = UUID.randomUUID().toString();
             } else {
-                // Honor client wishes from Slug-header (Sec. 6.4.11)
+                // Honor client wishes from Slug-header (Sec. 5.2.3.10)
                 //    http://www.ietf.org/rfc/rfc5023.txt
                 log.trace("Slug-Header is '{}'", slug);
                 localName = LdpUtils.urify(slug);
@@ -216,8 +220,6 @@ public class LdpWebService {
             }
 
             String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
-
-            conn.begin();
 
             if (ldpService.isNonRdfSourceResource(conn, container)) {
                 log.info("POSTing to a NonRdfSource is not allowed ({})", container);
@@ -269,7 +271,7 @@ public class LdpWebService {
     }
 
     /**
-     * Handle PUT (Sec. 5.5, Sec. 6.5)
+     * Handle PUT (Sec. 4.2.4, Sec. 5.2.4)
      */
     @PUT
     public Response PUT(@Context UriInfo uriInfo, @Context Request request,
@@ -290,13 +292,13 @@ public class LdpWebService {
             }
 
             if (eTag == null) {
-                // check for If-Match header (ETag) -> 428 Precondition Required (Sec. 5.5.3)
+                // check for If-Match header (ETag) -> 428 Precondition Required (Sec. 4.2.4.5)
                 log.trace("No If-Match header, but that's a MUST");
                 final Response.ResponseBuilder resp = createResponse(con, 428, resource);
                 con.rollback();
                 return resp.build();
             } else {
-                // check ETag -> 412 Precondition Failed (Sec. 5.5.3)
+                // check ETag -> 412 Precondition Failed (Sec. 4.2.4.5)
                 log.trace("Checking If-Match: {}", eTag);
                 EntityTag hasTag = ldpService.generateETag(con, resource);
                 if (!EntityTagUtils.equals(eTag, hasTag)) {
@@ -310,7 +312,7 @@ public class LdpWebService {
             /*
              * TODO: PUT implementation
              *
-             * clients should not be allowed to update LDPC-membership triples -> 409 Conflict (Sec. 6.5.1)
+             * clients should not be allowed to update LDPC-membership triples -> 409 Conflict (Sec. 4.2.4.3)
              *
              * if the target resource exists, replace ALL data of the target.
              */
@@ -325,7 +327,7 @@ public class LdpWebService {
         }
     }
     /**
-     * Handle delete (Sec. 5.6, Sec. 6.6)
+     * Handle delete (Sec. 4.2.5, Sec. 5.2.5)
      */
     @DELETE
     public Response DELETE(@Context UriInfo uriInfo) throws RepositoryException {
@@ -417,7 +419,7 @@ public class LdpWebService {
     }
 
     /**
-     * Handle OPTIONS (Sec. 4.2.8, Sec. ??)
+     * Handle OPTIONS (Sec. 4.2.8, Sec. 5.2.8)
      */
     @OPTIONS
     public Response OPTIONS(@Context final UriInfo uriInfo) throws RepositoryException {
@@ -438,7 +440,7 @@ public class LdpWebService {
             } else if (ldpService.isRdfSourceResource(con, resource)) {
                 // Sec. 4.2.8.2
                 builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
-                // Sec. 4.2.3 / Sec. ??
+                // Sec. 4.2.3 / Sec. 5.2.3
                 // TODO: LDP Interaction Model!
                 builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
                 // Sec. 4.2.7.1
@@ -480,7 +482,7 @@ public class LdpWebService {
         createResponse(rb);
 
         if (ldpService.exists(connection, resource)) {
-            // Link rel='type' (Sec. 5.2.8, 6.2.8)
+            // Link rel='type' (Sec. 4.2.1.4, 5.2.1.4)
             List<Statement> statements = ldpService.getLdpTypes(connection, resource);
             for (Statement stmt : statements) {
                 Value o = stmt.getObject();
@@ -491,6 +493,7 @@ public class LdpWebService {
 
             final URI rdfSource = ldpService.getRdfSourceForNonRdfSource(connection, resource);
             if (rdfSource != null) {
+                // Sec. 5.2.8.1 and 5.2.3.12
                 // FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
                 rb.link(rdfSource.stringValue(), "meta");
                 rb.link(rdfSource.stringValue(), "describedby");
@@ -501,7 +504,7 @@ public class LdpWebService {
                 rb.link(nonRdfSource.stringValue(), "content");
             }
 
-            // ETag (Sec. 5.2.7)
+            // ETag (Sec. 4.2.1.3)
             rb.tag(ldpService.generateETag(connection, resource));
 
             // Last modified date
@@ -517,7 +520,7 @@ public class LdpWebService {
      * @return the updated ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb) {
-        // Link rel='describedby' (Sec. 5.2.11)
+        // Link rel='describedby' (Sec. 4.2.1.6)
         rb.link(LDP_SERVER_CONSTRAINTS, "describedby");
 
         return rb;
