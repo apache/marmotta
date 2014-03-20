@@ -25,7 +25,10 @@
         SQUEBI = {
             selectService : "../select",
             updateService : "../update",
-            app : "bower_components/squebi"
+            app : "bower_components/squebi",
+            bower : "..",
+            hints : [],
+            container : '#squebi_container'
         };
     </script>
     <script data-main="bower_components/squebi/main" src="bower_components/requirejs/require.js"></script>
@@ -33,7 +36,7 @@
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
-<div id="squebi_container" class="container">
+<div style="display: none" id="squebi_container" class="container">
     <div ng-controller="SampleCtrl" class="header">
         <div ng-show="showHint">
             <div ng-click="showHint = false" class="hint-overlay"></div>
