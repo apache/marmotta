@@ -110,4 +110,14 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <!-- These dependencies are only to ensure the correct build order -->
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-core</artifactId>
+            <version>${marmottaVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
 </project>
