@@ -989,12 +989,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta.webjars</groupId>
-                <artifactId>snorql</artifactId>
-                <version>${project.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta.webjars</groupId>
                 <artifactId>strftime</artifactId>
                 <version>${project.version}</version>
                 <scope>runtime</scope>
