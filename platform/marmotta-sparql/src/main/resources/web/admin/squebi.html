@@ -54,7 +54,7 @@
                 <a class="dropdown-toggle">
                     Samples
                 </a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu pull-right">
                     <li ng-repeat="sample in samples">
                         <a ng-click="selectSample(sample)">{{sample.name}}</a>
                     </li>
@@ -65,7 +65,8 @@
         </ul>
     </div>
 
-    <div style="margin-top:50px" ng-controller="QueryCtrl" class="jumbotron">
+    <div style="margin-top:50px;position: relative;" ng-controller="QueryCtrl" class="jumbotron">
+        <a href="https://github.com/tkurz/squebi"><img style="position: absolute; top: 0; right: 0; border: 0;z-index: 20" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
         <div id="query-container">
             <textarea id="input" ng-model="query" ui-codemirror="editorOptions"></textarea>
         </div>
@@ -96,9 +97,6 @@
             <img src="../../webjars/squebi/0.0.5-SNAPSHOT/squebi/img/ajax-loader.gif">
         </div>
     </div>
-    <!--<div class="footer">
-        <p>&copy; Salzburg Research 2014</p>
-    </div>-->
 
 </div>
 <!--###END_CONTENT###-->
