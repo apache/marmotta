@@ -25,17 +25,23 @@
         SQUEBI = {
             selectService : "../select",
             updateService : "../update",
-            app : "bower_components/squebi",
-            bower : "..",
+            app : "../../webjars/squebi/0.0.5-SNAPSHOT",
+            bower : ".",
             hints : [],
-            container : '#squebi_container'
+            container : '#squebi_container',
+            browse : {
+                showFlags : false
+            }
         };
     </script>
-    <script data-main="bower_components/squebi/main" src="bower_components/requirejs/require.js"></script>
+    <script data-main="../../webjars/squebi/0.0.5-SNAPSHOT/main" src="../../webjars/squebi/0.0.5-SNAPSHOT/requirejs/require.js"></script>
     <!--###END_HEAD###-->
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
+<div id="appLoader" style="margin-top: 100px; text-align: center; margin-bottom: 100px">
+    <img src="../../webjars/squebi/0.0.5-SNAPSHOT/squebi/img/ajax-loader-big.gif">
+</div>
 <div style="display: none" id="squebi_container" class="container">
     <div ng-controller="SampleCtrl" class="header">
         <div ng-show="showHint">
@@ -87,7 +93,7 @@
     <div ng-show="showResults" ng-controller="ResultCtrl" class="row result">
         <div ng-show="!loader" ng-include src="template"></div>
         <div class="loader" ng-show="loader">
-            <img src="bower_components/squebi/squebi/img/ajax-loader.gif">
+            <img src="../../webjars/squebi/0.0.5-SNAPSHOT/squebi/img/ajax-loader.gif">
         </div>
     </div>
     <!--<div class="footer">
