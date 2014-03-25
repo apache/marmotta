@@ -80,6 +80,18 @@
                 </instructions>
               </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Modules are checked individually -->
+                        <exclude>ldclient-api/**</exclude>
+                        <exclude>ldclient-core/**</exclude>
+                        <exclude>ldclient-provider-*/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

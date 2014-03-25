@@ -48,6 +48,19 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Modules are checked individually -->
+                        <exclude>archetypes/**</exclude>
+                        <exclude>plugins/**</exclude>
+                        <exclude>dependency-resource-supplement/**</exclude>
+                        <exclude>checkstyle-resources/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

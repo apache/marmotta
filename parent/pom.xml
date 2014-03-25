@@ -458,43 +458,12 @@
                     <version>0.8</version>
                     <configuration>
                         <excludeSubProjects>false</excludeSubProjects>
+                        <useDefaultExcludes>true</useDefaultExcludes>
+                        <useEclipseDefaultExcludes>true</useEclipseDefaultExcludes>
+                        <useIdeaDefaultExcludes>true</useIdeaDefaultExcludes>
+                        <useMavenDefaultExcludes>true</useMavenDefaultExcludes>
                         <excludes>
-                            <!-- 3rd party libraries -->
-                            <exclude>extras/**</exclude>
-
-                            <!-- auto-generated files -->
-                            <exclude>**/*.txt</exclude>
-                            <exclude>**/atlassian-ide-plugin.xml</exclude>
-                            <exclude>**/README.*</exclude>
-                            <exclude>**/NOTICE.*</exclude>
-                            <exclude>**/.*</exclude>
-                            <exclude>**/.*/**</exclude>
-                            <exclude>**/target/**</exclude>
-                            <exclude>.gitignore</exclude>
-                            <exclude>.git/**</exclude>
-                            <exclude>.idea/**</exclude>
-                            <exclude>.eclipse/**</exclude>
-                            <exclude>**/*.ids</exclude>
-                            <exclude>**/*.iml</exclude>
-                            <exclude>**/*.ipr</exclude>
-                            <exclude>**/*.iws</exclude>
-                            <exclude>**/*.psd</exclude>
-                            <exclude>**/*.out</exclude>
-                            <exclude>**/*.log</exclude>
-
-
-                            <!-- known 3rd-party source code -->
-                            <exclude>**/src/ext/**</exclude>
-                            <exclude>**/src/main/resources/task-dialog*.properties</exclude>
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
-                            <exclude>**/src/main/resources/web/admin/sgvizler.html</exclude>
-
-                            <!-- META-INF files don't take a license header -->
-                            <exclude>**/META-INF/**</exclude>
-
-                            <!-- some parsers don't support comments, they are covered by the general LICENSE.txt
-                                 similar to binaries -->
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/ical/*.ics</exclude>
+                            <exclude>src/main/resources/META-INF/services/*</exclude>
                         </excludes>
                     </configuration>
                 </plugin>

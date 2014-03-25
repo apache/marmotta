@@ -199,6 +199,33 @@
 		    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- mysql README -->
+                        <exclude>README.mysql</exclude>
+
+                        <!-- Modules are checked individually -->
+                        <exclude>parent/**</exclude>
+                        <exclude>build/**</exclude>
+                        <exclude>client/**</exclude>
+                        <exclude>commons/**</exclude>
+                        <exclude>extras/**</exclude>
+                        <exclude>launchers/**</exclude>
+                        <exclude>libraries/**</exclude>
+                        <exclude>loader/**</exclude>
+                        <exclude>platform/**</exclude>
+
+                        <!-- Some extra files not covered by the default excludes -->
+                        <exclude>.git/**</exclude>
+                        <exclude>.gitignore</exclude>
+                        <exclude>.idea/**</exclude>
+                        <exclude>atlassian-ide-plugin.xml</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

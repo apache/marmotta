@@ -47,6 +47,18 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Modules are checked individually -->
+                        <exclude>marmotta-rio-*/**</exclude>
+                        <exclude>marmotta-sail-*/**</exclude>
+                        <exclude>marmotta-util-*/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
