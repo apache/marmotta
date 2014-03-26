@@ -65,7 +65,7 @@ public class MyWebServiceTest {
                 .get("/${moduleKey}");
 
         RestAssured.given()
-                .contentType(ContentType.HTML)
+                .contentType(ContentType.HTML + "; charset=utf-8")
                 .param("name", "Jürgen")
             .expect()
                 .content(containsString("Hello Jürgen"))

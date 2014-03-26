@@ -52,7 +52,7 @@ public class MyServiceTest {
         Assert.assertEquals("Hello Steve", myService.helloWorld("Steve"));
         Assert.assertEquals("Hello Tom", myService.helloWorld("Tom"));
         Assert.assertEquals("Hello Ron", myService.helloWorld("Ron"));
-        Assert.assertEquals("Hello Wüterich", myService.helloWorld("Wüterich"));
+        Assert.assertEquals("Hello Fernández", myService.helloWorld("Fernández"));
     }
 
     @AfterClass
