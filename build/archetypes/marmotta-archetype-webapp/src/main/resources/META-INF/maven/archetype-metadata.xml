@@ -21,7 +21,11 @@
 <archetype-descriptor xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd" 
     xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    name="marmotta-webapp">
+    name="Apache Marmotta Webapp">
+
+    <requiredProperties>
+        <requiredProperty key="appName" />
+    </requiredProperties>
 
   <fileSets>
     <fileSet filtered="true" encoding="UTF-8">
@@ -43,7 +47,6 @@
     <fileSet encoding="UTF-8">
       <directory>src/main/webapp</directory>
       <includes>
-        <include>**/*.xsl</include>
         <include>**/*.png</include>
         <include>**/*.js</include>
         <include>**/*.ftl</include>
@@ -56,12 +59,6 @@
       <includes>
         <include>**/*.xml</include>
         <include>**/*.properties</include>
-      </includes>
-    </fileSet>
-    <fileSet filtered="true" encoding="UTF-8">
-      <directory>src/test</directory>
-      <includes>
-        <include>**/*.groovy</include>
       </includes>
     </fileSet>
   </fileSets>

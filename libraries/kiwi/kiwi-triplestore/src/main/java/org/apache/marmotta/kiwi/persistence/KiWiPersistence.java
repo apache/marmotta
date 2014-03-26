@@ -17,7 +17,9 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import org.apache.marmotta.kiwi.caching.*;
+import org.apache.marmotta.kiwi.caching.CacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManagerFactory;
+import org.apache.marmotta.kiwi.caching.GuavaCacheManagerFactory;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.generator.IDGenerator;
 import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
@@ -25,8 +27,6 @@ import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
-import org.infinispan.commons.marshall.AdvancedExternalizer;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class KiWiPersistence {
 
     private PoolProperties        poolConfig;
 
-    private KiWiCacheManager      cacheManager;
+    private CacheManager cacheManager;
 
     private KiWiGarbageCollector  garbageCollector;
 
@@ -82,9 +82,6 @@ public class KiWiPersistence {
 
     private boolean         initialized = false;
 
-    // in case the cache manager comes from outside, it is passed over here
-    private EmbeddedCacheManager infinispan;
-
     @Deprecated
     public KiWiPersistence(String name, String jdbcUrl, String db_user, String db_password, KiWiDialect dialect) {
         this(new KiWiConfiguration(name,jdbcUrl,db_user,db_password,dialect));
@@ -93,12 +90,6 @@ public class KiWiPersistence {
     public KiWiPersistence(KiWiConfiguration configuration) {
         this.configuration = configuration;
         this.maintenance = false;
-    }
-
-    public KiWiPersistence(KiWiConfiguration configuration, EmbeddedCacheManager infinispan) {
-        this.configuration = configuration;
-        this.maintenance = false;
-        this.infinispan = infinispan;
     }
 
 
@@ -132,27 +123,21 @@ public class KiWiPersistence {
         return configuration.getDialect();
     }
 
-    public KiWiCacheManager getCacheManager() {
+    public CacheManager getCacheManager() {
         return cacheManager;
     }
 
 
     private void initCachePool() {
-        AdvancedExternalizer[] externalizers =  new AdvancedExternalizer[] {
-                new TripleExternalizer(this),
-                new UriExternalizer(),
-                new BNodeExternalizer(),
-                new StringLiteralExternalizer(),
-                new DateLiteralExternalizer(),
-                new BooleanLiteralExternalizer(),
-                new IntLiteralExternalizer(),
-                new DoubleLiteralExternalizer()
-        };
 
-        if(infinispan != null) {
-            cacheManager = new KiWiCacheManager(infinispan,configuration, externalizers);
-        } else {
-            cacheManager = new KiWiCacheManager(configuration, externalizers);
+        try {
+            Class factory = Class.forName(configuration.getCachingBackend().getFactoryClass());
+            cacheManager = ((CacheManagerFactory)factory.newInstance()).createCacheManager(configuration);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!", configuration.getCachingBackend(), e.getMessage());
+
+            CacheManagerFactory factory = new GuavaCacheManagerFactory();
+            cacheManager = factory.createCacheManager(configuration);
         }
     }
 
@@ -168,6 +153,8 @@ public class KiWiPersistence {
         poolConfig.setCommitOnReturn(true);
         poolConfig.setValidationQuery(configuration.getDialect().getValidationQuery());
         poolConfig.setLogValidationErrors(true);
+        poolConfig.setTestWhileIdle(true);
+        poolConfig.setTimeBetweenEvictionRunsMillis(5000);
         /*
         poolConfig.setLogAbandoned(true);
         poolConfig.setRemoveAbandoned(true);

@@ -18,6 +18,8 @@
 package org.apache.marmotta.platform.backend.kiwi;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.marmotta.kiwi.config.CacheMode;
+import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -30,7 +32,6 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
@@ -60,25 +61,6 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class KiWiStoreProvider implements StoreProvider {
 
-    public static final String SPARQL_STRATEGY    = "sparql.strategy";
-    public static final String DATACENTER_ID      = "database.datacenter.id";
-    public static final String FULLTEXT_ENABLED   = "database.fulltext.enabled";
-    public static final String FULLTEXT_LANGUAGES = "database.fulltext.languages";
-    public static final String DEBUG_SLOWQUERIES = "database.debug.slowqueries";
-    public static final String CLUSTERING_ENABLED = "clustering.enabled";
-    public static final String CACHING_LITERAL_SIZE = "caching.literal.size";
-    public static final String CACHING_BNODE_SIZE = "caching.bnode.size";
-    public static final String CACHING_URI_SIZE = "caching.uri.size";
-    public static final String CACHING_TRIPLE_SIZE = "caching.triple.size";
-    public static final String CLUSTERING_NAME = "clustering.name";
-    public static final String CACHING_QUERY_ENABLED = "caching.query.enabled";
-    public static final String CACHING_QUERY_SIZE = "caching.query.size";
-    public static final String CACHING_QUERY_LIMIT = "caching.query.limit";
-    public static final String CONTEXTS_DEFAULT = "contexts.default";
-    public static final String CONTEXTS_INFERRED = "contexts.inferred";
-    public static final String CLUSTERING_PORT = "clustering.port";
-    public static final String CLUSTERING_ADDRESS = "clustering.address";
-
     @Inject
     private Logger log;
 
@@ -88,9 +70,6 @@ public class KiWiStoreProvider implements StoreProvider {
     @Inject
     private SesameService sesameService;
 
-
-    @Inject
-    private EmbeddedCacheManager cacheManager;
 
     /**
      * Create the store provided by this SailProvider
@@ -117,44 +96,37 @@ public class KiWiStoreProvider implements StoreProvider {
             throw dnf;
         }
         
-        String jdbcUrl = configurationService.getStringConfiguration("database.url");
-        String dbUser  = configurationService.getStringConfiguration("database.user");
-        String dbPass  = configurationService.getStringConfiguration("database.password");
+        String jdbcUrl = configurationService.getStringConfiguration(KiWiOptions.DATABASE_URL);
+        String dbUser  = configurationService.getStringConfiguration(KiWiOptions.DATABASE_USER);
+        String dbPass  = configurationService.getStringConfiguration(KiWiOptions.DATABASE_PASSWORD);
 
-        KiWiConfiguration configuration = new KiWiConfiguration(configurationService.getStringConfiguration(CLUSTERING_NAME, "Marmotta") + " KiWi", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
-        configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration(DEBUG_SLOWQUERIES, false));
-        configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration("database.triples.batchcommit", true));
-        configuration.setTripleBatchSize(configurationService.getIntConfiguration("database.triples.batchsize", 10000));
+        KiWiConfiguration configuration = new KiWiConfiguration(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_NAME, "Marmotta") + " KiWi", jdbcUrl, dbUser, dbPass, dialect, configurationService.getDefaultContext(), configurationService.getInferredContext());
+        configuration.setQueryLoggingEnabled(configurationService.getBooleanConfiguration(KiWiOptions.DEBUG_SLOWQUERIES, false));
+        configuration.setTripleBatchCommit(configurationService.getBooleanConfiguration(KiWiOptions.TRIPLES_BATCHCOMMIT, true));
+        configuration.setTripleBatchSize(configurationService.getIntConfiguration(KiWiOptions.TRIPLES_BATCHSIZE, 10000));
 
-        configuration.setDatacenterId(configurationService.getIntConfiguration(DATACENTER_ID,0));
-        configuration.setFulltextEnabled(configurationService.getBooleanConfiguration(FULLTEXT_ENABLED, true));
-        configuration.setFulltextLanguages(configurationService.getListConfiguration(FULLTEXT_LANGUAGES, ImmutableList.of("en")));
+        configuration.setDatacenterId(configurationService.getIntConfiguration(KiWiOptions.DATACENTER_ID,0));
+        configuration.setFulltextEnabled(configurationService.getBooleanConfiguration(KiWiOptions.FULLTEXT_ENABLED, true));
+        configuration.setFulltextLanguages(configurationService.getListConfiguration(KiWiOptions.FULLTEXT_LANGUAGES, ImmutableList.of("en")));
 
-        configuration.setClustered(configurationService.getBooleanConfiguration(CLUSTERING_ENABLED, false));
-        configuration.setClusterName(configurationService.getStringConfiguration(CLUSTERING_NAME, "Marmotta"));
+        configuration.setClustered(configurationService.getBooleanConfiguration(KiWiOptions.CLUSTERING_ENABLED, false));
+        configuration.setClusterName(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_NAME, "Marmotta"));
 
-        configuration.setLiteralCacheSize(configurationService.getIntConfiguration(CACHING_LITERAL_SIZE, 100000));
-        configuration.setBNodeCacheSize(configurationService.getIntConfiguration(CACHING_BNODE_SIZE, 10000));
-        configuration.setUriCacheSize(configurationService.getIntConfiguration(CACHING_URI_SIZE, 500000));
-        configuration.setTripleCacheSize(configurationService.getIntConfiguration(CACHING_TRIPLE_SIZE, 100000));
+        configuration.setLiteralCacheSize(configurationService.getIntConfiguration(KiWiOptions.CACHING_LITERAL_SIZE, 100000));
+        configuration.setBNodeCacheSize(configurationService.getIntConfiguration(KiWiOptions.CACHING_BNODE_SIZE, 10000));
+        configuration.setUriCacheSize(configurationService.getIntConfiguration(KiWiOptions.CACHING_URI_SIZE, 500000));
+        configuration.setTripleCacheSize(configurationService.getIntConfiguration(KiWiOptions.CACHING_TRIPLE_SIZE, 100000));
 
-        configuration.setClusterPort(configurationService.getIntConfiguration(CLUSTERING_PORT, 46655));
-        configuration.setClusterAddress(configurationService.getStringConfiguration(CLUSTERING_ADDRESS, "228.6.7.8"));
+        configuration.setClusterPort(configurationService.getIntConfiguration(KiWiOptions.CLUSTERING_PORT, 46655));
+        configuration.setClusterAddress(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_ADDRESS, "228.6.7.8"));
 
-        NotifyingSail base = new KiWiStore(configuration, cacheManager);
+        configuration.setCachingBackend(CachingBackends.valueOf(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_BACKEND, "GUAVA")));
+        configuration.setCacheMode(CacheMode.valueOf(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_MODE,"LOCAL")));
 
-        /*
-        if(configurationService.getBooleanConfiguration(CACHING_QUERY_ENABLED,true)) {
-            log.info(" - enabling query caching support");
-            KiWiQueryCacheConfiguration qcfg = new KiWiQueryCacheConfiguration();
-            qcfg.setMaxCacheSize(configurationService.getIntConfiguration(CACHING_QUERY_SIZE, 100000));
-            qcfg.setMaxEntrySize(configurationService.getIntConfiguration(CACHING_QUERY_LIMIT, 150));
-            base = new KiWiCachingSail(base, qcfg);
-        }
-        */
+        NotifyingSail base = new KiWiStore(configuration);
 
 
-        if("native".equalsIgnoreCase(configurationService.getStringConfiguration(SPARQL_STRATEGY))) {
+        if("native".equalsIgnoreCase(configurationService.getStringConfiguration(KiWiOptions.SPARQL_STRATEGY))) {
             log.info(" - enabling native SPARQL support");
             base = new KiWiSparqlSail(base);
         }
@@ -196,19 +168,23 @@ public class KiWiStoreProvider implements StoreProvider {
 
     public void configurationChanged(@Observes ConfigurationChangedEvent e) {
         log.info("configuration changed: {}", e.getKeys());
-        if(e.containsChangedKey(SPARQL_STRATEGY) ||
-                e.containsChangedKey(DATACENTER_ID) ||
-                e.containsChangedKey(CONTEXTS_DEFAULT) ||
-                e.containsChangedKey(CONTEXTS_INFERRED) ||
-                e.containsChangedKey(FULLTEXT_ENABLED) ||
-                e.containsChangedKey(FULLTEXT_LANGUAGES) ||
-                e.containsChangedKey(DEBUG_SLOWQUERIES) ||
-                e.containsChangedKey(CLUSTERING_ENABLED) ||
-                e.containsChangedKey(CACHING_LITERAL_SIZE) ||
-                e.containsChangedKey(CACHING_TRIPLE_SIZE) ||
-                e.containsChangedKey(CACHING_URI_SIZE) ||
-                e.containsChangedKey(CACHING_BNODE_SIZE) ||
-                e.containsChangedKey(CACHING_QUERY_ENABLED)
+        if(e.containsChangedKey(KiWiOptions.SPARQL_STRATEGY) ||
+                e.containsChangedKey(KiWiOptions.DATACENTER_ID) ||
+                e.containsChangedKey(KiWiOptions.CONTEXTS_DEFAULT) ||
+                e.containsChangedKey(KiWiOptions.CONTEXTS_INFERRED) ||
+                e.containsChangedKey(KiWiOptions.FULLTEXT_ENABLED) ||
+                e.containsChangedKey(KiWiOptions.FULLTEXT_LANGUAGES) ||
+                e.containsChangedKey(KiWiOptions.DEBUG_SLOWQUERIES) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_ENABLED) ||
+                e.containsChangedKey(KiWiOptions.CACHING_LITERAL_SIZE) ||
+                e.containsChangedKey(KiWiOptions.CACHING_TRIPLE_SIZE) ||
+                e.containsChangedKey(KiWiOptions.CACHING_URI_SIZE) ||
+                e.containsChangedKey(KiWiOptions.CACHING_BNODE_SIZE) ||
+                e.containsChangedKey(KiWiOptions.CACHING_QUERY_ENABLED) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_BACKEND) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_ADDRESS) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_PORT) ||
+                e.containsChangedKey(KiWiOptions.CLUSTERING_MODE)
                 ) {
             log.info("KiWi backend configuration changed, re-initialising triple store");
 

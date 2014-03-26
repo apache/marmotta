@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,9 +17,9 @@
  */
 package ${package}.services;
 
-import junit.framework.Assert;
 import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

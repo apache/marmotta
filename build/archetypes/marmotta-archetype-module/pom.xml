@@ -33,13 +33,24 @@
 
     <properties>
         <marmottaVersion>${project.version}</marmottaVersion>
+        <sesameVersion>${sesame.version}</sesameVersion>
+
         <junitVersion>${junit.version}</junitVersion>
+        <weldVersion>${weld.version}</weldVersion>
         <weldCoreVersion>${weld.core.version}</weldCoreVersion>
         <h2Version>${h2.version}</h2Version>
         <restAssuredVersion>${rest.assured.version}</restAssuredVersion>
         <hamcrestVersion>${hamcrest.version}</hamcrestVersion>
         <tempusFugitVersion>${tempus.fugit.version}</tempusFugitVersion>
         <jatlVersion>${jatl.version}</jatlVersion>
+        <servletApiVersion>${servlet.api.version}</servletApiVersion>
+        <javax-elVersion>${javax.el.version}</javax-elVersion>
+        <postgresqlVersion>${postgresql.version}</postgresqlVersion>
+        <mysqlVersion>${mysql.version}</mysqlVersion>
+        <jettyVersion>${jetty.version}</jettyVersion>
+        <resteasyVersion>${resteasy.version}</resteasyVersion>
+        <jacksonVersion>${jackson.version}</jacksonVersion>
+        <titanVersion>${titan.version}</titanVersion>
     </properties>
 
     <build>
@@ -83,6 +94,12 @@
 
         <plugins>
             <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <escapeString>\</escapeString>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <configuration>
@@ -90,7 +107,26 @@
                     <skipDeploy>true</skipDeploy>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>src/test/resources/projects/basic/goal.txt</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <!-- These dependencies are only to ensure the correct build order -->
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-core</artifactId>
+            <version>${marmottaVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -59,6 +59,19 @@
                 </instructions>
               </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Modules are checked individually -->
+                        <exclude>ldcache-api/**</exclude>
+                        <exclude>ldcache-core/**</exclude>
+                        <exclude>ldcache-sail-*/**</exclude>
+                        <exclude>ldcache-backend-*/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

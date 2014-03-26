@@ -124,7 +124,6 @@
         <refpack file="refpacks/marmotta-user.xml" />
         <refpack file="refpacks/marmotta-versioning-common.xml" />
         <refpack file="refpacks/marmotta-versioning-kiwi.xml" />
-        <refpack file="refpacks/marmotta-zookeeper.xml" />
     </packs>
 
     <!-- shortcut generation -->

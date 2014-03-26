@@ -38,6 +38,18 @@
                     <relativePath>../../../</relativePath>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- No License-Header in META-INF/services -->
+                        <exclude>src/main/resources/META-INF/services/*</exclude>
+                        <!-- VCF does not support License-Headers -->
+                        <exclude>src/test/resources/**/*.ics</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

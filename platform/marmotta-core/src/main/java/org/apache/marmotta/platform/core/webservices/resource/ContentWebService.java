@@ -17,36 +17,14 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
+import com.google.common.collect.ImmutableMap;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.ContentCreatedEvent;
+import org.apache.marmotta.platform.core.exception.HttpErrorException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
@@ -54,6 +32,23 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Content Web Services
@@ -105,7 +100,7 @@ public class ContentWebService {
      */
     @GET
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
-    public Response getContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException {
+    public Response getContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException, HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         return getContent(uri, mimetype, range);
     }
@@ -131,7 +126,7 @@ public class ContentWebService {
      */
     @GET
     @Path(ResourceWebService.MIME_PATTERN)
-    public Response getContentRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException {
+    public Response getContentRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException, HttpErrorException {
         return getContent(URLDecoder.decode(uri, "utf-8"), mimetype, range);
     }
     
@@ -215,7 +210,7 @@ public class ContentWebService {
      */
     @PUT
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
-    public Response putContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request) {
+    public Response putContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request) throws HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         return putContent(uri, mimetype, request);
     }
@@ -239,7 +234,7 @@ public class ContentWebService {
     @PUT
     @Path(ResourceWebService.MIME_PATTERN)
     public Response putContentRemote(@QueryParam("uri") @NotNull String uri, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request)
-            throws UnsupportedEncodingException {
+            throws UnsupportedEncodingException, HttpErrorException {
         return putContent(URLDecoder.decode(uri, "utf-8"), mimetype, request);
     }
 
@@ -255,16 +250,18 @@ public class ContentWebService {
      * @HTTP 404 resource or resource content not found
      */
     @DELETE
-    public Response deleteContentRemote(@QueryParam("uri") @NotNull String uri) throws UnsupportedEncodingException {
+    public Response deleteContentRemote(@QueryParam("uri") @NotNull String uri) throws UnsupportedEncodingException, HttpErrorException {
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
                 Resource resource = conn.getValueFactory().createURI(uri);
                 if (resource != null) {
-                    if (contentService.deleteContent(resource)) return Response.ok().build();
-                    else
-                        return ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Response.Status.NOT_FOUND, "no content found for this resource in LMF right now, but may be available again in the future", configurationService, templatingService);
+                    if (contentService.deleteContent(resource)) {
+                        return Response.ok().build();
+                    } else {
+                        throw new HttpErrorException(Response.Status.NOT_FOUND, uri, "no content found for this resource in Marmotta right now, but may be available again in the future");
+                    }
                 }
                 return Response.status(Response.Status.NOT_FOUND).build();
             } finally {
@@ -290,12 +287,12 @@ public class ContentWebService {
      */
     @DELETE
     @Path(ResourceWebService.UUID_PATTERN)
-    public Response deleteContentLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException {
+    public Response deleteContentLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException, HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         return deleteContentRemote(uri);
     }
 
-    private Response getContent(String uri, String mimetype, String range) throws UnsupportedEncodingException {
+    private Response getContent(String uri, String mimetype, String range) throws UnsupportedEncodingException, HttpErrorException {
         try {
             // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
             // "/" + uuid;
@@ -356,9 +353,8 @@ public class ContentWebService {
                     }
                     return response;
                 } else {
-                    Response response = ResourceWebServiceHelper.buildErrorPage(uri, configurationService.getBaseUri(), Status.NOT_ACCEPTABLE, "no content for mimetype " + mimetype, configurationService, templatingService);
-                    ResourceWebServiceHelper.addHeader(response, "Content-Type", ResourceWebServiceHelper.appendContentTypes(contentService.getContentType(resource)));
-                    return response;
+                    ImmutableMap<String, String> headers = ImmutableMap.of("Content-Type", ResourceWebServiceHelper.appendContentTypes(contentService.getContentType(resource)));
+                    throw new HttpErrorException(Status.NOT_ACCEPTABLE, resource.stringValue(), "no content for mimetype " + mimetype, headers);
                 }
             } finally {
                 conn.close();
@@ -370,7 +366,7 @@ public class ContentWebService {
         }
     }
 
-    public Response putContent(String uri, String mimetype, HttpServletRequest request) {
+    public Response putContent(String uri, String mimetype, HttpServletRequest request) throws HttpErrorException {
         try {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
@@ -386,19 +382,20 @@ public class ContentWebService {
         }
     }
 
-    public Response putContent(URI resource, String mimetype, HttpServletRequest request) {
+    public Response putContent(URI resource, String mimetype, HttpServletRequest request) throws HttpErrorException {
         try {
-            if (request.getContentLength() == 0)
-                return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "content may not be empty for writting", configurationService, templatingService);
+            if (request.getContentLength() == 0) {
+                throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "content may not be empty for writing");
+            }
             contentService.setContentStream(resource, request.getInputStream(), mimetype); // store content
             if(configurationService.getBooleanConfiguration(ENHANCER_STANBOL_ENHANCER_ENABLED, false)) {
                 afterContentCreated.fire(new ContentCreatedEvent(resource)); //enhancer
             }
             return Response.ok().build();
         } catch (IOException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.BAD_REQUEST, "could not read request body", configurationService, templatingService);
+            throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "could not read request body");
         } catch (WritingNotSupportedException e) {
-            return ResourceWebServiceHelper.buildErrorPage(resource.stringValue(), configurationService.getBaseUri(), Status.FORBIDDEN, "writting this content is not supported", configurationService, templatingService);
+            throw new HttpErrorException(Status.FORBIDDEN, resource.stringValue(), "writting this content is not supported");
         }
     }
 

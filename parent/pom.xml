@@ -459,43 +459,12 @@
                     <version>0.8</version>
                     <configuration>
                         <excludeSubProjects>false</excludeSubProjects>
+                        <useDefaultExcludes>true</useDefaultExcludes>
+                        <useEclipseDefaultExcludes>true</useEclipseDefaultExcludes>
+                        <useIdeaDefaultExcludes>true</useIdeaDefaultExcludes>
+                        <useMavenDefaultExcludes>true</useMavenDefaultExcludes>
                         <excludes>
-                            <!-- 3rd party libraries -->
-                            <exclude>extras/**</exclude>
-
-                            <!-- auto-generated files -->
-                            <exclude>**/*.txt</exclude>
-                            <exclude>**/atlassian-ide-plugin.xml</exclude>
-                            <exclude>**/README.*</exclude>
-                            <exclude>**/NOTICE.*</exclude>
-                            <exclude>**/.*</exclude>
-                            <exclude>**/.*/**</exclude>
-                            <exclude>**/target/**</exclude>
-                            <exclude>.gitignore</exclude>
-                            <exclude>.git/**</exclude>
-                            <exclude>.idea/**</exclude>
-                            <exclude>.eclipse/**</exclude>
-                            <exclude>**/*.ids</exclude>
-                            <exclude>**/*.iml</exclude>
-                            <exclude>**/*.ipr</exclude>
-                            <exclude>**/*.iws</exclude>
-                            <exclude>**/*.psd</exclude>
-                            <exclude>**/*.out</exclude>
-                            <exclude>**/*.log</exclude>
-
-
-                            <!-- known 3rd-party source code -->
-                            <exclude>**/src/ext/**</exclude>
-                            <exclude>**/src/main/resources/task-dialog*.properties</exclude>
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/*.vcf</exclude>
-                            <exclude>**/src/main/resources/web/admin/sgvizler.html</exclude>
-
-                            <!-- META-INF files don't take a license header -->
-                            <exclude>**/META-INF/**</exclude>
-
-                            <!-- some parsers don't support comments, they are covered by the general LICENSE.txt
-                                 similar to binaries -->
-                            <exclude>**/src/test/resources/org/apache/marmotta/commons/sesame/rio/ical/*.ics</exclude>
+                            <exclude>src/main/resources/META-INF/services/*</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -630,7 +599,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>14.0.1</version>
+                <version>16.0.1</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -775,42 +744,42 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-ext</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.5</version>
+                <version>1.7.6</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.0</version>
+                <version>1.1.1</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.cal10n</groupId>
@@ -987,46 +956,43 @@
                 <groupId>org.webjars</groupId>
                 <artifactId>jquery</artifactId>
                 <version>1.8.2</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>jquery-ui</artifactId>
                 <version>1.10.3</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>jquery-ui-themes</artifactId>
                 <version>1.10.3</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>codemirror</artifactId>
                 <version>3.16</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>angularjs</artifactId>
                 <version>1.2.2</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta.webjars</groupId>
                 <artifactId>codemirror-modes</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta.webjars</groupId>
-                <artifactId>snorql</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.marmotta.webjars</groupId>
-                <artifactId>sgvizler</artifactId>
-                <version>${project.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta.webjars</groupId>
                 <artifactId>strftime</artifactId>
                 <version>${project.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
@@ -1034,9 +1000,20 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- Infinispan Caching Backend -->
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-core</artifactId>
+                <version>6.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-client-hotrod</artifactId>
+                <version>6.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-server-hotrod</artifactId>
                 <version>6.0.1.Final</version>
             </dependency>
             <dependency>
@@ -1048,6 +1025,22 @@
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-tree</artifactId>
                 <version>6.0.1.Final</version>
+            </dependency>
+
+
+            <!-- Hazelcast Caching Backend -->
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>3.1.6</version>
+            </dependency>
+
+
+            <!-- EHCache Caching Backend -->
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>2.8.1</version>
             </dependency>
 
             <!-- use stable versions for some dependencies -->
@@ -1074,12 +1067,12 @@
             <dependency>
                 <groupId>org.jboss.marshalling</groupId>
                 <artifactId>jboss-marshalling</artifactId>
-                <version>1.4.3.Final</version>
+                <version>1.4.5.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.marshalling</groupId>
                 <artifactId>jboss-marshalling-river</artifactId>
-                <version>1.4.3.Final</version>
+                <version>1.4.5.Final</version>
             </dependency>
             <!--
             <dependency>
@@ -1368,7 +1361,17 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
-                <artifactId>kiwi-caching</artifactId>
+                <artifactId>kiwi-caching-infinispan</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-caching-hazelcast</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>kiwi-caching-ehcache</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

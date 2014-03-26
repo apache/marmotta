@@ -27,7 +27,6 @@ import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
-import org.infinispan.Cache;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +38,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * A service for resolving and accessing resources contained in the Apache Marmotta modules. The resource service takes care
@@ -64,7 +64,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
 
 
     @Inject @MarmottaCache("resource-cache")
-    private Cache resourceCache;
+    private ConcurrentMap resourceCache;
 
     /**
      * Used for detecting the mime type of resources contained in KiWi modules

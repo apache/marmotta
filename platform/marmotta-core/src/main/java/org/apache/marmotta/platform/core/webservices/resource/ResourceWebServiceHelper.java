@@ -34,25 +34,24 @@ import java.util.Map;
 
 /**
  * Helper methods shared accross the difference resource web services
- * 
- * @author Sergio Fernández
  *
+ * @author Sergio Fernández
  */
 public class ResourceWebServiceHelper {
-    
+
     private static final String TEMPLATE_404 = "404.ftl";
 
-	public static void addHeader(Response response, String name, String value) {
+    public static void addHeader(Response response, String name, String value) {
         response.getMetadata().add(name, value);
     }
-    
+
     public static String appendTypes(List<String> datamimes, String mime) {
         StringBuilder sb = new StringBuilder();
         sb.append(appendContentTypes(mime));
         sb.append(appendMetaTypes(datamimes));
         return sb.toString();
-    }   
-    
+    }
+
     public static String appendMetaTypes(List<String> datamimes) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < datamimes.size(); i++) {
@@ -64,7 +63,7 @@ public class ResourceWebServiceHelper {
         }
         return sb.toString();
     }
-    
+
     public static String appendContentTypes(String mime) {
         if (mime != null) {
             return mime + ";rel=content";
@@ -72,9 +71,9 @@ public class ResourceWebServiceHelper {
             return "";
         }
     }
-    
+
     /**
-     * @deprecated Use {@link #buildContentLink(URI,String,ConfigurationService)} instead
+     * @deprecated Use {@link #buildContentLink(URI, String, ConfigurationService)} instead
      */
     public static String buildContentLink(URI resource, String uuid, String mime, ConfigurationService configurationService) {
         return buildContentLink(resource, mime, configurationService);
@@ -94,10 +93,10 @@ public class ResourceWebServiceHelper {
             b.append(";rel=content");
         }
         return b.toString();
-    }     
-    
+    }
+
     /**
-     * @deprecated Use {@link #buildMetaLinks(URI,List<String>,ConfigurationService)} instead
+     * @deprecated Use {@link #buildMetaLinks(URI, List<String>,ConfigurationService)} instead
      */
     public static String buildMetaLinks(URI resource, String uuid, List<String> datamimes, ConfigurationService configurationService) {
         return buildMetaLinks(resource, datamimes, configurationService);
@@ -120,7 +119,7 @@ public class ResourceWebServiceHelper {
         }
         return b.toString();
     }
-    
+
     public static String buildResourceLink(URI resource, ContentType cType, ConfigurationService configurationService) {
         return buildResourceLink(resource, cType.getParameter("rel"),
                 cType.getMime(), configurationService);
@@ -134,36 +133,16 @@ public class ResourceWebServiceHelper {
             uuid = resource.stringValue().substring((base + "resource/").length());
             return String.format("%s%s/%s/%s", base, rel, mime, uuid);
         } else {
-	    	if (resource instanceof URI) {
-	            try {  
-	                return String.format("%s%s/%s?uri=%s", src, rel, mime, URLEncoder.encode(resource.stringValue(), ResourceWebService.CHARSET));
-	            } catch (UnsupportedEncodingException e) {
-	                return String.format("%s%s/%s?uri=%s", src, rel, mime, resource.stringValue());
-	            }                    
-	    	} else {
-	    		return String.format("%s%s/%s?genid=%s", src, rel, mime, resource.stringValue());
-	    	}      
+            if (resource instanceof URI) {
+                try {
+                    return String.format("%s%s/%s?uri=%s", src, rel, mime, URLEncoder.encode(resource.stringValue(), ResourceWebService.CHARSET));
+                } catch (UnsupportedEncodingException e) {
+                    return String.format("%s%s/%s?uri=%s", src, rel, mime, resource.stringValue());
+                }
+            } else {
+                return String.format("%s%s/%s?genid=%s", src, rel, mime, resource.stringValue());
+            }
         }
     }
-    
-    public static Response buildErrorPage(String uri, String base, Status status, String message, ConfigurationService configurationService, TemplatingService templatingService) {
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("uri", uri);
-        data.put("message", message);
-        try {
-            data.put("encoded_uri", URLEncoder.encode(uri, "UTF-8"));
-        } catch (UnsupportedEncodingException uee) {
-            data.put("encoded_uri", uri);
-        }
-
-        try {
-            return Response.status(status)
-                    .entity(templatingService.process(TEMPLATE_404, data))
-                    .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Not Found").build();
-        }
-    } 
 
 }

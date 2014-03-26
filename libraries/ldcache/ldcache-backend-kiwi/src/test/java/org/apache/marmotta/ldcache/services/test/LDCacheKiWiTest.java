@@ -16,6 +16,7 @@
  */
 package org.apache.marmotta.ldcache.services.test;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -24,6 +25,7 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.kiwi.LDCachingKiWiBackend;
 import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,6 +129,9 @@ public class LDCacheKiWiTest extends BaseLDCacheTest {
      */
     @Override
     protected LDCachingBackend createBackend() {
+        Assume.assumeNotNull(jdbcUrl);
+        Assume.assumeTrue(!StringUtils.isBlank(jdbcUrl));
+
         try {
             KiWiStore store = new KiWiStore("test",jdbcUrl,jdbcUser,jdbcPass,dialect, "http://localhost/context/default", "http://localhost/context/inferred");
             final Repository repository = new SailRepository(store);

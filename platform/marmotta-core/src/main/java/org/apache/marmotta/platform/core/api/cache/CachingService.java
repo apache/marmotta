@@ -17,28 +17,44 @@
  */
 package org.apache.marmotta.platform.core.api.cache;
 
-import org.infinispan.Cache;
-import org.infinispan.manager.EmbeddedCacheManager;
-
 import javax.enterprise.inject.spi.InjectionPoint;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * Add file description here!
+ * Simple caching functionality for the Marmotta Platform modules. Note that the KiWi triplestore (and other
+ * triple stores) come with their own custom caching implementations.
  * <p/>
  * User: sschaffe
  */
 public interface CachingService {
 
 
+    /**
+     * Inject a cache at the given injection point. Creates a new cache if needed.
+     *
+     * @param injectionPoint
+     * @return
+     */
+    public ConcurrentMap getCache(InjectionPoint injectionPoint);
 
-    public Cache getCache(InjectionPoint injectionPoint);
-
+    /**
+     * Return the names of all caches registered in the caching service
+     * @return
+     */
     public Set<String> getCacheNames();
 
+    /**
+     * Clear all caches registered in the caching service
+     */
     public void clearAll();
 
-    public Cache getCacheByName(String cacheName);
+    /**
+     * Get the cache with the given name. Creates a new cache if needed.
+     *
+     * @param cacheName
+     * @return
+     */
+    public ConcurrentMap getCacheByName(String cacheName);
 
-    public EmbeddedCacheManager getCacheManager();
 }

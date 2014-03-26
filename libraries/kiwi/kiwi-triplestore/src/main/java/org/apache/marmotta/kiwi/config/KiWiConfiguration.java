@@ -91,6 +91,14 @@ public class KiWiConfiguration {
     private String[] fulltextLanguages;
 
 
+    /**
+     * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
+     * cache manager if not found
+     */
+    private CachingBackends cachingBackend = CachingBackends.GUAVA;
+
+    private int nodeCacheSize = 1000000;
+
     private int uriCacheSize = 500000;
 
     private int bNodeCacheSize = 10000;
@@ -128,6 +136,12 @@ public class KiWiConfiguration {
      * Multicast address of the cache cluster is listening on and distributing cache updates.
      */
     private String clusterAddress = "228.6.7.8";
+
+
+    /**
+     * Socket timeout for cluster connections.
+     */
+    private int clusterTimeout = 60000;
 
     public KiWiConfiguration(String name, String jdbcUrl, String dbUser, String dbPassword, KiWiDialect dialect) {
         this(name, jdbcUrl, dbUser, dbPassword, dialect, null, null);
@@ -287,6 +301,37 @@ public class KiWiConfiguration {
         this.fulltextLanguages = new ArrayList<String>(fulltextLanguages).toArray(new String[fulltextLanguages.size()]);
     }
 
+
+    /**
+     * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
+     * cache manager if not found
+     */
+    public CachingBackends getCachingBackend() {
+        return cachingBackend;
+    }
+
+    /**
+     * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
+     * cache manager if not found
+     */
+    public void setCachingBackend(CachingBackends cachingBackend) {
+        this.cachingBackend = cachingBackend;
+    }
+
+    /**
+     * The maximum size of the node ID cache used by the KiWiValueFactory (default: 1000000)
+     * @return
+     */
+    public int getNodeCacheSize() {
+        return nodeCacheSize;
+    }
+
+    /**
+     * The maximum size of the node ID cache used by the KiWiValueFactory (default: 1000000)
+     */
+    public void setNodeCacheSize(int nodeCacheSize) {
+        this.nodeCacheSize = nodeCacheSize;
+    }
 
     /**
      * The maximum size of the literal cache used by the KiWiValueFactory (default: 100000)
@@ -481,7 +526,7 @@ public class KiWiConfiguration {
      * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
      * data should use different ports or addresses,
      * <p/>
-     * Only used in case isClustered() is true
+     * Only used in case isClustered() is true and the cache mode is not client-server.
      *
      * @return
      */
@@ -494,7 +539,7 @@ public class KiWiConfiguration {
      * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
      * data should use different ports or addresses.
      * <p/>
-     * Only used in case isClustered() is true
+     * Only used in case isClustered() is true and the cache mode is not client-server.
      *
      * @return
      */
@@ -503,10 +548,15 @@ public class KiWiConfiguration {
     }
 
     /**
-     * Return the multicast address used by the cache cluster this triplestore belongs to. This address is
-     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
-     * data should use different ports or addresses,
-     * <p/>
+     * The cluster address serves two purposes, depending on the kind of caching used.
+     * <ul>
+     *     <li>for distributed clusters (Infinispan, Hazelcast, ...), it specifies the multicast address used by the
+     *         cache cluster this triplestore belongs to. This address is used by JGroups to distribute and receive cache
+     *         synchronization updates. Triplestores with different data should use different ports or addresses,</li>
+     *     <li>for client-server caches (Infinispan Remote, Memcached, ...), it specifies the list of cache servers
+     *         to connect to.</li>
+     * </ul>
+     *
      * Only used in case isClustered() is true
      *
      * @return
@@ -516,9 +566,15 @@ public class KiWiConfiguration {
     }
 
     /**
-     * Change the multicast address used by the cache cluster this triplestore belongs to. This address is
-     * used by JGroups to distribute and receive cache synchronization updates. Triplestores with different
-     * data should use different ports or addresses,
+     * The cluster address serves two purposes, depending on the kind of caching used.
+     * <ul>
+     *     <li>for distributed clusters (Infinispan, Hazelcast, ...), it specifies the multicast address used by the
+     *         cache cluster this triplestore belongs to. This address is used by JGroups to distribute and receive cache
+     *         synchronization updates. Triplestores with different data should use different ports or addresses,</li>
+     *     <li>for client-server caches (Infinispan Remote, Memcached, ...), it specifies the list of cache servers
+     *         to connect to.</li>
+     * </ul>
+     *
      * <p/>
      * Only used in case isClustered() is true
      *
@@ -526,5 +582,14 @@ public class KiWiConfiguration {
      */
     public void setClusterAddress(String clusterAddress) {
         this.clusterAddress = clusterAddress;
+    }
+
+
+    public int getClusterTimeout() {
+        return clusterTimeout;
+    }
+
+    public void setClusterTimeout(int clusterTimeout) {
+        this.clusterTimeout = clusterTimeout;
     }
 }

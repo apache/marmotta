@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
@@ -53,7 +53,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
 
     private static Logger log = LoggerFactory.getLogger(KiWiVersioningConnection.class);
 
-    public KiWiVersioningConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager) throws SQLException {
+    public KiWiVersioningConnection(KiWiPersistence persistence, KiWiDialect dialect, CacheManager cacheManager) throws SQLException {
         super(persistence, dialect, cacheManager);
     }
 

@@ -19,7 +19,7 @@
 
 -->
 <archetype-descriptor xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd
-http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 " name="LMF Module"
+http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 " name="Apache Marmotta Module"
                       xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
                       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                       
@@ -27,7 +27,7 @@ http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.
         <requiredProperty key="moduleKey" />
         <requiredProperty key="moduleName" />
     </requiredProperties>
-    
+
     <fileSets>
         <fileSet filtered="true" packaged="true" encoding="UTF-8">
             <directory>src/main/java</directory>

@@ -71,6 +71,16 @@
                         </classpath>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.rat</groupId>
+                    <artifactId>apache-rat-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <!-- No License-Header in META-INF/services -->
+                            <exclude>src/main/resources/META-INF/services/*</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -158,15 +168,8 @@
             </plugin>
 
             <plugin>
-                <!-- these are "extras", so they come from 3rd parties, no RAT check! -->
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <!-- known 3rd party -->
-                        <exclude>src/main/resources/web/admin/sgvizler.html</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
 
         </plugins>
@@ -183,16 +186,19 @@
             <artifactId>jquery-ui</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.tkurz.webjars</groupId>
+            <artifactId>squebi</artifactId>
+            <version>0.0.5</version>
+        </dependency>
+        <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>codemirror</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>snorql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
+            <groupId>org.webjars</groupId>
             <artifactId>sgvizler</artifactId>
+            <version>0.6</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>

@@ -38,9 +38,7 @@
                     <execution>
                         <id>add-ext</id>
                         <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
+                        <goals><goal>add-source</goal></goals>
                         <configuration>
                             <sources>
                                 <source>src/ext/java</source>
@@ -50,9 +48,7 @@
                     <execution>
                         <id>add-ext-test</id>
                         <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
+                        <goals><goal>add-test-source</goal></goals>
                         <inherited>false</inherited>
                         <configuration>
                             <sources>
@@ -82,6 +78,7 @@
                   <_versionpolicy>$${version;===;${@}}</_versionpolicy>
                   <Import-Package>
                     org.slf4j;version="[1.6.1,2)",
+                    com.google.common.*;version="[14,17)",
                     *
                   </Import-Package>
                   <Export-Package>
@@ -91,6 +88,16 @@
                   </Export-Package>
                 </instructions>
               </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- 3rd party source inclusion -->
+                        <exclude>src/ext/java/**</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
         <resources>

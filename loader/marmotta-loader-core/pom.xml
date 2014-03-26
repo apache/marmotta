@@ -33,6 +33,23 @@
       implementing the concrete loading functionality.
     </description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- No License-Header in META-INF/services -->
+                        <exclude>src/main/resources/META-INF/services/*</exclude>
+                        <exclude>src/test/resources/META-INF/services/*</exclude>
+                        <!-- referenced in the main LICENSE.txt -->
+                        <exclude>src/test/resources/geonames-sample.txt</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

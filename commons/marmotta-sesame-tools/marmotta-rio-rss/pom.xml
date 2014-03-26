@@ -69,6 +69,19 @@
                     <relativePath>../../../</relativePath>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- No License-Header in META-INF/services -->
+                        <exclude>src/main/resources/META-INF/services/*</exclude>
+                        <!-- 3rd party source inclusion -->
+                        <exclude>src/ext/java/**</exclude>
+                        <exclude>src/ext/resources/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>

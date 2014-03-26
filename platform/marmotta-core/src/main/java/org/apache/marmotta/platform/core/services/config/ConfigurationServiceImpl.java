@@ -17,32 +17,19 @@
  */
 package org.apache.marmotta.platform.core.services.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import org.apache.commons.configuration.*;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
+import org.apache.marmotta.platform.core.events.LoggingStartEvent;
+import org.apache.marmotta.platform.core.model.config.CoreOptions;
+import org.apache.marmotta.platform.core.util.FallbackConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -53,25 +40,21 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.servlet.ServletContext;
-
-import org.apache.commons.configuration.AbstractConfiguration;
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.events.ConfigurationServiceInitEvent;
-import org.apache.marmotta.platform.core.events.LoggingStartEvent;
-import org.apache.marmotta.platform.core.util.FallbackConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This service offers access to the system configuration of the LMF and takes care of initialising the system
@@ -417,7 +400,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public String getBaseUri() {
-        return getStringConfiguration("kiwi.context");
+        return getStringConfiguration(CoreOptions.BASE_URI);
     }
 
     /**
@@ -440,7 +423,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      */
     @Override
     public String getServerUri() {
-        String serverUrl = getStringConfiguration("kiwi.host");
+        String serverUrl = getStringConfiguration(CoreOptions.SERVER_URI);
 
         if (serverUrl.endsWith("/"))
             return serverUrl;

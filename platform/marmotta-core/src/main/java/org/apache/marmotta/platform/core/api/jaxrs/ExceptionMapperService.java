@@ -28,4 +28,5 @@ package org.apache.marmotta.platform.core.api.jaxrs;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public interface ExceptionMapperService {
+
 }

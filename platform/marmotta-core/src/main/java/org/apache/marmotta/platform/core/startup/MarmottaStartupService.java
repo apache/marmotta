@@ -17,18 +17,8 @@
  */
 package org.apache.marmotta.platform.core.startup;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Any;
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -36,13 +26,22 @@ import org.apache.marmotta.platform.core.api.ui.MarmottaSystrayLink;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.events.SesameStartupEvent;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
+import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.marmotta.platform.core.util.CDIContext;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Any;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This service unifies the different steps in the Apache Marmotta startup. It offers several methods
@@ -231,8 +230,8 @@ public class MarmottaStartupService {
             if(!isSetup) {
                 log.info("SETUP: Setting up initial host and resource configuration ({}) ...", hostUrl);
 
-                configurationService.setConfiguration("kiwi.context", contextUrl);
-                configurationService.setConfiguration("kiwi.host", hostUrl);
+                configurationService.setConfiguration(CoreOptions.BASE_URI, contextUrl);
+                configurationService.setConfiguration(CoreOptions.SERVER_URI, hostUrl);
 
                 configurationService.setConfiguration("kiwi.setup.host", true);
             }

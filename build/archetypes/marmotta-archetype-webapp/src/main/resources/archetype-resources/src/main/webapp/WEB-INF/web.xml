@@ -23,9 +23,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
+    <!-- enable custom JNDI implementation -->
+    <listener>
+        <listener-class>org.apache.marmotta.platform.core.jndi.MarmottaJndiListener</listener-class>
+    </listener>
+
     <!-- enable CDI / Weld for dependency injection -->
     <listener>
        <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
+    </listener>
+
+    <!-- Initialise the KiWi system -->
+    <listener>
+        <listener-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupListener</listener-class>
     </listener>
 
     <!-- RESTeasy Webservices -->
@@ -39,26 +49,73 @@
         <param-value>/tmp/marmotta</param-value>
     </context-param>
     
+    <!-- handle OPTIONS requests -->
+    <filter>
+        <filter-name>MarmottaOptionsFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaOptionsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaOptionsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <!-- enables a CORS filter and maps it to any request -->
     <!-- for more fine grained configuration have a look at http://software.dzhuvinov.com/cors-filter-configuration.html -->
     <filter>
         <!-- The CORS filter with parameters -->
         <filter-name>CORS</filter-name>
         <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+
         <init-param>
             <param-name>cors.supportedMethods</param-name>
             <param-value>GET, HEAD, POST, PUT, DELETE, OPTIONS</param-value>
         </init-param>
+
         <init-param>
             <param-name>cors.supportedHeaders</param-name>
             <param-value>Origin, Accept, Content-Type</param-value>
         </init-param>
+
     </filter>
     <filter-mapping>
         <filter-name>CORS</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     
+    <!-- this filter performs startup configurations for first installation -->
+    <filter>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaPreStartupFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaPreStartupFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Serve static resources from file system and from .jar files of the respective modules -->
+    <filter>
+        <filter-name>MarmottaResourceFilter</filter-name>
+        <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter</filter-class>
+        <init-param>
+            <!-- cache resources loaded from module jar files? -->
+            <param-name>kiwi.resourceCaching</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaResourceFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- H2 Configuration -->
+    <filter>
+      <filter-name>MarmottaH2ConsoleFilter</filter-name>
+      <filter-class>org.apache.marmotta.platform.core.servlet.MarmottaH2ConsoleFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaH2ConsoleFilter</filter-name>
+        <url-pattern>/database/*</url-pattern>
+    </filter-mapping>
 	<servlet>
 		<servlet-name>H2Console</servlet-name>
 		<servlet-class>org.h2.server.web.WebServlet</servlet-class>
@@ -81,6 +138,7 @@
         <servlet-name>ViewStatusMessages</servlet-name>
         <servlet-class>ch.qos.logback.classic.ViewStatusMessagesServlet</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>ViewStatusMessages</servlet-name>
         <url-pattern>/logging/status</url-pattern>
@@ -94,6 +152,7 @@
             <param-value>org.apache.marmotta.platform.core.webservices.CoreApplication</param-value>
         </init-param>
     </filter>
+
     <filter-mapping>
         <filter-name>MarmottaWebservices</filter-name>
         <url-pattern>/*</url-pattern>
@@ -103,5 +162,16 @@
         <param-name>resteasy.injector.factory</param-name>
         <param-value>org.jboss.resteasy.cdi.CdiInjectorFactory</param-value>
     </context-param>
+
+    <filter>
+        <filter-name>MarmottaPostStartupFilter</filter-name>
+        <filter-class>
+            org.apache.marmotta.platform.core.servlet.MarmottaPostStartupFilter
+        </filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MarmottaPostStartupFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
 </web-app>

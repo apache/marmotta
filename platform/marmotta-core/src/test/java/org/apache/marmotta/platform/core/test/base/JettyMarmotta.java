@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
+import org.apache.marmotta.platform.core.services.jaxrs.ExceptionMapperServiceImpl;
+import org.apache.marmotta.platform.core.services.jaxrs.InterceptorServiceImpl;
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
 import org.apache.marmotta.platform.core.test.base.jetty.TestApplication;
 import org.apache.marmotta.platform.core.test.base.jetty.TestInjectorFactory;
@@ -24,33 +26,36 @@ import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.core.webservices.CoreApplication;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.*;
 
 /**
- * An extended version of the EmbeddedMarmotta which also starts a jetty servlet
+ * An extended version of the EmbeddedMarmotta which also starts a jetty servlet 
  * container. The context name is passed in the constructor; port could be passed,
- * a random available port will be use otherwise. The JettyMarmotta can optionally
- * take a set of web service classes as argument; if this argument is present, only
- * the given web services will be instantiated; otherwise, all configured web services
+ * a random available port will be use otherwise. The JettyMarmotta can optionally 
+ * take a set of web service classes as argument; if this argument is present, only 
+ * the given web services will be instantiated; otherwise, all configured web services 
  * will be instantiated (as in a normal webapp installation).
- *
+ * 
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
 public class JettyMarmotta extends AbstractMarmotta {
 
     private Server jetty;
-
+    
     private int port;
 
-    private String context;
-
+	private String context;
+	
     public JettyMarmotta(String context) {
         this(context, getRandomPort());
     }
@@ -58,25 +63,25 @@ public class JettyMarmotta extends AbstractMarmotta {
     public JettyMarmotta(String context, int port) {
         this(context, port, (Set<Class<?>>) null);
     }
-
+    
     public JettyMarmotta(String context, Class<?> webservice) {
         this(context, getRandomPort(), webservice);
     }
 
     public JettyMarmotta(String context, int port, Class<?> webservice) {
-        this(context, port, Collections.<Class<?>>singleton(webservice));
+        this(context,port, Collections.<Class<?>>singleton(webservice));
     }
-
+    
     public JettyMarmotta(String context, Class<?>... webservices) {
         this(context, getRandomPort(), webservices);
     }
 
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
-        this(context, port, new HashSet<Class<?>>(Arrays.asList(webservices)));
+        this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
     }
-
+    
     public JettyMarmotta(String context, Set<Class<?>> webservices) {
-        this(context, getRandomPort(), webservices);
+    	this(context, getRandomPort(), webservices);
     }
 
     public JettyMarmotta(String context, int port, Set<Class<?>> webservices) {
@@ -84,7 +89,7 @@ public class JettyMarmotta extends AbstractMarmotta {
 
         this.port = port;
         this.context = (context != null ? context : "/");
-
+        
         // create a new jetty & run it on port 8080
         jetty = new Server(this.port);
 
@@ -129,6 +134,23 @@ public class JettyMarmotta extends AbstractMarmotta {
         } catch (Exception e) {
             log.error("could not start up embedded jetty server", e);
         }
+
+        // make sure exception mappers are loaded and registered
+        ExceptionMapperServiceImpl mapperService = CDIContext.getInstance(ExceptionMapperServiceImpl.class);
+        try {
+            mapperService.register(((HttpServletDispatcher) restEasyFilter.getServlet()).getDispatcher().getProviderFactory());
+        } catch (ServletException e) {
+            log.warn("could not register exception mappers");
+        }
+
+        // make sure interceptors are loaded and registered
+        InterceptorServiceImpl interceptorService = CDIContext.getInstance(InterceptorServiceImpl.class);
+        try {
+            interceptorService.register(((HttpServletDispatcher) restEasyFilter.getServlet()).getDispatcher().getProviderFactory());
+        } catch (ServletException e) {
+            log.warn("could not register interceptors");
+        }
+
     }
 
     @Override

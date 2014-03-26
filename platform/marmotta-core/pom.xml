@@ -185,6 +185,16 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- No License-Header in META-INF/services -->
+                        <exclude>src/main/resources/META-INF/services/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
 
         <!--
@@ -318,10 +328,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta.webjars</groupId>
-            <artifactId>sgvizler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta.webjars</groupId>
             <artifactId>strftime</artifactId>
         </dependency>
         <dependency>
@@ -329,17 +335,6 @@
             <artifactId>marmotta-client-js</artifactId>
         </dependency>
         
-        <!-- Persistence -->
-        <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-core</artifactId>
-        </dependency>
-        <!-- TODO: we still use our own CDI implementation here...
-        <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-cdi</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>

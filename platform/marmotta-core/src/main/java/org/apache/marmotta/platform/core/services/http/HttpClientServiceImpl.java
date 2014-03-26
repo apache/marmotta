@@ -50,11 +50,11 @@ import org.apache.marmotta.platform.core.api.statistics.StatisticsService;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import org.apache.marmotta.platform.core.services.http.response.LastModifiedResponseHandler;
 import org.apache.marmotta.platform.core.services.http.response.StatusCodeResponseHandler;
 import org.apache.marmotta.platform.core.services.http.response.StringBodyResponseHandler;
-import org.infinispan.Cache;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -68,6 +68,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -101,7 +102,7 @@ public class HttpClientServiceImpl implements HttpClientService {
 
     @Inject
     @MarmottaCache("http-client-cache")
-    private Cache httpCache;
+    private ConcurrentMap httpCache;
 
     private HttpClient                   httpClient;
     private IdleConnectionMonitorThread  idleConnectionMonitorThread;
@@ -293,8 +294,8 @@ public class HttpClientServiceImpl implements HttpClientService {
             schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
 
             PoolingClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
-            cm.setMaxTotal(configurationService.getIntConfiguration("core.http.max_connections", 20));
-            cm.setDefaultMaxPerRoute(configurationService.getIntConfiguration("core.http.max_connections_per_route", 10));
+            cm.setMaxTotal(configurationService.getIntConfiguration(CoreOptions.HTTP_MAX_CONNECTIONS, 20));
+            cm.setDefaultMaxPerRoute(configurationService.getIntConfiguration(CoreOptions.HTTP_MAX_CONNECTIONS_PER_ROUTE, 10));
 
             final DefaultHttpClient hc = new DefaultHttpClient(cm, httpParams);
             hc.setRedirectStrategy(new LMFRedirectStrategy());
@@ -302,13 +303,13 @@ public class HttpClientServiceImpl implements HttpClientService {
             hc.removeRequestInterceptorByClass(org.apache.http.protocol.RequestUserAgent.class);
             hc.addRequestInterceptor(new LMFRequestUserAgent(userAgentString));
 
-            if (configurationService.getBooleanConfiguration("core.http.client_cache_enable", true)) {
+            if (configurationService.getBooleanConfiguration(CoreOptions.HTTP_CLIENT_CACHE_ENABLE, true)) {
                 CacheConfig cacheConfig = new CacheConfig();
                 // FIXME: Hardcoded constants - is this useful?
                 cacheConfig.setMaxCacheEntries(1000);
                 cacheConfig.setMaxObjectSize(81920);
 
-                final HttpCacheStorage cacheStore = new InfinispanHttpCacheStorage(httpCache);
+                final HttpCacheStorage cacheStore = new MapHttpCacheStorage(httpCache);
 
                 this.httpClient = new MonitoredHttpClient(new CachingHttpClient(hc, cacheStore, cacheConfig));
             } else {
@@ -809,14 +810,14 @@ public class HttpClientServiceImpl implements HttpClientService {
 
 
 
-    private static class InfinispanHttpCacheStorage implements HttpCacheStorage {
+    private static class MapHttpCacheStorage implements HttpCacheStorage {
 
-        Cache<String, byte[]> cache;
+        ConcurrentMap<String, byte[]> cache;
 
         private final HttpCacheEntrySerializer serializer;
 
 
-        private InfinispanHttpCacheStorage(Cache<String, byte[]> cache) {
+        private MapHttpCacheStorage(ConcurrentMap<String, byte[]> cache) {
             this.cache      = cache;
             this.serializer = new DefaultHttpCacheEntrySerializer();
         }

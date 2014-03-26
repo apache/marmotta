@@ -20,13 +20,11 @@ package org.apache.marmotta.kiwi.sail;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.NotifyingSailBase;
 
 import java.sql.SQLException;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * An implementation of a KiWi triple store without extended transaction support. The KiWiStore holds a reference to
@@ -65,14 +63,6 @@ public class KiWiStore extends NotifyingSailBase {
 
     private boolean initialized = false;
 
-    /**
-     * For some operations (e.g. looking up nodes and triples) we hold a store-wide lock to avoid clashes between
-     * threads. This could probably be relaxed a bit or even dropped altogether, but this approach is safer.
-     */
-    protected ReentrantLock nodeLock;
-
-    protected ReentrantLock tripleLock;
-
 
     /**
      * Drop databases when shutdown is called. This option is mostly useful for testing.
@@ -82,8 +72,6 @@ public class KiWiStore extends NotifyingSailBase {
     public KiWiStore(KiWiPersistence persistence, String defaultContext, String inferredContext) {
         this.persistence    = persistence;
         this.defaultContext = defaultContext;
-        this.nodeLock       = new ReentrantLock();
-        this.tripleLock     = new ReentrantLock();
         this.inferredContext = inferredContext;
 
 
@@ -96,10 +84,6 @@ public class KiWiStore extends NotifyingSailBase {
 
     public KiWiStore(KiWiConfiguration configuration) {
         this(new KiWiPersistence(configuration), configuration.getDefaultContext(), configuration.getInferredContext());
-    }
-
-    public KiWiStore(KiWiConfiguration configuration, EmbeddedCacheManager infinispan) {
-        this(new KiWiPersistence(configuration, infinispan), configuration.getDefaultContext(), configuration.getInferredContext());
     }
 
     /**

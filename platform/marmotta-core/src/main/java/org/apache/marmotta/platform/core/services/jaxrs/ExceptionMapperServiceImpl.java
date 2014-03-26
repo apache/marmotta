@@ -19,7 +19,7 @@ package org.apache.marmotta.platform.core.services.jaxrs;
 
 import org.apache.marmotta.platform.core.api.jaxrs.ExceptionMapperService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
-import org.apache.marmotta.platform.core.jaxrs.CDIExceptionMapper;
+import org.apache.marmotta.platform.core.jaxrs.exceptionmappers.CDIExceptionMapper;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.slf4j.Logger;
 
@@ -53,9 +53,15 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
      */
     @PostConstruct
     public void initialise() {
-        log.info("initialising JAX-RS exception mappers");
 
         ResteasyProviderFactory factory = ResteasyProviderFactory.getInstance();
+
+        register(factory);
+    }
+
+
+    public void register(ResteasyProviderFactory factory) {
+        log.info("initialising JAX-RS exception mappers");
 
         for(CDIExceptionMapper<?> mapper : mappers) {
             log.debug("registering exception mapper: {}", mapper.getClass().getName());

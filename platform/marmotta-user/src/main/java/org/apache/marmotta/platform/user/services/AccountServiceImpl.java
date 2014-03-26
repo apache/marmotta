@@ -30,7 +30,6 @@ import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
 import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.apache.marmotta.platform.user.model.UserAccount.PasswordHash;
-import org.infinispan.Cache;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -43,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 @ApplicationScoped
 public class AccountServiceImpl implements AccountService {
@@ -58,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Inject
     @MarmottaCache("user-cache")
-    private Cache  userCache;
+    private ConcurrentMap userCache;
 
     private PasswordHash         hashAlgo;
 

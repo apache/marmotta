@@ -44,12 +44,12 @@
                     <configuration>
                         <systemPropertyVariables>
                             <!-- enable or pass on command line for testing local PostgreSQL -->
-                            <postgresql.url>jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</postgresql.url>
+                            <postgresql.url>jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3&amp;socketTimeout=2</postgresql.url>
                             <postgresql.user>lmf</postgresql.user>
                             <postgresql.pass>lmf</postgresql.pass>
 
                             <!-- enable or pass on command line for testing local MySQL -->
-                            <mysql.url>jdbc:mysql://localhost:3306/kiwitest</mysql.url>
+                            <mysql.url>jdbc:mysql://localhost:3306/kiwitest?socketTimeout=2000</mysql.url>
                             <mysql.user>lmf</mysql.user>
                             <mysql.pass>lmf</mysql.pass>
                         </systemPropertyVariables>
@@ -94,6 +94,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+            <!-- Nothing to check in a reactor -->
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>kiwi-*/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -111,11 +121,13 @@
 
     <modules>
         <module>kiwi-triplestore</module>
+        <module>kiwi-caching-infinispan</module>
+        <module>kiwi-caching-hazelcast</module>
+        <module>kiwi-caching-ehcache</module>
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
         <module>kiwi-sparql</module>
         <module>kiwi-loader</module>
-        <module>kiwi-caching</module>
     </modules>
 
 </project>

@@ -39,28 +39,28 @@ public class H2Dialect extends KiWiDialect {
             throw new DriverNotFoundException(getDriverClass());
         }
 
-        supportedFunctions.add(FN.CONCAT);
-        supportedFunctions.add(FN.CONTAINS);
-        supportedFunctions.add(FN.LOWER_CASE);
-        supportedFunctions.add(FN.UPPER_CASE);
-        supportedFunctions.add(FN.REPLACE);
-        supportedFunctions.add(FN.SUBSTRING_AFTER);
-        supportedFunctions.add(FN.SUBSTRING_BEFORE);
-        supportedFunctions.add(FN.STRING_LENGTH);
-        supportedFunctions.add(FN.STARTS_WITH);
-        supportedFunctions.add(FN.ENDS_WITH);
+        supportedFunctions.put(FN.CONCAT);
+        supportedFunctions.put(FN.CONTAINS);
+        supportedFunctions.put(FN.LOWER_CASE);
+        supportedFunctions.put(FN.UPPER_CASE);
+        supportedFunctions.put(FN.REPLACE);
+        supportedFunctions.put(FN.SUBSTRING_AFTER);
+        supportedFunctions.put(FN.SUBSTRING_BEFORE);
+        supportedFunctions.put(FN.STRING_LENGTH);
+        supportedFunctions.put(FN.STARTS_WITH);
+        supportedFunctions.put(FN.ENDS_WITH);
 
-        supportedFunctions.add(XMLSchema.DOUBLE);
-        supportedFunctions.add(XMLSchema.FLOAT);
-        supportedFunctions.add(XMLSchema.INTEGER);
-        supportedFunctions.add(XMLSchema.DECIMAL);
-        supportedFunctions.add(XMLSchema.DATETIME);
-        supportedFunctions.add(XMLSchema.BOOLEAN);
+        supportedFunctions.put(XMLSchema.DOUBLE);
+        supportedFunctions.put(XMLSchema.FLOAT);
+        supportedFunctions.put(XMLSchema.INTEGER);
+        supportedFunctions.put(XMLSchema.DECIMAL);
+        supportedFunctions.put(XMLSchema.DATETIME);
+        supportedFunctions.put(XMLSchema.BOOLEAN);
 
-        supportedFunctions.add(FN.NUMERIC_ABS);
-        supportedFunctions.add(FN.NUMERIC_CEIL);
-        supportedFunctions.add(FN.NUMERIC_FLOOR);
-        supportedFunctions.add(FN.NUMERIC_ROUND);
+        supportedFunctions.put(FN.NUMERIC_ABS);
+        supportedFunctions.put(FN.NUMERIC_CEIL);
+        supportedFunctions.put(FN.NUMERIC_FLOOR);
+        supportedFunctions.put(FN.NUMERIC_ROUND);
     }
 
     /**

@@ -107,6 +107,16 @@
                     <skipDeploy>true</skipDeploy>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- No License-Header in META-INF/services -->
+                        <exclude>src/main/resources/META-INF/services/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
              <resource>

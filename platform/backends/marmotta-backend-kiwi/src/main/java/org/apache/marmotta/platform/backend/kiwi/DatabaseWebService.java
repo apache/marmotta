@@ -19,7 +19,7 @@ package org.apache.marmotta.platform.backend.kiwi;
 
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.jaxrs.ErrorResponse;
+import org.apache.marmotta.platform.core.jaxrs.exceptionmappers.ErrorResponse;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;

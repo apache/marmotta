@@ -1,6 +1,3 @@
-#set( $symbol_pound = '#' )
-#set( $symbol_dollar = '$' )
-#set( $symbol_escape = '\' )
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
@@ -18,16 +15,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
+#set( $symbol_pound = '#' )
+#set( $symbol_dollar = '$' )
+#set( $symbol_escape = '\' )
 
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <!-- encoders are assigned the type
-     ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
         <encoder>
-<!--            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>  -->
             <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
-<!--            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern> -->
         </encoder>
     </appender>
 
@@ -36,11 +32,7 @@
 
     <logger name="org.apache.marmotta.platform.reasoner" level="INFO" />
 
-    <logger name="org.hibernate" level="WARN" />
-
-    <logger name="org.apache.solr" level="WARN" />
-
-    <logger name="org.quartz" level="WARN" />
+    <logger name="${package}" level="DEBUG" />
 
     <root level="info">
         <appender-ref ref="STDOUT" />

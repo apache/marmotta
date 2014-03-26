@@ -17,23 +17,13 @@
  */
 package org.apache.marmotta.platform.core.services.cache;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.marmotta.platform.core.api.cache.CachingService;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.events.SystemRestartingEvent;
+import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
-import org.infinispan.Cache;
-import org.infinispan.configuration.cache.CacheMode;
-import org.infinispan.configuration.cache.Configuration;
-import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.configuration.global.GlobalConfiguration;
-import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.distribution.ch.SyncConsistentHashFactory;
-import org.infinispan.eviction.EvictionStrategy;
-import org.infinispan.lifecycle.ComponentStatus;
-import org.infinispan.manager.DefaultCacheManager;
-import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -43,9 +33,10 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,11 +47,6 @@ import java.util.concurrent.TimeUnit;
 @ApplicationScoped
 public class CachingServiceImpl implements CachingService {
 
-    public static final String CLUSTERING_PORT = "clustering.port";
-    public static final String CLUSTERING_ADDRESS = "clustering.address";
-    public static final String CLUSTERING_ENABLED = "clustering.enabled";
-    public static final String CLUSTERING_MODE = "clustering.mode";
-
     /**
      * Get the seam logger for issuing logging statements.
      */
@@ -70,12 +56,8 @@ public class CachingServiceImpl implements CachingService {
     @Inject
     private ConfigurationService configurationService;
 
-    private EmbeddedCacheManager cacheManager;
 
-    private GlobalConfiguration globalConfiguration;
-
-    // default configuration: distributed cache, 100000 entries, 300 seconds expiration, 60 seconds idle
-    private Configuration defaultConfiguration;
+    private Map<String,Cache> caches;
 
 
     public CachingServiceImpl() {
@@ -84,158 +66,53 @@ public class CachingServiceImpl implements CachingService {
 
     @PostConstruct
     public void initialize() {
-        boolean clustered = configurationService.getBooleanConfiguration(CLUSTERING_ENABLED, false);
-        String cacheMode = configurationService.getStringConfiguration(CLUSTERING_MODE,"replicated");
-
-
-        log.info("Apache Marmotta Caching Service starting up ({}) ...", clustered ? "cluster name: " + configurationService.getStringConfiguration("clustering.name", "Marmotta") : "single host" );
-        if(clustered && (StringUtils.equalsIgnoreCase(cacheMode,"replicated") || StringUtils.equalsIgnoreCase(cacheMode, "distributed"))) {
-
-            try {
-                String jgroupsXml = IOUtils.toString(CachingService.class.getResourceAsStream("/jgroups-marmotta.xml"));
-
-                jgroupsXml = jgroupsXml.replaceAll("mcast_addr=\"[0-9.]+\"", String.format("mcast_addr=\"%s\"", configurationService.getStringConfiguration(CLUSTERING_ADDRESS, "228.6.7.8")));
-                jgroupsXml = jgroupsXml.replaceAll("mcast_port=\"[0-9]+\"", String.format("mcast_port=\"%d\"", configurationService.getIntConfiguration(CLUSTERING_PORT, 46655)));
-
-                globalConfiguration = new GlobalConfigurationBuilder()
-                        .transport()
-                            .defaultTransport()
-                            .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
-                            .machineId(configurationService.getServerName())
-                            .addProperty("configurationXml", jgroupsXml)
-                        .globalJmxStatistics()
-                            .jmxDomain("org.apache.marmotta.platform")
-                            .allowDuplicateDomains(true)
-                        .build();
-            } catch (IOException ex) {
-                log.warn("error loading JGroups configuration from archive: {}", ex.getMessage());
-                log.warn("some configuration options will not be available");
-
-                globalConfiguration = new GlobalConfigurationBuilder()
-                        .transport()
-                            .defaultTransport()
-                            .clusterName(configurationService.getStringConfiguration("clustering.name", "Marmotta"))
-                            .machineId(configurationService.getServerName())
-                            .addProperty("configurationFile", "jgroups-marmotta.xml")
-                        .globalJmxStatistics()
-                            .jmxDomain("org.apache.marmotta.platform")
-                            .allowDuplicateDomains(true)
-                        .build();
-            }
-
-
-            if(StringUtils.equalsIgnoreCase(cacheMode, "distributed")) {
-                defaultConfiguration = new ConfigurationBuilder()
-                        .clustering()
-                            .cacheMode(CacheMode.DIST_ASYNC)
-                            .async()
-                                .asyncMarshalling()
-                            .l1()
-                                .lifespan(5, TimeUnit.MINUTES)
-                            .hash()
-                                .numOwners(2)
-                                .numSegments(40)
-                                .consistentHashFactory(new SyncConsistentHashFactory())
-                        .stateTransfer()
-                            .fetchInMemoryState(false)
-                        .eviction()
-                            .strategy(EvictionStrategy.LIRS)
-                            .maxEntries(100000)
-                        .expiration()
-                            .lifespan(30, TimeUnit.MINUTES)
-                            .maxIdle(10, TimeUnit.MINUTES)
-                        .build();
-            } else {
-                defaultConfiguration = new ConfigurationBuilder()
-                        .clustering()
-                            .cacheMode(CacheMode.REPL_ASYNC)
-                            .async()
-                            .asyncMarshalling()
-                        .stateTransfer()
-                            .fetchInMemoryState(false)
-                        .eviction()
-                            .strategy(EvictionStrategy.LIRS)
-                            .maxEntries(100000)
-                        .expiration()
-                            .lifespan(30, TimeUnit.MINUTES)
-                            .maxIdle(10, TimeUnit.MINUTES)
-                        .build();
-            }
-        } else {
-            globalConfiguration = new GlobalConfigurationBuilder()
-                    .globalJmxStatistics()
-                        .jmxDomain("org.apache.marmotta.platform")
-                        .allowDuplicateDomains(true)
-                    .build();
-
-            defaultConfiguration = new ConfigurationBuilder()
-                    .clustering()
-                        .cacheMode(CacheMode.LOCAL)
-                    .eviction()
-                        .strategy(EvictionStrategy.LIRS)
-                        .maxEntries(100000)
-                    .expiration()
-                        .lifespan(5, TimeUnit.MINUTES)
-                        .maxIdle(1, TimeUnit.MINUTES)
-                    .build();
-
-        }
-
-
-        cacheManager = new DefaultCacheManager(globalConfiguration, defaultConfiguration, true);
-
-        log.info("initialised cache manager ({})", globalConfiguration.isClustered() ? "cluster name: "+globalConfiguration.transport().clusterName() : "single host");
+        caches = new HashMap<>();
     }
 
     /**
      * Return the cache with the name provided to the KiWiCache annotation of the injection.
-     * 
-     * 
+     *
+     *
      * Usage: <code><pre>
      * &#64;Inject &#64;KiWiCache("cache-name")
      * private Ehcache cache;
      * </pre></code>
-     * 
-     * 
+     *
+     *
      * @param injectionPoint
      * @return
      */
     @Override
     @Produces @MarmottaCache("")
-    public Cache getCache(InjectionPoint injectionPoint) {
+    public ConcurrentMap getCache(InjectionPoint injectionPoint) {
         String cacheName = injectionPoint.getAnnotated().getAnnotation(MarmottaCache.class).value();
 
         return getCacheByName(cacheName);
     }
 
 
-    /**
-     * Allow CDI injection of the default cache
-     * @return
-     */
-    @Produces
-    public Configuration getDefaultConfiguration() {
-        return defaultConfiguration;
-    }
-
 
     @Override
-    public Cache getCacheByName(String cacheName) {
-        return cacheManager.getCache(cacheName, true);
+    public ConcurrentMap getCacheByName(String cacheName) {
+        synchronized (caches) {
+            if(!caches.containsKey(cacheName)) {
+                Cache c = CacheBuilder.newBuilder()
+                        .expireAfterAccess(configurationService.getIntConfiguration(CoreOptions.CACHING_EXPIRATION,30), TimeUnit.MINUTES)
+                        .maximumSize(configurationService.getLongConfiguration(CoreOptions.CACHING_MAXIMUM_SIZE,10000L))
+                        .build();
+                caches.put(cacheName,c);
+            }
+        }
+
+        return caches.get(cacheName).asMap();
     }
 
 
     @Override
     public Set<String> getCacheNames() {
-        return cacheManager.getCacheNames();
+        return caches.keySet();
     }
 
-    @Override
-    @Produces
-    @ApplicationScoped
-    public EmbeddedCacheManager getCacheManager() {
-        return cacheManager;
-    }
 
 
     /**
@@ -244,31 +121,20 @@ public class CachingServiceImpl implements CachingService {
      */
     public void systemRestart(@Observes SystemRestartingEvent e) {
         log.warn("system restarted, flushing caches ...");
-        cacheManager.stop();
-        cacheManager.start();
+        caches.clear();
     }
 
 
     @Override
     public void clearAll() {
-        Set<String> set =  cacheManager.getCacheNames();
-        Iterator<String> iterator =  set.iterator();
-        while(iterator.hasNext()){
-            String cacheName = iterator.next();
-            Cache<String,Object> cache = cacheManager.getCache(cacheName);
-            cache.clear();
-        }
+        caches.clear();
     }
 
 
     @PreDestroy
     public void destroy() {
         log.info("Apache Marmotta Caching Service shutting down ...");
-        if(cacheManager.getStatus() == ComponentStatus.RUNNING) {
-            log.info("- shutting down Infinispan cache manager ...");
-            cacheManager.stop();
-            log.info("  ... success!");
-        }
+        caches.clear();
         log.info("Apache Marmotta Caching Service shut down successfully.");
     }
 }

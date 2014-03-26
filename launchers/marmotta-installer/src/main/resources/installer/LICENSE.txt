@@ -222,6 +222,7 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
  * JBoss EJB Common Interceptor, http://github.com/jbossinterceptors/jbossinterceptors
  * RESTEasy, http://www.jboss.org/resteasy
  * Apache Xerces, http://xerces.apache.org
+ * timeknots, https://github.com/alangrafu/timeknots
  
 
 Apache Marmotta subcomponents:
@@ -2342,19 +2343,7 @@ For the CodeMirror component,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-
-Apache Marmotta code subcomponents:
-===================================
-
-The Apache Marmotta project includes the code of a number of subcomponents (libraries) 
-from external projects with separate copyright notices and license terms. Your use of 
-the code for the these subcomponents is subject to the terms and conditions of the 
-following licenses.
-
-For the D3.js component,
-
-    located at:
-        extras/webjars/sgvizler/src/main/resources/lib/
+For the D3js webjar,
 
     Copyright (c) 2013 Michael Bostock, http://d3js.org
 
@@ -2382,13 +2371,9 @@ For the D3.js component,
     NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+For the Sgvizler webjar,
 
-For the Dracula Graph Library component,
-
-    located at:
-        extras/webjars/sgvizler/src/main/resources/lib/
-
-    Copyright (c) 2013 Johann Philipp Strathausen, http://www.graphdracula.net
+    Copyright (c) 2011 Martin G. Skjæveland, http://sgvizler.googlecode.com
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -2406,8 +2391,17 @@ For the Dracula Graph Library component,
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+    SOFTWARE. 
 
+
+
+Apache Marmotta code subcomponents:
+===================================
+
+The Apache Marmotta project includes the code of a number of subcomponents (libraries) 
+from external projects with separate copyright notices and license terms. Your use of 
+the code for the these subcomponents is subject to the terms and conditions of the 
+following licenses.
 
 For the strftime component,
 
@@ -2436,96 +2430,6 @@ For the strftime component,
     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
     TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-For the D2R Snorql component,
-
-    located at:
-        extras/webjars/snorql/src/main/resources/
-
-    Copyright (c) 2007 Richard Cyganiak, http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/
-    with some minor modifications for Apache Marmotta.
-
-    D2R Snorql is provided under the Apache License, version 2.0.
-    
-
-For the script.aculo.us component,
-
-    located at:
-        extras/webjars/snorql/src/main/resources/scriptaculous/
-
-    Copyright (c) 2010 Thomas Fuchs, http://script.aculo.us
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-
-For the Prototype component,
-
-    located at:
-        extras/webjars/snorql/src/main/resources/
-
-    Copyright (c) 2010 Sam Stephenson, http://prototypejs.org
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.    
-
-
-For the Sgvizler component,
-
-    located at:
-        extras/webjars/sgvizler/src/main/resources/
-
-    Copyright (c) 2011 Martin G. Skjæveland, http://sgvizler.googlecode.com
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE. 
-
 
 
 Apache Marmotta 3rd party source code:

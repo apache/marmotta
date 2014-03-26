@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.reasoner.persistence;
 
 import info.aduna.iteration.*;
-import org.apache.marmotta.kiwi.caching.KiWiCacheManager;
+import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -30,7 +30,6 @@ import org.apache.marmotta.kiwi.reasoner.model.program.*;
 import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
 import org.apache.marmotta.kiwi.reasoner.parser.ParseException;
-import org.infinispan.Cache;
 import org.openrdf.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +52,9 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
     private ValueFactory valueFactory;
 
-    private Cache<Long,Rule> ruleIdCache;
+    private Map<Long,Rule> ruleIdCache;
 
-    public KiWiReasoningConnection(KiWiPersistence persistence, KiWiDialect dialect, KiWiCacheManager cacheManager, ValueFactory valueFactory) throws SQLException {
+    public KiWiReasoningConnection(KiWiPersistence persistence, KiWiDialect dialect, CacheManager cacheManager, ValueFactory valueFactory) throws SQLException {
         super(persistence, dialect, cacheManager);
 
         this.valueFactory = valueFactory;

@@ -60,6 +60,16 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- empty placeholder file -->
+                        <exclude>src/main/resources/log/catalina.out</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -317,13 +327,6 @@
                                             <includes>
                                                 <include>LICENSE.txt</include>
                                                 <include>NOTICE.txt</include>
-                                            </includes>
-                                            <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}.jar/META-INF</outputDirectory>
-                                        </fileset>
-                                        <fileset>
-                                            <directory>${project.basedir}/../..</directory>
-                                            <includes>
-                                                <include>DISCLAIMER.txt</include>
                                             </includes>
                                             <outputDirectory>${project.build.directory}/${project.artifactId}-${project.version}.jar/META-INF</outputDirectory>
                                         </fileset>
