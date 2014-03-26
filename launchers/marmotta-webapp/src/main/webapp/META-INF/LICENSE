@@ -217,13 +217,14 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
  * Bean Validation, http://github.com/hibernate/hibernate-validator
  * JBoss EJB Common Interceptor, http://github.com/jbossinterceptors/jbossinterceptors
  * JBoss Logging 3, https://github.com/jboss-logging/jboss-logging
- * JBoss ClssFileWriter, https://github.com/jbossas/jboss-classfilewriter
+ * JBoss ClassFileWriter, https://github.com/jbossas/jboss-classfilewriter
  * RESTEasy, http://www.jboss.org/resteasy
  * Apache Xerces, http://xerces.apache.org
  * Java Uuid Generator, http://wiki.fasterxml.com/JugHome
  * Java Property Utility, http://software.dzhuvinov.com/
  * XML Commons External Components XML APIs, http://xml.apache.org/commons/components/external/
  * Timeknots Webjar, https://github.com/webjars/timeknots
+
 
 Apache Marmotta subcomponents:
 =============================
@@ -2422,10 +2423,9 @@ For the angularjs webjar,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 
-For the d3js webjar,
+For the D3js webjar,
 
-    Copyright (c) 2010-2014, Michael Bostock
-    All rights reserved.
+    Copyright (c) 2010-2014, Michael Bostock http://d3js.org
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -2451,9 +2451,9 @@ For the d3js webjar,
     NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-For the sgvizler webjar,
+For the Sgvizler webjar,
 
-    Copyright (c) 2011 Martin G. Skjæveland
+    Copyright (c) 2011 Martin G. Skjæveland, http://sgvizler.googlecode.com
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -2469,6 +2469,7 @@ For the sgvizler webjar,
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
 
 
 Apache Marmotta code subcomponents:
@@ -2520,7 +2521,7 @@ the following licenses.
 For the ROME component,
 
     located at:
-        commons/marmotta-sesame-tools/marmotta-rio-rss/src/ext/java
+        commons/marmotta-sesame-tools/marmotta-rio-rss/src/ext/java/
 
     Copyright (c) 2004 Sun Microsystems, http://rometools.jira.com
     with some minor modifications for Apache Marmotta.
@@ -2528,7 +2529,7 @@ For the ROME component,
     ROME is provided under the Apache License, version 2.0.
 
 
-For the marmotta-commons component,
+For the Javolution component,
 
     located at commons/marmotta-commons/src/ext/java
 
