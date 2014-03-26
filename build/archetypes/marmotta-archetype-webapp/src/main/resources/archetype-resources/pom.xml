@@ -427,6 +427,17 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <!-- This profile is used for integration testing
+                 during the build of the archetype.
+                 In your target project you can safely remove
+                 this profile.
+              -->
+            <id>archetype-it</id>
+            <properties>
+                <marmotta.port>${randomPort}</marmotta.port>
+            </properties>
+        </profile>
     </profiles>
 
     <dependencies>
@@ -543,5 +554,5 @@
         </dependency>
 
     </dependencies>
-    
+
 </project>
