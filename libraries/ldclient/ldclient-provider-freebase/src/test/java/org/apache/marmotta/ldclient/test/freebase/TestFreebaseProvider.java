@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldclient.test.freebase;
 
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class TestFreebaseProvider extends ProviderTestBase {
      *
      */
     @Test
+    @Ignore
     public void testASF() throws Exception {
         testResource(ASF, "m.0nzm.sparql");
     }
