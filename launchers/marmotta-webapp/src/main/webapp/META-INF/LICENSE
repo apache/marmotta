@@ -2531,7 +2531,8 @@ For the ROME component,
 
 For the Javolution component,
 
-    located at commons/marmotta-commons/src/ext/java
+    located at:
+        commons/marmotta-commons/src/ext/java
 
    Javolution - Java(tm) Solution for Real-Time and Embedded Systems
    Copyright (c) 2012, Javolution (http://javolution.org/)
