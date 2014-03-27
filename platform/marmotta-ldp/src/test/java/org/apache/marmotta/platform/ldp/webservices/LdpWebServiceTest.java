@@ -37,6 +37,7 @@ import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -273,7 +274,42 @@ public class LdpWebServiceTest {
         assertEquals("md5sum",expectedMD5, HashUtils.md5sum(data));
     }
 
-   @AfterClass
+    @Test
+    public void testInteractionModel() throws Exception {
+        final String container = baseUrl+LdpWebService.PATH + "/iam";
+
+        // Try LDPR
+        final String ldpr = RestAssured
+            .given()
+                .header("Link", Link.fromUri(LDP.Resource.stringValue()).rel("type").build().toString())
+                .body(testResourceTTL.getBytes())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+            .expect()
+                .statusCode(201)
+            .post(container)
+                .getHeader("Location");
+
+        // Now POSTing to the ldpr should fail
+        RestAssured
+            .given()
+                .body(testResourceTTL.getBytes())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+            .expect()
+                .statusCode(405)
+            .post(ldpr);
+
+        // Try an invalid interaction model
+        RestAssured
+            .given()
+                .header("Link", Link.fromUri(baseUrl).rel("type").build().toString())
+                .body(testResourceTTL.getBytes())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+            .expect()
+                .statusCode(400)
+            .post(container);
+    }
+
+    @AfterClass
     public static void tearDown() {
         marmotta.shutdown();
     }

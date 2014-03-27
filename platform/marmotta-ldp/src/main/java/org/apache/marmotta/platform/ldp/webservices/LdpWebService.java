@@ -22,6 +22,7 @@ import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
@@ -194,6 +195,7 @@ public class LdpWebService {
      */
     @POST
     public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug,
+                         @HeaderParam("Link") List<Link> linkHeaders,
                          InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
 
@@ -204,7 +206,16 @@ public class LdpWebService {
         try {
             conn.begin();
 
-            // TODO: Check the LDP-Interaction Model (Sec. 5.2.3.4 and Sec. 4.2.1.4)
+            // Check that the target container supports the LDPC Interaction Model
+            final LdpService.InteractionModel containerModel = ldpService.getInteractionModel(conn, container);
+            if (containerModel != LdpService.InteractionModel.LDPC) {
+                final Response.ResponseBuilder response = createResponse(conn, Response.Status.METHOD_NOT_ALLOWED, container);
+                conn.commit();
+                return response.entity(String.format("%s only supports %s Interaction Model", container, containerModel)).build();
+            }
+
+            // Get the LDP-Interaction Model (Sec. 5.2.3.4 and Sec. 4.2.1.4)
+            final LdpService.InteractionModel ldpInteractionModel = ldpService.getInteractionModel(linkHeaders);
 
             final String localName;
             if (StringUtils.isBlank(slug)) {
@@ -246,7 +257,7 @@ public class LdpWebService {
             final String mimeType = LdpUtils.getMimeType(type);
             //checking if resource (container) exists is done later in the service
             try {
-                String location = ldpService.addResource(conn, container, newResource, mimeType, postBody);
+                String location = ldpService.addResource(conn, container, newResource, ldpInteractionModel, mimeType, postBody);
                 final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
                 if (newResource.compareTo(location) != 0) {
                     response.link(newResource, "describedby"); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
@@ -262,6 +273,11 @@ public class LdpWebService {
                 conn.rollback();
                 return resp.build();
             }
+        } catch (InvalidInteractionModelException e) {
+            log.debug("POST with invalid interaction model <{}> to <{}>", e.getHref(), container);
+            final Response.ResponseBuilder response = createResponse(conn, Response.Status.BAD_REQUEST, container);
+            conn.commit();
+            return response.entity(e.getMessage()).build();
         } catch (final Throwable t) {
             conn.rollback();
             throw t;
@@ -438,11 +454,15 @@ public class LdpWebService {
                 // Sec. 4.2.8.2
                 builder.allow("GET", "HEAD", "OPTIONS");
             } else if (ldpService.isRdfSourceResource(con, resource)) {
-                // Sec. 4.2.8.2
-                builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
-                // Sec. 4.2.3 / Sec. 5.2.3
-                // TODO: LDP Interaction Model!
-                builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
+                if (ldpService.getInteractionModel(con, resource) == LdpService.InteractionModel.LDPR) {
+                    // Sec. 4.2.8.2
+                    builder.allow("GET", "HEAD", "PATCH", "OPTIONS");
+                } else {
+                    // Sec. 4.2.8.2
+                    builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
+                    // Sec. 4.2.3 / Sec. 5.2.3
+                    builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
+                }
                 // Sec. 4.2.7.1
                 builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
             }

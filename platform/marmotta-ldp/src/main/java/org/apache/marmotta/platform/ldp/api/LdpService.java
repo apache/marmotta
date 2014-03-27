@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.platform.ldp.api;
 
+import org.apache.marmotta.commons.vocabulary.LDP;
+import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
@@ -29,6 +31,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Link;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,6 +45,41 @@ import java.util.List;
  *  @author Jakob Frank
  */
 public interface LdpService {
+
+
+
+    public static enum InteractionModel {
+        LDPR(LDP.Resource),
+        LDPC(LDP.Container);
+
+        private final URI uri;
+
+        InteractionModel(URI uri) {
+            this.uri = uri;
+        }
+
+        public URI getUri() {
+            return uri;
+        }
+
+        public static InteractionModel fromURI(String uri) {
+            if (LDP.Resource.stringValue().equals(uri)) {
+                return LDPR;
+            } else if (LDP.Container.stringValue().equals(uri)) {
+                return LDPC;
+            }
+            throw new IllegalArgumentException("Invalid Interaction Model URI: " + uri);
+        }
+
+        public static InteractionModel fromURI(URI uri){
+            if (uri == null) {
+                throw new IllegalArgumentException("Invalid Interaction Model: null");
+            } else {
+                return fromURI(uri.stringValue());
+            }
+        }
+
+    }
 
     boolean exists(RepositoryConnection connection, String resource) throws RepositoryException;
 
@@ -78,6 +116,39 @@ public interface LdpService {
      * @throws RDFParseException
      */
     String addResource(RepositoryConnection connection, URI container, URI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+
+    /**
+     * Add a LDP resource
+     *
+     * @param connection repository connection
+     * @param container container where add the resource
+     * @param resource resource to add
+     * @param interactionModel the ldp interaction model
+     * @param type mimetype of the posted resource
+     * @param stream stream from where read the resource representation
+     * @return resource location
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws RDFParseException
+     */
+    String addResource(RepositoryConnection connection, String container, String resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+
+    /**
+     * Add a LDP resource
+     *
+     * @param connection repository connection
+     * @param container container where add the resource
+     * @param resource resource to add
+     * @param interactionModel the ldp interaction model
+     * @param type mimetype of the posted resource
+     * @param stream stream from where read the resource representation
+     * @return resource location
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws RDFParseException
+     */
+    String addResource(RepositoryConnection connection, URI container, URI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
+
 
     List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException;
 
@@ -125,4 +196,10 @@ public interface LdpService {
 
     URI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
     URI getNonRdfSourceForRdfSource(RepositoryConnection connection, URI uri) throws RepositoryException;
+
+    InteractionModel getInteractionModel(List<Link> linkHeaders) throws InvalidInteractionModelException;
+
+    InteractionModel getInteractionModel(RepositoryConnection connection, String resource) throws RepositoryException;
+    InteractionModel getInteractionModel(RepositoryConnection connection, URI uri) throws RepositoryException;
+
 }

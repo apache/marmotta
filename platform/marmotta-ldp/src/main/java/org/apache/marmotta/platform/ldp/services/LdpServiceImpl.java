@@ -26,6 +26,7 @@ import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.RdfPatchUtil;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.Link;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -69,10 +71,11 @@ public class LdpServiceImpl implements LdpService {
     @Inject
     private LdpBinaryStoreService binaryStore;
 
-    private final URI ldpContext;
+    private final URI ldpContext, ldpInteractionModelProperty;
 
     public LdpServiceImpl() {
         ldpContext = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE);
+        ldpInteractionModelProperty = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE, "interactionModel");
     }
 
     private URI buildURI(String resource) {
@@ -194,8 +197,8 @@ public class LdpServiceImpl implements LdpService {
         // TODO: non-membership triples flag / Prefer-header
         RDFWriter writer = Rio.createWriter(format, output);
         UnionIteration<Statement, RepositoryException> union = new UnionIteration<>(
-                connection.getStatements(null, null, null, false, resource),
-                connection.getStatements(resource, null, null, false, ldpContext)
+                connection.getStatements(resource, null, null, false, ldpContext),
+                connection.getStatements(null, null, null, false, resource)
         );
         try {
             LdpUtils.exportIteration(writer, resource, union);
@@ -237,14 +240,23 @@ public class LdpServiceImpl implements LdpService {
         }
         return null;
     }
-
     @Override
     public String addResource(RepositoryConnection connection, String container, String resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
-        return addResource(connection, buildURI(container), buildURI(resource), type, stream);
+        return addResource(connection, buildURI(container), buildURI(resource), InteractionModel.LDPC, type, stream);
     }
 
     @Override
     public String addResource(RepositoryConnection connection, URI container, URI resource, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+        return addResource(connection, container, resource, InteractionModel.LDPC, type, stream);
+    }
+
+    @Override
+    public String addResource(RepositoryConnection connection, String container, String resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
+        return addResource(connection, buildURI(container), buildURI(resource), interactionModel, type, stream);
+    }
+
+    @Override
+    public String addResource(RepositoryConnection connection, URI container, URI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException {
         ValueFactory valueFactory = connection.getValueFactory();
 
         // Add container triples (Sec. 5.2.3.2)
@@ -265,6 +277,7 @@ public class LdpServiceImpl implements LdpService {
 
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
         connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
+        connection.add(resource, ldpInteractionModelProperty, interactionModel.getUri(), ldpContext);
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
@@ -272,8 +285,8 @@ public class LdpServiceImpl implements LdpService {
         final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
         if (rdfFormat == null) {
             log.debug("POST creates new LDP-NR, because no suitable RDF parser found for type {}", type);
-            Literal format = valueFactory.createLiteral(type);
-            URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
+            final Literal format = valueFactory.createLiteral(type);
+            final URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
 
             connection.add(container, LDP.contains, binaryResource, ldpContext);
 
@@ -447,4 +460,49 @@ public class LdpServiceImpl implements LdpService {
         return true;
     }
 
+    @Override
+    public InteractionModel getInteractionModel(List<Link> linkHeaders) throws InvalidInteractionModelException {
+        if (log.isTraceEnabled()) {
+            log.trace("Checking Link-Headers for LDP Interaction Models");
+            for (Link link: linkHeaders) {
+                log.trace(" - {}", link);
+            }
+        }
+        for (Link link: linkHeaders) {
+            if ("type".equalsIgnoreCase(link.getRel())) {
+                final String href = link.getUri().toASCIIString();
+                if (LDP.Resource.stringValue().equals(href)) {
+                    log.debug("LDPR Interaction Model detected");
+                    return InteractionModel.LDPR;
+                } else if (LDP.Resource.stringValue().equals(href)) {
+                    log.debug("LDPC Interaction Model detected");
+                    return InteractionModel.LDPC;
+                } else {
+                    log.debug("Invalid/Unknown LDP Interaction Model: {}", href);
+                    throw new InvalidInteractionModelException(href);
+                }
+            }
+        }
+        log.debug("No LDP Interaction Model specified, defaulting to {}", InteractionModel.LDPC);
+        // Default Interaction Model is LDPC
+        return InteractionModel.LDPC;
+    }
+
+    @Override
+    public InteractionModel getInteractionModel(RepositoryConnection connection, String resource) throws RepositoryException {
+        return getInteractionModel(connection, buildURI(resource));
+    }
+
+    @Override
+    public InteractionModel getInteractionModel(RepositoryConnection connection, URI uri) throws RepositoryException {
+        if (connection.hasStatement(uri, ldpInteractionModelProperty, InteractionModel.LDPC.getUri(), true, ldpContext)) {
+            return InteractionModel.LDPC;
+        } else if (connection.hasStatement(uri, ldpInteractionModelProperty, InteractionModel.LDPR.getUri(), true, ldpContext)) {
+            return InteractionModel.LDPR;
+        }
+
+        log.info("No LDP Interaction Model specified for <{}>, defaulting to {}", uri.stringValue(), InteractionModel.LDPC);
+        // Default Interaction Model is LDPC
+        return InteractionModel.LDPC;
+    }
 }
