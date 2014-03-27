@@ -1,1 +1,1 @@
-package verify
+clean verify -Parchetype-it -Pkiwi -Pcleanall -Dmarmotta.home=./target/archetype-it-marmotta-home/

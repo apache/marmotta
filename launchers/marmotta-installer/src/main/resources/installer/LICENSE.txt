@@ -215,14 +215,18 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
  * Semargl, http://semarglproject.org
  * Java Injection, http://atinject.googlecode.com
  * Javassist, http://www.jboss.org/javassist
- * EHCache, http://ehcache.org
  * CDI, http://github.com/jboss/cdi
  * Weld, http://github.com/weld
  * Bean Validation, http://github.com/hibernate/hibernate-validator
  * JBoss EJB Common Interceptor, http://github.com/jbossinterceptors/jbossinterceptors
+ * JBoss Logging 3, https://github.com/jboss-logging/jboss-logging
+ * JBoss ClassFileWriter, https://github.com/jbossas/jboss-classfilewriter
  * RESTEasy, http://www.jboss.org/resteasy
  * Apache Xerces, http://xerces.apache.org
- * timeknots, https://github.com/alangrafu/timeknots
+ * Java Uuid Generator, http://wiki.fasterxml.com/JugHome
+ * Java Property Utility, http://software.dzhuvinov.com/
+ * XML Commons External Components XML APIs, http://xml.apache.org/commons/components/external/
+ * Timeknots Webjar, https://github.com/webjars/timeknots
  
 
 Apache Marmotta subcomponents:
@@ -2270,82 +2274,161 @@ For the "Java Concurrency in Practice" book annotations component,
     Creative Commons Attribution License 2.5, http://creativecommons.org/licenses/by/2.5/legalcode
 
 
-For the Hamcrest component, 
+For the "jsonld-java" component,
 
-    Copyright (c) 2000-2006 Joe Walnes, Nat Pryce, Steve Freeman, http://www.hamcrest.org
+    Copyright (c) 2012, Deutsche Forschungszentrum für Künstliche Intelligenz GmbH
+    https://github.com/jsonld-java/jsonld-java
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of the <organization> nor the
+          names of its contributors may be used to endorse or promote products
+          derived from this software without specific prior written permission.
 
-    Redistributions of source code must retain the above copyright notice, this list of
-    conditions and the following disclaimer. Redistributions in binary form must reproduce
-    the above copyright notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the distribution.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-    Neither the name of Hamcrest nor the names of its contributors may be used to endorse
-    or promote products derived from this software without specific prior written
-    permission.
+For the "ICU4J" component,
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
-    SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-    TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-    BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
-    WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-    DAMAGE.
+    Copyright (c) 1995-2014 International Business Machines Corporation and others
 
+    All rights reserved.
 
-For the jQuery component,
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"), to
+    deal in the Software without restriction, including without limitation the
+    rights to use, copy, modify, merge, publish, distribute, and/or sell copies of
+    the Software, and to permit persons to whom the Software is furnished to do so,
+    provided that the above copyright notice(s) and this permission notice appear
+    in all copies of the Software and that both the above copyright notice(s) and
+    this permission notice appear in supporting documentation.
 
-    Copyright (c) 2013 jQuery Foundation, http://jquery.com
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN
+    NO EVENT SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE
+    LIABLE FOR ANY CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY
+    DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+    CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
+    Except as contained in this notice, the name of a copyright holder shall
+    not be used in advertising or otherwise to promote the sale, use or other
+    dealings in this Software without prior written authorization of the copyright
+    holder.
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
+For the "Java Cross-Origin Resource Sharing (CORS) Filter" component
+
+    Copyright (c) Vladimir Dzhuvinov, 2010 - 2014
+
+    Java Cross-Origin Resource Sharing (CORS) Filter is distributed under
+    The Apache License, Version 2.0.
+
+For the "JBoss Common Annotations API" component
+
+    Copyright (c) 2011 Oracle and/or its affiliates. All rights reserved.
+
+    The component is subject to the terms of either the GNU
+    General Public License Version 2 only ("GPL") or the Common Development
+    and Distribution License("CDDL") (collectively, the "License"). You
+    may not use this file except in compliance with the License. You can
+    obtain a copy of the License at
+
+        https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
+
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Apache Marmotta elects to include this software in this distribution
+    under the CDDL license.
+
+For the "Ical4J" components,
+
+    Copyright (c) 2012, Ben Fortuna
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+        o Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+        o Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+        o Neither the name of Ben Fortuna nor the names of any other contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+    A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+For the "XZ for Java" component,
+
+    available from http://tukaani.org/xz/java.html
+
+    This component has been released to the Public Domain.
+
+For the angularjs webjar,
+
+        Copyright (c) 2010-2014 Google, Inc. http://angularjs.org
+
+    the codemirror webjar,
+
+        Copyright (C) 2014 by Marijn Haverbeke <marijnh@gmail.com> and others
+
+    the jquery webjar and the jquery-ui webjar,
+
+        Copyright 2014 jQuery Foundation and other contributors
+        http://jquery.com/
+
+    the MIT License applies:
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
 
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-
-For the CodeMirror component,
-
-    Copyright (c) 2013 Marijn Haverbeke, http://codemirror.net
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
 
 For the D3js webjar,
 
-    Copyright (c) 2013 Michael Bostock, http://d3js.org
+    Copyright (c) 2010-2014, Michael Bostock http://d3js.org
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -2382,9 +2465,6 @@ For the Sgvizler webjar,
     of the Software, and to permit persons to whom the Software is furnished to do
     so, subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -2406,7 +2486,7 @@ following licenses.
 For the strftime component,
 
     located at:
-        extras/webjars/strftime/src/main/resources/
+        extras/webjars/strftime/src/main/resources/strftime.js
 
     Copyright (c) 2008 Philip S Tellis, http://hacks.bluesmoon.info/strftime
 
@@ -2482,46 +2562,4 @@ For the Javolution component,
    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-
-Apache Marmotta 3rd party data files:
-====================================
-
-The Apache Marmotta project directly includes some testsuite data file of a number 
-of subcomponents from external projects with separate copyright notices and license 
-terms. Your use of the code for the these subcomponents is subject to the terms and 
-conditions of the following licenses.
-
-For the ical4j component,
-
-    located at:
-        commons/marmotta-sesame-tools/marmotta-rio-vcard/src/test/resources/org/apache/marmotta/commons/sesame/rio/vcard/
-
-    Copyright (c) 2011 Ben Fortuna, http://ical4j.googlecode.com
-
-    Redistribution and use in source and binary forms, with or without modification,
-    are permitted provided that the following conditions are met:
-
-     1. Redistributions of source code must retain the above copyright
-        notice, this list of conditions and the following disclaimer.
-
-     2. Redistributions in binary form must reproduce the above copyright
-        notice, this list of conditions and the following disclaimer in the
-        documentation and/or other materials provided with the distribution.
-
-     3. Neither the name of the Ben Fortuna nor the names of its contributors
-        may be used to endorse or promote products derived from this software
-        without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
-    THE POSSIBILITY OF SUCH DAMAGE.    
 
