@@ -26,6 +26,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
+import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.slf4j.Logger;
@@ -65,6 +66,9 @@ public class KiWiValueFactory implements ValueFactory {
                 break;
             case CACHE:
                 registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
+                break;
+            case LOCAL:
+                registry        = new LocalTripleRegistry();
                 break;
             default:
                 registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());

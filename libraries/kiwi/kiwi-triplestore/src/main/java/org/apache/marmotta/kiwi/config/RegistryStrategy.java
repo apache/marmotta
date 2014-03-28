@@ -34,6 +34,12 @@ public enum RegistryStrategy {
      * Use a synchronized replicated infinispan cache to synchronize between parallel instances. Faster but requires
      * more memory.
      */
-    CACHE
+    CACHE,
+
+    /**
+     * Use a local in-memory hash map to synchronize between parallel instances. Does not synchronize across machines
+     * in a cluster
+     */
+    LOCAL
 
 }
