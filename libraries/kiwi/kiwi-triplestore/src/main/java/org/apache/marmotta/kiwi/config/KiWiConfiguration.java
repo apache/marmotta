@@ -112,7 +112,7 @@ public class KiWiConfiguration {
     private int datacenterId = 0;
 
 
-    private RegistryStrategy registryStrategy = RegistryStrategy.CACHE;
+    private RegistryStrategy registryStrategy = RegistryStrategy.LOCAL;
 
 
     private CacheMode cacheMode = CacheMode.REPLICATED;
