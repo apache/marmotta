@@ -273,6 +273,15 @@ public class HazelcastCacheManager implements CacheManager {
         return hazelcast.getMap(name);
     }
 
+
+    /**
+     * Return the backend instance for further access to the cluster (in case modules need it)
+     * @return
+     */
+    public HazelcastInstance getBackend() {
+        return hazelcast;
+    }
+
     /**
      * Clear all caches managed by this cache manager.
      */
