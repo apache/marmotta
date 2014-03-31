@@ -148,16 +148,11 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                 contextSet.add(valueFactory.createURI(inferredContext));
             }
 
-            KiWiResource    ksubj = valueFactory.convert(subj);
-            KiWiUriResource kpred = valueFactory.convert(pred);
-            KiWiNode        kobj  = valueFactory.convert(obj);
-
-
             Set<KiWiTriple> added = new HashSet<KiWiTriple>();
             for(Resource context : contextSet) {
                 KiWiResource kcontext = valueFactory.convert(context);
 
-                KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(ksubj,kpred,kobj,kcontext, databaseConnection);
+                KiWiTriple triple = (KiWiTriple)valueFactory.createStatement(subj,pred,obj,kcontext, databaseConnection);
                 triple.setInferred(inferred);
 
                 databaseConnection.storeTriple(triple);
