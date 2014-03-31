@@ -128,7 +128,7 @@ public class KiWiValueFactory implements ValueFactory {
             if(result == null) {
                 result = new KiWiUriResource(uri);
 
-                connection.storeNode(result, false);
+                connection.storeNode(result);
 
             }
             if(result.getId() < 0) {
@@ -181,7 +181,7 @@ public class KiWiValueFactory implements ValueFactory {
             if(result == null) {
                 result = new KiWiAnonResource(nodeID);
 
-                connection.storeNode(result, false);
+                connection.storeNode(result);
             }
             if(result.getId() < 0) {
                 log.error("node ID is null!");
@@ -396,7 +396,7 @@ public class KiWiValueFactory implements ValueFactory {
             }
 
             if(result.getId() < 0) {
-                connection.storeNode(result, false);
+                connection.storeNode(result);
             }
 
             return result;

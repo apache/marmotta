@@ -336,7 +336,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
      * @throws java.sql.SQLException
      */
     public void storeNode(KiWiNode node) throws SQLException {
-        connection.storeNode(node, false);
+        connection.storeNode(node);
     }
 
     /**

@@ -446,7 +446,7 @@ public class KiWiHandler implements RDFHandler {
 
 
     protected void storeNode(KiWiNode node) throws SQLException {
-        connection.storeNode(node, false);
+        connection.storeNode(node);
 
         nodes++;
     }

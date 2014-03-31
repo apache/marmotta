@@ -104,7 +104,7 @@ public class PersistenceTest {
         try {
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiUriResource uri = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
-            connection.storeNode(uri, false);
+            connection.storeNode(uri);
 
             // check if it then has a database ID
             Assert.assertTrue(uri.getId() >= 0);
@@ -181,7 +181,7 @@ public class PersistenceTest {
         try {
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiAnonResource bnode = new KiWiAnonResource(RandomStringUtils.randomAlphanumeric(8));
-            connection.storeNode(bnode, false);
+            connection.storeNode(bnode);
 
             // check if it then has a database ID
             Assert.assertTrue(bnode.getId() >= 0);
@@ -256,11 +256,11 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             KiWiUriResource   stype   = new KiWiUriResource(Namespaces.NS_XSD+"string");
-            connection.storeNode(stype, false);
+            connection.storeNode(stype);
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8),null,stype);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -335,11 +335,11 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             KiWiUriResource   stype   = new KiWiUriResource(getRDFLangStringType());
-            connection.storeNode(stype, false);
+            connection.storeNode(stype);
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8), Locale.ENGLISH, stype);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -417,7 +417,7 @@ public class PersistenceTest {
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(8), null, uri);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -499,7 +499,7 @@ public class PersistenceTest {
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiStringLiteral literal = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(16384), null, uri);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -586,7 +586,7 @@ public class PersistenceTest {
 
                     // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiIntLiteral literal = new KiWiIntLiteral(value, uri);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -691,7 +691,7 @@ public class PersistenceTest {
 
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiDoubleLiteral literal = new KiWiDoubleLiteral(value, uri);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -795,7 +795,7 @@ public class PersistenceTest {
             boolean value = rnd.nextBoolean();
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiBooleanLiteral literal = new KiWiBooleanLiteral(value, uri);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -898,7 +898,7 @@ public class PersistenceTest {
             Date value = new Date();
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiDateLiteral literal = new KiWiDateLiteral(value, uri);
-            connection.storeNode(literal, false);
+            connection.storeNode(literal);
 
             // check if it then has a database ID
             Assert.assertTrue(literal.getId() >= 0);
@@ -1003,13 +1003,13 @@ public class PersistenceTest {
                 KiWiStringLiteral object_2 = new KiWiStringLiteral(RandomStringUtils.randomAlphanumeric(32),null,stype);
                 KiWiUriResource context  = new KiWiUriResource("http://localhost/context/"+RandomStringUtils.randomAlphanumeric(8));
 
-                connection.storeNode(stype, false);
-                connection.storeNode(subject, false);
-                connection.storeNode(pred_1, false);
-                connection.storeNode(pred_2, false);
-                connection.storeNode(object_1, false);
-                connection.storeNode(object_2, false);
-                connection.storeNode(context, false);
+                connection.storeNode(stype);
+                connection.storeNode(subject);
+                connection.storeNode(pred_1);
+                connection.storeNode(pred_2);
+                connection.storeNode(object_1);
+                connection.storeNode(object_2);
+                connection.storeNode(context);
 
                 KiWiTriple triple1 = new KiWiTriple(subject,pred_1,object_1,context);
                 KiWiTriple triple2 = new KiWiTriple(subject,pred_2,object_2,context);

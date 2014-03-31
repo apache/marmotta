@@ -944,16 +944,15 @@ public class KiWiConnection implements AutoCloseable {
      *
      *
      * @param node
-     * @param batch
      * @throws SQLException
      */
-    public synchronized void storeNode(KiWiNode node, boolean batch) throws SQLException {
+    public synchronized void storeNode(KiWiNode node) throws SQLException {
 
         // ensure the data type of a literal is persisted first
         if(node instanceof KiWiLiteral) {
             KiWiLiteral literal = (KiWiLiteral)node;
             if(literal.getType() != null && literal.getType().getId() < 0) {
-                storeNode(literal.getType(), batch);
+                storeNode(literal.getType());
             }
         }
 
@@ -973,11 +972,7 @@ public class KiWiConnection implements AutoCloseable {
             insertNode.setString(2,uriResource.stringValue());
             insertNode.setTimestamp(3, new Timestamp(uriResource.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
 
         } else if(node instanceof KiWiAnonResource) {
             KiWiAnonResource anonResource = (KiWiAnonResource)node;
@@ -987,11 +982,7 @@ public class KiWiConnection implements AutoCloseable {
             insertNode.setString(2,anonResource.stringValue());
             insertNode.setTimestamp(3, new Timestamp(anonResource.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
         } else if(node instanceof KiWiDateLiteral) {
             KiWiDateLiteral dateLiteral = (KiWiDateLiteral)node;
 
@@ -1005,11 +996,7 @@ public class KiWiConnection implements AutoCloseable {
                 throw new IllegalStateException("a date literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(dateLiteral.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
         } else if(node instanceof KiWiIntLiteral) {
             KiWiIntLiteral intLiteral = (KiWiIntLiteral)node;
 
@@ -1024,11 +1011,7 @@ public class KiWiConnection implements AutoCloseable {
                 throw new IllegalStateException("an integer literal must have a datatype");
             insertNode.setTimestamp(6, new Timestamp(intLiteral.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
         } else if(node instanceof KiWiDoubleLiteral) {
             KiWiDoubleLiteral doubleLiteral = (KiWiDoubleLiteral)node;
 
@@ -1042,11 +1025,7 @@ public class KiWiConnection implements AutoCloseable {
                 throw new IllegalStateException("a double literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(doubleLiteral.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
         } else if(node instanceof KiWiBooleanLiteral) {
             KiWiBooleanLiteral booleanLiteral = (KiWiBooleanLiteral)node;
 
@@ -1060,11 +1039,7 @@ public class KiWiConnection implements AutoCloseable {
                 throw new IllegalStateException("a boolean literal must have a datatype");
             insertNode.setTimestamp(5, new Timestamp(booleanLiteral.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
         } else if(node instanceof KiWiStringLiteral) {
             KiWiStringLiteral stringLiteral = (KiWiStringLiteral)node;
 
@@ -1106,11 +1081,7 @@ public class KiWiConnection implements AutoCloseable {
             }
             insertNode.setTimestamp(7, new Timestamp(stringLiteral.getCreated().getTime()));
 
-            if(batch) {
-                insertNode.addBatch();
-            } else {
-                insertNode.executeUpdate();
-            }
+            insertNode.executeUpdate();
         } else {
             log.warn("unrecognized node type: {}", node.getClass().getCanonicalName());
         }
