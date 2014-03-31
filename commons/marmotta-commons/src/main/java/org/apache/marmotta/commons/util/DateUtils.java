@@ -20,7 +20,6 @@ package org.apache.marmotta.commons.util;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -46,6 +45,9 @@ public class DateUtils {
 
 
     public static final SimpleDateFormat GMTFORMAT = createDateFormat("EEE, dd MMM yyyy HH:mm:ss z", "GMT");
+
+
+    private static DatatypeFactory datatypeFactory;
 
     /**
      * Some parsers will have the date as a ISO-8601 string
@@ -92,6 +94,13 @@ public class DateUtils {
         return sdf;
     }
 
+
+    private static DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException {
+        if(datatypeFactory == null) {
+            datatypeFactory = DatatypeFactory.newInstance();
+        }
+        return datatypeFactory;
+    }
 
     /**
      * Parses the given date string. This method is synchronized to prevent
@@ -146,7 +155,7 @@ public class DateUtils {
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         c.setTime(date);
         try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(c).normalize();
+            return getDatatypeFactory().newXMLGregorianCalendar(c).normalize();
         } catch (DatatypeConfigurationException e) {
             return null;
         }

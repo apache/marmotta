@@ -74,6 +74,7 @@ CREATE INDEX idx_reg_tx ON registry(txId);
 CREATE INDEX idx_node_content ON nodes USING hash(svalue);
 CREATE INDEX idx_node_dcontent ON nodes(dvalue) WHERE dvalue IS NOT NULL;
 CREATE INDEX idx_node_icontent ON nodes(ivalue) WHERE ivalue IS NOT NULL;
+CREATE INDEX idx_node_tcontent ON nodes(tvalue) WHERE tvalue IS NOT NULL;
 CREATE INDEX idx_literal_lang ON nodes(lang);
 
 CREATE INDEX idx_triples_p ON triples(predicate) WHERE deleted = false;
