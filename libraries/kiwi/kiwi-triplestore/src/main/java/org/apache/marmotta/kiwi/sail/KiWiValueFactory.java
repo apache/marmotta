@@ -62,16 +62,20 @@ public class KiWiValueFactory implements ValueFactory {
 
         switch (store.getPersistence().getConfiguration().getRegistryStrategy()) {
             case DATABASE:
+                log.info("KiWi Value Factory: database registry");
                 registry        = new DBTripleRegistry(store);
                 break;
             case CACHE:
+                log.info("KiWi Value Factory: cache registry");
                 registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
                 break;
             case LOCAL:
+                log.info("KiWi Value Factory: in-memory registry");
                 registry        = new LocalTripleRegistry();
                 break;
             default:
-                registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
+                log.info("KiWi Value Factory: in-memory registry");
+                registry        = new LocalTripleRegistry();
         }
 
         this.store          = store;
