@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.platform.core.test.base;
 
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.services.jaxrs.ExceptionMapperServiceImpl;
 import org.apache.marmotta.platform.core.services.jaxrs.InterceptorServiceImpl;
 import org.apache.marmotta.platform.core.servlet.MarmottaResourceFilter;
@@ -78,16 +80,31 @@ public class JettyMarmotta extends AbstractMarmotta {
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
         this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
     }
-    
+
+    public JettyMarmotta(Configuration override, String context, Set<Class<?>> webservices) {
+        this(override, context, getRandomPort(), webservices);
+    }
+
+
     public JettyMarmotta(String context, Set<Class<?>> webservices) {
     	this(context, getRandomPort(), webservices);
     }
 
     public JettyMarmotta(String context, int port, Set<Class<?>> webservices) {
+        this(null,context,port,webservices);
+    }
+
+    public JettyMarmotta(Configuration override, String context, int port, Set<Class<?>> webservices) {
         super();
 
         this.port = port;
         this.context = (context != null ? context : "/");
+
+        List<Configuration> configurations = new ArrayList<>();
+        if(override != null) {
+            configurations.add(override);
+        }
+        configurations.add(this.override);
         
         // create a new jetty & run it on port 8080
         jetty = new Server(this.port);
@@ -98,7 +115,7 @@ public class JettyMarmotta extends AbstractMarmotta {
         ServletContextHandler ctx = new ServletContextHandler(jetty, this.context);
 
         // now we have a context, start up the first phase of the LMF initialisation
-        startupService.startupConfiguration(home.getAbsolutePath(), override, ctx.getServletContext());
+        startupService.startupConfiguration(home.getAbsolutePath(), new CompositeConfiguration(configurations), ctx.getServletContext());
 
         // register the RestEasy CDI injector factory
         ctx.setAttribute("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
