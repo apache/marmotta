@@ -84,7 +84,9 @@ public class KiWiValueFactory implements ValueFactory {
 
     protected KiWiConnection aqcuireConnection() {
         try {
-            return store.getPersistence().getConnection();
+            KiWiConnection connection = store.getPersistence().getConnection();
+            connection.setAutoCommit(true);
+            return connection;
         } catch(SQLException ex) {
             log.error("could not acquire database connection", ex);
             throw new RuntimeException(ex);
@@ -93,7 +95,6 @@ public class KiWiValueFactory implements ValueFactory {
 
     protected void releaseConnection(KiWiConnection con) {
         try {
-            con.getJDBCConnection().commit();
             con.close();
         } catch (SQLException ex) {
             log.error("could not release database connection", ex);
