@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.core.test.base;
 
 import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
+import org.apache.marmotta.platform.core.qualifiers.inject.Fallback;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.Sail;
@@ -34,6 +35,7 @@ import javax.enterprise.inject.Alternative;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @Alternative
+@Fallback
 @ApplicationScoped
 public class TestStoreProvider implements StoreProvider {
 

@@ -56,12 +56,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import java.io.File;
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -148,16 +143,20 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
     public void startEventHandler(@Observes LoggingStartEvent event) {
-        log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}{}log{}*.log", configurationService.getHome(), File.separator, File.separator);
+        if(!configurationService.getBooleanConfiguration("testing.enabled")) {
+            log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}{}log{}*.log", configurationService.getHome(), File.separator, File.separator);
 
-        configureLoggers();
+            configureLoggers();
+        }
     }
 
     public void configurationEventHandler(@Observes ConfigurationChangedEvent event) {
-        if(event.containsChangedKeyWithPrefix("logging.")) {
-            log.warn("LOGGING: Reloading logging configuration");
+        if(!configurationService.getBooleanConfiguration("testing.enabled")) {
+            if (event.containsChangedKeyWithPrefix("logging.")) {
+                log.warn("LOGGING: Reloading logging configuration");
 
-            configureLoggers();
+                configureLoggers();
+            }
         }
     }
 

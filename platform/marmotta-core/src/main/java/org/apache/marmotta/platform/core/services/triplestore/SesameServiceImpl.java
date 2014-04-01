@@ -18,7 +18,6 @@
 package org.apache.marmotta.platform.core.services.triplestore;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
@@ -28,6 +27,7 @@ import org.apache.marmotta.platform.core.api.triplestore.*;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
+import org.apache.marmotta.platform.core.qualifiers.inject.Fallback;
 import org.apache.marmotta.platform.core.util.CDIContext;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
@@ -44,6 +44,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.UnsatisfiedResolutionException;
 import javax.inject.Inject;
 import java.util.Iterator;
 
@@ -139,20 +140,32 @@ public class SesameServiceImpl implements SesameService {
                 log.warn("RDF repository has already been initialized");
             }
 
-            if(storeProviders.isAmbiguous()) {
-                log.error("more than one storage backend in classpath; please only select one storage backend");
-                Iterator<StoreProvider> it = storeProviders.iterator();
-                while (it.hasNext()) {
-                    log.error("  - {}", it.next().getName());
-                }
-                return;
-            }
             if(storeProviders.isUnsatisfied()) {
                 log.error("no storage backend found in classpath; please add one of the marmotta-backend-XXX modules");
-                return;
+                throw new UnsatisfiedResolutionException("no storage backend found in classpath; please add one of the marmotta-backend-XXX modules");
             }
 
-            store = storeProviders.get().createStore();
+            if(storeProviders.isAmbiguous()) {
+                log.warn("more than one storage backend in classpath, trying to select the most appropriate ...");
+                StoreProvider candidate = null;
+
+                Iterator<StoreProvider> it = storeProviders.iterator();
+                while (it.hasNext()) {
+                    StoreProvider next = it.next();
+
+                    log.warn("- candidate: {} (annotations: {})", next.getName(), next.getClass().getAnnotations());
+
+                    if(candidate == null || !next.getClass().isAnnotationPresent(Fallback.class)) {
+                        candidate = next;
+                    }
+                }
+
+                log.warn("selected storage backend: {}", candidate.getName());
+
+                store = candidate.createStore();
+            } else {
+                store = storeProviders.get().createStore();
+            }
 
 
             NotifyingSail notifyingSail;
