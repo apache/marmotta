@@ -16,7 +16,7 @@
 
 # This file contains the Turtle serialization of the Test Cases in RDFa
 # from https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/LDP%20Test%20Cases.html
-# (cached on March 17, 2014).
+# (cached on April 2, 2014).
 #
 # Copyright © 2014 W3C® (MIT, ERCIM, Keio, Beihang), All Rights Reserved.
 
@@ -29,39 +29,24 @@
 @prefix td: <http://www.w3.org/2006/03/test-description#> .
 @prefix tn: <http://ldp.example.org/NewTestDefinitions#> .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1> a td:TestCase;
+<#TCC1> a td:TestCase;
     rdfs:label "TC-C1";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC1-A1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC1-A2-Response-1-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC1-RQ1-GET-LDPC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC1-A1-Response-1-GET>,
+        <#TCC1-A2-Response-1-GET>;
+    tn:testProcess ( <#TCC1-RQ1-GET-LDPC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a GET request on an LDPC.";
     dc:title "GET on an LDPC";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC1-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC1-I2-S-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC1-I3-P-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC1-O1-Response-1-GET>;
+    td:input <#TCC1-I1-LDPC-URI>,
+        <#TCC1-I2-S-URI>,
+        <#TCC1-I3-P-URI>;
+    td:output <#TCC1-O1-Response-1-GET>;
     td:precondition "The LDP server contains an LDPC at <LDPC URI>",
         "The membership predicate used by the LDPC is identified by  <P URI>",
         "The membership subject used by the LDPC is identified by  <S URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
-            tn:includesText "5.2.7 The representation of a LDPC MUST have rdf:type of ldp:Container, [...].";
-            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
-        [ a tn:Excerpt;
-            tn:includesText "5.2.5.1 For a given triple T with a subject C of the LDPC and predicate of ldp:membershipPredicate, the object MUST be the URI of the membership predicate P used to indicate membership to the linked to LDPC, [...]";
-            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
-        [ a tn:Excerpt;
-            tn:includesText "5.2.5.2 For a given triple T with a subject C of the LDPC and predicate of ldp:membershipPredicateInverse, the object MUST be the URI of the membership predicate P used to indicate membership to the linked to LDPC, [...]";
-            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
-        [ a tn:Excerpt;
-            tn:includesText "4.2.8 LDPR server responses MUST use entity tags (either weak or strong ones) as response ETag header values.";
-            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
-        [ a tn:Excerpt;
-            tn:includesText "4.3.1 LDPR servers MUST support the HTTP GET Method for LDPRs.";
-            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
-        [ a tn:Excerpt;
             tn:includesText "5.2.5 An LDPC representation MUST contain exactly one triple whose subject is the LDPC URI, and whose predicate is either ldp:membershipPredicate or ldp:membershipPredicateInverse. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
@@ -69,49 +54,64 @@
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
             tn:includesText "5.2.4 An LDPC representation MUST contain exactly one triple whose subject is the LDPC URI, whose predicate is the ldp:membershipSubject, and whose object is the LDPC's membership subject URI.";
+            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
+        [ a tn:Excerpt;
+            tn:includesText "4.3.1 LDPR servers MUST support the HTTP GET Method for LDPRs.";
+            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
+        [ a tn:Excerpt;
+            tn:includesText "5.2.5.2 For a given triple T with a subject C of the LDPC and predicate of ldp:membershipPredicateInverse, the object MUST be the URI of the membership predicate P used to indicate membership to the linked to LDPC, [...]";
+            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
+        [ a tn:Excerpt;
+            tn:includesText "5.2.7 The representation of a LDPC MUST have rdf:type of ldp:Container, [...].";
+            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
+        [ a tn:Excerpt;
+            tn:includesText "4.2.8 LDPR server responses MUST use entity tags (either weak or strong ones) as response ETag header values.";
+            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
+        [ a tn:Excerpt;
+            tn:includesText "5.2.5.1 For a given triple T with a subject C of the LDPC and predicate of ldp:membershipPredicate, the object MUST be the URI of the membership predicate P used to indicate membership to the linked to LDPC, [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC10> a td:TestCase;
+<#TCC10> a td:TestCase;
     rdfs:label "TC-C10";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC10-A1-Response-1-OPTIONS>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC10-RQ1-OPTIONS-LDPC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC10-A1-Response-1-OPTIONS>;
+    tn:testProcess ( <#TCC10-RQ1-OPTIONS-LDPC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making an OPTIONS request on an LDPC.";
     dc:title "OPTIONS on an LDPC";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC10-I1-LDPC-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC10-RP1-Response-1-OPTIONS>;
+    td:input <#TCC10-I1-LDPC-URI>;
+    td:output <#TCC10-RP1-Response-1-OPTIONS>;
     td:precondition "The LDP server contains an LDPC at <LDPC URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
-            tn:includesText "4.9.2 LDPR servers MUST indicate their support for HTTP Methods by responding to a HTTP OPTIONS request on the LDPR’s URL with the HTTP Method tokens in the HTTP response header Allow.";
+            tn:includesText "4.9.1 LDPR servers MUST support the HTTP OPTIONS method.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
-            tn:includesText "4.9.1 LDPR servers MUST support the HTTP OPTIONS method.";
+            tn:includesText "4.9.2 LDPR servers MUST indicate their support for HTTP Methods by responding to a HTTP OPTIONS request on the LDPR’s URL with the HTTP Method tokens in the HTTP response header Allow.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11> a td:TestCase;
+<#TCC11> a td:TestCase;
     rdfs:label "TC-C11";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC11-A1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A2-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A3-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A4-Response-2-POST>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A5-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A6-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A7-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-A8-Response-4-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ1-GET-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ2-POST-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ3-GET-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ4-GET-LOC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ4-TEST-CONTAINER> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC11-A1-Response-1-GET>,
+        <#TCC11-A2-Response-1-GET>,
+        <#TCC11-A3-Response-1-GET>,
+        <#TCC11-A4-Response-2-POST>,
+        <#TCC11-A5-Response-3-GET>,
+        <#TCC11-A6-Response-3-GET>,
+        <#TCC11-A7-Response-3-GET>,
+        <#TCC11-A8-Response-4-GET>;
+    tn:testProcess ( <#TCC11-RQ1-GET-LDPC-URI> <#TCC11-RQ2-POST-LDPC-URI> <#TCC11-RQ3-GET-LDPC-URI> <#TCC11-RQ4-GET-LOC-URI> <#TCC11-RQ4-TEST-CONTAINER> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a POST request of an LDPC on an LDPC as a sub-container.";
     dc:title "POST an LDPC on an LDPC as a sub-container";
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC11-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-I2-LDPC2-REP>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-I3-S-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-I4-P-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC11-O1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-O2-Response-2-POST>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-O3-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-O4-Response-4-GET>;
+    td:input <#TCC11-I1-LDPC-URI>,
+        <#TCC11-I2-LDPC2-REP>,
+        <#TCC11-I3-S-URI>,
+        <#TCC11-I4-P-URI>;
+    td:output <#TCC11-O1-Response-1-GET>,
+        <#TCC11-O2-Response-2-POST>,
+        <#TCC11-O3-Response-3-GET>,
+        <#TCC11-O4-Response-4-GET>;
     td:precondition "<LDPC2 representation> is a valid representation for a sub-container to be created in the LDPC",
         "<LDPC2 representation> is in text/turtle",
         "<LDPC2 representation> uses null relative URI as the entity in the request body",
@@ -122,28 +122,28 @@
         "The membership subject used by the LDPC is identified by  <S URI>";
     td:reviewStatus td:unreviewed .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12> a td:TestCase;
+<#TCC12> a td:TestCase;
     rdfs:label "TC-C12";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC12-A1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A2-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A3-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A4-Response-2-POST>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A5-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A6-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A7-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-A8-Response-4-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ1-GET-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ2-POST-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ3-GET-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ4-GET-LOC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ4-TEST-CONTAINER> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC12-A1-Response-1-GET>,
+        <#TCC12-A2-Response-1-GET>,
+        <#TCC12-A3-Response-1-GET>,
+        <#TCC12-A4-Response-2-POST>,
+        <#TCC12-A5-Response-3-GET>,
+        <#TCC12-A6-Response-3-GET>,
+        <#TCC12-A7-Response-3-GET>,
+        <#TCC12-A8-Response-4-GET>;
+    tn:testProcess ( <#TCC12-RQ1-GET-LDPC-URI> <#TCC12-RQ2-POST-LDPC-URI> <#TCC12-RQ3-GET-LDPC-URI> <#TCC12-RQ4-GET-LOC-URI> <#TCC12-RQ4-TEST-CONTAINER> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a POST request of an LDPC on an LDPC as a sub-container.";
     dc:title "POST an LDPC on an LDPC as a sub-container";
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC12-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-I2-LDPC2-REP>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-I3-S-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-I4-P-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC12-O1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-O2-Response-2-POST>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-O3-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-O4-Response-4-GET>;
+    td:input <#TCC12-I1-LDPC-URI>,
+        <#TCC12-I2-LDPC2-REP>,
+        <#TCC12-I3-S-URI>,
+        <#TCC12-I4-P-URI>;
+    td:output <#TCC12-O1-Response-1-GET>,
+        <#TCC12-O2-Response-2-POST>,
+        <#TCC12-O3-Response-3-GET>,
+        <#TCC12-O4-Response-4-GET>;
     td:precondition "<LDPC2 representation> is a valid representation for a sub-container to be stored in the LDPC",
         "<LDPC2 representation> is in text/turtle",
         "<LDPC2 representation> uses null relative URI as the entity in the request body",
@@ -154,63 +154,63 @@
         "The membership subject used by the LDPC is identified by  <S URI>";
     td:reviewStatus td:unreviewed .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC3> a td:TestCase;
+<#TCC3> a td:TestCase;
     rdfs:label "TC-C3";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC3-A1-Response-1-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC3-RQ1-GET-LDPC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC3-A1-Response-1-GET>;
+    tn:testProcess ( <#TCC3-RQ1-GET-LDPC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a GET request on an non-existing LDPC.";
     dc:title "GET on a non-existing LDPC";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC3-I1-LDPC-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC3-O1-Response-1-GET>;
+    td:input <#TCC3-I1-LDPC-URI>;
+    td:output <#TCC3-O1-Response-1-GET>;
     td:precondition "The LDP server does not contain an LDPC at <LDPC URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
             tn:includesText "4.6.1 LDPR servers MUST remove the resource identified by the Request-URI. After a successful HTTP DELETE, a subsequent HTTP GET on the same Request-URI MUST result in a 404 (Not found) or 410 (Gone) status code.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6> a td:TestCase;
+<#TCC6> a td:TestCase;
     rdfs:label "TC-C6";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC6-A1-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC6-A2-Response-1-DELETE>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC6-RQ1-DELETE-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC6-RQ2-GET-LDPC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC6-A1-Response-1-DELETE>,
+        <#TCC6-A2-Response-1-DELETE>;
+    tn:testProcess ( <#TCC6-RQ1-DELETE-LDPC-URI> <#TCC6-RQ2-GET-LDPC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a DELETE request on an LDPC.";
     dc:title "DELETE on an LDPC";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC6-I1-LDPC-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC6-O1-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC6-O2-Response-2-GET>;
+    td:input <#TCC6-I1-LDPC-URI>;
+    td:output <#TCC6-O1-Response-1-DELETE>,
+        <#TCC6-O2-Response-2-GET>;
     td:precondition "The LDP server contains an LDPC at <LDPC URI>",
         "The LDPC at <LDPC URI> allows DELETE";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
-            tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
+            tn:includesText "4.6.1 LDPR servers MUST remove the resource identified by the Request-URI. After a successful HTTP DELETE, a subsequent HTTP GET on the same Request-URI MUST result in a 404 (Not found) or 410 (Gone) status code.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
-            tn:includesText "4.6.1 LDPR servers MUST remove the resource identified by the Request-URI. After a successful HTTP DELETE, a subsequent HTTP GET on the same Request-URI MUST result in a 404 (Not found) or 410 (Gone) status code.";
+            tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7> a td:TestCase;
+<#TCC7> a td:TestCase;
     rdfs:label "TC-C7";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC7-A1-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-A2-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-A3-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-A4-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-A5-Response-3-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC7-RQ1-DELETE-LDPR-URI> <http://www.w3.org/TR/ldp-test-cases/TCC7-RQ2-GET-LDPR-URI> <http://www.w3.org/TR/ldp-test-cases/TCC7-RQ3-GET-LDPC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC7-A1-Response-1-DELETE>,
+        <#TCC7-A2-Response-1-DELETE>,
+        <#TCC7-A3-Response-3-GET>,
+        <#TCC7-A4-Response-3-GET>,
+        <#TCC7-A5-Response-3-GET>;
+    tn:testProcess ( <#TCC7-RQ1-DELETE-LDPR-URI> <#TCC7-RQ2-GET-LDPR-URI> <#TCC7-RQ3-GET-LDPC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a DELETE request on an LDPR in an LDPC.";
     dc:title "DELETE on an LDPR in an LDPC";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC7-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-I2-LDPR-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-I3-S-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-I4-P-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC7-O1-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-O2-Response-2-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC7-O3-Response-3-GET>;
+    td:input <#TCC7-I1-LDPC-URI>,
+        <#TCC7-I2-LDPR-URI>,
+        <#TCC7-I3-S-URI>,
+        <#TCC7-I4-P-URI>;
+    td:output <#TCC7-O1-Response-1-DELETE>,
+        <#TCC7-O2-Response-2-GET>,
+        <#TCC7-O3-Response-3-GET>;
     td:precondition "The LDP server contains an LDPC at <LDPC URI>",
         "The LDP server contains an LDPR at <LDPR URI>",
         "The LDPR at <LDPR URI> allows DELETE",
@@ -223,17 +223,17 @@
             tn:includesText "5.6.2 When the LDPC server successfully completes the DELETE request on a LDPC, it MUST remove any membership triples associated with the LDPC as indicated by the canonical Request-URI. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC8> a td:TestCase;
+<#TCC8> a td:TestCase;
     rdfs:label "TC-C8";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC8-A1-Response-1-HEAD>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC8-RQ1-HEAD-LDPC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC8-A1-Response-1-HEAD>;
+    tn:testProcess ( <#TCC8-RQ1-HEAD-LDPC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a HEAD request on an LDPC.";
     dc:title "HEAD on an LDPC";
     rdfs:seeAlso <http://tools.ietf.org/html/rfc2616>,
         <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC8-I1-LDPC-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC8-O1-Response-1-HEAD>;
+    td:input <#TCC8-I1-LDPC-URI>;
+    td:output <#TCC8-O1-Response-1-HEAD>;
     td:precondition "The LDP server contains an LDPC at <LDPC URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
@@ -246,29 +246,29 @@
             tn:includesText "4.7.1 LDPR servers MUST support the HTTP HEAD method.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9> a td:TestCase;
+<#TCC9> a td:TestCase;
     rdfs:label "TC-C9";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCC9-A1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A2-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A3-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A4-Response-2-POST>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A5-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A6-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A7-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-A8-Response-4-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ1-GET-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ2-POST-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ3-GET-LDPC-URI> <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ4-GET-LOC-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCC9-A1-Response-1-GET>,
+        <#TCC9-A2-Response-1-GET>,
+        <#TCC9-A3-Response-1-GET>,
+        <#TCC9-A4-Response-2-POST>,
+        <#TCC9-A5-Response-3-GET>,
+        <#TCC9-A6-Response-3-GET>,
+        <#TCC9-A7-Response-3-GET>,
+        <#TCC9-A8-Response-4-GET>;
+    tn:testProcess ( <#TCC9-RQ1-GET-LDPC-URI> <#TCC9-RQ2-POST-LDPC-URI> <#TCC9-RQ3-GET-LDPC-URI> <#TCC9-RQ4-GET-LOC-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a POST request of an LDPR on an LDPC.";
     dc:title "POST an LDPR on an LDPC";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCC9-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-I2-LDPR-REP>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-I3-S-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-I4-P-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCC9-O1-Response-1-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-O2-Response-2-POST>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-O3-Response-3-GET>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-O4-Response-4-GET>;
+    td:input <#TCC9-I1-LDPC-URI>,
+        <#TCC9-I2-LDPR-REP>,
+        <#TCC9-I3-S-URI>,
+        <#TCC9-I4-P-URI>;
+    td:output <#TCC9-O1-Response-1-GET>,
+        <#TCC9-O2-Response-2-POST>,
+        <#TCC9-O3-Response-3-GET>,
+        <#TCC9-O4-Response-4-GET>;
     td:precondition "<LDPR representation> is a valid representation for a resource to be created in the LDPC",
         "<LDPR representation> is in text/turtle",
         "<LDPR representation> uses null relative URI as the entity in the request body",
@@ -279,71 +279,71 @@
         "The membership subject used by the LDPC is identified by  <S URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
-            tn:includesText "5.4.1 [...] If the resource was created successfully, LDPC servers MUST respond with status code 201 (Created) and the Location header set to the new resource’s URL. [...] ";
+            tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
-            tn:includesText "5.4.4 For servers that support create, LDPC servers MUST create an LDPR from a RDF representation in the request entity body. [...]";
+            tn:includesText "5.4.5 LDPC servers MUST accept a request entity body with a request header of Content-Type with value of text/turtle. ";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
             tn:includesText "5.4.2 After a successful HTTP POST request to a LDPC, the new resource MUST appear as a member of the LDPC until the new resource is deleted or removed by other methods. [...] ";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
-            tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
+            tn:includesText "5.4.1 [...] If the resource was created successfully, LDPC servers MUST respond with status code 201 (Created) and the Location header set to the new resource’s URL. [...] ";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
-            tn:includesText "5.4.5 LDPC servers MUST accept a request entity body with a request header of Content-Type with value of text/turtle. ";
+            tn:includesText "5.4.4 For servers that support create, LDPC servers MUST create an LDPR from a RDF representation in the request entity body. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR1> a td:TestCase;
+<#TCR1> a td:TestCase;
     rdfs:label "TC-R1";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCR1-A1-Response-1-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCR1-RQ1-GET-LDPR-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCR1-A1-Response-1-GET>;
+    tn:testProcess ( <#TCR1-RQ1-GET-LDPR-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a GET request on an existing LDPR.";
     dc:title "GET on an LDPR";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCR1-I1-LDPR-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCR1-O1-Response-1-GET>;
+    td:input <#TCR1-I1-LDPR-URI>;
+    td:output <#TCR1-O1-Response-1-GET>;
     td:precondition "The LDP server contains an LDPR at <LDPR URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
+            tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
+            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
+        [ a tn:Excerpt;
             tn:includesText "4.2.8 LDPR server responses MUST use entity tags (either weak or strong ones) as response ETag header values.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
         [ a tn:Excerpt;
             tn:includesText "4.3.1 LDPR servers MUST support the HTTP GET Method for LDPRs.";
-            rdfs:seeAlso <http://www.w3.org/TR/ldp/> ],
-        [ a tn:Excerpt;
-            tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR3> a td:TestCase;
+<#TCR3> a td:TestCase;
     rdfs:label "TC-R3";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCR3-A1-Response-1-GET>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCR3-RQ1-GET-LDPR-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCR3-A1-Response-1-GET>;
+    tn:testProcess ( <#TCR3-RQ1-GET-LDPR-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a GET request on a non-existing LDPR.";
     dc:title "GET on a non-existing LDPR";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCR3-I1-LDPR-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCR3-O1-Response-1-GET>;
+    td:input <#TCR3-I1-LDPR-URI>;
+    td:output <#TCR3-O1-Response-1-GET>;
     td:precondition "The LDP server does not contain an LDPR at <LDPR URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
             tn:includesText "4.6.1 LDPR servers MUST remove the resource identified by the Request-URI. After a successful HTTP DELETE, a subsequent HTTP GET on the same Request-URI MUST result in a 404 (Not found) or 410 (Gone) status code.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6> a td:TestCase;
+<#TCR6> a td:TestCase;
     rdfs:label "TC-R6";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCR6-A1-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCR6-A2-Response-1-DELETE>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCR6-RQ1-DELETE-LDPR-URI> <http://www.w3.org/TR/ldp-test-cases/TCR6-RQ2-GET-LDPR-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCR6-A1-Response-1-DELETE>,
+        <#TCR6-A2-Response-1-DELETE>;
+    tn:testProcess ( <#TCR6-RQ1-DELETE-LDPR-URI> <#TCR6-RQ2-GET-LDPR-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a DELETE request on an LDPR.";
     dc:title "DELETE on an LDPR";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCR6-I1-LDPR-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCR6-O1-Response-1-DELETE>,
-        <http://www.w3.org/TR/ldp-test-cases/TCR6-O2-Response-2-GET>;
+    td:input <#TCR6-I1-LDPR-URI>;
+    td:output <#TCR6-O1-Response-1-DELETE>,
+        <#TCR6-O2-Response-2-GET>;
     td:precondition "The LDP server contains an LDPR at <LDPR URI>",
         "The LDPR at <LDPR URI> allows DELETE";
     td:reviewStatus td:unreviewed;
@@ -354,17 +354,17 @@
             tn:includesText "4.2.10 LDPR servers MUST advertise their LDP support by exposing a HTTP Link header with a target URI of http://www.w3.org/ns/ldp/Resource, and a link relation type of type (that is, rel=\"type\") in all responses to requests made to the resource's HTTP Request-URI. [...]";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR7> a td:TestCase;
+<#TCR7> a td:TestCase;
     rdfs:label "TC-R7";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCR7-A1-Response-1-HEAD>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCR7-RQ1-HEAD-LDPR-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCR7-A1-Response-1-HEAD>;
+    tn:testProcess ( <#TCR7-RQ1-HEAD-LDPR-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making a HEAD request on an LDPR.";
     dc:title "HEAD on an LDPR";
     rdfs:seeAlso <http://tools.ietf.org/html/rfc2616>,
         <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCR7-I1-LDPR-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCR7-O1-Response-1-HEAD>;
+    td:input <#TCR7-I1-LDPR-URI>;
+    td:output <#TCR7-O1-Response-1-HEAD>;
     td:precondition "The LDP server contains an LDPR at <LDPR URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
@@ -377,16 +377,16 @@
             tn:includesText "4.7.1 LDPR servers MUST support the HTTP HEAD method.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR8> a td:TestCase;
+<#TCR8> a td:TestCase;
     rdfs:label "TC-R8";
-    tn:testAssertion <http://www.w3.org/TR/ldp-test-cases/TCR8-A1-Response-1-OPTIONS>;
-    tn:testProcess ( <http://www.w3.org/TR/ldp-test-cases/TCR8-RQ1-OPTIONS-LDPR-URI> );
-    dc:contributor <http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro>;
+    tn:testAssertion <#TCR8-A1-Response-1-OPTIONS>;
+    tn:testProcess ( <#TCR8-RQ1-OPTIONS-LDPR-URI> );
+    dc:contributor <#RaulGarciaCastro>;
     dc:description "Tests making an OPTIONS request on an LDPR.";
     dc:title "OPTIONS on an LDPR";
     rdfs:seeAlso <http://www.w3.org/TR/ldp/>;
-    td:input <http://www.w3.org/TR/ldp-test-cases/TCR8-I1-LDPR-URI>;
-    td:output <http://www.w3.org/TR/ldp-test-cases/TCR8-RP1-Response-1-OPTIONS>;
+    td:input <#TCR8-I1-LDPR-URI>;
+    td:output <#TCR8-RP1-Response-1-OPTIONS>;
     td:precondition "The LDP server contains an LDPR at <LDPR URI>";
     td:reviewStatus td:unreviewed;
     td:specificationReference [ a tn:Excerpt;
@@ -396,8 +396,8 @@
             tn:includesText "4.9.2 LDPR servers MUST indicate their support for HTTP Methods by responding to a HTTP OPTIONS request on the LDPR’s URL with the HTTP Method tokens in the HTTP response header Allow.";
             rdfs:seeAlso <http://www.w3.org/TR/ldp/> ] .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC1-O1-Response-1-GET>;
+<#TCC1-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC1-O1-Response-1-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -407,8 +407,8 @@
         """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-A2-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC1-O1-Response-1-GET>;
+<#TCC1-A2-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC1-O1-Response-1-GET>;
     dc:description """
           
             [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -418,22 +418,22 @@
         """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-I2-S-URI> a tn:TestInput;
+<#TCC1-I2-S-URI> a tn:TestInput;
     dc:description "The URI of an RDF resource.";
     dc:title "<S URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-I3-P-URI> a tn:TestInput;
+<#TCC1-I3-P-URI> a tn:TestInput;
     dc:description "The URI of an RDF property.";
     dc:title "<P URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-O1-Response-1-GET> a tn:TestOutput,
+<#TCC1-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC1-RQ1-GET-LDPC-URI>;
+    tn:fromStep <#TCC1-RQ1-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title "<Response 1 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC10-A1-Response-1-OPTIONS> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC10-O1-Response-1-OPTIONS>;
+<#TCC10-A1-Response-1-OPTIONS> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC10-O1-Response-1-OPTIONS>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx 
@@ -442,14 +442,14 @@
         """;
     dc:title "OPTIONS correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC10-RP1-Response-1-OPTIONS> a tn:TestOutput,
+<#TCC10-RP1-Response-1-OPTIONS> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC10-RQ1-OPTIONS-LDPC-URI>;
+    tn:fromStep <#TCC10-RQ1-OPTIONS-LDPC-URI>;
     dc:description "The response of the OPTIONS request in step 1.";
     dc:title "<Response 1 OPTIONS>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O1-Response-1-GET>;
+<#TCC11-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O1-Response-1-GET>;
     dc:description """
                   
                       [Status-Line].Status-Code = 2xx
@@ -459,8 +459,8 @@
               """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A2-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O1-Response-1-GET>;
+<#TCC11-A2-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O1-Response-1-GET>;
     dc:description """
                   
                       [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -470,8 +470,8 @@
               """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A3-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O1-Response-1-GET>;
+<#TCC11-A3-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O1-Response-1-GET>;
     dc:description """
                   
                       [message-body] does not contain <S URI> <P URI> <Response 2 POST>.[response-header].Location .
@@ -479,8 +479,8 @@
               """;
     dc:title "container does not have the to-be-created member" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A4-Response-2-POST> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O2-Response-2-POST>;
+<#TCC11-A4-Response-2-POST> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O2-Response-2-POST>;
     dc:description """
                   
                       [Status-Line].Status-Code = 201
@@ -490,8 +490,8 @@
               """;
     dc:title "POST correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A5-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O3-Response-3-GET>;
+<#TCC11-A5-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O3-Response-3-GET>;
     dc:description """
                   
                       [Status-Line].Status-Code = 2xx
@@ -501,8 +501,8 @@
               """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A6-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O3-Response-3-GET>;
+<#TCC11-A6-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O3-Response-3-GET>;
     dc:description """
                   
                       [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -512,8 +512,8 @@
               """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A7-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O3-Response-3-GET>;
+<#TCC11-A7-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O3-Response-3-GET>;
     dc:description """
                   
                       [message-body] contains <S URI> <P URI> <Response 2 POST>.[response-header].Location .
@@ -521,8 +521,8 @@
               """;
     dc:title "container has member" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-A8-Response-4-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC11-O4-Response-4-GET>;
+<#TCC11-A8-Response-4-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC11-O4-Response-4-GET>;
     dc:description """
                   
                       [Status-Line].Status-Code = 2xx
@@ -532,44 +532,44 @@
               """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-I3-S-URI> a tn:TestInput;
+<#TCC11-I3-S-URI> a tn:TestInput;
     dc:description "The URI of an RDF resource.";
     dc:title "<S URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-I4-P-URI> a tn:TestInput;
+<#TCC11-I4-P-URI> a tn:TestInput;
     dc:description "The URI of an RDF property.";
     dc:title "<P URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-O1-Response-1-GET> a tn:TestOutput,
+<#TCC11-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ1-GET-LDPC-URI>;
+    tn:fromStep <#TCC11-RQ1-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title "<Response 1 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-O2-Response-2-POST> a tn:TestOutput,
+<#TCC11-O2-Response-2-POST> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ2-POST-LDPC-URI>;
+    tn:fromStep <#TCC11-RQ2-POST-LDPC-URI>;
     dc:description "The response of the POST request in step 2.";
     dc:title "<Response 2 POST>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-O3-Response-3-GET> a tn:TestOutput,
+<#TCC11-O3-Response-3-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ3-GET-LDPC-URI>;
+    tn:fromStep <#TCC11-RQ3-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 3.";
     dc:title "<Response 3 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-O4-Response-4-GET> a tn:TestOutput,
+<#TCC11-O4-Response-4-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC11-RQ4-GET-LOC-URI>;
+    tn:fromStep <#TCC11-RQ4-GET-LOC-URI>;
     dc:description "The response of the GET request in step 4.";
     dc:title "<Response 4 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-RQ4-TEST-CONTAINER> a tn:Step,
+<#TCC11-RQ4-TEST-CONTAINER> a tn:Step,
         ht:Group;
     dc:description "Pass TC-C9 (test created sub-container)" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O1-Response-1-GET>;
+<#TCC12-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O1-Response-1-GET>;
     dc:description """
                   
                       [Status-Line].Status-Code = 2xx
@@ -579,8 +579,8 @@
               """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A2-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O1-Response-1-GET>;
+<#TCC12-A2-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O1-Response-1-GET>;
     dc:description """
                   
                       [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -590,8 +590,8 @@
               """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A3-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O1-Response-1-GET>;
+<#TCC12-A3-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O1-Response-1-GET>;
     dc:description """
                   
                       [message-body] does not contain <S URI> <P URI> <Response 2 POST>.[response-header].Location .
@@ -599,8 +599,8 @@
               """;
     dc:title "container does not have the to-be-created member" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A4-Response-2-POST> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O2-Response-2-POST>;
+<#TCC12-A4-Response-2-POST> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O2-Response-2-POST>;
     dc:description """
                   
                       [Status-Line].Status-Code = 201
@@ -610,8 +610,8 @@
               """;
     dc:title "POST correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A5-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O3-Response-3-GET>;
+<#TCC12-A5-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O3-Response-3-GET>;
     dc:description """
                   
                       [Status-Line].Status-Code = 2xx
@@ -621,8 +621,8 @@
               """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A6-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O3-Response-3-GET>;
+<#TCC12-A6-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O3-Response-3-GET>;
     dc:description """
                   
                       [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -632,8 +632,8 @@
               """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A7-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O3-Response-3-GET>;
+<#TCC12-A7-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O3-Response-3-GET>;
     dc:description """
                   
                       [message-body] contains <S URI> <P URI> <Response 2 POST>.[response-header].Location .
@@ -641,8 +641,8 @@
               """;
     dc:title "container has member" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-A8-Response-4-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC12-O4-Response-4-GET>;
+<#TCC12-A8-Response-4-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC12-O4-Response-4-GET>;
     dc:description """
                   
                       [Status-Line].Status-Code = 2xx
@@ -652,44 +652,44 @@
               """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-I3-S-URI> a tn:TestInput;
+<#TCC12-I3-S-URI> a tn:TestInput;
     dc:description "The URI of an RDF resource.";
     dc:title "<S URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-I4-P-URI> a tn:TestInput;
+<#TCC12-I4-P-URI> a tn:TestInput;
     dc:description "The URI of an RDF property.";
     dc:title "<P URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-O1-Response-1-GET> a tn:TestOutput,
+<#TCC12-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ1-GET-LDPC-URI>;
+    tn:fromStep <#TCC12-RQ1-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title "<Response 1 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-O2-Response-2-POST> a tn:TestOutput,
+<#TCC12-O2-Response-2-POST> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ2-POST-LDPC-URI>;
+    tn:fromStep <#TCC12-RQ2-POST-LDPC-URI>;
     dc:description "The response of the POST request in step 2.";
     dc:title "<Response 2 POST>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-O3-Response-3-GET> a tn:TestOutput,
+<#TCC12-O3-Response-3-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ3-GET-LDPC-URI>;
+    tn:fromStep <#TCC12-RQ3-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 3.";
     dc:title "<Response 3 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-O4-Response-4-GET> a tn:TestOutput,
+<#TCC12-O4-Response-4-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC12-RQ4-GET-LOC-URI>;
+    tn:fromStep <#TCC12-RQ4-GET-LOC-URI>;
     dc:description "The response of the GET request in step 4.";
     dc:title "<Response 4 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-RQ4-TEST-CONTAINER> a tn:Step,
+<#TCC12-RQ4-TEST-CONTAINER> a tn:Step,
         ht:Group;
     dc:description "Fail TC-C9 step 2 (test that created object is NOT a container)" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC3-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC3-O1-Response-1-GET>;
+<#TCC3-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC3-O1-Response-1-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 404 or 410
@@ -697,14 +697,14 @@
         """;
     dc:title "GET incorrect" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC3-O1-Response-1-GET> a tn:TestOutput,
+<#TCC3-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC3-RQ1-GET-LDPC-URI>;
+    tn:fromStep <#TCC3-RQ1-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title "<Response 1 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-A1-Response-1-DELETE> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC6-O1-Response-1-DELETE>;
+<#TCC6-A1-Response-1-DELETE> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC6-O1-Response-1-DELETE>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -713,8 +713,8 @@
         """;
     dc:title "DELETE correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-A2-Response-1-DELETE> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC6-O1-Response-1-DELETE>;
+<#TCC6-A2-Response-1-DELETE> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC6-O1-Response-1-DELETE>;
     dc:description """
           
             <Response 1 DELETE>.[Status-Line].Status-Code = 200 or 204 and <Response 2 GET>.[Status-Line].Status-Code = 404 or 410
@@ -724,20 +724,20 @@
         """;
     dc:title "DELETE resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-O1-Response-1-DELETE> a tn:TestOutput,
+<#TCC6-O1-Response-1-DELETE> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC6-RQ1-DELETE-LDPC-URI>;
+    tn:fromStep <#TCC6-RQ1-DELETE-LDPC-URI>;
     dc:description "The response of the DELETE request in step 1.";
     dc:title "<Response 1 DELETE>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-O2-Response-2-GET> a tn:TestOutput,
+<#TCC6-O2-Response-2-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC6-RQ2-GET-LDPC-URI>;
+    tn:fromStep <#TCC6-RQ2-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 2.";
     dc:title "<Response 2 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-A1-Response-1-DELETE> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC7-O1-Response-1-DELETE>;
+<#TCC7-A1-Response-1-DELETE> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC7-O1-Response-1-DELETE>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -746,8 +746,8 @@
         """;
     dc:title "DELETE correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-A2-Response-1-DELETE> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC7-O1-Response-1-DELETE>;
+<#TCC7-A2-Response-1-DELETE> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC7-O1-Response-1-DELETE>;
     dc:description """
           
             <Response 1 DELETE>.[Status-Line].Status-Code = 200 or 204 and <Response 2 GET>.[Status-Line].Status-Code = 404 or 410
@@ -757,8 +757,8 @@
         """;
     dc:title "DELETE resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-A3-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC7-O3-Response-3-GET>;
+<#TCC7-A3-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC7-O3-Response-3-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -768,8 +768,8 @@
         """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-A4-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC7-O3-Response-3-GET>;
+<#TCC7-A4-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC7-O3-Response-3-GET>;
     dc:description """
           
             [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -779,8 +779,8 @@
         """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-A5-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC7-O3-Response-3-GET>;
+<#TCC7-A5-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC7-O3-Response-3-GET>;
     dc:description """
           
             [message-body] does not contain <S URI> <P URI> <LDPR URI> .
@@ -788,34 +788,34 @@
         """;
     dc:title "member removed from container" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-I3-S-URI> a tn:TestInput;
+<#TCC7-I3-S-URI> a tn:TestInput;
     dc:description "The URI of an RDF resource.";
     dc:title "<S URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-I4-P-URI> a tn:TestInput;
+<#TCC7-I4-P-URI> a tn:TestInput;
     dc:description "The URI of an RDF property.";
     dc:title "<P URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-O1-Response-1-DELETE> a tn:TestOutput,
+<#TCC7-O1-Response-1-DELETE> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC7-RQ1-DELETE-LDPR-URI>;
+    tn:fromStep <#TCC7-RQ1-DELETE-LDPR-URI>;
     dc:description "The response of the DELETE request in step 1.";
     dc:title "<Response 1 DELETE>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-O2-Response-2-GET> a tn:TestOutput,
+<#TCC7-O2-Response-2-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC7-RQ2-GET-LDPR-URI>;
+    tn:fromStep <#TCC7-RQ2-GET-LDPR-URI>;
     dc:description "The response of the GET request in step 2.";
     dc:title "<Response 2 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-O3-Response-3-GET> a tn:TestOutput,
+<#TCC7-O3-Response-3-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC7-RQ3-GET-LDPC-URI>;
+    tn:fromStep <#TCC7-RQ3-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 3.";
     dc:title "<Response 3 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC8-A1-Response-1-HEAD> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC8-O1-Response-1-HEAD>;
+<#TCC8-A1-Response-1-HEAD> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC8-O1-Response-1-HEAD>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -826,14 +826,14 @@
         """;
     dc:title "HEAD correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC8-O1-Response-1-HEAD> a tn:TestOutput,
+<#TCC8-O1-Response-1-HEAD> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC8-RQ1-HEAD-LDPC-URI>;
+    tn:fromStep <#TCC8-RQ1-HEAD-LDPC-URI>;
     dc:description "The response of the HEAD request in step 1.";
     dc:title "<Response 1 HEAD>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O1-Response-1-GET>;
+<#TCC9-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O1-Response-1-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -843,8 +843,8 @@
         """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A2-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O1-Response-1-GET>;
+<#TCC9-A2-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O1-Response-1-GET>;
     dc:description """
           
             [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -854,8 +854,8 @@
         """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A3-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O1-Response-1-GET>;
+<#TCC9-A3-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O1-Response-1-GET>;
     dc:description """
           
             [message-body] does not contain <S URI> <P URI> <Response 2
@@ -864,8 +864,8 @@
         """;
     dc:title "container does not have member" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A4-Response-2-POST> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O2-Response-2-POST>;
+<#TCC9-A4-Response-2-POST> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O2-Response-2-POST>;
     dc:description """
           
             [Status-Line].Status-Code = 201
@@ -875,8 +875,8 @@
         """;
     dc:title "POST correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A5-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O3-Response-3-GET>;
+<#TCC9-A5-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O3-Response-3-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -886,8 +886,8 @@
         """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A6-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O3-Response-3-GET>;
+<#TCC9-A6-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O3-Response-3-GET>;
     dc:description """
           
             [message-body] contains <LDPC URI> rdf:type ldp:Container .
@@ -897,8 +897,8 @@
         """;
     dc:title "GET container correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A7-Response-3-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O3-Response-3-GET>;
+<#TCC9-A7-Response-3-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O3-Response-3-GET>;
     dc:description """
           
             [message-body] contains <S URI> <P URI> <Response 2 POST>.[response-header].Location .
@@ -906,8 +906,8 @@
         """;
     dc:title "container has member" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-A8-Response-4-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCC9-O4-Response-4-GET>;
+<#TCC9-A8-Response-4-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCC9-O4-Response-4-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -917,40 +917,40 @@
         """;
     dc:title "GET resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-I3-S-URI> a tn:TestInput;
+<#TCC9-I3-S-URI> a tn:TestInput;
     dc:description "The URI of an RDF resource.";
     dc:title "<S URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-I4-P-URI> a tn:TestInput;
+<#TCC9-I4-P-URI> a tn:TestInput;
     dc:description "The URI of an RDF property.";
     dc:title "<P URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-O1-Response-1-GET> a tn:TestOutput,
+<#TCC9-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ1-GET-LDPC-URI>;
+    tn:fromStep <#TCC9-RQ1-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title "<Response 1 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-O2-Response-2-POST> a tn:TestOutput,
+<#TCC9-O2-Response-2-POST> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ2-POST-LDPC-URI>;
+    tn:fromStep <#TCC9-RQ2-POST-LDPC-URI>;
     dc:description "The response of the POST request in step 2.";
     dc:title "<Response 2 POST>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-O3-Response-3-GET> a tn:TestOutput,
+<#TCC9-O3-Response-3-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ3-GET-LDPC-URI>;
+    tn:fromStep <#TCC9-RQ3-GET-LDPC-URI>;
     dc:description "The response of the GET request in step 3.";
     dc:title "<Response 3 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-O4-Response-4-GET> a tn:TestOutput,
+<#TCC9-O4-Response-4-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCC9-RQ4-GET-LOC-URI>;
+    tn:fromStep <#TCC9-RQ4-GET-LOC-URI>;
     dc:description "The response of the GET request in step 4.";
     dc:title "<Response 4 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR1-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCR1-O1-Response-1-GET>;
+<#TCR1-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCR1-O1-Response-1-GET>;
     dc:description """
             
               [Status-Line].Status-Code = 2xx
@@ -960,15 +960,15 @@
             """;
     dc:title "GET correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR1-O1-Response-1-GET> a tn:TestOutput,
+<#TCR1-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCR1-RQ1-GET-LDPR-URI>;
+    tn:fromStep <#TCR1-RQ1-GET-LDPR-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title """<Response
  1 GET>""" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR3-A1-Response-1-GET> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCR3-O1-Response-1-GET>;
+<#TCR3-A1-Response-1-GET> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCR3-O1-Response-1-GET>;
     dc:description """
           
             [Status-Line].Status-Code = 404 or 410
@@ -976,14 +976,14 @@
           """;
     dc:title "GET incorrect" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR3-O1-Response-1-GET> a tn:TestOutput,
+<#TCR3-O1-Response-1-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCR3-RQ1-GET-LDPR-URI>;
+    tn:fromStep <#TCR3-RQ1-GET-LDPR-URI>;
     dc:description "The response of the GET request in step 1.";
     dc:title "<Response 1 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-A1-Response-1-DELETE> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCR6-O1-Response-1-DELETE>;
+<#TCR6-A1-Response-1-DELETE> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCR6-O1-Response-1-DELETE>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -992,8 +992,8 @@
         """;
     dc:title "DELETE correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-A2-Response-1-DELETE> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCR6-O1-Response-1-DELETE>;
+<#TCR6-A2-Response-1-DELETE> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCR6-O1-Response-1-DELETE>;
     dc:description """
           
             <Response 1 DELETE>.[Status-Line].Status-Code = 200 or 204 and <Response 2 GET>.[Status-Line].Status-Code = 404 or 410
@@ -1003,20 +1003,20 @@
         """;
     dc:title "DELETE resource correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-O1-Response-1-DELETE> a tn:TestOutput,
+<#TCR6-O1-Response-1-DELETE> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCR6-RQ1-DELETE-LDPR-URI>;
+    tn:fromStep <#TCR6-RQ1-DELETE-LDPR-URI>;
     dc:description "The response of the DELETE request in step 1.";
     dc:title "<Response 1 DELETE>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-O2-Response-2-GET> a tn:TestOutput,
+<#TCR6-O2-Response-2-GET> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCR6-RQ2-GET-LDPR-URI>;
+    tn:fromStep <#TCR6-RQ2-GET-LDPR-URI>;
     dc:description "The response of the GET request in step 2.";
     dc:title "<Response 2 GET>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR7-A1-Response-1-HEAD> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCR7-O1-Response-1-HEAD>;
+<#TCR7-A1-Response-1-HEAD> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCR7-O1-Response-1-HEAD>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx
@@ -1027,14 +1027,14 @@
         """;
     dc:title "HEAD correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR7-O1-Response-1-HEAD> a tn:TestOutput,
+<#TCR7-O1-Response-1-HEAD> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCR7-RQ1-HEAD-LDPR-URI>;
+    tn:fromStep <#TCR7-RQ1-HEAD-LDPR-URI>;
     dc:description "The response of the HEAD request in step 1.";
     dc:title "<Response 1 HEAD>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR8-A1-Response-1-OPTIONS> a tn:TestAssertion;
-    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/TCR8-O1-Response-1-OPTIONS>;
+<#TCR8-A1-Response-1-OPTIONS> a tn:TestAssertion;
+    tn:outputAsserted <https://dvcs.w3.org/hg/ldpwg/raw-file/b3683634c29f/Test%20Cases/TCR8-O1-Response-1-OPTIONS>;
     dc:description """
           
             [Status-Line].Status-Code = 2xx 
@@ -1043,44 +1043,44 @@
         """;
     dc:title "OPTIONS correct" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR8-RP1-Response-1-OPTIONS> a tn:TestOutput,
+<#TCR8-RP1-Response-1-OPTIONS> a tn:TestOutput,
         ht:Response;
-    tn:fromStep <http://www.w3.org/TR/ldp-test-cases/TCR8-RQ1-OPTIONS-LDPR-URI>;
+    tn:fromStep <#TCR8-RQ1-OPTIONS-LDPR-URI>;
     dc:description "The response of the OPTIONS request in step 1.";
     dc:title "<Response 1 OPTIONS>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-I1-LDPC-URI> a tn:TestInput;
+<#TCC1-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC1-RQ1-GET-LDPC-URI> a tn:Step,
+<#TCC1-RQ1-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC1-I1-LDPC-URI>;
+    tn:usesInput <#TCC1-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC10-I1-LDPC-URI> a tn:TestInput;
+<#TCC10-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC10-RQ1-OPTIONS-LDPC-URI> a tn:Step,
+<#TCC10-RQ1-OPTIONS-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC10-I1-LDPC-URI>;
+    tn:usesInput <#TCC10-I1-LDPC-URI>;
     dc:description """OPTIONS <LDPC URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-I2-LDPC2-REP> a tn:TestInput;
+<#TCC11-I2-LDPC2-REP> a tn:TestInput;
     dc:description "The representation of the nested LDPC to be created";
     dc:title "<LDPC2 representation>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-RQ1-GET-LDPC-URI> a tn:Step,
+<#TCC11-RQ1-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC11-I1-LDPC-URI>;
+    tn:usesInput <#TCC11-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-RQ2-POST-LDPC-URI> a tn:Step,
+<#TCC11-RQ2-POST-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC11-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC11-I2-LDPC2-REP>;
+    tn:usesInput <#TCC11-I1-LDPC-URI>,
+        <#TCC11-I2-LDPC2-REP>;
     dc:description """POST <LDPC URI>
               
                   [entity-header].Content-type = text/turtle
@@ -1089,28 +1089,28 @@
               
               """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-RQ3-GET-LDPC-URI> a tn:Step,
+<#TCC11-RQ3-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC11-I1-LDPC-URI>;
+    tn:usesInput <#TCC11-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-RQ4-GET-LOC-URI> a tn:Step,
+<#TCC11-RQ4-GET-LOC-URI> a tn:Step,
         ht:Request;
     dc:description "GET <Response 2 POST>.[response-header].Location (location of created sub-container)" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-I2-LDPC2-REP> a tn:TestInput;
+<#TCC12-I2-LDPC2-REP> a tn:TestInput;
     dc:description "The representation of the nested LDPC to be created";
     dc:title "<LDPC2 representation>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-RQ1-GET-LDPC-URI> a tn:Step,
+<#TCC12-RQ1-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC12-I1-LDPC-URI>;
+    tn:usesInput <#TCC12-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-RQ2-POST-LDPC-URI> a tn:Step,
+<#TCC12-RQ2-POST-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC12-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC12-I2-LDPC2-REP>;
+    tn:usesInput <#TCC12-I1-LDPC-URI>,
+        <#TCC12-I2-LDPC2-REP>;
     dc:description """POST <LDPC URI>
               
                   [entity-header].Content-type = text/turtle
@@ -1119,78 +1119,78 @@
               
               """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-RQ3-GET-LDPC-URI> a tn:Step,
+<#TCC12-RQ3-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC12-I1-LDPC-URI>;
+    tn:usesInput <#TCC12-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-RQ4-GET-LOC-URI> a tn:Step,
+<#TCC12-RQ4-GET-LOC-URI> a tn:Step,
         ht:Request;
     dc:description "GET <Response 2 POST>.[response-header].Location (location of archived container)" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC3-I1-LDPC-URI> a tn:TestInput;
+<#TCC3-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of a non-existing LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC3-RQ1-GET-LDPC-URI> a tn:Step,
+<#TCC3-RQ1-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC3-I1-LDPC-URI>;
+    tn:usesInput <#TCC3-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-RQ1-DELETE-LDPC-URI> a tn:Step,
+<#TCC6-RQ1-DELETE-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC6-I1-LDPC-URI>;
+    tn:usesInput <#TCC6-I1-LDPC-URI>;
     dc:description """DELETE <LDPC URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-RQ2-GET-LDPC-URI> a tn:Step,
+<#TCC6-RQ2-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC6-I1-LDPC-URI>;
+    tn:usesInput <#TCC6-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-I1-LDPC-URI> a tn:TestInput;
+<#TCC7-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-RQ1-DELETE-LDPR-URI> a tn:Step,
+<#TCC7-RQ1-DELETE-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC7-I2-LDPR-URI>;
+    tn:usesInput <#TCC7-I2-LDPR-URI>;
     dc:description """DELETE <LDPR URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-RQ2-GET-LDPR-URI> a tn:Step,
+<#TCC7-RQ2-GET-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC7-I2-LDPR-URI>;
+    tn:usesInput <#TCC7-I2-LDPR-URI>;
     dc:description "GET <LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-RQ3-GET-LDPC-URI> a tn:Step,
+<#TCC7-RQ3-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC7-I1-LDPC-URI>;
+    tn:usesInput <#TCC7-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC8-I1-LDPC-URI> a tn:TestInput;
+<#TCC8-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC8-RQ1-HEAD-LDPC-URI> a tn:Step,
+<#TCC8-RQ1-HEAD-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC8-I1-LDPC-URI>;
+    tn:usesInput <#TCC8-I1-LDPC-URI>;
     dc:description """HEAD <LDPC URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-I2-LDPR-REP> a tn:TestInput;
+<#TCC9-I2-LDPR-REP> a tn:TestInput;
     dc:description "The representation of the LDPR to be created";
     dc:title "<LDPR representation>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-RQ1-GET-LDPC-URI> a tn:Step,
+<#TCC9-RQ1-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC9-I1-LDPC-URI>;
+    tn:usesInput <#TCC9-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-RQ2-POST-LDPC-URI> a tn:Step,
+<#TCC9-RQ2-POST-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC9-I1-LDPC-URI>,
-        <http://www.w3.org/TR/ldp-test-cases/TCC9-I2-LDPR-REP>;
+    tn:usesInput <#TCC9-I1-LDPC-URI>,
+        <#TCC9-I2-LDPR-REP>;
     dc:description """POST <LDPC URI>
           
             [entity-header].Content-type = text/turtle
@@ -1198,91 +1198,91 @@
           
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-RQ3-GET-LDPC-URI> a tn:Step,
+<#TCC9-RQ3-GET-LDPC-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCC9-I1-LDPC-URI>;
+    tn:usesInput <#TCC9-I1-LDPC-URI>;
     dc:description "GET <LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-RQ4-GET-LOC-URI> a tn:Step,
+<#TCC9-RQ4-GET-LOC-URI> a tn:Step,
         ht:Request;
     dc:description "GET <Response 2 POST>.[response-header].Location" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR1-I1-LDPR-URI> a tn:TestInput;
+<#TCR1-I1-LDPR-URI> a tn:TestInput;
     dc:description "The URI of an LDPR.";
     dc:title "<LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR1-RQ1-GET-LDPR-URI> a tn:Step,
+<#TCR1-RQ1-GET-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCR1-I1-LDPR-URI>;
+    tn:usesInput <#TCR1-I1-LDPR-URI>;
     dc:description " GET <LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR3-I1-LDPR-URI> a tn:TestInput;
+<#TCR3-I1-LDPR-URI> a tn:TestInput;
     dc:description "The URI of a non-existing LDPR.";
     dc:title "<LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR3-RQ1-GET-LDPR-URI> a tn:Step,
+<#TCR3-RQ1-GET-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCR3-I1-LDPR-URI>;
+    tn:usesInput <#TCR3-I1-LDPR-URI>;
     dc:description "GET <LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-RQ1-DELETE-LDPR-URI> a tn:Step,
+<#TCR6-RQ1-DELETE-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCR6-I1-LDPR-URI>;
+    tn:usesInput <#TCR6-I1-LDPR-URI>;
     dc:description """DELETE <LDPR URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-RQ2-GET-LDPR-URI> a tn:Step,
+<#TCR6-RQ2-GET-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCR6-I1-LDPR-URI>;
+    tn:usesInput <#TCR6-I1-LDPR-URI>;
     dc:description "GET <LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR7-I1-LDPR-URI> a tn:TestInput;
+<#TCR7-I1-LDPR-URI> a tn:TestInput;
     dc:description "The URI of an LDPR.";
     dc:title "<LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR7-RQ1-HEAD-LDPR-URI> a tn:Step,
+<#TCR7-RQ1-HEAD-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCR7-I1-LDPR-URI>;
+    tn:usesInput <#TCR7-I1-LDPR-URI>;
     dc:description """HEAD <LDPR URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR8-I1-LDPR-URI> a tn:TestInput;
+<#TCR8-I1-LDPR-URI> a tn:TestInput;
     dc:description "The URI of an LDPR.";
     dc:title "<LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR8-RQ1-OPTIONS-LDPR-URI> a tn:Step,
+<#TCR8-RQ1-OPTIONS-LDPR-URI> a tn:Step,
         ht:Request;
-    tn:usesInput <http://www.w3.org/TR/ldp-test-cases/TCR8-I1-LDPR-URI>;
+    tn:usesInput <#TCR8-I1-LDPR-URI>;
     dc:description """OPTIONS <LDPR URI>
         """ .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC6-I1-LDPC-URI> a tn:TestInput;
+<#TCC6-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC7-I2-LDPR-URI> a tn:TestInput;
+<#TCC7-I2-LDPR-URI> a tn:TestInput;
     dc:description "The URI of an LDPR that is a member of the LDPC.";
     dc:title "<LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCR6-I1-LDPR-URI> a tn:TestInput;
+<#TCR6-I1-LDPR-URI> a tn:TestInput;
     dc:description "The URI of an LDPR.";
     dc:title "<LDPR URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC11-I1-LDPC-URI> a tn:TestInput;
+<#TCC11-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC12-I1-LDPC-URI> a tn:TestInput;
+<#TCC12-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
-<http://www.w3.org/TR/ldp-test-cases/TCC9-I1-LDPC-URI> a tn:TestInput;
+<#TCC9-I1-LDPC-URI> a tn:TestInput;
     dc:description "The URI of an LDPC.";
     dc:title "<LDPC URI>" .
 
 td:unreviewed a td:ReviewStatus .
 
-<http://www.w3.org/TR/ldp-test-cases/RaulGarciaCastro> a foaf:Person;
+<#RaulGarciaCastro> a foaf:Person;
     rdfs:label "Eric Prud'hommeaux",
         """Raúl 
 García-Castro""",
