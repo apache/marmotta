@@ -27,6 +27,9 @@ import org.openrdf.sail.memory.MemoryStore;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -71,21 +74,56 @@ public class LdpTestCasesUtils {
     }
 
     /**
-     * Add some normative namespaces
+     * Get normative namespaces
      *
-     * @param conn target connection
      * @throws IOException
      * @throws RepositoryException
      *
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/LDP%20Test%20Cases.html#h3_namespaces-used">Sec. 4.1 Namespaces used</a>
      */
-    public static void addNormativeNamespaces(RepositoryConnection conn) throws IOException, RepositoryException {
+    public static Map<String,String> getNormativeNamespaces() throws IOException {
         String path = LdpTestCases.FILES_PATH + "namespaces.properties";
+        Map<String,String> prefixes = new HashMap<>();
         Properties properties = new Properties();
         properties.load(LdpTestCasesUtils.class.getResourceAsStream(path));
         for(String key : properties.stringPropertyNames()) {
             String value = properties.getProperty(key);
-            conn.setNamespace(value, key);
+            prefixes.put(key, value);
+        }
+        return Collections.unmodifiableMap(prefixes);
+    }
+
+    /**
+     * Get normative namespaces with SPARQL syntax
+     *
+     * @throws IOException
+     */
+    public static String getNormativeNamespacesSparql() throws IOException {
+        StringBuffer sb = new StringBuffer();
+        Map<String, String> normativeNamespaces = getNormativeNamespaces();
+        for (Map.Entry<String, String> entry : normativeNamespaces.entrySet()) {
+            //PREFIX dc: <http://purl.org/dc/terms/>
+            sb.append("PREFIX ");
+            sb.append(entry.getKey());
+            sb.append(": <");
+            sb.append(entry.getValue());
+            sb.append("> \n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Add normative namespaces
+     *
+     * @param conn target connection
+     * @throws IOException
+     * @throws RepositoryException
+     */
+    public static void addNormativeNamespaces(RepositoryConnection conn) throws IOException, RepositoryException {
+        Map<String, String> normativeNamespaces = getNormativeNamespaces();
+        for (Map.Entry<String, String> entry : normativeNamespaces.entrySet()) {
+            conn.setNamespace(entry.getValue(), entry.getKey());
         }
     }
+
 }

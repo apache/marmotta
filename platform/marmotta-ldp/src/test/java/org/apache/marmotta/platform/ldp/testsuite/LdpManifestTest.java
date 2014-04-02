@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.ldp.testsuite;
 
 import org.junit.*;
 import org.openrdf.model.Statement;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -57,7 +58,7 @@ public class LdpManifestTest {
             conn.begin();
             //ValueFactory vf = conn.getValueFactory();
             Assert.assertFalse(conn.isEmpty());
-            RepositoryResult<Statement> statements = conn.getStatements(null, null, null, false);
+            RepositoryResult<Statement> statements = conn.getStatements(null, RDF.TYPE, conn.getValueFactory().createURI("http://www.w3.org/2006/03/test-description#", "TestCase"), false);
             Assert.assertTrue(statements.hasNext());
             statements.close();
             //TODO: check test cases are actually there

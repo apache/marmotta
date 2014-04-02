@@ -17,10 +17,8 @@
 
 package org.apache.marmotta.platform.ldp.testsuite;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
+import org.junit.runner.Runner;
+import org.junit.runners.Suite;
 import org.openrdf.model.URI;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
@@ -32,28 +30,24 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * LDP Test Cases Executor
+ * LDP Test Cases JUnit Runner
  *
  * @author Sergio Fernández
  */
-@RunWith(AllTests.class)
-public final class LdpTestCasesExecutor {
+public class LdpTestCasesRunner extends Suite {
 
-    private static Logger log = LoggerFactory.getLogger(LdpTestCasesExecutor.class);
+    private static Logger log = LoggerFactory.getLogger(LdpTestCasesRunner.class);
 
-    public static TestSuite suite() {
-        TestSuite suite = new TestSuite();
-        for (Test test : buildTestCasesFromManifest()) {
-            suite.addTest(test);
-        }
-        return suite;
+    public LdpTestCasesRunner(Class<?> klass) throws Throwable {
+        super(klass, buildTestCasesFromManifest());
     }
 
-    private static Collection<Test> buildTestCasesFromManifest() {
-        Collection<Test> tests = new ArrayList<>();
+    private static List<Runner> buildTestCasesFromManifest() {
+        List<Runner> runners = new ArrayList<>();
 
         try {
             Repository repo = LdpTestCasesUtils.loadData();
@@ -62,15 +56,7 @@ public final class LdpTestCasesExecutor {
                 conn.begin();
 
                 //TODO: this query is not final, it needs to evolve in parallel with the test cases
-                String testCasesQuery =
-                        "PREFIX dc: <http://purl.org/dc/terms/> \n" +
-                        "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \n" +
-                        "PREFIX ht: <http://www.w3.org/2011/http#> \n" +
-                        "PREFIX owl: <http://www.w3.org/2002/07/owl#> \n" +
-                        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
-                        "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
-                        "PREFIX td: <http://www.w3.org/2006/03/test-description#> \n" +
-                        "PREFIX tn: <http://ldp.example.org/NewTestDefinitions#> \n\n" +
+                String testCasesQuery = LdpTestCasesUtils.getNormativeNamespacesSparql() + "\n" +
                         "SELECT ?tc ?label \n" +
                         "WHERE { \n" +
                         "  ?tc a td:TestCase ; \n" +
@@ -82,33 +68,32 @@ public final class LdpTestCasesExecutor {
                     while (results.hasNext()) {
                         BindingSet bindings = results.next();
                         LdpTestCase testCase = new LdpTestCase((URI)bindings.getValue("tc"), bindings.getValue("label").stringValue());
-
-                        //TODO
-
-                        tests.add(testCase);
+                        //TODO: set more data to the test case
+                        runners.add(new LdpTestCaseRunner(testCase));
                     }
                 } finally {
                     results.close();
                 }
+                conn.commit();
             } catch (RepositoryException e) {
                 log.error("Error loading test cases: {}", e.getMessage(), e);
-                return tests;
+                return runners;
             } catch (QueryEvaluationException | MalformedQueryException e) {
                 log.error("Error performing test cases' query: {}", e.getMessage(), e);
-                return tests;
+                return runners;
             } finally {
-                conn.commit();
                 conn.close();
             }
         } catch (RDFParseException | IOException e) {
             log.error("Error loading test cases: {}", e.getMessage(), e);
-            return tests;
+            return runners;
         } catch (RepositoryException e) {
             log.error("Error connecting with the repository: {}", e.getMessage(), e);
-            return tests;
+            return runners;
         }
 
-        return tests;
+        log.info("Initialized LDP test suite with {} test cases", runners.size());
+        return runners;
     }
 
 }

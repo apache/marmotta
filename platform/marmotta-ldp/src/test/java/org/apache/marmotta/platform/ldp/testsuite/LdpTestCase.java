@@ -17,10 +17,11 @@
 
 package org.apache.marmotta.platform.ldp.testsuite;
 
-import junit.framework.TestCase;
 import org.openrdf.model.URI;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * LDP Test Case
@@ -28,7 +29,7 @@ import java.util.List;
  * @author Sergio Fernández
  * @see <a href="http://www.w3.org/TR/ldp-test-cases/#test-case-description">LDP Tests Cases</a>
  */
-public class LdpTestCase extends TestCase {
+public class LdpTestCase /* extends TestCase */ {
 
     /**
      * Test Case Uniform Resource Identifier
@@ -88,7 +89,7 @@ public class LdpTestCase extends TestCase {
     private URI testAssertion;
 
     public LdpTestCase(URI uri, String label) {
-        super(label);
+        //super(label);
         this.uri = uri;
         this.label = label;
     }
@@ -179,11 +180,6 @@ public class LdpTestCase extends TestCase {
 
     public void setTestAssertion(URI testAssertion) {
         this.testAssertion = testAssertion;
-    }
-
-    @Override
-    protected void runTest() throws Throwable {
-        assertEquals(label.substring(3), uri.getLocalName().substring(2));
     }
 
 }
