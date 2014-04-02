@@ -42,13 +42,14 @@ public class LdpTestCasesUtils {
     /**
      * Load test cases' data
      *
+     * @param path path to the manifest file
+     * @param format serialization format used in the manifest file
      * @return In-Memory repository with the data
      * @throws org.openrdf.rio.RDFParseException
      * @throws org.openrdf.repository.RepositoryException
      * @throws java.io.IOException
      */
-    public static Repository loadData() throws RDFParseException, RepositoryException, IOException {
-        String path = LdpTestCases.FILES_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
+    public static Repository loadData(String path, RDFFormat format) throws RDFParseException, RepositoryException, IOException {
         Repository repo = new SailRepository(new MemoryStore());
         repo.initialize();
         RepositoryConnection conn = repo.getConnection();

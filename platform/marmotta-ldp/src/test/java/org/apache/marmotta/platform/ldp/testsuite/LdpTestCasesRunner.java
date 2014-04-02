@@ -24,6 +24,7 @@ import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,9 @@ public class LdpTestCasesRunner extends Suite {
     private static List<Runner> buildTestCasesFromManifest() {
         List<Runner> runners = new ArrayList<>();
 
+        String path = LdpTestCases.FILES_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
         try {
-            Repository repo = LdpTestCasesUtils.loadData();
+            Repository repo = LdpTestCasesUtils.loadData(path, RDFFormat.TURTLE);
             RepositoryConnection conn = repo.getConnection();
             try {
                 conn.begin();

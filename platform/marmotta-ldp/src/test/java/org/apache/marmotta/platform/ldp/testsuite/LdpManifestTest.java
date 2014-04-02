@@ -24,6 +24,7 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
 import java.io.IOException;
@@ -39,7 +40,8 @@ public class LdpManifestTest {
 
     @Before
     public final void before() throws RepositoryException, RDFParseException, IOException {
-        repo = LdpTestCasesUtils.loadData();
+        String path = LdpTestCases.FILES_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
+        repo = LdpTestCasesUtils.loadData(path, RDFFormat.TURTLE);
         Assume.assumeNotNull(repo);
     }
 
