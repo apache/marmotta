@@ -162,7 +162,7 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <configuration>
                     <excludes>
-
+                        <exclude>src/test/resources/testsuite/LDP-Test-Cases-WD-*.ttl</exclude>
                     </excludes>
                 </configuration>
             </plugin>
