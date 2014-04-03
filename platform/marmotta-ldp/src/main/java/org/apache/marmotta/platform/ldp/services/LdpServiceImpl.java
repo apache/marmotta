@@ -130,7 +130,7 @@ public class LdpServiceImpl implements LdpService {
 
     @Override
     public boolean isNonRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException {
-        return connection.hasStatement(uri, RDF.TYPE, LDP.NonRdfResource, true, ldpContext);
+        return connection.hasStatement(uri, RDF.TYPE, LDP.NonRDFSource, true, ldpContext);
     }
 
 
@@ -172,7 +172,7 @@ public class LdpServiceImpl implements LdpService {
                     @Override
                     protected boolean accept(Statement statement) throws RepositoryException {
                         return statement.getObject() instanceof URI
-                                && connection.hasStatement((URI) statement.getObject(), RDF.TYPE, LDP.NonRdfResource, true, ldpContext);
+                                && connection.hasStatement((URI) statement.getObject(), RDF.TYPE, LDP.NonRDFSource, true, ldpContext);
                     }
                 };
         try {
@@ -293,7 +293,7 @@ public class LdpServiceImpl implements LdpService {
             connection.add(binaryResource, DCTERMS.created, now, ldpContext);
             connection.add(binaryResource, DCTERMS.modified, now, ldpContext);
             connection.add(binaryResource, RDF.TYPE, LDP.Resource, ldpContext);
-            connection.add(binaryResource, RDF.TYPE, LDP.NonRdfResource, ldpContext);
+            connection.add(binaryResource, RDF.TYPE, LDP.NonRDFSource, ldpContext);
 
             //extra triples
             //TODO: check conformance with 6.2.3.12

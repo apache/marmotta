@@ -241,13 +241,13 @@ public class LdpWebServiceTest {
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
-                        HeaderMatchers.isLink(LDP.NonRdfResource.stringValue(), "type"))
+                        HeaderMatchers.isLink(LDP.NonRDFSource.stringValue(), "type"))
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + newResource+".png",
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), RDF.TYPE, LDP.NonRdfResource),
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), RDF.TYPE, LDP.NonRDFSource),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.MODIFIED, null),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.IS_FORMAT_OF, new URIImpl(baseUrl + newResource))

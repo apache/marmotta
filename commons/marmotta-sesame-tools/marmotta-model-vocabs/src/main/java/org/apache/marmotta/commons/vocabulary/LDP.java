@@ -17,12 +17,11 @@
 package org.apache.marmotta.commons.vocabulary;
 
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
- * Namespace LDP
+ * LDP Namespace
  */
 public class LDP {
 
@@ -30,8 +29,6 @@ public class LDP {
 
     public static final String PREFIX = "ldp";
 
-    
-    
     public static final URI BasicContainer;
     public static final URI Container;
     public static final URI contains;
@@ -43,7 +40,7 @@ public class LDP {
     public static final URI member;
     public static final URI membershipResource;
     public static final URI MemberSubject;
-    public static final URI NonRdfResource;
+    public static final URI NonRDFSource;
     public static final URI PreferContainment;
     public static final URI PreferEmptyContainer;
     public static final URI PreferMembership;
@@ -51,25 +48,25 @@ public class LDP {
     public static final URI Resource;
 
     static {
+        //TODO: check missing terms in the vocab
         ValueFactory factory = ValueFactoryImpl.getInstance();
-        BasicContainer = factory.createURI(LDP.NAMESPACE, "BasicContainer"); //TODO: missing term in the vocab
-        Container = factory.createURI(LDP.NAMESPACE, "Container"); //TODO: missing term in the vocab
-        contains = factory.createURI(LDP.NAMESPACE, "contains"); //TODO: missing term in the vocab
-        DirectContainer = factory.createURI(LDP.NAMESPACE, "DirectContainer"); //TODO: missing term in the vocab
-        hasMemberRelation = factory.createURI(LDP.NAMESPACE, "hasMemberRelation"); //TODO: missing term in the vocab
-        IndirectContainer = factory.createURI(LDP.NAMESPACE, "IndirectContainer"); //TODO: missing term in the vocab
-        insertedContentRelation = factory.createURI(LDP.NAMESPACE, "insertedContentRelation"); //TODO: missing term in the vocab
-        isMemberOfRelation = factory.createURI(LDP.NAMESPACE, "isMemberOfRelation"); //TODO: missing term in the vocab
-        member = factory.createURI(LDP.NAMESPACE, "member"); //TODO: missing term in the vocab
-        membershipResource = factory.createURI(LDP.NAMESPACE, "membershipResource"); //TODO: missing term in the vocab
-        MemberSubject = factory.createURI(LDP.NAMESPACE, "MemberSubject"); //TODO: missing term in the vocab
-        NonRdfResource = factory.createURI(LDP.NAMESPACE, "NonRdfResource"); //TODO: missing term in the vocab
-        PreferContainment = factory.createURI(LDP.NAMESPACE, "PreferContainment"); //TODO: missing term in the vocab
-        PreferEmptyContainer = factory.createURI(LDP.NAMESPACE, "PreferEmptyContainer"); //TODO: missing term in the vocab
-        PreferMembership = factory.createURI(LDP.NAMESPACE, "PreferMembership"); //TODO: missing term in the vocab
-        RDFSource = factory.createURI(LDP.NAMESPACE, "RDFSource"); //TODO: missing term in the vocab
-        Resource = factory.createURI(LDP.NAMESPACE, "Resource"); //TODO: missing term in the vocab
-
+        BasicContainer = factory.createURI(LDP.NAMESPACE, "BasicContainer");
+        Container = factory.createURI(LDP.NAMESPACE, "Container");
+        contains = factory.createURI(LDP.NAMESPACE, "contains");
+        DirectContainer = factory.createURI(LDP.NAMESPACE, "DirectContainer");
+        hasMemberRelation = factory.createURI(LDP.NAMESPACE, "hasMemberRelation");
+        IndirectContainer = factory.createURI(LDP.NAMESPACE, "IndirectContainer");
+        insertedContentRelation = factory.createURI(LDP.NAMESPACE, "insertedContentRelation");
+        isMemberOfRelation = factory.createURI(LDP.NAMESPACE, "isMemberOfRelation");
+        member = factory.createURI(LDP.NAMESPACE, "member");
+        membershipResource = factory.createURI(LDP.NAMESPACE, "membershipResource");
+        MemberSubject = factory.createURI(LDP.NAMESPACE, "MemberSubject");
+        NonRDFSource = factory.createURI(LDP.NAMESPACE, "NonRDFSource");
+        PreferContainment = factory.createURI(LDP.NAMESPACE, "PreferContainment");
+        PreferEmptyContainer = factory.createURI(LDP.NAMESPACE, "PreferEmptyContainer");
+        PreferMembership = factory.createURI(LDP.NAMESPACE, "PreferMembership");
+        RDFSource = factory.createURI(LDP.NAMESPACE, "RDFSource");
+        Resource = factory.createURI(LDP.NAMESPACE, "Resource");
     }
 
 }
