@@ -17,12 +17,7 @@
  */
 package org.apache.marmotta.commons.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.security.DigestInputStream;
@@ -100,6 +95,7 @@ public class HashUtils {
     public static final String sha512(byte[] bytes) {
         return calcHash(bytes, "SHA-512");
     }
+
     private static String calcHash(String string, String algorithm) {
         try {
             return calcHash(string.getBytes("UTF-8"), algorithm);

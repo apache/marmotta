@@ -42,7 +42,7 @@ import java.util.HashMap;
  */
 public abstract class AbstractMarmotta {
 
-    protected static Logger log = LoggerFactory.getLogger(EmbeddedMarmotta.class);
+    protected static Logger log = LoggerFactory.getLogger(AbstractMarmotta.class);
 
     protected Weld weld;
     protected WeldContainer container;

@@ -35,16 +35,6 @@
     </description>
 
     <build>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-            <resource>
-                <directory>src/test/resources</directory>
-            </resource>
-        </resources>
-
         <pluginManagement>
             <plugins>
                 <plugin> <!-- generate JRebel Configuration -->

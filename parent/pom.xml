@@ -104,6 +104,7 @@
                     <configuration>
                         <source>1.7</source>
                         <target>1.7</target>
+                        <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -560,6 +561,11 @@
                     <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>gmaven-plugin</artifactId>
                     <version>1.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.googlecode.maven-download-plugin</groupId>
+                    <artifactId>maven-download-plugin</artifactId>
+                    <version>1.1.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1424,6 +1430,21 @@
             <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>marmotta-util-facading</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>marmotta-util-rdfpatch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>marmotta-model-vocabs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.marmotta</groupId>
+                <artifactId>marmotta-sesame-matchers</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -62,6 +62,10 @@
             <artifactId>sesame-query</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-queryparser-api</artifactId>
             <scope>test</scope>

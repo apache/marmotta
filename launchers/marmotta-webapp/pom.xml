@@ -199,6 +199,17 @@
 
     <profiles>
 
+        <profile>
+            <id>experimental</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-ldp</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
         <!-- backend profiles -->
         
         <profile>

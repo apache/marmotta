@@ -28,6 +28,7 @@ import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.core.webservices.CoreApplication;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
@@ -129,10 +130,10 @@ public class JettyMarmotta extends AbstractMarmotta {
 
         // if a single web service is given, only register that webservice, otherwise startup the default configuration
         //FilterHolder restEasyFilter = new FilterHolder(org.jboss.resteasy.plugins.server.servlet.FilterDispatcher.class);
-        ServletHolder restEasyFilter  = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
+        ServletHolder restEasyFilter = new ServletHolder(org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher.class);
         restEasyFilter.setInitParameter("resteasy.injector.factory", TestInjectorFactory.class.getCanonicalName());
 
-        if(webservices != null) {
+        if (webservices != null) {
             TestApplication.setTestedWebServices(webservices);
             //restEasyFilter.setInitParameter("resteasy.resources", webservice.getName());
             restEasyFilter.setInitParameter("javax.ws.rs.Application", TestApplication.class.getCanonicalName());
@@ -143,10 +144,8 @@ public class JettyMarmotta extends AbstractMarmotta {
         //ctx.addFilter(restEasyFilter,"/*", Handler.ALL);
         ctx.addServlet(restEasyFilter, "/*");
 
-
-
         try {
-            jetty.start(); 
+            jetty.start();
             String url = "http://localhost:" + this.port + this.context + "/";
             startupService.startupHost(url, url);
         } catch (Exception e) {
@@ -176,47 +175,47 @@ public class JettyMarmotta extends AbstractMarmotta {
         try {
             jetty.stop();
         } catch (Exception e) {
-            log.error("could not shutdown embedded jetty server" ,e);
+            log.error("could not shutdown embedded jetty server", e);
         }
         super.shutdown();
     }
-    
+
     public int getPort() {
-		return port;
-	}
+        return port;
+    }
 
-	public String getContext() {
-		return context;
-	}
-	
-	public static int getRandomPort() {
-		Random ran = new Random();
-	    int port = 0;
-	    do {
-	    	port = ran.nextInt(2000) + 8000;
-	    } while (!isPortAvailable(port));
+    public String getContext() {
+        return context;
+    }
 
-	    return port;
-	}
-	
-	public static boolean isPortAvailable(final int port) {
-	    ServerSocket ss = null;
-	    try {
-	        ss = new ServerSocket(port);
-	        ss.setReuseAddress(true);
-	        return true;
-	    } catch (final IOException e) {
-	    	
-	    } finally {
-	        if (ss != null) {
-	            try {
-					ss.close();
-				} catch (IOException e) {
-					
-				}
-	        }
-	    }
-	    return false;
-	}
+    public static int getRandomPort() {
+        Random ran = new Random();
+        int port = 0;
+        do {
+            port = ran.nextInt(2000) + 8000;
+        } while (!isPortAvailable(port));
+
+        return port;
+    }
+
+    public static boolean isPortAvailable(final int port) {
+        ServerSocket ss = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            return true;
+        } catch (final IOException e) {
+
+        } finally {
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return false;
+    }
 
 }

@@ -1,0 +1,221 @@
+/*
+ * Copyright (c) 2013 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+ options
+{
+  STATIC=false;
+  LOOKAHEAD=1;
+  CACHE_TOKENS=true;
+//  FORCE_LA_CHECK=true;
+//  CHOICE_AMBIGUITY_CHECK=5;
+  //LOOKAHEAD=2147483647;
+  //DEBUG_PARSER=true;
+  //DEBUG_TOKEN_MANAGER=true;
+  //DEBUG_LOOKAHEAD=true;
+}
+
+PARSER_BEGIN(RdfPatchParserImpl)
+package org.apache.marmotta.platform.ldp.patch.parser;
+
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
+import org.openrdf.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.rio.turtle.TurtleUtil;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+public class RdfPatchParserImpl implements RdfPatchParser {
+
+    private HashMap<String, String> namespaces = new HashMap<String, String>();
+    private ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+
+    public RdfPatchParserImpl(ValueFactory vf, InputStream is) {
+        this(is);
+        this.valueFactory = vf;
+    }
+
+    public RdfPatchParserImpl(ValueFactory vf, InputStream is, String enc) {
+        this(is, enc);
+        this.valueFactory = vf;
+    }
+
+    @Override
+    public void setValueFactory(ValueFactory vf) {
+        if (vf == null) throw new IllegalArgumentException("ValueFactory must not be null");
+        this.valueFactory = vf;
+    }
+
+    @Override
+    public ValueFactory getValueFactory() {
+        return this.valueFactory;
+    }
+
+
+    private URI createURI(String uri) {
+        return this.valueFactory.createURI(unwrapUri(uri));
+    }
+
+    private URI createURI(String prefix, String local) {
+        return this.valueFactory.createURI(namespaces.get(prefix)+local);
+    }
+
+    private URI createURIfromQname(String qname) {
+        final String[] split = qname.split(":", 2);
+        return createURI(split[0], split[1]);
+    }
+
+    private BNode createBNode(String id) {
+        return this.valueFactory.createBNode(id);
+    }
+
+    private Literal createLiteral(String value, String lang, URI type) throws ParseException {
+        try {
+            value = TurtleUtil.decodeString(value.substring(1, value.length() - 1));
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e.getMessage());
+        }
+        if (lang != null) {
+            return this.valueFactory.createLiteral(value, lang);
+        } else if (type != null) {
+            return this.valueFactory.createLiteral(value, type);
+        } else {
+            return this.valueFactory.createLiteral(value);
+        }
+    }
+
+    private Literal createLongLiteral(String value, String lang, URI type) throws ParseException {
+        value = value.substring(2, value.length() - 2);
+        return createLiteral(value, lang, type);
+    }
+
+    private String unwrapUri(String uri) {
+        if (uri.startsWith("<")) {
+            uri = uri.substring(1);
+        }
+        if (uri.endsWith(">")) {
+            uri = uri.substring(0, uri.length()-1);
+        }
+        return uri;
+    }
+
+}
+PARSER_END(RdfPatchParserImpl)
+
+SKIP : {
+ 	" "
+|	"\r"
+|	"\t"
+|	"\n"
+}
+
+MORE: {
+ "\"\"\"" : WithinLongString |
+ "\"" : WithinString
+}
+
+<WithinString> TOKEN: {
+  <STRLIT: (~["\\"])"\""> : DEFAULT
+}
+
+<WithinLongString> TOKEN: {
+  <STRLONGLIT: (~["\\"]) "\"\"\""> : DEFAULT
+}
+
+
+<WithinString> MORE: {
+  <~["\n","\r"]>
+}
+
+<WithinLongString> MORE: {
+  <~[]>
+}
+
+TOKEN : {
+  < OP:        ["A","D"] > |
+  < REPEAT:    "R" >  |
+  < UNDEFINED: "U" >  |
+  < PREFIX:    "@prefix" > |
+  < DOT:       "." >  |
+  < COLON:     ":" >  |
+  < IDENT:     ["a"-"z","A"-"Z","0"-"9","_"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])* > |
+  < URI:       "<" (~[ ">","<", "\"", "{", "}", "^", "\\", "|", "`", "\u0000"-"\u0020"])+ ">" > |
+  < BNODE:     "_:" <IDENT> > |
+  < QNAME:     (["a"-"z","A"-"Z","0"-"9"](["a"-"z","A"-"Z","0"-"9","_","'","-", "."])*)? <COLON> <IDENT> > |
+  < LANG:      "@" >  |
+  < TYPE:      "^^" >
+}
+
+SPECIAL_TOKEN : {
+  <COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+
+
+public List<PatchLine> parsePatch() : {
+    Token id, prefix, op;
+    Statement statement;
+    LinkedList<PatchLine> diff = new LinkedList<PatchLine>();
+    namespaces.clear();
+}
+{
+    ( <PREFIX> id = <IDENT> <COLON> prefix = <URI> <DOT> { namespaces.put(id.image, unwrapUri(prefix.image));} )*
+    (
+      op = <OP> statement = parseStatement() <DOT> { diff.add(new PatchLine(PatchLine.Operator.fromCommand(op.image), statement)); }
+    )*
+    <EOF>
+    {
+        return diff;
+    }
+}
+
+private Statement parseStatement() : {
+    Token t1 = null;
+    Token lVal = null, lLang = null;
+    Resource subject;
+    URI predicate, type = null;
+    Value object;
+}
+{
+    ( subject = parseURI() |
+        t1 = <BNODE> { subject = createBNode(t1.image.substring(2)); } |
+        <REPEAT> { subject = null; }
+    )
+    ( predicate = parseURI() |
+        <REPEAT> { predicate = null; }
+    )
+    ( object = parseURI() |
+        t1 = <BNODE> { object = createBNode(t1.image.substring(2)); } |
+        lVal = <STRLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseURI())? {
+            object = createLiteral(lVal.image, lLang!=null?lLang.image:null, type);
+        } |
+        lVal = <STRLONGLIT> (<LANG> lLang = <IDENT>)? (<TYPE> type = parseURI())? {
+            object = createLongLiteral(lVal.image, lLang!=null?lLang.image:null, type);
+        } |
+        <REPEAT> { object = null; }
+    )
+    { return new WildcardStatement(subject, predicate, object); }
+}
+
+private URI parseURI() : {
+    Token u;
+}
+{
+    u = <URI> { return createURI(u.image); } |
+    u = <QNAME> { return createURIfromQname(u.image); }
+}

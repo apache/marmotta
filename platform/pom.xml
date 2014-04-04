@@ -87,5 +87,14 @@
 
     </modules>
 
+    <profiles>
+        <!-- experimental modules -->
+        <profile>
+            <id>experimental</id>
+            <modules>
+                <module>marmotta-ldp</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

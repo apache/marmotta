@@ -64,15 +64,18 @@
 
 
     <modules>
+        <module>marmotta-model-vocabs</module>
         <module>marmotta-rio-api</module>
         <module>marmotta-rio-ical</module>
         <module>marmotta-rio-rss</module>
         <module>marmotta-rio-vcard</module>
         <module>marmotta-sail-contextaware</module>
         <module>marmotta-sail-transactions</module>
+        <module>marmotta-sesame-matchers</module>
         <module>marmotta-util-facading</module>
         <module>marmotta-util-filter</module>
         <module>marmotta-util-tripletable</module>
+        <module>marmotta-util-rdfpatch</module>
     </modules>
 
 </project>
