@@ -45,7 +45,7 @@ public class LdpTestCases {
 
     public final static String BASE = "http://www.w3.org/TR/ldp-test-cases/";
 
-    public final static String MANIFEST_CACHE = "LDP-Test-Cases-WD-20140402";
+    public final static String MANIFEST_CACHE = "LDP-Test-Cases-WD-live";
 
     private static Logger log = LoggerFactory.getLogger(LdpTestCases.class);
 

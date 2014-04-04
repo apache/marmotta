@@ -248,7 +248,6 @@
                     <plugin>
                         <groupId>com.googlecode.maven-download-plugin</groupId>
                         <artifactId>maven-download-plugin</artifactId>
-                        <version>1.1.0</version>
                         <executions>
                             <execution>
                                 <id>download-tomcat</id>
