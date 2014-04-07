@@ -56,4 +56,17 @@ public class KiWiRepositoryConnectionTest extends RepositoryConnectionTest {
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
+
+    @Ignore("KiWi supports transaction isolation")
+    @Test
+    @Override
+    public void testReadOfAddedStatement1() throws Exception {
+    }
+
+    @Ignore("KiWi supports transaction isolation")
+    @Test
+    @Override
+    public void testReadOfAddedStatement2() throws Exception {
+    }
+
 }

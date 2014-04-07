@@ -36,7 +36,7 @@
     <url>http://marmotta.apache.org</url>
 
     <properties>
-        <sesame.version>2.7.10</sesame.version>
+        <sesame.version>2.7.11</sesame.version>
         <junit.version>4.11</junit.version>
         <weld.version>2.1.Final</weld.version>
         <weld.core.version>2.1.2.Final</weld.core.version>
