@@ -83,7 +83,7 @@ public class LdpTestCasesUtils {
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/Test%20Cases/LDP%20Test%20Cases.html#h3_namespaces-used">Sec. 4.1 Namespaces used</a>
      */
     public static Map<String,String> getNormativeNamespaces() throws IOException {
-        String path = LdpTestCases.FILES_PATH + "namespaces.properties";
+        String path = LdpTestCases.ROOT_PATH + "namespaces.properties";
         Map<String,String> prefixes = new HashMap<>();
         Properties properties = new Properties();
         properties.load(LdpTestCasesUtils.class.getResourceAsStream(path));

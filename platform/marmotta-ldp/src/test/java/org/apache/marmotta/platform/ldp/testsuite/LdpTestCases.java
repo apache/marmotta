@@ -18,7 +18,6 @@
 package org.apache.marmotta.platform.ldp.testsuite;
 
 import com.jayway.restassured.RestAssured;
-import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
@@ -41,7 +40,7 @@ import java.net.URISyntaxException;
 @RunWith(LdpTestCasesRunner.class)
 public class LdpTestCases {
 
-    public final static String FILES_PATH = "/testsuite/";
+    public final static String ROOT_PATH = "/testsuite/";
 
     public final static String BASE = "http://www.w3.org/TR/ldp-test-cases/";
 
@@ -53,8 +52,6 @@ public class LdpTestCases {
 
     private static String baseUrl;
 
-    private static String testResourceTTL;
-
     @BeforeClass
     public static void setup() throws MarmottaImportException, URISyntaxException, IOException {
         marmotta = new JettyMarmotta("/marmotta", LdpWebService.class);
@@ -62,9 +59,6 @@ public class LdpTestCases {
         RestAssured.port = marmotta.getPort();
         RestAssured.basePath = marmotta.getContext();
         baseUrl = UriBuilder.fromUri("http://localhost").port(marmotta.getPort()).path(marmotta.getContext()).build().toString();
-
-        //initialization
-        testResourceTTL = IOUtils.toString(LdpTestCases.class.getResourceAsStream("/test.ttl"), "utf8");
     }
 
     @Before
@@ -81,7 +75,6 @@ public class LdpTestCases {
     public static void shutdown() {
         //marmotta.shutdown();
         marmotta = null;
-        testResourceTTL = null;
     }
 
 }

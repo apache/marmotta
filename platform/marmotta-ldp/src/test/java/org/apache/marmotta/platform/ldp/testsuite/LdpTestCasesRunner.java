@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class LdpTestCasesRunner extends Suite {
     private static List<Runner> buildTestCasesFromManifest() {
         List<Runner> runners = new ArrayList<>();
 
-        String path = LdpTestCases.FILES_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
+        String path = LdpTestCases.ROOT_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
         try {
             Repository repo = LdpTestCasesUtils.loadData(path, RDFFormat.TURTLE);
             RepositoryConnection conn = repo.getConnection();

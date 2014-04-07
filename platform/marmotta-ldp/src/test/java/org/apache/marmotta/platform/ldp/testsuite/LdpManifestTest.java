@@ -40,7 +40,7 @@ public class LdpManifestTest {
 
     @Before
     public final void before() throws RepositoryException, RDFParseException, IOException {
-        String path = LdpTestCases.FILES_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
+        String path = LdpTestCases.ROOT_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
         repo = LdpTestCasesUtils.loadData(path, RDFFormat.TURTLE);
         Assume.assumeNotNull(repo);
     }
