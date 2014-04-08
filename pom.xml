@@ -196,6 +196,9 @@
                     <!-- the profiles to run for the release -->
                     <arguments>-Pinstaller,marmotta-release,sign,kiwi ${arguments}</arguments>
 
+                    <!-- make sure all dependencies are available -->
+                    <preparationGoals>clean install</preparationGoals>
+
 		    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
