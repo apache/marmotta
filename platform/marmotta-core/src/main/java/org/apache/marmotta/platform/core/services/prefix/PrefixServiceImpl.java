@@ -38,9 +38,8 @@ import com.google.common.collect.HashBiMap;
 
 /**
  * Prefix Manager default implementation
- * 
+ *
  * @author Sergio Fernández
- * 
  */
 @ApplicationScoped
 public class PrefixServiceImpl implements PrefixService {
@@ -51,7 +50,7 @@ public class PrefixServiceImpl implements PrefixService {
     private Logger log;
 
     @Inject
-    private ConfigurationService  configurationService;
+    private ConfigurationService configurationService;
 
     private BiMap<String, String> cache;
 
@@ -127,17 +126,17 @@ public class PrefixServiceImpl implements PrefixService {
     public Map<String, String> getMappings() {
         return Collections.unmodifiableMap(cache);
     }
-    
-	@Override
-	public boolean remove(String prefix) {
-		if (cache.containsKey(prefix)) {
-			cache.remove(prefix);
-			configurationService.removeConfiguration(CONFIGURATION_PREFIX + "." + prefix);
-			return true;
-		} else {
-			return false;
-		}
-	}
+
+    @Override
+    public boolean remove(String prefix) {
+        if (cache.containsKey(prefix)) {
+            cache.remove(prefix);
+            configurationService.removeConfiguration(CONFIGURATION_PREFIX + "." + prefix);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public boolean containsPrefix(String prefix) {
@@ -180,8 +179,9 @@ public class PrefixServiceImpl implements PrefixService {
     public String serializePrefixMapping() {
         StringBuffer sb = new StringBuffer();
         for (Map.Entry<String, String> mapping : cache.entrySet()) {
-            sb.append("\n").append(mapping.getKey()).append(": ").append(mapping.getValue()).append(" ");
+            sb.append(mapping.getKey()).append(": ").append(mapping.getValue()).append("\n");
         }
+        sb.setLength(sb.length() - 1);
         return sb.toString();
     }
 

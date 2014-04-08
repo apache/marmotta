@@ -45,14 +45,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Template Service Implementation
- * 
+ *
  * @author Sergio Fernández
  */
 @ApplicationScoped
 public class TemplatingServiceImpl implements TemplatingService {
-	
-	private Map<String,String> common; 
-	
+
+    private Map<String, String> common;
+
     @Inject
     private ConfigurationService configurationService;
 
@@ -63,13 +63,13 @@ public class TemplatingServiceImpl implements TemplatingService {
 
     private File templateDir;
 
-	public TemplatingServiceImpl() {
-		super();
-		common = new HashMap<String,String>();
-	}
+    public TemplatingServiceImpl() {
+        super();
+        common = new HashMap<String, String>();
+    }
 
-	@PostConstruct
-	public void initDataModel() {
+    @PostConstruct
+    public void initDataModel() {
         Preconditions.checkState(startupService.isHostStarted());
 
         String project = configurationService.getStringConfiguration("kiwi.pages.project", DEFAULT_PROJECT);
@@ -77,34 +77,35 @@ public class TemplatingServiceImpl implements TemplatingService {
         common.put("DEFAULT_STYLE", configurationService.getStringConfiguration("kiwi.pages.style_path", DEFAULT_STYLE));
         common.put("SERVER_URL", configurationService.getServerUri());
         common.put("BASIC_URL", configurationService.getBaseUri());
-        common.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo", project+".png"));
-        common.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer", "(footer not properly configured for project "+project+")"));
+        common.put("LOGO", configurationService.getStringConfiguration("kiwi.pages.project." + project + ".logo", project + ".png"));
+        common.put("FOOTER", configurationService.getStringConfiguration("kiwi.pages.project." + project + ".footer", "(footer not properly configured for project " + project + ")"));
 
         templateDir = new File(configurationService.getHome(), TemplatingService.PATH);
 
         if (!templateDir.exists()) templateDir.mkdirs();
 
-	}
+    }
 
     private void loadTemplateFromClasspath(String templateName, Class<?> clazz) {
         final String src = TemplatingService.PATH + templateName;
-        final File dT = new File(templateDir, templateName);
-        if (!dT.exists()) {
+        final File tpl = new File(templateDir, templateName);
+        if (!tpl.exists()) {
             try {
                 log.info("template {} not found in {}, copying fallback...", templateName, templateDir.getAbsolutePath());
-                final InputStream str = clazz.getResourceAsStream(src);
-                if (str == null) {
+                final InputStream in = clazz.getResourceAsStream(src);
+                if (in == null) {
                     throw new IOException("Resource " + src + " not found in ClassLoader (" + clazz + ")");
                 }
-                FileUtils.copyInputStreamToFile(str, dT);
+                FileUtils.copyInputStreamToFile(in, tpl);
             } catch (IOException e) {
                 log.error("Could not load template from classpath, templating might react weird!", e);
             }
         }
     }
-    
+
     /**
      * Update the data model in case an important value has changed
+     *
      * @param event
      */
     public void configurationChangedEvent(@Observes ConfigurationChangedEvent event) {
@@ -115,14 +116,14 @@ public class TemplatingServiceImpl implements TemplatingService {
             initDataModel();
         }
     }
-	
-	@Override
-    public  Configuration getConfiguration() {
+
+    @Override
+    public Configuration getConfiguration() {
         return getConfiguration(TemplatingServiceImpl.class);
     }
 
-	@Override
-    public  Configuration getConfiguration(Class<?> cls) {
+    @Override
+    public Configuration getConfiguration(Class<?> cls) {
         Configuration cfg = new Configuration();
         cfg.setDefaultEncoding("utf-8");
         cfg.setURLEscapingCharset("utf-8");
@@ -136,52 +137,51 @@ public class TemplatingServiceImpl implements TemplatingService {
     }
 
 
-
     @Override
     public Template getTemplate(String name) throws IOException {
         // make sure template exists
         loadTemplateFromClasspath(name, TemplatingServiceImpl.class);
-        
+
         return getConfiguration().getTemplate(name);
     }
-	
+
     @Override
     public Template getTemplate(Class<?> cls, String name) throws IOException {
         // make sure template exists
         loadTemplateFromClasspath(name, cls);
-        
+
         return getConfiguration(cls).getTemplate(name);
     }
-	
-	@Override
-	public String process(String name) throws IOException, TemplateException {
-		return process(name, new HashMap<String, Object>());
-	}
 
-	@Override
-	public String process(String name, Map<String, Object> data) throws IOException, TemplateException {
+    @Override
+    public String process(String name) throws IOException, TemplateException {
+        return process(name, new HashMap<String, Object>());
+    }
+
+    @Override
+    public String process(String name, Map<String, Object> data) throws IOException, TemplateException {
         OutputStream os = new ByteArrayOutputStream();
         Writer writer = new BufferedWriter(new OutputStreamWriter(os));
         process(name, data, writer);
         return os.toString();
-	}
+    }
 
-	@Override
-	public void process(String name, Writer writer) throws IOException, TemplateException {
-		process(name, new HashMap<String, Object>(), writer);
-	}
+    @Override
+    public void process(String name, Writer writer) throws IOException, TemplateException {
+        process(name, new HashMap<String, Object>(), writer);
+    }
 
-	@Override
-	public void process(String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException {
-		process(TemplatingServiceImpl.class, name, data, writer);
-	}
+    @Override
+    public void process(String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException {
+        process(TemplatingServiceImpl.class, name, data, writer);
+    }
 
-	@Override
-	public void process(Class<?> cls, String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException {
+    @Override
+    public void process(Class<?> cls, String name, Map<String, Object> data, Writer writer) throws IOException, TemplateException {
         Template tpl = getTemplate(cls, name);
         data.putAll(common);
         tpl.process(data, writer);
         writer.flush();
-	}
-    
+    }
+
 }

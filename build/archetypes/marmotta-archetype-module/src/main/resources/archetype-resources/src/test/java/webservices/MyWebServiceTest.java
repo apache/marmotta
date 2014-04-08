@@ -73,19 +73,21 @@ public class MyWebServiceTest {
     }
 
     @Test
-    @Ignore
     public void testNonAsciiHello() {
+        /*
+         * GET ?name=<xxx>
+         */
         RestAssured.given()
-                .contentType(ContentType.HTML)
                 .param("name", "Jürgen")
-                .expect()
+            .expect()
+                .contentType(ContentType.TEXT)
                 .content(containsString("Hello Jürgen"))
-                .when()
+            .when()
                 .get("/${moduleKey}");
 
         RestAssured.expect()
                 .statusCode(400)
-                .when()
+            .when()
                 .get("/${moduleKey}");
     }
 
@@ -97,19 +99,19 @@ public class MyWebServiceTest {
         RestAssured.given()
                 .param("turns", 1)
             .expect()
-                .statusCode(200)
+                .statusCode(204)
             .when()
                 .post("/${moduleKey}");
 
         RestAssured.given()
                 .param("turns", 10)
             .expect()
-                .statusCode(200)
+                .statusCode(204)
             .when()
                 .post("/${moduleKey}");
 
         RestAssured.expect()
-                .statusCode(200)
+                .statusCode(204)
             .when()
                 .post("/${moduleKey}");
 

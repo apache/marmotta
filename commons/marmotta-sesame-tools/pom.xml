@@ -56,6 +56,8 @@
                         <exclude>marmotta-rio-*/**</exclude>
                         <exclude>marmotta-sail-*/**</exclude>
                         <exclude>marmotta-util-*/**</exclude>
+                        <exclude>marmotta-model-vocabs/**</exclude>
+                        <exclude>marmotta-sesame-matchers/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -24,8 +24,8 @@
             <contains>var _SERVER_URL</contains>
         </file>
         <file>
-            <location>config.json</location>
-            <contains>\Q"kiwi.version":{"value":"${marmottaVersion}"\E</contains>
+            <location>kiwi-version.json</location>
+            <contains>^\Q{"kiwi.version":"${marmottaVersion}"}\E$</contains>
         </file>
     </files>
 </verifications>

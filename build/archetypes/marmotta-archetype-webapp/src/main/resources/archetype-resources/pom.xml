@@ -108,8 +108,9 @@
                         <systemProperties>
                             <marmotta.home>\${marmotta.home}</marmotta.home>
                         </systemProperties>
-                        <!--                         <contextReloadable>true</contextReloadable> -->
-                        <!--                         <backgroundProcessorDelay>10</backgroundProcessorDelay> -->
+                        <skipErrorOnShutdown>true</skipErrorOnShutdown>
+                        <!-- <contextReloadable>true</contextReloadable> -->
+                        <!-- <backgroundProcessorDelay>10</backgroundProcessorDelay> -->
                     </configuration>
                 </plugin>
             </plugins>
@@ -136,7 +137,10 @@
                     <execution>
                         <id>tomcat-run</id>
                         <phase>pre-integration-test</phase>
-                        <goals><goal>run-war-only</goal></goals>
+                        <goals>
+                            <goal>shutdown</goal>
+                            <goal>run-war-only</goal>
+                        </goals>
                         <configuration>
                             <fork>true</fork>
                         </configuration>
@@ -173,8 +177,8 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <url>http://localhost:\${marmotta.port}\${marmotta.context}config/list</url>
-                            <outputFileName>config.json</outputFileName>
+                            <url>http://localhost:\${marmotta.port}\${marmotta.context}config/data/kiwi.version</url>
+                            <outputFileName>kiwi-version.json</outputFileName>
                             <outputDirectory>\${project.build.directory}/it/</outputDirectory>
                             <skipCache>true</skipCache>
                         </configuration>
@@ -187,7 +191,7 @@
                 <executions>
                     <execution>
                         <id>check-files</id>
-                        <phase>integration-test</phase>
+                        <phase>verify</phase>
                         <goals><goal>verify</goal></goals>
                         <configuration>
                             <basedir>\${project.build.directory}/it/</basedir>

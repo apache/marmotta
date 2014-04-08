@@ -41,7 +41,7 @@ public class MyWebService {
     private MyService myService;
 
     @GET
-    @Produces("text/html")
+    @Produces("text/plain; charset=utf8")
     public Response hello(@QueryParam("name") String name) {
         if (StringUtils.isEmpty(name)) {
             log.warn("No name given");
@@ -61,7 +61,7 @@ public class MyWebService {
         if (turns < 0) throw new DoThisException("Can't undo 'This'");
 
         myService.doThis(turns);
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
 }

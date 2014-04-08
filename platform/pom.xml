@@ -70,6 +70,9 @@
         <module>backends</module>
         <module>ldcache</module>
 
+        <!-- LDP -->
+        <module>marmotta-ldp</module>
+
         <!-- generic modules -->
         <module>marmotta-ldpath</module>
         <module>marmotta-security</module>
@@ -86,15 +89,5 @@
         <module>marmotta-zookeeper</module>
 
     </modules>
-
-    <profiles>
-        <!-- experimental modules -->
-        <profile>
-            <id>experimental</id>
-            <modules>
-                <module>marmotta-ldp</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>
