@@ -124,7 +124,7 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-core</artifactId>
-            <version>${marmottaVersion}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
