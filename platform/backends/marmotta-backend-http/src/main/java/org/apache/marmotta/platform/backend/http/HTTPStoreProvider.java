@@ -78,7 +78,7 @@ public class HTTPStoreProvider implements StoreProvider {
         Federation store = new Federation();
         store.addMember(httpRepository);
 
-        return store;
+        return (NotifyingSail)store;
     }
 
     /**
