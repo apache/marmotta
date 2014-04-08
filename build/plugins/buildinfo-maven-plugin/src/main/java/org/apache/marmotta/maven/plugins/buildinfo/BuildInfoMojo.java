@@ -17,25 +17,19 @@
  */
 package org.apache.marmotta.maven.plugins.buildinfo;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Build;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+
+import java.io.*;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 /**
  * Date: 13.05.2011
@@ -74,6 +68,9 @@ public class BuildInfoMojo extends AbstractMojo {
      * @parameter
      */
     private List<String> systemProperties;
+
+    public BuildInfoMojo() {
+    }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         Map<String, String> map = new HashMap<String, String>();
