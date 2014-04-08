@@ -114,6 +114,7 @@
         <refpack file="refpacks/marmotta-webapp.xml" />
         <refpack file="refpacks/marmotta-core.xml" />
         <refpack file="refpacks/marmotta-backend-kiwi.xml" />
+        <refpack file="refpacks/marmotta-ldp.xml" />
         <refpack file="refpacks/marmotta-ldcache-common.xml" />
         <refpack file="refpacks/marmotta-ldcache-kiwi.xml" />
         <refpack file="refpacks/marmotta-ldpath.xml" />

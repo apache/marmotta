@@ -30,7 +30,7 @@
 
     <name>Apache Marmotta Platform: LDP</name>
     <description>
-        Provides experimental support for the current working draft of the
+        Provides support for the current working draft of the
         Linked Data Platform 1.0 specification.
     </description>
 
