@@ -39,8 +39,11 @@ public interface TemplatingService {
     public final static String DEFAULT_REST_FILE = "overview-index.html";
     
     final static String ADMIN_TPL = "admin.ftl";
-    
+
+    @Deprecated
     final static String ERROR_404_TPL = "404.ftl";
+
+    final static String ERROR_TPL = "error.ftl";
     
     final static String RDF_HTML_TPL = "rdfhtml.ftl";
     
@@ -48,7 +51,7 @@ public interface TemplatingService {
     
     static final String DEFAULT_STYLE = "blue";
 
-    public final static String DEFAULT_WEBSERVICE_TITLE = "Webservice";
+    final static String DEFAULT_WEBSERVICE_TITLE = "Webservice";
     
     void initDataModel();
     
