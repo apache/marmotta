@@ -18,17 +18,21 @@
 package org.apache.marmotta.commons.collections;
 
 import com.google.common.base.Equivalence;
-import org.junit.Assert;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import java.util.Set;
+
+import static org.hamcrest.Matchers.hasItemInArray;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.*;
 
 /**
  * Add file description here!
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class EquivalenceHashSetTest {
+public abstract class BaseEquivalenceHashSetTest {
 
     // a simple equivalence function on strings, saying they are equal if their first character is the same
     Equivalence<String> equivalence = new Equivalence<String>() {
@@ -43,17 +47,15 @@ public class EquivalenceHashSetTest {
         }
     };
 
-    public Set<String> createHashSet(Equivalence<String> equivalence) {
-        return new EquivalenceHashSet<>(equivalence);
-    }
+    public abstract Set<String> createHashSet(Equivalence<String> equivalence);
 
     @Test
     public void testEquivalence() {
-        Assert.assertTrue(equivalence.equivalent("abc","axy"));
-        Assert.assertFalse(equivalence.equivalent("abc", "xyz"));
+        assertTrue(equivalence.equivalent("abc", "axy"));
+        assertFalse(equivalence.equivalent("abc", "xyz"));
 
-        Assert.assertTrue(equivalence.hash("abc") == equivalence.hash("axy"));
-        Assert.assertFalse(equivalence.hash("abc") == equivalence.hash("xyz"));
+        assertTrue(equivalence.hash("abc") == equivalence.hash("axy"));
+        assertFalse(equivalence.hash("abc") == equivalence.hash("xyz"));
     }
 
     @Test
@@ -66,17 +68,18 @@ public class EquivalenceHashSetTest {
         set.add(a);
 
         // set should now also contain b (because first character the same)
-        Assert.assertTrue(set.contains(b));
+        assertTrue(set.contains(b));
 
         set.add(b);
 
         // adding b should not change the set
-        Assert.assertEquals(1, set.size());
+        assertEquals(1, set.size());
 
         set.add(c);
 
-        Assert.assertEquals(2, set.size());
+        assertEquals(2, set.size());
 
+        assertTrue(set.containsAll(Sets.newHashSet(a, b, c)));
     }
 
 
@@ -92,7 +95,7 @@ public class EquivalenceHashSetTest {
         Set<String> set2 = createHashSet(equivalence);
 
         // test empty sets
-        Assert.assertEquals(set1,set2);
+        assertEquals(set1, set2);
 
         set1.add(a1);
         set1.add(b1);
@@ -101,18 +104,18 @@ public class EquivalenceHashSetTest {
         set2.add(a2);
 
 
-        Assert.assertEquals(2, set1.size());
-        Assert.assertEquals(2, set2.size());
+        assertEquals(2, set1.size());
+        assertEquals(2, set2.size());
 
 
         // test sets with elements, insertion order different
-        Assert.assertEquals(set1,set2);
-        Assert.assertEquals(set1.hashCode(), set2.hashCode());
+        assertEquals(set1, set2);
+        assertEquals(set1.hashCode(), set2.hashCode());
 
         set1.add(c1);
 
-        Assert.assertNotEquals(set1,set2);
-        Assert.assertNotEquals(set1.hashCode(), set2.hashCode());
+        assertNotEquals(set1, set2);
+        assertNotEquals(set1.hashCode(), set2.hashCode());
 
 
     }
@@ -132,7 +135,77 @@ public class EquivalenceHashSetTest {
         for(String x : set) {
             count++;
         }
-        Assert.assertEquals(2,count);
+        assertEquals(2, count);
     }
 
+
+    @Test
+    public void testEmpty() {
+        Set<String> set = createHashSet(equivalence);
+
+        assertTrue(set.isEmpty());
+
+        set.add("abc");
+
+        assertFalse(set.isEmpty());
+    }
+
+
+    @Test
+    public void testToArray() {
+        String a = "abc";
+        String b = "axy";
+        String c = "xyz";
+
+        Set<String> set = createHashSet(equivalence);
+        set.add(a);
+        set.add(b);
+        set.add(c);
+
+        String[] arr = new String[4];
+
+        arr = set.toArray(arr);
+
+        assertEquals(2, countNotNull(arr));
+        assertThat(arr, hasItemInArray(startsWith("a")));
+        assertThat(arr, hasItemInArray(startsWith("x")));
+    }
+
+
+    @Test
+    public void testRemove() {
+        String a = "abc";
+        String b = "axy";
+        String c = "xyz";
+
+        Set<String> set = createHashSet(equivalence);
+        set.add(a);
+        set.add(b);
+        set.add(c);
+
+        assertEquals(2, set.size());
+
+        set.remove(a);
+
+        assertEquals(1, set.size());
+        assertTrue(set.contains(c));
+        assertFalse(set.contains(b));
+
+        set.remove(c);
+
+        assertEquals(0, set.size());
+        assertFalse(set.contains(c));
+        assertFalse(set.contains(b));
+    }
+
+
+    private static <T> int countNotNull(T[] arr) {
+        int count = 0;
+        for(int i=0; i<arr.length; i++) {
+            if(arr[i] != null) {
+                count++;
+            }
+        }
+        return count;
+    }
 }

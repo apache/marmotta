@@ -24,11 +24,11 @@ import javolution.util.function.Equality;
 import java.util.Set;
 
 /**
- * Add file description here!
+ * Tests for HashSet with custom equivalence function (FastSet implementation)
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class EquivalenceHashSet2Test extends EquivalenceHashSetTest {
+public class FastEquivalenceHashSetTest extends BaseEquivalenceHashSetTest {
 
     @Override
     public Set<String> createHashSet(final Equivalence<String> equivalence) {
