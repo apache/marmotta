@@ -25,69 +25,133 @@
         <relativePath>../../../parent</relativePath>
     </parent>
 
-    <name>LDPath Templating: Linked Data</name>
-    <artifactId>ldpath-template-linkeddata</artifactId>
+    <name>LDPath Linked Data Query CLI</name>
+    <artifactId>ldpath-ldquery-cli</artifactId>
     <packaging>jar</packaging>
 
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin> <!-- generate JRebel Configuration -->
-                    <groupId>org.zeroturnaround</groupId>
-                    <artifactId>jrebel-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>generate-rebel-xml</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>generate</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <relativePath>../../../</relativePath>
-                        <rootPath>$${rebel.root}</rootPath>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <groupId>org.jasig.maven</groupId>
+                <artifactId>maven-notice-plugin</artifactId>
+                <version>1.0.4</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.apache.marmotta.ldpath.template.LDTemplate</mainClass>
-                        </manifest>
-                    </archive>
+                    <noticeTemplate>NOTICE.template</noticeTemplate>
+
+                    <licenseMapping>
+                        <param>../../../license-mappings.xml</param>
+                    </licenseMapping>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.jolira</groupId>
-                <artifactId>onejar-maven-plugin</artifactId>
-                <version>1.4.4</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>one-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
                 <configuration>
-                    <attachToBuild>false</attachToBuild>
+                    <mainClass>org.apache.marmotta.ldpath.ldquery.LDQuery</mainClass>
+                    <cleanupDaemonThreads>true</cleanupDaemonThreads>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>marmotta-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.apache.marmotta.ldpath.ldquery.LDQuery</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.jolira</groupId>
+                        <artifactId>onejar-maven-plugin</artifactId>
+                        <version>1.4.4</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>one-jar</goal>
+                                </goals>
+                                <configuration>
+                                    <filename>ldquery-${project.version}.jar</filename>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>truezip-maven-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-into</id>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.basedir}/src/main/doc/</directory>
+                                            <includes>
+                                                <include>LICENSE.txt</include>
+                                                <include>NOTICE.txt</include>
+                                            </includes>
+                                            <outputDirectory>target/ldquery-${project.version}.jar/META-INF</outputDirectory>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>assembly.xml</descriptor>
+                                    </descriptors>
+                                    <finalName>apache-marmotta-${project.version}</finalName>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
 
         <dependency>
-           <groupId>org.apache.marmotta</groupId>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-api</artifactId>
         </dependency>
         <dependency>
@@ -102,11 +166,6 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-backend-sesame</artifactId>
-        </dependency>
-        <dependency>
-           <groupId>org.apache.marmotta</groupId>
-            <artifactId>ldpath-template</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
@@ -225,8 +284,46 @@
             <version>1.2</version>
         </dependency>
         <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+
+        <!-- Testing -->
+        <dependency>
+            <artifactId>junit</artifactId>
+            <groupId>junit</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>hamcrest-core</artifactId>
+            <groupId>org.hamcrest</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <artifactId>hamcrest-library</artifactId>
+            <groupId>org.hamcrest</groupId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldcache-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

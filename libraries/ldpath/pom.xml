@@ -90,6 +90,7 @@
         <module>ldpath-backend-sesame</module>
         <module>ldpath-backend-file</module>
         <module>ldpath-backend-linkeddata</module>
+        <module>ldpath-ldquery-cli</module>
         <module>ldpath-template</module>
         <module>ldpath-template-linkeddata</module>
         <module>ldpath-backend-jena</module>
