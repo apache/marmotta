@@ -64,26 +64,26 @@
                     </licenseMapping>
                 </configuration>
             </plugin>
-          <plugin>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>maven-bundle-plugin</artifactId>
-            <extensions>true</extensions>
-            <configuration>
-              <instructions>
-                <Bundle-Category>Apache Marmotta LDPath</Bundle-Category>
-                <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
-                <_versionpolicy>$${version;===;${@}}</_versionpolicy>
-                <Import-Package>
-                  org.slf4j.*;version="[1.6,2)",
-                  ch.qos.logback.classic;resolution:=optional,
-                  *
-                </Import-Package>
-                <Export-Package>
-                  org.apache.marmotta.ldpath.backend.linkeddata;version=${project.version}
-                </Export-Package>
-              </instructions>
-            </configuration>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Category>Apache Marmotta LDPath</Bundle-Category>
+                        <Bundle-DocURL>http://wiki.apache.org/marmotta/LDPath</Bundle-DocURL>
+                        <_versionpolicy>$${version;===;${@}}</_versionpolicy>
+                        <Import-Package>
+                            org.slf4j.*;version="[1.6,2)",
+                            ch.qos.logback.classic;resolution:=optional,
+                            *
+                        </Import-Package>
+                        <Export-Package>
+                            org.apache.marmotta.ldpath.backend.linkeddata;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -137,13 +137,6 @@
                                             <includes>
                                                 <include>LICENSE.txt</include>
                                                 <include>NOTICE.txt</include>
-                                            </includes>
-                                            <outputDirectory>target/ldpath-${project.version}.jar/META-INF</outputDirectory>
-                                        </fileset>
-                                        <fileset>
-                                            <directory>${project.basedir}/../../../</directory>
-                                            <includes>
-                                                <include>DISCLAIMER.txt</include>
                                             </includes>
                                             <outputDirectory>target/ldpath-${project.version}.jar/META-INF</outputDirectory>
                                         </fileset>
