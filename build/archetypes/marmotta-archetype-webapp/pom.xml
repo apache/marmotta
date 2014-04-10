@@ -85,6 +85,9 @@
                 <plugin>
                     <artifactId>maven-archetype-plugin</artifactId>
                     <version>2.2</version>
+                    <configuration>
+                        <skip>${skipITs}</skip>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
