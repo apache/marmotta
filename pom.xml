@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -195,6 +195,9 @@
 
                     <!-- the profiles to run for the release -->
                     <arguments>-Pinstaller,marmotta-release,sign,kiwi ${arguments}</arguments>
+
+                    <!-- make sure all dependencies are available -->
+                    <preparationGoals>clean install</preparationGoals>
 
 		    <pushChanges>false</pushChanges>
                 </configuration>
