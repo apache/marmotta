@@ -17,8 +17,12 @@
 
 package org.apache.marmotta.platform.ldp.testsuite;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.rules.TestRule;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.Suite;
+import org.junit.runners.model.FrameworkField;
 import org.openrdf.model.URI;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
@@ -30,6 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,11 +48,29 @@ public class LdpTestCasesRunner extends Suite {
 
     private static Logger log = LoggerFactory.getLogger(LdpTestCasesRunner.class);
 
+    private LdpTestCases.MarmottaResource marmotta;
+
     public LdpTestCasesRunner(Class<?> klass) throws Throwable {
         super(klass, buildTestCasesFromManifest());
+
+        //TODO: it should be an easier way to do it...
+        for (TestRule rule : this.classRules()) {
+            if (LdpTestCases.MarmottaResource.class.equals(rule.getClass())) {
+                marmotta = (LdpTestCases.MarmottaResource)rule;
+                break;
+            }
+        }
     }
 
-    private static List<Runner> buildTestCasesFromManifest() {
+    @Override
+    protected void runChild(Runner runner, RunNotifier notifier) {
+        if (runner instanceof LdpTestCaseRunner) {
+            ((LdpTestCaseRunner)runner).setBaseUrl(marmotta.baseUrl);
+        }
+        super.runChild(runner, notifier);
+    }
+
+    private static List<Runner> buildTestCasesFromManifest() throws Throwable {
         List<Runner> runners = new ArrayList<>();
 
         String path = LdpTestCases.ROOT_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
@@ -56,20 +80,14 @@ public class LdpTestCasesRunner extends Suite {
             try {
                 conn.begin();
 
-                //TODO: this query is not final, it needs to evolve in parallel with the test cases
-                String testCasesQuery = LdpTestCasesUtils.getNormativeNamespacesSparql() + "\n" +
-                        "SELECT ?tc ?label \n" +
-                        "WHERE { \n" +
-                        "  ?tc a td:TestCase ; \n" +
-                        "      rdfs:label ?label . \n" +
-                        "}";
+                String testCasesQuery = LdpTestCasesUtils.getNormativeNamespacesSparql()+ "\n"
+                        + "SELECT ?tc WHERE { ?tc a td:TestCase }";
                 TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, testCasesQuery);
                 TupleQueryResult results = tupleQuery.evaluate();
                 try {
                     while (results.hasNext()) {
                         BindingSet bindings = results.next();
-                        LdpTestCase testCase = new LdpTestCase((URI)bindings.getValue("tc"), bindings.getValue("label").stringValue());
-                        //TODO: set more data to the test case
+                        LdpTestCase testCase = new LdpTestCase((URI)bindings.getValue("tc"));
                         runners.add(new LdpTestCaseRunner(testCase));
                     }
                 } finally {

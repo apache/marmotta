@@ -18,17 +18,13 @@
 package org.apache.marmotta.platform.ldp.testsuite;
 
 import com.jayway.restassured.RestAssured;
-import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
-import org.junit.*;
+import org.junit.ClassRule;
+import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * LDP Test Cases
@@ -46,35 +42,30 @@ public class LdpTestCases {
 
     public final static String MANIFEST_CACHE = "LDP-Test-Cases-WD-live";
 
-    private static Logger log = LoggerFactory.getLogger(LdpTestCases.class);
+    @ClassRule
+    public static ExternalResource marmotta = new MarmottaResource();
 
-    private static JettyMarmotta marmotta;
+    public static class MarmottaResource extends ExternalResource {
 
-    private static String baseUrl;
+        JettyMarmotta marmotta;
 
-    @BeforeClass
-    public static void setup() throws MarmottaImportException, URISyntaxException, IOException {
-        marmotta = new JettyMarmotta("/marmotta", LdpWebService.class);
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = marmotta.getPort();
-        RestAssured.basePath = marmotta.getContext();
-        baseUrl = UriBuilder.fromUri("http://localhost").port(marmotta.getPort()).path(marmotta.getContext()).build().toString();
-    }
+        String baseUrl;
 
-    @Before
-    public void before() {
-        log.warn("before");
-    }
+        @Override
+        protected void before() throws Throwable {
+            marmotta = new JettyMarmotta("/marmotta-ldp", LdpWebService.class);
+            RestAssured.baseURI = "http://localhost";
+            RestAssured.port = marmotta.getPort();
+            RestAssured.basePath = marmotta.getContext();
+            baseUrl = UriBuilder.fromUri("http://localhost").port(marmotta.getPort()).path(marmotta.getContext()).build().toString();
+        }
 
-    @After
-    public void after() {
-        log.warn("after");
-    }
+        @Override
+        protected void after() {
+            //marmotta.shutdown();
+            marmotta = null;
+        }
 
-    @AfterClass
-    public static void shutdown() {
-        //marmotta.shutdown();
-        marmotta = null;
     }
 
 }

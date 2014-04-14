@@ -88,10 +88,8 @@ public class LdpTestCase /* extends TestCase */ {
      */
     private URI testAssertion;
 
-    public LdpTestCase(URI uri, String label) {
-        //super(label);
+    public LdpTestCase(URI uri) {
         this.uri = uri;
-        this.label = label;
     }
 
     public URI getUri() {

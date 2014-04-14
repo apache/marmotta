@@ -17,11 +17,24 @@
 
 package org.apache.marmotta.platform.ldp.testsuite;
 
+import com.jayway.restassured.RestAssured;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
+import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
+import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
+import org.junit.*;
+import org.junit.rules.TestName;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.Suite;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
+import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * LDP Test Case JUnit Runner
@@ -30,7 +43,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class LdpTestCaseRunner extends Runner {
 
-    private LdpTestCase testCase;
+    private static Logger log = LoggerFactory.getLogger(LdpTestCaseRunner.class);
+
+    private final LdpTestCase testCase;
+
+    private String baseUrl;
 
     public LdpTestCaseRunner(LdpTestCase testCase) {
         this.testCase = testCase;
@@ -38,7 +55,7 @@ public class LdpTestCaseRunner extends Runner {
 
     @Override
     public Description getDescription() {
-        return Description.createSuiteDescription(testCase.getLabel());
+        return Description.createSuiteDescription(testCase.getUri().getLocalName());
     }
 
     @Override
@@ -54,8 +71,25 @@ public class LdpTestCaseRunner extends Runner {
     }
 
     private void run() {
-        assertEquals(testCase.getLabel().substring(3), testCase.getUri().getLocalName().substring(2));
-        //TODO: actual execution
+        Assume.assumeNotNull(baseUrl);
+        assertNotNull(testCase);
+        assertNotNull(testCase.getUri());
+        String context = buildContext(testCase);
+        log.info("Executing LDP Test Case {} over context {}...", testCase.getUri().getLocalName(), context);
+
+        //TODO: actual test case execution
+    }
+
+    private String buildContext(LdpTestCase testCase) {
+        return baseUrl + "/" + testCase.getUri().getLocalName().toLowerCase();
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
 }
