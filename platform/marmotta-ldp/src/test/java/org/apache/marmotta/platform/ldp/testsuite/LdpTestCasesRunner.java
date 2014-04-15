@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldp.testsuite;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
 import org.junit.rules.TestRule;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -50,9 +52,28 @@ public class LdpTestCasesRunner extends Suite {
 
     private LdpTestCases.MarmottaResource marmotta;
 
-    public LdpTestCasesRunner(Class<?> klass) throws Throwable {
-        super(klass, buildTestCasesFromManifest());
+    private Repository repo;
 
+    private List<Runner> runners;
+
+    public LdpTestCasesRunner(Class<?> klass) throws Throwable {
+        super(klass, Collections.EMPTY_LIST);
+
+        //load test cases manifest
+        repo = loadManifest();
+
+        //get children runners for each test cases from manifest
+        RepositoryConnection conn = repo.getConnection();
+        try {
+            conn.begin();
+            runners = buildTestCasesFromManifest(conn);
+            log.info("Initialized LDP test suite with {} test cases", runners.size());
+            conn.commit();
+        } finally {
+            conn.close();
+        }
+
+        //get embedded marmotta from rules
         //TODO: it should be an easier way to do it...
         for (TestRule rule : this.classRules()) {
             if (LdpTestCases.MarmottaResource.class.equals(rule.getClass())) {
@@ -63,55 +84,44 @@ public class LdpTestCasesRunner extends Suite {
     }
 
     @Override
+    protected List<Runner> getChildren() {
+        return Collections.unmodifiableList(runners);
+    }
+
+    @Override
     protected void runChild(Runner runner, RunNotifier notifier) {
         if (runner instanceof LdpTestCaseRunner) {
-            ((LdpTestCaseRunner)runner).setBaseUrl(marmotta.baseUrl);
+            ((LdpTestCaseRunner)runner).setBaseUrl(marmotta.baseUrl + LdpWebService.PATH);
         }
         super.runChild(runner, notifier);
     }
 
-    private static List<Runner> buildTestCasesFromManifest() throws Throwable {
-        List<Runner> runners = new ArrayList<>();
-
+    private Repository loadManifest() throws RepositoryException, RDFParseException, IOException {
         String path = LdpTestCases.ROOT_PATH + LdpTestCases.MANIFEST_CACHE + ".ttl";
+        return LdpTestCasesUtils.loadData(path, RDFFormat.TURTLE);
+    }
+
+    private static List<Runner> buildTestCasesFromManifest(RepositoryConnection conn) throws Throwable {
+        List<Runner> runners = new ArrayList<>();
         try {
-            Repository repo = LdpTestCasesUtils.loadData(path, RDFFormat.TURTLE);
-            RepositoryConnection conn = repo.getConnection();
+            String testCasesQuery = LdpTestCasesUtils.getNormativeNamespacesSparql()+ "\n"
+                    + "SELECT ?tc WHERE { ?tc a td:TestCase }";
+            TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, testCasesQuery);
+            TupleQueryResult results = tupleQuery.evaluate();
             try {
-                conn.begin();
-
-                String testCasesQuery = LdpTestCasesUtils.getNormativeNamespacesSparql()+ "\n"
-                        + "SELECT ?tc WHERE { ?tc a td:TestCase }";
-                TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, testCasesQuery);
-                TupleQueryResult results = tupleQuery.evaluate();
-                try {
-                    while (results.hasNext()) {
-                        BindingSet bindings = results.next();
-                        LdpTestCase testCase = new LdpTestCase((URI)bindings.getValue("tc"));
-                        runners.add(new LdpTestCaseRunner(testCase));
-                    }
-                } finally {
-                    results.close();
+                while (results.hasNext()) {
+                    BindingSet bindings = results.next();
+                    LdpTestCase testCase = new LdpTestCase((URI)bindings.getValue("tc"));
+                    runners.add(new LdpTestCaseRunner(testCase));
                 }
-                conn.commit();
-            } catch (RepositoryException e) {
-                log.error("Error loading test cases: {}", e.getMessage(), e);
-                return runners;
-            } catch (QueryEvaluationException | MalformedQueryException e) {
-                log.error("Error performing test cases' query: {}", e.getMessage(), e);
-                return runners;
             } finally {
-                conn.close();
+                results.close();
             }
-        } catch (RDFParseException | IOException e) {
-            log.error("Error loading test cases: {}", e.getMessage(), e);
-            return runners;
         } catch (RepositoryException e) {
-            log.error("Error connecting with the repository: {}", e.getMessage(), e);
-            return runners;
+            log.error("Error loading test cases: {}", e.getMessage(), e);
+        } catch (QueryEvaluationException | MalformedQueryException e) {
+            log.error("Error performing test cases' query: {}", e.getMessage(), e);
         }
-
-        log.info("Initialized LDP test suite with {} test cases", runners.size());
         return runners;
     }
 

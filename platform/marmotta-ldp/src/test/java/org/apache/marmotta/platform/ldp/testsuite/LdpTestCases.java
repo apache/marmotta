@@ -53,7 +53,7 @@ public class LdpTestCases {
 
         @Override
         protected void before() throws Throwable {
-            marmotta = new JettyMarmotta("/marmotta-ldp", LdpWebService.class);
+            marmotta = new JettyMarmotta("/marmotta", LdpWebService.class);
             RestAssured.baseURI = "http://localhost";
             RestAssured.port = marmotta.getPort();
             RestAssured.basePath = marmotta.getContext();

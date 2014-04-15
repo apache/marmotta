@@ -70,14 +70,30 @@ public class LdpTestCaseRunner extends Runner {
         notifier.fireTestFinished(getDescription());
     }
 
+    /**
+     * Actual test case run method, which build the test case execution
+     * on the fly based on
+     */
     private void run() {
         Assume.assumeNotNull(baseUrl);
         assertNotNull(testCase);
         assertNotNull(testCase.getUri());
         String context = buildContext(testCase);
-        log.info("Executing LDP Test Case {} over context {}...", testCase.getUri().getLocalName(), context);
+        log.warn("Executing LDP Test Case {} over context {}...", testCase.getUri().getLocalName(), context);
 
-        //TODO: actual test case execution
+        //basic pre-checking
+        //RestAssured.expect().statusCode(200).get(baseUrl); //TODO: clarify this (root container?)
+        RestAssured.expect().statusCode(404).get(context);
+
+        //load all information of the test cases
+        readTestCase(testCase);
+
+        //actual test case execution
+
+    }
+
+    private void readTestCase(LdpTestCase testCase) {
+        //TODO: read all details
     }
 
     private String buildContext(LdpTestCase testCase) {
