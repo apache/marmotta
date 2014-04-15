@@ -204,7 +204,6 @@
         <profile>
             <id>kiwi</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
                 <property>
                     <name>marmotta.backend</name>
                     <value>kiwi</value>
@@ -284,7 +283,6 @@
                     <groupId>com.thinkaurelius.titan</groupId>
                     <artifactId>titan-hbase</artifactId>
                     <version>${titan.version}</version>
-
                     <exclusions>
                         <exclusion>
                             <groupId>org.mortbay.jetty</groupId>
