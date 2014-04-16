@@ -143,23 +143,26 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
     public void startEventHandler(@Observes LoggingStartEvent event) {
-        if(!configurationService.getBooleanConfiguration("testing.enabled")) {
+        if(!isTestEnvironment()) {
             log.warn("LOGGING: Switching to Apache Marmotta logging configuration; further output will be found in {}{}log{}*.log", configurationService.getHome(), File.separator, File.separator);
-
             configureLoggers();
         }
     }
 
     public void configurationEventHandler(@Observes ConfigurationChangedEvent event) {
-        if(!configurationService.getBooleanConfiguration("testing.enabled")) {
+        if(!isTestEnvironment()) {
             if (event.containsChangedKeyWithPrefix("logging.")) {
                 log.warn("LOGGING: Reloading logging configuration");
-
                 configureLoggers();
             }
         }
     }
 
+    private boolean isTestEnvironment() {
+        //TODO: Thread.currentThread().getContextClassLoader().getResource("/logback-test.xml") != null
+        //                                                    .getResource("/logback-testing.xml") != null
+        return configurationService.getBooleanConfiguration("testing.enabled", false);
+    }
 
     /**
      * Configure all loggers according to their configuration and set some reasonable fallback for the root level
