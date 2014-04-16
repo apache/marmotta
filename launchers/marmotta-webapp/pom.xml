@@ -204,6 +204,7 @@
         <profile>
             <id>kiwi</id>
             <activation>
+                <activeByDefault>true</activeByDefault>
                 <property>
                     <name>marmotta.backend</name>
                     <value>kiwi</value>
