@@ -131,7 +131,7 @@ public class PostgreSQLDialect extends KiWiDialect {
      */
     @Override
     public String getValidationQuery() {
-        return "SELECT 1";
+        return "SELECT 1; COMMIT;";
     }
 
     /**
