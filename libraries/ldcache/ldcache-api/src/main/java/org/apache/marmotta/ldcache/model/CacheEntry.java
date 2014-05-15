@@ -22,7 +22,9 @@ import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * The cache entry for a URI resource managed by the Linked Data Cache. Contains maintenance information about
@@ -61,8 +63,11 @@ public class CacheEntry implements Serializable {
      */
     private Integer tripleCount;
 
+    private List<URI> skolemizedResources;
+
 
     public CacheEntry() {
+        skolemizedResources = new ArrayList<>();
     }
 
 
@@ -150,6 +155,9 @@ public class CacheEntry implements Serializable {
         this.triples = triples;
     }
 
+    public void addSkolemizedResource(URI uri) { this.skolemizedResources.add(uri); }
+
+    public List<URI> getSkolemizedResources() { return this.skolemizedResources; }
 
     @Override
     public String toString() {

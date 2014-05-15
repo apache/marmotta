@@ -418,6 +418,7 @@ TOKEN : /* OPERATORS */
 	< IS_A: "is-a" > |
     < FUNC: "fn:" >  |
   	< TYPE: "^^" >   |
+  	< WITHIN: "within" >   |
   	< LANG: "@" >
 }
 
@@ -660,8 +661,10 @@ NodeSelector CompoundSelector() :
         result = IntersectionSelector() |
 
         /* Path Selector */
-        result = PathSelector()
+        result = PathSelector()  |
 
+        /* Within Path Selector */
+        result = WithinPathSelector()
 
     )
     {
@@ -742,6 +745,20 @@ NodeSelector AtomicSelector() :
     }
 }
 
+NodeSelector PropertyOrSelfSelector() :
+{
+    NodeSelector result = null;
+}
+{
+    (
+        result = SelfSelector() |
+        result = PropertySelector()
+    )
+    {
+        return result;
+    }
+}
+
 NodeSelector SelfSelector() :
 {
 }
@@ -790,6 +807,20 @@ PathSelector PathSelector() :
     left = AtomicOrTestingSelector() <P_SEP> right = AtomicOrTestingOrPathSelector()
     {
         result = new PathSelector(left,right);
+        return result;
+    }
+}
+
+WithinPathSelector WithinPathSelector() :
+{
+    WithinPathSelector result = null;
+    NodeSelector left   = null;
+    NodeSelector right  = null;
+}
+{
+    left = PropertyOrSelfSelector() <WITHIN> right = AtomicOrTestingOrPathSelector()
+    {
+        result = new WithinPathSelector(left,right);
         return result;
     }
 }

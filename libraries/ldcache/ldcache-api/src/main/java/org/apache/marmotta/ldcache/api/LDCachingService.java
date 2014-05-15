@@ -19,6 +19,8 @@ package org.apache.marmotta.ldcache.api;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
+import java.util.Collection;
+
 /**
  * This is the next-generation API for LDCache that will become the default in Marmotta 3.3 or 4.0. For now,
  * LDCache implements both the old and the new style.
@@ -81,12 +83,22 @@ public interface LDCachingService {
     public void shutdown();
 
 
+    /**
+     * Create a temporary resource for a subject provided by a different linked data resource
+     * @param requestUri the resource to request
+     * @param subject subject within the resource to retrieve
+     * @param options options for refreshing
+     * @return temporary URI that can be used to access the data
+     */
+    URI createSubjectForResourceWithinRequest(URI requestUri, URI subject, RefreshOpts... options);
+
 
     public enum RefreshOpts {
 
         /**
          * Refresh the resource even if it is not yet expired
          */
-        FORCE
+        FORCE,
+        IGNORE_LOCKS
     }
 }

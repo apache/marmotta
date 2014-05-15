@@ -51,6 +51,7 @@ public class SelectorsTest {
                 {"(<http://www.example.com/>)*", "RecursivePath"},
                 {"(<http://www.example.com/>)+", "RecursivePath"},
                 {"^<http://www.example.com/>", "ReverseProperty"},
+                {". within <http://www.example.com/>", "WithinPath"},
                 {"fn:count(\"foo\")", "Function"},
                 // Not implemented yet: {"^*", "ReverseProperty"},
                 {".", "Self"},

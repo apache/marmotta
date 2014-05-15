@@ -71,12 +71,7 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
         RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForMIMEType(contentType, RDFFormat.RDFXML);
 
         try {
-            ModelCommons.add(triples, in, resourceUri, format, new Predicate<Statement>() {
-                @Override
-                public boolean test(Statement param) {
-                    return StringUtils.equals(param.getSubject().stringValue(), resourceUri);
-                }
-            });
+            ModelCommons.add(triples, in, resourceUri, format);
 
             return Collections.emptyList();
         } catch (RDFParseException e) {

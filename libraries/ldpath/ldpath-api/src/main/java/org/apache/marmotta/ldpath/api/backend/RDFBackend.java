@@ -64,4 +64,5 @@ public interface RDFBackend<Node> extends NodeBackend<Node> {
      */
     public Collection<Node> listSubjects(Node property, Node object);
 
+    public Collection<Node> getSubjectWithinResource(Node resourceUri, Node subject);
 }

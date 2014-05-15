@@ -19,6 +19,7 @@ package org.apache.marmotta.ldpath.backend.sesame;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.openrdf.model.Literal;
@@ -92,6 +93,11 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
                     "Property needs to be a URI node (property type: %s)",
                     isURI(property)?"URI":isBlank(property)?"bNode":"literal"),e);
         }
+    }
+
+    @Override
+    public Collection<Value> getSubjectWithinResource(Value resourceUri, Value subject) {
+        return Collections.singleton(subject);
     }
 
     /**

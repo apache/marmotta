@@ -29,6 +29,8 @@ import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.TreeModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.OWL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class LDCache implements LDCachingService {
 
+    public static final String SKOLEMIZED_NAMESPACE = "_ldpath_embedded_bnode_:";
     private static Logger log = LoggerFactory.getLogger(LDCache.class);
 
     // lock a resource while refreshing it so that not several threads trigger a refresh at the same time
@@ -131,6 +134,14 @@ public class LDCache implements LDCachingService {
                     }
                     newEntry.setTripleCount(response.getData().size());
                     newEntry.setTriples(response.getData());
+
+                    if (entry != null) {
+                        for (URI uri : entry.getSkolemizedResources()) {
+                            final CacheEntry entry1 = backend.getEntry(uri);
+                            backend.removeEntry(uri);
+                            createSubjectForResourceWithinRequest(uri, entry1.getResource(), RefreshOpts.IGNORE_LOCKS);
+                        }
+                    }
 
                     backend.putEntry(resource, newEntry);
 
@@ -221,6 +232,65 @@ public class LDCache implements LDCachingService {
     @Override
     public void shutdown() {
         backend.shutdown();
+    }
+
+    /**
+     * Create a temporary resource for a subject provided by a different linked data resource
+     * @param requestUri the resource to request
+     * @param subject subject within the resource to retrieve
+     * @param options options for refreshing
+     * @return temporary URI that can be used to access the data
+     */
+    @Override
+    public URI createSubjectForResourceWithinRequest(URI requestUri, URI subject, RefreshOpts... options) {
+        Set<RefreshOpts> optionSet = new HashSet<>(Arrays.asList(options));
+
+        refresh(requestUri, options);
+
+        if (!optionSet.contains(RefreshOpts.IGNORE_LOCKS)) {
+            resourceLocks.lock(requestUri.stringValue());
+        }
+
+        try {
+            final Model triples = new TreeModel();
+
+            CacheEntry entry =  backend.getEntry(requestUri);
+            final Model salientTriples = entry.getTriples().filter(subject, null, null);
+
+            triples.addAll(salientTriples);
+
+            // create a relationship from this temporary object back to the resource
+            final ValueFactoryImpl valueFactory = ValueFactoryImpl.getInstance();
+            final URI skolemizedUri = valueFactory.createURI(SKOLEMIZED_NAMESPACE, String.valueOf(requestUri.hashCode() + subject.hashCode()));
+            triples.add(skolemizedUri, OWL.SAMEAS, subject);
+
+            CacheEntry newEntry = new CacheEntry();
+            newEntry.setResource(subject);
+            newEntry.setExpiryDate(entry.getExpiryDate());
+            newEntry.setLastRetrieved(new Date());
+            if(entry != null) {
+                newEntry.setUpdateCount(entry.getUpdateCount()+1);
+            } else {
+                newEntry.setUpdateCount(1);
+            }
+            newEntry.setTripleCount(triples.size());
+            newEntry.setTriples(triples);
+
+            backend.putEntry(skolemizedUri, newEntry);
+
+            // store a pointer back to itself
+            if (entry != null) {
+                entry.addSkolemizedResource(skolemizedUri);
+                backend.putEntry(requestUri, entry);
+            }
+
+            return skolemizedUri;
+
+        } finally {
+            if (!optionSet.contains(RefreshOpts.IGNORE_LOCKS)) {
+                resourceLocks.unlock(requestUri.stringValue());
+            }
+        }
     }
 
 

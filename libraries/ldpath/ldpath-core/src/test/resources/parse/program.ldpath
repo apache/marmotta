@@ -28,6 +28,7 @@ type_test = foo:p2[^^test:int] :: test:type ;
 int_s = (foo:go)* :: test:type ;
 int_p = (foo:go)+ :: test:type ;
 group = (test:p1 / test:p2) :: test:type ;
+within_test = . within foo:seeAlso / test:foo :: test:type ;
 
 inverse = ^test:incoming :: test:type ;
 

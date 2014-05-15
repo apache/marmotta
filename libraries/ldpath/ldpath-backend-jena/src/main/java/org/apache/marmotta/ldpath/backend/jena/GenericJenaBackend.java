@@ -33,6 +33,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -467,5 +468,10 @@ public class GenericJenaBackend implements RDFBackend<RDFNode> {
             } catch(ClassCastException ex) {
             throw new IllegalArgumentException("property was no valid resource in the Jena model",ex);
         }
+    }
+
+    @Override
+    public Collection<RDFNode> getSubjectWithinResource(RDFNode resourceUri, RDFNode subject) {
+        return Collections.singleton(subject);
     }
 }

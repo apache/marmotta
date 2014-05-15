@@ -25,13 +25,17 @@ ex:1 a ex:Item;
 	foo:title	"One";
 	foo:subtitle	"SubOne";
 	foo:i	"1", "2", "3";
-	foo:j	"2".
+	foo:j	"2";
+	foo:seeAlso ex:moreDataAbout1 .
 	
 ex:2 a ex:Item;
 	foo:title	"Two";
 	foo:subtitle	"SubTwo";
 	foo:i	"99";
 	foo:j	"99".
+
+ex:moreDataAbout1 a ex:Item;
+    foo:title "Title for seeAlso'd object" .
 
 ex:Compare a ex:Test;
 	ex:hasItem ex:Eq, ex:Lt, ex:Gt.

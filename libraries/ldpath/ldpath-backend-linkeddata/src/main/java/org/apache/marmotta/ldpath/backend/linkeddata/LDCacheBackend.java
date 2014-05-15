@@ -24,9 +24,11 @@ import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
+import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.OWL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -317,10 +319,23 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         log.info("retrieving resource {}", subject);
-        if(subject instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI) {
+        if(subject instanceof org.openrdf.model.URI && property instanceof org.openrdf.model.URI) {
             org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
             org.openrdf.model.URI p = (org.openrdf.model.URI) property;
-            return ldcache.get(s).filter(s, p, null).objects();
+
+            final Model statements = ldcache.get(s);
+
+            final org.openrdf.model.URI sameAs = (org.openrdf.model.URI) OWL.SAMEAS;
+            final Model filter;
+            if (s.getNamespace().equals(LDCache.SKOLEMIZED_NAMESPACE) && statements.contains(s, sameAs, null)) {
+                s = statements.filter(s, sameAs, null).objectURI();
+                filter = statements.filter(s, p, null);
+
+            } else {
+                filter = statements.filter(s, p, null);
+            }
+
+            return filter.objects();
         } else {
             return Collections.emptyList();
         }
@@ -338,5 +353,19 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listSubjects(Value property, Value object) {
         throw new UnsupportedOperationException("reverse traversal not supported for Linked Data backend");
+    }
+
+    @Override
+    public Collection<Value> getSubjectWithinResource(Value resourceUri, Value subject) {
+        log.info("retrieving subject {} within resource {}", subject, resourceUri);
+
+        if(subject instanceof org.openrdf.model.URI && resourceUri instanceof org.openrdf.model.URI) {
+            org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
+            org.openrdf.model.URI r = (org.openrdf.model.URI) resourceUri;
+
+            return Collections.singleton((Value) ldcache.createSubjectForResourceWithinRequest(r, s));
+        } else {
+            return Collections.emptyList();
+        }
     }
 }
