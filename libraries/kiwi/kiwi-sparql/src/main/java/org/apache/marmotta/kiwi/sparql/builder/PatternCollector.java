@@ -15,32 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.persistence;
+package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Filter;
+import org.openrdf.query.algebra.StatementPattern;
 import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.ValueExpr;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Collect all filter conditions in a query expression
+* Collect all statement patterns in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-class FilterCollector extends QueryModelVisitorBase<RuntimeException> {
+public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
-    List<ValueExpr> filters = new ArrayList<>();
+    List<StatementPattern> patterns = new ArrayList<>();
 
-    FilterCollector(TupleExpr expr) {
+    public PatternCollector(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
-    public void meet(Filter node) throws RuntimeException {
-        filters.add(node.getCondition());
+    public void meet(StatementPattern node) throws RuntimeException {
+        patterns.add(node);
 
         super.meet(node);
     }

@@ -15,33 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.persistence;
-
-import org.openrdf.query.algebra.Distinct;
-import org.openrdf.query.algebra.Reduced;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+package org.apache.marmotta.kiwi.sparql.exception;
 
 /**
-* Find distinct/reduced in a tuple expression.
-*
-* @author Sebastian Schaffert (sschaffert@apache.org)
-*/
-class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
+ * Thrown in case a query cannot be satisfied (e.g. because a requested node value does not exist in the database).
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
+ */
+public class UnsatisfiableQueryException extends Exception {
 
-    boolean distinct = false;
-
-    DistinctFinder(TupleExpr expr) {
-        expr.visit(this);
+    public UnsatisfiableQueryException() {
     }
 
-    @Override
-    public void meet(Distinct node) throws RuntimeException {
-        distinct = true;
-    }
-
-    @Override
-    public void meet(Reduced node) throws RuntimeException {
-        distinct = true;
+    public UnsatisfiableQueryException(String message) {
+        super(message);
     }
 }

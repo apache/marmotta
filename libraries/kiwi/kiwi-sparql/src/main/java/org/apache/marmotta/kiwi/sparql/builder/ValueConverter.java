@@ -15,30 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.persistence;
+package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Slice;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.openrdf.model.Value;
 
 /**
-* Find the offset and limit values in a tuple expression
-*
-* @author Sebastian Schaffert (sschaffert@apache.org)
-*/
-class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
+ * Convert Sesame Values to KiWiNodes. Usually implemented through a KiWiValueFactory, but can also be provided
+ * as a mockup for testing.
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
+ */
+public interface ValueConverter {
 
-    long limit = -1, offset = -1;
 
-    LimitFinder(TupleExpr expr) {
-        expr.visit(this);
-    }
-
-    @Override
-    public void meet(Slice node) throws RuntimeException {
-        if(node.hasLimit())
-            limit = node.getLimit();
-        if(node.hasOffset())
-            offset = node.getOffset();
-    }
+    public KiWiNode convert(Value value);
 }

@@ -15,32 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.persistence;
+package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.StatementPattern;
+import org.openrdf.query.algebra.Slice;
 import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
-* Collect all statement patterns in a tuple expression.
+* Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
+public class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    List<StatementPattern> patterns = new ArrayList<>();
+    long limit = -1, offset = -1;
 
-    PatternCollector(TupleExpr expr) {
+    public LimitFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
-    public void meet(StatementPattern node) throws RuntimeException {
-        patterns.add(node);
-
-        super.meet(node);
+    public void meet(Slice node) throws RuntimeException {
+        if(node.hasLimit())
+            limit = node.getLimit();
+        if(node.hasOffset())
+            offset = node.getOffset();
     }
 }

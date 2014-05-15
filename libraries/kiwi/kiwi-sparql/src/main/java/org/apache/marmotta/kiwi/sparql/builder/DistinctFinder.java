@@ -15,13 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.persistence;
+package org.apache.marmotta.kiwi.sparql.builder;
+
+import org.openrdf.query.algebra.Distinct;
+import org.openrdf.query.algebra.Reduced;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 /**
-* Operand types for operations - used for implicit type coercion.
+* Find distinct/reduced in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-enum OPTypes {
-    STRING, DOUBLE, INT, DATE, BOOL, ANY
+public class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
+
+    boolean distinct = false;
+
+    public DistinctFinder(TupleExpr expr) {
+        expr.visit(this);
+    }
+
+    @Override
+    public void meet(Distinct node) throws RuntimeException {
+        distinct = true;
+    }
+
+    @Override
+    public void meet(Reduced node) throws RuntimeException {
+        distinct = true;
+    }
 }
