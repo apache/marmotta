@@ -284,7 +284,6 @@
                     <groupId>com.thinkaurelius.titan</groupId>
                     <artifactId>titan-hbase</artifactId>
                     <version>${titan.version}</version>
-
                     <exclusions>
                         <exclusion>
                             <groupId>org.mortbay.jetty</groupId>

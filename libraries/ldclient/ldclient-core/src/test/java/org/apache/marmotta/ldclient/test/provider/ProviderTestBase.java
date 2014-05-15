@@ -98,7 +98,7 @@ public class ProviderTestBase {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = this.getClass().getResourceAsStream(sparqlFile);
-        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
+        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql, "UTF-8"));
         Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
         if(log.isDebugEnabled()) {

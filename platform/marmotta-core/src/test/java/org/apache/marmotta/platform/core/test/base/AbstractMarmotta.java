@@ -36,9 +36,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Add file description here!
- * <p/>
- * Author: Sebastian Schaffert
+ * Abstract Marmotta
+ *
+ * @author Sebastian Schaffert
  */
 public abstract class AbstractMarmotta {
 
@@ -52,7 +52,7 @@ public abstract class AbstractMarmotta {
     protected File home;
 
     protected AbstractMarmotta() {
-    	
+
         // initialise JNDI environment
         try {
             NamingManager.setInitialContextFactoryBuilder(new MarmottaInitialContextFactoryBuilder());
@@ -75,24 +75,22 @@ public abstract class AbstractMarmotta {
             log.error("error adding bean manager to JNDI",e);
         }
 
-
         // create temporary LMF home directory
         home = Files.createTempDir();
 
-        // create a temporary configuration with an in-memory database URL for h2
+        // create a temporary configuration with an in-memory database URL for H2
         override = new MapConfiguration(new HashMap<String,Object>());
         override.setProperty("database.h2.url","jdbc:h2:mem;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
         override.setProperty("logging.template", "/logback-testing.xml");
+        override.setProperty("testing.enabled", true);
 
         // initialise LMF using a temporary directory
         startupService = getService(MarmottaStartupService.class);
     }
 
-
     public <T> T getService(Class<T> serviceClass) {
         return container.instance().select(serviceClass).get();
     }
-
 
     public void shutdown() {
         // remove bean manager from JNDI
@@ -124,4 +122,5 @@ public abstract class AbstractMarmotta {
         }
 
     }
+
 }

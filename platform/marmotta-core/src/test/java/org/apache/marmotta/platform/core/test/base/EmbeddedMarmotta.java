@@ -21,10 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An embedded version of the LMF. Provides support to startup and shutdown the CDI container and the LMF for test cases.
- * After the embedded LMF has been used, it should always be shutdown before being reused.
- * <p/>
- * Author: Sebastian Schaffert
+ * An embedded version of the Marmotta. Provides support to startup and shutdown the CDI container
+ * and the Marmotta for test cases. After the embedded Marmotta has been used, it should always be
+ * shutdown before being reused.
+ *
+ * @author Sebastian Schaffert
  */
 public class EmbeddedMarmotta extends AbstractMarmotta {
 

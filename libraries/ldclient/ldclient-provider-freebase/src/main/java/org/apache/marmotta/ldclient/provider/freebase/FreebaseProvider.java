@@ -183,7 +183,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
                             } else if (o.contains("\\u")) {
                                 o = StringEscapeUtils.unescapeJava(o);
                             } else if (o.contains("\\x")) {
-                                o = fixLatin1(o);
+                                o = org.apache.marmotta.commons.util.StringUtils.fixLatin1(o);
                             }
                             sb.append("    " + p + "    " + o + tripleMatcher.group(3));
                             sb.append("\n");
@@ -213,7 +213,7 @@ public class FreebaseProvider extends AbstractHttpProvider {
 
         //wrong charset
         if (literal.contains("\\x")) {
-            literal = fixLatin1(literal);
+            literal = org.apache.marmotta.commons.util.StringUtils.fixLatin1(literal);
         }
 
         //wrong unicode encoding
@@ -222,20 +222,6 @@ public class FreebaseProvider extends AbstractHttpProvider {
         }
 
         return literal;
-    }
-
-    private String fixLatin1(String str) {
-        //TODO: find a way to re-code properly the literal
-        //http://www.ic.unicamp.br/~stolfi/EXPORT/www/ISO-8859-1-Encoding.html
-        str = str.replaceAll("\\\\xe1", "á");
-        str = str.replaceAll("\\\\xe3", "ã");
-        str = str.replaceAll("\\\\xe7", "ç");
-        str = str.replaceAll("\\\\xe9", "é");
-        str = str.replaceAll("\\\\xed", "í");
-        str = str.replaceAll("\\\\xf3", "ó");
-        str = str.replaceAll("\\\\xfa", "ú");
-        str = str.replaceAll("\\\\x", ""); //FIXME: wrong, wrong, wrong!
-        return str;
     }
 
 }
