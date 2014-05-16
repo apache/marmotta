@@ -17,6 +17,7 @@
 package org.apache.marmotta.ldcache.api;
 
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 
 import java.util.Collection;
@@ -90,7 +91,7 @@ public interface LDCachingService {
      * @param options options for refreshing
      * @return temporary URI that can be used to access the data
      */
-    URI createSubjectForResourceWithinRequest(URI requestUri, URI subject, RefreshOpts... options);
+    URI createSubjectForResourceWithinRequest(URI requestUri, Resource subject, RefreshOpts... options);
 
 
     public enum RefreshOpts {

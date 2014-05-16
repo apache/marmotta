@@ -818,7 +818,7 @@ WithinPathSelector WithinPathSelector() :
     NodeSelector right  = null;
 }
 {
-    left = PropertyOrSelfSelector() <WITHIN> right = AtomicOrTestingOrPathSelector()
+    left = AtomicSelector() <WITHIN> right = AtomicOrTestingOrPathSelector()
     {
         result = new WithinPathSelector(left,right);
         return result;

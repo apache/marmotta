@@ -38,7 +38,6 @@ public class WithinPathSelectorTest extends AbstractTestBase {
         assertThat(result, CoreMatchers.hasItem("Title for seeAlso'd object"));
     }
 
-
     @Test
     public void testSelfWithinPathSelector() throws ParseException {
 
@@ -49,5 +48,17 @@ public class WithinPathSelectorTest extends AbstractTestBase {
         final Collection<Object> result = field.getValues(backend, context);
 
         assertThat(result, CoreMatchers.hasItem("One"));
+    }
+
+    @Test
+    public void testWildcardWithinPathSelector() throws ParseException {
+
+        LdPathParser<Value> parser = createParserFromString("(* within foo:seeAlso) / foo:title :: xsd:string; ");
+        final URI context = repository.getValueFactory().createURI("http://www.example.com/1");
+
+        final FieldMapping<Object, Value> field = parser.parseRule(NSS);
+        final Collection<Object> result = field.getValues(backend, context);
+
+        assertThat(result, CoreMatchers.hasItem("Title for seeAlso'd object"));
     }
 }

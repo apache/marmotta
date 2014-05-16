@@ -19,6 +19,7 @@ package org.apache.marmotta.ldcache.backend.file.util;
 
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 
@@ -36,7 +37,7 @@ public class FileBackendUtils {
 		// static access only
 	}
 
-	public static File getMetaFile(URI resource, File baseDir) {
+	public static File getMetaFile(Resource resource, File baseDir) {
 		return getMetaFile(resource.stringValue(), baseDir);
 	}
 

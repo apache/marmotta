@@ -25,6 +25,7 @@ import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
@@ -327,9 +328,9 @@ public class LDCacheBackend implements RDFBackend<Value> {
             final Model statements = ldcache.get(s);
 
             final Model filter;
-            if (s.getNamespace().equals(LDCache.SKOLEMIZED_NAMESPACE) && statements.getNamespace(LDCache.SMUGGLED_ORIGINAL_RESOURCE_ID) != null) {
-                final org.openrdf.model.URI realSubject = ValueFactoryImpl.getInstance().createURI(statements.getNamespace(LDCache.SMUGGLED_ORIGINAL_RESOURCE_ID).getName());
-                filter = statements.filter(realSubject, p, null);
+            if (s.getNamespace().equals(LDCache.SKOLEMIZED_NAMESPACE)) {
+                final Resource resource = statements.filter(s, OWL.SAMEAS, null).objectResource();
+                filter = statements.filter(resource, p, null);
             } else {
                 filter = statements.filter(s, p, null);
             }
@@ -358,8 +359,8 @@ public class LDCacheBackend implements RDFBackend<Value> {
     public Collection<Value> getSubjectWithinResource(Value resourceUri, Value subject) {
         log.info("retrieving subject {} within resource {}", subject, resourceUri);
 
-        if(subject instanceof org.openrdf.model.URI && resourceUri instanceof org.openrdf.model.URI) {
-            org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
+        if((subject instanceof org.openrdf.model.Resource) && resourceUri instanceof org.openrdf.model.URI) {
+            org.openrdf.model.Resource s = (org.openrdf.model.Resource) subject;
             org.openrdf.model.URI r = (org.openrdf.model.URI) resourceUri;
 
             return Collections.singleton((Value) ldcache.createSubjectForResourceWithinRequest(r, s));

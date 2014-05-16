@@ -68,13 +68,20 @@ public class WithinPathSelector<Node> implements NodeSelector<Node> {
         Collection<Node> nodesRight = right.select(rdfBackend,context,path,myResultPaths);
         final Set<Node> result = new HashSet<Node>();
 
-        for(Node n : nodesLeft) {
+        if (left instanceof WildcardSelector) {
             for(Node r : nodesRight) {
+                result.addAll(rdfBackend.getSubjectWithinResource(context, r));
+            }
+        } else {
 
-                if(myResultPaths != null && myResultPaths.get(n) != null) {
-                    result.addAll(rdfBackend.getSubjectWithinResource(r, n));
-                } else {
-                    result.addAll(rdfBackend.getSubjectWithinResource(r, n));
+            for(Node n : nodesLeft) {
+                for(Node r : nodesRight) {
+
+                    if(myResultPaths != null && myResultPaths.get(n) != null) {
+                        result.addAll(rdfBackend.getSubjectWithinResource(r, n));
+                    } else {
+                        result.addAll(rdfBackend.getSubjectWithinResource(r, n));
+                    }
                 }
             }
         }

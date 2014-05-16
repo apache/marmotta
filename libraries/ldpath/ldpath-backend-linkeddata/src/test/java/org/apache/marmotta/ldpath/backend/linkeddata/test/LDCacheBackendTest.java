@@ -51,7 +51,8 @@ public class LDCacheBackendTest extends BaseLDCacheTest {
         pathTests.put(GEONAMES, ImmutableMap.of("<http://www.geonames.org/ontology#name>", "Embrun"));
         pathTests.put(MARMOTTA, ImmutableMap.of("<http://usefulinc.com/ns/doap#name>", "Apache Marmotta"));
         pathTests.put(WIKIER, ImmutableMap.of("<http://xmlns.com/foaf/0.1/name>[@es]", "Sergio Fernández",
-                                              "(foaf:weblog within .) / <http://purl.org/dc/terms/title>[@en]", "Wikier.org blog"
+                                              "(foaf:weblog within .) / <http://purl.org/dc/terms/title>[@en]", "Wikier.org blog",
+                                              "(* within <http://xmlns.com/wot/0.1/hasKey>) / <http://xmlns.com/wot/0.1/fingerprint>[@en]", "48B33394FA7F07D2A37FF197F21D21375531369F"
                                               ));
 
     }

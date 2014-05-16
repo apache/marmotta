@@ -27,6 +27,7 @@ import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -187,7 +188,7 @@ public class LDCache implements LDCachingService {
             if (parentResource != null) {
                 final Model statements = get(parentResource, options);
 
-                statements.setNamespace(SMUGGLED_ORIGINAL_RESOURCE_ID, entry.getResource().stringValue());
+                statements.add(resource, OWL.SAMEAS, entry.getResource());
 
                 return statements;
             } else {
@@ -244,7 +245,7 @@ public class LDCache implements LDCachingService {
      * @return temporary URI that can be used to access the data
      */
     @Override
-    public URI createSubjectForResourceWithinRequest(URI requestUri, URI subject, RefreshOpts... options) {
+    public URI createSubjectForResourceWithinRequest(URI requestUri, Resource subject, RefreshOpts... options) {
         final String localName = String.valueOf(requestUri.hashCode() + subject.hashCode());
 
         resourceLocks.lock(localName);

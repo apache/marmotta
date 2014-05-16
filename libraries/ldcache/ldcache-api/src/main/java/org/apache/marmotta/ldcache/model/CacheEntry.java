@@ -19,6 +19,7 @@ package org.apache.marmotta.ldcache.model;
 
 import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Model;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 
 import java.io.Serializable;
@@ -38,7 +39,7 @@ public class CacheEntry implements Serializable {
     /**
      * The URI resource managed by this cache entry.
      */
-    private URI resource;
+    private Resource resource;
 
     /**
      * The date when this resource has been retrieved the last time.
@@ -73,14 +74,14 @@ public class CacheEntry implements Serializable {
     /**
      * The URI resource managed by this cache entry.
      */
-    public URI getResource() {
+    public Resource getResource() {
         return resource;
     }
 
     /**
      * The URI resource managed by this cache entry.
      */
-    public void setResource(URI resource) {
+    public void setResource(Resource resource) {
         this.resource = resource;
     }
 
