@@ -1,4 +1,4 @@
-LDPath Linked Data Backend
+LDPath Linked Data Query Tool
 ==========================
 
 LDPath is a query language designed for querying the Linked Data Cloud. It
