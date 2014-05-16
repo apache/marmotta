@@ -15,12 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.ldpath.backend.linkeddata;
+package org.apache.marmotta.ldpath.query;
 
 import ch.qos.logback.classic.Level;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.ldpath.LDPath;
+import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;

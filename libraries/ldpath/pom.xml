@@ -99,6 +99,7 @@
         <module>ldpath-functions-text</module>
         <module>ldpath-functions-math</module>
         <module>ldpath-functions-date</module>
+        <module>ldpath-query</module>
         <!--
         <module>ldpath-backend-sparql</module>
         -->
