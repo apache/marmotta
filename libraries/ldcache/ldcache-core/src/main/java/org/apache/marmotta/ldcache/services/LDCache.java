@@ -48,6 +48,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class LDCache implements LDCachingService {
 
     public static final String SKOLEMIZED_NAMESPACE = "_ldpath_embedded_bnode_:";
+    public static final String SMUGGLED_ORIGINAL_RESOURCE_ID = "smuggled-original-resource-id";
     private static Logger log = LoggerFactory.getLogger(LDCache.class);
 
     // lock a resource while refreshing it so that not several threads trigger a refresh at the same time
@@ -135,14 +136,6 @@ public class LDCache implements LDCachingService {
                     newEntry.setTripleCount(response.getData().size());
                     newEntry.setTriples(response.getData());
 
-                    if (entry != null) {
-                        for (URI uri : entry.getSkolemizedResources()) {
-                            final CacheEntry entry1 = backend.getEntry(uri);
-                            backend.removeEntry(uri);
-                            createSubjectForResourceWithinRequest(uri, entry1.getResource(), RefreshOpts.IGNORE_LOCKS);
-                        }
-                    }
-
                     backend.putEntry(resource, newEntry);
 
                 }
@@ -190,7 +183,16 @@ public class LDCache implements LDCachingService {
         CacheEntry entry =  backend.getEntry(resource);
 
         if(entry != null) {
-            return entry.getTriples();
+            final URI parentResource = entry.getParentResource();
+            if (parentResource != null) {
+                final Model statements = get(parentResource, options);
+
+                statements.setNamespace(SMUGGLED_ORIGINAL_RESOURCE_ID, entry.getResource().stringValue());
+
+                return statements;
+            } else {
+                return entry.getTriples();
+            }
         } else {
             return new TreeModel();
         }
@@ -243,53 +245,33 @@ public class LDCache implements LDCachingService {
      */
     @Override
     public URI createSubjectForResourceWithinRequest(URI requestUri, URI subject, RefreshOpts... options) {
-        Set<RefreshOpts> optionSet = new HashSet<>(Arrays.asList(options));
+        final String localName = String.valueOf(requestUri.hashCode() + subject.hashCode());
 
-        refresh(requestUri, options);
-
-        if (!optionSet.contains(RefreshOpts.IGNORE_LOCKS)) {
-            resourceLocks.lock(requestUri.stringValue());
-        }
+        resourceLocks.lock(localName);
 
         try {
             final Model triples = new TreeModel();
 
-            CacheEntry entry =  backend.getEntry(requestUri);
-            final Model salientTriples = entry.getTriples().filter(subject, null, null);
-
-            triples.addAll(salientTriples);
-
             // create a relationship from this temporary object back to the resource
             final ValueFactoryImpl valueFactory = ValueFactoryImpl.getInstance();
-            final URI skolemizedUri = valueFactory.createURI(SKOLEMIZED_NAMESPACE, String.valueOf(requestUri.hashCode() + subject.hashCode()));
+            final URI skolemizedUri = valueFactory.createURI(SKOLEMIZED_NAMESPACE, localName);
             triples.add(skolemizedUri, OWL.SAMEAS, subject);
 
             CacheEntry newEntry = new CacheEntry();
+            newEntry.setParentResource(requestUri);
             newEntry.setResource(subject);
-            newEntry.setExpiryDate(entry.getExpiryDate());
+            newEntry.setExpiryDate(new Date(System.currentTimeMillis() + config.getDefaultExpiry()*1000));
             newEntry.setLastRetrieved(new Date());
-            if(entry != null) {
-                newEntry.setUpdateCount(entry.getUpdateCount()+1);
-            } else {
-                newEntry.setUpdateCount(1);
-            }
+            newEntry.setUpdateCount(1);
             newEntry.setTripleCount(triples.size());
             newEntry.setTriples(triples);
 
             backend.putEntry(skolemizedUri, newEntry);
 
-            // store a pointer back to itself
-            if (entry != null) {
-                entry.addSkolemizedResource(skolemizedUri);
-                backend.putEntry(requestUri, entry);
-            }
-
             return skolemizedUri;
 
         } finally {
-            if (!optionSet.contains(RefreshOpts.IGNORE_LOCKS)) {
-                resourceLocks.unlock(requestUri.stringValue());
-            }
+            resourceLocks.unlock(localName);
         }
     }
 

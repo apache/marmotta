@@ -63,11 +63,10 @@ public class CacheEntry implements Serializable {
      */
     private Integer tripleCount;
 
-    private List<URI> skolemizedResources;
+    private URI parentResource;
 
 
     public CacheEntry() {
-        skolemizedResources = new ArrayList<>();
     }
 
 
@@ -155,9 +154,8 @@ public class CacheEntry implements Serializable {
         this.triples = triples;
     }
 
-    public void addSkolemizedResource(URI uri) { this.skolemizedResources.add(uri); }
-
-    public List<URI> getSkolemizedResources() { return this.skolemizedResources; }
+    public void setParentResource(URI uri) { this.parentResource = uri; }
+    public URI getParentResource() { return this.parentResource; }
 
     @Override
     public String toString() {

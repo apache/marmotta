@@ -28,6 +28,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.OWL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,12 +326,10 @@ public class LDCacheBackend implements RDFBackend<Value> {
 
             final Model statements = ldcache.get(s);
 
-            final org.openrdf.model.URI sameAs = (org.openrdf.model.URI) OWL.SAMEAS;
             final Model filter;
-            if (s.getNamespace().equals(LDCache.SKOLEMIZED_NAMESPACE) && statements.contains(s, sameAs, null)) {
-                s = statements.filter(s, sameAs, null).objectURI();
-                filter = statements.filter(s, p, null);
-
+            if (s.getNamespace().equals(LDCache.SKOLEMIZED_NAMESPACE) && statements.getNamespace(LDCache.SMUGGLED_ORIGINAL_RESOURCE_ID) != null) {
+                final org.openrdf.model.URI realSubject = ValueFactoryImpl.getInstance().createURI(statements.getNamespace(LDCache.SMUGGLED_ORIGINAL_RESOURCE_ID).getName());
+                filter = statements.filter(realSubject, p, null);
             } else {
                 filter = statements.filter(s, p, null);
             }
