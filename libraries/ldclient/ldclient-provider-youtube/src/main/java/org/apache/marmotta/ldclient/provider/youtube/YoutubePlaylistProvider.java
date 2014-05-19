@@ -57,7 +57,6 @@ public class YoutubePlaylistProvider extends AbstractXMLDataProvider implements 
         youtubeNamespaces.put("gml","http://www.opengis.net/gml");
     }
 
-
     private static Map<String,XPathValueMapper> mediaOntMappings = new HashMap<String, XPathValueMapper>();
     static {
         mediaOntMappings.put("http://www.w3.org/ns/ma-ont#collectionName",new XPathLiteralMapper("/atom:feed/atom:title", youtubeNamespaces));
@@ -65,8 +64,6 @@ public class YoutubePlaylistProvider extends AbstractXMLDataProvider implements 
         mediaOntMappings.put("http://www.w3.org/ns/ma-ont#hasCreator",    new XPathURIMapper("/atom:feed/atom:author/@uri", youtubeNamespaces));               // URI
         mediaOntMappings.put("http://www.w3.org/ns/ma-ont#hasPublisher",  new XPathURIMapper("/atom:feed/atom:author/@uri", youtubeNamespaces));               // URI
     }
-
-
 
     private static Logger log = LoggerFactory.getLogger(YoutubePlaylistProvider.class);
 
