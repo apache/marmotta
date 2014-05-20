@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.ldcache.model;
 
+import com.google.common.collect.Multimap;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
@@ -60,6 +61,7 @@ public class CacheEntry implements Serializable {
      * The number of triples that have been retrieved in the last cache refresh.
      */
     private Integer tripleCount;
+    private Multimap<String, String> headers;
 
 
     public CacheEntry() {
@@ -156,4 +158,9 @@ public class CacheEntry implements Serializable {
         return String.format("CacheEntry(resource=%s,triples=%d,expiry=%s)", getResource().stringValue(), getTripleCount(), DateUtils.ISO8601FORMAT.format(getExpiryDate()));
     }
 
+    public void setHeaders(Multimap<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public Multimap<String,String> getHeaders() { return headers; }
 }

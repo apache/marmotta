@@ -149,6 +149,19 @@ public class FunctionsTest extends AbstractTestBase {
         final Collection<Value> resulti = seli.select(backend, start, null, null);
         assertEquals(1, resulti.size());
         assertThat(resulti, allOf(hasItem(ex1), not(hasItem(ex2))));
+    }
+
+    @Test
+    public void testHeader() throws ParseException {
+        final URI start = repository.getValueFactory().createURI("http://www.example.com/start");
+
+        final LdPathParser<Value> parser = createParserFromString("fn:header(\"Date\")");
+        final NodeSelector<Value> sel = parser.parseSelector(NSS);
+
+        final Collection<Value> result = sel.select(backend, start, null, null);
+        // the test provider will not provide any headers
+        assertEquals(0, result.size());
 
     }
+
 }
