@@ -19,7 +19,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX ma: <http://www.w3.org/ns/ma-ont#>
 ASK {
-    <http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g> ma:collectionName "Favorite videos" .
+    <http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g> ma:collectionName "Favorites" .
     <http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g> ma:hasMember <http://gdata.youtube.com/feeds/api/videos/fUEdwKX-Dw4> .
-    <http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g> rdf:type ma:Collection
+    <http://www.youtube.com/playlist?list=FLsrORDOimfQf42SDGJgRY4g> rdf:type ma:Collection .
 }
