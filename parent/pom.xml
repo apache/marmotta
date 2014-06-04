@@ -1639,6 +1639,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+              <groupId>org.apache.marmotta</groupId>
+              <artifactId>ldpath-functions-json</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>ldpath-functions-math</artifactId>
                 <version>${project.version}</version>
@@ -1662,6 +1667,11 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>0.9.1</version>
             </dependency>
 
             <dependency>

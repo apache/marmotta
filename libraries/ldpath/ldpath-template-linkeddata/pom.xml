@@ -118,6 +118,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
+            <artifactId>ldpath-functions-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>ldpath-functions-math</artifactId>
         </dependency>
         <dependency>
