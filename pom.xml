@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.0-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -118,7 +118,7 @@
         <url>https://git-wip-us.apache.org/repos/asf/marmotta.git</url>
         <connection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</developerConnection>
-        <tag>3.2.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
@@ -344,12 +344,12 @@
                                                 <include name="target/*-src.zip*" />
                                                 <include name="launchers/marmotta-webapp/target/*-webapp.zip*" />
                                                 <include name="launchers/marmotta-installer/target/*-installer.zip*" />
-                                                <include name="libraries/ldpath/ldpath-backend-linkeddata/target/*-ldpath.zip*" />
+                                                <include name="libraries/ldpath/ldpath-ldquery-cli/target/*-ldquery.zip*" />
 
                                                 <include name="target/*-src.tar.gz*" />
                                                 <include name="launchers/marmotta-webapp/target/*-webapp.tar.gz*" />
                                                 <include name="launchers/marmotta-installer/target/*-installer.tar.gz*" />
-                                                <include name="libraries/ldpath/ldpath-backend-linkeddata/target/*-ldpath.tar.gz*" />
+                                                <include name="libraries/ldpath/ldpath-ldquery-cli/target/*-ldquery.tar.gz*" />
                                                 <exclude name="*.asc.asc" />
                                             </fileset>
                                         </copy>
@@ -370,8 +370,8 @@
                                         </exec>
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-installer.zip" algorithm="SHA1" property="checksum.installer.zip" />
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-installer.tar.gz" algorithm="SHA1" property="checksum.installer.tgz" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldpath.zip" algorithm="SHA1" property="checksum.ldpath.zip" />
-                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldpath.tar.gz" algorithm="SHA1" property="checksum.ldpath.tgz" />
+                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldquery.zip" algorithm="SHA1" property="checksum.ldquery.zip" />
+                                        <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-ldquery.tar.gz" algorithm="SHA1" property="checksum.ldquery.tgz" />
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-src.zip" algorithm="SHA1" property="checksum.src.zip" />
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-src.tar.gz" algorithm="SHA1" property="checksum.src.tgz" />
                                         <checksum file="${basedir}/target/${project.version}/apache-marmotta-${project.version}-webapp.zip" algorithm="SHA1" property="checksum.webapp.zip" />
@@ -400,9 +400,9 @@ In addition, the following supplementary binary distributions are provided:
 - apache-marmotta-${project.version}-installer.[zip|tar.gz]
   SHA1 of ZIP: ${checksum.installer.zip}
   SHA1 of TGZ: ${checksum.installer.tgz}
-- apache-marmotta-${project.version}-ldpath.[zip|tar.gz]
-  SHA1 of ZIP: ${checksum.ldpath.zip}
-  SHA1 of TGZ: ${checksum.ldpath.tgz}
+- apache-marmotta-${project.version}-ldquery.[zip|tar.gz]
+  SHA1 of ZIP: ${checksum.ldquery.zip}
+  SHA1 of TGZ: ${checksum.ldquery.tgz}
 - apache-marmotta-${project.version}-webapp.[zip|tar.gz]
   SHA1 of ZIP: ${checksum.webapp.zip}
   SHA1 of TGZ: ${checksum.webapp.tgz}

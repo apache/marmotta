@@ -271,14 +271,17 @@ public class KiWiDatabaseRunner extends Suite {
         private class CheckDBRule implements MethodRule {
 
             private final AssumptionViolatedException assume;
+            private final KiWiConfiguration dbConfig;
 
             public CheckDBRule(KiWiConfiguration dbConfig) {
+                this.dbConfig = dbConfig;
                 AssumptionViolatedException ex = null;
                 try {
                     DBConnectionChecker.checkDatabaseAvailability(dbConfig);
                 } catch (AssumptionViolatedException ave) {
                     ex = ave;
                 }
+                // Cache the result.
                 this.assume = ex;
             }
             
@@ -289,7 +292,11 @@ public class KiWiDatabaseRunner extends Suite {
                     @Override
                     public void evaluate() throws Throwable {
                         if (assume != null) {
-                            logger.info("{} skipped because database is not available", testName(method));
+                            if (logger.isDebugEnabled()) {
+                                logger.info("{} skipped because database {} ({}) is not available", testName(method), dbConfig.getName(), dbConfig.getJdbcUrl());
+                            } else {
+                                logger.info("{} skipped because database {} is not available", testName(method), dbConfig.getName());
+                            }
                             throw assume;
                         }
                         base.evaluate();
