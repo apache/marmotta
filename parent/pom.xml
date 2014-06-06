@@ -1498,7 +1498,7 @@
             <dependency>
                 <groupId>com.jayway.jsonpath</groupId>
                 <artifactId>json-path</artifactId>
-                <version>0.8.1</version>
+                <version>0.9.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.directory.api</groupId>
@@ -1673,11 +1673,6 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>1.7.2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.jayway.jsonpath</groupId>
-                <artifactId>json-path</artifactId>
-                <version>0.9.1</version>
             </dependency>
 
             <dependency>
