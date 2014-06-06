@@ -109,6 +109,22 @@
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Oliver Janner</name>
+            <organization>Salzburg Research</organization>
+        </contributor>
+        <contributor>
+            <name>Viktor Gal</name>
+            <url>http://github.com/vigsterkr</url>
+            <organization>Gravity R&amp;D</organization>
+        </contributor>
+        <contributor>
+            <name>Chris Beer</name>
+            <url>http://cbeer.info/</url>
+        </contributor>
+    </contributors>
+
     <organization>
         <name>The Apache Software Foundation</name>
         <url>http://www.apache.org</url>
