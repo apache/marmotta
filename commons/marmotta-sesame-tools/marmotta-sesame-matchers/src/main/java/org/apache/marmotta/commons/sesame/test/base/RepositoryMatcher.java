@@ -68,6 +68,11 @@ public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> im
         delegate.describeMismatch(item, mismatchDescription);
     }
 
+    /**
+     * Wrap an instance of an {@link AbstractRepositoryConnectionMatcher} to match against an Sesame {@link Repository}.
+     *
+     * @param connectionMatcher the {@link AbstractRepositoryConnectionMatcher} to wrap
+     */
     public static <T extends Repository> Matcher<T> wrap(Matcher<? extends RepositoryConnection> connectionMatcher) {
         return new RepositoryMatcher<T>(connectionMatcher);
     }

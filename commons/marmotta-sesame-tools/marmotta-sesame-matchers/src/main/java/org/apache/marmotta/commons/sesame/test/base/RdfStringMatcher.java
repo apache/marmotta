@@ -28,7 +28,7 @@ import org.openrdf.sail.memory.MemoryStore;
 import java.io.StringReader;
 
 /**
- * Match an RDF String (various Formats)
+ * Match against an RDF String (in various Formats)
  */
 public class RdfStringMatcher<T extends String> extends SesameMatcher<T> implements Matcher<T> {
 
@@ -82,6 +82,15 @@ public class RdfStringMatcher<T extends String> extends SesameMatcher<T> impleme
         description.appendText(format.getName()).appendText(" String ").appendDescriptionOf(delegate);
     }
 
+    /**
+     * Wrap an instance of an AbstractRepositoryConnectionMatcher to match it against an RDF-String.
+     *
+     * @param format the RDFFormat of the String
+     * @param baseUri the baseUri for de-serializing the String
+     * @param delegate the AbstractRepositoryConnectionMatcher to wrap.
+     *
+     * @see org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher
+     */
     public static <T extends String> Matcher<T> wrap(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection> delegate) {
         return new RdfStringMatcher<T>(format, baseUri, delegate);
     }
