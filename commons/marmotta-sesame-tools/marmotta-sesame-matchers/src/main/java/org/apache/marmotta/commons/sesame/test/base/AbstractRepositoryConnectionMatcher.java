@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.commons.sesame.test.base;
 
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;

@@ -58,7 +58,7 @@ public class SparqlGraphQueryMatcher<T extends RepositoryConnection> extends Spa
                 connection2.commit();
 
                 boolean result = true;
-                for (Matcher<? extends RepositoryConnection> matcher: matchers) {
+                for (Matcher<? extends RepositoryConnection> matcher : matchers) {
                     connection2.begin();
                     result &= matcher.matches(connection2);
                     connection2.commit();
@@ -88,8 +88,9 @@ public class SparqlGraphQueryMatcher<T extends RepositoryConnection> extends Spa
      * Create a {@link org.apache.marmotta.commons.sesame.test.sparql.SparqlGraphQueryMatcher} that matches the given
      * {@link org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher} against the result of
      * the given SPARQL CONSTRUCT query.
+     *
      * @param baseUri The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
-     * @param query A SPARQL CONSTRUCT query
+     * @param query   A SPARQL CONSTRUCT query
      * @param matcher the AbstractRepositoryConnectionMatcher to match
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlGraphQuery(String baseUri, String query, Matcher<? extends RepositoryConnection> matcher) {
@@ -100,8 +101,9 @@ public class SparqlGraphQueryMatcher<T extends RepositoryConnection> extends Spa
      * Create a {@link org.apache.marmotta.commons.sesame.test.sparql.SparqlGraphQueryMatcher} that matches the given
      * {@link org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher} against the result of
      * the given SPARQL CONSTRUCT query.
-     * @param baseUri The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
-     * @param query A SPARQL CONSTRUCT query
+     *
+     * @param baseUri  The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
+     * @param query    A SPARQL CONSTRUCT query
      * @param matchers the AbstractRepositoryConnectionMatcher to match
      */
     @SafeVarargs

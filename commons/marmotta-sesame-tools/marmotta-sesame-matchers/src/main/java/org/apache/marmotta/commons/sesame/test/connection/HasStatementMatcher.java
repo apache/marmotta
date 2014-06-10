@@ -39,11 +39,11 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
 
     /**
      * Create a RepositoryConnection Matcher checking if the provided Statement is contained in the Connection.
-     * @param subject the subject of the statement, use {@code null} as wildcard.
-     * @param predicate the predicate of the statement, use {@code null} as wildcard.
-     * @param object the object of the statement, use {@code null} as wildcard.
-     * @param contexts the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      *
+     * @param subject   the subject of the statement, use {@code null} as wildcard.
+     * @param predicate the predicate of the statement, use {@code null} as wildcard.
+     * @param object    the object of the statement, use {@code null} as wildcard.
+     * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
@@ -53,12 +53,12 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
 
     /**
      * Create a RepositoryConnection Matcher checking if the provided Statement is contained in the Connection.
-     * @param subject the subject of the statement, use {@code null} as wildcard.
-     * @param predicate the predicate of the statement, use {@code null} as wildcard.
-     * @param object the object of the statement, use {@code null} as wildcard.
-     * @param includeInferrred if false, no inferred statements are considered; if true, inferred statements are considered if available
-     * @param contexts the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      *
+     * @param subject          the subject of the statement, use {@code null} as wildcard.
+     * @param predicate        the predicate of the statement, use {@code null} as wildcard.
+     * @param object           the object of the statement, use {@code null} as wildcard.
+     * @param includeInferrred if false, no inferred statements are considered; if true, inferred statements are considered if available
+     * @param contexts         the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
@@ -86,11 +86,11 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
 
     /**
      * Create a RepositoryConnection Matcher checking if the provided Statement is contained in the Connection.
-     * @param subject the subject of the statement, use {@code null} as wildcard.
-     * @param predicate the predicate of the statement, use {@code null} as wildcard.
-     * @param object the object of the statement, use {@code null} as wildcard.
-     * @param contexts the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      *
+     * @param subject   the subject of the statement, use {@code null} as wildcard.
+     * @param predicate the predicate of the statement, use {@code null} as wildcard.
+     * @param object    the object of the statement, use {@code null} as wildcard.
+     * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */

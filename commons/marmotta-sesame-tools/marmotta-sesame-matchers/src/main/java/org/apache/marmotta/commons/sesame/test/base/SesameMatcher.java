@@ -18,7 +18,6 @@
 package org.apache.marmotta.commons.sesame.test.base;
 
 import org.hamcrest.TypeSafeMatcher;
-import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Shared Superclass for all SesameMatchers.

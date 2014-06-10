@@ -24,7 +24,6 @@ import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

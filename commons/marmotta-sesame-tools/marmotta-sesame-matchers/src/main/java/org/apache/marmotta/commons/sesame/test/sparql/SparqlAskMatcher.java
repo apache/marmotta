@@ -50,9 +50,8 @@ public class SparqlAskMatcher<T extends RepositoryConnection> extends SparqlMatc
      * Create a SparqlAskMatcher that evaluates a SPARQL ASK query against the {@link org.openrdf.repository.RepositoryConnection}
      * to test.
      *
-     * @param baseUri The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
+     * @param baseUri  The base URI to resolve any relative URIs that are in the query against, can be null if the query does not contain any relative URIs.
      * @param askQuery the SPARQL ASK query.
-     *
      * @see org.openrdf.query.BooleanQuery#evaluate()
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlAsk(String baseUri, String askQuery) {
@@ -64,7 +63,6 @@ public class SparqlAskMatcher<T extends RepositoryConnection> extends SparqlMatc
      * to test. The baseUri of the SPARQL Query is assumed {@code null}.
      *
      * @param askQuery the SPARQL ASK query.
-     *
      * @see #sparqlAsk(String, String)
      * @see org.openrdf.query.BooleanQuery#evaluate()
      */
