@@ -456,7 +456,9 @@ public class LdpServiceImpl implements LdpService {
         // Delete the resource data
         connection.clear(resource);
 
-        // FIXME: Sec. 5.2.3.11: LDP servers that allow member creation via POST should not re-use URIs.
+        // Sec. 5.2.3.11: LDP servers that allow member creation via POST should not re-use URIs.
+        connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+        //TODO: keep the track if was there work, but is a good idea?
 
         return true;
     }
