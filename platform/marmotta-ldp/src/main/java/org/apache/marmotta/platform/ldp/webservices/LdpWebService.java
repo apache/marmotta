@@ -110,17 +110,11 @@ public class LdpWebService {
                 log.trace("{} exists, continuing", resource);
             }
 
-            // TODO: Proper content negotiation
-
             final RDFFormat format;
             if (type.isWildcardType()) { // No explicit Accept Header
-                if (ldpService.isRdfSourceResource(conn, resource)) {
-                    format = RDFFormat.TURTLE;
-                } else {
-                    format = null;
-                }
+                format = ( ldpService.isRdfSourceResource(conn, resource) ? RDFFormat.TURTLE : null );
             } else {
-                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), null);
+                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), RDFFormat.TURTLE);
             }
 
             if (format == null) {
