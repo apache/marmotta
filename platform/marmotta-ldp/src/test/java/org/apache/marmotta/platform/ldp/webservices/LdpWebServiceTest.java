@@ -74,7 +74,7 @@ public class LdpWebServiceTest {
 
     @AfterClass
     public static void shutdown() {
-        //marmotta.shutdown();
+        marmotta.shutdown();
         marmotta = null;
         testResourceTTL = null;
     }
@@ -307,11 +307,6 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(400)
             .post(container);
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        marmotta.shutdown();
     }
 
 }
