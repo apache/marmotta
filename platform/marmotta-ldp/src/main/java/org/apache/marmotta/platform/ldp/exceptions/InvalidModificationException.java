@@ -24,7 +24,7 @@ package org.apache.marmotta.platform.ldp.exceptions;
  *
  * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpr-put-servermanagedprops">LDP Spec, Sec. 5.5.2</a>
  */
-public class InvalidModificationException extends Exception {
+public class InvalidModificationException extends LDPException {
 
     public InvalidModificationException() {
         super();

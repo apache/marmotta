@@ -24,7 +24,7 @@ package org.apache.marmotta.platform.ldp.exceptions;
  *
  * @author Jakob Frank (jakob@apache.org)
  */
-public class InvalidInteractionModelException extends Exception {
+public class InvalidInteractionModelException extends LDPException {
 
     private final String href;
 

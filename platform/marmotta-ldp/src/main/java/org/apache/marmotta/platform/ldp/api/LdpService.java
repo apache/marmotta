@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldp.api;
 
 import org.apache.marmotta.commons.vocabulary.LDP;
+import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
@@ -35,8 +36,7 @@ import javax.ws.rs.core.Link;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  *  LDP Service
@@ -80,6 +80,8 @@ public interface LdpService {
         }
 
     }
+
+    public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(LDP.contains));
 
     boolean exists(RepositoryConnection connection, String resource) throws RepositoryException;
 
@@ -149,6 +151,9 @@ public interface LdpService {
      */
     String addResource(RepositoryConnection connection, URI container, URI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
+    String updateResource(RepositoryConnection con, String resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException;
+
+    String updateResource(RepositoryConnection con, URI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
 
     List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException;
 
