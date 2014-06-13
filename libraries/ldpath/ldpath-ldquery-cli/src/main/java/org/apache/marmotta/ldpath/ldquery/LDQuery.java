@@ -15,12 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.ldpath.backend.linkeddata;
+package org.apache.marmotta.ldpath.ldquery;
 
 import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.jr.ob.JSON;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.marmotta.ldpath.LDPath;
+import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
@@ -36,7 +39,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Command line application for querying input from files.
+ * Command line application for querying input from the LinkedDataCloud.
  * <p/>
  * Author: Sebastian Schaffert
  */
@@ -100,20 +103,38 @@ public class LDQuery {
 
                     Map<String,Collection<?>> result = ldpath.programQuery(context,new FileReader(file));
 
-                    for(String field : result.keySet()) {
-                        StringBuilder line = new StringBuilder();
-                        line.append(field);
-                        line.append(" = ");
-                        line.append("{");
-                        for (Iterator<?> it = result.get(field).iterator(); it.hasNext();) {
-                            line.append(it.next().toString());
-                            if(it.hasNext()) {
-                                line.append(", ");
-                            }
+                    if (cmd.hasOption("format")) {
+                        final String format = cmd.getOptionValue("format");
+                        if (format.equals("json")) {
+                            // Jackson.jr closes the output stream.
+                            final ProxyOutputStream proxyOutputStream = new ProxyOutputStream(System.out) {
+                                @Override
+                                public void close() throws IOException {
+                                     flush();
+                                }
+                            };
+                            JSON.std.write(result, proxyOutputStream);
+                            System.out.println("");
+                        } else {
+                            System.err.println("Unknown format: " + format);
+                        System.exit(1);
                         }
-                        line.append("}");
-                        System.out.println(line);
+                    } else {
+                        for (String field : result.keySet()) {
+                            StringBuilder line = new StringBuilder();
+                            line.append(field);
+                            line.append(" = ");
+                            line.append("{");
+                            for (Iterator<?> it = result.get(field).iterator(); it.hasNext(); ) {
+                                line.append(it.next().toString());
+                                if (it.hasNext()) {
+                                    line.append(", ");
+                                }
+                            }
+                            line.append("}");
+                            System.out.println(line);
 
+                        }
                     }
                 }
             }
@@ -166,6 +187,8 @@ public class LDQuery {
         Option store = OptionBuilder.withArgName("dir").hasArg().withDescription("cache the retrieved data in this directory").create("store");
         result.addOption(store);
 
+        Option format = OptionBuilder.withArgName("format").hasArg().withDescription("output format").create("format");
+        result.addOption(format);
 
         return result;
     }

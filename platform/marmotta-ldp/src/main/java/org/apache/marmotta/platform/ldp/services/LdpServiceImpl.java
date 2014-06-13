@@ -26,6 +26,7 @@ import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
@@ -40,11 +41,12 @@ import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+import org.openrdf.repository.event.base.InterceptingRepositoryConnectionWrapper;
+import org.openrdf.repository.event.base.RepositoryConnectionInterceptorAdapter;
 import org.openrdf.rio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.EntityTag;
@@ -53,7 +55,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * LDP Service default implementation
@@ -315,6 +319,79 @@ public class LdpServiceImpl implements LdpService {
             connection.add(stream, resource.stringValue(), rdfFormat, resource);
 
             return resource.stringValue();
+        }
+    }
+
+    @Override
+    public String updateResource(RepositoryConnection con, String resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
+        return updateResource(con, buildURI(resource), stream, type);
+    }
+
+    @Override
+    public String updateResource(final RepositoryConnection con, final URI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException {
+        final ValueFactory valueFactory = con.getValueFactory();
+        final Literal now = valueFactory.createLiteral(new Date());
+
+        con.remove(resource, DCTERMS.modified, null, ldpContext);
+        con.add(resource, DCTERMS.modified, now, ldpContext);
+
+        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
+        // Check submitted format vs. real resource type (RDF-S vs. Non-RDF)
+        if (rdfFormat == null && isNonRdfSourceResource(con, resource)) {
+            log.debug("Updating <{}> as LDP-NR (binary) - {}", resource, type);
+
+            final Literal format = valueFactory.createLiteral(type);
+
+            con.remove(resource, DCTERMS.format, null, ldpContext);
+            con.add(resource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
+
+            final URI ldp_rs = getRdfSourceForNonRdfSource(con, resource);
+            if (ldp_rs != null) {
+                con.remove(ldp_rs, DCTERMS.modified, null, ldpContext);
+                con.add(ldp_rs, DCTERMS.modified, now, ldpContext);
+                log.trace("Updated Meta-Data of LDP-RS <{}> for LDP-NR <{}>; Modified: {}", ldp_rs, resource, now);
+            } else {
+                log.debug("LDP-RS for LDP-NR <{}> not found", resource);
+            }
+            log.trace("Meta-Data for <{}> updated; Format: {}, Modified: {}", resource, format, now);
+
+            binaryStore.store(resource, stream);//TODO: exceptions control
+
+            log.trace("LDP-NR <{}> updated", resource);
+            return resource.stringValue();
+        } else if (rdfFormat != null && isRdfSourceResource(con, resource)) {
+            log.debug("Updating <{}> as LDP-RS - {}", resource, rdfFormat.getDefaultMIMEType());
+
+            con.clear(resource);
+            final InterceptingRepositoryConnectionWrapper filtered = new InterceptingRepositoryConnectionWrapper(con.getRepository(), con);
+            final Set<URI> deniedProperties = new HashSet<>();
+            filtered.addRepositoryConnectionInterceptor(new RepositoryConnectionInterceptorAdapter() {
+                @Override
+                public boolean add(RepositoryConnection conn, Resource subject, URI predicate, Value object, Resource... contexts) {
+                    if (resource.equals(subject) && SERVER_MANAGED_PROPERTIES.contains(predicate)) {
+                        deniedProperties.add(predicate);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            filtered.add(stream, resource.stringValue(), rdfFormat, resource);
+
+            if (!deniedProperties.isEmpty()) {
+                final URI prop = deniedProperties.iterator().next();
+                log.debug("Invalid property modification in update: <{}> is a server controlled property", prop);
+                throw new InvalidModificationException(String.format("Must not update <%s> using PUT", prop));
+            }
+            log.trace("LDP-RS <{}> updated", resource);
+            return resource.stringValue();
+        } else if (rdfFormat == null) {
+            final String mimeType = getMimeType(con, resource);
+            log.debug("Incompatible replacement: Can't replace {} with {}", mimeType, type);
+            throw new IncompatibleResourceTypeException(mimeType, type);
+        } else {
+            log.debug("Incompatible replacement: Can't replace a LDP-RS with {}", type);
+            throw new IncompatibleResourceTypeException("RDF", type);
         }
     }
 

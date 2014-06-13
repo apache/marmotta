@@ -50,4 +50,23 @@ public class EntityTagUtils {
         }
     }
 
+    /**
+     * This is a workaround for <a href="https://issues.jboss.org/browse/RESTEASY-1019">RESTEASY-1019</a>
+     *
+     * @see javax.ws.rs.core.EntityTag#equals(Object)
+     * @deprecated use {@link javax.ws.rs.core.EntityTag#valueOf(String)} when RESTEASY-1019 is fixed.
+     */
+    @Deprecated
+    public static EntityTag parseEntityTag(String headerValue) {
+        boolean weak = false;
+        if (headerValue.startsWith("W/")) {
+            weak = true;
+            headerValue = headerValue.substring(2);
+        }
+        if (headerValue.startsWith("\"") && headerValue.endsWith("\"")) {
+            headerValue = headerValue.substring(1, headerValue.length() -1);
+        }
+        return new EntityTag(headerValue,weak);
+    }
+
 }

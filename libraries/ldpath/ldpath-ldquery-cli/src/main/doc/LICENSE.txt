@@ -210,6 +210,7 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
  * Infinispan, http://infinispan.org
  * JBoss Marshalling, https://github.com/jboss-remoting/jboss-marshalling/
  * JGroups, http://www.jgroups.org
+ * JsonPath, https://github.com/jayway/JsonPath
 
 
 Apache Marmotta subcomponents:

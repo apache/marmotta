@@ -19,7 +19,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
-    <id>ldpath</id>
+    <id>ldquery</id>
 
     <formats>
         <format>zip</format>
@@ -47,7 +47,7 @@
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.build.directory}/ldpath-${project.version}.jar</source>
+            <source>${project.build.directory}/ldquery-${project.version}.jar</source>
             <outputDirectory>/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

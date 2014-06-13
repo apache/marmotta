@@ -27,13 +27,13 @@ import org.openrdf.repository.RepositoryConnection;
  */
 public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> implements Matcher<T> {
 
-    private final Matcher<? extends RepositoryConnection> delegate;
+    private final Matcher<? extends RepositoryConnection>[] delegates;
 
     /**
-     * @param delegate the Matcher to wrap.
+     * @param delegates the Matcher to wrap.
      */
-    public RepositoryMatcher(Matcher<? extends RepositoryConnection> delegate) {
-        this.delegate = delegate;
+    public RepositoryMatcher(Matcher<? extends RepositoryConnection>... delegates) {
+        this.delegates = delegates;
     }
 
     @Override
@@ -41,9 +41,13 @@ public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> im
         try {
             final RepositoryConnection con = repository.getConnection();
             try {
-                con.begin();
-                boolean matches = delegate.matches(con);
-                con.commit();
+
+                boolean matches = true;
+                for (Matcher<? extends RepositoryConnection> delegate : delegates) {
+                    con.begin();
+                    matches &= delegate.matches(con);
+                    con.commit();
+                }
                 return matches;
             } catch (final Throwable t) {
                 con.rollback();
@@ -60,15 +64,43 @@ public class RepositoryMatcher<T extends Repository> extends SesameMatcher<T> im
 
     @Override
     public void describeTo(Description description) {
-        delegate.describeTo(description);
+        description.appendText(" a SesameRepositoy ");
+        for (int i = 0; i < delegates.length; i++) {
+            Matcher<? extends RepositoryConnection> delegate = delegates[i];
+            if (i > 0) {
+                description.appendText(",\n and ");
+            }
+            description.appendDescriptionOf(delegate);
+        }
     }
 
     @Override
     protected void describeMismatchSafely(T item, Description mismatchDescription) {
-        delegate.describeMismatch(item, mismatchDescription);
+        mismatchDescription.appendText(" a SesameRepositoy ");
+        for (int i = 0; i < delegates.length; i++) {
+            Matcher<? extends RepositoryConnection> delegate = delegates[i];
+            if (i > 0) {
+                mismatchDescription.appendText(",\n and ");
+            }
+            delegate.describeMismatch(item, mismatchDescription);
+        }
     }
 
+    /**
+     * Wrap an instance of an {@link AbstractRepositoryConnectionMatcher} to match against an Sesame {@link Repository}.
+     *
+     * @param connectionMatcher the {@link AbstractRepositoryConnectionMatcher} to wrap
+     */
     public static <T extends Repository> Matcher<T> wrap(Matcher<? extends RepositoryConnection> connectionMatcher) {
         return new RepositoryMatcher<T>(connectionMatcher);
+    }
+
+    /**
+     * Wrap an instance of an {@link AbstractRepositoryConnectionMatcher} to match against an Sesame {@link Repository}.
+     *
+     * @param connectionMatchers the {@link AbstractRepositoryConnectionMatcher}s to wrap
+     */
+    public static <T extends Repository> Matcher<T> wrap(Matcher<? extends RepositoryConnection>... connectionMatchers) {
+        return new RepositoryMatcher<T>(connectionMatchers);
     }
 }

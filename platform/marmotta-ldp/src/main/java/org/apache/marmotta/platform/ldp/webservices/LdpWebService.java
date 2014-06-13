@@ -22,6 +22,7 @@ import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -296,6 +298,7 @@ public class LdpWebService {
             con.begin();
 
             if (!ldpService.exists(con, resource)) {
+                log.trace("Resource does not exists: {}", resource);
                 final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_FOUND, resource);
                 con.rollback();
                 return resp.build();
@@ -319,14 +322,28 @@ public class LdpWebService {
                 }
             }
 
-            /*
-             * TODO: PUT implementation
-             *
-             * clients should not be allowed to update LDPC-membership triples -> 409 Conflict (Sec. 4.2.4.3)
-             *
-             * if the target resource exists, replace ALL data of the target.
-             */
-            final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_IMPLEMENTED, resource);
+            final String mimeType = LdpUtils.getMimeType(type);
+            log.trace("updating resource <{}>", resource);
+            // NOTE: newResource == resource for now, this might change in the future.
+            final String newResource = ldpService.updateResource(con, resource, postBody, mimeType);
+
+            final Response.ResponseBuilder resp;
+            if (resource.equals(newResource)) {
+                log.trace("PUT update for <{}> successful", resource);
+                resp = createResponse(con, Response.Status.OK, resource);
+            } else {
+                log.trace("PUT on <{}> created new resource <{}>", resource, newResource);
+                resp = createResponse(con, Response.Status.CREATED, resource).location(java.net.URI.create(newResource));
+            }
+            con.commit();
+
+            return resp.build();
+        } catch (IOException | RDFParseException e) {
+            final Response.ResponseBuilder resp = createResponse(con, Response.Status.BAD_REQUEST, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
+            con.rollback();
+            return resp.build();
+        } catch (InvalidModificationException | IncompatibleResourceTypeException e) {
+            final Response.ResponseBuilder resp = createResponse(con, Response.Status.CONFLICT, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
             con.rollback();
             return resp.build();
         } catch (final Throwable t) {

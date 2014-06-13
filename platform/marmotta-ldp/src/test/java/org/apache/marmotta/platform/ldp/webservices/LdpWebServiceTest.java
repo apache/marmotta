@@ -20,23 +20,28 @@ package org.apache.marmotta.platform.ldp.webservices;
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.test.SesameMatchers;
+import org.apache.marmotta.commons.sesame.test.base.SesameMatcher;
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
+import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
 import org.hamcrest.CoreMatchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openrdf.model.URI;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -234,9 +239,9 @@ public class LdpWebServiceTest {
 
         // now the resource hasType
         RestAssured
-                .given()
+            .given()
                 .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
-                .expect()
+            .expect()
                 .statusCode(200)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
@@ -252,7 +257,7 @@ public class LdpWebServiceTest {
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.IS_FORMAT_OF, new URIImpl(baseUrl + newResource))
                 ))
-                .get(newResource + ".png");
+            .get(newResource + ".png");
 
         // now check that the data is really there
         final String expectedMD5 = HashUtils.md5sum(LdpWebServiceTest.class.getResourceAsStream("/test.png"));
@@ -307,6 +312,110 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(400)
             .post(container);
+    }
+
+    @Test
+    public void testPUT() throws Exception {
+        final String container = baseUrl+LdpWebService.PATH + "/test";
+
+        final String put_valid = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test_update.ttl"), "utf8");
+        final String put_invalid = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test_update_invalid.ttl"), "utf8");
+
+
+        // Create a resource
+        final String resource = RestAssured
+            .given()
+                .header("Slug", "PUT")
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(testResourceTTL.getBytes())
+            .expect()
+                .statusCode(201)
+            .post(container)
+                .getHeader("Location");
+        final URI uri = new URIImpl(resource);
+
+        // Check the data is there
+        EntityTag etag = EntityTagUtils.parseEntityTag(RestAssured
+                .given()
+                .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
+                .expect()
+                .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
+                        SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        CoreMatchers.not(SesameMatchers.hasStatement(uri, RDFS.LABEL, null)),
+                        CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
+                ))
+                .get(resource)
+                .getHeader("ETag"));
+        log.debug("ETag for <{}>: {}", resource, etag);
+
+        // Try a Put without if-match header
+        RestAssured
+            .given()
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(put_valid.getBytes())
+            .expect()
+                .statusCode(428)
+            .put(resource);
+
+        // Try a Put with wrong if-match header
+        RestAssured
+            .given()
+                .header("If-Match", new EntityTag("invalid").toString())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(put_valid.getBytes())
+            .expect()
+                .statusCode(412)
+            .put(resource);
+
+        // Try a Put
+        RestAssured
+            .given()
+                .header("If-Match", etag.toString())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(put_valid.getBytes())
+            .expect()
+                .statusCode(200)
+            .put(resource);
+
+        // Check the new data is there
+        etag = EntityTagUtils.parseEntityTag(RestAssured
+            .given()
+                .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
+            .expect()
+                .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
+                        SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        SesameMatchers.hasStatement(uri, RDFS.LABEL, null),
+                        CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
+                ))
+            .get(resource)
+                .header("ETag"));
+
+        // Try an invalid PUT (server-controlled property)
+        // Try a Put
+        RestAssured
+            .given()
+                .header("If-Match", etag.toString())
+                .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(put_invalid.getBytes())
+            .expect()
+                .statusCode(409)
+            .put(resource);
+
+        // Check the data is still there
+        RestAssured
+            .given()
+                .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
+            .expect()
+                .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
+                .header("ETag", HeaderMatchers.hasEntityTag(etag))
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
+                        SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        SesameMatchers.hasStatement(uri, RDFS.LABEL, null),
+                        CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
+                ))
+            .get(resource);
     }
 
 }

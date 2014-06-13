@@ -81,6 +81,14 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
 
 
         @Override
+        public void meet(Union node) throws RuntimeException {
+            super.meet(node);
+
+            allowed = false;
+        }
+
+
+        @Override
         public void meet(Filter node) throws RuntimeException {
             // break traversal
         }

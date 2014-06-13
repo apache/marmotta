@@ -28,16 +28,17 @@ import org.openrdf.sail.memory.MemoryStore;
 import java.io.StringReader;
 
 /**
- * Match an RDF String (various Formats)
+ * Match against an RDF String (in various Formats)
  */
 public class RdfStringMatcher<T extends String> extends SesameMatcher<T> implements Matcher<T> {
 
-    private final Matcher<? extends RepositoryConnection> delegate;
+    private final Matcher<? extends RepositoryConnection>[] delegates;
     private final String baseUri;
     private final RDFFormat format;
 
-    public RdfStringMatcher(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection> delegate) {
-        this.delegate = delegate;
+    @SafeVarargs
+    public RdfStringMatcher(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection>... delegates) {
+        this.delegates = delegates;
         this.baseUri = baseUri;
         this.format = format;
     }
@@ -57,9 +58,12 @@ public class RdfStringMatcher<T extends String> extends SesameMatcher<T> impleme
                     con.add(r, baseUri, format);
                     con.commit();
 
-                    con.begin();
-                    final boolean result = delegate.matches(con);
-                    con.commit();
+                    boolean result = true;
+                    for (Matcher<? extends RepositoryConnection> delegate : delegates) {
+                        con.begin();
+                        result &= delegate.matches(con);
+                        con.commit();
+                    }
                     return result;
                 } catch (final Throwable t) {
                     con.rollback();
@@ -79,10 +83,40 @@ public class RdfStringMatcher<T extends String> extends SesameMatcher<T> impleme
 
     @Override
     public void describeTo(Description description) {
-        description.appendText(format.getName()).appendText(" String ").appendDescriptionOf(delegate);
+        description.appendText(format.getName()).appendText(" String ");
+        if (delegates.length == 1) {
+            description.appendDescriptionOf(delegates[0]);
+        } else {
+            for (Matcher<? extends RepositoryConnection> delegate : delegates) {
+                description.appendText("\n  ").appendDescriptionOf(delegate);
+            }
+        }
     }
 
+    /**
+     * Wrap an instance of an AbstractRepositoryConnectionMatcher to match it against an RDF-String.
+     *
+     * @param format   the RDFFormat of the String
+     * @param baseUri  the baseUri for de-serializing the String
+     * @param delegate the AbstractRepositoryConnectionMatcher to wrap.
+     * @see org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher
+     */
     public static <T extends String> Matcher<T> wrap(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection> delegate) {
         return new RdfStringMatcher<T>(format, baseUri, delegate);
     }
+
+    /**
+     * Wrap an instance of an AbstractRepositoryConnectionMatcher to match it against an RDF-String.
+     *
+     * @param format    the RDFFormat of the String
+     * @param baseUri   the baseUri for de-serializing the String
+     * @param delegates the AbstractRepositoryConnectionMatcher to wrap.
+     * @see org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher
+     */
+    @SafeVarargs
+    public static <T extends String> Matcher<T> wrap(RDFFormat format, String baseUri, Matcher<? extends RepositoryConnection>... delegates) {
+        return new RdfStringMatcher<T>(format, baseUri, delegates);
+    }
+
+
 }
