@@ -50,8 +50,8 @@
         <postgresql.version>9.3-1100-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.2.1.v20140609</jetty.version>
-        <resteasy.version>3.0.6.Final</resteasy.version>
-        <jackson.version>2.2.3</jackson.version>
+        <resteasy.version>3.0.8.Final</resteasy.version>
+        <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
     </properties>
 
@@ -864,8 +864,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jr</groupId>
                 <artifactId>jackson-jr-objects</artifactId>
-                <!-- FIXME: align jackson versions! -->
-                <version>2.3.3</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>
