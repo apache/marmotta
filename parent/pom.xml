@@ -49,7 +49,7 @@
         <h2.version>1.4.178</h2.version>
         <postgresql.version>9.3-1100-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
-        <jetty.version>9.0.3.v20130506</jetty.version>
+        <jetty.version>9.2.1.v20140609</jetty.version>
         <resteasy.version>3.0.6.Final</resteasy.version>
         <jackson.version>2.2.3</jackson.version>
         <titan.version>0.4.2</titan.version>
