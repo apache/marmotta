@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openrdf.query.resultio.QueryResultFormat;
 
 /**
@@ -41,8 +42,6 @@ public class MarmottaHttpUtils {
      * string argument.
      * <p/>
      * Author: Sebastian Schaffert
-     *
-     *
      */
     public static List<ContentType> parseAcceptHeader(String header) {
         String[] components = header.split(",");
@@ -169,6 +168,15 @@ public class MarmottaHttpUtils {
         }
         
         return null;
+    }
+
+    public static ContentType performContentNegotiation(String accept, Collection<String> producedContentTypes) {
+        return performContentNegotiation(accept, MarmottaHttpUtils.parseStringList(producedContentTypes));
+    }
+
+    public static  ContentType performContentNegotiation(String accept, List<ContentType> producedContentTypes) {
+        List<ContentType> acceptedContentTypes = MarmottaHttpUtils.parseAcceptHeader(StringUtils.defaultString(accept, ""));
+        return MarmottaHttpUtils.bestContentType(producedContentTypes, acceptedContentTypes);
     }
 
 }

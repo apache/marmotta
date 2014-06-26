@@ -18,8 +18,11 @@
 package org.apache.marmotta.platform.ldp.webservices;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
@@ -75,6 +78,9 @@ public class LdpWebService {
     private LdpService ldpService;
 
     @Inject
+    private ExportService exportService;
+
+    @Inject
     private SesameService sesameService;
 
     @PostConstruct
@@ -113,14 +119,19 @@ public class LdpWebService {
             }
 
             final RDFFormat format;
-            if (type.isWildcardType()) { // No explicit Accept Header
-                format = ( ldpService.isRdfSourceResource(conn, resource) ? RDFFormat.TURTLE : null );
+            if (type.isWildcardSubtype()) {
+                if (type.isWildcardType() || "text".equals(type.getType())) {
+                    format = RDFFormat.TURTLE;
+                } else {
+                    ContentType contentType = MarmottaHttpUtils.performContentNegotiation(LdpUtils.getMimeType(type), exportService.getProducedTypes());
+                    format = (contentType != null ? Rio.getWriterFormatForMIMEType(contentType.getMime(), RDFFormat.TURTLE) : null);
+                }
             } else {
-                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), null);
+                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), RDFFormat.TURTLE);
             }
 
             if (format == null) {
-                log.debug("GET to <{}> with non-RDF format {}, so looking for a LDP-BR", resource, type);
+                log.debug("GET to <{}> with non-RDF format {} of a LDP-NR", resource, type);
                 final StreamingOutput entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream out) throws IOException, WebApplicationException {
@@ -142,12 +153,12 @@ public class LdpWebService {
                     }
                 };
                 final String realType = ldpService.getMimeType(conn, resource);
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(realType!=null?MediaType.valueOf(realType):type);
+                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(realType != null ? MediaType.valueOf(realType) : type);
                 conn.commit();
                 return resp;
             } else {
                 // Deliver all triples from the <subject> context.
-                log.debug("GET to <{}> with RDF format {}, providing LPD-RR data", resource, format.getDefaultMIMEType());
+                log.debug("GET to <{}> with RDF format {} of a LPD-R", resource, format.getDefaultMIMEType());
                 final StreamingOutput entity = new StreamingOutput() {
                     @Override
                     public void write(OutputStream output) throws IOException, WebApplicationException {
