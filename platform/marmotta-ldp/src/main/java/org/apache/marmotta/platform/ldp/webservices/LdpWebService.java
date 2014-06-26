@@ -116,7 +116,7 @@ public class LdpWebService {
             if (type.isWildcardType()) { // No explicit Accept Header
                 format = ( ldpService.isRdfSourceResource(conn, resource) ? RDFFormat.TURTLE : null );
             } else {
-                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), RDFFormat.TURTLE);
+                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), null);
             }
 
             if (format == null) {
