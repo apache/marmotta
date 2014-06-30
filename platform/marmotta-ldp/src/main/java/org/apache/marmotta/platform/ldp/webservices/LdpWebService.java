@@ -119,15 +119,21 @@ public class LdpWebService {
             }
 
             final RDFFormat format;
-            if (type.isWildcardSubtype()) {
-                if (type.isWildcardType() || "text".equals(type.getType())) {
-                    format = RDFFormat.TURTLE;
-                } else {
-                    ContentType contentType = MarmottaHttpUtils.performContentNegotiation(LdpUtils.getMimeType(type), exportService.getProducedTypes());
-                    format = (contentType != null ? Rio.getWriterFormatForMIMEType(contentType.getMime(), RDFFormat.TURTLE) : null);
-                }
+            if ("text/plain".equals(LdpUtils.getMimeType(type))) {
+                // TODO: find a better way to support n-triples (text/plain)
+                //       while still supporting regular text files
+                format = null;
             } else {
-                format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), RDFFormat.TURTLE);
+                if (type.isWildcardSubtype()) {
+                    if (type.isWildcardType() || "text".equals(type.getType())) {
+                        format = RDFFormat.TURTLE;
+                    } else {
+                        ContentType contentType = MarmottaHttpUtils.performContentNegotiation(LdpUtils.getMimeType(type), exportService.getProducedTypes());
+                        format = (contentType != null ? Rio.getWriterFormatForMIMEType(contentType.getMime(), RDFFormat.TURTLE) : null);
+                    }
+                } else {
+                    format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), RDFFormat.TURTLE);
+                }
             }
 
             if (format == null) {
@@ -573,7 +579,7 @@ public class LdpWebService {
      *
      * @param connection
      * @param status the StatusCode
-     * @param resource the uri/url of the resouce
+     * @param resource the iri/uri/url of the resouce
      * @return the provided ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, Response.Status status, String resource) throws RepositoryException {
