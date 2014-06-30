@@ -287,7 +287,9 @@ public class LdpServiceImpl implements LdpService {
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
         // Add the bodyContent
-        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
+        // TODO: find a better way to ingest n-triples (text/plain) while still supporting regular text files
+        final RDFFormat rdfFormat = ("text/plain".equals(type) ? null : Rio.getParserFormatForMIMEType(type));
+        System.out.println(rdfFormat);
         if (rdfFormat == null) {
             log.debug("POST creates new LDP-NR, because no suitable RDF parser found for type {}", type);
             final Literal format = valueFactory.createLiteral(type);
