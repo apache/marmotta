@@ -555,7 +555,7 @@ public class LdpServiceImpl implements LdpService {
                 if (LDP.Resource.stringValue().equals(href)) {
                     log.debug("LDPR Interaction Model detected");
                     return InteractionModel.LDPR;
-                } else if (LDP.Resource.stringValue().equals(href)) {
+                } else if (LDP.Container.stringValue().equals(href)) {
                     log.debug("LDPC Interaction Model detected");
                     return InteractionModel.LDPC;
                 } else {
