@@ -34,8 +34,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -122,7 +120,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
                 if(jarUrl != null) {
                     try {
                         byte[] bytes = ByteStreams.toByteArray(jarUrl.openStream());
-                        data = new ResourceEntry(jarUrl, bytes, bytes.length, getMimeType(jarUrl));
+                        data = new ResourceEntry(jarUrl, bytes, bytes.length, getMimeType(relativeURL));
                         log.debug("retrieved resource {} (mime type {}, length {} bytes)", jarUrl.toString(), data.getContentType(), data.getLength());
                     } catch (NullPointerException e) {
                         // This happens if a directory is accessed in the jar-file.
@@ -213,12 +211,8 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
     }
 
     private String getMimeType(String resource) {
-        try {
-            return Files.probeContentType(Paths.get(resource));
-        } catch (IOException e) {
-            log.error("No mimetype detected for resource {} by Java NIO, so switching to Tika: {}", resource, e.getMessage());
-            return tika.detect(resource);
-        }
+        log.warn("{}: {}", resource, tika.detect(resource));
+        return tika.detect(resource);
     }
 
 }
