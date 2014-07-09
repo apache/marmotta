@@ -31,9 +31,9 @@
 
     <name>Apache Marmotta Platform: Linked Data Caching (Common)</name>
     <description>
-        Provides transparent Linked Data Caching in the LMF triple store. When a resource is queried using e.g. LDPath
-        or SPARQL and it represents an external resource (e.g. on DBPedia or GeoNames), the resource is transparently
-        fetched on demand and cached locally. This module contains the backend-independent services.
+        Provides common infrastructure for transparent Linked Data Caching in Marmotta. When a resource is queried using 
+        e.g. LDPath or SPARQL and it represents an external resource (e.g. on DBPedia or GeoNames), the resource is 
+        transparently fetched on demand and cached locally. This module contains the backend-independent services.
     </description>
 
     <build>
@@ -112,7 +112,7 @@
                             <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
 
                             <name>REST API</name>
-                            <description>REST API for LMF Webservices</description>
+                            <description>REST API for Marmotta Webservices</description>
 
                             <outputDirectory>${project.build.outputDirectory}/doc</outputDirectory>
                             <reportOutputDirectory>${project.build.outputDirectory}/web/doc</reportOutputDirectory>
@@ -121,7 +121,7 @@
                             <docletArtifact>
                                 <groupId>com.lunatech.jax-doclets</groupId>
                                 <artifactId>doclets</artifactId>
-                                <version>0.10.0</version>
+                                <version>${jax.doclets.version}</version>
                             </docletArtifact>
                             <additionalparam>
                                 -jaxrscontext {BASE}
