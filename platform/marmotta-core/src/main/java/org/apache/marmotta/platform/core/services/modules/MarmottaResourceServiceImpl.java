@@ -163,7 +163,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
                 }
 
                 // the base URL of the jar file in the file system
-                String jarUrlBase   = resourceMap.get(key);
+                String jarUrlBase = resourceMap.get(key);
 
                 // the JAR URL of the resource inside the jar file
                 String jarUrlEntry;
@@ -176,10 +176,8 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
 
                 try {
                     return new URL(jarUrlEntry);
-
                 } catch(IOException ex) {
-                    log.debug("error while trying to retrieve resource {}: {}",jarUrlEntry,ex.getMessage());
-
+                    log.debug("error while trying to retrieve resource {}: {}", jarUrlEntry, ex.getMessage());
                 }
             }
         }
@@ -206,7 +204,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
      */
     private void putInCache(String key, ResourceEntry data) {
         if(isCacheEnabled()) {
-            resourceCache.put(key,data);
+            resourceCache.put(key, data);
         }
     }
 
