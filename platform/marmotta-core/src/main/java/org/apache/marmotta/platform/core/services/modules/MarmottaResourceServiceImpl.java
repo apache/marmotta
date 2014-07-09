@@ -211,7 +211,6 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
     }
 
     private String getMimeType(String resource) {
-        log.warn("{}: {}", resource, tika.detect(resource));
         return tika.detect(resource);
     }
 
