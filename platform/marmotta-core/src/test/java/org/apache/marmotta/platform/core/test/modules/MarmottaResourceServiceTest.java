@@ -22,16 +22,9 @@ import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
 import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.core.webservices.prefix.PrefixWebService;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
-import java.io.IOException;
-
-import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Marmotta Resources test
@@ -60,20 +53,33 @@ public class MarmottaResourceServiceTest {
 
     @Test
     public void testMARMOTTA499() {
+        testResource("/core/public/style/blue/style.css", "text/css");
+    }
 
-        final String resource = "/core/public/style/blue/style.css";
-        final String expectedMimeType = "text/css";
+    @Test
+    public void testPage() {
+        testResource("/core/admin/about.html", "text/html");
+    }
+
+    @Test
+    public void testImage() {
+        testResource("/core/public/img/logo/marmotta-logo.png", "image/png");
+    }
+
+    private void testResource(String resource, String mimetype) {
+        Assume.assumeNotNull(resource);
+        Assume.assumeNotNull(mimetype);
 
         ResourceEntry resourceEntry = resourceService.getResource(resource);
-        Assert.assertEquals(expectedMimeType, resourceEntry.getContentType());
+        Assert.assertNotNull(resourceEntry);
+        Assert.assertEquals(mimetype, resourceEntry.getContentType());
 
         given().
         expect().
             statusCode(200).
-            contentType(expectedMimeType).
+            contentType(mimetype).
         when().
             get(resource);
-
     }
 
 }
