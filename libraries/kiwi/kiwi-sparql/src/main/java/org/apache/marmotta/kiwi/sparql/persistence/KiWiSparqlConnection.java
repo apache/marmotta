@@ -226,6 +226,10 @@ public class KiWiSparqlConnection {
             }
             selectVariables.add(v);
         }
+        // hot fix for MARMOTTA-512
+        if(selectVariables.size() == 0) {
+            selectClause.append("1 as foo");
+        }
 
 
         // build the from-clause of the query; the from clause is constructed as follows:

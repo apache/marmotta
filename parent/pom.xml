@@ -36,23 +36,24 @@
     <url>http://marmotta.apache.org</url>
 
     <properties>
-        <sesame.version>2.7.11</sesame.version>
+        <sesame.version>2.7.12</sesame.version>
         <junit.version>4.11</junit.version>
         <weld.version>2.1.Final</weld.version>
         <weld.core.version>2.1.2.Final</weld.core.version>
-        <rest.assured.version>1.7.1</rest.assured.version>
+        <rest.assured.version>2.3.2</rest.assured.version>
         <hamcrest.version>1.3</hamcrest.version>
         <tempus.fugit.version>1.1</tempus.fugit.version>
         <jatl.version>0.2.2</jatl.version>
         <servlet.api.version>3.0.1</servlet.api.version>
         <javax.el.version>2.2.4</javax.el.version>
-        <h2.version>1.3.174</h2.version>
+        <h2.version>1.4.178</h2.version>
         <postgresql.version>9.3-1100-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
-        <jetty.version>9.0.3.v20130506</jetty.version>
-        <resteasy.version>3.0.6.Final</resteasy.version>
-        <jackson.version>2.2.3</jackson.version>
+        <jetty.version>9.2.1.v20140609</jetty.version>
+        <resteasy.version>3.0.8.Final</resteasy.version>
+        <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
+        <jax.doclets.version>0.10.0</jax.doclets.version>
     </properties>
 
     <prerequisites>
@@ -116,6 +117,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.9.1</version>
+                    <configuration>
+                        <failOnError>false</failOnError>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -864,8 +868,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jr</groupId>
                 <artifactId>jackson-jr-objects</artifactId>
-                <!-- FIXME: align jackson versions! -->
-                <version>2.3.3</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.json</groupId>

@@ -230,7 +230,7 @@ public class SparqlWebService {
 	            if (acceptHeader.contains("html")) {
 	                return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
 	            } else {
-	            	return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
+	            	return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
 	            }
 	    	} else {
 	    		//query duck typing
@@ -389,7 +389,7 @@ public class SparqlWebService {
                 if (parseSubType(resultType).equals("html"))
                     return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/update.html")).build();
                 else
-                    return Response.status(Response.Status.BAD_REQUEST).entity("no SPARQL query specified").build();
+                    return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
             }
         } catch (MalformedQueryException ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build();
