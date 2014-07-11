@@ -53,7 +53,7 @@
         <resteasy.version>3.0.8.Final</resteasy.version>
         <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
-        <jax.doclets.version>0.10.0</jax.doclets.version>
+        <jax.doclets.version>0.10.1</jax.doclets.version>
     </properties>
 
     <prerequisites>
