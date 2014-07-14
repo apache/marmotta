@@ -281,7 +281,6 @@ public class LdpServiceImpl implements LdpService {
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-        connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
         connection.add(resource, ldpInteractionModelProperty, interactionModel.getUri(), ldpContext);
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
@@ -313,7 +312,8 @@ public class LdpServiceImpl implements LdpService {
 
             return binaryResource.stringValue();
         } else {
-            log.debug("POST creates new LDP-SR, data provided as {}", rdfFormat.getName());
+            log.debug("POST creates new LDP-RS, data provided as {}", rdfFormat.getName());
+            connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
             connection.add(container, LDP.contains, resource, ldpContext);
 
             // FIXME: We are (are we?) allowed to filter out server-managed properties here

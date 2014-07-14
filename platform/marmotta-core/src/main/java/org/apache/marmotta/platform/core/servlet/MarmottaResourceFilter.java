@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.core.servlet;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
+import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 
 import javax.enterprise.inject.Any;
@@ -32,6 +33,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -80,7 +82,6 @@ public class MarmottaResourceFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         log.info("Apache Marmotta Resource Filter {} starting up ... ", configurationService.getConfiguration("kiwi.version"));
 
-
         // initialise filter chain and sort it according to priority
         this.filterList  = new ArrayList<MarmottaHttpFilter>();
 
@@ -96,7 +97,6 @@ public class MarmottaResourceFilter implements Filter {
         }
 
         Collections.sort(filterList,new FilterComparator());
-
     }
 
 
@@ -120,21 +120,21 @@ public class MarmottaResourceFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         URL url = null;
-        String prefix = null, path = null;
+        String prefix, path = null;
         if (request instanceof HttpServletRequest) {
-            url    = new URL(((HttpServletRequest)request).getRequestURL().toString());
+            url = new URL(((HttpServletRequest)request).getRequestURL().toString());
             prefix = ((HttpServletRequest)request).getContextPath();
             if(url.getPath().startsWith(prefix)) {
                 path = url.getPath().substring(prefix.length());
             }
         }
 
-        new LMFFilterChain(path,chain).doFilter(request,response);
-
+        try {
+            new MarmottaFilterChain(path, chain).doFilter(request, response);
+        } catch (BadRequestException e) {
+            ((HttpServletResponse)response).sendError(400, e.getMessage());
+        }
     }
-
-
-
 
     /**
      * Called by the web container to indicate to a filter that it is being taken out of service. This
@@ -153,11 +153,10 @@ public class MarmottaResourceFilter implements Filter {
         }
     }
 
-
     /**
      * A special filter chain that implements the LMFHttpFilter calls
      */
-    private class LMFFilterChain implements FilterChain {
+    private class MarmottaFilterChain implements FilterChain {
 
         private Iterator<MarmottaHttpFilter> filters;
 
@@ -165,7 +164,7 @@ public class MarmottaResourceFilter implements Filter {
 
         private FilterChain originalChain;
 
-        LMFFilterChain(String path, FilterChain originalChain) {
+        MarmottaFilterChain(String path, FilterChain originalChain) {
             this.path     = path;
             this.filters = filterList.iterator();
             this.originalChain = originalChain;

@@ -119,21 +119,17 @@ public class LdpWebService {
             }
 
             final RDFFormat format;
-            if ("text/plain".equals(LdpUtils.getMimeType(type))) {
+            final RDFFormat fallback = (ldpService.isNonRdfSourceResource(conn, resource) ? null : RDFFormat.TURTLE);
+            final String mimeType = LdpUtils.getMimeType(type);
+            if (StringUtils.isBlank(mimeType) || "text/plain".equals(mimeType)) {
                 // TODO: find a better way to support n-triples (text/plain)
                 //       while still supporting regular text files
                 format = null;
+            } else if (type.isWildcardSubtype() && "text".equals(type.getType())) {
+                format = RDFFormat.TURTLE;
             } else {
-                if (type.isWildcardSubtype()) {
-                    if (type.isWildcardType() || "text".equals(type.getType())) {
-                        format = RDFFormat.TURTLE;
-                    } else {
-                        ContentType contentType = MarmottaHttpUtils.performContentNegotiation(LdpUtils.getMimeType(type), exportService.getProducedTypes());
-                        format = (contentType != null ? Rio.getWriterFormatForMIMEType(contentType.getMime(), RDFFormat.TURTLE) : null);
-                    }
-                } else {
-                    format = Rio.getWriterFormatForMIMEType(LdpUtils.getMimeType(type), RDFFormat.TURTLE);
-                }
+                ContentType contentType = MarmottaHttpUtils.performContentNegotiation(mimeType, exportService.getProducedTypes());
+                format = (contentType != null ? Rio.getWriterFormatForMIMEType(contentType.getMime(), fallback) : fallback);
             }
 
             if (format == null) {

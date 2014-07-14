@@ -21,6 +21,7 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
 import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
+import org.jboss.resteasy.spi.BadRequestException;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -51,7 +52,6 @@ public class ModuleResourceFilter implements MarmottaHttpFilter {
 
     @Inject
     private ConfigurationService configurationService;
-
 
     /**
      * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
@@ -125,10 +125,8 @@ public class ModuleResourceFilter implements MarmottaHttpFilter {
 
             ResourceEntry data = resourceService.getResource(path);
 
-
             // if no: proceed with the chain by calling chain.doFilter()
             if(data != null && data.getLength() > 0) {
-
 
                 HttpServletResponse hresponse = (HttpServletResponse) response;
 
@@ -152,15 +150,11 @@ public class ModuleResourceFilter implements MarmottaHttpFilter {
                 if (log.isDebugEnabled()) {
                     log.debug("request for {} took {}ms", url, System.currentTimeMillis() - starttime);
                 }
-
                 return;
             }
-
-
-
         }
 
-        chain.doFilter(request,response);
+        chain.doFilter(request, response);
     }
 
     /**

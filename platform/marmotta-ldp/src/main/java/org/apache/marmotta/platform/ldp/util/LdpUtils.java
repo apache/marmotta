@@ -87,7 +87,7 @@ public class LdpUtils {
      * @return the mimeType
      */
     public static String getMimeType(MediaType mediaType) {
-        return String.format("%s/%s", mediaType.getType(), mediaType.getSubtype());
+        return (mediaType != null ? String.format("%s/%s", mediaType.getType(), mediaType.getSubtype()) : "");
     }
 
     /**

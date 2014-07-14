@@ -87,7 +87,7 @@ public class MarmottaAuthenticationFilter implements MarmottaHttpFilter {
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("LMF Authentication Filter starting up; user authentication is {}",configurationService.getBooleanConfiguration("security.enabled",true)?"enabled":"disabled");
+        log.info("armotta Authentication Filter starting up; user authentication is {}", configurationService.getBooleanConfiguration("security.enabled", true)?"enabled":"disabled");
     }
 
 
