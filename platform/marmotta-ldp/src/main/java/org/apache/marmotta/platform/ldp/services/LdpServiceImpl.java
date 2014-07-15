@@ -94,7 +94,6 @@ public class LdpServiceImpl implements LdpService {
             connection.add(root, RDF.TYPE, LDP.RDFSource, ldpContext);
             connection.add(root, RDF.TYPE, LDP.Container, ldpContext);
             connection.add(root, RDF.TYPE, LDP.BasicContainer, ldpContext);
-
             final ValueFactory valueFactory = connection.getValueFactory();
             connection.add(root, RDFS.LABEL, valueFactory.createLiteral("Marmotta's LDP Root Container"), ldpContext);
             final Literal now = valueFactory.createLiteral(new Date());
@@ -557,8 +556,8 @@ public class LdpServiceImpl implements LdpService {
         try {
             while (stmts.hasNext()) {
                 Statement st = stmts.next();
-                connection.remove(st.getSubject(), DCTERMS.modified, null);
-                connection.add(st.getSubject(), DCTERMS.modified, now);
+                connection.remove(st.getSubject(), DCTERMS.modified, null, ldpContext);
+                connection.add(st.getSubject(), DCTERMS.modified, now, ldpContext);
                 connection.remove(st);
             }
         } finally {
