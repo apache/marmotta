@@ -52,7 +52,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -67,7 +66,7 @@ import java.util.UUID;
 @Path(LdpWebService.PATH + "{local:.*}")
 public class LdpWebService {
 
-    public static final String PATH = "/ldp"; //FIXME: imho this should be root '/' (jakob)
+    public static final String PATH = "/ldp"; //TODO: at some point this will be root ('/') in marmotta
     public static final String LDP_SERVER_CONSTRAINTS = "https://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
@@ -86,20 +85,20 @@ public class LdpWebService {
 
     @PostConstruct
     protected void initialize() {
-        // TODO: basic initialisation
+        // TODO: basic initialization
         log.info("Starting up LDP WebService Endpoint");
     }
 
     @GET
     public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type) throws RepositoryException {
-        final String resource = getResourceUri(uriInfo);
+        final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("GET to LDPR <{}>", resource);
         return buildGetResponse(resource, r, type).build();
     }
 
     @HEAD
     public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)  throws RepositoryException {
-        final String resource = getResourceUri(uriInfo);
+        final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("HEAD to LDPR <{}>", resource);
         return buildGetResponse(resource, r, type).entity(null).build();
     }
@@ -209,7 +208,7 @@ public class LdpWebService {
                          InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
 
-        final String container = getResourceUri(uriInfo);
+        final String container = ldpService.getResourceUri(uriInfo);
         log.debug("POST to LDPC <{}>", container);
 
         final RepositoryConnection conn = sesameService.getConnection();
@@ -304,7 +303,7 @@ public class LdpWebService {
                         @HeaderParam(HttpHeaders.IF_MATCH) EntityTag eTag,
                         @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody)
             throws RepositoryException, IOException, InvalidModificationException, RDFParseException, IncompatibleResourceTypeException, URISyntaxException {
-        final String resource = getResourceUri(uriInfo);
+        final String resource = ldpService.getResourceUri(uriInfo);
         log.error("PUT to <{}>", resource);
 
         final RepositoryConnection conn = sesameService.getConnection();
@@ -369,7 +368,7 @@ public class LdpWebService {
      */
     @DELETE
     public Response DELETE(@Context UriInfo uriInfo) throws RepositoryException {
-        final String resource = getResourceUri(uriInfo);
+        final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("DELETE to <{}>", resource);
 
         final RepositoryConnection con = sesameService.getConnection();
@@ -400,7 +399,7 @@ public class LdpWebService {
     public Response PATCH(@Context UriInfo uriInfo,
                           @HeaderParam(HttpHeaders.IF_MATCH) EntityTag eTag,
                           @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody) throws RepositoryException {
-        final String resource = getResourceUri(uriInfo);
+        final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("PATCH to <{}>", resource);
 
         final RepositoryConnection con = sesameService.getConnection();
@@ -461,7 +460,7 @@ public class LdpWebService {
      */
     @OPTIONS
     public Response OPTIONS(@Context final UriInfo uriInfo) throws RepositoryException {
-        final String resource = getResourceUri(uriInfo);
+        final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("OPTIONS to <{}>", resource);
 
         final RepositoryConnection con = sesameService.getConnection();
@@ -578,23 +577,6 @@ public class LdpWebService {
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, Response.Status status, String resource) throws RepositoryException {
         return createResponse(connection, status.getStatusCode(), resource);
-    }
-
-    protected String getResourceUri(UriInfo uriInfo) {
-        final UriBuilder uriBuilder;
-        if (configurationService.getBooleanConfiguration("ldp.force_baseuri", false)) {
-            log.trace("UriBuilder is forced to configured baseuri <{}>", configurationService.getBaseUri());
-            uriBuilder = UriBuilder.fromUri(java.net.URI.create(configurationService.getBaseUri()));
-        } else {
-            uriBuilder = uriInfo.getBaseUriBuilder();
-        }
-        uriBuilder.path(PATH);
-        uriBuilder.path(uriInfo.getPathParameters().getFirst("local"));
-//        uriBuilder.path(uriInfo.getPath().replaceFirst("/$", ""));
-
-        String uri = uriBuilder.build().toString();
-        log.debug("RequestUri: {}", uri);
-        return uri;
     }
 
 }

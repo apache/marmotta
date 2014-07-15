@@ -33,6 +33,8 @@ import org.openrdf.rio.RDFParseException;
 
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,6 +47,8 @@ import java.util.*;
  *  @author Jakob Frank
  */
 public interface LdpService {
+
+    public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(LDP.contains));
 
     public static enum InteractionModel {
         LDPR(LDP.Resource),
@@ -79,7 +83,18 @@ public interface LdpService {
 
     }
 
-    public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(LDP.contains));
+    /**
+     * Initializes the root LDP Container
+     *
+     * @param connection repository connection
+     * @param root root container
+     * @throws RepositoryException
+     */
+    void init(RepositoryConnection connection, URI root) throws RepositoryException;
+
+    String getResourceUri(UriInfo uriInfo);
+
+    UriBuilder getResourceUriBuilder(UriInfo uriInfo);
 
     boolean exists(RepositoryConnection connection, String resource) throws RepositoryException;
 

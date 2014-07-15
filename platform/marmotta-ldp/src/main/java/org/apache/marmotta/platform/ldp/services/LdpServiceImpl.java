@@ -35,9 +35,11 @@ import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
+import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -51,6 +53,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -81,6 +85,45 @@ public class LdpServiceImpl implements LdpService {
     public LdpServiceImpl() {
         ldpContext = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE);
         ldpInteractionModelProperty = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE, "interactionModel");
+    }
+
+    @Override
+    public void init(RepositoryConnection connection, URI root) throws RepositoryException {
+        if (!exists(connection, root)) {
+            connection.add(root, RDF.TYPE, LDP.Resource, ldpContext);
+            connection.add(root, RDF.TYPE, LDP.RDFSource, ldpContext);
+            connection.add(root, RDF.TYPE, LDP.Container, ldpContext);
+            connection.add(root, RDF.TYPE, LDP.BasicContainer, ldpContext);
+
+            final ValueFactory valueFactory = connection.getValueFactory();
+            connection.add(root, RDFS.LABEL, valueFactory.createLiteral("Marmotta's LDP Root Container"), ldpContext);
+            final Literal now = valueFactory.createLiteral(new Date());
+            connection.add(root, DCTERMS.created, now, ldpContext);
+            connection.add(root, DCTERMS.modified, now, ldpContext);
+        }
+    }
+
+    @Override
+    public String getResourceUri(UriInfo uriInfo) {
+        final UriBuilder uriBuilder = getResourceUriBuilder(uriInfo);
+        uriBuilder.path(uriInfo.getPathParameters().getFirst("local"));
+        // uriBuilder.path(uriInfo.getPath().replaceFirst("/$", ""));
+        String uri = uriBuilder.build().toString();
+        log.debug("Request URI: {}", uri);
+        return uri;
+    }
+
+    @Override
+    public UriBuilder getResourceUriBuilder(UriInfo uriInfo) {
+        final UriBuilder uriBuilder;
+        if (configurationService.getBooleanConfiguration("ldp.force_baseuri", false)) {
+            log.trace("UriBuilder is forced to configured baseuri <{}>", configurationService.getBaseUri());
+            uriBuilder = UriBuilder.fromUri(java.net.URI.create(configurationService.getBaseUri()));
+        } else {
+            uriBuilder = uriInfo.getBaseUriBuilder();
+        }
+        uriBuilder.path(LdpWebService.PATH);
+        return uriBuilder;
     }
 
     private URI buildURI(String resource) {
