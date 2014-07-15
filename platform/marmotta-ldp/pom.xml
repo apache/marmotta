@@ -270,12 +270,14 @@
             <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.w3</groupId>
             <artifactId>ldp-testsuite</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
+        -->
 
     </dependencies>
 
