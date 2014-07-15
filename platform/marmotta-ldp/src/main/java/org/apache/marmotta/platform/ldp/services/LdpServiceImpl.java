@@ -89,14 +89,14 @@ public class LdpServiceImpl implements LdpService {
 
     @Override
     public void init(RepositoryConnection connection, URI root) throws RepositoryException {
+        final ValueFactory valueFactory = connection.getValueFactory();
+        final Literal now = valueFactory.createLiteral(new Date());
         if (!exists(connection, root)) {
+            connection.add(root, RDFS.LABEL, valueFactory.createLiteral("Marmotta's LDP Root Container"), ldpContext);
             connection.add(root, RDF.TYPE, LDP.Resource, ldpContext);
             connection.add(root, RDF.TYPE, LDP.RDFSource, ldpContext);
             connection.add(root, RDF.TYPE, LDP.Container, ldpContext);
             connection.add(root, RDF.TYPE, LDP.BasicContainer, ldpContext);
-            final ValueFactory valueFactory = connection.getValueFactory();
-            connection.add(root, RDFS.LABEL, valueFactory.createLiteral("Marmotta's LDP Root Container"), ldpContext);
-            final Literal now = valueFactory.createLiteral(new Date());
             connection.add(root, DCTERMS.created, now, ldpContext);
             connection.add(root, DCTERMS.modified, now, ldpContext);
         }

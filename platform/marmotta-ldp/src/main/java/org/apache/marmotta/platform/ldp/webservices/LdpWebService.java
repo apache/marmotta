@@ -24,6 +24,7 @@ import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.events.SesameStartupEvent;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
@@ -44,6 +45,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -83,10 +85,22 @@ public class LdpWebService {
     @Inject
     private SesameService sesameService;
 
-    @PostConstruct
-    protected void initialize() {
-        // TODO: basic initialization
+    protected void initialize(@Observes SesameStartupEvent event) {
         log.info("Starting up LDP WebService Endpoint");
+        String root = UriBuilder.fromUri(configurationService.getBaseUri()).path(LdpWebService.PATH).build().toASCIIString();
+        try {
+            final RepositoryConnection conn = sesameService.getConnection();
+            try {
+                conn.begin();
+                ldpService.init(conn, conn.getValueFactory().createURI(root));
+                log.debug("Created LDP root container <{}>", root);
+                conn.commit();
+            } finally {
+                conn.close();
+            }
+        } catch (RepositoryException e) {
+            log.error("Error creating LDP root container <{}>: {}", root, e.getMessage(), e);
+        }
     }
 
     @GET
@@ -503,6 +517,18 @@ public class LdpWebService {
      * Add all the default headers specified in LDP to the Response
      *
      * @param connection
+     * @param status the StatusCode
+     * @param resource the iri/uri/url of the resouce
+     * @return the provided ResponseBuilder for chaining
+     */
+    protected Response.ResponseBuilder createResponse(RepositoryConnection connection, Response.Status status, String resource) throws RepositoryException {
+        return createResponse(connection, status.getStatusCode(), resource);
+    }
+
+    /**
+     * Add all the default headers specified in LDP to the Response
+     *
+     * @param connection
      * @param status the status code
      * @param resource the uri/url of the resouce
      * @return the provided ResponseBuilder for chaining
@@ -565,18 +591,6 @@ public class LdpWebService {
         rb.link(LDP_SERVER_CONSTRAINTS, "describedby");
 
         return rb;
-    }
-
-    /**
-     * Add all the default headers specified in LDP to the Response
-     *
-     * @param connection
-     * @param status the StatusCode
-     * @param resource the iri/uri/url of the resouce
-     * @return the provided ResponseBuilder for chaining
-     */
-    protected Response.ResponseBuilder createResponse(RepositoryConnection connection, Response.Status status, String resource) throws RepositoryException {
-        return createResponse(connection, status.getStatusCode(), resource);
     }
 
 }
