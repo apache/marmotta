@@ -50,6 +50,7 @@ import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -302,68 +303,65 @@ public class LdpWebService {
     public Response PUT(@Context UriInfo uriInfo, @Context Request request,
                         @HeaderParam(HttpHeaders.IF_MATCH) EntityTag eTag,
                         @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody)
-            throws RepositoryException {
+            throws RepositoryException, IOException, InvalidModificationException, RDFParseException, IncompatibleResourceTypeException, URISyntaxException {
         final String resource = getResourceUri(uriInfo);
-        log.debug("PUT to <{}>", resource);
+        log.error("PUT to <{}>", resource);
 
-        final RepositoryConnection con = sesameService.getConnection();
+        final RepositoryConnection conn = sesameService.getConnection();
         try {
-            con.begin();
-
-            if (!ldpService.exists(con, resource)) {
-                log.trace("Resource does not exists: {}", resource);
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_FOUND, resource);
-                con.rollback();
-                return resp.build();
-            }
-
-            if (eTag == null) {
-                // check for If-Match header (ETag) -> 428 Precondition Required (Sec. 4.2.4.5)
-                log.trace("No If-Match header, but that's a MUST");
-                final Response.ResponseBuilder resp = createResponse(con, 428, resource);
-                con.rollback();
-                return resp.build();
-            } else {
-                // check ETag -> 412 Precondition Failed (Sec. 4.2.4.5)
-                log.trace("Checking If-Match: {}", eTag);
-                EntityTag hasTag = ldpService.generateETag(con, resource);
-                if (!EntityTagUtils.equals(eTag, hasTag)) {
-                    log.trace("If-Match header did not match, expected {}", hasTag);
-                    final Response.ResponseBuilder resp = createResponse(con, Response.Status.PRECONDITION_FAILED, resource);
-                    con.rollback();
-                    return resp.build();
-                }
-            }
+            conn.begin();
 
             final String mimeType = LdpUtils.getMimeType(type);
-            log.trace("updating resource <{}>", resource);
-            // NOTE: newResource == resource for now, this might change in the future.
-            final String newResource = ldpService.updateResource(con, resource, postBody, mimeType);
-
             final Response.ResponseBuilder resp;
-            if (resource.equals(newResource)) {
-                log.trace("PUT update for <{}> successful", resource);
-                resp = createResponse(con, Response.Status.OK, resource);
+            final String newResource;  // NOTE: newResource == resource for now, this might change in the future
+            if (ldpService.exists(conn, resource)) {
+                log.debug("updating resource <{}>", resource);
+
+                if (eTag == null) {
+                    // check for If-Match header (ETag) -> 428 Precondition Required (Sec. 4.2.4.5)
+                    log.trace("No If-Match header, but that's a MUST");
+                    resp = createResponse(conn, 428, resource);
+                    conn.rollback();
+                    return resp.build();
+                } else {
+                    // check ETag -> 412 Precondition Failed (Sec. 4.2.4.5)
+                    log.trace("Checking If-Match: {}", eTag);
+                    EntityTag hasTag = ldpService.generateETag(conn, resource);
+                    if (!EntityTagUtils.equals(eTag, hasTag)) {
+                        log.trace("If-Match header did not match, expected {}", hasTag);
+                        resp = createResponse(conn, Response.Status.PRECONDITION_FAILED, resource);
+                        conn.rollback();
+                        return resp.build();
+                    }
+                }
+
+                newResource = ldpService.updateResource(conn, resource, postBody, mimeType);
+                log.info("PUT update for <{}> successful", newResource);
+                resp = createResponse(conn, Response.Status.OK, resource);
             } else {
-                log.trace("PUT on <{}> created new resource <{}>", resource, newResource);
-                resp = createResponse(con, Response.Status.CREATED, resource).location(java.net.URI.create(newResource));
+                log.debug("creating resource <{}>", resource);
+                //LDP servers may allow resource creation using PUT (Sec. 4.2.4.6)
+                URI uri = conn.getValueFactory().createURI(resource);
+                newResource = ldpService.addResource(conn, LdpUtils.getContainer(uri), uri, LdpService.InteractionModel.LDPR, mimeType, postBody);
+                log.info("PUT on <{}> created new resource", newResource);
+                resp = createResponse(conn, Response.Status.CREATED, newResource).location(java.net.URI.create(newResource));
             }
-            con.commit();
+            conn.commit();
 
             return resp.build();
         } catch (IOException | RDFParseException e) {
-            final Response.ResponseBuilder resp = createResponse(con, Response.Status.BAD_REQUEST, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
-            con.rollback();
+            final Response.ResponseBuilder resp = createResponse(conn, Response.Status.BAD_REQUEST, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
+            conn.rollback();
             return resp.build();
         } catch (InvalidModificationException | IncompatibleResourceTypeException e) {
-            final Response.ResponseBuilder resp = createResponse(con, Response.Status.CONFLICT, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
-            con.rollback();
+            final Response.ResponseBuilder resp = createResponse(conn, Response.Status.CONFLICT, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
+            conn.rollback();
             return resp.build();
         } catch (final Throwable t) {
-            con.rollback();
+            conn.rollback();
             throw t;
         } finally {
-            con.close();
+            conn.close();
         }
     }
     /**

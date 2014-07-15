@@ -324,32 +324,42 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String updateResource(RepositoryConnection con, String resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
-        return updateResource(con, buildURI(resource), stream, type);
+    public String updateResource(RepositoryConnection connection, final String resource, InputStream stream, final String type) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
+        return updateResource(connection, buildURI(resource), stream, type);
     }
 
     @Override
-    public String updateResource(final RepositoryConnection con, final URI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException {
-        final ValueFactory valueFactory = con.getValueFactory();
+    public String updateResource(final RepositoryConnection connection, final URI resource, InputStream stream, final String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException {
+        return updateResource(connection, resource, stream, type, false);
+    }
+
+    @Override
+    public String updateResource(RepositoryConnection connection, final String resource, InputStream stream, final String type, final boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
+        return updateResource(connection, buildURI(resource), stream, type, false);
+    }
+
+    @Override
+    public String updateResource(RepositoryConnection connection, final URI resource, InputStream stream, final String type, final boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
+        final ValueFactory valueFactory = connection.getValueFactory();
         final Literal now = valueFactory.createLiteral(new Date());
 
-        con.remove(resource, DCTERMS.modified, null, ldpContext);
-        con.add(resource, DCTERMS.modified, now, ldpContext);
+        connection.remove(resource, DCTERMS.modified, null, ldpContext);
+        connection.add(resource, DCTERMS.modified, now, ldpContext);
 
         final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
         // Check submitted format vs. real resource type (RDF-S vs. Non-RDF)
-        if (rdfFormat == null && isNonRdfSourceResource(con, resource)) {
+        if (rdfFormat == null && isNonRdfSourceResource(connection, resource)) {
             log.debug("Updating <{}> as LDP-NR (binary) - {}", resource, type);
 
             final Literal format = valueFactory.createLiteral(type);
 
-            con.remove(resource, DCTERMS.format, null, ldpContext);
-            con.add(resource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
+            connection.remove(resource, DCTERMS.format, null, ldpContext);
+            connection.add(resource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
 
-            final URI ldp_rs = getRdfSourceForNonRdfSource(con, resource);
+            final URI ldp_rs = getRdfSourceForNonRdfSource(connection, resource);
             if (ldp_rs != null) {
-                con.remove(ldp_rs, DCTERMS.modified, null, ldpContext);
-                con.add(ldp_rs, DCTERMS.modified, now, ldpContext);
+                connection.remove(ldp_rs, DCTERMS.modified, null, ldpContext);
+                connection.add(ldp_rs, DCTERMS.modified, now, ldpContext);
                 log.trace("Updated Meta-Data of LDP-RS <{}> for LDP-NR <{}>; Modified: {}", ldp_rs, resource, now);
             } else {
                 log.debug("LDP-RS for LDP-NR <{}> not found", resource);
@@ -360,11 +370,11 @@ public class LdpServiceImpl implements LdpService {
 
             log.trace("LDP-NR <{}> updated", resource);
             return resource.stringValue();
-        } else if (rdfFormat != null && isRdfSourceResource(con, resource)) {
+        } else if (rdfFormat != null && isRdfSourceResource(connection, resource)) {
             log.debug("Updating <{}> as LDP-RS - {}", resource, rdfFormat.getDefaultMIMEType());
 
-            con.clear(resource);
-            final InterceptingRepositoryConnectionWrapper filtered = new InterceptingRepositoryConnectionWrapper(con.getRepository(), con);
+            connection.clear(resource);
+            final InterceptingRepositoryConnectionWrapper filtered = new InterceptingRepositoryConnectionWrapper(connection.getRepository(), connection);
             final Set<URI> deniedProperties = new HashSet<>();
             filtered.addRepositoryConnectionInterceptor(new RepositoryConnectionInterceptorAdapter() {
                 @Override
@@ -387,7 +397,7 @@ public class LdpServiceImpl implements LdpService {
             log.trace("LDP-RS <{}> updated", resource);
             return resource.stringValue();
         } else if (rdfFormat == null) {
-            final String mimeType = getMimeType(con, resource);
+            final String mimeType = getMimeType(connection, resource);
             log.debug("Incompatible replacement: Can't replace {} with {}", mimeType, type);
             throw new IncompatibleResourceTypeException(mimeType, type);
         } else {

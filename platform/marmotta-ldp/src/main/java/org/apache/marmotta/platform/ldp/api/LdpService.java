@@ -46,8 +46,6 @@ import java.util.*;
  */
 public interface LdpService {
 
-
-
     public static enum InteractionModel {
         LDPR(LDP.Resource),
         LDPC(LDP.Container);
@@ -151,13 +149,75 @@ public interface LdpService {
      */
     String addResource(RepositoryConnection connection, URI container, URI resource, InteractionModel interactionModel, String type, InputStream stream) throws RepositoryException, IOException, RDFParseException;
 
-    String updateResource(RepositoryConnection con, String resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException;
+    /**
+     * Update an existing resource
+     *
+     * @param connection repository connection
+     * @param resource resource to add
+     * @param stream stream with the data
+     * @param type resource type
+     * @return updated resource uri
+     * @throws RepositoryException
+     * @throws IncompatibleResourceTypeException
+     * @throws RDFParseException
+     * @throws IOException
+     * @throws InvalidModificationException
+     */
+    String updateResource(RepositoryConnection connection, String resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException;
 
-    String updateResource(RepositoryConnection con, URI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
+    /**
+     * Update an existing resource
+     *
+     * @param connection repository connection
+     * @param resource resource to add
+     * @param stream stream with the data
+     * @param type resource type
+     * @return updated resource uri
+     * @throws RepositoryException
+     * @throws IncompatibleResourceTypeException
+     * @throws IOException
+     * @throws RDFParseException
+     * @throws InvalidModificationException
+     */
+    String updateResource(RepositoryConnection connection, URI resource, InputStream stream, String type) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
+
+    /**
+     * Update an existing resource
+     *
+     * @param connection repository connection
+     * @param resource resource to add
+     * @param stream stream with the data
+     * @param type resource type
+     * @param overwrite overwrite current resource
+     * @return updated resource uri
+     * @throws RepositoryException
+     * @throws IncompatibleResourceTypeException
+     * @throws RDFParseException
+     * @throws IOException
+     * @throws InvalidModificationException
+     */
+    String updateResource(RepositoryConnection connection, String resource, InputStream stream, String type, boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException;
+
+    /**
+     * Update an existing resource
+     *
+     * @param connection repository connection
+     * @param resource resource to add
+     * @param stream stream with the data
+     * @param type resource type
+     * @param overwrite overwrite current resource
+     * @return updated resource uri
+     * @throws RepositoryException
+     * @throws IncompatibleResourceTypeException
+     * @throws IOException
+     * @throws RDFParseException
+     * @throws InvalidModificationException
+     */
+    String updateResource(RepositoryConnection connection, URI resource, InputStream stream, String type, boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, IOException, RDFParseException, InvalidModificationException;
 
     List<Statement> getLdpTypes(RepositoryConnection connection, String resource) throws RepositoryException;
 
-    List<Statement> getLdpTypes(RepositoryConnection conn1, URI resource) throws RepositoryException;
+    List<Statement> getLdpTypes(RepositoryConnection connection, URI resource) throws RepositoryException;
 
     void exportResource(RepositoryConnection connection, String resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
@@ -200,11 +260,13 @@ public interface LdpService {
     boolean isRdfSourceResource(RepositoryConnection connection, URI uri) throws RepositoryException;
 
     URI getNonRdfSourceForRdfSource(RepositoryConnection connection, String resource) throws RepositoryException;
+
     URI getNonRdfSourceForRdfSource(RepositoryConnection connection, URI uri) throws RepositoryException;
 
     InteractionModel getInteractionModel(List<Link> linkHeaders) throws InvalidInteractionModelException;
 
     InteractionModel getInteractionModel(RepositoryConnection connection, String resource) throws RepositoryException;
+
     InteractionModel getInteractionModel(RepositoryConnection connection, URI uri) throws RepositoryException;
 
 }

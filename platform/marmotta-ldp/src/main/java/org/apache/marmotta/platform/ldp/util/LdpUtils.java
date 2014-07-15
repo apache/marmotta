@@ -25,6 +25,7 @@ import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
@@ -34,6 +35,11 @@ import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
 
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -129,6 +135,16 @@ public class LdpUtils {
             sb.delete(sb.length()-2, sb.length());
         }
         return sb.toString();
+    }
+
+    public static URI getContainer(String resource) throws MalformedURLException, URISyntaxException {
+        java.net.URI uri = new java.net.URI(resource);
+        java.net.URI parent = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
+        return new URIImpl(parent.toASCIIString());
+    }
+
+    public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
+        return new URIImpl(resource.getNamespace());
     }
 
 }
