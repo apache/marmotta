@@ -154,7 +154,7 @@ public class MarmottaResourceFilter implements Filter {
     }
 
     /**
-     * A special filter chain that implements the LMFHttpFilter calls
+     * A special filter chain that implements the FilterChain calls
      */
     private class MarmottaFilterChain implements FilterChain {
 
