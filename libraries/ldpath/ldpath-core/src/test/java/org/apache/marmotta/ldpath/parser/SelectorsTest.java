@@ -50,6 +50,16 @@ public class SelectorsTest {
                 {"(<http://www.example.com/>[@en])", "Grouped"},
                 {"(<http://www.example.com/>)*", "RecursivePath"},
                 {"(<http://www.example.com/>)+", "RecursivePath"},
+/* TODO - these should also work in the future...
+                {"(<http://www.example.com/>){5,}", "RecursivePath"},
+                {"(<http://www.example.com/>){5,7}", "RecursivePath"},
+                {"(<http://www.example.com/>){,7}", "RecursivePath"},
+                {"<http://www.example.com/>*", "RecursivePath"},
+                {"<http://www.example.com/>+", "RecursivePath"},
+                {"<http://www.example.com/>{5,}", "RecursivePath"},
+                {"<http://www.example.com/>{5,7}", "RecursivePath"},
+                {"<http://www.example.com/>{,7}", "RecursivePath"},
+*/
                 {"^<http://www.example.com/>", "ReverseProperty"},
                 {"fn:count(\"foo\")", "Function"},
                 // Not implemented yet: {"^*", "ReverseProperty"},

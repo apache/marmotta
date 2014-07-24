@@ -229,7 +229,7 @@ public class LinkedDataTest {
 
             given()
                     .header("Content-Type", format.getDefaultMIMEType())
-                    .body(body)
+                    .body(body.getBytes())
             .expect()
                     .statusCode(200)
             .when()
