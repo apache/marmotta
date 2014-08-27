@@ -64,14 +64,14 @@
     <modules>
         <module>marmotta-client-java</module>
         <module>marmotta-client-js</module>
+        <module>marmotta-client-js-sample-webapp</module> 
     </modules>
     
     <profiles>
         <profile>
-            <id>all</id>
+            <id>experimental</id>
             <modules>
-                <module>marmotta-client-php</module>             
-                <module>marmotta-client-js-sample-webapp</module>          
+                <module>marmotta-client-php</module>         
             </modules>
         </profile>
     </profiles>
