@@ -104,14 +104,18 @@ public class LdpWebService {
     }
 
     @GET
-    public Response GET(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type) throws RepositoryException {
+    public Response GET(@Context final UriInfo uriInfo, @Context Request r,
+                        @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) MediaType type)
+            throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("GET to LDPR <{}>", resource);
         return buildGetResponse(resource, r, type).build();
     }
 
     @HEAD
-    public Response HEAD(@Context final UriInfo uriInfo, @Context Request r, @HeaderParam(HttpHeaders.ACCEPT) MediaType type)  throws RepositoryException {
+    public Response HEAD(@Context final UriInfo uriInfo, @Context Request r,
+                         @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) MediaType type)
+            throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("HEAD to LDPR <{}>", resource);
         return buildGetResponse(resource, r, type).entity(null).build();
