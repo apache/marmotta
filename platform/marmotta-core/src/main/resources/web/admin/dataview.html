@@ -249,9 +249,10 @@
                         if(d.a.value!=current) {
                             x = 0;
                             current = d.a.value;
+                            param = (current.indexOf("http://") == 0 ? "uri" : "genid");
                             table = $("<table />", {'class':'resource', 'style':'margin-bottom:10px'})
                                     .append($("<th/>", {'style':"background-color:"+color+" !important", 'colspan':'2'})
-                                            .append($("<a/>", {'target':'_blank', 'href':_SERVER_URL+"resource?uri="+encodeURIComponent(d.a.value), 'text':d.a.value})));
+                                            .append($("<a/>", {'target':'_blank', 'href':_SERVER_URL+"resource?"+param+"="+encodeURIComponent(current), 'text':current})));
                             res.append(table);
                         }
                         var style = x%2==0 ? "white" : "#efefef";

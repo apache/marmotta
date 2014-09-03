@@ -50,7 +50,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public Collection<Node> select(RDFBackend<Node> rdfBackend, Node context, List<Node> path, Map<Node, List<Node>> resultPaths) {
-		Set<Node> result = new HashSet<Node>();
+		List<Node> result = new LinkedList<>();
 
 		if (minRecursions <= 0) {
 			result.add(context);
@@ -60,19 +60,19 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
 		return result;
 	}
 
-	private void subSelect(Node currentContext, int depth, RDFBackend<Node> rdfBackend, Set<Node> resultSet, List<Node> path, Map<Node, List<Node>> resultPaths) {
+	private void subSelect(Node currentContext, int depth, RDFBackend<Node> rdfBackend, List<Node> resultList, List<Node> path, Map<Node, List<Node>> resultPaths) {
 		Collection<Node> nextNodes = delegate.select(rdfBackend, currentContext,path,resultPaths);
 		depth++;
 		for (Node n : nextNodes) {
-			if (!resultSet.contains(n)) {
+			if (!resultList.contains(n)) {
 				if (depth >= minRecursions){
-					resultSet.add(n);
+					resultList.add(n);
 				}
 				if (depth < maxRecursions) {
                     if(path != null && resultPaths != null) {
-					    subSelect(n, depth, rdfBackend, resultSet, new ImmutableList.Builder<Node>().addAll(path).add(currentContext).build(),resultPaths);
+					    subSelect(n, depth, rdfBackend, resultList, new ImmutableList.Builder<Node>().addAll(path).add(currentContext).build(),resultPaths);
                     } else {
-                        subSelect(n, depth, rdfBackend, resultSet, null,resultPaths);
+                        subSelect(n, depth, rdfBackend, resultList, null,resultPaths);
                     }
 				}
 			}
@@ -168,12 +168,15 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
 		RecursivePathSelector<Node> that = (RecursivePathSelector<Node>) o;
 
         if (delegate != null ? !delegate.equals(that.delegate) : that.delegate != null) return false;
+        if (minRecursions != that.minRecursions || maxRecursions != that.maxRecursions) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return delegate != null ? delegate.hashCode() : 0;
+        int hash = delegate != null ? delegate.hashCode() : 0;
+        hash = hash * 31 * 31 + minRecursions * 31 + maxRecursions;
+        return hash;
     }
 }
