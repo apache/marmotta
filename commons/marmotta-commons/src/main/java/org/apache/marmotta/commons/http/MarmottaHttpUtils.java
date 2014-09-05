@@ -105,6 +105,8 @@ public class MarmottaHttpUtils {
 
 
     public static ContentType parseContentType(String c) {
+        if (StringUtils.isBlank(c)) return null;
+
         String mt[] = c.split(";");
 
         String[] tst = mt[0].split("/");

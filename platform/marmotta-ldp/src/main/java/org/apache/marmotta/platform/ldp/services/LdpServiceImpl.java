@@ -108,7 +108,7 @@ public class LdpServiceImpl implements LdpService {
         uriBuilder.path(uriInfo.getPathParameters().getFirst("local"));
         // uriBuilder.path(uriInfo.getPath().replaceFirst("/$", ""));
         String uri = uriBuilder.build().toString();
-        log.debug("Request URI: {}", uri);
+        log.debug("=== Request URI: {}", uri);
         return uri;
     }
 
@@ -197,7 +197,7 @@ public class LdpServiceImpl implements LdpService {
             } else {
                 return null;
             }
-        }finally {
+        } finally {
             it.close();
         }
     }
@@ -228,7 +228,7 @@ public class LdpServiceImpl implements LdpService {
             } else {
                 return null;
             }
-        }finally {
+        } finally {
             it.close();
         }
     }
@@ -323,6 +323,7 @@ public class LdpServiceImpl implements LdpService {
         connection.add(container, DCTERMS.modified, now, ldpContext);
 
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+        connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
         connection.add(resource, ldpInteractionModelProperty, interactionModel.getUri(), ldpContext);
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
@@ -331,9 +332,11 @@ public class LdpServiceImpl implements LdpService {
         // TODO: find a better way to ingest n-triples (text/plain) while still supporting regular text files
         final RDFFormat rdfFormat = ("text/plain".equals(type) ? null : Rio.getParserFormatForMIMEType(type));
         if (rdfFormat == null) {
-            log.debug("POST creates new LDP-NR, because no suitable RDF parser found for type {}", type);
+            log.debug("Creating new LDP-NR, because no suitable RDF parser found for type {}", type);
             final Literal format = valueFactory.createLiteral(type);
             final URI binaryResource = valueFactory.createURI(resource.stringValue() + LdpUtils.getExtension(type));
+            log.debug("LDP-NR is <{}>", binaryResource);
+            log.debug("Corresponding LDP-RS is <{}>", resource);
 
             connection.add(container, LDP.contains, binaryResource, ldpContext);
 
@@ -354,8 +357,7 @@ public class LdpServiceImpl implements LdpService {
 
             return binaryResource.stringValue();
         } else {
-            log.debug("POST creates new LDP-RS, data provided as {}", rdfFormat.getName());
-            connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
+            log.debug("Creating new LDP-RS, data provided as {}", rdfFormat.getName());
             connection.add(container, LDP.contains, resource, ldpContext);
 
             // FIXME: We are (are we?) allowed to filter out server-managed properties here

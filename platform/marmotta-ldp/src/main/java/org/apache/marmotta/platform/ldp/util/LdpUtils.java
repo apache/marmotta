@@ -33,6 +33,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
+import org.slf4j.Logger;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;
@@ -47,6 +48,8 @@ import java.util.Set;
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
  */
 public class LdpUtils {
+
+    private static Logger log = org.slf4j.LoggerFactory.getLogger(LdpUtils.class);
 
     /**
      * Urify the Slug: header value, i.e. replace all non-url chars with a single dash.
@@ -78,12 +81,19 @@ public class LdpUtils {
      * @return file extension (already including '.')
      */
     public static String getExtension(String mimeType) {
-        MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+        final String defaultExt = ".bin";
+        final MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
         try {
-            return allTypes.forName(mimeType).getExtension();
+            final String ext = allTypes.forName(mimeType).getExtension();
+            log.trace("Tika's file-extension for {} is '{}'", mimeType, ext);
+            if (StringUtils.isNotBlank(ext)) {
+                return ext;
+            }
         } catch (MimeTypeException e) {
-            return null; //FIXME
+            log.trace("MimeTypeException: {}. Not critical, recovering...", e.getMessage());
         }
+        log.trace("Using fallback file-extension '{}' for {}", defaultExt, mimeType);
+        return defaultExt;
     }
 
     /**
@@ -137,14 +147,18 @@ public class LdpUtils {
         return sb.toString();
     }
 
-    public static URI getContainer(String resource) throws MalformedURLException, URISyntaxException {
+    public static String getContainer(String resource) throws MalformedURLException, URISyntaxException {
         java.net.URI uri = new java.net.URI(resource);
         java.net.URI parent = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
-        return new URIImpl(parent.toASCIIString());
+        return parent.toASCIIString();
     }
 
     public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
         return new URIImpl(resource.getNamespace());
+    }
+
+    private LdpUtils() {
+        // Static access only
     }
 
 }

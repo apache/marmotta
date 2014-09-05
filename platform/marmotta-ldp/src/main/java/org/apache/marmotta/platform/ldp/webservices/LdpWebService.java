@@ -43,7 +43,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.*;
 import org.slf4j.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -53,6 +52,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,6 +86,39 @@ public class LdpWebService {
     @Inject
     private SesameService sesameService;
 
+    private final List<ContentType> producedRdfTypes;
+
+    public LdpWebService() {
+        producedRdfTypes = new ArrayList<>();
+
+        for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
+            final String primaryQ;
+            if (format == RDFFormat.TURTLE) {
+                primaryQ = ";q=1.0";
+            } else if (format == RDFFormat.JSONLD) {
+                primaryQ = ";q=0.9";
+            } else if (format == RDFFormat.RDFXML) {
+                primaryQ = ";q=0.8";
+            } else {
+                primaryQ = ";q=0.5";
+            }
+            final String secondaryQ = ";q=0.3";
+            final List<String> mimeTypes = format.getMIMETypes();
+            for (int i = 0; i < mimeTypes.size(); i++) {
+                final String mime = mimeTypes.get(i);
+                if (i == 0) {
+                    // first mimetype is the default
+                    producedRdfTypes.add(MarmottaHttpUtils.parseContentType(mime + primaryQ));
+                } else {
+                    producedRdfTypes.add(MarmottaHttpUtils.parseContentType(mime + secondaryQ));
+                }
+            }
+        }
+        Collections.sort(producedRdfTypes);
+
+        log.debug("Available RDF Serializer: {}", producedRdfTypes);
+    }
+
     protected void initialize(@Observes SesameStartupEvent event) {
         log.info("Starting up LDP WebService Endpoint");
         String root = UriBuilder.fromUri(configurationService.getBaseUri()).path(LdpWebService.PATH).build().toASCIIString();
@@ -105,23 +139,25 @@ public class LdpWebService {
 
     @GET
     public Response GET(@Context final UriInfo uriInfo, @Context Request r,
-                        @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) MediaType type)
+                        @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) String type)
             throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("GET to LDPR <{}>", resource);
-        return buildGetResponse(resource, r, type).build();
+        return buildGetResponse(resource, r, MarmottaHttpUtils.parseAcceptHeader(type)).build();
     }
 
     @HEAD
     public Response HEAD(@Context final UriInfo uriInfo, @Context Request r,
-                         @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) MediaType type)
+                         @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) String type)
             throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("HEAD to LDPR <{}>", resource);
-        return buildGetResponse(resource, r, type).entity(null).build();
+        return buildGetResponse(resource, r, MarmottaHttpUtils.parseAcceptHeader(type)).entity(null).build();
     }
 
-    private Response.ResponseBuilder buildGetResponse(final String resource, Request r, MediaType type) throws RepositoryException {
+    private Response.ResponseBuilder buildGetResponse(final String resource, Request r, List<ContentType> acceptedContentTypes) throws RepositoryException {
+        log.trace("LDPR requested media type {}", acceptedContentTypes);
+        MediaType type = MediaType.valueOf(acceptedContentTypes.get(0).toString());
         final RepositoryConnection conn = sesameService.getConnection();
         try {
             conn.begin();
@@ -136,75 +172,59 @@ public class LdpWebService {
                 log.trace("{} exists, continuing", resource);
             }
 
-            final RDFFormat format;
-            final RDFFormat fallback = (ldpService.isNonRdfSourceResource(conn, resource) ? null : RDFFormat.TURTLE);
-            final String mimeType = LdpUtils.getMimeType(type);
-            if (StringUtils.isBlank(mimeType) || "text/plain".equals(mimeType)) {
-                // TODO: find a better way to support n-triples (text/plain)
-                //       while still supporting regular text files
-                format = null;
-            } else if (type.isWildcardSubtype() && "text".equals(type.getType())) {
-                format = RDFFormat.TURTLE;
-            } else {
-                ContentType contentType = MarmottaHttpUtils.performContentNegotiation(mimeType, exportService.getProducedTypes());
-                format = (contentType != null ? Rio.getWriterFormatForMIMEType(contentType.getMime(), fallback) : fallback);
-            }
-
-            if (format == null) {
-                log.debug("GET to <{}> with non-RDF format {} of a LDP-NR", resource, type);
-                final StreamingOutput entity = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream out) throws IOException, WebApplicationException {
-                        try {
-                            final RepositoryConnection outputConn = sesameService.getConnection();
-                            try {
-                                outputConn.begin();
-                                ldpService.exportBinaryResource(outputConn, resource, out);
-                                outputConn.commit();
-                            } catch (RepositoryException | IOException e) {
-                                outputConn.rollback();
-                                throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
-                            } finally {
-                                outputConn.close();
-                            }
-                        } catch (RepositoryException e) {
-                            throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
+            // Content-Neg
+            if (ldpService.isNonRdfSourceResource(conn, resource)) {
+                log.trace("<{}> is marked as LDP-NR", resource);
+                // LDP-NR
+                final ContentType realType = MarmottaHttpUtils.parseContentType(ldpService.getMimeType(conn, resource));
+                if (realType == null) {
+                    // Fallback to related LDP-RS
+                    log.trace("<{}> does not look like a LDP-NR (no format found), trying the corresponding LDP-RS", resource);
+                    final URI ldpRS = ldpService.getRdfSourceForNonRdfSource(conn, resource);
+                    if (ldpRS == null) {
+                        log.debug("No corresponding LDP-RS found for <{}>, sending 406", resource);
+                        final Response.ResponseBuilder resp = build406Response(conn, resource, Collections.<ContentType>emptyList());
+                        conn.commit();
+                        return resp;
+                    } else {
+                        // Sending back the corresponding LDP-RS
+                        log.trace("Using corresponding LDP-RS <{}> for LDP-NR <{}>", ldpRS, resource);
+                        final ContentType bestType = MarmottaHttpUtils.bestContentType(producedRdfTypes, acceptedContentTypes);
+                        if (bestType == null) {
+                            log.trace("Available formats {} do not match any of the requested formats {} for <{}>, sending 406", producedRdfTypes, acceptedContentTypes, resource);
+                            final Response.ResponseBuilder resp = build406Response(conn, resource, producedRdfTypes);
+                            conn.commit();
+                            return resp;
+                        } else {
+                            log.trace("Sending corresponding LDP-RS <{}> for requested LDP-NR <{}> using {}", ldpRS, resource, bestType);
+                            final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, ldpRS.stringValue(), Rio.getWriterFormatForMIMEType(bestType.getMime(), RDFFormat.TURTLE));
+                            conn.commit();
+                            return resp;
                         }
                     }
-                };
-                final String realType = ldpService.getMimeType(conn, resource);
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(realType != null ? MediaType.valueOf(realType) : type);
-                conn.commit();
-                return resp;
+                } else if (MarmottaHttpUtils.bestContentType(Collections.singletonList(realType), acceptedContentTypes) == null) {
+                    log.debug("Can't send <{}> ({}) in any of the accepted formats: {}, sending 406");
+                    final Response.ResponseBuilder resp = build406Response(conn, resource, Collections.singletonList(realType));
+                    conn.commit();
+                    return resp;
+                } else {
+                    final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource);
+                    conn.commit();
+                    return resp;
+                }
             } else {
-                // Deliver all triples from the <subject> context.
-                log.debug("GET to <{}> with RDF format {} of a LPD-R", resource, format.getDefaultMIMEType());
-                final StreamingOutput entity = new StreamingOutput() {
-                    @Override
-                    public void write(OutputStream output) throws IOException, WebApplicationException {
-                        try {
-                            final RepositoryConnection outputConn = sesameService.getConnection();
-                            try {
-                                outputConn.begin();
-                                ldpService.exportResource(outputConn, resource, output, format);
-                                outputConn.commit();
-                            } catch (RDFHandlerException e) {
-                                outputConn.rollback();
-                                throw new NoLogWebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e.getMessage()).build());
-                            } catch (final Throwable t) {
-                                outputConn.rollback();
-                                throw t;
-                            } finally {
-                                outputConn.close();
-                            }
-                        } catch (RepositoryException e) {
-                            throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
-                        }
-                    }
-                };
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType());
-                conn.commit();
-                return resp;
+                // Requested Resource is a LDP-RS
+                final ContentType bestType = MarmottaHttpUtils.bestContentType(producedRdfTypes, acceptedContentTypes);
+                if (bestType == null) {
+                    log.trace("Available formats {} do not match any of the requested formats {} for <{}>, sending 406", producedRdfTypes, acceptedContentTypes, resource);
+                    final Response.ResponseBuilder resp = build406Response(conn, resource, producedRdfTypes);
+                    conn.commit();
+                    return resp;
+                } else {
+                    final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(bestType.getMime(), RDFFormat.TURTLE));
+                    conn.commit();
+                    return resp;
+                }
             }
         } catch (final Throwable t) {
             conn.rollback();
@@ -212,6 +232,74 @@ public class LdpWebService {
         } finally {
             conn.close();
         }
+    }
+
+    private Response.ResponseBuilder build406Response(RepositoryConnection connection, String resource, List<ContentType> availableContentTypes) throws RepositoryException {
+        final Response.ResponseBuilder response = createResponse(connection, Response.Status.NOT_ACCEPTABLE, resource);
+        if (availableContentTypes.isEmpty()) {
+            response.entity(String.format("%s is not available in the requested format%n", resource));
+        } else {
+            response.entity(String.format("%s is only available in the following formats: %s%n", resource, availableContentTypes));
+        }
+        // Sec. 4.2.2.2
+        return addOptionsHeader(connection, resource, response);
+    }
+
+    private Response.ResponseBuilder buildGetResponseBinaryResource(RepositoryConnection connection, final String resource) throws RepositoryException {
+        final String realType = ldpService.getMimeType(connection, resource);
+        log.debug("Building response for LDP-NR <{}> with format {}", resource, realType);
+        final StreamingOutput entity = new StreamingOutput() {
+            @Override
+            public void write(OutputStream out) throws IOException, WebApplicationException {
+                try {
+                    final RepositoryConnection outputConn = sesameService.getConnection();
+                    try {
+                        outputConn.begin();
+                        ldpService.exportBinaryResource(outputConn, resource, out);
+                        outputConn.commit();
+                    } catch (RepositoryException | IOException e) {
+                        outputConn.rollback();
+                        throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
+                    } finally {
+                        outputConn.close();
+                    }
+                } catch (RepositoryException e) {
+                    throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
+                }
+            }
+        };
+        // Sec. 4.2.2.2
+        return addOptionsHeader(connection, resource, createResponse(connection, Response.Status.OK, resource).entity(entity).type(realType));
+    }
+
+    private Response.ResponseBuilder buildGetResponseSourceResource(RepositoryConnection conn, final String resource, final RDFFormat format) throws RepositoryException {
+        // Deliver all triples from the <subject> context.
+        log.debug("Building response for LDP-RS <{}> with RDF format {}", resource, format.getDefaultMIMEType());
+        final StreamingOutput entity = new StreamingOutput() {
+            @Override
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                try {
+                    final RepositoryConnection outputConn = sesameService.getConnection();
+                    try {
+                        outputConn.begin();
+                        ldpService.exportResource(outputConn, resource, output, format);
+                        outputConn.commit();
+                    } catch (RDFHandlerException e) {
+                        outputConn.rollback();
+                        throw new NoLogWebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e.getMessage()).build());
+                    } catch (final Throwable t) {
+                        outputConn.rollback();
+                        throw t;
+                    } finally {
+                        outputConn.close();
+                    }
+                } catch (RepositoryException e) {
+                    throw new WebApplicationException(e, createResponse(Response.status(Response.Status.INTERNAL_SERVER_ERROR)).entity(e).build());
+                }
+            }
+        };
+        // Sec. 4.2.2.2
+        return addOptionsHeader(conn, resource, createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType()));
     }
 
     /**
@@ -222,7 +310,7 @@ public class LdpWebService {
      */
     @POST
     public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug,
-                         @HeaderParam("Link") List<Link> linkHeaders,
+                         @HeaderParam(HttpHeaders.LINK) List<Link> linkHeaders,
                          InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
 
@@ -281,25 +369,8 @@ public class LdpWebService {
             }
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
-            final String mimeType = LdpUtils.getMimeType(type);
-            //checking if resource (container) exists is done later in the service
-            try {
-                String location = ldpService.addResource(conn, container, newResource, ldpInteractionModel, mimeType, postBody);
-                final Response.ResponseBuilder response = createResponse(conn, Response.Status.CREATED, container).location(java.net.URI.create(location));
-                if (newResource.compareTo(location) != 0) {
-                    response.link(newResource, "describedby"); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
-                }
-                conn.commit();
-                return response.build();
-            } catch (IOException | RDFParseException e) {
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.BAD_REQUEST, container).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
-                conn.rollback();
-                return resp.build();
-            } catch (UnsupportedRDFormatException e) {
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.UNSUPPORTED_MEDIA_TYPE, container).entity(e);
-                conn.rollback();
-                return resp.build();
-            }
+            // connection is closed by buildPostResponse
+            return buildPostResponse(conn, container, newResource, ldpInteractionModel, postBody, type);
         } catch (InvalidInteractionModelException e) {
             log.debug("POST with invalid interaction model <{}> to <{}>", e.getHref(), container);
             final Response.ResponseBuilder response = createResponse(conn, Response.Status.BAD_REQUEST, container);
@@ -314,10 +385,37 @@ public class LdpWebService {
     }
 
     /**
+     * @param connection the RepositoryConnection (with active transaction) to read extra data from. WILL BE COMMITTED OR ROLLBACKED
+     * @throws RepositoryException
+     */
+    private Response buildPostResponse(RepositoryConnection connection, String container, String newResource, LdpService.InteractionModel interactionModel, InputStream requestBody, MediaType type) throws RepositoryException {
+        final String mimeType = LdpUtils.getMimeType(type);
+        //checking if resource (container) exists is done later in the service
+        try {
+            String location = ldpService.addResource(connection, container, newResource, interactionModel, mimeType, requestBody);
+            final Response.ResponseBuilder response = createResponse(connection, Response.Status.CREATED, container).location(java.net.URI.create(location));
+            if (newResource.compareTo(location) != 0) {
+                response.link(newResource, "describedby"); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+            }
+            connection.commit();
+            return response.build();
+        } catch (IOException | RDFParseException e) {
+            final Response.ResponseBuilder resp = createResponse(connection, Response.Status.BAD_REQUEST, container).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
+            connection.rollback();
+            return resp.build();
+        } catch (UnsupportedRDFormatException e) {
+            final Response.ResponseBuilder resp = createResponse(connection, Response.Status.UNSUPPORTED_MEDIA_TYPE, container).entity(e);
+            connection.rollback();
+            return resp.build();
+        }
+    }
+
+    /**
      * Handle PUT (Sec. 4.2.4, Sec. 5.2.4)
      */
     @PUT
     public Response PUT(@Context UriInfo uriInfo, @Context Request request,
+                        @HeaderParam(HttpHeaders.LINK) List<Link> linkHeaders,
                         @HeaderParam(HttpHeaders.IF_MATCH) EntityTag eTag,
                         @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody)
             throws RepositoryException, IOException, InvalidModificationException, RDFParseException, IncompatibleResourceTypeException, URISyntaxException {
@@ -332,7 +430,7 @@ public class LdpWebService {
             final Response.ResponseBuilder resp;
             final String newResource;  // NOTE: newResource == resource for now, this might change in the future
             if (ldpService.exists(conn, resource)) {
-                log.debug("updating resource <{}>", resource);
+                log.debug("<{}> exists, so this is an UPDATE", resource);
 
                 if (eTag == null) {
                     // check for If-Match header (ETag) -> 428 Precondition Required (Sec. 4.2.4.5)
@@ -355,17 +453,42 @@ public class LdpWebService {
                 newResource = ldpService.updateResource(conn, resource, postBody, mimeType);
                 log.info("PUT update for <{}> successful", newResource);
                 resp = createResponse(conn, Response.Status.OK, resource);
+                conn.commit();
+                return resp.build();
             } else {
-                log.debug("creating resource <{}>", resource);
+                log.debug("<{}> does not exist, so this is a CREATE", resource);
                 //LDP servers may allow resource creation using PUT (Sec. 4.2.4.6)
+
+                final String container = LdpUtils.getContainer(resource);
+                try {
+                    // Check that the target container supports the LDPC Interaction Model
+                    final LdpService.InteractionModel containerModel = ldpService.getInteractionModel(conn, container);
+                    if (containerModel != LdpService.InteractionModel.LDPC) {
+                        final Response.ResponseBuilder response = createResponse(conn, Response.Status.METHOD_NOT_ALLOWED, container);
+                        conn.commit();
+                        return response.entity(String.format("%s only supports %s Interaction Model", container, containerModel)).build();
+                    }
+
+                    // Get the LDP-Interaction Model (Sec. 5.2.3.4 and Sec. 4.2.1.4)
+                    final LdpService.InteractionModel ldpInteractionModel = ldpService.getInteractionModel(linkHeaders);
+
+                    // connection is closed by buildPostResponse
+                    return buildPostResponse(conn, container, resource, ldpInteractionModel, postBody, type);
+                } catch (InvalidInteractionModelException e) {
+                    log.debug("PUT with invalid interaction model <{}> to <{}>", e.getHref(), container);
+                    final Response.ResponseBuilder response = createResponse(conn, Response.Status.BAD_REQUEST, container);
+                    conn.commit();
+                    return response.entity(e.getMessage()).build();
+                }
+                /*
                 URI uri = conn.getValueFactory().createURI(resource);
                 newResource = ldpService.addResource(conn, LdpUtils.getContainer(uri), uri, LdpService.InteractionModel.LDPR, mimeType, postBody);
                 log.info("PUT on <{}> created new resource", newResource);
                 resp = createResponse(conn, Response.Status.CREATED, newResource).location(java.net.URI.create(newResource));
+                conn.commit();
+                return resp.build();
+                */
             }
-            conn.commit();
-
-            return resp.build();
         } catch (IOException | RDFParseException e) {
             final Response.ResponseBuilder resp = createResponse(conn, Response.Status.BAD_REQUEST, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
             conn.rollback();
@@ -477,6 +600,7 @@ public class LdpWebService {
      * Handle OPTIONS (Sec. 4.2.8, Sec. 5.2.8)
      */
     @OPTIONS
+    @Produces("text/plain")
     public Response OPTIONS(@Context final UriInfo uriInfo) throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("OPTIONS to <{}>", resource);
@@ -489,22 +613,7 @@ public class LdpWebService {
 
             Response.ResponseBuilder builder = createResponse(con, Response.Status.OK, resource);
 
-            if (ldpService.isNonRdfSourceResource(con, resource)) {
-                // Sec. 4.2.8.2
-                builder.allow("GET", "HEAD", "OPTIONS");
-            } else if (ldpService.isRdfSourceResource(con, resource)) {
-                if (ldpService.getInteractionModel(con, resource) == LdpService.InteractionModel.LDPR) {
-                    // Sec. 4.2.8.2
-                    builder.allow("GET", "HEAD", "PATCH", "OPTIONS");
-                } else {
-                    // Sec. 4.2.8.2
-                    builder.allow("GET", "HEAD", "POST", "PATCH", "OPTIONS");
-                    // Sec. 4.2.3 / Sec. 5.2.3
-                    builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
-                }
-                // Sec. 4.2.7.1
-                builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
-            }
+            addOptionsHeader(con, resource, builder);
 
             con.commit();
             return builder.build();
@@ -517,10 +626,35 @@ public class LdpWebService {
 
     }
 
+    private Response.ResponseBuilder addOptionsHeader(RepositoryConnection connection, String resource, Response.ResponseBuilder builder) throws RepositoryException {
+        log.debug("Adding required LDP Headers (OPTIONS, GET); see Sec. 8.2.8 and Sec. 4.2.2.2");
+        if (ldpService.isNonRdfSourceResource(connection, resource)) {
+            // Sec. 4.2.8.2
+            log.trace("<{}> is an LDP-NR: GET, HEAD, PUT and OPTIONS allowed", resource);
+            builder.allow("GET", "HEAD", "PUT", "OPTIONS");
+        } else if (ldpService.isRdfSourceResource(connection, resource)) {
+            if (ldpService.getInteractionModel(connection, resource) == LdpService.InteractionModel.LDPR) {
+                log.trace("<{}> is a LDP-RS (LDPR interaction model): GET, HEAD, PUT, PATCH and OPTIONS allowed", resource);
+                // Sec. 4.2.8.2
+                builder.allow("GET", "HEAD", "PUT", "PATCH", "OPTIONS");
+            } else {
+                // Sec. 4.2.8.2
+                log.trace("<{}> is a LDP-RS (LDPC interaction model): GET, HEAD, POST, PUT, PATCH and OPTIONS allowed", resource);
+                builder.allow("GET", "HEAD", "POST", "PUT", "PATCH", "OPTIONS");
+                // Sec. 4.2.3 / Sec. 5.2.3
+                builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
+            }
+            // Sec. 4.2.7.1
+            builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
+        }
+
+        return builder;
+    }
+
     /**
      * Add all the default headers specified in LDP to the Response
      *
-     * @param connection
+     * @param connection the RepositoryConnection (with active transaction) to read extra data from
      * @param status the StatusCode
      * @param resource the iri/uri/url of the resouce
      * @return the provided ResponseBuilder for chaining
@@ -532,7 +666,7 @@ public class LdpWebService {
     /**
      * Add all the default headers specified in LDP to the Response
      *
-     * @param connection
+     * @param connection the RepositoryConnection (with active transaction) to read extra data from
      * @param status the status code
      * @param resource the uri/url of the resouce
      * @return the provided ResponseBuilder for chaining
@@ -544,9 +678,9 @@ public class LdpWebService {
     /**
      * Add all the default headers specified in LDP to the Response
      *
-     * @param connection
+     * @param connection the RepositoryConnection (with active transaction) to read extra data from
      * @param rb the ResponseBuilder
-     * @param resource the uri/url of the resouce
+     * @param resource the uri/url of the resource
      * @return the provided ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, Response.ResponseBuilder rb, String resource) throws RepositoryException {
@@ -566,8 +700,9 @@ public class LdpWebService {
             if (rdfSource != null) {
                 // Sec. 5.2.8.1 and 5.2.3.12
                 // FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
-                rb.link(rdfSource.stringValue(), "meta");
                 rb.link(rdfSource.stringValue(), "describedby");
+                // TODO: Propose to LDP-WG?
+                rb.link(rdfSource.stringValue(), "meta");
             }
             final URI nonRdfSource = ldpService.getNonRdfSourceForRdfSource(connection, resource);
             if (nonRdfSource != null) {
