@@ -178,20 +178,20 @@ public class LdpWebServiceTest {
         RestAssured.expect().statusCode(404).get(container);
 
         // Create
-        RestAssured
+        final String binaryResource = RestAssured
             .given()
                 .header("Slug", resourceName)
                 .body(IOUtils.toByteArray(LdpWebServiceTest.class.getResourceAsStream("/test.png")))
                 .contentType(mimeType)
             .expect()
                 .statusCode(201)
-                .header("Location", baseUrl + newResource + ".png")
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(baseUrl + newResource, "describedby"),
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
-            .post(container);
+            .post(container)
+                .getHeader("Location");
 
         // now the container hasType
         RestAssured
@@ -211,7 +211,7 @@ public class LdpWebServiceTest {
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.Container),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), LDP.contains, new URIImpl(baseUrl + newResource + ".png")))
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), LDP.contains, new URIImpl(binaryResource)))
                 )
             .get(container);
 
@@ -233,7 +233,7 @@ public class LdpWebServiceTest {
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.RDFSource),
                         SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.HAS_FORMAT, new URIImpl(baseUrl + newResource + ".png"))
+                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.HAS_FORMAT, new URIImpl(binaryResource))
                 ))
             .get(newResource);
 
@@ -250,14 +250,14 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + newResource+".png",
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), RDF.TYPE, LDP.NonRDFSource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource+".png"), DCTERMS.IS_FORMAT_OF, new URIImpl(baseUrl + newResource))
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), binaryResource,
+                        SesameMatchers.hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.Resource),
+                        SesameMatchers.hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.NonRDFSource),
+                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
+                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.IS_FORMAT_OF, new URIImpl(baseUrl + newResource))
                 ))
-            .get(newResource + ".png");
+            .get(binaryResource);
 
         // now check that the data is really there
         final String expectedMD5 = HashUtils.md5sum(LdpWebServiceTest.class.getResourceAsStream("/test.png"));
@@ -273,7 +273,7 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(mimeType)
-            .get(newResource + ".png")
+            .get(binaryResource)
                 .body().asByteArray();
 
         assertEquals("md5sum",expectedMD5, HashUtils.md5sum(data));
