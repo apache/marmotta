@@ -589,8 +589,13 @@ public class LdpServiceImpl implements LdpService {
         connection.clear(resource);
 
         // Sec. 5.2.3.11: LDP servers that allow member creation via POST should not re-use URIs.
-        connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-        //TODO: keep the track if was there work, but is a good idea?
+        /* FIXME: the following statement makes problems:
+         *    including this line breakes true deletions of resources (fails our unit-tests)
+         *    removing this line allows re-use of uris and thus fails the ldp-testsuite
+         *   --> maybe use a different namespace? Add a 'deleted' marker and send 410 'Gone' responses?
+         */
+        //connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
+        // TODO: keep the track if was there work, but is a good idea?
 
         return true;
     }
