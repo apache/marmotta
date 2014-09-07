@@ -157,7 +157,6 @@ public class LdpWebService {
 
     private Response.ResponseBuilder buildGetResponse(final String resource, Request r, List<ContentType> acceptedContentTypes) throws RepositoryException {
         log.trace("LDPR requested media type {}", acceptedContentTypes);
-        MediaType type = MediaType.valueOf(acceptedContentTypes.get(0).toString());
         final RepositoryConnection conn = sesameService.getConnection();
         try {
             conn.begin();
@@ -178,35 +177,42 @@ public class LdpWebService {
                 // LDP-NR
                 final ContentType realType = MarmottaHttpUtils.parseContentType(ldpService.getMimeType(conn, resource));
                 if (realType == null) {
-                    // Fallback to related LDP-RS
-                    log.trace("<{}> does not look like a LDP-NR (no format found), trying the corresponding LDP-RS", resource);
-                    final URI ldpRS = ldpService.getRdfSourceForNonRdfSource(conn, resource);
-                    if (ldpRS == null) {
-                        log.debug("No corresponding LDP-RS found for <{}>, sending 406", resource);
+                    log.debug("<{}> has no format information - try some magic...");
+                    final ContentType rdfContentType = MarmottaHttpUtils.bestContentType(producedRdfTypes, acceptedContentTypes);
+                    if (MarmottaHttpUtils.bestContentType(MarmottaHttpUtils.parseAcceptHeader("*/*"), acceptedContentTypes) != null) {
+                        log.trace("Unknown type of LDP-NR <{}> is compatible with wildcard - sending back LDP-NR without Content-Type", resource);
+                        // Client will accept anything, send back LDP-NR
+                        final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource);
+                        conn.commit();
+                        return resp;
+                    } else if (rdfContentType == null) {
+                        log.trace("LDP-NR <{}> has no type information, sending HTTP 409 with hint for wildcard 'Accept: */*'", resource);
+                        // Client does not look for a RDF Serialisation, send back 409 Conflict.
+                        log.debug("No corresponding LDP-RS found for <{}>, sending HTTP 409 with hint for wildcard 'Accept: */*'", resource);
                         final Response.ResponseBuilder resp = build406Response(conn, resource, Collections.<ContentType>emptyList());
                         conn.commit();
                         return resp;
                     } else {
-                        // Sending back the corresponding LDP-RS
-                        log.trace("Using corresponding LDP-RS <{}> for LDP-NR <{}>", ldpRS, resource);
-                        final ContentType bestType = MarmottaHttpUtils.bestContentType(producedRdfTypes, acceptedContentTypes);
-                        if (bestType == null) {
-                            log.trace("Available formats {} do not match any of the requested formats {} for <{}>, sending 406", producedRdfTypes, acceptedContentTypes, resource);
-                            final Response.ResponseBuilder resp = build406Response(conn, resource, producedRdfTypes);
-                            conn.commit();
-                            return resp;
-                        } else {
-                            log.trace("Sending corresponding LDP-RS <{}> for requested LDP-NR <{}> using {}", ldpRS, resource, bestType);
-                            final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, ldpRS.stringValue(), Rio.getWriterFormatForMIMEType(bestType.getMime(), RDFFormat.TURTLE));
-                            conn.commit();
-                            return resp;
-                        }
+                        log.debug("Client is asking for a RDF-Serialisation of LDP-NS <{}>, sending meta-data", resource);
+                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE));
+                        conn.commit();
+                        return resp;
                     }
                 } else if (MarmottaHttpUtils.bestContentType(Collections.singletonList(realType), acceptedContentTypes) == null) {
-                    log.debug("Can't send <{}> ({}) in any of the accepted formats: {}, sending 406");
-                    final Response.ResponseBuilder resp = build406Response(conn, resource, Collections.singletonList(realType));
-                    conn.commit();
-                    return resp;
+                    log.trace("Client-accepted types {} do not include <{}>-s available type {} - trying some magic...", acceptedContentTypes, resource, realType);
+                    // requested types do not match the real type - maybe an rdf-type is accepted?
+                    final ContentType rdfContentType = MarmottaHttpUtils.bestContentType(producedRdfTypes, acceptedContentTypes);
+                    if (rdfContentType == null) {
+                        log.debug("Can't send <{}> ({}) in any of the accepted formats: {}, sending 406", resource, realType, acceptedContentTypes);
+                        final Response.ResponseBuilder resp = build406Response(conn, resource, Collections.singletonList(realType));
+                        conn.commit();
+                        return resp;
+                    } else {
+                        log.debug("Client is asking for a RDF-Serialisation of LDP-NS <{}>, sending meta-data", resource);
+                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE));
+                        conn.commit();
+                        return resp;
+                    }
                 } else {
                     final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource);
                     conn.commit();
@@ -600,7 +606,6 @@ public class LdpWebService {
      * Handle OPTIONS (Sec. 4.2.8, Sec. 5.2.8)
      */
     @OPTIONS
-    @Produces("text/plain")
     public Response OPTIONS(@Context final UriInfo uriInfo) throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("OPTIONS to <{}>", resource);
