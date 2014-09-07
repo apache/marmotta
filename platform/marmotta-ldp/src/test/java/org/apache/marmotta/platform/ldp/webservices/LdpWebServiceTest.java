@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -92,21 +93,20 @@ public class LdpWebServiceTest {
 
         // The container
         final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
-        final String newResource = UriBuilder.fromUri(container).path(resourceName).build().toString();
         final String mimeType = RDFFormat.TURTLE.getDefaultMIMEType();
 
         RestAssured.expect().statusCode(404).get(container);
 
         // Create
-        RestAssured
+        final String newResource = RestAssured
             .given()
                 .header("Slug", resourceName)
                 .body(testResourceTTL.getBytes())
                 .contentType(mimeType)
             .expect()
                 .statusCode(201)
-                .header("Location", baseUrl + newResource)
-            .post(container);
+            .post(container)
+                .header(HttpHeaders.LOCATION);
 
         // now the container hasType
         log.info("200 - container");
@@ -140,8 +140,8 @@ public class LdpWebServiceTest {
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl + container,
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource)
+                        SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
                 ))
             .get(newResource);
 
@@ -336,16 +336,16 @@ public class LdpWebServiceTest {
 
         // Check the data is there
         EntityTag etag = EntityTagUtils.parseEntityTag(RestAssured
-                .given()
+            .given()
                 .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
-                .expect()
+            .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
                         SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
                         CoreMatchers.not(SesameMatchers.hasStatement(uri, RDFS.LABEL, null)),
                         CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
                 ))
-                .get(resource)
+            .get(resource)
                 .getHeader("ETag"));
         log.debug("ETag for <{}>: {}", resource, etag);
 
@@ -429,21 +429,20 @@ public class LdpWebServiceTest {
 
         // The container
         final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
-        final String newResource = UriBuilder.fromUri(container).path(resourceName).build().toString();
         final String mimeType = RDFFormat.TURTLE.getDefaultMIMEType();
 
         RestAssured.expect().statusCode(404).get(container);
 
         // Create
-        RestAssured
+        final String newResource = RestAssured
             .given()
                 .header("Slug", resourceName)
                 .body(testResourceTTL.getBytes())
                 .contentType(mimeType)
             .expect()
                 .statusCode(201)
-                .header("Location", baseUrl + newResource)
-            .post(container);
+            .post(container)
+                .header(HttpHeaders.LOCATION);
 
         // now the container hasType
         log.info("200 - container");
@@ -473,8 +472,8 @@ public class LdpWebServiceTest {
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl + container,
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource)
+                        SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
                 ))
             .get(newResource);
 
