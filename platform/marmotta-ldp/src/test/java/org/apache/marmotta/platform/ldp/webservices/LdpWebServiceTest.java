@@ -20,14 +20,16 @@ package org.apache.marmotta.platform.ldp.webservices;
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.test.SesameMatchers;
-import org.apache.marmotta.commons.sesame.test.base.SesameMatcher;
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
+import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,6 +42,7 @@ import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3.ldp.testsuite.matcher.HttpStatusSuccessMatcher;
 
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -47,6 +50,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 
@@ -87,15 +91,11 @@ public class LdpWebServiceTest {
 
     @Test
     public void testCRUD() {
-        final String testBase = "test";
-        final String containerName = "container1";
         final String resourceName = "resource1";
 
         // The container
-        final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
+        final String container = createTestContainer();
         final String mimeType = RDFFormat.TURTLE.getDefaultMIMEType();
-
-        RestAssured.expect().statusCode(404).get(container);
 
         // Create
         final String newResource = RestAssured
@@ -121,9 +121,9 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl+container,
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer)
+                .body(SesameMatchers.rdfStringMatches(mimeType, container,
+                        SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
                 ))
             .get(container);
 
@@ -139,7 +139,7 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl + container,
+                .body(SesameMatchers.rdfStringMatches(mimeType, container,
                         SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
                         SesameMatchers.hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
                 ))
@@ -166,16 +166,11 @@ public class LdpWebServiceTest {
 
     @Test
     public void testNR() throws IOException {
-        final String testBase = "test";
-        final String containerName = "container2";
         final String resourceName = "resource1";
 
         // The container
-        final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
-        final String newResource = UriBuilder.fromUri(container).path(resourceName).build().toString();
+        final String container = createTestContainer();
         final String mimeType = "image/png";
-
-        RestAssured.expect().statusCode(404).get(container);
 
         // Create
         final String binaryResource = RestAssured
@@ -186,12 +181,16 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(201)
                 .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(baseUrl + newResource, "describedby"),
+                        //  HeaderMatchers.isLink(metaResource, "describedby"),
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
             .post(container)
                 .getHeader("Location");
+
+
+
+        final String metaResource = binaryResource.replaceFirst("\\.png$", "");
 
         // now the container hasType
         RestAssured
@@ -205,13 +204,13 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + container,
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.RDFSource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.Container),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), LDP.contains, new URIImpl(binaryResource)))
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), container,
+                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.Resource),
+                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.RDFSource),
+                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.Container),
+                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer),
+                        SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(container), LDP.contains, new URIImpl(binaryResource)))
                 )
             .get(container);
 
@@ -229,13 +228,13 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), baseUrl + newResource,
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), RDF.TYPE, LDP.RDFSource),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + newResource), DCTERMS.HAS_FORMAT, new URIImpl(binaryResource))
+                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), metaResource,
+                        SesameMatchers.hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.Resource),
+                        SesameMatchers.hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.RDFSource),
+                        SesameMatchers.hasStatement(new URIImpl(metaResource), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(metaResource), DCTERMS.HAS_FORMAT, new URIImpl(binaryResource))
                 ))
-            .get(newResource);
+            .get(metaResource);
 
         // now the resource hasType
         RestAssured
@@ -255,7 +254,7 @@ public class LdpWebServiceTest {
                         SesameMatchers.hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.NonRDFSource),
                         SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.MODIFIED, null),
                         SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
-                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.IS_FORMAT_OF, new URIImpl(baseUrl + newResource))
+                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.IS_FORMAT_OF, new URIImpl(metaResource))
                 ))
             .get(binaryResource);
 
@@ -281,7 +280,7 @@ public class LdpWebServiceTest {
 
     @Test
     public void testInteractionModel() throws Exception {
-        final String container = baseUrl+LdpWebService.PATH + "/iam";
+        final String container = createTestContainer();
 
         // Try LDPR
         final String ldpr = RestAssured
@@ -316,7 +315,7 @@ public class LdpWebServiceTest {
 
     @Test
     public void testPUT() throws Exception {
-        final String container = baseUrl+LdpWebService.PATH + "/test";
+        final String container = createTestContainer();
 
         final String put_valid = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test_update.ttl"), "utf8");
         final String put_invalid = IOUtils.toString(LdpWebServiceTest.class.getResourceAsStream("/test_update_invalid.ttl"), "utf8");
@@ -418,20 +417,33 @@ public class LdpWebServiceTest {
             .get(resource);
     }
 
+    private String createTestContainer() {
+        return createTestContainer("");
+    }
+
+    private String createTestContainer(String slug) {
+        return RestAssured
+            .given()
+                .header("Slug", String.valueOf(slug))
+                .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
+                .body("<> a <http://example.com/unit-test> .".getBytes())
+            .expect()
+                .statusCode(HttpStatusSuccessMatcher.isSuccessful())
+                .header(HttpHeaders.LOCATION, CoreMatchers.notNullValue())
+            .post(baseUrl + LdpWebService.PATH)
+                .getHeader(HttpHeaders.LOCATION);
+    }
+
     /**
      * Test for <a href="https://issues.apache.org/jira/browse/MARMOTTA-525">MARMOTTA-525</a>
      */
     @Test
     public void testMARMOTTA_525() {
-        final String testBase = "MARMOTTA_525";
-        final String containerName = "c1";
         final String resourceName = "r1";
 
         // The container
-        final String container = UriBuilder.fromPath(LdpWebService.PATH).path(testBase).path(containerName).build().toString();
+        final String container = createTestContainer();
         final String mimeType = RDFFormat.TURTLE.getDefaultMIMEType();
-
-        RestAssured.expect().statusCode(404).get(container);
 
         // Create
         final String newResource = RestAssured
@@ -455,9 +467,9 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl+container,
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(baseUrl + container), RDF.TYPE, LDP.BasicContainer)
+                .body(SesameMatchers.rdfStringMatches(mimeType, container,
+                        SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
+                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
                 ))
             .get(container);
 
@@ -471,7 +483,7 @@ public class LdpWebServiceTest {
                 )
                 .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, baseUrl + container,
+                .body(SesameMatchers.rdfStringMatches(mimeType, container,
                         SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
                         SesameMatchers.hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
                 ))
@@ -494,4 +506,55 @@ public class LdpWebServiceTest {
 
     }
 
+    @Test
+    public void testSlugHeader() {
+        final String slug1 = "niceName", slug2 = "with some späcial chars";
+
+        final String container = createTestContainer("slugger");
+
+        // This one is easy:
+        RestAssured
+            .given()
+                .header("Slug", slug1)
+                .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(testResourceTTL.getBytes())
+            .expect()
+                .statusCode(201)
+                .header(HttpHeaders.LOCATION, CoreMatchers.endsWith(slug1))
+            .post(container);
+
+        // Trying again with the same SLUG
+        RestAssured
+            .given()
+                .header("Slug", slug1)
+                .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(testResourceTTL.getBytes())
+            .expect()
+                .statusCode(201)
+                .header(HttpHeaders.LOCATION, new TypeSafeMatcher<String>() {
+                    @Override
+                    protected boolean matchesSafely(String item) {
+                        return item.matches(String.format(".*/%s(-\\d+)$", Pattern.quote(slug1)));
+                    }
+
+                    @Override
+                    public void describeTo(Description description) {
+                        description.appendText("an URL ending with something like ").appendValue(slug1);
+                    }
+                })
+            .post(container);
+
+
+        // This one does some magic on the slug
+        RestAssured
+            .given()
+                .header("Slug", slug2)
+                .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
+                .body(testResourceTTL.getBytes())
+            .expect()
+                .statusCode(201)
+                .header(HttpHeaders.LOCATION, CoreMatchers.endsWith(LdpUtils.urify(slug2)))
+            .post(container);
+
+    }
 }
