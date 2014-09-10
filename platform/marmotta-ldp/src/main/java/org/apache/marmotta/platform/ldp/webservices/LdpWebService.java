@@ -164,7 +164,12 @@ public class LdpWebService {
             log.trace("Checking existence of {}", resource);
             if (!ldpService.exists(conn, resource)) {
                 log.debug("{} does not exist", resource);
-                final Response.ResponseBuilder resp = createResponse(conn, Response.Status.NOT_FOUND, resource);
+                final Response.ResponseBuilder resp;
+                if (ldpService.isReusedURI(conn, resource)) {
+                    resp = createResponse(conn, Response.Status.GONE, resource);
+                } else {
+                    resp = createResponse(conn, Response.Status.NOT_FOUND, resource);
+                }
                 conn.rollback();
                 return resp;
             } else {
@@ -327,6 +332,19 @@ public class LdpWebService {
         try {
             conn.begin();
 
+            if (!ldpService.exists(conn, container)) {
+                final Response.ResponseBuilder resp;
+                if (ldpService.isReusedURI(conn, container)) {
+                    log.debug("<{}> has been deleted, can't POST to it!", container);
+                    resp = createResponse(conn, Response.Status.GONE, container);
+                } else {
+                    log.debug("<{}> does not exists, can't POST to it!", container);
+                    resp = createResponse(conn, Response.Status.NOT_FOUND, container);
+                }
+                conn.rollback();
+                return resp.build();
+            }
+
             // Check that the target container supports the LDPC Interaction Model
             final LdpService.InteractionModel containerModel = ldpService.getInteractionModel(conn, container);
             if (containerModel != LdpService.InteractionModel.LDPC) {
@@ -361,14 +379,14 @@ public class LdpWebService {
             }
 
             log.trace("Checking possible name clash for new resource <{}>", newResource);
-            if (ldpService.exists(conn, newResource)) {
+            if (ldpService.exists(conn, newResource) || ldpService.isReusedURI(conn, newResource)) {
                 int i = 0;
                 final String base = newResource;
                 do {
                     final String candidate = base + "-" + (++i);
                     log.trace("<{}> already exists, trying <{}>", newResource, candidate);
                     newResource = candidate;
-                } while (ldpService.exists(conn, newResource));
+                } while (ldpService.exists(conn, newResource) || ldpService.isReusedURI(conn, newResource));
                 log.debug("resolved name clash, new resource will be <{}>", newResource);
             } else {
                 log.debug("no name clash for <{}>", newResource);
@@ -426,7 +444,7 @@ public class LdpWebService {
                         @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type, InputStream postBody)
             throws RepositoryException, IOException, InvalidModificationException, RDFParseException, IncompatibleResourceTypeException, URISyntaxException {
         final String resource = ldpService.getResourceUri(uriInfo);
-        log.error("PUT to <{}>", resource);
+        log.debug("PUT to <{}>", resource);
 
         final RepositoryConnection conn = sesameService.getConnection();
         try {
@@ -461,6 +479,11 @@ public class LdpWebService {
                 resp = createResponse(conn, Response.Status.OK, resource);
                 conn.commit();
                 return resp.build();
+            } else if (ldpService.isReusedURI(conn, resource)) {
+                log.debug("<{}> has beed deleted, we should not re-use the URI!", resource);
+                resp = createResponse(conn, Response.Status.GONE, resource);
+                conn.commit();
+                return resp.build();
             } else {
                 log.debug("<{}> does not exist, so this is a CREATE", resource);
                 //LDP servers may allow resource creation using PUT (Sec. 4.2.4.6)
@@ -486,14 +509,6 @@ public class LdpWebService {
                     conn.commit();
                     return response.entity(e.getMessage()).build();
                 }
-                /*
-                URI uri = conn.getValueFactory().createURI(resource);
-                newResource = ldpService.addResource(conn, LdpUtils.getContainer(uri), uri, LdpService.InteractionModel.LDPR, mimeType, postBody);
-                log.info("PUT on <{}> created new resource", newResource);
-                resp = createResponse(conn, Response.Status.CREATED, newResource).location(java.net.URI.create(newResource));
-                conn.commit();
-                return resp.build();
-                */
             }
         } catch (IOException | RDFParseException e) {
             final Response.ResponseBuilder resp = createResponse(conn, Response.Status.BAD_REQUEST, resource).entity(e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -523,7 +538,12 @@ public class LdpWebService {
             con.begin();
 
             if (!ldpService.exists(con, resource)) {
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_FOUND, resource);
+                final Response.ResponseBuilder resp;
+                if (ldpService.isReusedURI(con, resource)) {
+                    resp = createResponse(con, Response.Status.GONE, resource);
+                } else {
+                    resp = createResponse(con, Response.Status.NOT_FOUND, resource);
+                }
                 con.rollback();
                 return resp.build();
             }
@@ -554,7 +574,12 @@ public class LdpWebService {
             con.begin();
 
             if (!ldpService.exists(con, resource)) {
-                final Response.ResponseBuilder resp = createResponse(con, Response.Status.NOT_FOUND, resource);
+                final Response.ResponseBuilder resp;
+                if (ldpService.isReusedURI(con, resource)) {
+                    resp = createResponse(con, Response.Status.GONE, resource);
+                } else {
+                    resp = createResponse(con, Response.Status.NOT_FOUND, resource);
+                }
                 con.rollback();
                 return resp.build();
             }

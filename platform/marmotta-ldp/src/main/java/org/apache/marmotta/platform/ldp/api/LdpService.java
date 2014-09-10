@@ -96,9 +96,41 @@ public interface LdpService {
 
     UriBuilder getResourceUriBuilder(UriInfo uriInfo);
 
+    /**
+     * Check if the specified resource already exists.
+     * @param connection the repository connection
+     * @param resource the resource to test
+     * @return true if it exists
+     * @throws RepositoryException
+     */
     boolean exists(RepositoryConnection connection, String resource) throws RepositoryException;
 
+    /**
+     * Check if the specified resource already exists.
+     * @param connection the repository connection
+     * @param resource the resource to test
+     * @return true if it exists
+     * @throws RepositoryException
+     */
     boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException;
+
+    /**
+     * Check if the specified resource would be a re-used URI.
+     * @param connection the repository connection
+     * @param resource the resource to test
+     * @return true if it had existed
+     * @throws RepositoryException
+     */
+    boolean isReusedURI(RepositoryConnection connection, String resource) throws RepositoryException;
+
+    /**
+     * Check if the specified resource would be a re-used URI.
+     * @param connection the repository connection
+     * @param resource the resource to test
+     * @return true if it had existed
+     * @throws RepositoryException
+     */
+    boolean isReusedURI(RepositoryConnection connection, URI resource) throws RepositoryException;
 
     boolean hasType(RepositoryConnection connection, URI resource, URI type) throws RepositoryException;
 

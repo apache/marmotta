@@ -154,12 +154,12 @@ public class LdpWebServiceTest {
                 .header("Last-Modified", HeaderMatchers.headerNotPresent())
             .delete(newResource);
 
-        // now the new resource does not exist.
+        // now the new resource does not exist any more.
         RestAssured
             .given()
                 .header("Accept", mimeType)
             .expect()
-                .statusCode(404)
+                .statusCode(410)
             .get(newResource);
 
     }
@@ -489,7 +489,7 @@ public class LdpWebServiceTest {
         // now the new resource does not exist.
         RestAssured
             .expect()
-                .statusCode(404)
+                .statusCode(410)
             .get(newResource);
 
     }

@@ -80,11 +80,12 @@ public class LdpServiceImpl implements LdpService {
     @Inject
     private LdpBinaryStoreService binaryStore;
 
-    private final URI ldpContext, ldpInteractionModelProperty;
+    private final URI ldpContext, ldpInteractionModelProperty, ldpUsed;
 
     public LdpServiceImpl() {
         ldpContext = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE);
         ldpInteractionModelProperty = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE, "interactionModel");
+        ldpUsed = ValueFactoryImpl.getInstance().createURI(LDP.NAMESPACE, "used");
     }
 
     @Override
@@ -97,6 +98,7 @@ public class LdpServiceImpl implements LdpService {
             connection.add(root, RDF.TYPE, LDP.RDFSource, ldpContext);
             connection.add(root, RDF.TYPE, LDP.Container, ldpContext);
             connection.add(root, RDF.TYPE, LDP.BasicContainer, ldpContext);
+            connection.add(root, ldpInteractionModelProperty, InteractionModel.LDPC.getUri(), ldpContext);
             connection.add(root, DCTERMS.created, now, ldpContext);
             connection.add(root, DCTERMS.modified, now, ldpContext);
         }
@@ -137,6 +139,16 @@ public class LdpServiceImpl implements LdpService {
     @Override
     public boolean exists(RepositoryConnection connection, URI resource) throws RepositoryException {
         return connection.hasStatement(resource, null, null, true, ldpContext);
+    }
+
+    @Override
+    public boolean isReusedURI(RepositoryConnection connection, String resource) throws RepositoryException {
+        return isReusedURI(connection, buildURI(resource));
+    }
+
+    @Override
+    public boolean isReusedURI(RepositoryConnection connection, URI resource) throws RepositoryException {
+        return connection.hasStatement(ldpContext, ldpUsed, resource, true, ldpContext);
     }
 
     @Override
@@ -589,13 +601,7 @@ public class LdpServiceImpl implements LdpService {
         connection.clear(resource);
 
         // Sec. 5.2.3.11: LDP servers that allow member creation via POST should not re-use URIs.
-        /* FIXME: the following statement makes problems:
-         *    including this line breakes true deletions of resources (fails our unit-tests)
-         *    removing this line allows re-use of uris and thus fails the ldp-testsuite
-         *   --> maybe use a different namespace? Add a 'deleted' marker and send 410 'Gone' responses?
-         */
-        //connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
-        // TODO: keep the track if was there work, but is a good idea?
+        connection.add(ldpContext, ldpUsed, resource, ldpContext);
 
         return true;
     }
