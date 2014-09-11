@@ -35,7 +35,6 @@ import java.util.Map;
  * @author Sergio Fernández
  * @author Jakob Frank
  */
-@Ignore("Something does not work, all tests in the ldp-testsuite are SKIPPED")
 public class LdpTestSuite {
 
     /** @see org.testng.TestNG#HAS_FAILURE */
@@ -63,6 +62,7 @@ public class LdpTestSuite {
 
     @Test
     public void testSuite() {
+        log.debug("Running W3C official LDP Test Suite against {} server", baseUrl);
         System.out.println("Running ldp-testsuite against " + baseUrl);
         Map<String, String> options = new HashMap<>();
         options.put("server", baseUrl);
@@ -70,8 +70,8 @@ public class LdpTestSuite {
         options.put("non-rdf", null);
         org.w3.ldp.testsuite.LdpTestSuite testSuite = new org.w3.ldp.testsuite.LdpTestSuite(options);
         testSuite.run();
-        Assert.assertTrue("ldp-testsuite finished with errors",(testSuite.getStatus() & TESTNG_STATUS_HAS_FAILURE) == 0);
-        Assert.assertTrue("ldp-testsuite is empty - no test run",(testSuite.getStatus() & TESTNG_STATUS_HAS_NO_TEST) == 0);
+        Assert.assertTrue("ldp-testsuite finished with errors", (testSuite.getStatus() & TESTNG_STATUS_HAS_FAILURE) == 0);
+        Assert.assertTrue("ldp-testsuite is empty - no test run", (testSuite.getStatus() & TESTNG_STATUS_HAS_NO_TEST) == 0);
     }
 
 }
