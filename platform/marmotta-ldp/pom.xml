@@ -164,6 +164,7 @@
             </plugin>
 
         </plugins>
+
     </build>
 
     <dependencies>
@@ -276,6 +277,8 @@
             <artifactId>sesame-sail-memory</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- TODO: to be removed as soon as there is one release -->
         <dependency>
             <groupId>org.w3</groupId>
             <artifactId>ldp-testsuite</artifactId>
@@ -294,5 +297,14 @@
         </dependency>
 
     </dependencies>
+
+    <!-- TODO: to be removed as soon as there is one release -->
+    <repositories>
+        <repository>
+            <id>sonatype.snapshots</id>
+            <name>ASS Sonatype Snapshots Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
 
 </project>
