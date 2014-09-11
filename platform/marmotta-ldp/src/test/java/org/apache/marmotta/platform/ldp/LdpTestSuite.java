@@ -48,6 +48,8 @@ public class LdpTestSuite {
 
     private static String baseUrl;
 
+    private org.w3.ldp.testsuite.LdpTestSuite testSuite;
+
     @BeforeClass
     public static void setup() throws URISyntaxException, IOException {
         marmotta = new JettyMarmotta("/marmotta", LdpWebService.class);
@@ -60,15 +62,24 @@ public class LdpTestSuite {
         marmotta = null;
     }
 
-    @Test
-    public void testSuite() {
-        log.debug("Running W3C official LDP Test Suite against {} server", baseUrl);
+    @Before
+    public void before() {
+        log.info("Running W3C official LDP Test Suite against '{}' server", baseUrl);
         System.out.println("Running ldp-testsuite against " + baseUrl);
         Map<String, String> options = new HashMap<>();
-        options.put("server", baseUrl);
+        options.put("server", baseUrl + "/ldp");
         options.put("basic", null);
         options.put("non-rdf", null);
-        org.w3.ldp.testsuite.LdpTestSuite testSuite = new org.w3.ldp.testsuite.LdpTestSuite(options);
+        testSuite = new org.w3.ldp.testsuite.LdpTestSuite(options);
+    }
+
+    @After
+    public void after() {
+        testSuite = null;
+    }
+
+    @Test
+    public void testRunSuite() {
         testSuite.run();
         Assert.assertTrue("ldp-testsuite finished with errors", (testSuite.getStatus() & TESTNG_STATUS_HAS_FAILURE) == 0);
         Assert.assertTrue("ldp-testsuite is empty - no test run", (testSuite.getStatus() & TESTNG_STATUS_HAS_NO_TEST) == 0);
