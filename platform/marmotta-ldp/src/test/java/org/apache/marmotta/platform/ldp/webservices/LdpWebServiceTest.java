@@ -112,14 +112,14 @@ public class LdpWebServiceTest {
         log.info("200 - container");
         RestAssured
             .given()
-                .header("Accept", mimeType)
+                .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(SesameMatchers.rdfStringMatches(mimeType, container,
                         SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
@@ -130,14 +130,14 @@ public class LdpWebServiceTest {
         // also the new resource hasType
         RestAssured
             .given()
-                .header("Accept", mimeType)
+                .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(SesameMatchers.rdfStringMatches(mimeType, container,
                         SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
@@ -149,15 +149,15 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(204)
-                .header("Link", HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"))
-                .header("ETag", HeaderMatchers.headerNotPresent())
-                .header("Last-Modified", HeaderMatchers.headerNotPresent())
+                .header(HttpHeaders.LINK, HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"))
+                .header(HttpHeaders.ETAG, HeaderMatchers.headerNotPresent())
+                .header(HttpHeaders.LAST_MODIFIED, HeaderMatchers.headerNotPresent())
             .delete(newResource);
 
         // now the new resource does not exist any more.
         RestAssured
             .given()
-                .header("Accept", mimeType)
+                .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(410)
             .get(newResource);
@@ -180,7 +180,7 @@ public class LdpWebServiceTest {
                 .contentType(mimeType)
             .expect()
                 .statusCode(201)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         //  HeaderMatchers.isLink(metaResource, "describedby"),
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
@@ -195,14 +195,14 @@ public class LdpWebServiceTest {
         // now the container hasType
         RestAssured
             .given()
-                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .header(HttpHeaders.ACCEPT, RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), container,
                         SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.Resource),
@@ -218,15 +218,15 @@ public class LdpWebServiceTest {
         // now the resource hasType
         RestAssured
             .given()
-                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .header(HttpHeaders.ACCEPT, RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
                         HeaderMatchers.isLink(LDP.RDFSource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), metaResource,
                         SesameMatchers.hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.Resource),
@@ -239,15 +239,15 @@ public class LdpWebServiceTest {
         // now the resource hasType
         RestAssured
             .given()
-                .header("Accept", RDFFormat.TURTLE.getDefaultMIMEType())
+                .header(HttpHeaders.ACCEPT, RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
                         HeaderMatchers.isLink(LDP.NonRDFSource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), binaryResource,
                         SesameMatchers.hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.Resource),
@@ -262,15 +262,15 @@ public class LdpWebServiceTest {
         final String expectedMD5 = HashUtils.md5sum(LdpWebServiceTest.class.getResourceAsStream("/test.png"));
         final byte[] data = RestAssured
             .given()
-                .header("Accept", mimeType)
+                .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                         HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                         HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"),
                         HeaderMatchers.isLink(LDP.RDFSource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(mimeType)
             .get(binaryResource)
                 .body().asByteArray();
@@ -285,7 +285,7 @@ public class LdpWebServiceTest {
         // Try LDPR
         final String ldpr = RestAssured
             .given()
-                .header("Link", Link.fromUri(LDP.Resource.stringValue()).rel("type").build().toString())
+                .header(HttpHeaders.LINK, Link.fromUri(LDP.Resource.stringValue()).rel("type").build().toString())
                 .body(testResourceTTL.getBytes())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
@@ -305,7 +305,7 @@ public class LdpWebServiceTest {
         // Try an invalid interaction model
         RestAssured
             .given()
-                .header("Link", Link.fromUri(baseUrl).rel("type").build().toString())
+                .header(HttpHeaders.LINK, Link.fromUri(container).rel("type").build().toString())
                 .body(testResourceTTL.getBytes())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
@@ -336,7 +336,7 @@ public class LdpWebServiceTest {
         // Check the data is there
         EntityTag etag = EntityTagUtils.parseEntityTag(RestAssured
             .given()
-                .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
+                .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
@@ -360,7 +360,7 @@ public class LdpWebServiceTest {
         // Try a Put with wrong if-match header
         RestAssured
             .given()
-                .header("If-Match", new EntityTag("invalid").toString())
+                .header(HttpHeaders.IF_MATCH, new EntityTag("invalid").toString())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(put_valid.getBytes())
             .expect()
@@ -370,7 +370,7 @@ public class LdpWebServiceTest {
         // Try a Put
         RestAssured
             .given()
-                .header("If-Match", etag.toString())
+                .header(HttpHeaders.IF_MATCH, etag.toString())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(put_valid.getBytes())
             .expect()
@@ -380,7 +380,7 @@ public class LdpWebServiceTest {
         // Check the new data is there
         etag = EntityTagUtils.parseEntityTag(RestAssured
             .given()
-                .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
+                .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
@@ -389,13 +389,13 @@ public class LdpWebServiceTest {
                         CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
                 ))
             .get(resource)
-                .header("ETag"));
+                .header(HttpHeaders.ETAG));
 
         // Try an invalid PUT (server-controlled property)
         // Try a Put
         RestAssured
             .given()
-                .header("If-Match", etag.toString())
+                .header(HttpHeaders.IF_MATCH, etag.toString())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
                 .body(put_invalid.getBytes())
             .expect()
@@ -405,10 +405,10 @@ public class LdpWebServiceTest {
         // Check the data is still there
         RestAssured
             .given()
-                .header("Accept", RDFFormat.RDFXML.getDefaultMIMEType())
+                .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
-                .header("ETag", HeaderMatchers.hasEntityTag(etag))
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(etag))
                 .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
                         SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
                         SesameMatchers.hasStatement(uri, RDFS.LABEL, null),
@@ -461,11 +461,11 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                                 HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                                 HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(SesameMatchers.rdfStringMatches(mimeType, container,
                         SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
@@ -477,11 +477,11 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(200)
-                .header("Link", CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
                                 HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"),
                                 HeaderMatchers.isLink(LDP.Resource.stringValue(), "type"))
                 )
-                .header("ETag", HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
                 .body(SesameMatchers.rdfStringMatches(mimeType, container,
                         SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
@@ -493,9 +493,9 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(204)
-                .header("Link", HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"))
-                .header("ETag", HeaderMatchers.headerNotPresent())
-                .header("Last-Modified", HeaderMatchers.headerNotPresent())
+                .header(HttpHeaders.LINK, HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, "describedby"))
+                .header(HttpHeaders.ETAG, HeaderMatchers.headerNotPresent())
+                .header(HttpHeaders.LAST_MODIFIED, HeaderMatchers.headerNotPresent())
             .delete(newResource);
 
         // now the new resource does not exist.

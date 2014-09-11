@@ -70,7 +70,7 @@ import java.util.UUID;
 public class LdpWebService {
 
     public static final String PATH = "/ldp"; //TODO: at some point this will be root ('/') in marmotta
-    public static final String LDP_SERVER_CONSTRAINTS = "https://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
+    public static final String LDP_SERVER_CONSTRAINTS = "http://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -475,7 +475,7 @@ public class LdpWebService {
                 }
 
                 newResource = ldpService.updateResource(conn, resource, postBody, mimeType);
-                log.info("PUT update for <{}> successful", newResource);
+                log.debug("PUT update for <{}> successful", newResource);
                 resp = createResponse(conn, Response.Status.OK, resource);
                 conn.commit();
                 return resp.build();
@@ -639,7 +639,17 @@ public class LdpWebService {
         try {
             con.begin();
 
-            log.warn("NOT CHECKING EXISTENCE OF <{}>", resource);
+            if (!ldpService.exists(con, resource)) {
+                final Response.ResponseBuilder resp;
+                if (ldpService.isReusedURI(con, resource)) {
+                    resp = createResponse(con, Response.Status.GONE, resource);
+                } else {
+                    resp = createResponse(con, Response.Status.NOT_FOUND, resource);
+                }
+                con.rollback();
+                return resp.build();
+            }
+
 
             Response.ResponseBuilder builder = createResponse(con, Response.Status.OK, resource);
 
