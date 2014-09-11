@@ -22,6 +22,7 @@ import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3.ldp.testsuite.LdpTestSuite;
 
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
@@ -35,20 +36,20 @@ import java.util.Map;
  * @author Sergio Fernández
  * @author Jakob Frank
  */
-public class LdpTestSuite {
+public class LdpSuiteTest {
 
     /** @see org.testng.TestNG#HAS_FAILURE */
     private static final int TESTNG_STATUS_HAS_FAILURE = 1;
     /** @see org.testng.TestNG#HAS_NO_TEST */
     private static final int TESTNG_STATUS_HAS_NO_TEST = 8;
 
-    private static Logger log = LoggerFactory.getLogger(LdpTestSuite.class);
+    private static Logger log = LoggerFactory.getLogger(LdpSuiteTest.class);
 
     private static JettyMarmotta marmotta;
 
     private static String baseUrl;
 
-    private org.w3.ldp.testsuite.LdpTestSuite testSuite;
+    private LdpTestSuite testSuite;
 
     @BeforeClass
     public static void setup() throws URISyntaxException, IOException {
@@ -70,7 +71,7 @@ public class LdpTestSuite {
         options.put("server", baseUrl + "/ldp");
         options.put("basic", null);
         options.put("non-rdf", null);
-        testSuite = new org.w3.ldp.testsuite.LdpTestSuite(options);
+        testSuite = new LdpTestSuite(options);
     }
 
     @After
