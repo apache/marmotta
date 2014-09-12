@@ -91,7 +91,8 @@ public class LdpSuiteTest {
                     IOUtils.toInputStream("<> a <http://example.com/ldp/ResourceInteraction> . "));
             conn.commit();
 
-            log.info("Running W3C official LDP Test Suite against '{}' server", container);
+            log.info("Running W3C official LDP Test Suite against '{}' server", baseUrl);
+            log.debug("(using {} as root container)", container);
             Map<String, String> options = new HashMap<>();
             options.put("server", container);
             options.put("basic", null);
@@ -100,7 +101,8 @@ public class LdpSuiteTest {
             if (!LdpService.SERVER_MANAGED_PROPERTIES.isEmpty()) {
                 options.put("read-only-prop", LdpService.SERVER_MANAGED_PROPERTIES.iterator().next().stringValue());
             }
-            options.put("skipLogging", "true");
+            options.put("httpLogging", null);
+            options.put("skipLogging", null);
             options.put("excludedGroups", "MANUAL");
             testSuite = new LdpTestSuite(options);
         } finally {
