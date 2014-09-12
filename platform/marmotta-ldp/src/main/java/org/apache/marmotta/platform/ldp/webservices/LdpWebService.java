@@ -34,6 +34,7 @@ import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
+import org.apache.marmotta.platform.ldp.util.ResponseBuilderImpl;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -73,10 +74,11 @@ public class LdpWebService {
     public static final String LDP_SERVER_CONSTRAINTS = "http://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
 
     static final String LINK_REL_DESCRIBEDBY = "describedby";
-    static final String LINK_REL_CONSTRAINEDBY = LINK_REL_DESCRIBEDBY;
+    static final String LINK_REL_CONSTRAINEDBY = "http://www.w3.org/ns/ldp#constrainedBy";
     static final String LINK_REL_CONTENT = "content";
     static final String LINK_REL_META = "meta";
     static final String LINK_REL_TYPE = "type";
+    static final String LINK_PARAM_ANCHOR = "anchor";
     static final String HTTP_HEADER_SLUG = "Slug";
     static final String HTTP_HEADER_ACCEPT_POST = "Accept-Post";
     static final String HTTP_HEADER_ACCEPT_PATCH = "Accept-Patch";
@@ -429,7 +431,7 @@ public class LdpWebService {
             String location = ldpService.addResource(connection, container, newResource, interactionModel, mimeType, requestBody);
             final Response.ResponseBuilder response = createResponse(connection, Response.Status.CREATED, container).location(java.net.URI.create(location));
             if (newResource.compareTo(location) != 0) {
-                response.link(newResource, LINK_REL_DESCRIBEDBY); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                response.links(Link.fromUri(newResource).rel(LINK_REL_DESCRIBEDBY).param(LINK_PARAM_ANCHOR, location).build()); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
             }
             connection.commit();
             return response.build();
@@ -490,7 +492,7 @@ public class LdpWebService {
                 conn.commit();
                 return resp.build();
             } else if (ldpService.isReusedURI(conn, resource)) {
-                log.debug("<{}> has beed deleted, we should not re-use the URI!", resource);
+                log.debug("<{}> has been deleted, we should not re-use the URI!", resource);
                 resp = createResponse(conn, Response.Status.GONE, resource);
                 conn.commit();
                 return resp.build();
@@ -706,7 +708,7 @@ public class LdpWebService {
      *
      * @param connection the RepositoryConnection (with active transaction) to read extra data from
      * @param status the StatusCode
-     * @param resource the iri/uri/url of the resouce
+     * @param resource the iri/uri/url of the resource
      * @return the provided ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, Response.Status status, String resource) throws RepositoryException {
@@ -718,11 +720,13 @@ public class LdpWebService {
      *
      * @param connection the RepositoryConnection (with active transaction) to read extra data from
      * @param status the status code
-     * @param resource the uri/url of the resouce
+     * @param resource the uri/url of the resource
      * @return the provided ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, int status, String resource) throws RepositoryException {
-        return createResponse(connection, Response.status(status), resource);
+        // FIXME: Switch back to the general ResponseBuilder (once RESTEASY-1106 is fixed)
+        // return createResponse(connection, Response.status(status), resource);
+        return createResponse(connection, new ResponseBuilderImpl(status), resource);
     }
 
     /**
@@ -776,7 +780,7 @@ public class LdpWebService {
      * @return the updated ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb) {
-        // Link rel='describedby' (Sec. 4.2.1.6)
+        // Link rel='http://www.w3.org/ns/ldp#constrainedBy' (Sec. 4.2.1.6)
         rb.link(LDP_SERVER_CONSTRAINTS, LINK_REL_CONSTRAINEDBY);
 
         return rb;
