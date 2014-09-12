@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.platform.ldp.webservices;
+package org.apache.marmotta.platform.ldp;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
 import org.junit.*;
-import org.junit.experimental.categories.Categories;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -100,6 +100,7 @@ public class LdpSuiteTest {
             if (!LdpService.SERVER_MANAGED_PROPERTIES.isEmpty()) {
                 options.put("read-only-prop", LdpService.SERVER_MANAGED_PROPERTIES.iterator().next().stringValue());
             }
+            options.put("skipLogging", "true");
             options.put("excludedGroups", "MANUAL");
             testSuite = new LdpTestSuite(options);
         } finally {
