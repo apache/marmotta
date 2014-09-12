@@ -72,6 +72,16 @@ public class LdpWebService {
     public static final String PATH = "/ldp"; //TODO: at some point this will be root ('/') in marmotta
     public static final String LDP_SERVER_CONSTRAINTS = "http://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
 
+    static final String LINK_REL_DESCRIBEDBY = "describedby";
+    static final String LINK_REL_CONSTRAINEDBY = LINK_REL_DESCRIBEDBY;
+    static final String LINK_REL_CONTENT = "content";
+    static final String LINK_REL_META = "meta";
+    static final String LINK_REL_TYPE = "type";
+    static final String HTTP_HEADER_SLUG = "Slug";
+    static final String HTTP_HEADER_ACCEPT_POST = "Accept-Post";
+    static final String HTTP_HEADER_ACCEPT_PATCH = "Accept-Patch";
+    static final String HTTP_METHOD_PATCH = "PATCH";
+
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
     @Inject
@@ -320,7 +330,7 @@ public class LdpWebService {
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpc-HTTP_POST">6.4 LDP-C POST</a>
      */
     @POST
-    public Response POST(@Context UriInfo uriInfo, @HeaderParam("Slug") String slug,
+    public Response POST(@Context UriInfo uriInfo, @HeaderParam(HTTP_HEADER_SLUG) String slug,
                          @HeaderParam(HttpHeaders.LINK) List<Link> linkHeaders,
                          InputStream postBody, @HeaderParam(HttpHeaders.CONTENT_TYPE) MediaType type)
             throws RepositoryException {
@@ -419,7 +429,7 @@ public class LdpWebService {
             String location = ldpService.addResource(connection, container, newResource, interactionModel, mimeType, requestBody);
             final Response.ResponseBuilder response = createResponse(connection, Response.Status.CREATED, container).location(java.net.URI.create(location));
             if (newResource.compareTo(location) != 0) {
-                response.link(newResource, "describedby"); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                response.link(newResource, LINK_REL_DESCRIBEDBY); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
             }
             connection.commit();
             return response.build();
@@ -671,21 +681,21 @@ public class LdpWebService {
         if (ldpService.isNonRdfSourceResource(connection, resource)) {
             // Sec. 4.2.8.2
             log.trace("<{}> is an LDP-NR: GET, HEAD, PUT and OPTIONS allowed", resource);
-            builder.allow("GET", "HEAD", "PUT", "OPTIONS");
+            builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.OPTIONS);
         } else if (ldpService.isRdfSourceResource(connection, resource)) {
             if (ldpService.getInteractionModel(connection, resource) == LdpService.InteractionModel.LDPR) {
                 log.trace("<{}> is a LDP-RS (LDPR interaction model): GET, HEAD, PUT, PATCH and OPTIONS allowed", resource);
                 // Sec. 4.2.8.2
-                builder.allow("GET", "HEAD", "PUT", "PATCH", "OPTIONS");
+                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
             } else {
                 // Sec. 4.2.8.2
                 log.trace("<{}> is a LDP-RS (LDPC interaction model): GET, HEAD, POST, PUT, PATCH and OPTIONS allowed", resource);
-                builder.allow("GET", "HEAD", "POST", "PUT", "PATCH", "OPTIONS");
+                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.POST, HttpMethod.PUT, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
                 // Sec. 4.2.3 / Sec. 5.2.3
-                builder.header("Accept-Post", LdpUtils.getAcceptPostHeader("*/*"));
+                builder.header(HTTP_HEADER_ACCEPT_POST, LdpUtils.getAcceptPostHeader("*/*"));
             }
             // Sec. 4.2.7.1
-            builder.header("Accept-Patch", RdfPatchParser.MIME_TYPE);
+            builder.header(HTTP_HEADER_ACCEPT_PATCH, RdfPatchParser.MIME_TYPE);
         }
 
         return builder;
@@ -732,7 +742,7 @@ public class LdpWebService {
             for (Statement stmt : statements) {
                 Value o = stmt.getObject();
                 if (o instanceof URI && o.stringValue().startsWith(LDP.NAMESPACE)) {
-                    rb.link(o.stringValue(), "type");
+                    rb.link(o.stringValue(), LINK_REL_TYPE);
                 }
             }
 
@@ -740,14 +750,14 @@ public class LdpWebService {
             if (rdfSource != null) {
                 // Sec. 5.2.8.1 and 5.2.3.12
                 // FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
-                rb.link(rdfSource.stringValue(), "describedby");
+                rb.link(rdfSource.stringValue(), LINK_REL_DESCRIBEDBY);
                 // TODO: Propose to LDP-WG?
-                rb.link(rdfSource.stringValue(), "meta");
+                rb.link(rdfSource.stringValue(), LINK_REL_META);
             }
             final URI nonRdfSource = ldpService.getNonRdfSourceForRdfSource(connection, resource);
             if (nonRdfSource != null) {
                 // TODO: Propose to LDP-WG?
-                rb.link(nonRdfSource.stringValue(), "content");
+                rb.link(nonRdfSource.stringValue(), LINK_REL_CONTENT);
             }
 
             // ETag (Sec. 4.2.1.3)
@@ -767,7 +777,7 @@ public class LdpWebService {
      */
     protected Response.ResponseBuilder createResponse(Response.ResponseBuilder rb) {
         // Link rel='describedby' (Sec. 4.2.1.6)
-        rb.link(LDP_SERVER_CONSTRAINTS, "describedby");
+        rb.link(LDP_SERVER_CONSTRAINTS, LINK_REL_CONSTRAINEDBY);
 
         return rb;
     }
