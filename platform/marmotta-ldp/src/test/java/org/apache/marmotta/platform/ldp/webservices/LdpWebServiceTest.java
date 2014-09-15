@@ -27,7 +27,6 @@ import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
-import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
 import org.hamcrest.CoreMatchers;
@@ -347,7 +346,7 @@ public class LdpWebServiceTest {
         final URI uri = new URIImpl(resource);
 
         // Check the data is there
-        EntityTag etag = EntityTagUtils.parseEntityTag(RestAssured
+        EntityTag etag = EntityTag.valueOf(RestAssured
             .given()
                 .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
@@ -391,7 +390,7 @@ public class LdpWebServiceTest {
             .put(resource);
 
         // Check the new data is there
-        etag = EntityTagUtils.parseEntityTag(RestAssured
+        etag = EntityTag.valueOf(RestAssured
             .given()
                 .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()

@@ -32,7 +32,6 @@ import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
-import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.apache.marmotta.platform.ldp.util.ResponseBuilderImpl;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
@@ -478,7 +477,7 @@ public class LdpWebService {
                     // check ETag -> 412 Precondition Failed (Sec. 4.2.4.5)
                     log.trace("Checking If-Match: {}", eTag);
                     EntityTag hasTag = ldpService.generateETag(conn, resource);
-                    if (!EntityTagUtils.equals(eTag, hasTag)) {
+                    if (!eTag.equals(hasTag)) {
                         log.trace("If-Match header did not match, expected {}", hasTag);
                         resp = createResponse(conn, Response.Status.PRECONDITION_FAILED, resource);
                         conn.rollback();
@@ -600,7 +599,7 @@ public class LdpWebService {
                 // check ETag if present
                 log.trace("Checking If-Match: {}", eTag);
                 EntityTag hasTag = ldpService.generateETag(con, resource);
-                if (!EntityTagUtils.equals(eTag, hasTag)) {
+                if (!eTag.equals(hasTag)) {
                     log.trace("If-Match header did not match, expected {}", hasTag);
                     final Response.ResponseBuilder resp = createResponse(con, Response.Status.PRECONDITION_FAILED, resource);
                     con.rollback();
