@@ -18,7 +18,10 @@
 package org.apache.marmotta.platform.ldp.webservices;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.test.SesameMatchers;
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
@@ -31,6 +34,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openrdf.model.URI;
@@ -116,8 +120,8 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(200)
                 .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
+                                HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
                 .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
@@ -173,7 +177,7 @@ public class LdpWebServiceTest {
         final String mimeType = "image/png";
 
         // Create
-        final String binaryResource = RestAssured
+        final Headers headers = RestAssured
             .given()
                 .header(LdpWebService.HTTP_HEADER_SLUG, resourceName)
                 .body(IOUtils.toByteArray(LdpWebServiceTest.class.getResourceAsStream("/test.png")))
@@ -181,16 +185,25 @@ public class LdpWebServiceTest {
             .expect()
                 .statusCode(201)
                 .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        //  HeaderMatchers.isLink(metaResource, "describedby"),
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
+                                //  HeaderMatchers.isLink(metaResource, "describedby"),
+                                HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
             .post(container)
-                .getHeader("Location");
+                .headers();
 
 
-
-        final String metaResource = binaryResource.replaceFirst("\\.png$", "");
+        final String binaryResource = headers.getValue(HttpHeaders.LOCATION);
+        String metaResource = null;
+        for (Header lh: headers.getList(HttpHeaders.LINK)) {
+            final Link link = Link.valueOf(lh.getValue());
+            if (StringUtils.equals(LdpWebService.LINK_REL_DESCRIBEDBY, link.getRel())) {
+                Assert.assertEquals("Link-Header with describedby not anchored", binaryResource, link.getParams().get(LdpWebService.LINK_PARAM_ANCHOR));
+                metaResource = link.getUri().toASCIIString();
+                break;
+            }
+        }
+        Assert.assertNotNull("Link header with describedby missing", metaResource);
 
         // now the container hasType
         RestAssured
