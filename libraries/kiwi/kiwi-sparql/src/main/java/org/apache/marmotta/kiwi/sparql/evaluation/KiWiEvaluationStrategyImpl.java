@@ -68,6 +68,35 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(LeftJoin join, BindingSet bindings) throws QueryEvaluationException {
+        if(Thread.currentThread().isInterrupted()) {
+            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
+        }
+
+        if(isSupported(join)) {
+            log.debug("applying KiWi LEFTJOIN optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e.getMessage());
+            }
+        } else {
+            return super.evaluate(join, bindings);
+        }
+    }
+
+
+    @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Join join, BindingSet bindings) throws QueryEvaluationException {
         if(Thread.currentThread().isInterrupted()) {
             throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
@@ -200,6 +229,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     private boolean isSupported(TupleExpr expr) {
         if(expr instanceof Join) {
             return isSupported(((Join) expr).getLeftArg()) && isSupported(((Join) expr).getRightArg());
+        } else if(expr instanceof LeftJoin) {
+                return isSupported(((LeftJoin) expr).getLeftArg()) && isSupported(((LeftJoin) expr).getRightArg()) && isSupported(((LeftJoin)expr).getCondition());
         } else if(expr instanceof Filter) {
             return isSupported(((Filter) expr).getArg()) && isSupported(((Filter) expr).getCondition());
         } else if(expr instanceof StatementPattern) {
@@ -223,7 +254,9 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
      * @return
      */
     private boolean isSupported(ValueExpr expr) {
-        if(expr instanceof Compare) {
+        if(expr == null) {
+            return true;
+        } else if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
         } else if(expr instanceof MathExpr) {
             return isSupported(((MathExpr) expr).getLeftArg()) && isSupported(((MathExpr) expr).getRightArg());

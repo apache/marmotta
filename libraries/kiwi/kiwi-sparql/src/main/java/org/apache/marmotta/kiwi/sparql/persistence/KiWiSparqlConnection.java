@@ -17,30 +17,23 @@
 
 package org.apache.marmotta.kiwi.sparql.persistence;
 
-import com.google.common.base.Preconditions;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.CloseableIteratorIteration;
 import info.aduna.iteration.EmptyIteration;
 import info.aduna.iteration.Iterations;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.apache.marmotta.kiwi.sparql.builder.*;
+import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.FN;
-import org.openrdf.model.vocabulary.SESAME;
-import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Var;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +41,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
-import java.util.regex.Pattern;
 
 /**
  * Provide improved SPARQL support by evaluating certain common compley SPARQL constructs directly on the
@@ -132,8 +123,10 @@ public class KiWiSparqlConnection {
                         KiWiNode[] nodes = parent.loadNodesByIds(nodeIds);
 
                         for (int i = 0; i < vars.size(); i++) {
-                            Var v = vars.get(i);
-                            resultRow.addBinding(v.getName(), nodes[i]);
+                            if(nodes[i] != null) {
+                                Var v = vars.get(i);
+                                resultRow.addBinding(v.getName(), nodes[i]);
+                            }
                         }
 
 
@@ -170,4 +163,7 @@ public class KiWiSparqlConnection {
         }
     }
 
+    public KiWiDialect getDialect() {
+        return parent.getDialect();
+    }
 }

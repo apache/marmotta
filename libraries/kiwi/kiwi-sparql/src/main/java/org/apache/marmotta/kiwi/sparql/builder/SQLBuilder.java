@@ -125,12 +125,6 @@ public class SQLBuilder {
 
 
     /**
-     * Maps triple patterns from SPARQL WHERE to SQL aliases for the TRIPLES table in the FROM part. Used
-     * to join one instance of the triples table for each triple pattern occurring in the query.
-     */
-    private Map<StatementPattern,String> patternNames = new HashMap<>();
-
-    /**
      * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
      * Will look like { ?x -> "V1", ?y -> "V2", ... }
      */
@@ -151,15 +145,11 @@ public class SQLBuilder {
     private Map<Var,List<String>> queryVariableIds = new HashMap<>();
 
 
-    /**
-     * A map for defining alternative context values for each variable used in the context part of a pattern
-     */
-    private Map<StatementPattern,List<Resource>> variableContexts = new HashMap<>();
 
     /**
      * The triple patterns collected from the query.
      */
-    private List<StatementPattern> patterns;
+    private List<SQLFragment> fragments;
 
 
     private TupleExpr query;
@@ -246,11 +236,13 @@ public class SQLBuilder {
     }
 
     private void prepareBuilder()  throws UnsatisfiableQueryException {
-        Preconditions.checkArgument(query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
+        Preconditions.checkArgument(query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
 
         // collect all patterns in a list, using depth-first search over the join
-        patterns = new PatternCollector(query).patterns;
+        PatternCollector pc = new PatternCollector(query);
+
+        fragments = pc.parts;
 
         // collect offset and limit from the query if given
         offset   = new LimitFinder(query).offset;
@@ -259,109 +251,191 @@ public class SQLBuilder {
         // check if query is distinct
         distinct = new DistinctFinder(query).distinct;
 
-        // associate a name with each pattern; the names are used in the database query to refer to the triple
-        // that matched this pattern and in the construction of variable names for the SQL query
-        int patternCount = 0;
-        for(StatementPattern p : patterns) {
-            patternNames.put(p,"P"+ (++patternCount));
-        }
-
         // find all variables occurring in the patterns and create a map to map them to
         // field names in the database query; each variable will have one or several field names,
         // one for each pattern it occurs in; field names are constructed automatically by a counter
         // and the pattern name to ensure the name is a valid HQL identifier
         int variableCount = 0;
-        for(StatementPattern p : patterns) {
-            // build pattern
-            Var[] fields = new Var[] {
-                    p.getSubjectVar(),
-                    p.getPredicateVar(),
-                    p.getObjectVar(),
-                    p.getContextVar()
-            };
-            for(int i = 0; i<fields.length; i++) {
-                if(fields[i] != null && !fields[i].hasValue()) {
-                    Var v = fields[i];
-                    if(variableNames.get(v) == null) {
-                        variableNames.put(v,"V"+ (++variableCount));
-                        queryVariables.put(v,new LinkedList<String>());
-                        queryVariableIds.put(v, new LinkedList<String>());
+        for(SQLFragment f : fragments) {
+            for (SQLPattern p : f.getPatterns()) {
+                // build pattern
+                Var[] fields = p.getFields();
+                for (int i = 0; i < fields.length; i++) {
+                    if (fields[i] != null && !fields[i].hasValue()) {
+                        Var v = fields[i];
+                        if (variableNames.get(v) == null) {
+                            variableNames.put(v, "V" + (++variableCount));
+                            queryVariables.put(v, new LinkedList<String>());
+                            queryVariableIds.put(v, new LinkedList<String>());
+                        }
+                        String pName = p.getName();
+                        String vName = variableNames.get(v);
+                        if (hasNodeCondition(fields[i], query)) {
+                            queryVariables.get(v).add(pName + "_" + positions[i] + "_" + vName);
+                        }
+
+                        // if the variable has been used before, add a join condition to the first occurrence
+                        if(queryVariableIds.get(v).size() > 0) {
+                            p.getConditions().add(queryVariableIds.get(v).get(0) + " = " + pName + "." + positions[i]);
+                        }
+
+                        queryVariableIds.get(v).add(pName + "." + positions[i]);
                     }
-                    String pName = patternNames.get(p);
-                    String vName = variableNames.get(v);
-                    if(hasNodeCondition(fields[i], query)) {
-                        queryVariables.get(v).add(pName + "_" + positions[i] + "_" + vName);
-                    }
-                    queryVariableIds.get(v).add(pName + "." + positions[i]);
                 }
             }
         }
 
         // find context restrictions of patterns and match them with potential restrictions given in the
         // dataset (MARMOTTA-340)
-        for(StatementPattern p : patterns) {
-            Resource[] contexts;
-            Value contextValue = p.getContextVar() != null ? p.getContextVar().getValue() : null;
+        for(SQLFragment f : fragments) {
+            for (SQLPattern p : f.getPatterns()) {
+                Resource[] contexts;
+                Value contextValue = p.getSparqlPattern().getContextVar() != null ? p.getSparqlPattern().getContextVar().getValue() : null;
 
-            Set<URI> graphs = null;
-            boolean emptyGraph = false;
+                Set<URI> graphs = null;
+                boolean emptyGraph = false;
 
-            if (dataset != null) {
-                if (p.getScope() == StatementPattern.Scope.DEFAULT_CONTEXTS) {
-                    graphs = dataset.getDefaultGraphs();
-                    emptyGraph = graphs.isEmpty() && !dataset.getNamedGraphs().isEmpty();
-                } else {
-                    graphs = dataset.getNamedGraphs();
-                    emptyGraph = graphs.isEmpty() && !dataset.getDefaultGraphs().isEmpty();
-                }
-            }
-
-            // set the contexts to query according to the following rules:
-            // 1. if the context defined in the dataset does not exist, there will be no result, so set "empty" to true
-            // 2. if no context graphs have been given, use the context from the statement
-            // 3. if context graphs have been given and the statement has a context, check if the statement context is
-            //    contained in the context graphs; if no, set "empty" to true as there can be no result
-            // 4. if context graphs have been given and the statement has no context, use the contexts from the
-            //    dataset
-
-            if (emptyGraph) {
-                // Search zero contexts
-                throw new UnsatisfiableQueryException("dataset does not contain any default graphs");
-            } else if (graphs == null || graphs.isEmpty()) {
-                if (contextValue != null) {
-                    contexts = new Resource[]{(Resource) contextValue};
-                } else {
-                    contexts = new Resource[0];
-                }
-            } else if (contextValue != null) {
-                if (graphs.contains(contextValue)) {
-                    contexts = new Resource[]{(Resource) contextValue};
-                } else {
-                    // Statement pattern specifies a context that is not part of
-                    // the dataset
-                    throw new UnsatisfiableQueryException("default graph does not contain statement context '" + contextValue.stringValue() + "'");
-                }
-            } else {
-                contexts = new Resource[graphs.size()];
-                int i = 0;
-                for (URI graph : graphs) {
-                    URI context = null;
-                    if (!SESAME.NIL.equals(graph)) {
-                        context = graph;
+                if (dataset != null) {
+                    if (p.getSparqlPattern().getScope() == StatementPattern.Scope.DEFAULT_CONTEXTS) {
+                        graphs = dataset.getDefaultGraphs();
+                        emptyGraph = graphs.isEmpty() && !dataset.getNamedGraphs().isEmpty();
+                    } else {
+                        graphs = dataset.getNamedGraphs();
+                        emptyGraph = graphs.isEmpty() && !dataset.getDefaultGraphs().isEmpty();
                     }
-                    contexts[i++] = context;
+                }
+
+                // set the contexts to query according to the following rules:
+                // 1. if the context defined in the dataset does not exist, there will be no result, so set "empty" to true
+                // 2. if no context graphs have been given, use the context from the statement
+                // 3. if context graphs have been given and the statement has a context, check if the statement context is
+                //    contained in the context graphs; if no, set "empty" to true as there can be no result
+                // 4. if context graphs have been given and the statement has no context, use the contexts from the
+                //    dataset
+
+                if (emptyGraph) {
+                    // Search zero contexts
+                    throw new UnsatisfiableQueryException("dataset does not contain any default graphs");
+                } else if (graphs == null || graphs.isEmpty()) {
+                    if (contextValue != null) {
+                        contexts = new Resource[]{(Resource) contextValue};
+                    } else {
+                        contexts = new Resource[0];
+                    }
+                } else if (contextValue != null) {
+                    if (graphs.contains(contextValue)) {
+                        contexts = new Resource[]{(Resource) contextValue};
+                    } else {
+                        // Statement pattern specifies a context that is not part of
+                        // the dataset
+                        throw new UnsatisfiableQueryException("default graph does not contain statement context '" + contextValue.stringValue() + "'");
+                    }
+                } else {
+                    contexts = new Resource[graphs.size()];
+                    int i = 0;
+                    for (URI graph : graphs) {
+                        URI context = null;
+                        if (!SESAME.NIL.equals(graph)) {
+                            context = graph;
+                        }
+                        contexts[i++] = context;
+                    }
+                }
+
+
+                // build an OR query for the value of the context variable
+                if (contexts.length > 0) {
+                    p.setVariableContexts(Arrays.asList(contexts));
                 }
             }
+        }
+
+        prepareConditions();
+    }
 
 
-            // build an OR query for the value of the context variable
-            if(contexts.length > 0) {
-                variableContexts.put(p, Arrays.asList(contexts));
+    private void prepareConditions() throws UnsatisfiableQueryException {
+        // build the where clause as follows:
+        // 1. iterate over all patterns and for each resource and literal field in subject,
+        //    property, object, or context, and set a query condition according to the
+        //    nodes given in the pattern
+        // 2. for each variable that has more than one occurrences, add a join condition
+        // 3. for each variable in the initialBindings, add a condition to the where clause
+
+
+        // iterate over all fragments and add translate the filter conditions into SQL
+        for(SQLFragment f : fragments) {
+            for(ValueExpr e : f.getFilters()) {
+                f.getConditions().add(evaluateExpression(e, OPTypes.ANY));
             }
         }
 
 
+        // 1. iterate over all patterns and for each resource and literal field in subject,
+        //    property, object, or context, and set a query condition according to the
+        //    nodes given in the pattern
+        for(SQLFragment f : fragments) {
+            for (SQLPattern p : f.getPatterns()) {
+                String pName = p.getName();
+                Var[] fields = p.getFields();
+                for (int i = 0; i < fields.length; i++) {
+                    // find node id of the resource or literal field and use it in the where clause
+                    // in this way we can avoid setting too many query parameters
+                    long nodeId = -1;
+                    if (fields[i] != null && fields[i].hasValue()) {
+                        Value v = converter.convert(fields[i].getValue());
+                        if (v instanceof KiWiNode) {
+                            nodeId = ((KiWiNode) v).getId();
+                        } else {
+                            throw new UnsatisfiableQueryException("the values in this query have not been created by the KiWi value factory");
+                        }
+
+                        if (nodeId >= 0) {
+                            String condition = pName + "." + positions[i] + " = " + nodeId;
+                            p.getConditions().add(condition);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // 6. for each context variable with a restricted list of contexts, we add a condition to the where clause
+        //    of the form (V.id = R1.id OR V.id = R2.id ...)
+        for(SQLFragment f : fragments) {
+            for (SQLPattern p : f.getPatterns()) {
+                // the variable
+                String varName = p.getName();
+
+                if (p.getVariableContexts() != null) {
+                    // the string we are building
+                    StringBuilder cCond = new StringBuilder();
+                    cCond.append("(");
+                    for (Iterator<Resource> it = p.getVariableContexts().iterator(); it.hasNext(); ) {
+                        Value v = converter.convert(it.next());
+                        if (v instanceof KiWiNode) {
+                            long nodeId = ((KiWiNode) v).getId();
+
+                            cCond.append(varName);
+                            cCond.append(".context = ");
+                            cCond.append(nodeId);
+
+                            if (it.hasNext()) {
+                                cCond.append(" OR ");
+                            }
+                        } else {
+                            throw new UnsatisfiableQueryException("the values in this query have not been created by the KiWi value factory");
+                        }
+
+                    }
+                    cCond.append(")");
+                    p.getConditions().add(cCond.toString());
+                }
+            }
+        }
+
     }
+
 
     private String buildSelectClause() {
         StringBuilder selectClause = new StringBuilder();
@@ -396,29 +470,80 @@ public class SQLBuilder {
         //    - object, there will be a "inner join P.object as P_O_V" or "left outer join p.object as P_O_V"
         //    - context, there will be a "inner join P.context as P_C_V" or "left outer join p.context as P_C_V"
         StringBuilder fromClause = new StringBuilder();
-        for(Iterator<StatementPattern> it = patterns.iterator(); it.hasNext(); ) {
-            StatementPattern p = it.next();
-            String pName = patternNames.get(p);
-            fromClause.append("triples "+pName);
+        for(Iterator<SQLFragment> fit = fragments.iterator(); fit.hasNext(); ) {
+            SQLFragment frag = fit.next();
 
-            Var[] fields = new Var[] {
-                    p.getSubjectVar(),
-                    p.getPredicateVar(),
-                    p.getObjectVar(),
-                    p.getContextVar()
-            };
-            for(int i = 0; i<fields.length; i++) {
-                if(fields[i] != null && !fields[i].hasValue() && hasNodeCondition(fields[i], query)) {
-                    String vName = variableNames.get(fields[i]);
-                    fromClause.append(" INNER JOIN nodes AS ");
-                    fromClause.append(pName + "_"+positions[i]+"_" + vName);
-                    fromClause.append(" ON " + pName + "." + positions[i] + " = ");
-                    fromClause.append(pName + "_"+positions[i]+"_" + vName + ".id ");
+            for (Iterator<SQLPattern> it = frag.getPatterns().iterator(); it.hasNext(); ) {
+                boolean firstFragment = fromClause.length() == 0;
+
+                SQLPattern p = it.next();
+                String pName = p.getName();
+                fromClause.append("triples " + pName);
+
+                StringBuilder onClause = new StringBuilder();
+
+                if(!firstFragment) {
+                    for(Iterator<String> cit = p.getConditions().iterator(); cit.hasNext(); ) {
+                        if(onClause.length() > 0) {
+                            onClause.append("\n      AND ");
+                        }
+                        onClause.append(cit.next());
+                    }
+                }
+
+
+
+                Var[] fields = p.getFields();
+                for (int i = 0; i < fields.length; i++) {
+
+                    if (fields[i] != null && !fields[i].hasValue() && hasNodeCondition(fields[i], query)) {
+                        // finish previous ON clause and start a new one
+                        if(onClause.length() > 0) {
+                            fromClause.append(" ON (");
+                            fromClause.append(onClause);
+                            fromClause.append(")");
+                            onClause = new StringBuilder();
+                        }
+
+                        String vName = variableNames.get(fields[i]);
+                        fromClause.append("\n    INNER JOIN nodes AS ");
+                        fromClause.append(pName + "_" + positions[i] + "_" + vName);
+
+                        if(onClause.length() > 0) {
+                            onClause.append("\n      AND ");
+                        }
+                        onClause.append(pName + "." + positions[i] + " = " + pName + "_" + positions[i] + "_" + vName + ".id ");
+
+                        //fromClause.append(" ON " + pName + "." + positions[i] + " = ");
+                        //fromClause.append(pName + "_" + positions[i] + "_" + vName + ".id ");
+                    }
+                }
+
+                if(!it.hasNext()) {
+                    // if this is the last pattern of the fragment, add the filter conditions
+                    for(Iterator<String> cit = frag.getConditions().iterator(); cit.hasNext(); ) {
+                        if(onClause.length() > 0) {
+                            onClause.append("\n       AND ");
+                        }
+                        onClause.append(cit.next());
+                    }
+                }
+
+
+                if(onClause.length() > 0) {
+                    fromClause.append(" ON (");
+                    fromClause.append(onClause);
+                    fromClause.append(")");
+                }
+
+
+                if (it.hasNext()) {
+                    fromClause.append("\n JOIN \n  ");
                 }
             }
 
-            if(it.hasNext()) {
-                fromClause.append(",\n ");
+            if(fit.hasNext()) {
+                fromClause.append("\n LEFT JOIN \n  ");
             }
         }
 
@@ -437,47 +562,11 @@ public class SQLBuilder {
         // list of where conditions that will later be connected by AND
         List<String> whereConditions = new LinkedList<String>();
 
-
-        // 1. iterate over all patterns and for each resource and literal field in subject,
-        //    property, object, or context, and set a query condition according to the
-        //    nodes given in the pattern
-        for(StatementPattern p : patterns) {
-            String pName = patternNames.get(p);
-            Var[] fields = new Var[] {
-                    p.getSubjectVar(),
-                    p.getPredicateVar(),
-                    p.getObjectVar(),
-                    p.getContextVar()
-            };
-            for(int i = 0; i<fields.length; i++) {
-                // find node id of the resource or literal field and use it in the where clause
-                // in this way we can avoid setting too many query parameters
-                long nodeId = -1;
-                if(fields[i] != null && fields[i].hasValue()) {
-                    Value v = converter.convert(fields[i].getValue());
-                    if(v instanceof KiWiNode) {
-                        nodeId = ((KiWiNode) v).getId();
-                    } else {
-                        throw new UnsatisfiableQueryException("the values in this query have not been created by the KiWi value factory");
-                    }
-
-                    if(nodeId >= 0) {
-                        String condition = pName+"."+positions[i]+" = " + nodeId;
-                        whereConditions.add(condition);
-                    }
-                }
-            }
+        // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
+        if(fragments.size() > 0 && fragments.get(0).getPatterns().size() > 0) {
+            whereConditions.addAll(fragments.get(0).getPatterns().get(0).getConditions());
         }
 
-        // 2. for each variable that has more than one occurrences, add a join condition
-        for(Var v : queryVariableIds.keySet()) {
-            List<String> vNames = queryVariableIds.get(v);
-            for(int i = 1; i < vNames.size(); i++) {
-                String vName1 = vNames.get(i-1);
-                String vName2 = vNames.get(i);
-                whereConditions.add(vName1 + " = " + vName2);
-            }
-        }
 
         // 3. for each variable in the initialBindings, add a condition to the where clause setting it
         //    to the node given as binding
@@ -497,50 +586,6 @@ public class SQLBuilder {
                     }
                 }
             }
-        }
-
-        // 4. for each pattern, ensure that the matched triple is not marked as deleted
-        for(StatementPattern p : patterns) {
-            String pName = patternNames.get(p);
-            whereConditions.add(pName+".deleted = false");
-        }
-
-
-        // 5. for each filter condition, add a statement to the where clause
-        List<ValueExpr> filters = new FilterCollector(query).filters;
-        for(ValueExpr expr : filters) {
-            whereConditions.add(evaluateExpression(expr, null));
-        }
-
-
-        // 6. for each context variable with a restricted list of contexts, we add a condition to the where clause
-        //    of the form (V.id = R1.id OR V.id = R2.id ...)
-        for(Map.Entry<StatementPattern,List<Resource>> vctx : variableContexts.entrySet()) {
-            // the variable
-            String varName = patternNames.get(vctx.getKey());
-
-            // the string we are building
-            StringBuilder cCond = new StringBuilder();
-            cCond.append("(");
-            for(Iterator<Resource> it = vctx.getValue().iterator(); it.hasNext(); ) {
-                Value v = converter.convert(it.next());
-                if(v instanceof KiWiNode) {
-                    long nodeId = ((KiWiNode) v).getId();
-
-                    cCond.append(varName);
-                    cCond.append(".context = ");
-                    cCond.append(nodeId);
-
-                    if(it.hasNext()) {
-                        cCond.append(" OR ");
-                    }
-                } else {
-                    throw new UnsatisfiableQueryException("the values in this query have not been created by the KiWi value factory");
-                }
-
-            }
-            cCond.append(")");
-            whereConditions.add(cCond.toString());
         }
 
         // construct the where clause

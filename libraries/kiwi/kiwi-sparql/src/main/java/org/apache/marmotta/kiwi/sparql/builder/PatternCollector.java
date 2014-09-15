@@ -17,12 +17,13 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import org.openrdf.query.algebra.Filter;
+import org.openrdf.query.algebra.LeftJoin;
 import org.openrdf.query.algebra.StatementPattern;
 import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
 /**
 * Collect all statement patterns in a tuple expression.
@@ -31,15 +32,37 @@ import java.util.List;
 */
 public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
-    List<StatementPattern> patterns = new ArrayList<>();
+    LinkedList<SQLFragment> parts   = new LinkedList<>();
+
+    int counter = 0;
 
     public PatternCollector(TupleExpr expr) {
+        parts.push(new SQLFragment());
         expr.visit(this);
     }
 
     @Override
     public void meet(StatementPattern node) throws RuntimeException {
-        patterns.add(node);
+        parts.getLast().getPatterns().add(new SQLPattern("P" + (++counter), node));
+
+        super.meet(node);
+    }
+
+    @Override
+    public void meet(LeftJoin node) throws RuntimeException {
+        node.getLeftArg().visit(this);
+        parts.addLast(new SQLFragment());
+        if(node.hasCondition()) {
+            parts.getLast().getFilters().add(node.getCondition());
+        }
+        node.getRightArg().visit(this);
+
+    }
+
+
+    @Override
+    public void meet(Filter node) throws RuntimeException {
+        parts.getLast().getFilters().add(node.getCondition());
 
         super.meet(node);
     }
