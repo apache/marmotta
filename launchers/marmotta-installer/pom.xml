@@ -36,7 +36,7 @@
         <stagingDir>${project.build.directory}/installer</stagingDir>
 
         <!-- these are replaced in installer files -->
-        <TOMCAT_VERSION>7.0.39</TOMCAT_VERSION>
+        <TOMCAT_VERSION>7.0.53</TOMCAT_VERSION>
         <MARMOTTA_VERSION>${project.version}</MARMOTTA_VERSION>
         <MARMOTTA_ROOT>${project.basedir}/../../</MARMOTTA_ROOT>
     </properties>
@@ -259,7 +259,7 @@
                                     <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.zip</url>
                                     <unpack>false</unpack>
                                     <outputDirectory>${stagingDir}/lib</outputDirectory>
-                                    <md5>30c6adc5b537be4bd098a4b30b5385a5</md5>
+                                    <md5>e819542bf313c3a5e0c1ad03c15880b6</md5>
                                 </configuration>
                             </execution>
                         </executions>

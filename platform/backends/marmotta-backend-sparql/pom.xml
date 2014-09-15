@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
         <relativePath>../../../parent</relativePath>
     </parent>
 
@@ -113,7 +113,7 @@
                             <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
 
                             <name>REST API</name>
-                            <description>REST API for LMF Webservices</description>
+                            <description>REST API for Marmotta Webservices</description>
 
                             <outputDirectory>${project.build.outputDirectory}/doc</outputDirectory>
                             <reportOutputDirectory>${project.build.outputDirectory}/web/doc</reportOutputDirectory>
@@ -122,7 +122,7 @@
                             <docletArtifact>
                                 <groupId>com.lunatech.jax-doclets</groupId>
                                 <artifactId>doclets</artifactId>
-                                <version>0.10.0</version>
+                                <version>${jax.doclets.version}</version>
                             </docletArtifact>
                             <additionalparam>
                                 -jaxrscontext {BASE}

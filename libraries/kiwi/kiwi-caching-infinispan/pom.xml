@@ -64,8 +64,13 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-client-hotrod</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>gnu-getopt</groupId>
+                    <artifactId>getopt</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
 
         <!-- Testing -->
         <dependency>

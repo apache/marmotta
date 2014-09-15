@@ -35,18 +35,45 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
     private final URI predicate;
     private final Value object;
     private final Resource[] contexts;
+    private final boolean includeInferred;
 
-    protected HasStatementMatcher(Resource subject, URI predicate, Value object, Resource... contexts) {
+    /**
+     * Create a RepositoryConnection Matcher checking if the provided Statement is contained in the Connection.
+     *
+     * @param subject   the subject of the statement, use {@code null} as wildcard.
+     * @param predicate the predicate of the statement, use {@code null} as wildcard.
+     * @param object    the object of the statement, use {@code null} as wildcard.
+     * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
+     * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
+     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     */
+    public HasStatementMatcher(Resource subject, URI predicate, Value object, Resource... contexts) {
+        this(subject, predicate, object, true, contexts);
+    }
+
+    /**
+     * Create a RepositoryConnection Matcher checking if the provided Statement is contained in the Connection.
+     *
+     * @param subject          the subject of the statement, use {@code null} as wildcard.
+     * @param predicate        the predicate of the statement, use {@code null} as wildcard.
+     * @param object           the object of the statement, use {@code null} as wildcard.
+     * @param includeInferrred if false, no inferred statements are considered; if true, inferred statements are considered if available
+     * @param contexts         the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
+     * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
+     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     */
+    public HasStatementMatcher(Resource subject, URI predicate, Value object, boolean includeInferrred, Resource... contexts) {
         super();
         this.subject = subject;
         this.predicate = predicate;
         this.object = object;
+        this.includeInferred = includeInferrred;
         this.contexts = contexts;
     }
 
     @Override
     protected boolean matchesConnection(RepositoryConnection con) throws RepositoryException {
-        return con.hasStatement(subject, predicate, object, true, contexts);
+        return con.hasStatement(subject, predicate, object, includeInferred, contexts);
     }
 
     @Override
@@ -57,7 +84,16 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
                 .appendValue(object).appendText(")");
     }
 
-
+    /**
+     * Create a RepositoryConnection Matcher checking if the provided Statement is contained in the Connection.
+     *
+     * @param subject   the subject of the statement, use {@code null} as wildcard.
+     * @param predicate the predicate of the statement, use {@code null} as wildcard.
+     * @param object    the object of the statement, use {@code null} as wildcard.
+     * @param contexts  the contexts in which to look for the statement, use an empty varargs array to look in all contexts available.
+     * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
+     * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
+     */
     public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
         return new HasStatementMatcher<T>(subject, predicate, object, contexts);
     }

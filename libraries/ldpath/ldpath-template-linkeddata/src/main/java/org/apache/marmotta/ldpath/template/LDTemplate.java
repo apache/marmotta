@@ -103,7 +103,7 @@ public class LDTemplate {
             if(backend != null && context != null && template != null) {
                 TemplateEngine<Value> engine = new TemplateEngine<Value>(backend);
 
-                engine.setDirectoryForTemplateLoading(template.getParentFile());
+                engine.setDirectoryForTemplateLoading(template.getAbsoluteFile().getParentFile());
                 engine.processFileTemplate(context,template.getName(),out);
                 out.flush();
             }

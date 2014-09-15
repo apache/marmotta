@@ -66,25 +66,6 @@
 
         <plugins>
             <plugin>
-                <groupId>com.googlecode.maven-download-plugin</groupId>
-                <artifactId>maven-download-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>download-ldp-test-cases</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>wget</goal>
-                        </goals>
-                        <configuration>
-                            <url>http://www.w3.org/2012/pyRdfa/extract?uri=https%3A%2F%2Fdvcs.w3.org%2Fhg%2Fldpwg%2Fraw-file%2Fdefault%2FTest%2520Cases%2FLDP%2520Test%2520Cases.html&amp;format=turtle&amp;rdfagraph=output&amp;vocab_expansion=false&amp;rdfa_lite=false&amp;embedded_rdf=true&amp;space_preserve=true&amp;vocab_cache=true&amp;vocab_cache_report=false&amp;vocab_cache_refresh=false</url>
-                            <unpack>false</unpack>
-                            <outputDirectory>${project.build.testOutputDirectory}/testsuite/</outputDirectory>
-                            <outputFileName>LDP-Test-Cases-WD-live.ttl</outputFileName>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.marmotta</groupId>
                 <artifactId>buildinfo-maven-plugin</artifactId>
                 <configuration>
@@ -130,7 +111,7 @@
                             <doclet>com.lunatech.doclets.jax.jaxrs.JAXRSDoclet</doclet>
 
                             <name>REST API</name>
-                            <description>REST API for LMF Webservices</description>
+                            <description>REST API for Marmotta Webservices</description>
 
                             <outputDirectory>${project.build.outputDirectory}/doc</outputDirectory>
                             <reportOutputDirectory>${project.build.outputDirectory}/web/doc</reportOutputDirectory>
@@ -139,7 +120,7 @@
                             <docletArtifact>
                                 <groupId>com.lunatech.jax-doclets</groupId>
                                 <artifactId>doclets</artifactId>
-                                <version>0.10.0</version>
+                                <version>${jax.doclets.version}</version>
                             </docletArtifact>
                             <additionalparam>
                                 -jaxrscontext {BASE}

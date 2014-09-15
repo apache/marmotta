@@ -56,8 +56,8 @@ public class JettyMarmotta extends AbstractMarmotta {
     
     private int port;
 
-	private String context;
-	
+    private String context;
+
     public JettyMarmotta(String context) {
         this(context, getRandomPort());
     }
@@ -86,7 +86,6 @@ public class JettyMarmotta extends AbstractMarmotta {
         this(override, context, getRandomPort(), webservices);
     }
 
-
     public JettyMarmotta(String context, Set<Class<?>> webservices) {
     	this(context, getRandomPort(), webservices);
     }
@@ -109,7 +108,6 @@ public class JettyMarmotta extends AbstractMarmotta {
         
         // create a new jetty & run it on port 8080
         jetty = new Server(this.port);
-
 
         TestInjectorFactory.setManager(container.getBeanManager());
 

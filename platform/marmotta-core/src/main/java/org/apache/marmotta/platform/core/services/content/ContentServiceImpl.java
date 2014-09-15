@@ -101,6 +101,7 @@ public class ContentServiceImpl implements ContentService {
             String enabledStr  = configurationService.getStringConfiguration("content."+configName+".enabled");
 
             if(Boolean.parseBoolean(enabledStr)) {
+                log.debug("Initializing content provider {}", configName);
                 ContentReader reader = null;
                 ContentWriter writer = null;
                 Pattern pattern = null;

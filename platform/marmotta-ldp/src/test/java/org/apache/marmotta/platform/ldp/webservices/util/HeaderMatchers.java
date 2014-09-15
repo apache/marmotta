@@ -79,16 +79,19 @@ public class HeaderMatchers {
     }
 
     public static Matcher<String> hasEntityTag(String value, boolean weakTag) {
-        final EntityTag expected = new EntityTag(value, weakTag);
+        return hasEntityTag(new EntityTag(value, weakTag));
+    }
+      
+    public static Matcher<String> hasEntityTag(String value) {
+        return hasEntityTag(value, false);
+    }
+
+    public static Matcher<String> hasEntityTag(final EntityTag expected) {
         return new CustomTypeSafeMatcher<String>(String.format("an EntityTag %s", expected)) {
             @Override
             protected boolean matchesSafely(String item) {
                 return EntityTagUtils.equals(expected, new EntityTagDelegate().fromString(item));
             }
         };
-    }
-      
-    public static Matcher<String> hasEntityTag(String value) {
-        return hasEntityTag(value, false);
     }
 }

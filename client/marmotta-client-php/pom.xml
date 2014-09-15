@@ -24,7 +24,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -68,49 +68,6 @@
         </dependency>
 
     </dependencies>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>release-repo1.php-maven.org</id>
-            <name>PHP Maven Release Repository</name>
-            <url>http://repos.php-maven.org/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>snapshot-repo1.php-maven.org</id>
-            <name>PHP Maven Snapshot Repository</name>
-            <url>http://repos.php-maven.org/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-    <repositories>
-        <repository>
-            <id>release-repo1.php-maven.org</id>
-            <name>PHP Maven Release Repository</name>
-            <url>http://repos.php-maven.org/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>snapshot-repo1.php-maven.org</id>
-            <name>PHP Maven Snapshot Repository</name>
-            <url>http://repos.php-maven.org/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
 </project>
 

@@ -20,6 +20,8 @@ package org.apache.marmotta.platform.core.services.config;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.*;
+import org.apache.commons.configuration.interpol.ConfigurationInterpolator;
+import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -42,8 +44,10 @@ import javax.management.ObjectName;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -244,6 +248,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 saveMetadata      = new MapConfiguration(new HashMap<String, Object>());
             }
             config = new FallbackConfiguration();
+            final ConfigurationInterpolator _int = config.getInterpolator();
+            _int.registerLookup("pattern.quote", new StrLookup() {
+                @Override
+                public String lookup(String key) {
+                    return Pattern.quote(_int.getDefaultLookup().lookup(key));
+                }
+            });
+            _int.registerLookup("urlencode", new StrLookup() {
+                @Override
+                public String lookup(String key) {
+                    try {
+                        return URLEncoder.encode(_int.getDefaultLookup().lookup(key), "utf8");
+                    } catch (UnsupportedEncodingException e) {
+                        return _int.getDefaultLookup().lookup(key);
+                    }
+                }
+            });
             config.addConfiguration(saveConfiguration,true);
 
             // load all default-config.properties

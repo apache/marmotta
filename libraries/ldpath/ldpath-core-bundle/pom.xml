@@ -75,6 +75,11 @@
           <artifactId>ldpath-functions-xml</artifactId>
           <version>${project.version}</version>
         </dependency>
+        <dependency>
+          <groupId>org.apache.marmotta</groupId>
+          <artifactId>ldpath-functions-json</artifactId>
+          <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 
@@ -94,6 +99,7 @@
                           NOTES: 
                             * jdom2 is required for using the ldpath-functions-xml
                             * jsoup is required for using the ldpath-functions-html
+                            * jsonpath is required for using the ldpath-functions-json
                           -->
                         <Import-Package>
                           org.slf4j.*;version="[1.6,2)",
@@ -101,6 +107,7 @@
                           ch.qos.logback.classic;resolution:=optional,
                           org.jdom2.*;resolution:=optional,
                           org.jsoup.*;resolution:=optional,
+                          com.jayway.jsonpath.*;resolution:=optional,
                           *
                         </Import-Package>
                         <_exportcontents>
@@ -114,7 +121,8 @@
                           ldpath-core,
                           ldpath-functions-collections, ldpath-functions-date,
                           ldpath-functions-html, ldpath-functions-math,
-                          ldpath-functions-text, ldpath-functions-xml
+                          ldpath-functions-text, ldpath-functions-xml,
+                          ldpath-functions-json
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
