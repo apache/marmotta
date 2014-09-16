@@ -342,6 +342,18 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
                 }
             }
             return true;
+        } else if(expr instanceof Count) {
+            if(((Count) expr).getArg() == null) {
+                return connection.getDialect().isArraySupported();
+            } else {
+                return isSupported(((Count) expr).getArg());
+            }
+        } else if(expr instanceof Avg) {
+            return isSupported(((Avg) expr).getArg());
+        } else if(expr instanceof Min) {
+            return isSupported(((Min) expr).getArg());
+        } else if(expr instanceof Max) {
+            return isSupported(((Max) expr).getArg());
         } else if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
         } else if(expr instanceof MathExpr) {

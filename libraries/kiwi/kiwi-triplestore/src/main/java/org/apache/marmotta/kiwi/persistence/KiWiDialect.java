@@ -83,6 +83,15 @@ public abstract class KiWiDialect {
      */
     public abstract boolean isBatchSupported();
 
+
+    /**
+     * Return true in case the database supports creating arrays with ARRAY[...]
+     * @return
+     */
+    public boolean isArraySupported() {
+        return false;
+    }
+
     /**
      * Return the contents of the SQL create script used for initialising an empty database
      * @return

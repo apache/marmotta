@@ -163,6 +163,16 @@ public class PostgreSQLDialect extends KiWiDialect {
 
 
     /**
+     * Return true in case the database supports creating arrays with ARRAY[...]
+     *
+     * @return
+     */
+    @Override
+    public boolean isArraySupported() {
+        return true;
+    }
+
+    /**
      * Return an SQL string for evaluating the function with the given URI on the arguments. All arguments are already
      * properly substituted SQL expressions (e.g. field names or constants).
      * <p/>

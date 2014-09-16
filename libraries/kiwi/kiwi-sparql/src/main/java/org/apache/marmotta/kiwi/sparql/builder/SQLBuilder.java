@@ -163,6 +163,9 @@ public class SQLBuilder {
     private List<OrderElem> orderby;
     private List<ExtensionElem> extensions;
 
+    private List<GroupElem> groupExpressions;
+    private Set<String>     groupLabels;
+
     /**
      * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
      * Will look like { ?x -> "V1", ?y -> "V2", ... }
@@ -186,6 +189,7 @@ public class SQLBuilder {
 
     private Map<Var, ProjectionType> variableTypes = new HashMap<>();
 
+    private Set<Var> projectedVariables = new HashSet<>();
 
     /**
      * The triple patterns collected from the query.
@@ -264,7 +268,7 @@ public class SQLBuilder {
      * @return
      */
     public Set<Var> getProjectedVariables() {
-        return queryVariableIds.keySet();
+        return projectedVariables;
     }
 
     /**
@@ -306,6 +310,11 @@ public class SQLBuilder {
         // find the ordering
         orderby  = new OrderFinder(query).elements;
 
+        // find the grouping
+        GroupFinder gf  = new GroupFinder(query);
+        groupExpressions = gf.elements;
+        groupLabels      = gf.bindings;
+
         // find extensions (BIND)
         extensions = new ExtensionFinder(query).elements;
 
@@ -326,6 +335,11 @@ public class SQLBuilder {
                             variableTypes.put(v, ProjectionType.NODE);
                             queryVariables.put(v.getName(), new LinkedList<String>());
                             queryVariableIds.put(v, new LinkedList<String>());
+
+                            // select those variables that are really projected and not only needed in a grouping construct
+                            if(new SQLProjectionFinder(query,v).found) {
+                                projectedVariables.add(v);
+                            }
                         }
                         String pName = p.getName();
                         String vName = variableNames.get(v);
@@ -344,6 +358,8 @@ public class SQLBuilder {
             }
         }
 
+
+
         // add all extensions to the variable list so they are properly considered in projections and clauses
         for(ExtensionElem ext : extensions) {
             Var v = new Var(ext.getName());
@@ -354,6 +370,11 @@ public class SQLBuilder {
                 variableTypes.put(v, getProjectionType(ext.getExpr()));
                 queryVariables.put(v.getName(), new LinkedList<String>());
                 queryVariableIds.put(v, new LinkedList<String>());
+
+                // select those variables that are really projected and not only needed in a grouping construct
+                if(new SQLProjectionFinder(query,v).found) {
+                    projectedVariables.add(v);
+                }
             }
             if (hasNodeCondition(v, query)) {
                 queryVariables.get(v.getName()).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
@@ -515,23 +536,25 @@ public class SQLBuilder {
 
 
     private String buildSelectClause() {
+        List<String> projections = new ArrayList<>();
+        for(Iterator<Var> it = queryVariableIds.keySet().iterator(); it.hasNext(); ) {
+            Var v = it.next();
+            if(projectedVariables.contains(v)) {
+                String projectedName = variableNames.get(v);
+                String fromName = queryVariableIds.get(v).get(0);
+
+                projections.add(fromName + " AS " + projectedName);
+
+            }
+        }
+
         StringBuilder selectClause = new StringBuilder();
 
         if(distinct) {
             selectClause.append("DISTINCT ");
         }
 
-        for(Iterator<Var> it = queryVariableIds.keySet().iterator(); it.hasNext(); ) {
-            Var v = it.next();
-            String projectedName = variableNames.get(v);
-            String fromName = queryVariableIds.get(v).get(0);
-            selectClause.append(fromName);
-            selectClause.append(" as ");
-            selectClause.append(projectedName);
-            if(it.hasNext()) {
-                selectClause.append(", ");
-            }
-        }
+        selectClause.append(CollectionUtils.fold(projections,", "));
 
         return selectClause.toString();
     }
@@ -712,9 +735,38 @@ public class SQLBuilder {
                     orderClause.append(", ");
                 }
             }
+            orderClause.append(" \n");
         }
 
         return orderClause.toString();
+    }
+
+    private String buildGroupClause() {
+        StringBuilder groupClause = new StringBuilder();
+        if(groupLabels.size() > 0) {
+            groupClause.append("GROUP BY ");
+            for(Iterator<String> it = groupLabels.iterator(); it.hasNext(); ) {
+                Var v = new Var(it.next());
+
+
+                if(queryVariableIds.get(v) != null) {
+                    Iterator<String> lit = queryVariableIds.get(v).iterator();
+                    while (lit.hasNext()) {
+                        groupClause.append(lit.next());
+                        if(lit.hasNext()) {
+                            groupClause.append(", ");
+                        }
+                    }
+                }
+
+                if(it.hasNext()) {
+                    groupClause.append(", ");
+                }
+            }
+            groupClause.append(" \n");
+        }
+
+        return groupClause.toString();
     }
 
 
@@ -879,6 +931,41 @@ public class SQLBuilder {
                     return evaluateExpression(valueExpr, optype);
                 }
             },", ") + ")";
+        } else if(expr instanceof Count) {
+            StringBuilder countExp = new StringBuilder();
+            countExp.append("COUNT(");
+
+            if(((Count) expr).isDistinct()) {
+                countExp.append("DISTINCT ");
+            }
+
+            if(((Count) expr).getArg() == null) {
+                // this is a weird special case where we need to expand to all variables selected in the query wrapped
+                // by the group; we cannot simply use "*" because the concept of variables is a different one in SQL,
+                // so instead we construct an ARRAY of the bindings of all variables
+
+                List<String> countVariables = new ArrayList<>();
+                for(Map.Entry<Var,List<String>> v : queryVariableIds.entrySet()) {
+                    if(!projectedVariables.contains(v.getKey())) {
+                        countVariables.add(v.getValue().get(0));
+                    }
+                }
+                countExp.append("ARRAY[");
+                countExp.append(CollectionUtils.fold(countVariables,","));
+                countExp.append("]");
+
+            } else {
+                countExp.append(evaluateExpression(((Count) expr).getArg(), OPTypes.ANY));
+            }
+            countExp.append(")");
+
+            return countExp.toString();
+        } else if(expr instanceof Avg) {
+            return "AVG(" + evaluateExpression(((Avg) expr).getArg(), OPTypes.DOUBLE) + ")";
+        } else if(expr instanceof Min) {
+            return "MIN(" + evaluateExpression(((Min) expr).getArg(), OPTypes.DOUBLE) + ")";
+        } else if(expr instanceof Max) {
+            return "MAX(" + evaluateExpression(((Max) expr).getArg(), OPTypes.DOUBLE) + ")";
         } else if(expr instanceof FunctionCall) {
             FunctionCall fc = (FunctionCall)expr;
 
@@ -1164,6 +1251,7 @@ public class SQLBuilder {
         String fromClause   = buildFromClause();
         String whereClause  = buildWhereClause();
         String orderClause  = buildOrderClause();
+        String groupClause  = buildGroupClause();
         String limitClause  = buildLimitClause();
 
 
@@ -1172,7 +1260,8 @@ public class SQLBuilder {
                 "SELECT " + selectClause + "\n " +
                         "FROM " + fromClause + "\n " +
                         "WHERE " + whereClause + "\n " +
-                        orderClause + "\n " +
+                        groupClause +
+                        orderClause +
                         limitClause;
 
         log.debug("original SPARQL syntax tree:\n {}", query);
