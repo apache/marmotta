@@ -278,11 +278,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- TODO: to be removed as soon as there is one release -->
         <dependency>
             <groupId>org.w3</groupId>
             <artifactId>ldp-testsuite</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>0.1.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -297,14 +296,5 @@
         </dependency>
 
     </dependencies>
-
-    <!-- TODO: to be removed as soon as there is one release -->
-    <repositories>
-        <repository>
-            <id>sonatype.snapshots</id>
-            <name>ASS Sonatype Snapshots Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
 
 </project>
