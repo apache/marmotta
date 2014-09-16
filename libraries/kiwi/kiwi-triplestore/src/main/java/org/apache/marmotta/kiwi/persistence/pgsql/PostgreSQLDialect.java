@@ -68,6 +68,12 @@ public class PostgreSQLDialect extends KiWiDialect {
         supportedFunctions.put(FN_MARMOTTA.QUERY_FULLTEXT);
 
         supportedFunctions.put(FN_MARMOTTA.NOW);
+        supportedFunctions.put(FN_MARMOTTA.YEAR);
+        supportedFunctions.put(FN_MARMOTTA.MONTH);
+        supportedFunctions.put(FN_MARMOTTA.DAY);
+        supportedFunctions.put(FN_MARMOTTA.HOURS);
+        supportedFunctions.put(FN_MARMOTTA.MINUTES);
+        supportedFunctions.put(FN_MARMOTTA.SECONDS);
 
         supportedFunctions.put(FN_MARMOTTA.RAND);
         supportedFunctions.put(FN_MARMOTTA.UUID);
@@ -310,6 +316,42 @@ public class PostgreSQLDialect extends KiWiDialect {
                 return String.format("encode(digest('%s', 'sha512'), 'hex')", args[0]);
             } else {
                 throw new IllegalArgumentException("SHA512() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.YEAR.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("extract(year from %s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("YEAR() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.MONTH.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("extract(month from %s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("MONTH() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.DAY.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("extract(day from %s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("DAY() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.HOURS.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("extract(hour from %s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("HOURS() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.MINUTES.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("extract(minute from %s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("MINUTES() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.SECONDS.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("extract(second from %s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("SECONDS() takes exactly 1 argument");
             }
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
