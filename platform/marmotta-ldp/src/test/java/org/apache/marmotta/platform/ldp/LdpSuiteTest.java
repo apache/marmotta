@@ -116,6 +116,16 @@ public class LdpSuiteTest {
             options.put("httpLogging", null);
             options.put("skipLogging", null);
             options.put("excludedGroups", "MANUAL");
+
+            //reporting stuff
+            //options.put("earl", null);
+            //options.put("software", "Apache Marmotta");
+            //options.put("language", "Java");
+            //options.put("homepage", "http://marmotta.apache.org");
+            //options.put("assertor", "http://marmotta.apache.org");
+            //options.put("shortname", "Marmotta");
+            //options.put("developer", "Jakob Frank, Sergio Fernández");
+
             testSuite = new LdpTestSuite(options);
         } finally {
             conn.close();
