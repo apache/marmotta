@@ -17,7 +17,13 @@
 
 package org.apache.marmotta.platform.ldp;
 
+import com.hp.hpl.jena.xmloutput.impl.Basic;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.api.LdpService;
@@ -81,6 +87,10 @@ public class LdpSuiteTest {
         try {
             conn.begin();
 
+            //warm up and initialization
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            final HttpResponse response = httpClient.execute(new HttpGet(baseUrl));
+            Assume.assumeTrue(response.getStatusLine().getStatusCode() == 200);
             final String container = ldpService.addResource(conn, baseUrl,
                     UriBuilder.fromUri(baseUrl).path(UUID.randomUUID().toString()).build().toString(),
                     LdpService.InteractionModel.LDPC, RDFFormat.TURTLE.getDefaultMIMEType(),
@@ -90,6 +100,8 @@ public class LdpSuiteTest {
                     LdpService.InteractionModel.LDPR, RDFFormat.TURTLE.getDefaultMIMEType(),
                     IOUtils.toInputStream("<> a <http://example.com/ldp/ResourceInteraction> . "));
             conn.commit();
+
+            //then actual test suite
 
             log.info("Running W3C official LDP Test Suite against '{}' server", baseUrl);
             log.debug("(using {} as root container)", container);
