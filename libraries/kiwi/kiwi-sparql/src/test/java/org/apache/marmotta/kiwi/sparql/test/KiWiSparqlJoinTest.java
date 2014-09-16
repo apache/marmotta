@@ -271,6 +271,25 @@ public class KiWiSparqlJoinTest {
     }
 
 
+    // simple group by
+    @Test
+    public void testQuery25() throws Exception {
+        testQuery("query25.sparql");
+    }
+
+    // bind/coalesce
+    @Test
+    public void testQuery27() throws Exception {
+        testQuery("query27.sparql");
+    }
+
+
+    // simple union
+    @Test
+    public void testQuery26() throws Exception {
+        testQuery("query26.sparql");
+    }
+
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {

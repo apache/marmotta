@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.sparql.builder;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
@@ -124,6 +125,7 @@ public class SQLBuilder {
     private long limit  = -1;
 
     private List<OrderElem> orderby;
+    private List<ExtensionElem> extensions;
 
     /**
      * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
@@ -237,7 +239,7 @@ public class SQLBuilder {
     }
 
     private void prepareBuilder()  throws UnsatisfiableQueryException {
-        Preconditions.checkArgument(query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
+        Preconditions.checkArgument(query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
 
         // collect all patterns in a list, using depth-first search over the join
@@ -254,6 +256,9 @@ public class SQLBuilder {
 
         // find the ordering
         orderby  = new OrderFinder(query).elements;
+
+        // find extensions (BIND)
+        extensions = new ExtensionFinder(query).elements;
 
         // find all variables occurring in the patterns and create a map to map them to
         // field names in the database query; each variable will have one or several field names,
@@ -287,6 +292,21 @@ public class SQLBuilder {
                     }
                 }
             }
+        }
+
+        // add all extensions to the variable list so they are properly considered in projections and clauses
+        for(ExtensionElem ext : extensions) {
+            Var v = new Var(ext.getName());
+            if (variableNames.get(v) == null) {
+                variableNames.put(v, "V" + (++variableCount));
+                queryVariables.put(v, new LinkedList<String>());
+                queryVariableIds.put(v, new LinkedList<String>());
+            }
+            if (hasNodeCondition(v, query)) {
+                queryVariables.get(v).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+            }
+            queryVariableIds.get(v).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+
         }
 
         // find context restrictions of patterns and match them with potential restrictions given in the
@@ -628,7 +648,13 @@ public class SQLBuilder {
         if(orderby.size() > 0) {
             orderClause.append("ORDER BY ");
             for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
-                orderClause.append(evaluateExpression(it.next().getExpr(), OPTypes.VALUE));
+                OrderElem elem = it.next();
+                orderClause.append(evaluateExpression(elem.getExpr(), OPTypes.VALUE));
+                if(elem.isAscending()) {
+                    orderClause.append(" ASC");
+                } else {
+                    orderClause.append(" DESC");
+                }
                 if(it.hasNext()) {
                     orderClause.append(", ");
                 }
@@ -657,7 +683,7 @@ public class SQLBuilder {
 
 
 
-    private String evaluateExpression(ValueExpr expr, OPTypes optype) {
+    private String evaluateExpression(ValueExpr expr, final OPTypes optype) {
         if(expr instanceof And) {
             return "(" + evaluateExpression(((And) expr).getLeftArg(), optype) + " AND " + evaluateExpression(((And) expr).getRightArg(), optype) + ")";
         } else if(expr instanceof Or) {
@@ -790,6 +816,13 @@ public class SQLBuilder {
                     default: throw new IllegalArgumentException("unsupported value type: " + optype);
                 }
             }
+        } else if(expr instanceof Coalesce) {
+            return "COALESCE(" + CollectionUtils.fold(((Coalesce) expr).getArguments(), new CollectionUtils.StringSerializer<ValueExpr>() {
+                @Override
+                public String serialize(ValueExpr valueExpr) {
+                    return evaluateExpression(valueExpr, optype);
+                }
+            },", ") + ")";
         } else if(expr instanceof FunctionCall) {
             FunctionCall fc = (FunctionCall)expr;
 
@@ -862,6 +895,13 @@ public class SQLBuilder {
     private boolean hasNodeCondition(Var v, TupleExpr expr) {
         if(expr instanceof Filter) {
             return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg()) || hasNodeCondition(v,  ((Filter) expr).getCondition());
+        } else if(expr instanceof Extension) {
+            for(ExtensionElem elem : ((Extension) expr).getElements()) {
+                if(hasNodeCondition(v, elem.getExpr())) {
+                    return true;
+                }
+            }
+            return hasNodeCondition(v,((Extension) expr).getArg());
         } else if(expr instanceof Order) {
             for(OrderElem elem : ((Order) expr).getElements()) {
                 if(hasNodeCondition(v, elem.getExpr())) {

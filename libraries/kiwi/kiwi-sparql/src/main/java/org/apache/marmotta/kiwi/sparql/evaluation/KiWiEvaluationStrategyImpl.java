@@ -68,6 +68,35 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Extension order, BindingSet bindings) throws QueryEvaluationException {
+        if(Thread.currentThread().isInterrupted()) {
+            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
+        }
+
+        if(isSupported(order)) {
+            log.debug("applying KiWi EXTENSION optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(order, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e.getMessage());
+            }
+        } else {
+            return super.evaluate(order, bindings);
+        }
+    }
+
+
+    @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Order order, BindingSet bindings) throws QueryEvaluationException {
         if(Thread.currentThread().isInterrupted()) {
             throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
@@ -262,6 +291,13 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
                 return isSupported(((LeftJoin) expr).getLeftArg()) && isSupported(((LeftJoin) expr).getRightArg()) && isSupported(((LeftJoin)expr).getCondition());
         } else if(expr instanceof Filter) {
             return isSupported(((Filter) expr).getArg()) && isSupported(((Filter) expr).getCondition());
+        } else if(expr instanceof Extension) {
+            for(ExtensionElem elem : ((Extension) expr).getElements()) {
+                if(!isSupported(elem.getExpr())) {
+                    return false;
+                }
+            }
+            return isSupported(((Extension) expr).getArg());
         } else if(expr instanceof StatementPattern) {
             return true;
         } else if(expr instanceof Slice) {
@@ -298,6 +334,13 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
      */
     private boolean isSupported(ValueExpr expr) {
         if(expr == null) {
+            return true;
+        } else if(expr instanceof Coalesce) {
+            for(ValueExpr e : ((Coalesce) expr).getArguments()) {
+                if(!isSupported(e)) {
+                    return false;
+                }
+            }
             return true;
         } else if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
