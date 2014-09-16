@@ -478,10 +478,41 @@ public class SQLBuilder {
 
                 SQLPattern p = it.next();
                 String pName = p.getName();
-                fromClause.append("triples " + pName);
 
+
+                // the joinClause consists of a reference to the triples table and possibly inner joins with the
+                // nodes table in case we need to verify node values, e.g. in a filter
+                StringBuilder joinClause = new StringBuilder();
+
+                // indicate if we need parentheses because of node joins
+                boolean hasNodeJoins = false;
+
+
+                // the onClause consists of the filter conditions from the statement for joining/left joining with
+                // previous statements
                 StringBuilder onClause = new StringBuilder();
 
+
+                joinClause.append("triples " + pName);
+
+                Var[] fields = p.getFields();
+                for (int i = 0; i < fields.length; i++) {
+
+                    if (fields[i] != null && !fields[i].hasValue() && hasNodeCondition(fields[i], query)) {
+
+                        String vName = variableNames.get(fields[i]);
+                        joinClause.append("\n    INNER JOIN nodes AS ");
+                        joinClause.append(pName + "_" + positions[i] + "_" + vName);
+
+                        joinClause.append(" ON " + pName + "." + positions[i] + " = " + pName + "_" + positions[i] + "_" + vName + ".id ");
+
+                        hasNodeJoins = true;
+                    }
+                }
+
+
+                // in case this is not the first fragment, we add all statement filter conditions to the ON clause of the query;
+                // in case this IS the first fragment, they will be added to the WHERE clause.
                 if(!firstFragment) {
                     for(Iterator<String> cit = p.getConditions().iterator(); cit.hasNext(); ) {
                         if(onClause.length() > 0) {
@@ -491,35 +522,8 @@ public class SQLBuilder {
                     }
                 }
 
-
-
-                Var[] fields = p.getFields();
-                for (int i = 0; i < fields.length; i++) {
-
-                    if (fields[i] != null && !fields[i].hasValue() && hasNodeCondition(fields[i], query)) {
-                        // finish previous ON clause and start a new one
-                        if(onClause.length() > 0) {
-                            fromClause.append(" ON (");
-                            fromClause.append(onClause);
-                            fromClause.append(")");
-                            onClause = new StringBuilder();
-                        }
-
-                        String vName = variableNames.get(fields[i]);
-                        fromClause.append("\n    INNER JOIN nodes AS ");
-                        fromClause.append(pName + "_" + positions[i] + "_" + vName);
-
-                        if(onClause.length() > 0) {
-                            onClause.append("\n      AND ");
-                        }
-                        onClause.append(pName + "." + positions[i] + " = " + pName + "_" + positions[i] + "_" + vName + ".id ");
-
-                        //fromClause.append(" ON " + pName + "." + positions[i] + " = ");
-                        //fromClause.append(pName + "_" + positions[i] + "_" + vName + ".id ");
-                    }
-                }
-
-                if(!it.hasNext()) {
+                // in case the pattern is the last of the fragment, also add the filter conditions of the fragment (TODO: verify this does indeed the right thing)
+                if(!firstFragment && !it.hasNext()) {
                     // if this is the last pattern of the fragment, add the filter conditions
                     for(Iterator<String> cit = frag.getConditions().iterator(); cit.hasNext(); ) {
                         if(onClause.length() > 0) {
@@ -530,6 +534,20 @@ public class SQLBuilder {
                 }
 
 
+
+                // in case we add join conditions, open a parentheses to cover the subquery
+                if(hasNodeJoins && onClause.length() > 0) {
+                    fromClause.append("(");
+                }
+
+                fromClause.append(joinClause);
+
+                if(hasNodeJoins && onClause.length() > 0) {
+                    fromClause.append(")");
+                }
+
+
+                // close the "subquery" and add any join conditions
                 if(onClause.length() > 0) {
                     fromClause.append(" ON (");
                     fromClause.append(onClause);
@@ -564,6 +582,7 @@ public class SQLBuilder {
 
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
         if(fragments.size() > 0 && fragments.get(0).getPatterns().size() > 0) {
+            whereConditions.addAll(fragments.get(0).getConditions());
             whereConditions.addAll(fragments.get(0).getPatterns().get(0).getConditions());
         }
 
@@ -665,7 +684,7 @@ public class SQLBuilder {
         } else if(expr instanceof Regex) {
             Regex re = (Regex)expr;
 
-            return optimizeRegexp(evaluateExpression(re.getArg(), optype), evaluateExpression(re.getPatternArg(), OPTypes.STRING), re.getFlagsArg());
+            return optimizeRegexp(evaluateExpression(re.getArg(), OPTypes.STRING), evaluateExpression(re.getPatternArg(), OPTypes.STRING), re.getFlagsArg());
         } else if(expr instanceof LangMatches) {
             LangMatches lm = (LangMatches)expr;
             String value = evaluateExpression(lm.getLeftArg(), optype);
