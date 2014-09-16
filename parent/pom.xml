@@ -36,7 +36,7 @@
     <url>http://marmotta.apache.org</url>
 
     <properties>
-        <sesame.version>2.7.12</sesame.version>
+        <sesame.version>2.7.13</sesame.version>
         <junit.version>4.11</junit.version>
         <weld.version>2.1.Final</weld.version>
         <weld.core.version>2.1.2.Final</weld.core.version>
@@ -51,7 +51,7 @@
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.2.1.v20140609</jetty.version>
         <resteasy.version>3.0.8.Final</resteasy.version>
-        <jackson.version>2.3.3</jackson.version>
+        <jackson.version>2.4.1</jackson.version>
         <titan.version>0.4.2</titan.version>
         <jax.doclets.version>0.10.1</jax.doclets.version>
     </properties>
@@ -618,7 +618,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>16.0.1</version>
+                <version>18.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -639,7 +639,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.1</version>
+                <version>3.3.2</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
@@ -659,12 +659,12 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.7</version>
+                <version>1.8.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>4.3</version>
+                <version>4.3.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -675,7 +675,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.3.1</version>
+                <version>4.3.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -686,7 +686,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.3.1</version>
+                <version>4.3.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -697,7 +697,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient-cache</artifactId>
-                <version>4.3.1</version>
+                <version>4.3.5</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -708,7 +708,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.0</version>
+                <version>1.9.2</version>
             </dependency>
             <dependency>
                 <groupId>commons-validator</groupId>
@@ -763,42 +763,42 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-ext</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.6</version>
+                <version>1.7.7</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.1.1</version>
+                <version>1.1.2</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.1</version>
+                <version>1.1.2</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.cal10n</groupId>
@@ -1056,7 +1056,7 @@
             <dependency>
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>3.1.6</version>
+                <version>3.3</version>
             </dependency>
 
 
@@ -1128,12 +1128,12 @@
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-jdbc</artifactId>
-                <version>7.0.50</version>
+                <version>7.0.55</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>tomcat-juli</artifactId>
-                <version>7.0.50</version>
+                <version>7.0.55</version>
             </dependency>
 
             <!--Secure  Unique IDs -->
