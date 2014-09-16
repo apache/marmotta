@@ -71,7 +71,7 @@ import java.util.UUID;
 public class LdpWebService {
 
     public static final String PATH = "/ldp"; //TODO: at some point this will be root ('/') in marmotta
-    public static final String LDP_SERVER_CONSTRAINTS = "http://wiki.apache.org/marmotta/LDPImplementationReport/2014-03-11";
+    public static final String LDP_SERVER_CONSTRAINTS = "http://wiki.apache.org/marmotta/LDPImplementationReport/2014-09-16";
 
     static final String LINK_REL_DESCRIBEDBY = "describedby";
     static final String LINK_REL_CONSTRAINEDBY = "http://www.w3.org/ns/ldp#constrainedBy";
