@@ -21,12 +21,14 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
+import org.apache.marmotta.kiwi.sparql.function.FunctionUtil;
+import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.*;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.SESAME;
 import org.openrdf.model.vocabulary.XMLSchema;
@@ -82,6 +84,22 @@ public class SQLBuilder {
         functionParameterTypes.put(FN.NUMERIC_FLOOR, OPTypes.DOUBLE);
         functionParameterTypes.put(FN.NUMERIC_ROUND, OPTypes.DOUBLE);
 
+
+        functionParameterTypes.put(FN_MARMOTTA.YEAR, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.MONTH, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.DAY, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.HOURS, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.MINUTES, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.SECONDS, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.TIMEZONE, OPTypes.DATE);
+        functionParameterTypes.put(FN_MARMOTTA.TZ, OPTypes.DATE);
+
+        functionParameterTypes.put(FN_MARMOTTA.MD5, OPTypes.STRING);
+        functionParameterTypes.put(FN_MARMOTTA.SHA1, OPTypes.STRING);
+        functionParameterTypes.put(FN_MARMOTTA.SHA256, OPTypes.STRING);
+        functionParameterTypes.put(FN_MARMOTTA.SHA384, OPTypes.STRING);
+        functionParameterTypes.put(FN_MARMOTTA.SHA512, OPTypes.STRING);
+
     }
 
     /**
@@ -106,6 +124,24 @@ public class SQLBuilder {
         functionReturnTypes.put(FN.NUMERIC_FLOOR, OPTypes.INT);
         functionReturnTypes.put(FN.NUMERIC_ROUND, OPTypes.INT);
 
+        functionReturnTypes.put(FN_MARMOTTA.UUID, OPTypes.URI);
+        functionReturnTypes.put(FN_MARMOTTA.STRUUID, OPTypes.STRING);
+        functionReturnTypes.put(FN_MARMOTTA.RAND, OPTypes.DOUBLE);
+        functionReturnTypes.put(FN_MARMOTTA.NOW, OPTypes.DATE);
+        functionReturnTypes.put(FN_MARMOTTA.YEAR, OPTypes.INT);
+        functionReturnTypes.put(FN_MARMOTTA.MONTH, OPTypes.INT);
+        functionReturnTypes.put(FN_MARMOTTA.DAY, OPTypes.INT);
+        functionReturnTypes.put(FN_MARMOTTA.HOURS, OPTypes.INT);
+        functionReturnTypes.put(FN_MARMOTTA.MINUTES, OPTypes.INT);
+        functionReturnTypes.put(FN_MARMOTTA.SECONDS, OPTypes.DOUBLE);
+        functionReturnTypes.put(FN_MARMOTTA.TIMEZONE, OPTypes.STRING);
+        functionReturnTypes.put(FN_MARMOTTA.TZ, OPTypes.STRING);
+
+        functionReturnTypes.put(FN_MARMOTTA.MD5, OPTypes.STRING);
+        functionReturnTypes.put(FN_MARMOTTA.SHA1, OPTypes.STRING);
+        functionReturnTypes.put(FN_MARMOTTA.SHA256, OPTypes.STRING);
+        functionReturnTypes.put(FN_MARMOTTA.SHA384, OPTypes.STRING);
+        functionReturnTypes.put(FN_MARMOTTA.SHA512, OPTypes.STRING);
     }
 
 
@@ -138,7 +174,7 @@ public class SQLBuilder {
      * depending on the number of patterns it occurs in; will look like
      * { ?x -> ["P1_V1", "P2_V1"], ?y -> ["P2_V2"], ... }
      */
-    private Map<Var,List<String>> queryVariables = new HashMap<>();
+    private Map<String,List<String>> queryVariables = new HashMap<>();
 
 
     /**
@@ -147,6 +183,8 @@ public class SQLBuilder {
      */
     private Map<Var,List<String>> queryVariableIds = new HashMap<>();
 
+
+    private Map<Var, ProjectionType> variableTypes = new HashMap<>();
 
 
     /**
@@ -238,6 +276,17 @@ public class SQLBuilder {
         return variableNames.get(v);
     }
 
+
+    /**
+     * Return the type of a projected variable. Usually this is a node id to be resolved in the next step, but some
+     * projections also create literal values of various types.
+     * @param v
+     * @return
+     */
+    public ProjectionType getVariableType(Var v) {
+        return variableTypes.get(v);
+    }
+
     private void prepareBuilder()  throws UnsatisfiableQueryException {
         Preconditions.checkArgument(query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
@@ -274,13 +323,14 @@ public class SQLBuilder {
                         Var v = fields[i];
                         if (variableNames.get(v) == null) {
                             variableNames.put(v, "V" + (++variableCount));
-                            queryVariables.put(v, new LinkedList<String>());
+                            variableTypes.put(v, ProjectionType.NODE);
+                            queryVariables.put(v.getName(), new LinkedList<String>());
                             queryVariableIds.put(v, new LinkedList<String>());
                         }
                         String pName = p.getName();
                         String vName = variableNames.get(v);
                         if (hasNodeCondition(fields[i], query)) {
-                            queryVariables.get(v).add(pName + "_" + positions[i] + "_" + vName);
+                            queryVariables.get(v.getName()).add(pName + "_" + positions[i] + "_" + vName);
                         }
 
                         // if the variable has been used before, add a join condition to the first occurrence
@@ -299,11 +349,14 @@ public class SQLBuilder {
             Var v = new Var(ext.getName());
             if (variableNames.get(v) == null) {
                 variableNames.put(v, "V" + (++variableCount));
-                queryVariables.put(v, new LinkedList<String>());
+
+                // set variable type according to expression; we need this later to decide what kind of node to construct
+                variableTypes.put(v, getProjectionType(ext.getExpr()));
+                queryVariables.put(v.getName(), new LinkedList<String>());
                 queryVariableIds.put(v, new LinkedList<String>());
             }
             if (hasNodeCondition(v, query)) {
-                queryVariables.get(v).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+                queryVariables.get(v.getName()).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
             }
             queryVariableIds.get(v).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
 
@@ -704,7 +757,7 @@ public class SQLBuilder {
             Lang lang = (Lang)expr;
 
             if(lang.getArg() instanceof Var) {
-                return queryVariables.get(lang.getArg()).get(0) + ".lang";
+                return queryVariables.get(((Var) lang.getArg()).getName()).get(0) + ".lang";
             }
         } else if(expr instanceof Compare) {
             Compare cmp = (Compare)expr;
@@ -749,7 +802,7 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI || ((ValueConstant) arg).getValue() instanceof BNode);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(arg).get(0);
+                String var = queryVariables.get(((Var) arg).getName()).get(0);
 
                 return "(" + var + ".ntype = 'uri' OR " + var + ".ntype = 'bnode')";
             }
@@ -760,7 +813,7 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(arg).get(0);
+                String var = queryVariables.get(((Var) arg).getName()).get(0);
 
                 return var + ".ntype = 'uri'";
             }
@@ -771,7 +824,7 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof BNode);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(arg).get(0);
+                String var = queryVariables.get(((Var) arg).getName()).get(0);
 
                 return var + ".ntype = 'bnode'";
             }
@@ -782,12 +835,12 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof Literal);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(arg).get(0);
+                String var = queryVariables.get(((Var) arg).getName()).get(0);
 
                 return "(" + var + ".ntype = 'string' OR " + var + ".ntype = 'int' OR " + var + ".ntype = 'double'  OR " + var + ".ntype = 'date'  OR " + var + ".ntype = 'boolean')";
             }
         } else if(expr instanceof Var) {
-            String var = queryVariables.get(expr).get(0);
+            String var = queryVariables.get(((Var) expr).getName()).get(0);
 
             if(optype == null) {
                 return var + ".svalue";
@@ -798,6 +851,7 @@ public class SQLBuilder {
                     case DOUBLE: return var + ".dvalue";
                     case DATE:   return var + ".tvalue";
                     case VALUE:  return var + ".svalue";
+                    case URI:    return var + ".svalue";
                     case ANY:    return var + ".id";
                 }
             }
@@ -810,9 +864,11 @@ public class SQLBuilder {
                 switch (optype) {
                     case STRING: return "'" + val + "'";
                     case VALUE:  return "'" + val + "'";
+                    case URI:    return "'" + val + "'";
                     case INT:    return ""  + Integer.parseInt(val);
                     case DOUBLE: return ""  + Double.parseDouble(val);
                     case DATE:   return "'" + sqlDateFormat.format(DateUtils.parseDate(val)) + "'";
+                    case ANY:    return "'" + val + "'";
                     default: throw new IllegalArgumentException("unsupported value type: " + optype);
                 }
             }
@@ -838,7 +894,7 @@ public class SQLBuilder {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.DATE);
             }
 
-            URI fnUri = new URIImpl(fc.getURI());
+            URI fnUri = FunctionUtil.getFunctionUri(fc.getURI());;
 
             String[] args = new String[fc.getArgs().size()];
 
@@ -928,7 +984,7 @@ public class SQLBuilder {
 
     private boolean hasNodeCondition(Var v, ValueExpr expr) {
         if(expr instanceof Var) {
-            return v.equals(expr);
+            return v.getName().equals(((Var) expr).getName());
         } else if(expr instanceof UnaryValueOperator) {
             return hasNodeCondition(v, ((UnaryValueOperator) expr).getArg());
         } else if(expr instanceof BinaryValueOperator) {
@@ -1045,6 +1101,58 @@ public class SQLBuilder {
     }
 
 
+    private ProjectionType getProjectionType(ValueExpr expr) {
+        if(expr instanceof FunctionCall) {
+            return opTypeToProjection(functionReturnTypes.get(FunctionUtil.getFunctionUri(((FunctionCall) expr).getURI())));
+        } else if(expr instanceof NAryValueOperator) {
+            return getProjectionType(((NAryValueOperator) expr).getArguments().get(0));
+        } else if(expr instanceof ValueConstant) {
+            if (((ValueConstant) expr).getValue() instanceof URI) {
+                return ProjectionType.URI;
+            } else if (((ValueConstant) expr).getValue() instanceof Literal) {
+                Literal l = (Literal) ((ValueConstant) expr).getValue();
+                if (XSD.Integer.equals(l.getDatatype()) || XSD.Int.equals(l.getDatatype())) {
+                    return ProjectionType.INT;
+                } else if (XSD.Double.equals(l.getDatatype()) || XSD.Float.equals(l.getDatatype())) {
+                    return ProjectionType.DOUBLE;
+                } else {
+                    return ProjectionType.STRING;
+                }
+
+            } else {
+                return ProjectionType.STRING;
+            }
+        } else if(expr instanceof Var) {
+            return ProjectionType.NODE;
+        } else if(expr instanceof MathExpr) {
+            MathExpr cmp = (MathExpr)expr;
+
+            return opTypeToProjection(new OPTypeFinder(cmp).coerce());
+        } else {
+            return ProjectionType.STRING;
+        }
+
+    }
+
+    private ProjectionType opTypeToProjection(OPTypes t) {
+        switch (t) {
+            case ANY:
+                return ProjectionType.NODE;
+            case URI:
+                return ProjectionType.URI;
+            case DOUBLE:
+                return ProjectionType.DOUBLE;
+            case INT:
+                return ProjectionType.INT;
+            case DATE:
+                return ProjectionType.DATE;
+            case STRING:
+                return ProjectionType.STRING;
+            default:
+                log.warn("optype {} cannot be projected!",t);
+                return ProjectionType.STRING;
+        }
+    }
 
     /**
      * Construct the SQL query for the given SPARQL query part.

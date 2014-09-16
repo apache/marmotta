@@ -66,6 +66,17 @@ public class PostgreSQLDialect extends KiWiDialect {
 
         supportedFunctions.put(FN_MARMOTTA.SEARCH_FULLTEXT);
         supportedFunctions.put(FN_MARMOTTA.QUERY_FULLTEXT);
+
+        supportedFunctions.put(FN_MARMOTTA.NOW);
+
+        supportedFunctions.put(FN_MARMOTTA.RAND);
+        supportedFunctions.put(FN_MARMOTTA.UUID);
+        supportedFunctions.put(FN_MARMOTTA.STRUUID);
+        supportedFunctions.put(FN_MARMOTTA.MD5);
+        supportedFunctions.put(FN_MARMOTTA.SHA1);
+        supportedFunctions.put(FN_MARMOTTA.SHA256);
+        supportedFunctions.put(FN_MARMOTTA.SHA384);
+        supportedFunctions.put(FN_MARMOTTA.SHA512);
     }
 
     /**
@@ -245,6 +256,60 @@ public class PostgreSQLDialect extends KiWiDialect {
                 return String.format("(to_tsvector(kiwi_ft_lang(%3$s) :: regconfig, %1$s) @@ to_tsquery(kiwi_ft_lang(%3$s) :: regconfig, %2$s))", args[0], args[1], args[2]);
             } else {
                 throw new IllegalArgumentException("invalid number of arguments");
+            }
+        } else if(FN_MARMOTTA.NOW.equals(fnUri)) {
+            if(args.length == 0) {
+                return "now()";
+            } else {
+                throw new IllegalArgumentException("NOW() does not take arguments");
+            }
+        } else if(FN_MARMOTTA.RAND.equals(fnUri)) {
+            if(args.length == 0) {
+                return "random()";
+            } else {
+                throw new IllegalArgumentException("RAND() does not take arguments");
+            }
+        } else if(FN_MARMOTTA.UUID.equals(fnUri)) {
+            if(args.length == 0) {
+                return "'urn:uuid:' || gen_random_uuid()";
+            } else {
+                throw new IllegalArgumentException("UUID() does not take arguments");
+            }
+        } else if(FN_MARMOTTA.STRUUID.equals(fnUri)) {
+            if(args.length == 0) {
+                return "CAST(gen_random_uuid() AS text)";
+            } else {
+                throw new IllegalArgumentException("STRUUID() does not take arguments");
+            }
+        } else if(FN_MARMOTTA.MD5.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("encode(digest('%s', 'md5'), 'hex')", args[0]);
+            } else {
+                throw new IllegalArgumentException("MD5() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.SHA1.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("encode(digest('%s', 'sha1'), 'hex')", args[0]);
+            } else {
+                throw new IllegalArgumentException("SHA1() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.SHA256.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("encode(digest('%s', 'sha256'), 'hex')", args[0]);
+            } else {
+                throw new IllegalArgumentException("SHA256() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.SHA384.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("encode(digest('%s', 'sha384'), 'hex')", args[0]);
+            } else {
+                throw new IllegalArgumentException("SHA384() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.SHA512.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("encode(digest('%s', 'sha512'), 'hex')", args[0]);
+            } else {
+                throw new IllegalArgumentException("SHA512() takes exactly 1 argument");
             }
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");
