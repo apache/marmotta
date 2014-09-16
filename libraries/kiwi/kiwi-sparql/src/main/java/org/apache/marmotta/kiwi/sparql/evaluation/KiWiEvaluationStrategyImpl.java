@@ -354,6 +354,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Min) expr).getArg());
         } else if(expr instanceof Max) {
             return isSupported(((Max) expr).getArg());
+        } else if(expr instanceof Sum) {
+            return isSupported(((Sum) expr).getArg());
         } else if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
         } else if(expr instanceof MathExpr) {

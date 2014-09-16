@@ -68,6 +68,11 @@ public class FN_MARMOTTA {
     public static final URI SHA512;
 
 
+    // statistics functions (supported by e.g. PostgreSQL)
+    public static final URI STDDEV;
+    public static final URI VARIANCE;
+
+
     static {
         ValueFactory f = new ValueFactoryImpl();
 
@@ -91,5 +96,8 @@ public class FN_MARMOTTA {
         SHA256    = f.createURI(NAMESPACE,"sha256");
         SHA384    = f.createURI(NAMESPACE,"sha384");
         SHA512    = f.createURI(NAMESPACE,"sha512");
+
+        STDDEV    = f.createURI(NAMESPACE,"stddev");
+        VARIANCE  = f.createURI(NAMESPACE,"variance");
     }
 }

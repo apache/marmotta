@@ -83,6 +83,9 @@ public class PostgreSQLDialect extends KiWiDialect {
         supportedFunctions.put(FN_MARMOTTA.SHA256);
         supportedFunctions.put(FN_MARMOTTA.SHA384);
         supportedFunctions.put(FN_MARMOTTA.SHA512);
+
+        supportedFunctions.put(FN_MARMOTTA.STDDEV);
+        supportedFunctions.put(FN_MARMOTTA.VARIANCE);
     }
 
     /**
@@ -362,6 +365,18 @@ public class PostgreSQLDialect extends KiWiDialect {
                 return String.format("extract(second from %s)", args[0]);
             } else {
                 throw new IllegalArgumentException("SECONDS() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.STDDEV.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("stddev(%s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("STDDEV() takes exactly 1 argument");
+            }
+        } else if(FN_MARMOTTA.VARIANCE.equals(fnUri)) {
+            if(args.length == 1) {
+                return String.format("variance(%s)", args[0]);
+            } else {
+                throw new IllegalArgumentException("VARIANCE() takes exactly 1 argument");
             }
         }
         throw new UnsupportedOperationException("operation "+fnUri+" not supported");

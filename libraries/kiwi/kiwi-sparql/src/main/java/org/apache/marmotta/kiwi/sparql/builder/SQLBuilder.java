@@ -100,6 +100,8 @@ public class SQLBuilder {
         functionParameterTypes.put(FN_MARMOTTA.SHA384, OPTypes.STRING);
         functionParameterTypes.put(FN_MARMOTTA.SHA512, OPTypes.STRING);
 
+        functionParameterTypes.put(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE);
+        functionParameterTypes.put(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE);
     }
 
     /**
@@ -142,6 +144,9 @@ public class SQLBuilder {
         functionReturnTypes.put(FN_MARMOTTA.SHA256, OPTypes.STRING);
         functionReturnTypes.put(FN_MARMOTTA.SHA384, OPTypes.STRING);
         functionReturnTypes.put(FN_MARMOTTA.SHA512, OPTypes.STRING);
+
+        functionReturnTypes.put(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE);
+        functionReturnTypes.put(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE);
     }
 
 
@@ -966,6 +971,8 @@ public class SQLBuilder {
             return "MIN(" + evaluateExpression(((Min) expr).getArg(), OPTypes.DOUBLE) + ")";
         } else if(expr instanceof Max) {
             return "MAX(" + evaluateExpression(((Max) expr).getArg(), OPTypes.DOUBLE) + ")";
+        } else if(expr instanceof Sum) {
+            return "SUM(" + evaluateExpression(((Max) expr).getArg(), OPTypes.DOUBLE) + ")";
         } else if(expr instanceof FunctionCall) {
             FunctionCall fc = (FunctionCall)expr;
 
