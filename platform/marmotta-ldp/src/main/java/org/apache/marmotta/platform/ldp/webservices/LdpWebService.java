@@ -26,6 +26,7 @@ import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.SesameStartupEvent;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.api.Preference;
 import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
@@ -81,6 +82,8 @@ public class LdpWebService {
     static final String HTTP_HEADER_SLUG = "Slug";
     static final String HTTP_HEADER_ACCEPT_POST = "Accept-Post";
     static final String HTTP_HEADER_ACCEPT_PATCH = "Accept-Patch";
+    static final String HTTP_HEADER_PREFER = "Prefer";
+    static final String HTTP_HEADER_PREFERENCE_APPLIED = "Preference-Applied";
     static final String HTTP_METHOD_PATCH = "PATCH";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
@@ -149,24 +152,26 @@ public class LdpWebService {
     }
 
     @GET
-    public Response GET(@Context final UriInfo uriInfo, @Context Request r,
-                        @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) String type)
+    public Response GET(@Context final UriInfo uriInfo,
+                        @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) String type,
+                        @HeaderParam(HTTP_HEADER_PREFER) PreferHeader preferHeader)
             throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("GET to LDPR <{}>", resource);
-        return buildGetResponse(resource, r, MarmottaHttpUtils.parseAcceptHeader(type)).build();
+        return buildGetResponse(resource, MarmottaHttpUtils.parseAcceptHeader(type), preferHeader).build();
     }
 
     @HEAD
-    public Response HEAD(@Context final UriInfo uriInfo, @Context Request r,
-                         @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) String type)
+    public Response HEAD(@Context final UriInfo uriInfo,
+                         @HeaderParam(HttpHeaders.ACCEPT) @DefaultValue(MediaType.WILDCARD) String type,
+                         @HeaderParam(HTTP_HEADER_PREFER) PreferHeader preferHeader)
             throws RepositoryException {
         final String resource = ldpService.getResourceUri(uriInfo);
         log.debug("HEAD to LDPR <{}>", resource);
-        return buildGetResponse(resource, r, MarmottaHttpUtils.parseAcceptHeader(type)).entity(null).build();
+        return buildGetResponse(resource, MarmottaHttpUtils.parseAcceptHeader(type), preferHeader).entity(null).build();
     }
 
-    private Response.ResponseBuilder buildGetResponse(final String resource, Request r, List<ContentType> acceptedContentTypes) throws RepositoryException {
+    private Response.ResponseBuilder buildGetResponse(final String resource, List<ContentType> acceptedContentTypes, PreferHeader preferHeader) throws RepositoryException {
         log.trace("LDPR requested media type {}", acceptedContentTypes);
         final RepositoryConnection conn = sesameService.getConnection();
         try {
@@ -198,7 +203,7 @@ public class LdpWebService {
                     if (MarmottaHttpUtils.bestContentType(MarmottaHttpUtils.parseAcceptHeader("*/*"), acceptedContentTypes) != null) {
                         log.trace("Unknown type of LDP-NR <{}> is compatible with wildcard - sending back LDP-NR without Content-Type", resource);
                         // Client will accept anything, send back LDP-NR
-                        final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource);
+                        final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource, preferHeader);
                         conn.commit();
                         return resp;
                     } else if (rdfContentType == null) {
@@ -210,7 +215,7 @@ public class LdpWebService {
                         return resp;
                     } else {
                         log.debug("Client is asking for a RDF-Serialisation of LDP-NS <{}>, sending meta-data", resource);
-                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE));
+                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE), preferHeader);
                         conn.commit();
                         return resp;
                     }
@@ -225,12 +230,12 @@ public class LdpWebService {
                         return resp;
                     } else {
                         log.debug("Client is asking for a RDF-Serialisation of LDP-NS <{}>, sending meta-data", resource);
-                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE));
+                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE), preferHeader);
                         conn.commit();
                         return resp;
                     }
                 } else {
-                    final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource);
+                    final Response.ResponseBuilder resp = buildGetResponseBinaryResource(conn, resource, preferHeader);
                     conn.commit();
                     return resp;
                 }
@@ -243,7 +248,7 @@ public class LdpWebService {
                     conn.commit();
                     return resp;
                 } else {
-                    final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(bestType.getMime(), RDFFormat.TURTLE));
+                    final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(bestType.getMime(), RDFFormat.TURTLE), preferHeader);
                     conn.commit();
                     return resp;
                 }
@@ -267,9 +272,10 @@ public class LdpWebService {
         return addOptionsHeader(connection, resource, response);
     }
 
-    private Response.ResponseBuilder buildGetResponseBinaryResource(RepositoryConnection connection, final String resource) throws RepositoryException {
+    private Response.ResponseBuilder buildGetResponseBinaryResource(RepositoryConnection connection, final String resource, PreferHeader preferHeader) throws RepositoryException {
         final String realType = ldpService.getMimeType(connection, resource);
         log.debug("Building response for LDP-NR <{}> with format {}", resource, realType);
+        final Preference preference = LdpUtils.parsePreferHeader(preferHeader);
         final StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream out) throws IOException, WebApplicationException {
@@ -291,12 +297,19 @@ public class LdpWebService {
             }
         };
         // Sec. 4.2.2.2
-        return addOptionsHeader(connection, resource, createResponse(connection, Response.Status.OK, resource).entity(entity).type(realType));
+        final Response.ResponseBuilder resp = addOptionsHeader(connection, resource, createResponse(connection, Response.Status.OK, resource).entity(entity).type(realType));
+        if (preferHeader != null) {
+            if (preference.isMinimal()) {
+                resp.status(Response.Status.NO_CONTENT).entity(null).header(HTTP_HEADER_PREFERENCE_APPLIED, PreferHeader.fromPrefer(preferHeader).parameters(null).build());
+            }
+        }
+        return resp;
     }
 
-    private Response.ResponseBuilder buildGetResponseSourceResource(RepositoryConnection conn, final String resource, final RDFFormat format) throws RepositoryException {
+    private Response.ResponseBuilder buildGetResponseSourceResource(RepositoryConnection conn, final String resource, final RDFFormat format, final PreferHeader preferHeader) throws RepositoryException {
         // Deliver all triples from the <subject> context.
         log.debug("Building response for LDP-RS <{}> with RDF format {}", resource, format.getDefaultMIMEType());
+        final Preference preference = LdpUtils.parsePreferHeader(preferHeader);
         final StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -304,7 +317,7 @@ public class LdpWebService {
                     final RepositoryConnection outputConn = sesameService.getConnection();
                     try {
                         outputConn.begin();
-                        ldpService.exportResource(outputConn, resource, output, format);
+                        ldpService.exportResource(outputConn, resource, output, format, preference);
                         outputConn.commit();
                     } catch (RDFHandlerException e) {
                         outputConn.rollback();
@@ -321,7 +334,14 @@ public class LdpWebService {
             }
         };
         // Sec. 4.2.2.2
-        return addOptionsHeader(conn, resource, createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType()));
+        final Response.ResponseBuilder resp = addOptionsHeader(conn, resource, createResponse(conn, Response.Status.OK, resource).entity(entity).type(format.getDefaultMIMEType()));
+        if (preference != null) {
+            if (preference.isMinimal()) {
+                resp.status(Response.Status.NO_CONTENT).entity(null);
+            }
+            resp.header(HTTP_HEADER_PREFERENCE_APPLIED, PreferHeader.fromPrefer(preferHeader).parameters(null).build());
+        }
+        return resp;
     }
 
     /**

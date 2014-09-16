@@ -21,6 +21,8 @@ import info.aduna.iteration.CloseableIteration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.platform.ldp.api.Preference;
+import org.apache.marmotta.platform.ldp.webservices.PreferHeader;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.openrdf.model.Statement;
@@ -36,12 +38,8 @@ import org.openrdf.rio.RDFWriter;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.MediaType;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -155,6 +153,37 @@ public class LdpUtils {
 
     public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
         return new URIImpl(resource.getNamespace());
+    }
+
+    /**
+     * Convert a PreferHeader into a LDP Preference.
+     * @param prefer the PreferHeader to parse
+     * @return the Preference
+     */
+    public static Preference parsePreferHeader(PreferHeader prefer) {
+        if (prefer == null) return null;
+        // we only support "return"-prefers
+        if (!PreferHeader.PREFERENCE_RETURN.equals(prefer.getPreference())) {
+            return null;
+        }
+        if (PreferHeader.RETURN_MINIMAL.equals(prefer.getPreferenceValue())) {
+            return Preference.minimalPreference();
+        }
+
+        if (PreferHeader.RETURN_REPRESENTATION.equals(prefer.getPreferenceValue())) {
+            final String include = prefer.getParamValue(PreferHeader.RETURN_PARAM_INCLUDE);
+            final String omit = prefer.getParamValue(PreferHeader.RETURN_PARAM_OMIT);
+            if (StringUtils.isNotBlank(include) && StringUtils.isBlank(omit)) {
+                return Preference.includePreference(include.split("\\s+"));
+            } else if (StringUtils.isNotBlank(omit) && StringUtils.isBlank(include)) {
+                return Preference.omitPreference(omit.split("\\s+"));
+            } else if (StringUtils.isBlank(include) && StringUtils.isBlank(omit)) {
+                return Preference.defaultPreference();
+            } else {
+                return null;
+            }
+        }
+        return null;
     }
 
     private LdpUtils() {

@@ -221,8 +221,25 @@ public class LDP {
      * written to automatically exclude those new classes of triples.
      *
      * @see <a href="http://www.w3.org/ns/ldp#PreferEmptyContainer">PreferEmptyContainer</a>
+     * @deprecated use {@link #PreferMinimalContainer} instead
      */
+    @Deprecated
     public static final URI PreferEmptyContainer;
+
+    /**
+     * PreferMinimalContainer
+     * <p>
+     * {@code http://www.w3.org/ns/ldp#PreferMinimalContainer}.
+     * <p>
+     * URI identifying the subset of a LDPC's triples present in an empty
+     * LDPC, for example to allow clients to express interest in receiving
+     * them. Currently this excludes containment and membership triples, but
+     * in the future other exclusions might be added. This definition is
+     * written to automatically exclude those new classes of triples.
+     *
+     * @see <a href="http://www.w3.org/ns/ldp#PreferMinimalContainer">PreferMinimalContainer</a>
+    */
+    public static final URI PreferMinimalContainer;
 
     /**
      * PreferMembership
@@ -278,6 +295,7 @@ public class LDP {
         PreferContainment = factory.createURI(LDP.NAMESPACE, "PreferContainment");
         PreferEmptyContainer = factory.createURI(LDP.NAMESPACE, "PreferEmptyContainer");
         PreferMembership = factory.createURI(LDP.NAMESPACE, "PreferMembership");
+        PreferMinimalContainer = factory.createURI(LDP.NAMESPACE, "PreferMinimalContainer");
         RDFSource = factory.createURI(LDP.NAMESPACE, "RDFSource");
         Resource = factory.createURI(LDP.NAMESPACE, "Resource");
     }

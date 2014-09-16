@@ -270,6 +270,10 @@ public interface LdpService {
 
     void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException;
 
+    void exportResource(RepositoryConnection outputConn, String resource, OutputStream output, RDFFormat format, Preference preference) throws RDFHandlerException, RepositoryException;
+
+    void exportResource(RepositoryConnection outputConn, URI resource, OutputStream output, RDFFormat format, Preference preference) throws RepositoryException, RDFHandlerException;
+
     void exportBinaryResource(RepositoryConnection connection, String resource, OutputStream out) throws RepositoryException, IOException;
 
     void exportBinaryResource(RepositoryConnection connection, URI resource, OutputStream out) throws RepositoryException, IOException;

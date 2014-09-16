@@ -17,15 +17,14 @@
  */
 package org.apache.marmotta.platform.ldp.services;
 
-import info.aduna.iteration.FilterIteration;
-import info.aduna.iteration.Iterations;
-import info.aduna.iteration.UnionIteration;
+import info.aduna.iteration.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
 import org.apache.marmotta.platform.ldp.api.LdpService;
+import org.apache.marmotta.platform.ldp.api.Preference;
 import org.apache.marmotta.platform.ldp.exceptions.IncompatibleResourceTypeException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidInteractionModelException;
 import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
@@ -252,17 +251,51 @@ public class LdpServiceImpl implements LdpService {
 
     @Override
     public void exportResource(RepositoryConnection connection, URI resource, OutputStream output, RDFFormat format) throws RepositoryException, RDFHandlerException {
+        exportResource(connection, resource, output, format, null);
+    }
+
+    @Override
+    public void exportResource(RepositoryConnection connection, String resource, OutputStream output, RDFFormat format, Preference preference) throws RDFHandlerException, RepositoryException {
+        exportResource(connection, buildURI(resource), output, format, preference);
+    }
+
+    @Override
+    public void exportResource(RepositoryConnection connection, final URI resource, OutputStream output, RDFFormat format, final Preference preference) throws RepositoryException, RDFHandlerException {
         // TODO: this should be a little more sophisticated...
         // TODO: non-membership triples flag / Prefer-header
-        RDFWriter writer = Rio.createWriter(format, output);
-        UnionIteration<Statement, RepositoryException> union = new UnionIteration<>(
-                connection.getStatements(resource, null, null, false, ldpContext),
-                connection.getStatements(null, null, null, false, resource)
-        );
+        final RDFWriter writer = Rio.createWriter(format, output);
+        final CloseableIteration<Statement, RepositoryException> contentStatements;
+        if (preference == null || preference.includeContent()) {
+            contentStatements = connection.getStatements(null, null, null, false, resource);
+        } else {
+            contentStatements = new EmptyIteration<>();
+        }
         try {
-            LdpUtils.exportIteration(writer, resource, union);
+            CloseableIteration<Statement, RepositoryException> ldpStatements = connection.getStatements(resource, null, null, false, ldpContext);
+            if (preference != null) {
+                // FIXME: Get the membership predicate from the container. See http://www.w3.org/TR/ldp/#h5_ldpdc-containtriples
+                final URI membershipPred = null;
+                ldpStatements = new FilterIteration<Statement, RepositoryException>(ldpStatements) {
+                    @Override
+                    protected boolean accept(Statement stmt) throws RepositoryException {
+                        final URI p = stmt.getPredicate();
+                        final Resource s = stmt.getSubject();
+                        final Value o = stmt.getObject();
+
+
+                        if (p.equals(LDP.contains)) return preference.includeContainment();
+                        if (p.equals(membershipPred)) return preference.includeMembership();
+
+                        return preference.includeMinimalContainer();
+                    }
+                };
+            }
+            final CloseableIteration<Statement, RepositoryException> statements = new UnionIteration<>(
+                    ldpStatements, contentStatements
+            );
+            LdpUtils.exportIteration(writer, resource, statements);
         } finally {
-            union.close();
+            contentStatements.close();
         }
     }
 
