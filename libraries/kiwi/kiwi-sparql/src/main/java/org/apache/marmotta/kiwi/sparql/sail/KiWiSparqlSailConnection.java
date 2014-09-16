@@ -81,7 +81,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             new QueryJoinOptimizer(new KiWiEvaluationStatistics()).optimize(tupleExpr, dataset, bindings);
             new IterativeEvaluationOptimizer().optimize(tupleExpr, dataset, bindings);
             new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
-            new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
+            //new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
             new DistinctLimitOptimizer().optimize(tupleExpr, dataset, bindings);
 
             log.debug("evaluating SPARQL query:\n {}", tupleExpr);

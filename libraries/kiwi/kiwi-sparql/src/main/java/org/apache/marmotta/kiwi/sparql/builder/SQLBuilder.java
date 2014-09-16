@@ -123,6 +123,7 @@ public class SQLBuilder {
      */
     private long limit  = -1;
 
+    private List<OrderElem> orderby;
 
     /**
      * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
@@ -236,7 +237,7 @@ public class SQLBuilder {
     }
 
     private void prepareBuilder()  throws UnsatisfiableQueryException {
-        Preconditions.checkArgument(query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
+        Preconditions.checkArgument(query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
 
         // collect all patterns in a list, using depth-first search over the join
@@ -250,6 +251,9 @@ public class SQLBuilder {
 
         // check if query is distinct
         distinct = new DistinctFinder(query).distinct;
+
+        // find the ordering
+        orderby  = new OrderFinder(query).elements;
 
         // find all variables occurring in the patterns and create a map to map them to
         // field names in the database query; each variable will have one or several field names,
@@ -619,6 +623,21 @@ public class SQLBuilder {
         return whereClause.toString();
     }
 
+    private String buildOrderClause() {
+        StringBuilder orderClause = new StringBuilder();
+        if(orderby.size() > 0) {
+            orderClause.append("ORDER BY ");
+            for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
+                orderClause.append(evaluateExpression(it.next().getExpr(), OPTypes.VALUE));
+                if(it.hasNext()) {
+                    orderClause.append(", ");
+                }
+            }
+        }
+
+        return orderClause.toString();
+    }
+
 
     private String buildLimitClause() {
         // construct limit and offset
@@ -752,6 +771,7 @@ public class SQLBuilder {
                     case INT:    return var + ".ivalue";
                     case DOUBLE: return var + ".dvalue";
                     case DATE:   return var + ".tvalue";
+                    case VALUE:  return var + ".svalue";
                     case ANY:    return var + ".id";
                 }
             }
@@ -763,6 +783,7 @@ public class SQLBuilder {
             } else {
                 switch (optype) {
                     case STRING: return "'" + val + "'";
+                    case VALUE:  return "'" + val + "'";
                     case INT:    return ""  + Integer.parseInt(val);
                     case DOUBLE: return ""  + Double.parseDouble(val);
                     case DATE:   return "'" + sqlDateFormat.format(DateUtils.parseDate(val)) + "'";
@@ -822,6 +843,8 @@ public class SQLBuilder {
                 return dialect.getFunction(XMLSchema.BOOLEAN, arg);
             case DATE:
                 return dialect.getFunction(XMLSchema.DATETIME, arg);
+            case VALUE:
+                return arg;
             case ANY:
                 return arg;
             default:
@@ -839,6 +862,20 @@ public class SQLBuilder {
     private boolean hasNodeCondition(Var v, TupleExpr expr) {
         if(expr instanceof Filter) {
             return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg()) || hasNodeCondition(v,  ((Filter) expr).getCondition());
+        } else if(expr instanceof Order) {
+            for(OrderElem elem : ((Order) expr).getElements()) {
+                if(hasNodeCondition(v, elem.getExpr())) {
+                    return true;
+                }
+            }
+            return hasNodeCondition(v,((Order) expr).getArg());
+        } else if(expr instanceof Group) {
+            for(GroupElem elem : ((Group) expr).getGroupElements()) {
+                if(hasNodeCondition(v, elem.getOperator())) {
+                    return true;
+                }
+            }
+            return hasNodeCondition(v,((Group) expr).getArg());
         } else if(expr instanceof UnaryTupleOperator) {
             return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg());
         } else if(expr instanceof BinaryTupleOperator) {
@@ -978,6 +1015,7 @@ public class SQLBuilder {
         String selectClause = buildSelectClause();
         String fromClause   = buildFromClause();
         String whereClause  = buildWhereClause();
+        String orderClause  = buildOrderClause();
         String limitClause  = buildLimitClause();
 
 
@@ -986,6 +1024,7 @@ public class SQLBuilder {
                 "SELECT " + selectClause + "\n " +
                         "FROM " + fromClause + "\n " +
                         "WHERE " + whereClause + "\n " +
+                        orderClause + "\n " +
                         limitClause;
 
         log.debug("original SPARQL syntax tree:\n {}", query);

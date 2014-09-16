@@ -78,7 +78,7 @@ public class KiWiSparqlConnection {
      * @param dataset
      * @return
      */
-    public CloseableIteration<BindingSet, SQLException> evaluateJoin(TupleExpr join, final BindingSet bindings, final Dataset dataset) throws SQLException, InterruptedException {
+    public CloseableIteration<BindingSet, SQLException> evaluateNative(TupleExpr join, final BindingSet bindings, final Dataset dataset) throws SQLException, InterruptedException {
 
         try {
             final SQLBuilder builder = new SQLBuilder(join, bindings, dataset, valueFactory, parent.getDialect());

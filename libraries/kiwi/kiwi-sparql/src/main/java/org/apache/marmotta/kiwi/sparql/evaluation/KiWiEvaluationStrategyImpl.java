@@ -68,6 +68,35 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Order order, BindingSet bindings) throws QueryEvaluationException {
+        if(Thread.currentThread().isInterrupted()) {
+            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
+        }
+
+        if(isSupported(order)) {
+            log.debug("applying KiWi ORDER optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(order, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e.getMessage());
+            }
+        } else {
+            return super.evaluate(order, bindings);
+        }
+    }
+
+
+    @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(LeftJoin join, BindingSet bindings) throws QueryEvaluationException {
         if(Thread.currentThread().isInterrupted()) {
             throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
@@ -77,7 +106,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi LEFTJOIN optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings, dataset)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(join, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -106,7 +135,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi JOIN optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings, dataset)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(join, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -130,7 +159,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi FILTER optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(join, bindings, dataset)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(join, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -154,7 +183,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi SLICE optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(slice, bindings, dataset)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(slice, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -178,7 +207,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi REDUCED optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(reduced, bindings, dataset)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(reduced, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -202,7 +231,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             log.debug("applying KiWi DISTINCT optimizations on SPARQL query ...");
 
             try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateJoin(distinct, bindings, dataset)) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(distinct, bindings, dataset)) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);
@@ -241,6 +270,20 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Reduced) expr).getArg());
         } else if(expr instanceof Distinct) {
             return isSupported(((Distinct) expr).getArg());
+        } else if(expr instanceof Order) {
+            for(OrderElem elem : ((Order) expr).getElements()) {
+                if(!isSupported(elem.getExpr())) {
+                    return false;
+                }
+            }
+            return isSupported(((Order) expr).getArg());
+        } else if(expr instanceof Group) {
+            for(GroupElem elem : ((Group) expr).getGroupElements()) {
+                if(!isSupported(elem.getOperator())) {
+                    return false;
+                }
+            }
+            return isSupported(((Group) expr).getArg());
         } else {
             return false;
         }

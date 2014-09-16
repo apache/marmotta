@@ -17,11 +17,29 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import org.openrdf.query.algebra.Order;
+import org.openrdf.query.algebra.OrderElem;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
-* Operand types for operations - used for implicit type coercion.
+* Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public enum OPTypes {
-    STRING, DOUBLE, INT, DATE, BOOL, VALUE, ANY
+public class OrderFinder extends QueryModelVisitorBase<RuntimeException> {
+
+    List<OrderElem> elements = new ArrayList<>();
+
+    public OrderFinder(TupleExpr expr) {
+        expr.visit(this);
+    }
+
+    @Override
+    public void meet(Order node) throws RuntimeException {
+        elements.addAll(node.getElements());
+    }
 }

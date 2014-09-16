@@ -264,6 +264,13 @@ public class KiWiSparqlJoinTest {
         testQuery("query21.sparql");
     }
 
+    // order by
+    @Test
+    public void testQuery24() throws Exception {
+        testQuery("query24.sparql");
+    }
+
+
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {
