@@ -281,7 +281,7 @@ public class SQLBuilder {
 
                         // select those variables that are really projected and not only needed in a grouping construct
                         if(new SQLProjectionFinder(query,sq_v.getSparqlName()).found) {
-                            sv.setProjectionType(ProjectionType.NODE);   // TODO: might need other types as well in case a value is created in children
+                            sv.setProjectionType(sq_v.getProjectionType());
                         }
 
                         addVariable(sv);

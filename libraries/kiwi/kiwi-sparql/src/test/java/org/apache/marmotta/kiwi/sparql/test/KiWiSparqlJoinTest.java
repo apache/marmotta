@@ -290,6 +290,13 @@ public class KiWiSparqlJoinTest {
         testQuery("query26.sparql");
     }
 
+    // union with bind
+    @Test
+    public void testQuery28() throws Exception {
+        testQuery("query28.sparql");
+    }
+
+
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {
@@ -382,7 +389,7 @@ public class KiWiSparqlJoinTest {
             Assert.assertTrue(result1.hasNext());
 
 
-            compareResults(result1,result2);
+            compareResults(result1, result2);
 
         } catch(RepositoryException ex) {
             con1.rollback();

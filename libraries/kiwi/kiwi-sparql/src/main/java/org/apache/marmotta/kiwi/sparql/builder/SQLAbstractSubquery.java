@@ -17,8 +17,6 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.ValueExpr;
-
 import java.util.Set;
 
 /**
@@ -44,10 +42,4 @@ public abstract class SQLAbstractSubquery extends SQLClause {
      */
     public abstract Set<SQLVariable> getQueryVariables();
 
-    /**
-     * Return the projection type of an expression in this subquery. Needed for propagation up to the parent.
-     * @param expr
-     * @return
-     */
-    protected abstract ProjectionType getProjectionType(ValueExpr expr);
 }

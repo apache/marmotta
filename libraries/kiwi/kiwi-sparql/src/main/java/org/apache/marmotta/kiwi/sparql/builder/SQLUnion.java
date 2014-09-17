@@ -22,7 +22,6 @@ import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.Union;
-import org.openrdf.query.algebra.ValueExpr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,20 +125,6 @@ public class SQLUnion extends SQLAbstractSubquery {
     }
 
 
-    /**
-     * Return the projection type of an expression in this subquery. Needed for propagation up to the parent.
-     *
-     * @param expr
-     * @return
-     */
-    @Override
-    protected ProjectionType getProjectionType(ValueExpr expr) {
-        ProjectionType r = left.getProjectionType(expr);
-        if(r == ProjectionType.STRING) {
-            r = right.getProjectionType(expr);
-        }
-        return r;
-    }
 }
 
 

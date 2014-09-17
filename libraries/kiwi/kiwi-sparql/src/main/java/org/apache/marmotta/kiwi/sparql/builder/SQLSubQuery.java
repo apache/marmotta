@@ -22,7 +22,6 @@ import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.SubQueryValueOperator;
-import org.openrdf.query.algebra.ValueExpr;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -78,14 +77,4 @@ public class SQLSubQuery extends SQLAbstractSubquery {
         return fromClause.toString();
     }
 
-    /**
-     * Return the projection type of an expression in this subquery. Needed for propagation up to the parent.
-     *
-     * @param expr
-     * @return
-     */
-    @Override
-    protected ProjectionType getProjectionType(ValueExpr expr) {
-        return builder.getProjectionType(expr);
-    }
 }
