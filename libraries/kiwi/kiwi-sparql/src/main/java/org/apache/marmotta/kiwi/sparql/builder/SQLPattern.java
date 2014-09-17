@@ -21,7 +21,9 @@ import org.openrdf.model.Resource;
 import org.openrdf.query.algebra.StatementPattern;
 import org.openrdf.query.algebra.Var;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A statement pattern translated to SQL consists of a named reference to the triple table, an indicator giving the
@@ -29,7 +31,7 @@ import java.util.*;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class SQLPattern {
+public class SQLPattern extends SQLClause {
 
 
     /**
@@ -66,11 +68,6 @@ public class SQLPattern {
     private EnumMap<TripleColumns, Var> tripleFields = new EnumMap<>(TripleColumns.class);
 
     /**
-     * SQL conditions defined on this pattern; may only refer to previous or the current statement.
-     */
-    private List<String> conditions;
-
-    /**
      * Maps triple patterns from SPARQL WHERE to SQL aliases for the TRIPLES table in the FROM part. Used
      * to join one instance of the triples table for each triple pattern occurring in the query.
      */
@@ -87,8 +84,8 @@ public class SQLPattern {
     private List<Resource> variableContexts;
 
     public SQLPattern(String name, StatementPattern sparqlPattern) {
+        super();
         this.name = name;
-        this.conditions = new ArrayList<>();
         this.conditions.add(name + ".deleted = false");
         this.sparqlPattern = sparqlPattern;
 
@@ -114,6 +111,17 @@ public class SQLPattern {
      */
     public boolean hasJoinFields() {
         return joinFields.size() > 0;
+    }
+
+
+    /**
+     * Return true if the FROM clause requires parenthesis before
+     *
+     * @return
+     */
+    @Override
+    public boolean needsParentheses() {
+        return hasJoinFields();
     }
 
     public Var[] getFields() {
@@ -165,29 +173,6 @@ public class SQLPattern {
         return fromClause.toString();
     }
 
-    /**
-     * Build the condition clause for this statement to be used in the WHERE part or the ON part of a JOIN.
-     * @return
-     */
-    public String buildConditionClause() {
-        // the onClause consists of the filter conditions from the statement for joining/left joining with
-        // previous statements
-        StringBuilder onClause = new StringBuilder();
-
-        for(Iterator<String> cit = conditions.iterator(); cit.hasNext(); ) {
-            if(onClause.length() > 0) {
-                onClause.append("\n      AND ");
-            }
-            onClause.append(cit.next());
-        }
-
-        return onClause.toString();
-    }
-
-
-    public List<String> getConditions() {
-        return conditions;
-    }
 
     public String getName() {
         return name;

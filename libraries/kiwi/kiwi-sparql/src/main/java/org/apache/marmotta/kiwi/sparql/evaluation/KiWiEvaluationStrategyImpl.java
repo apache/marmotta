@@ -68,6 +68,34 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Union union, BindingSet bindings) throws QueryEvaluationException {
+        if(Thread.currentThread().isInterrupted()) {
+            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
+        }
+
+        if(isSupported(union)) {
+            log.debug("applying KiWi UNION optimizations on SPARQL query ...");
+
+            try {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(union, bindings, dataset)) {
+                    @Override
+                    protected QueryEvaluationException convert(Exception e) {
+                        return new QueryEvaluationException(e);
+                    }
+                };
+            } catch (SQLException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (IllegalArgumentException e) {
+                throw new QueryEvaluationException(e.getMessage(),e);
+            } catch (InterruptedException e) {
+                throw new QueryInterruptedException(e.getMessage());
+            }
+        } else {
+            return super.evaluate(union, bindings);
+        }
+    }
+
+    @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Extension order, BindingSet bindings) throws QueryEvaluationException {
         if(Thread.currentThread().isInterrupted()) {
             throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
@@ -306,6 +334,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Reduced) expr).getArg());
         } else if(expr instanceof Distinct) {
             return isSupported(((Distinct) expr).getArg());
+        } else if(expr instanceof Union) {
+            return isSupported(((Union) expr).getLeftArg()) && isSupported(((Union)expr).getRightArg());
         } else if(expr instanceof Order) {
             for(OrderElem elem : ((Order) expr).getElements()) {
                 if(!isSupported(elem.getExpr())) {

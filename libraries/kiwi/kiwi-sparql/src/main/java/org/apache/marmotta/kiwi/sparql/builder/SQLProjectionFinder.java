@@ -39,18 +39,18 @@ public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException>
 
     List<ExtensionElem> elements = new ArrayList<>();
 
-    Var needle;
+    String needle;
 
     boolean found = false;
 
-    public SQLProjectionFinder(TupleExpr expr, Var needle) {
+    public SQLProjectionFinder(TupleExpr expr, String needle) {
         this.needle = needle;
         expr.visit(this);
     }
 
     @Override
     public void meet(ExtensionElem node) throws RuntimeException {
-        if(node.getName().equals(needle.getName())) {
+        if(node.getName().equals(needle)) {
             found = true;
         }
         // don't recurse to the children, as this would project non-grouped elements
@@ -59,7 +59,7 @@ public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException>
     @Override
     public void meet(Group node) throws RuntimeException {
         for(String g : node.getGroupBindingNames()) {
-            if(g.equals(needle.getName())) {
+            if(g.equals(needle)) {
                 found = true;
             }
         }
@@ -68,7 +68,7 @@ public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException>
 
     @Override
     public void meet(Var node) throws RuntimeException {
-        if(node.equals(needle)) {
+        if(node.getName().equals(needle)) {
             found = true;
         }
     }

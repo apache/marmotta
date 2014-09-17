@@ -17,9 +17,9 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Var;
-
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class SQLVariable {
+public class SQLVariable  {
 
     /**
      * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
@@ -36,7 +36,7 @@ public class SQLVariable {
      */
     private String name;
 
-    private Var sparqlVariable;
+    private String sparqlName;
 
     /**
      * A map for mapping SPARQL variables to field names; each variable might have one or more field names,
@@ -59,9 +59,9 @@ public class SQLVariable {
      */
     private ProjectionType projectionType = ProjectionType.NONE;
 
-    public SQLVariable(String name, Var sparqlVariable) {
+    public SQLVariable(String name, String sparqlName) {
         this.name = name;
-        this.sparqlVariable = sparqlVariable;
+        this.sparqlName = sparqlName;
 
         this.aliases = new ArrayList<>();
         this.expressions = new ArrayList<>();
@@ -71,8 +71,8 @@ public class SQLVariable {
         return name;
     }
 
-    public Var getSparqlVariable() {
-        return sparqlVariable;
+    public String getSparqlName() {
+        return sparqlName;
     }
 
     public List<String> getAliases() {
@@ -100,13 +100,45 @@ public class SQLVariable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SQLVariable that = (SQLVariable) o;
+
+        if (!sparqlName.equals(that.sparqlName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return sparqlName.hashCode();
+    }
+
+    @Override
     public String toString() {
         return "Variable{" +
                 "SQL name='" + name + '\'' +
-                ", SPARQL name=" + sparqlVariable.getName() +
+                ", SPARQL name=" + sparqlName +
                 ", aliases=" + aliases +
                 ", expressions=" + expressions +
                 ", projectionType=" + projectionType +
                 '}';
     }
+
+
+    public static final Comparator<SQLVariable> sparqlNameComparator = new Comparator<SQLVariable>() {
+        @Override
+        public int compare(SQLVariable l, SQLVariable r) {
+            return Collator.getInstance().compare(l.getSparqlName(), r.getSparqlName());
+        }
+    };
+
+    public static final Comparator<SQLVariable> sqlNameComparator = new Comparator<SQLVariable>() {
+        @Override
+        public int compare(SQLVariable l, SQLVariable r) {
+            return Collator.getInstance().compare(l.getName(), r.getName());
+        }
+    };
 }

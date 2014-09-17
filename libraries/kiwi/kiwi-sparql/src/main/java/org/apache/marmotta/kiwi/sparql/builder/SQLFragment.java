@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import com.google.common.collect.Iterators;
 import org.openrdf.query.algebra.ValueExpr;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.List;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class SQLFragment {
+public class SQLFragment extends SQLClause {
 
     /**
      * Indicate where the fragment's conditions should be placed (ON part of the JOIN clause or WHERE part of the query).
@@ -46,30 +47,30 @@ public class SQLFragment {
      */
     private List<SQLPattern> patterns;
 
-    private List<String> conditions;
+    private List<SQLAbstractSubquery> subqueries;
 
     private List<ValueExpr> filters;
 
     private ConditionPosition conditionPosition = ConditionPosition.JOIN;
 
     public SQLFragment() {
+        super();
         this.patterns   = new ArrayList<>();
-        this.conditions = new ArrayList<>();
         this.filters    = new ArrayList<>();
+        this.subqueries = new ArrayList<>();
     }
 
     public List<SQLPattern> getPatterns() {
         return patterns;
     }
 
-    public List<String> getConditions() {
-        return conditions;
-    }
-
     public List<ValueExpr> getFilters() {
         return filters;
     }
 
+    public List<SQLAbstractSubquery> getSubqueries() {
+        return subqueries;
+    }
 
     /**
      * Indicate where the fragment's conditions should be placed (ON part of the JOIN clause or WHERE part of the query).
@@ -91,9 +92,9 @@ public class SQLFragment {
     public String buildFromClause() {
         StringBuilder fromClause = new StringBuilder();
 
-        for (Iterator<SQLPattern> it = patterns.iterator(); it.hasNext(); ) {
+        for (Iterator<SQLClause> it = Iterators.concat(patterns.iterator(), subqueries.iterator()); it.hasNext(); ) {
 
-            SQLPattern p = it.next();
+            SQLClause p = it.next();
 
 
             StringBuilder conditionClause = new StringBuilder();
@@ -120,10 +121,10 @@ public class SQLFragment {
             // when the pattern builds a join with the nodes table and we have fragment-wide conditions, we need to
             // wrap the pattern's from clause in parentheses
             if(conditionClause.length() > 0) {
-                if(p.hasJoinFields())
+                if(p.needsParentheses())
                     fromClause.append("(");
                 fromClause.append(p.buildFromClause());
-                if(p.hasJoinFields())
+                if(p.needsParentheses())
                     fromClause.append(")");
                 fromClause.append(" ON (");
                 fromClause.append(conditionClause);
@@ -154,8 +155,8 @@ public class SQLFragment {
         StringBuilder conditionClause = new StringBuilder();
 
         if(conditionPosition == ConditionPosition.WHERE) {
-            for (Iterator<SQLPattern> it = patterns.iterator(); it.hasNext(); ) {
-                SQLPattern p = it.next();
+            for (Iterator<SQLClause> it = Iterators.concat(patterns.iterator(), subqueries.iterator()); it.hasNext(); ) {
+                SQLClause p = it.next();
 
                 // in case we add the condition to the JOIN, build first the conditions for the pattern; otherwise, the
                 // conditions for the pattern will be added to the WHERE clause

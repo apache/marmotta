@@ -133,26 +133,26 @@ public class KiWiSparqlConnection {
                             SQLVariable sv = vars.get(i);
                             if(nodes[i] != null) {
                                 // resolved node
-                                resultRow.addBinding(sv.getSparqlVariable().getName(), nodes[i]);
+                                resultRow.addBinding(sv.getSparqlName(), nodes[i]);
                             } else if(sv.getProjectionType() != ProjectionType.NONE) {
                                 // literal value
                                 String value = row.getString(sv.getName());
                                 if(value != null) {
                                     switch (sv.getProjectionType()) {
                                         case URI:
-                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new URIImpl(value));
+                                            resultRow.addBinding(sv.getSparqlName(), new URIImpl(value));
                                             break;
                                         case INT:
-                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value, XSD.Integer));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value, XSD.Integer));
                                             break;
                                         case DOUBLE:
-                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value, XSD.Double));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value, XSD.Double));
                                             break;
                                         case STRING:
-                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value));
                                             break;
                                         default:
-                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value));
                                             break;
                                     }
                                 }

@@ -15,19 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.exception;
+package org.apache.marmotta.kiwi.sparql.builder;
+
+import org.openrdf.query.algebra.ValueExpr;
+
+import java.util.Set;
 
 /**
- * Thrown in case a query cannot be satisfied (e.g. because a requested node value does not exist in the database).
+ * Common fields and methods for all subqueries.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class UnsatisfiableQueryException extends RuntimeException {
+public abstract class SQLAbstractSubquery extends SQLClause {
 
-    public UnsatisfiableQueryException() {
+    protected String alias;
+
+    public SQLAbstractSubquery(String alias) {
+        this.alias = alias;
     }
 
-    public UnsatisfiableQueryException(String message) {
-        super(message);
+    public String getAlias() {
+        return alias;
     }
+
+    /**
+     * Return the SQL variables used by the subquery; we need this to do proper mapping in the parent query.
+     * @return
+     */
+    public abstract Set<SQLVariable> getQueryVariables();
+
+    /**
+     * Return the projection type of an expression in this subquery. Needed for propagation up to the parent.
+     * @param expr
+     * @return
+     */
+    protected abstract ProjectionType getProjectionType(ValueExpr expr);
 }

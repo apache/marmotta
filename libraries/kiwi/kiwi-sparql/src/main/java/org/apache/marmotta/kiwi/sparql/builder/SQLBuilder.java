@@ -145,8 +145,8 @@ public class SQLBuilder {
      * and what internal aliases to use.
      */
     private Map<String,SQLVariable> variables = new HashMap<>();
-    private void addVariable(SQLVariable v) {
-        variables.put(v.getSparqlVariable().getName(),v);
+    protected void addVariable(SQLVariable v) {
+        variables.put(v.getSparqlName(),v);
     }
 
 
@@ -204,11 +204,11 @@ public class SQLBuilder {
     }
 
     private void prepareBuilder()  throws UnsatisfiableQueryException {
-        Preconditions.checkArgument(query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
+        Preconditions.checkArgument(query instanceof Union || query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
 
         // collect all patterns in a list, using depth-first search over the join
-        PatternCollector pc = new PatternCollector(query);
+        PatternCollector pc = new PatternCollector(query, bindings, dataset, converter, dialect);
 
         fragments = pc.parts;
 
@@ -243,11 +243,11 @@ public class SQLBuilder {
                         Var v = fields[i];
 
                         SQLVariable sv = variables.get(v.getName());
-                        if(!variables.containsKey(v.getName())) {
-                            sv = new SQLVariable("V" + (++variableCount), v);
+                        if(sv == null) {
+                            sv = new SQLVariable("V" + (++variableCount), v.getName());
 
                             // select those variables that are really projected and not only needed in a grouping construct
-                            if(new SQLProjectionFinder(query,v).found) {
+                            if(new SQLProjectionFinder(query,v.getName()).found) {
                                 sv.setProjectionType(ProjectionType.NODE);
                             }
 
@@ -257,7 +257,7 @@ public class SQLBuilder {
                         String pName = p.getName();
                         String vName = sv.getName();
 
-                        if (hasNodeCondition(fields[i], query)) {
+                        if (hasNodeCondition(v.getName(), query)) {
                             sv.getAliases().add(pName + "_" + positions[i] + "_" + vName);
                         }
 
@@ -270,6 +270,39 @@ public class SQLBuilder {
                     }
                 }
             }
+
+            // subqueries: look up which variables are bound in the subqueries and add proper aliases
+            for(SQLAbstractSubquery sq : f.getSubqueries()) {
+                for(SQLVariable sq_v : sq.getQueryVariables()) {
+                    SQLVariable sv = variables.get(sq_v.getSparqlName());
+
+                    if(sv == null) {
+                        sv = new SQLVariable("V" + (++variableCount), sq_v.getSparqlName());
+
+                        // select those variables that are really projected and not only needed in a grouping construct
+                        if(new SQLProjectionFinder(query,sq_v.getSparqlName()).found) {
+                            sv.setProjectionType(ProjectionType.NODE);   // TODO: might need other types as well in case a value is created in children
+                        }
+
+                        addVariable(sv);
+                    }
+
+                    String sqName = sq.getAlias();
+                    String vName = sv.getName();
+
+                    if (hasNodeCondition(sq_v.getSparqlName(), query)) {
+                        sv.getAliases().add(sqName + "_" + vName);
+                    }
+
+                    // if the variable has been used before, add a join condition to the first occurrence
+                    if(sv.getExpressions().size() > 0) {
+                        sq.getConditions().add(sv.getExpressions().get(0) + " = " + sqName + "." + sq_v.getName());
+                    }
+
+                    sv.getExpressions().add(sqName + "." + sq_v.getName());
+
+                }
+            }
         }
 
 
@@ -280,17 +313,17 @@ public class SQLBuilder {
 
             SQLVariable sv = variables.get(v.getName());
             if(!variables.containsKey(v.getName())) {
-                sv = new SQLVariable("V" + (++variableCount), v);
+                sv = new SQLVariable("V" + (++variableCount), v.getName());
 
                 // select those variables that are really projected and not only needed in a grouping construct
-                if(new SQLProjectionFinder(query,v).found) {
+                if(new SQLProjectionFinder(query,v.getName()).found) {
                     sv.setProjectionType(getProjectionType(ext.getExpr()));
                 }
 
                 addVariable(sv);
             }
 
-            if (hasNodeCondition(v, query)) {
+            if (hasNodeCondition(v.getName(), query)) {
                 sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
             }
             sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
@@ -460,19 +493,31 @@ public class SQLBuilder {
 
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
-                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && hasNodeCondition(fieldEntry.getValue(),query)) {
+                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && hasNodeCondition(fieldEntry.getValue().getName(),query)) {
                         p.setJoinField(fieldEntry.getKey(), variables.get(fieldEntry.getValue().getName()).getName());
                     }
                 }
             }
-        }
 
+            for(SQLAbstractSubquery sq : f.getSubqueries()) {
+                for(SQLVariable sq_v : sq.getQueryVariables()) {
+                    if(hasNodeCondition(sq_v.getSparqlName(),query)) {
+                        // TODO: this is needed in case we need to JOIN with the NODES table to retrieve values
+                    }
+                }
+            }
+        }
     }
 
 
     private String buildSelectClause() {
         List<String> projections = new ArrayList<>();
-        for(SQLVariable v : variables.values()) {
+
+        // enforce order in SELECT part, we need this for merging UNION subqueries
+        List<SQLVariable> vars = new ArrayList<>(variables.values());
+        Collections.sort(vars, SQLVariable.sparqlNameComparator);
+
+        for(SQLVariable v : vars) {
             if(v.getProjectionType() != ProjectionType.NONE) {
                 String projectedName = v.getName();
                 String fromName = v.getExpressions().get(0);
@@ -515,7 +560,7 @@ public class SQLBuilder {
     }
 
 
-    private String buildWhereClause() throws UnsatisfiableQueryException {
+    private String buildWhereClause()  {
         // build the where clause as follows:
         // 1. iterate over all patterns and for each resource and literal field in subject,
         //    property, object, or context, and set a query condition according to the
@@ -547,7 +592,7 @@ public class SQLBuilder {
                     if(binding instanceof KiWiNode) {
                         whereConditions.add(vName+" = "+((KiWiNode)binding).getId());
                     } else {
-                        throw new UnsatisfiableQueryException("the values in this binding have not been created by the KiWi value factory");
+                        throw new IllegalStateException("the values in this binding have not been created by the KiWi value factory");
                     }
 
                 }
@@ -557,10 +602,13 @@ public class SQLBuilder {
         // construct the where clause
         StringBuilder whereClause = new StringBuilder();
         for(Iterator<String> it = whereConditions.iterator(); it.hasNext(); ) {
-            whereClause.append(it.next());
-            whereClause.append("\n ");
-            if(it.hasNext()) {
-                whereClause.append("AND ");
+            String condition = it.next();
+            if(condition.length() > 0) {
+                whereClause.append(condition);
+                whereClause.append("\n ");
+                if (it.hasNext()) {
+                    whereClause.append("AND ");
+                }
             }
         }
         return whereClause.toString();
@@ -569,7 +617,6 @@ public class SQLBuilder {
     private String buildOrderClause() {
         StringBuilder orderClause = new StringBuilder();
         if(orderby.size() > 0) {
-            orderClause.append("ORDER BY ");
             for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
                 OrderElem elem = it.next();
                 orderClause.append(evaluateExpression(elem.getExpr(), OPTypes.VALUE));
@@ -591,7 +638,6 @@ public class SQLBuilder {
     private String buildGroupClause() {
         StringBuilder groupClause = new StringBuilder();
         if(groupLabels.size() > 0) {
-            groupClause.append("GROUP BY ");
             for(Iterator<String> it = groupLabels.iterator(); it.hasNext(); ) {
                 SQLVariable sv = variables.get(it.next());
 
@@ -876,60 +922,60 @@ public class SQLBuilder {
     /**
      * Check if a variable selecting a node actually has any attached condition; if not return false. This is used to
      * decide whether joining with the node itself is necessary.
-     * @param v
+     * @param varName
      * @param expr
      * @return
      */
-    private boolean hasNodeCondition(Var v, TupleExpr expr) {
+    private boolean hasNodeCondition(String varName, TupleExpr expr) {
         if(expr instanceof Filter) {
-            return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg()) || hasNodeCondition(v,  ((Filter) expr).getCondition());
+            return hasNodeCondition(varName, ((UnaryTupleOperator) expr).getArg()) || hasNodeCondition(varName,  ((Filter) expr).getCondition());
         } else if(expr instanceof Extension) {
             for(ExtensionElem elem : ((Extension) expr).getElements()) {
-                if(hasNodeCondition(v, elem.getExpr())) {
+                if(hasNodeCondition(varName, elem.getExpr())) {
                     return true;
                 }
             }
-            return hasNodeCondition(v,((Extension) expr).getArg());
+            return hasNodeCondition(varName,((Extension) expr).getArg());
         } else if(expr instanceof Order) {
             for(OrderElem elem : ((Order) expr).getElements()) {
-                if(hasNodeCondition(v, elem.getExpr())) {
+                if(hasNodeCondition(varName, elem.getExpr())) {
                     return true;
                 }
             }
-            return hasNodeCondition(v,((Order) expr).getArg());
+            return hasNodeCondition(varName,((Order) expr).getArg());
         } else if(expr instanceof Group) {
             for(GroupElem elem : ((Group) expr).getGroupElements()) {
-                if(hasNodeCondition(v, elem.getOperator())) {
+                if(hasNodeCondition(varName, elem.getOperator())) {
                     return true;
                 }
             }
-            return hasNodeCondition(v,((Group) expr).getArg());
+            return hasNodeCondition(varName,((Group) expr).getArg());
         } else if(expr instanceof UnaryTupleOperator) {
-            return hasNodeCondition(v, ((UnaryTupleOperator) expr).getArg());
+            return hasNodeCondition(varName, ((UnaryTupleOperator) expr).getArg());
         } else if(expr instanceof BinaryTupleOperator) {
-            return hasNodeCondition(v, ((BinaryTupleOperator) expr).getLeftArg()) || hasNodeCondition(v, ((BinaryTupleOperator) expr).getRightArg());
+            return hasNodeCondition(varName, ((BinaryTupleOperator) expr).getLeftArg()) || hasNodeCondition(varName, ((BinaryTupleOperator) expr).getRightArg());
         } else {
             return false;
         }
 
     }
 
-    private boolean hasNodeCondition(Var v, ValueExpr expr) {
+    private boolean hasNodeCondition(String varName, ValueExpr expr) {
         if(expr instanceof Var) {
-            return v.getName().equals(((Var) expr).getName());
+            return varName.equals(((Var) expr).getName());
         } else if(expr instanceof UnaryValueOperator) {
-            return hasNodeCondition(v, ((UnaryValueOperator) expr).getArg());
+            return hasNodeCondition(varName, ((UnaryValueOperator) expr).getArg());
         } else if(expr instanceof BinaryValueOperator) {
-            return hasNodeCondition(v, ((BinaryValueOperator) expr).getLeftArg()) || hasNodeCondition(v, ((BinaryValueOperator) expr).getRightArg());
+            return hasNodeCondition(varName, ((BinaryValueOperator) expr).getLeftArg()) || hasNodeCondition(varName, ((BinaryValueOperator) expr).getRightArg());
         } else if(expr instanceof NAryValueOperator) {
             for(ValueExpr e : ((NAryValueOperator) expr).getArguments()) {
-                if(hasNodeCondition(v,e)) {
+                if(hasNodeCondition(varName,e)) {
                     return true;
                 }
             }
         } else if(expr instanceof FunctionCall) {
             for(ValueExpr e : ((FunctionCall) expr).getArgs()) {
-                if(hasNodeCondition(v,e)) {
+                if(hasNodeCondition(varName,e)) {
                     return true;
                 }
             }
@@ -1033,7 +1079,7 @@ public class SQLBuilder {
     }
 
 
-    private ProjectionType getProjectionType(ValueExpr expr) {
+    protected ProjectionType getProjectionType(ValueExpr expr) {
         if(expr instanceof FunctionCall) {
             return opTypeToProjection(functions.get(FunctionUtil.getFunctionUri(((FunctionCall) expr).getURI())).getReturnType());
         } else if(expr instanceof NAryValueOperator) {
@@ -1091,7 +1137,7 @@ public class SQLBuilder {
      *
      * @return
      */
-    public String build() throws UnsatisfiableQueryException {
+    public String build()  {
         String selectClause = buildSelectClause();
         String fromClause   = buildFromClause();
         String whereClause  = buildWhereClause();
@@ -1100,20 +1146,31 @@ public class SQLBuilder {
         String limitClause  = buildLimitClause();
 
 
-        // build the query string
-        String queryString =
-                "SELECT " + selectClause + "\n " +
-                        "FROM " + fromClause + "\n " +
-                        "WHERE " + whereClause + "\n " +
-                        groupClause +
-                        orderClause +
-                        limitClause;
+        StringBuilder queryString = new StringBuilder();
+        queryString
+                .append("SELECT ").append(selectClause).append("\n ")
+                .append("FROM ").append(fromClause).append("\n ");
+
+        if(whereClause.length() > 0) {
+            queryString.append("WHERE ").append(whereClause).append("\n ");
+        }
+
+        if(groupClause.length() > 0) {
+            queryString.append("GROUP BY ").append(groupClause).append("\n ");
+        }
+
+        if(orderClause.length() > 0) {
+            queryString.append("ORDER BY ").append(orderClause).append("\n ");
+        }
+
+        queryString.append(limitClause);
+
 
         log.debug("original SPARQL syntax tree:\n {}", query);
         log.debug("constructed SQL query string:\n {}",queryString);
         log.debug("SPARQL -> SQL node variable mappings:\n {}", variables);
 
-        return queryString;
+        return queryString.toString();
     }
 
 }

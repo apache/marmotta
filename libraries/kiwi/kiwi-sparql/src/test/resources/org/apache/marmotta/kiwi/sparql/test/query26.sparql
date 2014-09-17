@@ -17,9 +17,9 @@
 #
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-SELECT ?p ?name ?likes WHERE {
+SELECT ?p ?name ?likes ?fname WHERE {
     ?p foaf:name ?name .
-    { ?p foaf:knows ?likes }
+    { ?p foaf:knows ?likes . ?likes foaf:knows ?fname }
     UNION
     { ?p foaf:interest ?likes }
 

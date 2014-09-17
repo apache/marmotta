@@ -17,10 +17,10 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Filter;
-import org.openrdf.query.algebra.LeftJoin;
-import org.openrdf.query.algebra.StatementPattern;
-import org.openrdf.query.algebra.TupleExpr;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.Dataset;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.LinkedList;
@@ -36,7 +36,19 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
     int counter = 0;
 
-    public PatternCollector(TupleExpr expr) {
+
+    private BindingSet bindings;
+    private Dataset dataset;
+    private ValueConverter converter;
+    private KiWiDialect dialect;
+
+
+    public PatternCollector(TupleExpr expr, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) {
+        this.bindings = bindings;
+        this.dataset = dataset;
+        this.converter = converter;
+        this.dialect = dialect;
+
         parts.push(new SQLFragment());
         expr.visit(this);
     }
@@ -66,4 +78,12 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
         super.meet(node);
     }
+
+    @Override
+    public void meet(Union node) throws RuntimeException {
+        // unions are treated as subqueries, don't continue collection, but add the Union to the last part
+
+        parts.getLast().getSubqueries().add(new SQLUnion("U" + (++counter),node, bindings, dataset, converter, dialect));
+    }
+
 }
