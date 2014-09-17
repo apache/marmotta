@@ -27,6 +27,7 @@ import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
+import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
 import org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers;
 import org.hamcrest.CoreMatchers;
@@ -297,7 +298,7 @@ public class LdpWebServiceTest {
         // Try LDPR
         final String ldpr = RestAssured
             .given()
-                .header(HttpHeaders.LINK, Link.fromUri(LDP.Resource.stringValue()).rel(LdpWebService.LINK_REL_TYPE).build().toString())
+                .header(HttpHeaders.LINK, Link.fromUri(LdpService.InteractionModel.LDPR.stringValue()).rel(LdpWebService.LINK_REL_TYPE).build().toString())
                 .body(testResourceTTL.getBytes())
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
@@ -437,6 +438,7 @@ public class LdpWebServiceTest {
         return RestAssured
             .given()
                 .header(LdpWebService.HTTP_HEADER_SLUG, String.valueOf(slug))
+                .header(HttpHeaders.LINK, Link.fromUri(LdpService.InteractionModel.LDPC.stringValue()).rel(LdpWebService.LINK_REL_TYPE).build().toString())
                 .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
                 .body("<> a <http://example.com/unit-test> .".getBytes())
             .expect()

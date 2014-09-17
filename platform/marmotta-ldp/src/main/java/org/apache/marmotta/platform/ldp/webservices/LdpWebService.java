@@ -73,18 +73,18 @@ public class LdpWebService {
     public static final String PATH = "/ldp"; //TODO: at some point this will be root ('/') in marmotta
     public static final String LDP_SERVER_CONSTRAINTS = "http://wiki.apache.org/marmotta/LDPImplementationReport/2014-09-16";
 
-    static final String LINK_REL_DESCRIBEDBY = "describedby";
-    static final String LINK_REL_CONSTRAINEDBY = "http://www.w3.org/ns/ldp#constrainedBy";
-    static final String LINK_REL_CONTENT = "content";
-    static final String LINK_REL_META = "meta";
-    static final String LINK_REL_TYPE = "type";
-    static final String LINK_PARAM_ANCHOR = "anchor";
-    static final String HTTP_HEADER_SLUG = "Slug";
-    static final String HTTP_HEADER_ACCEPT_POST = "Accept-Post";
-    static final String HTTP_HEADER_ACCEPT_PATCH = "Accept-Patch";
-    static final String HTTP_HEADER_PREFER = "Prefer";
-    static final String HTTP_HEADER_PREFERENCE_APPLIED = "Preference-Applied";
-    static final String HTTP_METHOD_PATCH = "PATCH";
+    public static final String LINK_REL_DESCRIBEDBY = "describedby";
+    public static final String LINK_REL_CONSTRAINEDBY = "http://www.w3.org/ns/ldp#constrainedBy";
+    public static final String LINK_REL_CONTENT = "content";
+    public static final String LINK_REL_META = "meta";
+    public static final String LINK_REL_TYPE = "type";
+    public static final String LINK_PARAM_ANCHOR = "anchor";
+    public static final String HTTP_HEADER_SLUG = "Slug";
+    public static final String HTTP_HEADER_ACCEPT_POST = "Accept-Post";
+    public static final String HTTP_HEADER_ACCEPT_PATCH = "Accept-Patch";
+    public static final String HTTP_HEADER_PREFER = "Prefer";
+    public static final String HTTP_HEADER_PREFERENCE_APPLIED = "Preference-Applied";
+    public static final String HTTP_METHOD_PATCH = "PATCH";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 

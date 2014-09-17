@@ -18,16 +18,20 @@
 package org.apache.marmotta.platform.ldp;
 
 import com.hp.hpl.jena.xmloutput.impl.Basic;
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
+import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -36,7 +40,10 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3.ldp.testsuite.LdpTestSuite;
+import org.w3.ldp.testsuite.matcher.HttpStatusSuccessMatcher;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -54,6 +61,8 @@ public class LdpSuiteTest {
 
     /** @see org.testng.TestNG#HAS_FAILURE */
     private static final int TESTNG_STATUS_HAS_FAILURE = 1;
+    /** @see org.testng.TestNG#HAS_SKIPPED */
+    private static final int TESTNG_STATUS_HAS_SKIPPED = 2;
     /** @see org.testng.TestNG#HAS_NO_TEST */
     private static final int TESTNG_STATUS_HAS_NO_TEST = 8;
 
@@ -79,57 +88,65 @@ public class LdpSuiteTest {
 
     @Before
     public void before() throws RepositoryException, IOException, RDFParseException {
-
         log.debug("Performing required LDP re-initialization...");
-        final SesameService sesameService = marmotta.getService(SesameService.class);
-        final  LdpService ldpService = marmotta.getService(LdpService.class);
-        final RepositoryConnection conn = sesameService.getConnection();
-        try {
-            conn.begin();
+        RestAssured
+            .expect()
+                .statusCode(HttpStatusSuccessMatcher.isSuccessful())
+                .statusLine(CoreMatchers.startsWith("HTTP/1.1"))
+            .get(baseUrl);
 
-            //warm up and initialization
-            HttpClient httpClient = HttpClientBuilder.create().build();
-            final HttpResponse response = httpClient.execute(new HttpGet(baseUrl));
-            Assume.assumeTrue(response.getStatusLine().getStatusCode() == 200);
-            final String container = ldpService.addResource(conn, baseUrl,
-                    UriBuilder.fromUri(baseUrl).path(UUID.randomUUID().toString()).build().toString(),
-                    LdpService.InteractionModel.LDPC, RDFFormat.TURTLE.getDefaultMIMEType(),
-                    IOUtils.toInputStream("<> a <http://example.com/ldp/ContainerInteraction> . "));
-            final String resource = ldpService.addResource(conn, baseUrl,
-                    UriBuilder.fromUri(baseUrl).path(UUID.randomUUID().toString()).build().toString(),
-                    LdpService.InteractionModel.LDPR, RDFFormat.TURTLE.getDefaultMIMEType(),
-                    IOUtils.toInputStream("<> a <http://example.com/ldp/ResourceInteraction> . "));
-            conn.commit();
+        final String container = RestAssured
+            .given()
+                .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
+                .header(HttpHeaders.LINK, Link.fromUri(LdpService.InteractionModel.LDPC.stringValue()).rel(LdpWebService.LINK_REL_TYPE).build().toString())
+                .body("<> a <http://example.com/ContainerInteraction> . ".getBytes())
+            .expect()
+                .statusCode(HttpStatusSuccessMatcher.isSuccessful())
+                .header(HttpHeaders.LOCATION, CoreMatchers.notNullValue())
+            .post(baseUrl)
+                .getHeader(HttpHeaders.LOCATION);
 
-            //then actual test suite
+        final String resource = RestAssured
+            .given()
+                .header(HttpHeaders.CONTENT_TYPE, RDFFormat.TURTLE.getDefaultMIMEType())
+                .header(HttpHeaders.LINK, Link.fromUri(LdpService.InteractionModel.LDPR.stringValue()).rel(LdpWebService.LINK_REL_TYPE).build().toString())
+                .body("<> a <http://example.com/ResourceInteraction> .".getBytes())
+            .expect()
+                .statusCode(HttpStatusSuccessMatcher.isSuccessful())
+                .header(HttpHeaders.LOCATION, CoreMatchers.notNullValue())
+            .post(baseUrl)
+                .getHeader(HttpHeaders.LOCATION);
 
-            log.info("Running W3C official LDP Test Suite against '{}' server", baseUrl);
-            log.debug("(using {} as root container)", container);
-            Map<String, String> options = new HashMap<>();
-            options.put("server", container);
-            options.put("basic", null);
-            options.put("non-rdf", null);
-            options.put("cont-res", resource);
-            if (!LdpService.SERVER_MANAGED_PROPERTIES.isEmpty()) {
-                options.put("read-only-prop", LdpService.SERVER_MANAGED_PROPERTIES.iterator().next().stringValue());
-            }
-            options.put("httpLogging", null);
-            options.put("skipLogging", null);
-            options.put("excludedGroups", "MANUAL");
+        RestAssured.reset();
 
-            //reporting stuff
-            //options.put("earl", null);
-            //options.put("software", "Apache Marmotta");
-            //options.put("language", "Java");
-            //options.put("homepage", "http://marmotta.apache.org");
-            //options.put("assertor", "http://marmotta.apache.org");
-            //options.put("shortname", "Marmotta");
-            //options.put("developer", "Jakob Frank, Sergio Fernández");
+        log.info("Container: {}", container);
+        log.info("Resource: {}", resource);
 
-            testSuite = new LdpTestSuite(options);
-        } finally {
-            conn.close();
+        //configure test suite
+        log.info("Running W3C official LDP Test Suite against '{}' server", baseUrl);
+        log.debug("(using {} as root container)", container);
+        Map<String, String> options = new HashMap<>();
+        options.put("server", container);
+        options.put("basic", null);
+        options.put("non-rdf", null);
+        options.put("cont-res", resource);
+        if (!LdpService.SERVER_MANAGED_PROPERTIES.isEmpty()) {
+            options.put("read-only-prop", LdpService.SERVER_MANAGED_PROPERTIES.iterator().next().stringValue());
         }
+        options.put("httpLogging", null);
+        options.put("skipLogging", null);
+        options.put("excludedGroups", "MANUAL");
+
+        //reporting stuff
+        //options.put("earl", null);
+        //options.put("software", "Apache Marmotta");
+        //options.put("language", "Java");
+        //options.put("homepage", "http://marmotta.apache.org");
+        //options.put("assertor", "http://marmotta.apache.org");
+        //options.put("shortname", "Marmotta");
+        //options.put("developer", "Jakob Frank, Sergio Fernández");
+
+        testSuite = new LdpTestSuite(options);
     }
 
     @After
@@ -142,6 +159,9 @@ public class LdpSuiteTest {
         testSuite.run();
         Assert.assertTrue("ldp-testsuite finished with errors", (testSuite.getStatus() & TESTNG_STATUS_HAS_FAILURE) == 0);
         Assert.assertTrue("ldp-testsuite is empty - no test run", (testSuite.getStatus() & TESTNG_STATUS_HAS_NO_TEST) == 0);
+        if ((testSuite.getStatus() & TESTNG_STATUS_HAS_SKIPPED) != 0) {
+            log.warn("ldp-testsuite has skipped some tests");
+        }
     }
 
 }

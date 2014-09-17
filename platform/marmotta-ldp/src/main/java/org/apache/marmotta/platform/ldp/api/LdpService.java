@@ -64,6 +64,10 @@ public interface LdpService {
             return uri;
         }
 
+        public String stringValue() {
+            return uri.stringValue();
+        }
+
         public static InteractionModel fromURI(String uri) {
             if (LDP.Resource.stringValue().equals(uri)) {
                 return LDPR;
