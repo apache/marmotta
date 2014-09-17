@@ -66,55 +66,55 @@ public class SQLBuilder {
     /**
      * Type coercion for function parameters and return values, defines for each function the type used by its parameters
      */
-    private static Map<URI, FunctionDescriptor> functions = new HashMap<>();
+    private static Map<URI, SQLFunction> functions = new HashMap<>();
     
-    private static void addFunction(URI uri, OPTypes paramType, OPTypes returnType, FunctionDescriptor.Arity arity) {
-        functions.put(uri, new FunctionDescriptor(uri,paramType,returnType,arity));
+    private static void addFunction(URI uri, OPTypes paramType, OPTypes returnType, SQLFunction.Arity arity) {
+        functions.put(uri, new SQLFunction(uri,paramType,returnType,arity));
     }
     
     static {
-        addFunction(FN.CONCAT, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.NARY);
-        addFunction(FN.CONTAINS, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.LOWER_CASE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN.UPPER_CASE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN.REPLACE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.SUBSTRING_AFTER, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.SUBSTRING_BEFORE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.STARTS_WITH, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.ENDS_WITH, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.STRING_LENGTH, OPTypes.STRING, OPTypes.INT, FunctionDescriptor.Arity.BINARY);
-        addFunction(FN.SUBSTRING, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.CONCAT, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.NARY);
+        addFunction(FN.CONTAINS, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.BINARY);
+        addFunction(FN.LOWER_CASE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN.UPPER_CASE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN.REPLACE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
+        addFunction(FN.SUBSTRING_AFTER, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
+        addFunction(FN.SUBSTRING_BEFORE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
+        addFunction(FN.STARTS_WITH, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.BINARY);
+        addFunction(FN.ENDS_WITH, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.BINARY);
+        addFunction(FN.STRING_LENGTH, OPTypes.STRING, OPTypes.INT, SQLFunction.Arity.BINARY);
+        addFunction(FN.SUBSTRING, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
 
-        addFunction(FN.NUMERIC_ABS, OPTypes.DOUBLE, OPTypes.DOUBLE, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN.NUMERIC_CEIL, OPTypes.DOUBLE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN.NUMERIC_FLOOR, OPTypes.DOUBLE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN.NUMERIC_ROUND, OPTypes.DOUBLE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN.NUMERIC_ABS, OPTypes.DOUBLE, OPTypes.DOUBLE, SQLFunction.Arity.UNARY);
+        addFunction(FN.NUMERIC_CEIL, OPTypes.DOUBLE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN.NUMERIC_FLOOR, OPTypes.DOUBLE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN.NUMERIC_ROUND, OPTypes.DOUBLE, OPTypes.INT, SQLFunction.Arity.UNARY);
 
 
-        addFunction(FN_MARMOTTA.YEAR, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.MONTH, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.DAY, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.HOURS, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.MINUTES, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SECONDS, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.TIMEZONE, OPTypes.DATE, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.TZ, OPTypes.DATE, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.YEAR, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.MONTH, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.DAY, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.HOURS, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.MINUTES, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SECONDS, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.TIMEZONE, OPTypes.DATE, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.TZ, OPTypes.DATE, OPTypes.STRING, SQLFunction.Arity.UNARY);
 
-        addFunction(FN_MARMOTTA.MD5, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA1, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA256, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA384, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA512, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.MD5, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA1, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA256, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA384, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA512, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
 
-        addFunction(FN_MARMOTTA.UUID, OPTypes.ANY, OPTypes.URI, FunctionDescriptor.Arity.ZERO);
-        addFunction(FN_MARMOTTA.STRUUID, OPTypes.ANY, OPTypes.STRING, FunctionDescriptor.Arity.ZERO);
-        addFunction(FN_MARMOTTA.RAND, OPTypes.ANY, OPTypes.DOUBLE, FunctionDescriptor.Arity.ZERO);
+        addFunction(FN_MARMOTTA.UUID, OPTypes.ANY, OPTypes.URI, SQLFunction.Arity.ZERO);
+        addFunction(FN_MARMOTTA.STRUUID, OPTypes.ANY, OPTypes.STRING, SQLFunction.Arity.ZERO);
+        addFunction(FN_MARMOTTA.RAND, OPTypes.ANY, OPTypes.DOUBLE, SQLFunction.Arity.ZERO);
 
-        addFunction(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE, OPTypes.DOUBLE, FunctionDescriptor.Arity.UNARY);
-        addFunction(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE, OPTypes.DOUBLE, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE, OPTypes.DOUBLE, SQLFunction.Arity.UNARY);
+        addFunction(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE, OPTypes.DOUBLE, SQLFunction.Arity.UNARY);
 
-        addFunction(FN_MARMOTTA.QUERY_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.NARY);
-        addFunction(FN_MARMOTTA.SEARCH_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.NARY);
+        addFunction(FN_MARMOTTA.QUERY_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.NARY);
+        addFunction(FN_MARMOTTA.SEARCH_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.NARY);
 
     }
     
@@ -140,29 +140,15 @@ public class SQLBuilder {
     private Set<String>     groupLabels;
 
     /**
-     * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
-     * Will look like { ?x -> "V1", ?y -> "V2", ... }
+     * Maintains a mapping between SPARQL variable names and internal variable descriptions. The internal description
+     * contains information whether the variable needs to be projected, what SQL expressions represent this variable,
+     * and what internal aliases to use.
      */
-    private Map<Var,String> variableNames = new HashMap<>();
+    private Map<String,SQLVariable> variables = new HashMap<>();
+    private void addVariable(SQLVariable v) {
+        variables.put(v.getSparqlVariable().getName(),v);
+    }
 
-    /**
-     * A map for mapping SPARQL variables to field names; each variable might have one or more field names,
-     * depending on the number of patterns it occurs in; will look like
-     * { ?x -> ["P1_V1", "P2_V1"], ?y -> ["P2_V2"], ... }
-     */
-    private Map<String,List<String>> queryVariables = new HashMap<>();
-
-
-    /**
-     * A map for mapping SPARQL variables to database node ID selectors. A node ID can occur either as
-     * primary key in the NODES table or in the subject, predicate, object and context fields of a pattern.
-     */
-    private Map<Var,List<String>> queryVariableIds = new HashMap<>();
-
-
-    private Map<Var, ProjectionType> variableTypes = new HashMap<>();
-
-    private Set<Var> projectedVariables = new HashSet<>();
 
     /**
      * The triple patterns collected from the query.
@@ -212,56 +198,9 @@ public class SQLBuilder {
         prepareBuilder();
     }
 
-    public boolean isDistinct() {
-        return distinct;
-    }
 
-    public void setDistinct(boolean distinct) {
-        this.distinct = distinct;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
-    public long getLimit() {
-        return limit;
-    }
-
-    public void setLimit(long limit) {
-        this.limit = limit;
-    }
-
-    /**
-     * Return the set of variables projected by the SELECT clause
-     * @return
-     */
-    public Set<Var> getProjectedVariables() {
-        return projectedVariables;
-    }
-
-    /**
-     * Return the SQL name of the SPARQL variable given as argument as generated by this query builder.
-     * @param v
-     * @return
-     */
-    public String getVariableName(Var v) {
-        return variableNames.get(v);
-    }
-
-
-    /**
-     * Return the type of a projected variable. Usually this is a node id to be resolved in the next step, but some
-     * projections also create literal values of various types.
-     * @param v
-     * @return
-     */
-    public ProjectionType getVariableType(Var v) {
-        return variableTypes.get(v);
+    public Map<String, SQLVariable> getVariables() {
+        return variables;
     }
 
     private void prepareBuilder()  throws UnsatisfiableQueryException {
@@ -302,29 +241,32 @@ public class SQLBuilder {
                 for (int i = 0; i < fields.length; i++) {
                     if (fields[i] != null && !fields[i].hasValue()) {
                         Var v = fields[i];
-                        if (variableNames.get(v) == null) {
-                            variableNames.put(v, "V" + (++variableCount));
-                            variableTypes.put(v, ProjectionType.NODE);
-                            queryVariables.put(v.getName(), new LinkedList<String>());
-                            queryVariableIds.put(v, new LinkedList<String>());
+
+                        SQLVariable sv = variables.get(v.getName());
+                        if(!variables.containsKey(v.getName())) {
+                            sv = new SQLVariable("V" + (++variableCount), v);
 
                             // select those variables that are really projected and not only needed in a grouping construct
                             if(new SQLProjectionFinder(query,v).found) {
-                                projectedVariables.add(v);
+                                sv.setProjectionType(ProjectionType.NODE);
                             }
+
+                            addVariable(sv);
                         }
+
                         String pName = p.getName();
-                        String vName = variableNames.get(v);
+                        String vName = sv.getName();
+
                         if (hasNodeCondition(fields[i], query)) {
-                            queryVariables.get(v.getName()).add(pName + "_" + positions[i] + "_" + vName);
+                            sv.getAliases().add(pName + "_" + positions[i] + "_" + vName);
                         }
 
                         // if the variable has been used before, add a join condition to the first occurrence
-                        if(queryVariableIds.get(v).size() > 0) {
-                            p.getConditions().add(queryVariableIds.get(v).get(0) + " = " + pName + "." + positions[i]);
+                        if(sv.getExpressions().size() > 0) {
+                            p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
                         }
 
-                        queryVariableIds.get(v).add(pName + "." + positions[i]);
+                        sv.getExpressions().add(pName + "." + positions[i]);
                     }
                 }
             }
@@ -335,23 +277,23 @@ public class SQLBuilder {
         // add all extensions to the variable list so they are properly considered in projections and clauses
         for(ExtensionElem ext : extensions) {
             Var v = new Var(ext.getName());
-            if (variableNames.get(v) == null) {
-                variableNames.put(v, "V" + (++variableCount));
 
-                // set variable type according to expression; we need this later to decide what kind of node to construct
-                variableTypes.put(v, getProjectionType(ext.getExpr()));
-                queryVariables.put(v.getName(), new LinkedList<String>());
-                queryVariableIds.put(v, new LinkedList<String>());
+            SQLVariable sv = variables.get(v.getName());
+            if(!variables.containsKey(v.getName())) {
+                sv = new SQLVariable("V" + (++variableCount), v);
 
                 // select those variables that are really projected and not only needed in a grouping construct
                 if(new SQLProjectionFinder(query,v).found) {
-                    projectedVariables.add(v);
+                    sv.setProjectionType(getProjectionType(ext.getExpr()));
                 }
+
+                addVariable(sv);
             }
+
             if (hasNodeCondition(v, query)) {
-                queryVariables.get(v.getName()).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+                sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
             }
-            queryVariableIds.get(v).add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+            sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
 
         }
 
@@ -519,7 +461,7 @@ public class SQLBuilder {
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
                     if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && hasNodeCondition(fieldEntry.getValue(),query)) {
-                        p.setJoinField(fieldEntry.getKey(), variableNames.get(fieldEntry.getValue()));
+                        p.setJoinField(fieldEntry.getKey(), variables.get(fieldEntry.getValue().getName()).getName());
                     }
                 }
             }
@@ -530,16 +472,15 @@ public class SQLBuilder {
 
     private String buildSelectClause() {
         List<String> projections = new ArrayList<>();
-        for(Iterator<Var> it = queryVariableIds.keySet().iterator(); it.hasNext(); ) {
-            Var v = it.next();
-            if(projectedVariables.contains(v)) {
-                String projectedName = variableNames.get(v);
-                String fromName = queryVariableIds.get(v).get(0);
+        for(SQLVariable v : variables.values()) {
+            if(v.getProjectionType() != ProjectionType.NONE) {
+                String projectedName = v.getName();
+                String fromName = v.getExpressions().get(0);
 
                 projections.add(fromName + " AS " + projectedName);
-
             }
         }
+
 
         StringBuilder selectClause = new StringBuilder();
 
@@ -597,18 +538,18 @@ public class SQLBuilder {
         //    to the node given as binding
         if(bindings != null) {
             for(String v : bindings.getBindingNames()) {
-                for(Map.Entry<Var,List<String>> entry : queryVariableIds.entrySet()) {
-                    if(entry.getKey().getName() != null && entry.getKey().getName().equals(v) &&
-                            entry.getValue() != null && entry.getValue().size() > 0) {
-                        List<String> vNames = entry.getValue();
-                        String vName = vNames.get(0);
-                        Value binding = converter.convert(bindings.getValue(v));
-                        if(binding instanceof KiWiNode) {
-                            whereConditions.add(vName+" = "+((KiWiNode)binding).getId());
-                        } else {
-                            throw new UnsatisfiableQueryException("the values in this binding have not been created by the KiWi value factory");
-                        }
+                SQLVariable sv = variables.get(v);
+
+                if(!sv.getExpressions().isEmpty()) {
+                    List<String> vNames = sv.getExpressions();
+                    String vName = vNames.get(0);
+                    Value binding = converter.convert(bindings.getValue(v));
+                    if(binding instanceof KiWiNode) {
+                        whereConditions.add(vName+" = "+((KiWiNode)binding).getId());
+                    } else {
+                        throw new UnsatisfiableQueryException("the values in this binding have not been created by the KiWi value factory");
                     }
+
                 }
             }
         }
@@ -652,11 +593,10 @@ public class SQLBuilder {
         if(groupLabels.size() > 0) {
             groupClause.append("GROUP BY ");
             for(Iterator<String> it = groupLabels.iterator(); it.hasNext(); ) {
-                Var v = new Var(it.next());
+                SQLVariable sv = variables.get(it.next());
 
-
-                if(queryVariableIds.get(v) != null) {
-                    Iterator<String> lit = queryVariableIds.get(v).iterator();
+                if(sv != null) {
+                    Iterator<String> lit = sv.getExpressions().iterator();
                     while (lit.hasNext()) {
                         groupClause.append(lit.next());
                         if(lit.hasNext()) {
@@ -715,7 +655,7 @@ public class SQLBuilder {
             Lang lang = (Lang)expr;
 
             if(lang.getArg() instanceof Var) {
-                return queryVariables.get(((Var) lang.getArg()).getName()).get(0) + ".lang";
+                return variables.get(((Var) lang.getArg()).getName()).getPrimaryAlias() + ".lang";
             }
         } else if(expr instanceof Compare) {
             Compare cmp = (Compare)expr;
@@ -760,7 +700,7 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI || ((ValueConstant) arg).getValue() instanceof BNode);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(((Var) arg).getName()).get(0);
+                String var = variables.get(((Var) arg).getName()).getPrimaryAlias();
 
                 return "(" + var + ".ntype = 'uri' OR " + var + ".ntype = 'bnode')";
             }
@@ -771,7 +711,7 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(((Var) arg).getName()).get(0);
+                String var = variables.get(((Var) arg).getName()).getPrimaryAlias();
 
                 return var + ".ntype = 'uri'";
             }
@@ -782,7 +722,7 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof BNode);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(((Var) arg).getName()).get(0);
+                String var = variables.get(((Var) arg).getName()).getPrimaryAlias();
 
                 return var + ".ntype = 'bnode'";
             }
@@ -793,12 +733,12 @@ public class SQLBuilder {
             if(arg instanceof ValueConstant) {
                 return Boolean.toString(((ValueConstant) arg).getValue() instanceof Literal);
             } else if(arg instanceof Var) {
-                String var = queryVariables.get(((Var) arg).getName()).get(0);
+                String var = variables.get(((Var) arg).getName()).getPrimaryAlias();
 
                 return "(" + var + ".ntype = 'string' OR " + var + ".ntype = 'int' OR " + var + ".ntype = 'double'  OR " + var + ".ntype = 'date'  OR " + var + ".ntype = 'boolean')";
             }
         } else if(expr instanceof Var) {
-            String var = queryVariables.get(((Var) expr).getName()).get(0);
+            String var = variables.get(((Var) expr).getName()).getPrimaryAlias();
 
             if(optype == null) {
                 return var + ".svalue";
@@ -851,9 +791,9 @@ public class SQLBuilder {
                 // so instead we construct an ARRAY of the bindings of all variables
 
                 List<String> countVariables = new ArrayList<>();
-                for(Map.Entry<Var,List<String>> v : queryVariableIds.entrySet()) {
-                    if(!projectedVariables.contains(v.getKey())) {
-                        countVariables.add(v.getValue().get(0));
+                for(SQLVariable v : variables.values()) {
+                    if(v.getProjectionType() == ProjectionType.NONE) {
+                        countVariables.add(v.getExpressions().get(0));
                     }
                 }
                 countExp.append("ARRAY[");
@@ -1171,8 +1111,7 @@ public class SQLBuilder {
 
         log.debug("original SPARQL syntax tree:\n {}", query);
         log.debug("constructed SQL query string:\n {}",queryString);
-        log.debug("SPARQL -> SQL node variable mappings:\n {}", queryVariables);
-        log.debug("SPARQL -> SQL ID variable mappings:\n {}", queryVariableIds);
+        log.debug("SPARQL -> SQL node variable mappings:\n {}", variables);
 
         return queryString;
     }

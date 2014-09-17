@@ -30,6 +30,7 @@ import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
 import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
+import org.apache.marmotta.kiwi.sparql.builder.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
@@ -37,7 +38,6 @@ import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Var;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,40 +118,41 @@ public class KiWiSparqlConnection {
                     public BindingSet apply(ResultSet row) throws SQLException {
                         MapBindingSet resultRow = new MapBindingSet();
 
-                        List<Var> vars = new ArrayList<>(builder.getProjectedVariables());
+                        List<SQLVariable> vars = new ArrayList<>(builder.getVariables().values());
 
                         long[] nodeIds = new long[vars.size()];
                         for(int i=0; i<vars.size(); i++) {
-                            if(builder.getVariableType(vars.get(i)) == ProjectionType.NODE) {
-                                nodeIds[i] = row.getLong(builder.getVariableName(vars.get(i)));
+                            SQLVariable sv = vars.get(i);
+                            if(sv.getProjectionType() == ProjectionType.NODE) {
+                                nodeIds[i] = row.getLong(sv.getName());
                             }
                         }
                         KiWiNode[] nodes = parent.loadNodesByIds(nodeIds);
 
                         for (int i = 0; i < vars.size(); i++) {
-                            Var v = vars.get(i);
+                            SQLVariable sv = vars.get(i);
                             if(nodes[i] != null) {
                                 // resolved node
-                                resultRow.addBinding(v.getName(), nodes[i]);
-                            } else {
+                                resultRow.addBinding(sv.getSparqlVariable().getName(), nodes[i]);
+                            } else if(sv.getProjectionType() != ProjectionType.NONE) {
                                 // literal value
-                                String value = row.getString(builder.getVariableName(v));
+                                String value = row.getString(sv.getName());
                                 if(value != null) {
-                                    switch (builder.getVariableType(v)) {
+                                    switch (sv.getProjectionType()) {
                                         case URI:
-                                            resultRow.addBinding(v.getName(), new URIImpl(value));
+                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new URIImpl(value));
                                             break;
                                         case INT:
-                                            resultRow.addBinding(v.getName(), new LiteralImpl(value, XSD.Integer));
+                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value, XSD.Integer));
                                             break;
                                         case DOUBLE:
-                                            resultRow.addBinding(v.getName(), new LiteralImpl(value, XSD.Double));
+                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value, XSD.Double));
                                             break;
                                         case STRING:
-                                            resultRow.addBinding(v.getName(), new LiteralImpl(value));
+                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value));
                                             break;
                                         default:
-                                            resultRow.addBinding(v.getName(), new LiteralImpl(value));
+                                            resultRow.addBinding(sv.getSparqlVariable().getName(), new LiteralImpl(value));
                                             break;
                                     }
                                 }

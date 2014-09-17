@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representation of a SPARQL variable in SQL.
+ * Representation of a SPARQL variable in SQL. A SPARQL variable will always be translated into a column alias
+ * for either a subject/predicate/object/context field of a triple or a more complex expression (e.g. function evaluation).
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -46,18 +47,24 @@ public class SQLVariable {
 
 
     /**
-     * A map for mapping SPARQL variables to database node ID selectors. A node ID can occur either as
-     * primary key in the NODES table or in the subject, predicate, object and context fields of a pattern.
+     * A map for mapping SPARQL variables to database expressions (e.g. node ID selectors). A node ID can occur either as
+     * primary key in the NODES table or in the subject, predicate, object and context fields of a pattern. An expression
+     * can be e.g. a function evaluation.
      */
-    private List<String> nodeIds;
+    private List<String> expressions;
 
+    /**
+     * Set to something else than NONE when this variable is contained in the SELECT part of the query, i.e. needs to be projected.
+     * Decides on how the variable will be projected (as node -> ID, as value -> string or numeric field)
+     */
+    private ProjectionType projectionType = ProjectionType.NONE;
 
     public SQLVariable(String name, Var sparqlVariable) {
         this.name = name;
         this.sparqlVariable = sparqlVariable;
 
         this.aliases = new ArrayList<>();
-        this.nodeIds = new ArrayList<>();
+        this.expressions = new ArrayList<>();
     }
 
     public String getName() {
@@ -72,7 +79,34 @@ public class SQLVariable {
         return aliases;
     }
 
-    public List<String> getNodeIds() {
-        return nodeIds;
+    /**
+     * Primary alias for a variable, used e.g. when projecting or evaluating in functions. All others are added with join conditions.
+     * @return
+     */
+    public String getPrimaryAlias() {
+        return aliases.get(0);
+    }
+
+    public List<String> getExpressions() {
+        return expressions;
+    }
+
+    public ProjectionType getProjectionType() {
+        return projectionType;
+    }
+
+    public void setProjectionType(ProjectionType projectionType) {
+        this.projectionType = projectionType;
+    }
+
+    @Override
+    public String toString() {
+        return "Variable{" +
+                "SQL name='" + name + '\'' +
+                ", SPARQL name=" + sparqlVariable.getName() +
+                ", aliases=" + aliases +
+                ", expressions=" + expressions +
+                ", projectionType=" + projectionType +
+                '}';
     }
 }

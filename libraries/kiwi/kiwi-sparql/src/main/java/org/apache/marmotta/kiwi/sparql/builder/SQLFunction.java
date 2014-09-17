@@ -25,7 +25,7 @@ import org.openrdf.model.URI;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class FunctionDescriptor {
+public class SQLFunction {
 
     public static enum Arity { ZERO, UNARY, BINARY, NARY };
 
@@ -35,7 +35,7 @@ public class FunctionDescriptor {
 
     private Arity arity;
 
-    public FunctionDescriptor(URI uri, OPTypes parameterType, OPTypes returnType, Arity arity) {
+    public SQLFunction(URI uri, OPTypes parameterType, OPTypes returnType, Arity arity) {
         this.uri = uri;
         this.parameterType = parameterType;
         this.returnType = returnType;
@@ -64,7 +64,7 @@ public class FunctionDescriptor {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FunctionDescriptor that = (FunctionDescriptor) o;
+        SQLFunction that = (SQLFunction) o;
 
         if (arity != that.arity) return false;
         if (parameterType != that.parameterType) return false;
