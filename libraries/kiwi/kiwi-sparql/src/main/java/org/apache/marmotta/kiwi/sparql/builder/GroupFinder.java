@@ -17,9 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Group;
-import org.openrdf.query.algebra.GroupElem;
-import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.ArrayList;
@@ -46,5 +44,15 @@ public class GroupFinder extends QueryModelVisitorBase<RuntimeException> {
         bindings.addAll(node.getGroupBindingNames());
         elements.addAll(node.getGroupElements());
         super.meet(node);
+    }
+
+    @Override
+    public void meet(Projection node) throws RuntimeException {
+        // stop at projection, subquery
+    }
+
+    @Override
+    public void meet(Union node) throws RuntimeException {
+        // stop at union, subquery
     }
 }

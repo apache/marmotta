@@ -21,7 +21,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.SubQueryValueOperator;
+import org.openrdf.query.algebra.Projection;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,11 +38,11 @@ public class SQLSubQuery extends SQLAbstractSubquery {
 
     private Set<SQLVariable> variables = new HashSet<>();
 
-    public SQLSubQuery(String alias, SubQueryValueOperator query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) throws UnsatisfiableQueryException {
+    public SQLSubQuery(String alias, Projection query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) throws UnsatisfiableQueryException {
         super(alias);
 
         // we build a full subquery for each of the UNION's arguments
-        builder = new SQLBuilder(query.getSubQuery(), bindings, dataset, converter, dialect);
+        builder = new SQLBuilder(query.getArg(), bindings, dataset, converter, dialect);
 
         for(SQLVariable svl : builder.getVariables().values()) {
             variables.add(svl);

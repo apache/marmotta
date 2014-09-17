@@ -86,4 +86,10 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
         parts.getLast().getSubqueries().add(new SQLUnion("U" + (++counter),node, bindings, dataset, converter, dialect));
     }
 
+    @Override
+    public void meet(Projection node) throws RuntimeException {
+        // subqueries are represented with a projection inside a JOIN; we don't continue collection
+
+        parts.getLast().getSubqueries().add(new SQLSubQuery("S" + (++counter), node, bindings, dataset, converter, dialect));
+    }
 }

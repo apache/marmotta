@@ -336,6 +336,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Distinct) expr).getArg());
         } else if(expr instanceof Union) {
             return isSupported(((Union) expr).getLeftArg()) && isSupported(((Union)expr).getRightArg());
+        } else if(expr instanceof Projection) {
+            return isSupported(((Projection) expr).getArg());
         } else if(expr instanceof Order) {
             for(OrderElem elem : ((Order) expr).getElements()) {
                 if(!isSupported(elem.getExpr())) {
