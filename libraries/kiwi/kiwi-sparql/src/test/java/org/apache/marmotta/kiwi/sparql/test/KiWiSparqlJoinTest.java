@@ -382,7 +382,6 @@ public class KiWiSparqlJoinTest {
             Assert.assertTrue(result1.hasNext());
 
 
-
             compareResults(result1,result2);
 
         } catch(RepositoryException ex) {

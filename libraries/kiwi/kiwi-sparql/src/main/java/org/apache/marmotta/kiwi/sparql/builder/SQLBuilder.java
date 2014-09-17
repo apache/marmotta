@@ -537,6 +537,27 @@ public class SQLBuilder {
             }
         }
 
+        // for each pattern, update the joinFields by checking if subject, predicate, object or context are involved
+        // in any filters or functions; in this case, the corresponding field needs to be joined with the NODES table
+        // and we need to mark the pattern accordingly.
+        boolean first = true;
+        for(SQLFragment f : fragments) {
+            if(first) {
+                // the conditions of the first fragment need to be placed in the WHERE part of the query, because
+                // there is not necessarily a JOIN ... ON where we can put it
+                f.setConditionPosition(SQLFragment.ConditionPosition.WHERE);
+                first = false;
+            }
+
+            for (SQLPattern p : f.getPatterns()) {
+                for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
+                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && hasNodeCondition(fieldEntry.getValue(),query)) {
+                        p.setJoinField(fieldEntry.getKey(), variableNames.get(fieldEntry.getValue()));
+                    }
+                }
+            }
+        }
+
     }
 
 
@@ -576,95 +597,7 @@ public class SQLBuilder {
         //    - context, there will be a "inner join P.context as P_C_V" or "left outer join p.context as P_C_V"
         StringBuilder fromClause = new StringBuilder();
         for(Iterator<SQLFragment> fit = fragments.iterator(); fit.hasNext(); ) {
-            SQLFragment frag = fit.next();
-
-            for (Iterator<SQLPattern> it = frag.getPatterns().iterator(); it.hasNext(); ) {
-                boolean firstFragment = fromClause.length() == 0;
-
-                SQLPattern p = it.next();
-                String pName = p.getName();
-
-
-                // the joinClause consists of a reference to the triples table and possibly inner joins with the
-                // nodes table in case we need to verify node values, e.g. in a filter
-                StringBuilder joinClause = new StringBuilder();
-
-                // indicate if we need parentheses because of node joins
-                boolean hasNodeJoins = false;
-
-
-                // the onClause consists of the filter conditions from the statement for joining/left joining with
-                // previous statements
-                StringBuilder onClause = new StringBuilder();
-
-
-                joinClause.append("triples " + pName);
-
-                Var[] fields = p.getFields();
-                for (int i = 0; i < fields.length; i++) {
-
-                    if (fields[i] != null && !fields[i].hasValue() && hasNodeCondition(fields[i], query)) {
-
-                        String vName = variableNames.get(fields[i]);
-                        joinClause.append("\n    INNER JOIN nodes AS ");
-                        joinClause.append(pName + "_" + positions[i] + "_" + vName);
-
-                        joinClause.append(" ON " + pName + "." + positions[i] + " = " + pName + "_" + positions[i] + "_" + vName + ".id ");
-
-                        hasNodeJoins = true;
-                    }
-                }
-
-
-                // in case this is not the first fragment, we add all statement filter conditions to the ON clause of the query;
-                // in case this IS the first fragment, they will be added to the WHERE clause.
-                if(!firstFragment) {
-                    for(Iterator<String> cit = p.getConditions().iterator(); cit.hasNext(); ) {
-                        if(onClause.length() > 0) {
-                            onClause.append("\n      AND ");
-                        }
-                        onClause.append(cit.next());
-                    }
-                }
-
-                // in case the pattern is the last of the fragment, also add the filter conditions of the fragment (TODO: verify this does indeed the right thing)
-                if(!firstFragment && !it.hasNext()) {
-                    // if this is the last pattern of the fragment, add the filter conditions
-                    for(Iterator<String> cit = frag.getConditions().iterator(); cit.hasNext(); ) {
-                        if(onClause.length() > 0) {
-                            onClause.append("\n       AND ");
-                        }
-                        onClause.append(cit.next());
-                    }
-                }
-
-
-
-                // in case we add join conditions, open a parentheses to cover the subquery
-                if(hasNodeJoins && onClause.length() > 0) {
-                    fromClause.append("(");
-                }
-
-                fromClause.append(joinClause);
-
-                if(hasNodeJoins && onClause.length() > 0) {
-                    fromClause.append(")");
-                }
-
-
-                // close the "subquery" and add any join conditions
-                if(onClause.length() > 0) {
-                    fromClause.append(" ON (");
-                    fromClause.append(onClause);
-                    fromClause.append(")");
-                }
-
-
-                if (it.hasNext()) {
-                    fromClause.append("\n JOIN \n  ");
-                }
-            }
-
+            fromClause.append(fit.next().buildFromClause());
             if(fit.hasNext()) {
                 fromClause.append("\n LEFT JOIN \n  ");
             }
@@ -686,11 +619,12 @@ public class SQLBuilder {
         List<String> whereConditions = new LinkedList<String>();
 
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
-        if(fragments.size() > 0 && fragments.get(0).getPatterns().size() > 0) {
-            whereConditions.addAll(fragments.get(0).getConditions());
-            whereConditions.addAll(fragments.get(0).getPatterns().get(0).getConditions());
-        }
 
+        for(SQLFragment fragment : fragments) {
+            if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.WHERE) {
+                whereConditions.add(fragment.buildConditionClause());
+            }
+        }
 
         // 3. for each variable in the initialBindings, add a condition to the where clause setting it
         //    to the node given as binding
