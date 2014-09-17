@@ -62,93 +62,62 @@ public class SQLBuilder {
      */
     private static final DateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 
-    /**
-     * Type coercion for function parameters, defines for each function the type used by its parameters
-     */
-    private static Map<URI,OPTypes> functionParameterTypes = new HashMap<>();
-    static {
-        functionParameterTypes.put(FN.CONCAT, OPTypes.STRING);
-        functionParameterTypes.put(FN.CONTAINS, OPTypes.STRING);
-        functionParameterTypes.put(FN.LOWER_CASE, OPTypes.STRING);
-        functionParameterTypes.put(FN.UPPER_CASE, OPTypes.STRING);
-        functionParameterTypes.put(FN.REPLACE, OPTypes.STRING);
-        functionParameterTypes.put(FN.SUBSTRING_AFTER, OPTypes.STRING);
-        functionParameterTypes.put(FN.SUBSTRING_BEFORE, OPTypes.STRING);
-        functionParameterTypes.put(FN.STARTS_WITH, OPTypes.STRING);
-        functionParameterTypes.put(FN.ENDS_WITH, OPTypes.STRING);
-        functionParameterTypes.put(FN.STRING_LENGTH, OPTypes.STRING);
-        functionParameterTypes.put(FN.SUBSTRING, OPTypes.STRING);
-
-        functionParameterTypes.put(FN.NUMERIC_ABS, OPTypes.DOUBLE);
-        functionParameterTypes.put(FN.NUMERIC_CEIL, OPTypes.DOUBLE);
-        functionParameterTypes.put(FN.NUMERIC_FLOOR, OPTypes.DOUBLE);
-        functionParameterTypes.put(FN.NUMERIC_ROUND, OPTypes.DOUBLE);
-
-
-        functionParameterTypes.put(FN_MARMOTTA.YEAR, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.MONTH, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.DAY, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.HOURS, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.MINUTES, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.SECONDS, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.TIMEZONE, OPTypes.DATE);
-        functionParameterTypes.put(FN_MARMOTTA.TZ, OPTypes.DATE);
-
-        functionParameterTypes.put(FN_MARMOTTA.MD5, OPTypes.STRING);
-        functionParameterTypes.put(FN_MARMOTTA.SHA1, OPTypes.STRING);
-        functionParameterTypes.put(FN_MARMOTTA.SHA256, OPTypes.STRING);
-        functionParameterTypes.put(FN_MARMOTTA.SHA384, OPTypes.STRING);
-        functionParameterTypes.put(FN_MARMOTTA.SHA512, OPTypes.STRING);
-
-        functionParameterTypes.put(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE);
-        functionParameterTypes.put(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE);
-    }
 
     /**
-     * Type coercion for function return values, defines for each function the type of its return value.
+     * Type coercion for function parameters and return values, defines for each function the type used by its parameters
      */
-    private static Map<URI,OPTypes> functionReturnTypes = new HashMap<>();
-    static {
-        functionReturnTypes.put(FN.CONCAT, OPTypes.STRING);
-        functionReturnTypes.put(FN.CONTAINS, OPTypes.BOOL);
-        functionReturnTypes.put(FN.LOWER_CASE, OPTypes.STRING);
-        functionReturnTypes.put(FN.UPPER_CASE, OPTypes.STRING);
-        functionReturnTypes.put(FN.REPLACE, OPTypes.STRING);
-        functionReturnTypes.put(FN.SUBSTRING_AFTER, OPTypes.STRING);
-        functionReturnTypes.put(FN.SUBSTRING_BEFORE, OPTypes.STRING);
-        functionReturnTypes.put(FN.STARTS_WITH, OPTypes.BOOL);
-        functionReturnTypes.put(FN.ENDS_WITH, OPTypes.BOOL);
-        functionReturnTypes.put(FN.STRING_LENGTH, OPTypes.INT);
-        functionReturnTypes.put(FN.SUBSTRING, OPTypes.STRING);
-
-        functionReturnTypes.put(FN.NUMERIC_ABS, OPTypes.DOUBLE);
-        functionReturnTypes.put(FN.NUMERIC_CEIL, OPTypes.INT);
-        functionReturnTypes.put(FN.NUMERIC_FLOOR, OPTypes.INT);
-        functionReturnTypes.put(FN.NUMERIC_ROUND, OPTypes.INT);
-
-        functionReturnTypes.put(FN_MARMOTTA.UUID, OPTypes.URI);
-        functionReturnTypes.put(FN_MARMOTTA.STRUUID, OPTypes.STRING);
-        functionReturnTypes.put(FN_MARMOTTA.RAND, OPTypes.DOUBLE);
-        functionReturnTypes.put(FN_MARMOTTA.NOW, OPTypes.DATE);
-        functionReturnTypes.put(FN_MARMOTTA.YEAR, OPTypes.INT);
-        functionReturnTypes.put(FN_MARMOTTA.MONTH, OPTypes.INT);
-        functionReturnTypes.put(FN_MARMOTTA.DAY, OPTypes.INT);
-        functionReturnTypes.put(FN_MARMOTTA.HOURS, OPTypes.INT);
-        functionReturnTypes.put(FN_MARMOTTA.MINUTES, OPTypes.INT);
-        functionReturnTypes.put(FN_MARMOTTA.SECONDS, OPTypes.DOUBLE);
-        functionReturnTypes.put(FN_MARMOTTA.TIMEZONE, OPTypes.STRING);
-        functionReturnTypes.put(FN_MARMOTTA.TZ, OPTypes.STRING);
-
-        functionReturnTypes.put(FN_MARMOTTA.MD5, OPTypes.STRING);
-        functionReturnTypes.put(FN_MARMOTTA.SHA1, OPTypes.STRING);
-        functionReturnTypes.put(FN_MARMOTTA.SHA256, OPTypes.STRING);
-        functionReturnTypes.put(FN_MARMOTTA.SHA384, OPTypes.STRING);
-        functionReturnTypes.put(FN_MARMOTTA.SHA512, OPTypes.STRING);
-
-        functionReturnTypes.put(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE);
-        functionReturnTypes.put(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE);
+    private static Map<URI, FunctionDescriptor> functions = new HashMap<>();
+    
+    private static void addFunction(URI uri, OPTypes paramType, OPTypes returnType, FunctionDescriptor.Arity arity) {
+        functions.put(uri, new FunctionDescriptor(uri,paramType,returnType,arity));
     }
+    
+    static {
+        addFunction(FN.CONCAT, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.NARY);
+        addFunction(FN.CONTAINS, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.LOWER_CASE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN.UPPER_CASE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN.REPLACE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.SUBSTRING_AFTER, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.SUBSTRING_BEFORE, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.STARTS_WITH, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.ENDS_WITH, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.STRING_LENGTH, OPTypes.STRING, OPTypes.INT, FunctionDescriptor.Arity.BINARY);
+        addFunction(FN.SUBSTRING, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.BINARY);
 
+        addFunction(FN.NUMERIC_ABS, OPTypes.DOUBLE, OPTypes.DOUBLE, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN.NUMERIC_CEIL, OPTypes.DOUBLE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN.NUMERIC_FLOOR, OPTypes.DOUBLE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN.NUMERIC_ROUND, OPTypes.DOUBLE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+
+
+        addFunction(FN_MARMOTTA.YEAR, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.MONTH, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.DAY, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.HOURS, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.MINUTES, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SECONDS, OPTypes.DATE, OPTypes.INT, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.TIMEZONE, OPTypes.DATE, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.TZ, OPTypes.DATE, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+
+        addFunction(FN_MARMOTTA.MD5, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA1, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA256, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA384, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.SHA512, OPTypes.STRING, OPTypes.STRING, FunctionDescriptor.Arity.UNARY);
+
+        addFunction(FN_MARMOTTA.UUID, OPTypes.ANY, OPTypes.URI, FunctionDescriptor.Arity.ZERO);
+        addFunction(FN_MARMOTTA.STRUUID, OPTypes.ANY, OPTypes.STRING, FunctionDescriptor.Arity.ZERO);
+        addFunction(FN_MARMOTTA.RAND, OPTypes.ANY, OPTypes.DOUBLE, FunctionDescriptor.Arity.ZERO);
+
+        addFunction(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE, OPTypes.DOUBLE, FunctionDescriptor.Arity.UNARY);
+        addFunction(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE, OPTypes.DOUBLE, FunctionDescriptor.Arity.UNARY);
+
+        addFunction(FN_MARMOTTA.QUERY_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.NARY);
+        addFunction(FN_MARMOTTA.SEARCH_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, FunctionDescriptor.Arity.NARY);
+
+    }
+    
 
     /**
      * Query results should be DISTINCT.
@@ -168,7 +137,6 @@ public class SQLBuilder {
     private List<OrderElem> orderby;
     private List<ExtensionElem> extensions;
 
-    private List<GroupElem> groupExpressions;
     private Set<String>     groupLabels;
 
     /**
@@ -317,7 +285,6 @@ public class SQLBuilder {
 
         // find the grouping
         GroupFinder gf  = new GroupFinder(query);
-        groupExpressions = gf.elements;
         groupLabels      = gf.bindings;
 
         // find extensions (BIND)
@@ -926,16 +893,13 @@ public class SQLBuilder {
 
             String[] args = new String[fc.getArgs().size()];
 
-            OPTypes fOpType = functionParameterTypes.get(fnUri);
-            if(fOpType == null) {
-                fOpType = OPTypes.STRING;
-            }
+            OPTypes fOpType = functions.containsKey(fnUri) ? functions.get(fnUri).getParameterType() : OPTypes.STRING;
 
             for(int i=0; i<args.length;i++) {
                 args[i] = evaluateExpression(fc.getArgs().get(i), fOpType);
             }
 
-            if(optype != null && optype != functionReturnTypes.get(fnUri)) {
+            if(optype != null && (!functions.containsKey(fnUri) || optype != functions.get(fnUri).getReturnType())) {
                 return castExpression(dialect.getFunction(fnUri, args), optype);
             } else {
                 return dialect.getFunction(fnUri, args);
@@ -1131,7 +1095,7 @@ public class SQLBuilder {
 
     private ProjectionType getProjectionType(ValueExpr expr) {
         if(expr instanceof FunctionCall) {
-            return opTypeToProjection(functionReturnTypes.get(FunctionUtil.getFunctionUri(((FunctionCall) expr).getURI())));
+            return opTypeToProjection(functions.get(FunctionUtil.getFunctionUri(((FunctionCall) expr).getURI())).getReturnType());
         } else if(expr instanceof NAryValueOperator) {
             return getProjectionType(((NAryValueOperator) expr).getArguments().get(0));
         } else if(expr instanceof ValueConstant) {
