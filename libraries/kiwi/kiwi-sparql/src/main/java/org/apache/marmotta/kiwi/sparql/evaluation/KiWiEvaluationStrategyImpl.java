@@ -321,6 +321,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Or) expr).getLeftArg()) && isSupported(((Or) expr).getRightArg());
         } else if(expr instanceof Not) {
             return isSupported(((Not) expr).getArg());
+        } else if(expr instanceof Exists) {
+            return isSupported(((Exists) expr).getSubQuery());
         } else if(expr instanceof ValueConstant) {
             return true;
         } else if(expr instanceof Var) {

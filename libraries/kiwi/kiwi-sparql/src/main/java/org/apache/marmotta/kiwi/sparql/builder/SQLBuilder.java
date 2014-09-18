@@ -709,7 +709,15 @@ public class SQLBuilder {
         } else if(expr instanceof Or) {
             return "(" + evaluateExpression(((Or) expr).getLeftArg(), optype) + " OR " + evaluateExpression(((Or) expr).getRightArg(), optype) + ")";
         } else if(expr instanceof Not) {
-            return "NOT (" + evaluateExpression(((Not) expr).getArg(), optype)  + ")";
+            return "NOT (" + evaluateExpression(((Not) expr).getArg(), optype) + ")";
+        } else if(expr instanceof Exists) {
+
+            // TODO: need to make sure that variables of the parent are visible in the subquery
+            //       - pattern names need to be unique even in subqueries
+            //       - variable lookup for expressions in the subquery need to refer to the parent
+            SQLBuilder sq_builder = new SQLBuilder(((Exists) expr).getSubQuery(), bindings, dataset, converter, dialect, Collections.EMPTY_SET);
+
+            return "EXISTS (" + sq_builder.build() + ")";
         } else if(expr instanceof Str) {
             Str str = (Str)expr;
 

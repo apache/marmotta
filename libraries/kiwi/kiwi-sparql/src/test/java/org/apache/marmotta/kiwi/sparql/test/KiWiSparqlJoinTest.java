@@ -318,6 +318,19 @@ public class KiWiSparqlJoinTest {
         testQuery("query31.sparql");
     }
 
+    // minus
+    @Test
+    @Ignore("not implemented yet, see MARMOTTA-541")
+    public void testQuery32() throws Exception {
+        testQuery("query32.sparql");
+    }
+
+    // not exists
+    @Test
+    public void testQuery33() throws Exception {
+        testQuery("query33.sparql");
+    }
+
 
     // INSERT/UPDATE
     @Test
