@@ -21,6 +21,7 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openrdf.model.vocabulary.FOAF;
@@ -60,7 +61,14 @@ public class KiWiSparqlUpdateTest extends SPARQLUpdateTest {
     }
 
 
+    /**
+     * This bug is apparently an issue in Sesame and does not really concern our own SPARQL implementation. Not sure
+     * how to work around it.
+     *
+     * See https://openrdf.atlassian.net/browse/SES-2090
+     */
     @Test
+    @Ignore("ignored until fixed upstream")
     public void contextualInsertDeleteData() throws RepositoryException, MalformedQueryException, UpdateExecutionException {
 
         StringBuilder insert = new StringBuilder();

@@ -14,6 +14,8 @@
 -- limitations under the License.
 CREATE TYPE nodetype AS ENUM ('uri','bnode','string','int','double','date','boolean');
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE nodes (
   id        bigint     NOT NULL,
   ntype     nodetype   NOT NULL,

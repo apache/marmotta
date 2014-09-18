@@ -264,6 +264,39 @@ public class KiWiSparqlJoinTest {
         testQuery("query21.sparql");
     }
 
+    // order by
+    @Test
+    public void testQuery24() throws Exception {
+        testQuery("query24.sparql");
+    }
+
+
+    // simple group by
+    @Test
+    public void testQuery25() throws Exception {
+        testQuery("query25.sparql");
+    }
+
+    // bind/coalesce
+    @Test
+    public void testQuery27() throws Exception {
+        testQuery("query27.sparql");
+    }
+
+
+    // simple union
+    @Test
+    public void testQuery26() throws Exception {
+        testQuery("query26.sparql");
+    }
+
+    // union with bind
+    @Test
+    public void testQuery28() throws Exception {
+        testQuery("query28.sparql");
+    }
+
+
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {
@@ -356,8 +389,7 @@ public class KiWiSparqlJoinTest {
             Assert.assertTrue(result1.hasNext());
 
 
-
-            compareResults(result1,result2);
+            compareResults(result1, result2);
 
         } catch(RepositoryException ex) {
             con1.rollback();

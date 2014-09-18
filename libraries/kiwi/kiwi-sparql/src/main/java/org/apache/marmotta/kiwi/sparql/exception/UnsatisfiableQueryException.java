@@ -15,33 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.persistence;
-
-import org.openrdf.query.algebra.Filter;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.ValueExpr;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.apache.marmotta.kiwi.sparql.exception;
 
 /**
-* Collect all filter conditions in a query expression
-*
-* @author Sebastian Schaffert (sschaffert@apache.org)
-*/
-class FilterCollector extends QueryModelVisitorBase<RuntimeException> {
+ * Thrown in case a query cannot be satisfied (e.g. because a requested node value does not exist in the database).
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
+ */
+public class UnsatisfiableQueryException extends RuntimeException {
 
-    List<ValueExpr> filters = new ArrayList<>();
-
-    FilterCollector(TupleExpr expr) {
-        expr.visit(this);
+    public UnsatisfiableQueryException() {
     }
 
-    @Override
-    public void meet(Filter node) throws RuntimeException {
-        filters.add(node.getCondition());
-
-        super.meet(node);
+    public UnsatisfiableQueryException(String message) {
+        super(message);
     }
 }

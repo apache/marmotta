@@ -151,7 +151,7 @@ public class FileSystemContentReader implements ContentReader {
                     File file = new File(path);
                     if(file.exists() && file.canRead()) {
                         log.debug("reading file content from file {} for resource {} ...", file, resource);
-                        return Files.newInputStreamSupplier(file).getInput();
+                        return Files.asByteSource(file).openBufferedStream();
                     } else {
                         throw new FileNotFoundException("the file "+path+" does not exist or is not readable");
                     }
@@ -244,7 +244,7 @@ public class FileSystemContentReader implements ContentReader {
                         Metadata metadata = new Metadata();
                         metadata.set(Metadata.RESOURCE_NAME_KEY, file.getAbsolutePath());
                         try {
-                            InputStream in = new BufferedInputStream(Files.newInputStreamSupplier(file).getInput());
+                            InputStream in = new BufferedInputStream(Files.asByteSource(file).openBufferedStream());
                             mimeType = detector.detect(in,metadata).toString();
                             in.close();
                         } catch (IOException e) {

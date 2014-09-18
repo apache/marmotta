@@ -210,7 +210,7 @@ public class FileSystemContentWriter implements ContentWriter {
                     }
                     if(file.exists() && file.canWrite()) {
                         log.debug("writing file content to file {} for resource {} ...", file, resource);
-                        ByteStreams.copy(in, Files.newOutputStreamSupplier(file));
+                        ByteStreams.copy(in, Files.asByteSink(file).openBufferedStream());
                     } else {
                         throw new FileNotFoundException("could not write to file "+path+"; it does not exist or is not writable");
                     }

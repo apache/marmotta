@@ -101,16 +101,22 @@ public class KiWiDatabaseRunner extends Suite {
     
     public KiWiDatabaseRunner(Class<?> klass) throws Throwable {
         super(klass, Collections.<Runner>emptyList());
-        
-        ForDialects d = klass.getAnnotation(ForDialects.class);
-        if (d != null) {
+
+        if(System.getProperty("dialect") != null) {
             ArrayList<Class<? extends KiWiDialect>> forDialects = new ArrayList<>();
-            for (Class<? extends KiWiDialect> dialect : d.value()) {
-                forDialects.add(dialect);
-            }
+            forDialects.add((Class<? extends KiWiDialect>) Class.forName(System.getProperty("dialect")));
             this.forDialects = Collections.unmodifiableList(forDialects);
         } else {
-            forDialects = null;
+            ForDialects d = klass.getAnnotation(ForDialects.class);
+            if (d != null) {
+                ArrayList<Class<? extends KiWiDialect>> forDialects = new ArrayList<>();
+                for (Class<? extends KiWiDialect> dialect : d.value()) {
+                    forDialects.add(dialect);
+                }
+                this.forDialects = Collections.unmodifiableList(forDialects);
+            } else {
+                forDialects = null;
+            }
         }
         
         createRunners();
