@@ -297,6 +297,22 @@ public class KiWiSparqlJoinTest {
     }
 
 
+    // union with bind and order by
+    @Test
+    public void testQuery29() throws Exception {
+        testQuery("query29.sparql");
+    }
+
+
+
+    // bind with order by
+    @Test
+    public void testQuery30() throws Exception {
+        testQuery("query30.sparql");
+    }
+
+
+
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {

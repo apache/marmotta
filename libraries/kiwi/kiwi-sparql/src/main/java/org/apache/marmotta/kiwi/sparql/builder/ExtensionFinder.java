@@ -17,10 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Extension;
-import org.openrdf.query.algebra.ExtensionElem;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,5 +50,15 @@ public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
             }
         }
         super.meet(node);
+    }
+
+    @Override
+    public void meet(Projection node) throws RuntimeException {
+        // stop here, this is a subquery in SQL
+    }
+
+    @Override
+    public void meet(Union node) throws RuntimeException {
+        // stop here, this is a subquery in SQL
     }
 }

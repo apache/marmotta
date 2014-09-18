@@ -323,8 +323,11 @@ public class SQLBuilder {
                 addVariable(sv);
             }
 
+            // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
+            //       of variables in conditions etc
             if (hasNodeCondition(v.getName(), query)) {
-                sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+                //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
+                sv.getBindings().add(ext.getExpr());
             }
             sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
 
@@ -784,19 +787,45 @@ public class SQLBuilder {
                 return "(" + var + ".ntype = 'string' OR " + var + ".ntype = 'int' OR " + var + ".ntype = 'double'  OR " + var + ".ntype = 'date'  OR " + var + ".ntype = 'boolean')";
             }
         } else if(expr instanceof Var) {
-            String var = variables.get(((Var) expr).getName()).getPrimaryAlias();
+            // distinguish between the case where the variable is plain and the variable is bound
+            SQLVariable sv = variables.get(((Var) expr).getName());
 
-            if(optype == null) {
-                return var + ".svalue";
+            if(sv.getBindings().size() > 0) {
+                // in case the variable is actually an alias for an expression, we evaluate that expression instead, effectively replacing the
+                // variable occurrence with its value
+                return evaluateExpression(sv.getBindings().get(0),optype);
             } else {
-                switch (optype) {
-                    case STRING: return var + ".svalue";
-                    case INT:    return var + ".ivalue";
-                    case DOUBLE: return var + ".dvalue";
-                    case DATE:   return var + ".tvalue";
-                    case VALUE:  return var + ".svalue";
-                    case URI:    return var + ".svalue";
-                    case ANY:    return var + ".id";
+                String var = sv.getPrimaryAlias();
+
+                if(sv.getProjectionType() != ProjectionType.NODE && sv.getProjectionType() != ProjectionType.NONE) {
+                    // in case the variable represents a constructed or bound value instead of a node, we need to
+                    // use the SQL expression as value; SQL should take care of proper casting...
+                    // TODO: explicit casting needed?
+                    return sv.getExpressions().get(0);
+                } else {
+                    // in case the variable represents an entry from the NODES table (i.e. has been bound to a node
+                    // in the database, we take the NODES alias and resolve to the correct column according to the
+                    // operator type
+                    if (optype == null) {
+                        return var + ".svalue";
+                    } else {
+                        switch (optype) {
+                            case STRING:
+                                return var + ".svalue";
+                            case INT:
+                                return var + ".ivalue";
+                            case DOUBLE:
+                                return var + ".dvalue";
+                            case DATE:
+                                return var + ".tvalue";
+                            case VALUE:
+                                return var + ".svalue";
+                            case URI:
+                                return var + ".svalue";
+                            case ANY:
+                                return var + ".id";
+                        }
+                    }
                 }
             }
         } else if(expr instanceof ValueConstant) {

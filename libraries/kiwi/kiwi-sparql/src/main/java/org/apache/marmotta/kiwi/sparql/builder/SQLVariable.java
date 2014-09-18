@@ -17,6 +17,8 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import org.openrdf.query.algebra.ValueExpr;
+
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,6 +56,13 @@ public class SQLVariable  {
     private List<String> expressions;
 
     /**
+     * A list of value expressions bound to this variable; this is needed in case the variable is used in a filter or
+     * ORDER BY, because then we need to determine the type.
+     */
+    private List<ValueExpr> bindings;
+
+
+    /**
      * Set to something else than NONE when this variable is contained in the SELECT part of the query, i.e. needs to be projected.
      * Decides on how the variable will be projected (as node -> ID, as value -> string or numeric field)
      */
@@ -64,6 +73,7 @@ public class SQLVariable  {
         this.sparqlName = sparqlName;
 
         this.aliases = new ArrayList<>();
+        this.bindings = new ArrayList<>();
         this.expressions = new ArrayList<>();
     }
 
@@ -85,6 +95,10 @@ public class SQLVariable  {
      */
     public String getPrimaryAlias() {
         return aliases.get(0);
+    }
+
+    public List<ValueExpr> getBindings() {
+        return bindings;
     }
 
     public List<String> getExpressions() {
