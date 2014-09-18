@@ -312,6 +312,12 @@ public class KiWiSparqlJoinTest {
     }
 
 
+    // subquery with outer order by
+    @Test
+    public void testQuery31() throws Exception {
+        testQuery("query31.sparql");
+    }
+
 
     // INSERT/UPDATE
     @Test

@@ -121,6 +121,14 @@ public class SQLUnion extends SQLAbstractSubquery {
                 .append(right.build())
                 .append(")) AS ")
                 .append(alias);
+
+        for(VariableMapping var : getJoinFields()) {
+            fromClause.append(" INNER JOIN nodes AS ");
+            fromClause.append(alias + "_" + var.getParentName());
+
+            fromClause.append(" ON " + alias + "." + var.getSubqueryName() + " = " + alias + "_" + var.getParentName() + ".id ");
+        }
+
         return fromClause.toString();
     }
 

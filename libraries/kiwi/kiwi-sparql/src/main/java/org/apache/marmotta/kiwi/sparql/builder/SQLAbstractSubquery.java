@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -28,12 +29,26 @@ public abstract class SQLAbstractSubquery extends SQLClause {
 
     protected String alias;
 
+
+    /**
+     * This set contains variable names describing those variables of the subquery that need to be joined with the NODES
+     * table. This is typically the case when there is a condition or function referring to the actual value of the node
+     * and not only the ID. The joined NODES table will be aliased with {alias}_{name}.
+     */
+    private Set<VariableMapping> joinFields = new HashSet<>();
+
+
     public SQLAbstractSubquery(String alias) {
         this.alias = alias;
     }
 
     public String getAlias() {
         return alias;
+    }
+
+
+    public Set<VariableMapping> getJoinFields() {
+        return joinFields;
     }
 
     /**

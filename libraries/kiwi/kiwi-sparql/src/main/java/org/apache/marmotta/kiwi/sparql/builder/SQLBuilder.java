@@ -504,8 +504,10 @@ public class SQLBuilder {
 
             for(SQLAbstractSubquery sq : f.getSubqueries()) {
                 for(SQLVariable sq_v : sq.getQueryVariables()) {
-                    if(hasNodeCondition(sq_v.getSparqlName(),query)) {
-                        // TODO: this is needed in case we need to JOIN with the NODES table to retrieve values
+                    if(hasNodeCondition(sq_v.getSparqlName(),query) && sq_v.getProjectionType() == ProjectionType.NODE) {
+                        // this is needed in case we need to JOIN with the NODES table to retrieve values
+                        SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
+                        sq.getJoinFields().add(new VariableMapping(sv.getName(), sq_v.getName()));
                     }
                 }
             }
