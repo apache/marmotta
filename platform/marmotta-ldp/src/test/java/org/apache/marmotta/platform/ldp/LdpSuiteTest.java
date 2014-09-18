@@ -17,23 +17,12 @@
 
 package org.apache.marmotta.platform.ldp;
 
-import com.hp.hpl.jena.xmloutput.impl.Basic;
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.response.Response;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.marmotta.commons.vocabulary.LDP;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
 import org.hamcrest.CoreMatchers;
 import org.junit.*;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
@@ -45,11 +34,11 @@ import org.w3.ldp.testsuite.matcher.HttpStatusSuccessMatcher;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * LDP Test Suite runner, see <a href="https://github.com/w3c/ldp-testsuite">https://github.com/w3c/ldp-testsuite</a>.
@@ -73,6 +62,8 @@ public class LdpSuiteTest {
     private static String baseUrl;
 
     private LdpTestSuite testSuite;
+
+    private String reportPath;
 
     @BeforeClass
     public static void setup() throws URISyntaxException, IOException {
@@ -124,7 +115,6 @@ public class LdpSuiteTest {
 
         //configure test suite
         log.info("Running W3C official LDP Test Suite against '{}' server", baseUrl);
-        log.debug("(using {} as root container)", container);
         Map<String, String> options = new HashMap<>();
         options.put("server", container);
         options.put("basic", null);
@@ -137,14 +127,20 @@ public class LdpSuiteTest {
         options.put("skipLogging", null);
         options.put("excludedGroups", "MANUAL");
 
-        //reporting stuff
-        //options.put("earl", null);
-        //options.put("software", "Apache Marmotta");
-        //options.put("language", "Java");
-        //options.put("homepage", "http://marmotta.apache.org");
-        //options.put("assertor", "http://marmotta.apache.org");
-        //options.put("shortname", "Marmotta");
-        //options.put("developer", "Jakob Frank, Sergio Fernández");
+        reportPath = targetWorkingDir().getAbsolutePath();
+        options.put("output", reportPath);
+        log.debug("You can find LDP Test Suite outputs at {}", reportPath);
+
+        //w3c reporting stuff
+        /*
+        options.put("earl", null);
+        options.put("software", "Apache Marmotta");
+        options.put("language", "Java");
+        options.put("homepage", "http://marmotta.apache.org");
+        options.put("assertor", "http://marmotta.apache.org");
+        options.put("shortname", "Marmotta");
+        options.put("developer", "Jakob Frank, Sergio Fernández");
+        */
 
         testSuite = new LdpTestSuite(options);
     }
@@ -162,6 +158,15 @@ public class LdpSuiteTest {
         if ((testSuite.getStatus() & TESTNG_STATUS_HAS_SKIPPED) != 0) {
             log.warn("ldp-testsuite has skipped some tests");
         }
+    }
+
+    private File targetWorkingDir(){
+        String relPath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+        File targetDir = new File(relPath, "ldp-testsuite");
+        if(!targetDir.exists()) {
+            targetDir.mkdir();
+        }
+        return targetDir;
     }
 
 }

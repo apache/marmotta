@@ -281,7 +281,7 @@
         <dependency>
             <groupId>org.w3</groupId>
             <artifactId>ldp-testsuite</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
