@@ -17,9 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.Distinct;
-import org.openrdf.query.algebra.Reduced;
-import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 /**
@@ -43,5 +41,15 @@ public class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
     @Override
     public void meet(Reduced node) throws RuntimeException {
         distinct = true;
+    }
+
+    @Override
+    public void meet(Projection node) throws RuntimeException {
+        // stop at projection, subquery
+    }
+
+    @Override
+    public void meet(Union node) throws RuntimeException {
+        // stop at projection, subquery
     }
 }

@@ -20,36 +20,46 @@ package org.apache.marmotta.kiwi.sparql.builder;
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
-* Find the offset and limit values in a tuple expression
+* Find distinct/reduced in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class OrderFinder extends QueryModelVisitorBase<RuntimeException> {
+public class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    List<OrderElem> elements = new ArrayList<>();
+    Set<String> variableNames = new HashSet<>();
 
-    public OrderFinder(TupleExpr expr) {
+    public VariableFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
+
     @Override
-    public void meet(Order node) throws RuntimeException {
-        elements.addAll(node.getElements());
+    public void meet(Var node) throws RuntimeException {
+        variableNames.add(node.getName());
     }
 
+    @Override
+    public void meet(ExtensionElem node) throws RuntimeException {
+        variableNames.add(node.getName());
+        // don't recurse to the children, as this would project non-grouped elements
+    }
+
+    @Override
+    public void meet(Group node) throws RuntimeException {
+        variableNames.addAll(node.getGroupBindingNames());
+        // don't recurse to the children, as this would project non-grouped elements
+    }
 
 
     @Override
     public void meet(Projection node) throws RuntimeException {
-        // stop at projection, subquery
-    }
-
-    @Override
-    public void meet(Union node) throws RuntimeException {
+        for(ProjectionElem elem : node.getProjectionElemList().getElements()) {
+            variableNames.add(elem.getSourceName());
+        }
         // stop at projection, subquery
     }
 

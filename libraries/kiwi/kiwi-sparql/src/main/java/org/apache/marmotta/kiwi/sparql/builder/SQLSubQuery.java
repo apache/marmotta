@@ -22,6 +22,7 @@ import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.ProjectionElem;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,11 +39,19 @@ public class SQLSubQuery extends SQLAbstractSubquery {
 
     private Set<SQLVariable> variables = new HashSet<>();
 
-    public SQLSubQuery(String alias, Projection query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) throws UnsatisfiableQueryException {
+    public SQLSubQuery(String alias, Projection query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> parentProjectedVars) throws UnsatisfiableQueryException {
         super(alias);
 
+        Set<String> projectedVars = new HashSet<>(parentProjectedVars);
+        // count projected variables
+        for(ProjectionElem elem : query.getProjectionElemList().getElements()) {
+            projectedVars.add(elem.getSourceName());
+        }
+
+
+
         // we build a full subquery for each of the UNION's arguments
-        builder = new SQLBuilder(query.getArg(), bindings, dataset, converter, dialect);
+        builder = new SQLBuilder(query.getArg(), bindings, dataset, converter, dialect, projectedVars);
 
         for(SQLVariable svl : builder.getVariables().values()) {
             variables.add(svl);
@@ -76,7 +85,7 @@ public class SQLSubQuery extends SQLAbstractSubquery {
                 .append(alias);
 
         for(VariableMapping var : getJoinFields()) {
-            fromClause.append(" LEFT OUTER JOIN nodes AS ");  // outer join because binding might be NULL
+            fromClause.append(" LEFT JOIN nodes AS ");  // outer join because binding might be NULL
             fromClause.append(alias + "_" + var.getParentName());
 
             fromClause.append(" ON " + alias + "." + var.getSubqueryName() + " = " + alias + "_" + var.getParentName() + ".id ");

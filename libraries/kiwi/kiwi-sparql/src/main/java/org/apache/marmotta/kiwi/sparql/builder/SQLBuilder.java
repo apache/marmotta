@@ -139,6 +139,9 @@ public class SQLBuilder {
 
     private Set<String>     groupLabels;
 
+    // list of SPARQL variable names that are actually contained in the projection
+    private Set<String>     projectedVars;
+
     /**
      * Maintains a mapping between SPARQL variable names and internal variable descriptions. The internal description
      * contains information whether the variable needs to be projected, what SQL expressions represent this variable,
@@ -173,13 +176,13 @@ public class SQLBuilder {
      * @param bindings
      * @param dataset
      */
-    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, final KiWiValueFactory valueFactory, KiWiDialect dialect) throws UnsatisfiableQueryException {
+    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, final KiWiValueFactory valueFactory, KiWiDialect dialect, Set<String> projectedVars) throws UnsatisfiableQueryException {
         this(query, bindings, dataset, new ValueConverter() {
             @Override
             public KiWiNode convert(Value value) {
                 return valueFactory.convert(value);
             }
-        }, dialect);
+        }, dialect, projectedVars);
     }
 
     /**
@@ -188,12 +191,13 @@ public class SQLBuilder {
      * @param bindings
      * @param dataset
      */
-    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) throws UnsatisfiableQueryException {
+    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> projectedVars) throws UnsatisfiableQueryException {
         this.query = query;
         this.bindings = bindings;
         this.dataset = dataset;
         this.converter = converter;
         this.dialect = dialect;
+        this.projectedVars = projectedVars;
 
         prepareBuilder();
     }
@@ -203,12 +207,17 @@ public class SQLBuilder {
         return variables;
     }
 
+
+    public Set<String> getProjectedVars() {
+        return projectedVars;
+    }
+
     private void prepareBuilder()  throws UnsatisfiableQueryException {
         Preconditions.checkArgument(query instanceof Union || query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
 
         // collect all patterns in a list, using depth-first search over the join
-        PatternCollector pc = new PatternCollector(query, bindings, dataset, converter, dialect);
+        PatternCollector pc = new PatternCollector(query, bindings, dataset, converter, dialect, projectedVars);
 
         fragments = pc.parts;
 
@@ -247,7 +256,7 @@ public class SQLBuilder {
                             sv = new SQLVariable("V" + (++variableCount), v.getName());
 
                             // select those variables that are really projected and not only needed in a grouping construct
-                            if(new SQLProjectionFinder(query,v.getName()).found) {
+                            if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
                                 sv.setProjectionType(ProjectionType.NODE);
                             }
 
@@ -280,7 +289,7 @@ public class SQLBuilder {
                         sv = new SQLVariable("V" + (++variableCount), sq_v.getSparqlName());
 
                         // select those variables that are really projected and not only needed in a grouping construct
-                        if(new SQLProjectionFinder(query,sq_v.getSparqlName()).found) {
+                        if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,sq_v.getSparqlName()).found) {
                             sv.setProjectionType(sq_v.getProjectionType());
                         }
 
@@ -316,7 +325,7 @@ public class SQLBuilder {
                 sv = new SQLVariable("V" + (++variableCount), v.getName());
 
                 // select those variables that are really projected and not only needed in a grouping construct
-                if(new SQLProjectionFinder(query,v.getName()).found) {
+                if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
                     sv.setProjectionType(getProjectionType(ext.getExpr()));
                 }
 
@@ -524,7 +533,7 @@ public class SQLBuilder {
 
 
         for(SQLVariable v : vars) {
-            if(v.getProjectionType() != ProjectionType.NONE) {
+            if(v.getProjectionType() != ProjectionType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
                 String projectedName = v.getName();
                 String fromName = v.getExpressions().get(0);
 
@@ -962,6 +971,9 @@ public class SQLBuilder {
     /**
      * Check if a variable selecting a node actually has any attached condition; if not return false. This is used to
      * decide whether joining with the node itself is necessary.
+     *
+     * TODO: could be implemented as visitor instead
+     *
      * @param varName
      * @param expr
      * @return
@@ -990,6 +1002,10 @@ public class SQLBuilder {
                 }
             }
             return hasNodeCondition(varName,((Group) expr).getArg());
+        } else if(expr instanceof Union) {
+            return false; // stop looking, this is a subquery
+        } else if(expr instanceof Projection) {
+            return false; // stop looking, this is a subquery
         } else if(expr instanceof UnaryTupleOperator) {
             return hasNodeCondition(varName, ((UnaryTupleOperator) expr).getArg());
         } else if(expr instanceof BinaryTupleOperator) {
@@ -1209,6 +1225,7 @@ public class SQLBuilder {
         log.debug("original SPARQL syntax tree:\n {}", query);
         log.debug("constructed SQL query string:\n {}",queryString);
         log.debug("SPARQL -> SQL node variable mappings:\n {}", variables);
+        log.debug("projected variables:\n {}", projectedVars);
 
         return queryString.toString();
     }

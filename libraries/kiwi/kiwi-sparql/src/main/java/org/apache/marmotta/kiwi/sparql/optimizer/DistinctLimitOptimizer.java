@@ -37,13 +37,13 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
 
     @Override
     public void optimize(TupleExpr tupleExpr, Dataset dataset, BindingSet bindings) {
-        if( new LimitPreconditions(tupleExpr).isAllowed() ) {
+        //if( new LimitPreconditions(tupleExpr).isAllowed() ) {
             log.debug("applying distinct/limit optimizations ...");
 
             tupleExpr.visit(new LimitRelocator());
             tupleExpr.visit(new DistinctRelocator());
             tupleExpr.visit(new ReducedRelocator());
-        }
+        //}
     }
 
     /**
@@ -133,9 +133,17 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         private static boolean isSupported(TupleExpr expr) {
             if(expr instanceof Join) {
                 return true;
+            } else if(expr instanceof LeftJoin) {
+                return true;
             } else if(expr instanceof Filter) {
                 return true;
             } else if(expr instanceof StatementPattern) {
+                return true;
+            } else if(expr instanceof Union) {
+                return true;
+            } else if(expr instanceof Order) {
+                return true;
+            } else if(expr instanceof Group) {
                 return true;
             } else {
                 return false;
@@ -171,9 +179,17 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         private static boolean isSupported(TupleExpr expr) {
             if(expr instanceof Join) {
                 return true;
+            } else if(expr instanceof LeftJoin) {
+                return true;
             } else if(expr instanceof Filter) {
                 return true;
             } else if(expr instanceof StatementPattern) {
+                return true;
+            } else if(expr instanceof Union) {
+                return true;
+            } else if(expr instanceof Order) {
+                return true;
+            } else if(expr instanceof Group) {
                 return true;
             } else if(expr instanceof Slice) {
                 return true;
@@ -211,9 +227,17 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         private static boolean isSupported(TupleExpr expr) {
             if(expr instanceof Join) {
                 return true;
+            } else if(expr instanceof LeftJoin) {
+                return true;
             } else if(expr instanceof Filter) {
                 return true;
             } else if(expr instanceof StatementPattern) {
+                return true;
+            } else if(expr instanceof Union) {
+                return true;
+            } else if(expr instanceof Order) {
+                return true;
+            } else if(expr instanceof Group) {
                 return true;
             } else if(expr instanceof Slice) {
                 return true;

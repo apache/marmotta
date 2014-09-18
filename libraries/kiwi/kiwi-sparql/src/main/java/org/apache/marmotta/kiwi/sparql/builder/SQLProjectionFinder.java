@@ -17,10 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.ExtensionElem;
-import org.openrdf.query.algebra.Group;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,5 +68,21 @@ public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException>
         if(node.getName().equals(needle)) {
             found = true;
         }
+    }
+
+
+    @Override
+    public void meet(Projection node) throws RuntimeException {
+        for(ProjectionElem elem : node.getProjectionElemList().getElements()) {
+            if(elem.getSourceName().equals(needle)) {
+                found = true;
+            }
+        }
+        // stop at projection, subquery
+    }
+
+    @Override
+    public void meet(Union node) throws RuntimeException {
+        // stop at union, subquery
     }
 }

@@ -24,6 +24,7 @@ import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
 * Collect all statement patterns in a tuple expression.
@@ -41,13 +42,14 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
     private Dataset dataset;
     private ValueConverter converter;
     private KiWiDialect dialect;
+    private Set<String> projectedVars;
 
-
-    public PatternCollector(TupleExpr expr, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) {
+    public PatternCollector(TupleExpr expr, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> projectedVars) {
         this.bindings = bindings;
         this.dataset = dataset;
         this.converter = converter;
         this.dialect = dialect;
+        this.projectedVars = projectedVars;
 
         parts.push(new SQLFragment());
         expr.visit(this);
@@ -90,6 +92,6 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
     public void meet(Projection node) throws RuntimeException {
         // subqueries are represented with a projection inside a JOIN; we don't continue collection
 
-        parts.getLast().getSubqueries().add(new SQLSubQuery("S" + (++counter), node, bindings, dataset, converter, dialect));
+        parts.getLast().getSubqueries().add(new SQLSubQuery("S" + (++counter), node, bindings, dataset, converter, dialect, projectedVars));
     }
 }

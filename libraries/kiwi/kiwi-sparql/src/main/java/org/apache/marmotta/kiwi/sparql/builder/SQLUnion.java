@@ -25,10 +25,7 @@ import org.openrdf.query.algebra.Union;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a SPARQL UNION in SQL. Essentially, we translate a SPARQL UNION into a SQL subquery using UNION to
@@ -53,8 +50,8 @@ public class SQLUnion extends SQLAbstractSubquery {
         super(alias);
 
         // we build a full subquery for each of the UNION's arguments
-        left  = new SQLBuilder(query.getLeftArg(), bindings, dataset, converter, dialect);
-        right = new SQLBuilder(query.getRightArg(), bindings, dataset, converter, dialect);
+        left  = new SQLBuilder(query.getLeftArg(), bindings, dataset, converter, dialect, Collections.EMPTY_SET);
+        right = new SQLBuilder(query.getRightArg(), bindings, dataset, converter, dialect, Collections.EMPTY_SET);
 
         // next we make sure that both subqueries share the same SQL variables so the SQL UNION succeeds by
         // adding NULL aliases for all variables present in one but not the other
@@ -123,7 +120,7 @@ public class SQLUnion extends SQLAbstractSubquery {
                 .append(alias);
 
         for(VariableMapping var : getJoinFields()) {
-            fromClause.append(" LEFT OUTER JOIN nodes AS "); // outer join because binding might be NULL
+            fromClause.append(" LEFT JOIN nodes AS "); // outer join because binding might be NULL
             fromClause.append(alias + "_" + var.getParentName());
 
             fromClause.append(" ON " + alias + "." + var.getSubqueryName() + " = " + alias + "_" + var.getParentName() + ".id ");

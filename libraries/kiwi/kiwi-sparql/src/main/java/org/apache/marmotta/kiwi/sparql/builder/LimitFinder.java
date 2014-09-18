@@ -17,8 +17,10 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import org.openrdf.query.algebra.Projection;
 import org.openrdf.query.algebra.Slice;
 import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Union;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 /**
@@ -41,4 +43,16 @@ public class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
         if(node.hasOffset())
             offset = node.getOffset();
     }
+
+
+    @Override
+    public void meet(Projection node) throws RuntimeException {
+        // stop at projection, subquery
+    }
+
+    @Override
+    public void meet(Union node) throws RuntimeException {
+        // stop at projection, subquery
+    }
+
 }

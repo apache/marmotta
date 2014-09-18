@@ -33,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An implementation of the SPARQL query evaluation strategy with specific extensions and optimizations. The KiWi
@@ -52,10 +54,53 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategyImpl.class);
 
+    // TODO: supported features should be checked based on this Set
+    private static Set<Class> supportedConstructs = new HashSet<>();
+    static {
+        supportedConstructs.add(Join.class);
+        supportedConstructs.add(LeftJoin.class);
+        supportedConstructs.add(Filter.class);
+        supportedConstructs.add(Extension.class);
+        supportedConstructs.add(StatementPattern.class);
+        supportedConstructs.add(Slice.class);
+        supportedConstructs.add(Reduced.class);
+        supportedConstructs.add(Distinct.class);
+        supportedConstructs.add(Union.class);
+        supportedConstructs.add(Projection.class); // subquery only
+        supportedConstructs.add(Order.class);
+        supportedConstructs.add(Group.class);
+
+        supportedConstructs.add(Coalesce.class);
+        supportedConstructs.add(Count.class);
+        supportedConstructs.add(Avg.class);
+        supportedConstructs.add(Min.class);
+        supportedConstructs.add(Max.class);
+        supportedConstructs.add(Sum.class);
+        supportedConstructs.add(Compare.class);
+        supportedConstructs.add(MathExpr.class);
+        supportedConstructs.add(And.class);
+        supportedConstructs.add(Or.class);
+        supportedConstructs.add(Not.class);
+        supportedConstructs.add(Var.class);
+        supportedConstructs.add(Str.class);
+        supportedConstructs.add(Label.class);
+        supportedConstructs.add(IsResource.class);
+        supportedConstructs.add(IsURI.class);
+        supportedConstructs.add(IsBNode.class);
+        supportedConstructs.add(IsLiteral.class);
+        supportedConstructs.add(Lang.class);
+        supportedConstructs.add(LangMatches.class);
+        supportedConstructs.add(Regex.class);
+        supportedConstructs.add(FunctionCall.class); // need to check for supported functions
+    }
+
+
     /**
      * The database connection offering specific SPARQL-SQL optimizations.
      */
     private KiWiSparqlConnection connection;
+
+    private Set<String> projectedVars = new HashSet<>();
 
     public KiWiEvaluationStrategyImpl(TripleSource tripleSource, KiWiSparqlConnection connection) {
         super(tripleSource);
@@ -68,28 +113,22 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     @Override
-    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Union union, BindingSet bindings) throws QueryEvaluationException {
-        if(Thread.currentThread().isInterrupted()) {
-            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Projection projection, BindingSet bindings) throws QueryEvaluationException {
+        // count projected variables
+        if(isSupported(projection.getArg())) {
+            for (ProjectionElem elem : projection.getProjectionElemList().getElements()) {
+                projectedVars.add(elem.getSourceName());
+            }
         }
 
-        if(isSupported(union)) {
-            log.debug("applying KiWi UNION optimizations on SPARQL query ...");
+        return super.evaluate(projection, bindings);
+    }
 
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(union, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e.getMessage());
-            }
+
+    @Override
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Union union, BindingSet bindings) throws QueryEvaluationException {
+        if(isSupported(union)) {
+            return evaluateNative(union, bindings);
         } else {
             return super.evaluate(union, bindings);
         }
@@ -97,27 +136,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Extension order, BindingSet bindings) throws QueryEvaluationException {
-        if(Thread.currentThread().isInterrupted()) {
-            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
-        }
-
         if(isSupported(order)) {
-            log.debug("applying KiWi EXTENSION optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(order, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e.getMessage());
-            }
+            return evaluateNative(order, bindings);
         } else {
             return super.evaluate(order, bindings);
         }
@@ -126,27 +146,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Order order, BindingSet bindings) throws QueryEvaluationException {
-        if(Thread.currentThread().isInterrupted()) {
-            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
-        }
-
         if(isSupported(order)) {
-            log.debug("applying KiWi ORDER optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(order, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e.getMessage());
-            }
+            return evaluateNative(order, bindings);
         } else {
             return super.evaluate(order, bindings);
         }
@@ -155,27 +156,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(LeftJoin join, BindingSet bindings) throws QueryEvaluationException {
-        if(Thread.currentThread().isInterrupted()) {
-            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
-        }
-
         if(isSupported(join)) {
-            log.debug("applying KiWi LEFTJOIN optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(join, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e.getMessage());
-            }
+            return evaluateNative(join, bindings);
         } else {
             return super.evaluate(join, bindings);
         }
@@ -184,27 +166,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Join join, BindingSet bindings) throws QueryEvaluationException {
-        if(Thread.currentThread().isInterrupted()) {
-            throw new QueryEvaluationException("SPARQL evaluation has already been cancelled");
-        }
-
         if(isSupported(join)) {
-            log.debug("applying KiWi JOIN optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(join, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e.getMessage(),e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e.getMessage());
-            }
+            return evaluateNative(join, bindings);
         } else {
             return super.evaluate(join, bindings);
         }
@@ -213,22 +176,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Filter join, BindingSet bindings) throws QueryEvaluationException {
         if(isSupported(join)) {
-            log.debug("applying KiWi FILTER optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(join, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e);
-            }
+            return evaluateNative(join, bindings);
         } else {
             return super.evaluate(join, bindings);
         }
@@ -237,22 +185,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Slice slice, BindingSet bindings) throws QueryEvaluationException {
         if(isSupported(slice)) {
-            log.debug("applying KiWi SLICE optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(slice, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e);
-            }
+            return evaluateNative(slice, bindings);
         } else {
             return super.evaluate(slice, bindings);
         }
@@ -261,22 +194,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Reduced reduced, BindingSet bindings) throws QueryEvaluationException {
         if(isSupported(reduced)) {
-            log.debug("applying KiWi REDUCED optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(reduced, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e);
-            }
+            return evaluateNative(reduced, bindings);
         } else {
             return super.evaluate(reduced, bindings);
         }
@@ -285,26 +203,31 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Distinct distinct, BindingSet bindings) throws QueryEvaluationException {
         if(isSupported(distinct)) {
-            log.debug("applying KiWi DISTINCT optimizations on SPARQL query ...");
-
-            try {
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(distinct, bindings, dataset)) {
-                    @Override
-                    protected QueryEvaluationException convert(Exception e) {
-                        return new QueryEvaluationException(e);
-                    }
-                };
-            } catch (SQLException e) {
-                throw new QueryEvaluationException(e);
-            } catch (IllegalArgumentException e) {
-                throw new QueryEvaluationException(e);
-            } catch (InterruptedException e) {
-                throw new QueryInterruptedException(e);
-            }
+            return evaluateNative(distinct, bindings);
         } else {
             return super.evaluate(distinct, bindings);
         }
     }
+
+    public CloseableIteration<BindingSet, QueryEvaluationException> evaluateNative(TupleExpr expr, BindingSet bindings) throws QueryEvaluationException {
+        log.debug("applying KiWi native optimizations on SPARQL query ...");
+
+        try {
+            return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(connection.evaluateNative(expr, bindings, dataset, projectedVars)) {
+                @Override
+                protected QueryEvaluationException convert(Exception e) {
+                    return new QueryEvaluationException(e);
+                }
+            };
+        } catch (SQLException e) {
+            throw new QueryEvaluationException(e);
+        } catch (IllegalArgumentException e) {
+            throw new QueryEvaluationException(e);
+        } catch (InterruptedException e) {
+            throw new QueryInterruptedException(e);
+        }
+    }
+
 
 
     /**
@@ -316,7 +239,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         if(expr instanceof Join) {
             return isSupported(((Join) expr).getLeftArg()) && isSupported(((Join) expr).getRightArg());
         } else if(expr instanceof LeftJoin) {
-                return isSupported(((LeftJoin) expr).getLeftArg()) && isSupported(((LeftJoin) expr).getRightArg()) && isSupported(((LeftJoin)expr).getCondition());
+            return isSupported(((LeftJoin) expr).getLeftArg()) && isSupported(((LeftJoin) expr).getRightArg()) && isSupported(((LeftJoin)expr).getCondition());
         } else if(expr instanceof Filter) {
             return isSupported(((Filter) expr).getArg()) && isSupported(((Filter) expr).getCondition());
         } else if(expr instanceof Extension) {

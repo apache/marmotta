@@ -47,6 +47,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -82,10 +83,10 @@ public class KiWiSparqlConnection {
      * @param dataset
      * @return
      */
-    public CloseableIteration<BindingSet, SQLException> evaluateNative(TupleExpr join, final BindingSet bindings, final Dataset dataset) throws SQLException, InterruptedException {
+    public CloseableIteration<BindingSet, SQLException> evaluateNative(TupleExpr join, final BindingSet bindings, final Dataset dataset, Set<String> projectedVars) throws SQLException, InterruptedException {
 
         try {
-            final SQLBuilder builder = new SQLBuilder(join, bindings, dataset, valueFactory, parent.getDialect());
+            final SQLBuilder builder = new SQLBuilder(join, bindings, dataset, valueFactory, parent.getDialect(), projectedVars);
 
             final PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(builder.build());
             if (parent.getDialect().isCursorSupported()) {
@@ -123,7 +124,7 @@ public class KiWiSparqlConnection {
                         long[] nodeIds = new long[vars.size()];
                         for(int i=0; i<vars.size(); i++) {
                             SQLVariable sv = vars.get(i);
-                            if(sv.getProjectionType() == ProjectionType.NODE) {
+                            if(sv.getProjectionType() == ProjectionType.NODE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 nodeIds[i] = row.getLong(sv.getName());
                             }
                         }
@@ -134,7 +135,7 @@ public class KiWiSparqlConnection {
                             if(nodes[i] != null) {
                                 // resolved node
                                 resultRow.addBinding(sv.getSparqlName(), nodes[i]);
-                            } else if(sv.getProjectionType() != ProjectionType.NONE) {
+                            } else if(sv.getProjectionType() != ProjectionType.NONE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 // literal value
                                 String value = row.getString(sv.getName());
                                 if(value != null) {
