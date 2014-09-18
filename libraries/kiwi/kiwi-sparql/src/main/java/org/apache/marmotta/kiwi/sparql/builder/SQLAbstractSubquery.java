@@ -52,6 +52,27 @@ public abstract class SQLAbstractSubquery extends SQLClause {
     }
 
     /**
+     * Return true when the pattern involves JOINs with the NODES table; in this case we need to enclose the
+     * FROM clause with parentheses before joining with previous clauses.
+     * @return
+     */
+    public boolean hasJoinFields() {
+        return joinFields.size() > 0;
+    }
+
+
+    /**
+     * Return true if the FROM clause requires parenthesis before
+     *
+     * @return
+     */
+    @Override
+    public boolean needsParentheses() {
+        return hasJoinFields();
+    }
+
+
+    /**
      * Return the SQL variables used by the subquery; we need this to do proper mapping in the parent query.
      * @return
      */

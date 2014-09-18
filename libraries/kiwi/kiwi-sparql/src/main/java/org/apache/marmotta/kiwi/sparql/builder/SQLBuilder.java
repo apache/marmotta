@@ -522,12 +522,21 @@ public class SQLBuilder {
         List<SQLVariable> vars = new ArrayList<>(variables.values());
         Collections.sort(vars, SQLVariable.sparqlNameComparator);
 
+
         for(SQLVariable v : vars) {
             if(v.getProjectionType() != ProjectionType.NONE) {
                 String projectedName = v.getName();
                 String fromName = v.getExpressions().get(0);
 
                 projections.add(fromName + " AS " + projectedName);
+            }
+        }
+
+        // SQL enforces ORDER BY variables to occur in the select part in case distinct is set
+        int counter = 0;
+        if(distinct) {
+            for(OrderElem e : orderby) {
+                projections.add(evaluateExpression(e.getExpr(), OPTypes.VALUE) + " AS _OB" + (++counter));
             }
         }
 

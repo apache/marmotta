@@ -76,7 +76,7 @@ public class SQLSubQuery extends SQLAbstractSubquery {
                 .append(alias);
 
         for(VariableMapping var : getJoinFields()) {
-            fromClause.append(" INNER JOIN nodes AS ");
+            fromClause.append(" LEFT OUTER JOIN nodes AS ");  // outer join because binding might be NULL
             fromClause.append(alias + "_" + var.getParentName());
 
             fromClause.append(" ON " + alias + "." + var.getSubqueryName() + " = " + alias + "_" + var.getParentName() + ".id ");
