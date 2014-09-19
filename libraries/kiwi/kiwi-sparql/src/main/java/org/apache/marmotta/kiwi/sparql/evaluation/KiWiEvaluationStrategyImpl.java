@@ -231,6 +231,9 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     /**
      * Test if a tuple expression is supported nby the optimized evaluation; in this case we can apply a specific optimization.
+     *
+     * TODO: implement as visitor
+     *
      * @param expr
      * @return
      */
@@ -282,6 +285,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     /**
      * Test if the value expression construct and all its subexpressions are supported by the optimized evaluation
      * strategy. Returns true if yes, false otherwise.
+     *
+     * TODO: implement as visitor
      *
      * @param expr
      * @return

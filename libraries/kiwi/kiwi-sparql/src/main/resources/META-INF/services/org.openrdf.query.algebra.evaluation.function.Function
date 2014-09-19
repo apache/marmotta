@@ -1,2 +1,4 @@
 org.apache.marmotta.kiwi.sparql.function.custom.FulltextSearchFunction
 org.apache.marmotta.kiwi.sparql.function.custom.FulltextQueryFunction
+org.apache.marmotta.kiwi.sparql.function.custom.Stddev
+org.apache.marmotta.kiwi.sparql.function.custom.Variance
