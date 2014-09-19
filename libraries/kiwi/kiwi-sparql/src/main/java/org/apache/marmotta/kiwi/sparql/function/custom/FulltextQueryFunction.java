@@ -14,13 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.marmotta.kiwi.sparql.function;
+package org.apache.marmotta.kiwi.sparql.function.custom;
 
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
+import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
-import org.openrdf.query.algebra.evaluation.function.Function;
 import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
@@ -42,7 +45,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class FulltextQueryFunction implements Function {
+public class FulltextQueryFunction implements NativeFunction {
 
     // auto-register for SPARQL environment
     static {
@@ -59,5 +62,78 @@ public class FulltextQueryFunction implements Function {
     @Override
     public String getURI() {
         return FN_MARMOTTA.QUERY_FULLTEXT.toString();
+    }
+
+
+    /**
+     * Return true if this function has available native support for the given dialect
+     *
+     * @param dialect
+     * @return
+     */
+    @Override
+    public boolean isSupported(KiWiDialect dialect) {
+        return dialect instanceof PostgreSQLDialect;
+    }
+
+    /**
+     * Return a string representing how this function is translated into SQL in the given dialect
+     *
+     * @param dialect
+     * @param args
+     * @return
+     */
+    @Override
+    public String getNative(KiWiDialect dialect, String... args) {
+        if(dialect instanceof PostgreSQLDialect) {
+            if(args.length == 2) {
+                return String.format("(to_tsvector('simple' :: regconfig,%1$s) @@ to_tsquery('simple' :: regconfig,%2$s))", args[0], args[1]);
+            } else if(args.length == 3) {
+                return String.format("(to_tsvector(kiwi_ft_lang(%3$s) :: regconfig, %1$s) @@ to_tsquery(kiwi_ft_lang(%3$s) :: regconfig, %2$s))", args[0], args[1], args[2]);
+            }
+        }
+        throw new UnsupportedOperationException("fulltext search not supported by dialect "+dialect);
+    }
+
+    /**
+     * Get the return type of the function. This is needed for SQL type casting inside KiWi.
+     *
+     * @return
+     */
+    @Override
+    public OPTypes getReturnType() {
+        return OPTypes.BOOL;
+    }
+
+    /**
+     * Get the argument type of the function for the arg'th argument (starting to count at 0).
+     * This is needed for SQL type casting inside KiWi.
+     *
+     * @param arg
+     * @return
+     */
+    @Override
+    public OPTypes getArgumentType(int arg) {
+        return OPTypes.STRING;
+    }
+
+    /**
+     * Return the minimum number of arguments this function requires.
+     *
+     * @return
+     */
+    @Override
+    public int getMinArgs() {
+        return 2;
+    }
+
+    /**
+     * Return the maximum number of arguments this function can take
+     *
+     * @return
+     */
+    @Override
+    public int getMaxArgs() {
+        return 3;
     }
 }
