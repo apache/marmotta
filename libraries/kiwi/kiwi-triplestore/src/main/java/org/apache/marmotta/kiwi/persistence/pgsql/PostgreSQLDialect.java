@@ -302,7 +302,7 @@ public class PostgreSQLDialect extends KiWiDialect {
             }
         } else if(FN_MARMOTTA.MD5.equals(fnUri)) {
             if(args.length == 1) {
-                return String.format("encode(digest('%s', 'md5'), 'hex')", args[0]);
+                return String.format("encode(digest(%s, 'md5'), 'hex')", args[0]);
             } else {
                 throw new IllegalArgumentException("MD5() takes exactly 1 argument");
             }
