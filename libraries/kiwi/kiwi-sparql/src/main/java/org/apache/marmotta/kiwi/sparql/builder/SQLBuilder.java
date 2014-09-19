@@ -147,7 +147,7 @@ public class SQLBuilder {
      * contains information whether the variable needs to be projected, what SQL expressions represent this variable,
      * and what internal aliases to use.
      */
-    private Map<String,SQLVariable> variables = new HashMap<>();
+    private Map<String,SQLVariable> variables;
     protected void addVariable(SQLVariable v) {
         variables.put(v.getSparqlName(),v);
     }
@@ -169,6 +169,8 @@ public class SQLBuilder {
 
     private KiWiDialect dialect;
 
+    // a prefix for naming table aliases (needed in case this is a subquery)
+    private String prefix;
 
     /**
      * Create a new SQLBuilder for the given query, initial bindings, dataset, and
@@ -185,19 +187,26 @@ public class SQLBuilder {
         }, dialect, projectedVars);
     }
 
+
+    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> projectedVars) throws UnsatisfiableQueryException {
+        this(query,bindings, dataset, converter, dialect, "", projectedVars, new HashMap<String, SQLVariable>());
+    }
+
     /**
      * Create a new SQLBuilder for the given query, initial bindings, dataset, and
      * @param query
      * @param bindings
      * @param dataset
      */
-    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> projectedVars) throws UnsatisfiableQueryException {
+    public SQLBuilder(TupleExpr query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, String prefix, Set<String> projectedVars, Map<String,SQLVariable> variables) throws UnsatisfiableQueryException {
         this.query = query;
         this.bindings = bindings;
         this.dataset = dataset;
         this.converter = converter;
         this.dialect = dialect;
         this.projectedVars = projectedVars;
+        this.prefix = prefix;
+        this.variables = variables;
 
         prepareBuilder();
     }
@@ -217,7 +226,7 @@ public class SQLBuilder {
 
 
         // collect all patterns in a list, using depth-first search over the join
-        PatternCollector pc = new PatternCollector(query, bindings, dataset, converter, dialect, projectedVars);
+        PatternCollector pc = new PatternCollector(query, bindings, dataset, converter, dialect, projectedVars, prefix);
 
         fragments = pc.parts;
 
@@ -715,7 +724,7 @@ public class SQLBuilder {
             // TODO: need to make sure that variables of the parent are visible in the subquery
             //       - pattern names need to be unique even in subqueries
             //       - variable lookup for expressions in the subquery need to refer to the parent
-            SQLBuilder sq_builder = new SQLBuilder(((Exists) expr).getSubQuery(), bindings, dataset, converter, dialect, Collections.EMPTY_SET);
+            SQLBuilder sq_builder = new SQLBuilder(((Exists) expr).getSubQuery(), bindings, dataset, converter, dialect, "_", Collections.EMPTY_SET, variables);
 
             return "EXISTS (" + sq_builder.build() + ")";
         } else if(expr instanceof Str) {

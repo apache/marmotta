@@ -43,13 +43,15 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
     private ValueConverter converter;
     private KiWiDialect dialect;
     private Set<String> projectedVars;
+    private String prefix;
 
-    public PatternCollector(TupleExpr expr, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> projectedVars) {
+    public PatternCollector(TupleExpr expr, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect, Set<String> projectedVars, String prefix) {
         this.bindings = bindings;
         this.dataset = dataset;
         this.converter = converter;
         this.dialect = dialect;
         this.projectedVars = projectedVars;
+        this.prefix  = prefix;
 
         parts.push(new SQLFragment());
         expr.visit(this);
@@ -57,7 +59,7 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(StatementPattern node) throws RuntimeException {
-        parts.getLast().getPatterns().add(new SQLPattern("P" + (++counter), node));
+        parts.getLast().getPatterns().add(new SQLPattern(prefix + "P" + (++counter), node));
 
         super.meet(node);
     }
@@ -85,13 +87,18 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
     public void meet(Union node) throws RuntimeException {
         // unions are treated as subqueries, don't continue collection, but add the Union to the last part
 
-        parts.getLast().getSubqueries().add(new SQLUnion("U" + (++counter),node, bindings, dataset, converter, dialect));
+        parts.getLast().getSubqueries().add(new SQLUnion(prefix + "U" + (++counter),node, bindings, dataset, converter, dialect));
     }
 
     @Override
     public void meet(Projection node) throws RuntimeException {
         // subqueries are represented with a projection inside a JOIN; we don't continue collection
 
-        parts.getLast().getSubqueries().add(new SQLSubQuery("S" + (++counter), node, bindings, dataset, converter, dialect, projectedVars));
+        parts.getLast().getSubqueries().add(new SQLSubQuery(prefix + "S" + (++counter), node, bindings, dataset, converter, dialect, projectedVars));
+    }
+
+    @Override
+    public void meet(Exists node) throws RuntimeException {
+        // stop at exists, it is treated as a subquery in the condition part
     }
 }
