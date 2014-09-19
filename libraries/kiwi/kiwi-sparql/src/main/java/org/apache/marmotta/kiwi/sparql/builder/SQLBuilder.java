@@ -26,8 +26,8 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
-import org.apache.marmotta.kiwi.sparql.function.FunctionUtil;
-import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.model.*;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.SESAME;
@@ -64,60 +64,9 @@ public class SQLBuilder {
 
 
     /**
-     * Type coercion for function parameters and return values, defines for each function the type used by its parameters
+     * Reference to the registry of natively supported functions with parameter and return types as well as SQL translation
      */
-    private static Map<URI, SQLFunction> functions = new HashMap<>();
-    
-    private static void addFunction(URI uri, OPTypes paramType, OPTypes returnType, SQLFunction.Arity arity) {
-        functions.put(uri, new SQLFunction(uri,paramType,returnType,arity));
-    }
-    
-    static {
-        addFunction(FN.CONCAT, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.NARY);
-        addFunction(FN.CONTAINS, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.BINARY);
-        addFunction(FN.LOWER_CASE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN.UPPER_CASE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN.REPLACE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
-        addFunction(FN.SUBSTRING_AFTER, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
-        addFunction(FN.SUBSTRING_BEFORE, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
-        addFunction(FN.STARTS_WITH, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.BINARY);
-        addFunction(FN.ENDS_WITH, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.BINARY);
-        addFunction(FN.STRING_LENGTH, OPTypes.STRING, OPTypes.INT, SQLFunction.Arity.BINARY);
-        addFunction(FN.SUBSTRING, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.BINARY);
-
-        addFunction(FN.NUMERIC_ABS, OPTypes.DOUBLE, OPTypes.DOUBLE, SQLFunction.Arity.UNARY);
-        addFunction(FN.NUMERIC_CEIL, OPTypes.DOUBLE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN.NUMERIC_FLOOR, OPTypes.DOUBLE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN.NUMERIC_ROUND, OPTypes.DOUBLE, OPTypes.INT, SQLFunction.Arity.UNARY);
-
-
-        addFunction(FN_MARMOTTA.YEAR, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.MONTH, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.DAY, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.HOURS, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.MINUTES, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SECONDS, OPTypes.DATE, OPTypes.INT, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.TIMEZONE, OPTypes.DATE, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.TZ, OPTypes.DATE, OPTypes.STRING, SQLFunction.Arity.UNARY);
-
-        addFunction(FN_MARMOTTA.MD5, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA1, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA256, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA384, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.SHA512, OPTypes.STRING, OPTypes.STRING, SQLFunction.Arity.UNARY);
-
-        addFunction(FN_MARMOTTA.UUID, OPTypes.ANY, OPTypes.URI, SQLFunction.Arity.ZERO);
-        addFunction(FN_MARMOTTA.STRUUID, OPTypes.ANY, OPTypes.STRING, SQLFunction.Arity.ZERO);
-        addFunction(FN_MARMOTTA.RAND, OPTypes.ANY, OPTypes.DOUBLE, SQLFunction.Arity.ZERO);
-
-        addFunction(FN_MARMOTTA.STDDEV, OPTypes.DOUBLE, OPTypes.DOUBLE, SQLFunction.Arity.UNARY);
-        addFunction(FN_MARMOTTA.VARIANCE, OPTypes.DOUBLE, OPTypes.DOUBLE, SQLFunction.Arity.UNARY);
-
-        addFunction(FN_MARMOTTA.QUERY_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.NARY);
-        addFunction(FN_MARMOTTA.SEARCH_FULLTEXT, OPTypes.STRING, OPTypes.BOOL, SQLFunction.Arity.NARY);
-
-    }
-    
+    private NativeFunctionRegistry functionRegistry = NativeFunctionRegistry.getInstance();
 
     /**
      * Query results should be DISTINCT.
@@ -275,7 +224,7 @@ public class SQLBuilder {
                         String pName = p.getName();
                         String vName = sv.getName();
 
-                        if (hasNodeCondition(v.getName(), query)) {
+                        if (new ConditionFinder(v.getName(), query).found) {
                             sv.getAliases().add(pName + "_" + positions[i] + "_" + vName);
                         }
 
@@ -308,7 +257,7 @@ public class SQLBuilder {
                     String sqName = sq.getAlias();
                     String vName = sv.getName();
 
-                    if (hasNodeCondition(sq_v.getSparqlName(), query)) {
+                    if (new ConditionFinder(sq_v.getSparqlName(), query).found) {
                         sv.getAliases().add(sqName + "_" + vName);
                     }
 
@@ -344,7 +293,7 @@ public class SQLBuilder {
 
             // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
             //       of variables in conditions etc
-            if (hasNodeCondition(v.getName(), query)) {
+            if (new ConditionFinder(v.getName(), query).found) {
                 //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
                 sv.getBindings().add(ext.getExpr());
             }
@@ -515,7 +464,7 @@ public class SQLBuilder {
 
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
-                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && hasNodeCondition(fieldEntry.getValue().getName(),query)) {
+                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && new ConditionFinder(fieldEntry.getValue().getName(),query).found) {
                         p.setJoinField(fieldEntry.getKey(), variables.get(fieldEntry.getValue().getName()).getName());
                     }
                 }
@@ -523,7 +472,7 @@ public class SQLBuilder {
 
             for(SQLAbstractSubquery sq : f.getSubqueries()) {
                 for(SQLVariable sq_v : sq.getQueryVariables()) {
-                    if(hasNodeCondition(sq_v.getSparqlName(),query) && sq_v.getProjectionType() == ProjectionType.NODE) {
+                    if(new ConditionFinder(sq_v.getSparqlName(),query).found && sq_v.getProjectionType() == ProjectionType.NODE) {
                         // this is needed in case we need to JOIN with the NODES table to retrieve values
                         SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
                         sq.getJoinFields().add(new VariableMapping(sv.getName(), sq_v.getName()));
@@ -757,7 +706,7 @@ public class SQLBuilder {
 
             if(ot == OPTypes.STRING) {
                 if(cmp.getOperator() == MathExpr.MathOp.PLUS) {
-                    return dialect.getConcat(evaluateExpression(cmp.getLeftArg(), ot), evaluateExpression(cmp.getRightArg(), ot));
+                    return NativeFunctionRegistry.getInstance().get(FN.CONCAT.stringValue()).getNative(dialect,evaluateExpression(cmp.getLeftArg(), ot), evaluateExpression(cmp.getRightArg(), ot));
                 } else {
                     throw new IllegalArgumentException("operation "+cmp.getOperator()+" is not supported on strings");
                 }
@@ -942,20 +891,26 @@ public class SQLBuilder {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.DATE);
             }
 
-            URI fnUri = FunctionUtil.getFunctionUri(fc.getURI());;
+            String fnUri = fc.getURI();
 
             String[] args = new String[fc.getArgs().size()];
 
-            OPTypes fOpType = functions.containsKey(fnUri) ? functions.get(fnUri).getParameterType() : OPTypes.STRING;
+            NativeFunction nf = functionRegistry.get(fnUri);
 
-            for(int i=0; i<args.length;i++) {
-                args[i] = evaluateExpression(fc.getArgs().get(i), fOpType);
-            }
+            if(nf != null && nf.isSupported(dialect)) {
+                OPTypes fOpType = nf.getArgumentType(0);
 
-            if(optype != null && (!functions.containsKey(fnUri) || optype != functions.get(fnUri).getReturnType())) {
-                return castExpression(dialect.getFunction(fnUri, args), optype);
+                for (int i = 0; i < args.length; i++) {
+                    args[i] = evaluateExpression(fc.getArgs().get(i), fOpType);
+                }
+
+                if (optype != null && optype != nf.getReturnType()) {
+                    return castExpression(nf.getNative(dialect, args), optype);
+                } else {
+                    return nf.getNative(dialect, args);
+                }
             } else {
-                return dialect.getFunction(fnUri, args);
+                throw new IllegalArgumentException("the function "+fnUri+" is not supported by the SQL translation");
             }
         }
 
@@ -989,13 +944,13 @@ public class SQLBuilder {
 
         switch (type) {
             case DOUBLE:
-                return dialect.getFunction(XMLSchema.DOUBLE, arg);
+                return functionRegistry.get(XMLSchema.DOUBLE).getNative(dialect, arg);
             case INT:
-                return dialect.getFunction(XMLSchema.INTEGER, arg);
+                return functionRegistry.get(XMLSchema.INTEGER).getNative(dialect, arg);
             case BOOL:
-                return dialect.getFunction(XMLSchema.BOOLEAN, arg);
+                return functionRegistry.get(XMLSchema.BOOLEAN).getNative(dialect, arg);
             case DATE:
-                return dialect.getFunction(XMLSchema.DATETIME, arg);
+                return functionRegistry.get(XMLSchema.DATETIME).getNative(dialect, arg);
             case VALUE:
                 return arg;
             case ANY:
@@ -1003,77 +958,6 @@ public class SQLBuilder {
             default:
                 return arg;
         }
-    }
-
-    /**
-     * Check if a variable selecting a node actually has any attached condition; if not return false. This is used to
-     * decide whether joining with the node itself is necessary.
-     *
-     * TODO: could be implemented as visitor instead
-     *
-     * @param varName
-     * @param expr
-     * @return
-     */
-    private boolean hasNodeCondition(String varName, TupleExpr expr) {
-        if(expr instanceof Filter) {
-            return hasNodeCondition(varName, ((UnaryTupleOperator) expr).getArg()) || hasNodeCondition(varName,  ((Filter) expr).getCondition());
-        } else if(expr instanceof Extension) {
-            for(ExtensionElem elem : ((Extension) expr).getElements()) {
-                if(hasNodeCondition(varName, elem.getExpr())) {
-                    return true;
-                }
-            }
-            return hasNodeCondition(varName,((Extension) expr).getArg());
-        } else if(expr instanceof Order) {
-            for(OrderElem elem : ((Order) expr).getElements()) {
-                if(hasNodeCondition(varName, elem.getExpr())) {
-                    return true;
-                }
-            }
-            return hasNodeCondition(varName,((Order) expr).getArg());
-        } else if(expr instanceof Group) {
-            for(GroupElem elem : ((Group) expr).getGroupElements()) {
-                if(hasNodeCondition(varName, elem.getOperator())) {
-                    return true;
-                }
-            }
-            return hasNodeCondition(varName,((Group) expr).getArg());
-        } else if(expr instanceof Union) {
-            return false; // stop looking, this is a subquery
-        } else if(expr instanceof Projection) {
-            return false; // stop looking, this is a subquery
-        } else if(expr instanceof UnaryTupleOperator) {
-            return hasNodeCondition(varName, ((UnaryTupleOperator) expr).getArg());
-        } else if(expr instanceof BinaryTupleOperator) {
-            return hasNodeCondition(varName, ((BinaryTupleOperator) expr).getLeftArg()) || hasNodeCondition(varName, ((BinaryTupleOperator) expr).getRightArg());
-        } else {
-            return false;
-        }
-
-    }
-
-    private boolean hasNodeCondition(String varName, ValueExpr expr) {
-        if(expr instanceof Var) {
-            return varName.equals(((Var) expr).getName());
-        } else if(expr instanceof UnaryValueOperator) {
-            return hasNodeCondition(varName, ((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof BinaryValueOperator) {
-            return hasNodeCondition(varName, ((BinaryValueOperator) expr).getLeftArg()) || hasNodeCondition(varName, ((BinaryValueOperator) expr).getRightArg());
-        } else if(expr instanceof NAryValueOperator) {
-            for(ValueExpr e : ((NAryValueOperator) expr).getArguments()) {
-                if(hasNodeCondition(varName,e)) {
-                    return true;
-                }
-            }
-        } else if(expr instanceof FunctionCall) {
-            for(ValueExpr e : ((FunctionCall) expr).getArgs()) {
-                if(hasNodeCondition(varName,e)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private String getSQLOperator(Compare.CompareOp op) {
@@ -1174,7 +1058,7 @@ public class SQLBuilder {
 
     protected ProjectionType getProjectionType(ValueExpr expr) {
         if(expr instanceof FunctionCall) {
-            return opTypeToProjection(functions.get(FunctionUtil.getFunctionUri(((FunctionCall) expr).getURI())).getReturnType());
+            return opTypeToProjection(functionRegistry.get(((FunctionCall) expr).getURI()).getReturnType());
         } else if(expr instanceof NAryValueOperator) {
             return getProjectionType(((NAryValueOperator) expr).getArguments().get(0));
         } else if(expr instanceof ValueConstant) {

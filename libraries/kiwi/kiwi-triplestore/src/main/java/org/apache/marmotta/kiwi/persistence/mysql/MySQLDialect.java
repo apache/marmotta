@@ -17,13 +17,9 @@
  */
 package org.apache.marmotta.kiwi.persistence.mysql;
 
-import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.FN;
-import org.openrdf.model.vocabulary.XMLSchema;
 
 /**
  * A dialect for MySQL. When using MySQL, make sure the JDBC connection URL has the following arguments (workarounds
@@ -49,32 +45,6 @@ public class MySQLDialect extends KiWiDialect {
         } catch (ClassNotFoundException e) {
             throw new DriverNotFoundException(getDriverClass());
         }
-
-        supportedFunctions.put(FN.CONCAT);
-        supportedFunctions.put(FN.CONTAINS);
-        supportedFunctions.put(FN.LOWER_CASE);
-        supportedFunctions.put(FN.UPPER_CASE);
-        supportedFunctions.put(FN.SUBSTRING_AFTER);
-        supportedFunctions.put(FN.SUBSTRING_BEFORE);
-        supportedFunctions.put(FN.STRING_LENGTH);
-        supportedFunctions.put(FN.STARTS_WITH);
-        supportedFunctions.put(FN.ENDS_WITH);
-
-        supportedFunctions.put(FN.NUMERIC_ABS);
-        supportedFunctions.put(FN.NUMERIC_CEIL);
-        supportedFunctions.put(FN.NUMERIC_FLOOR);
-        supportedFunctions.put(FN.NUMERIC_ROUND);
-
-        supportedFunctions.put(XMLSchema.DOUBLE);
-        supportedFunctions.put(XMLSchema.FLOAT);
-        supportedFunctions.put(XMLSchema.INTEGER);
-        supportedFunctions.put(XMLSchema.DECIMAL);
-        supportedFunctions.put(XMLSchema.DATETIME);
-        supportedFunctions.put(XMLSchema.BOOLEAN);
-        /*
-        supportedFunctions.put(FN_MARMOTTA.SEARCH_FULLTEXT);
-        supportedFunctions.put(FN_MARMOTTA.QUERY_FULLTEXT);
-        */
     }
 
     /**
@@ -139,96 +109,6 @@ public class MySQLDialect extends KiWiDialect {
     @Override
     public String getValidationQuery() {
         return "SELECT 1";
-    }
-
-    /**
-     * Return an SQL string for evaluating the function with the given URI on the arguments. All arguments are already
-     * properly substituted SQL expressions (e.g. field names or constants).
-     * <p/>
-     * Dialects should at least implement support for all functions defined in the SPARQL specification (http://www.w3.org/TR/sparql11-query/#SparqlOps)
-     *
-     * @param fnUri
-     * @param args
-     * @return
-     * @throws UnsupportedOperationException in case the function with the given URI is not supported
-     */
-    @Override
-    public String getFunction(URI fnUri, String... args) {
-        if(FN.CONCAT.equals(fnUri)) {
-            return String.format("CONCAT(%s)", StringUtils.join(args, ","));
-        } else if(FN.CONTAINS.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2);
-            return String.format("(POSITION(%s IN %s) > 0)", args[1], args[0]);
-        } else if(FN.LOWER_CASE.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("LOWER(%s)", args[0]);
-        } else if(FN.UPPER_CASE.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("UPPER(%s)", args[0]);
-        } else if(FN.SUBSTRING_AFTER.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2);
-            return String.format("(CASE WHEN position(%2$s IN %1$s) > 0 THEN substring(%1$s, position(%2$s IN %1$s) + CHAR_LENGTH(%2$s)) ELSE '' END)", args[0], args[1]);
-        } else if(FN.SUBSTRING_BEFORE.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2);
-            return String.format("(CASE WHEN position(%2$s IN %1$s) > 0 THEN substring(%1$s, 1, position(%2$s IN %1$s)-1) ELSE '' END)", args[0], args[1]);
-        } else if(FN.STRING_LENGTH.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("CHAR_LENGTH(%s)", args[0]);
-        } else if(FN.STARTS_WITH.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2);
-            return String.format("(POSITION(%2$s IN %1$s) = 1)", args[0], args[1]);
-        } else if(FN.ENDS_WITH.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2);
-            return String.format("(POSITION(reverse(%2$s) IN reverse(%1$s)) = 1)", args[0], args[1]);
-        } else if(FN.NUMERIC_ABS.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("abs(%s)", args[0]);
-        } else if(FN.NUMERIC_CEIL.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("ceil(%s)", args[0]);
-        } else if(FN.NUMERIC_FLOOR.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("floor(%s)", args[0]);
-        } else if(FN.NUMERIC_ROUND.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("round(%s)", args[0]);
-        } else if(XMLSchema.DOUBLE.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("CAST(%s AS decimal)", args[0]);
-        } else if(XMLSchema.FLOAT.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("CAST(%s AS decimal)", args[0]);
-        } else if(XMLSchema.INTEGER.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("CAST(%s AS signed)", args[0]);
-        } else if(XMLSchema.DECIMAL.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("CAST(%s AS decimal)", args[0]);
-        } else if(XMLSchema.DATETIME.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("CAST(%s AS datetime)", args[0]);
-        } else if(XMLSchema.BOOLEAN.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 1);
-            return String.format("(lower(%s) = 'true' OR %s > 0)", args[0]);
-            /*
-        } else if(FN_MARMOTTA.SEARCH_FULLTEXT.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2 || args.length == 3); // no specific language support in MySQL
-            return String.format("(MATCH (%1$s) AGAINST (%2$s))", args[0], args[1]);
-        } else if(FN_MARMOTTA.QUERY_FULLTEXT.equals(fnUri)) {
-            Preconditions.checkArgument(args.length == 2 || args.length == 3); // no specific language support in MySQL
-
-            // basic transformation from postgres to mysql syntax, assuming the argument is a constant query
-            String query;
-            if(args[1].startsWith("'")) {
-                query = args[1].replaceAll("&","+").replaceAll("\\|", " ").replaceAll("!"," -");
-            } else {
-                query = args[1];
-            }
-
-            return String.format("(MATCH (%1$s) AGAINST (%2$s IN BOOLEAN MODE))", args[0], query);
-            */
-        }
-        throw new UnsupportedOperationException("operation "+fnUri+" not supported");
     }
 
 }

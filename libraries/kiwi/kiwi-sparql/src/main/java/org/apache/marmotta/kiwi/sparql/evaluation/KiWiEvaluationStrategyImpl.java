@@ -19,9 +19,8 @@ package org.apache.marmotta.kiwi.sparql.evaluation;
 
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
-import org.apache.marmotta.kiwi.sparql.function.FunctionUtil;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
-import org.openrdf.model.URI;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -355,8 +354,7 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     }
 
     private boolean isFunctionSupported(FunctionCall fc) {
-        URI fnUri = FunctionUtil.getFunctionUri(fc.getURI());
-        return connection.getDialect().isFunctionSupported(fnUri);
+        return NativeFunctionRegistry.getInstance().get(fc.getURI()) != null && NativeFunctionRegistry.getInstance().get(fc.getURI()).isSupported(connection.getDialect());
     }
 
 

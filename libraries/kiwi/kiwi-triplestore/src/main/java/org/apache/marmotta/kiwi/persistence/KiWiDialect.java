@@ -17,18 +17,12 @@
  */
 package org.apache.marmotta.kiwi.persistence;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.hash.BloomFilter;
 import org.apache.commons.io.IOUtils;
-import org.apache.marmotta.commons.sesame.hashing.URIFunnel;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
-import org.openrdf.model.URI;
-import org.openrdf.model.vocabulary.FN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Set;
@@ -44,7 +38,6 @@ public abstract class KiWiDialect {
     private static Logger log = LoggerFactory.getLogger(KiWiDialect.class);
 
     private final static int VERSION = 2;
-    protected BloomFilter<URI> supportedFunctions;
 
     private Properties statements;
 
@@ -62,7 +55,6 @@ public abstract class KiWiDialect {
             log.error("could not load statement definitions (statement.properties)",e);
         }
 
-        supportedFunctions = BloomFilter.create(URIFunnel.getInstance(), 1000);
     }
 
     public int getVersion() {
@@ -178,38 +170,6 @@ public abstract class KiWiDialect {
     }
 
     /**
-     * Return the names of all sequences that have been configured in the system, i.e. all statements starting with "seq."
-     * @return
-     */
-    public Set<String> listSequences(String scriptName) {
-        // quick hack for current modules, fix later!
-        if("base".equals(scriptName)) {
-            return ImmutableSet.of("seq.nodes", "seq.triples", "seq.namespaces");
-        } else if("reasoner".equals(scriptName)) {
-            return ImmutableSet.of("seq.rules", "seq.justifications", "seq.programs");
-        } else if("versioning".equals(scriptName)) {
-            return ImmutableSet.of("seq.versions");
-        } else if("ldcache".equals(scriptName)) {
-            return ImmutableSet.of("seq.ldcache");
-        } else {
-            return Collections.emptySet();
-        }
-
-
-        /*
-        Set<String> names = new HashSet<String>();
-        Enumeration e = statements.propertyNames();
-        while(e.hasMoreElements()) {
-            String[] keys = e.nextElement().toString().split("\\.");
-            if(keys[0].equals("seq")) {
-                names.add(keys[0] + "." + keys[1]);
-            }
-        }
-        return names;
-        */
-    }
-
-    /**
      * Return the database specific operator for matching a text against a regular expression.
      *
      *
@@ -239,17 +199,6 @@ public abstract class KiWiDialect {
     public abstract String getILike(String text, String pattern);
 
 
-    /**
-     * Get the database specific string concatenation function for the (variable number of) arguments.
-     *
-     * @param args
-     * @deprecated use {@link #getFunction(URI, String...)}  instead
-     * @return
-     */
-    @Deprecated
-    public String getConcat(String... args) {
-        return getFunction(FN.CONCAT, args);
-    }
 
 
     /**
@@ -259,31 +208,6 @@ public abstract class KiWiDialect {
      */
     public abstract String getValidationQuery();
 
-    /**
-     * Return an SQL string for evaluating the function with the given URI on the arguments. All arguments are already
-     * properly substituted SQL expressions (e.g. field names or constants).
-     * <p/>
-     * Dialects should at least implement support for all functions defined in the SPARQL specification (http://www.w3.org/TR/sparql11-query/#SparqlOps)
-     *
-     * @param fnUri
-     * @param args
-     * @throws UnsupportedOperationException in case the function with the given URI is not supported
-     * @return
-     */
-    public abstract String getFunction(URI fnUri, String... args);
-
-
-    /**
-     * Return true in case the database dialect offers direct support for the function with the URI given as argument.
-     * This method is used to determine whether a SPARQL query containing a function can be optimized or needs to be
-     * evaluated in-memory.
-     *
-     * @param fnUri
-     * @return
-     */
-    public boolean isFunctionSupported(URI fnUri) {
-        return supportedFunctions.mightContain(fnUri);
-    }
 
     /**
      * Return true in case the database system supports using cursors for queries over large data tables.

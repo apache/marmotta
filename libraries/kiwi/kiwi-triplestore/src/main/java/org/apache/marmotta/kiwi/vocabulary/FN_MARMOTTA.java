@@ -21,6 +21,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.NamespaceImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.FN;
 
 /**
  * Add file description here!
@@ -83,13 +84,13 @@ public class FN_MARMOTTA {
         UUID      = f.createURI(NAMESPACE,"uuid");
         STRUUID   = f.createURI(NAMESPACE,"struuid");
         NOW       = f.createURI(NAMESPACE,"now");
-        YEAR      = f.createURI(NAMESPACE,"year");
-        MONTH     = f.createURI(NAMESPACE,"month");
-        DAY       = f.createURI(NAMESPACE,"day");
-        HOURS     = f.createURI(NAMESPACE,"hours");
-        MINUTES   = f.createURI(NAMESPACE,"minutes");
-        SECONDS   = f.createURI(NAMESPACE,"seconds");
-        TIMEZONE  = f.createURI(NAMESPACE,"timezone");
+        YEAR      = FN.YEAR_FROM_DATETIME;
+        MONTH     = FN.MONTH_FROM_DATETIME;
+        DAY       = FN.DAY_FROM_DATETIME;
+        HOURS     = FN.HOURS_FROM_DATETIME;
+        MINUTES   = FN.MINUTES_FROM_DATETIME;
+        SECONDS   = FN.SECONDS_FROM_DATETIME;
+        TIMEZONE  = FN.TIMEZONE_FROM_DATETIME;
         TZ        = f.createURI(NAMESPACE,"tz");
         MD5       = f.createURI(NAMESPACE,"md5");
         SHA1      = f.createURI(NAMESPACE,"sha1");

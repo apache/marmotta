@@ -17,42 +17,19 @@
 
 package org.apache.marmotta.kiwi.sparql.function;
 
-import info.aduna.lang.service.ServiceRegistry;
-import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
+import org.openrdf.query.algebra.evaluation.function.Function;
 
 /**
- * Registry for natively supported functions
+ * This is a marker for aggregation functions. They cannot be evaluated as functions in Java.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class NativeFunctionRegistry extends ServiceRegistry<String,NativeFunction> {
-
-    private static NativeFunctionRegistry defaultRegistry;
-
-    /**
-     * Gets the default FunctionRegistry.
-     *
-     * @return The default registry.
-     */
-    public static synchronized NativeFunctionRegistry getInstance() {
-        if (defaultRegistry == null) {
-            defaultRegistry = new NativeFunctionRegistry();
-        }
-
-        return defaultRegistry;
-    }
-
-    public NativeFunctionRegistry() {
-        super(NativeFunction.class);
-    }
-
+public abstract class AggregationFunction implements Function {
     @Override
-    protected String getKey(NativeFunction function)
-    {
-        return function.getURI();
-    }
-
-    public NativeFunction get(URI uri) {
-        return get(uri.stringValue());
+    public Value evaluate(ValueFactory valueFactory, Value... args) throws ValueExprEvaluationException {
+        throw new UnsupportedOperationException("custom aggregation functions cannot be evaluated in-memory");
     }
 }

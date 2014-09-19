@@ -27,6 +27,7 @@ import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.apache.marmotta.commons.vocabulary.FOAF;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
@@ -341,7 +342,7 @@ public class KiWiSparqlJoinTest {
     // fulltext search filter
     @Test
     public void testQuery22() throws Exception {
-        Assume.assumeTrue(dbConfig.getDialect().isFunctionSupported(FN_MARMOTTA.SEARCH_FULLTEXT));
+        Assume.assumeTrue(NativeFunctionRegistry.getInstance().get(FN_MARMOTTA.SEARCH_FULLTEXT).isSupported(dbConfig.getDialect()));
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream("query22.sparql"), "UTF-8");
 
         RepositoryConnection con1 = repository.getConnection();
@@ -370,7 +371,7 @@ public class KiWiSparqlJoinTest {
     // fulltext query filter
     @Test
     public void testQuery23() throws Exception {
-        Assume.assumeTrue(dbConfig.getDialect().isFunctionSupported(FN_MARMOTTA.SEARCH_FULLTEXT));
+        Assume.assumeTrue(NativeFunctionRegistry.getInstance().get(FN_MARMOTTA.SEARCH_FULLTEXT).isSupported(dbConfig.getDialect()));
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream("query23.sparql"), "UTF-8");
 
         RepositoryConnection con1 = repository.getConnection();
