@@ -19,17 +19,14 @@ package org.apache.marmotta.kiwi.sparql.builder;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
+import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.FN;
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Determine the operand type of a value expression. Get the coerced value by calling coerce().
@@ -39,27 +36,6 @@ import java.util.Map;
 public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
 
     List<OPTypes> optypes = new ArrayList<>();
-
-    private static Map<URI,OPTypes> functionReturnTypes = new HashMap<>();
-    static {
-        functionReturnTypes.put(FN.CONCAT, OPTypes.STRING);
-        functionReturnTypes.put(FN.CONTAINS, OPTypes.BOOL);
-        functionReturnTypes.put(FN.LOWER_CASE, OPTypes.STRING);
-        functionReturnTypes.put(FN.UPPER_CASE, OPTypes.STRING);
-        functionReturnTypes.put(FN.REPLACE, OPTypes.STRING);
-        functionReturnTypes.put(FN.SUBSTRING_AFTER, OPTypes.STRING);
-        functionReturnTypes.put(FN.SUBSTRING_BEFORE, OPTypes.STRING);
-        functionReturnTypes.put(FN.STARTS_WITH, OPTypes.BOOL);
-        functionReturnTypes.put(FN.ENDS_WITH, OPTypes.BOOL);
-        functionReturnTypes.put(FN.STRING_LENGTH, OPTypes.INT);
-        functionReturnTypes.put(FN.SUBSTRING, OPTypes.STRING);
-
-        functionReturnTypes.put(FN.NUMERIC_ABS, OPTypes.DOUBLE);
-        functionReturnTypes.put(FN.NUMERIC_CEIL, OPTypes.INT);
-        functionReturnTypes.put(FN.NUMERIC_FLOOR, OPTypes.INT);
-        functionReturnTypes.put(FN.NUMERIC_ROUND, OPTypes.INT);
-
-    }
 
 
 
@@ -125,15 +101,11 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(FunctionCall fc) throws RuntimeException {
-        URI fnUri = new URIImpl(fc.getURI());
+        NativeFunction nf = NativeFunctionRegistry.getInstance().get(fc.getURI());
 
-        String[] args = new String[fc.getArgs().size()];
-
-        OPTypes fOpType = functionReturnTypes.get(fnUri);
-        if(fOpType == null) {
-            fOpType = OPTypes.ANY;
+        if (nf != null) {
+            optypes.add(nf.getReturnType());
         }
-        optypes.add(fOpType);
     }
 
 
