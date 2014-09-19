@@ -18,8 +18,10 @@
 package org.apache.marmotta.platform.ldp.webservices.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.platform.ldp.util.EntityTagUtils;
-import org.hamcrest.*;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.jboss.resteasy.plugins.delegates.EntityTagDelegate;
 import org.jboss.resteasy.plugins.delegates.LinkDelegate;
 
@@ -90,7 +92,7 @@ public class HeaderMatchers {
         return new CustomTypeSafeMatcher<String>(String.format("an EntityTag %s", expected)) {
             @Override
             protected boolean matchesSafely(String item) {
-                return EntityTagUtils.equals(expected, new EntityTagDelegate().fromString(item));
+                return expected.equals(new EntityTagDelegate().fromString(item));
             }
         };
     }
