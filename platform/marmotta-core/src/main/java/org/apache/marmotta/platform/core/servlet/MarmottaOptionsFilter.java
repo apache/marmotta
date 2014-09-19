@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.servlet;
 
+import org.jboss.resteasy.core.NoMessageBodyWriterFoundFailure;
 import org.jboss.resteasy.spi.DefaultOptionsMethodException;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
@@ -76,27 +77,18 @@ public class MarmottaOptionsFilter implements Filter {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
-
         try {
-
             chain.doFilter(request,response);
-
-        } catch (DefaultOptionsMethodException ex) {
+        } catch (DefaultOptionsMethodException | NoMessageBodyWriterFoundFailure ex) {
             if(response instanceof HttpServletResponse) {
                 HttpServletResponse resp = (HttpServletResponse)response;
                 HttpServletRequest req  = (HttpServletRequest)request;
-
                 if(req.getMethod().equalsIgnoreCase("OPTIONS")) {
                     resp.setStatus(200);
                     resp.resetBuffer();
-
                 }
             }
         }
-
-
-
     }
 
     /**

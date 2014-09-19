@@ -27,11 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * User: Thomas Kurz
@@ -59,6 +55,7 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	public List<String> getAcceptTypes() {
         Set<String> acceptTypes = new LinkedHashSet<String>();
         for(RDFFormat format : RDFParserRegistry.getInstance().getKeys()) {
+            // Ignore binary formats
             if(format.hasCharset()) {
                 acceptTypes.addAll(format.getMIMETypes());
             }
@@ -74,6 +71,7 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	public List<String> getProducedTypes() {
 	    Set<String> producedTypes = new LinkedHashSet<String>();
         for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
+            // Ignore binary formats
             if(format.hasCharset()) {
                 producedTypes.addAll(format.getMIMETypes());
             }

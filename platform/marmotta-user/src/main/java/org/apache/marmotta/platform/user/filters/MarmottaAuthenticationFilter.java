@@ -42,7 +42,7 @@ import java.io.IOException;
 import static org.apache.commons.codec.binary.Base64.decodeBase64;
 
 /**
- * This filter implements HTTB Basic Authentication support for the LMF. It serves two purposes:
+ * This filter implements HTTB Basic Authentication support for the Marmotta. It serves two purposes:
  * <ul>
  *     <li>carrying out HTTP Basic Authentication when an "Authorization" header is present</li>
  *     <li>sending an HTTP authorization request in case one of the services in the chain threw an AccessDeniedException</li>
@@ -50,7 +50,7 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
  *
  * In case security is enabled, it listens for the presence of an "Authorization" header, parses it according to HTTP Basic Authentication
  * (Base64 decoding and splitting username/password at ":") and tries to authenticate with the given
- * credentials using the LMF AuthenticationService.
+ * credentials using the Marmotta AuthenticationService.
  * <ul>
  * <li>In case authentication succeeds, it sets the attributes
  *   user.name and user.roles in the request so that further filters/services can make use of the
@@ -59,7 +59,7 @@ import static org.apache.commons.codec.binary.Base64.decodeBase64;
  * </ul>
  * The filter also listens for {@link org.apache.marmotta.platform.core.exception.security.AccessDeniedException} thrown by
  * subsequent filters or servlets in the chain, in which case it returns an HTTP authorization request to the
- * client. In particular, this functionality is used by the LMFAccessControlFilter to restrict access to
+ * client. In particular, this functionality is used by the MarmottaAccessControlFilter to restrict access to
  * services based on security profiles.
  * <p/>
  * @see UserService
@@ -87,12 +87,12 @@ public class MarmottaAuthenticationFilter implements MarmottaHttpFilter {
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("LMF Authentication Filter starting up; user authentication is {}",configurationService.getBooleanConfiguration("security.enabled",true)?"enabled":"disabled");
+        log.info("armotta Authentication Filter starting up; user authentication is {}", configurationService.getBooleanConfiguration("security.enabled", true)?"enabled":"disabled");
     }
 
 
     /**
-     * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
+     * Return the pattern (regular expression) that a request URI (relative to the base URI) has to match
      * before triggering this filter.
      *
      * @return

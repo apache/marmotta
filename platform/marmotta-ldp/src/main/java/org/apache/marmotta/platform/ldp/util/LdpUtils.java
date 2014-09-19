@@ -21,10 +21,13 @@ import info.aduna.iteration.CloseableIteration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.platform.ldp.api.Preference;
+import org.apache.marmotta.platform.ldp.webservices.PreferHeader;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryException;
@@ -32,15 +35,19 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParserRegistry;
 import org.openrdf.rio.RDFWriter;
+import org.slf4j.Logger;
 
 import javax.ws.rs.core.MediaType;
-import java.util.Iterator;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 /**
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
  */
 public class LdpUtils {
+
+    private static Logger log = org.slf4j.LoggerFactory.getLogger(LdpUtils.class);
 
     /**
      * Urify the Slug: header value, i.e. replace all non-url chars with a single dash.
@@ -72,12 +79,19 @@ public class LdpUtils {
      * @return file extension (already including '.')
      */
     public static String getExtension(String mimeType) {
-        MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+        final String defaultExt = ".bin";
+        final MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
         try {
-            return allTypes.forName(mimeType).getExtension();
+            final String ext = allTypes.forName(mimeType).getExtension();
+            log.trace("Tika's file-extension for {} is '{}'", mimeType, ext);
+            if (StringUtils.isNotBlank(ext)) {
+                return ext;
+            }
         } catch (MimeTypeException e) {
-            return null; //FIXME
+            log.trace("MimeTypeException: {}. Not critical, recovering...", e.getMessage());
         }
+        log.trace("Using fallback file-extension '{}' for {}", defaultExt, mimeType);
+        return defaultExt;
     }
 
     /**
@@ -87,7 +101,7 @@ public class LdpUtils {
      * @return the mimeType
      */
     public static String getMimeType(MediaType mediaType) {
-        return String.format("%s/%s", mediaType.getType(), mediaType.getSubtype());
+        return (mediaType != null ? String.format("%s/%s", mediaType.getType(), mediaType.getSubtype()) : "");
     }
 
     /**
@@ -129,6 +143,51 @@ public class LdpUtils {
             sb.delete(sb.length()-2, sb.length());
         }
         return sb.toString();
+    }
+
+    public static String getContainer(String resource) throws MalformedURLException, URISyntaxException {
+        java.net.URI uri = new java.net.URI(resource);
+        java.net.URI parent = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
+        return parent.toASCIIString();
+    }
+
+    public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
+        return new URIImpl(resource.getNamespace());
+    }
+
+    /**
+     * Convert a PreferHeader into a LDP Preference.
+     * @param prefer the PreferHeader to parse
+     * @return the Preference
+     */
+    public static Preference parsePreferHeader(PreferHeader prefer) {
+        if (prefer == null) return null;
+        // we only support "return"-prefers
+        if (!PreferHeader.PREFERENCE_RETURN.equals(prefer.getPreference())) {
+            return null;
+        }
+        if (PreferHeader.RETURN_MINIMAL.equals(prefer.getPreferenceValue())) {
+            return Preference.minimalPreference();
+        }
+
+        if (PreferHeader.RETURN_REPRESENTATION.equals(prefer.getPreferenceValue())) {
+            final String include = prefer.getParamValue(PreferHeader.RETURN_PARAM_INCLUDE);
+            final String omit = prefer.getParamValue(PreferHeader.RETURN_PARAM_OMIT);
+            if (StringUtils.isNotBlank(include) && StringUtils.isBlank(omit)) {
+                return Preference.includePreference(include.split("\\s+"));
+            } else if (StringUtils.isNotBlank(omit) && StringUtils.isBlank(include)) {
+                return Preference.omitPreference(omit.split("\\s+"));
+            } else if (StringUtils.isBlank(include) && StringUtils.isBlank(omit)) {
+                return Preference.defaultPreference();
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private LdpUtils() {
+        // Static access only
     }
 
 }
