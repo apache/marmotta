@@ -17,12 +17,15 @@
  */
 package org.apache.marmotta.ldclient.test.rdf;
 
+import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openrdf.repository.RepositoryConnection;
 
 /**
  * Test if the LinkedDataProvider is working properly.
@@ -34,6 +37,7 @@ public class TestLinkedDataProvider extends ProviderTestBase {
 
     private static final String DBPEDIA = "http://dbpedia.org/resource/Berlin";
     private static final String GEONAMES = "http://sws.geonames.org/3020251/";
+    private static final String GEONAMES2 = "http://sws.geonames.org/2658434/about.rdf";
     private static final String MARMOTTA = "http://rdfohloh.wikier.org/project/marmotta";
     private static final String WIKIER = "http://www.wikier.org/foaf#wikier";
     private static final String EXAMPLE = "http://example.org/foo";
@@ -61,6 +65,20 @@ public class TestLinkedDataProvider extends ProviderTestBase {
     @Test
     public void testGeoNames() throws Exception {
         testResource(GEONAMES, "geonames-embrun.sparql");
+    }
+
+    @Test
+    @Ignore("just to debug a user report")
+    public void testGeoNames2() throws Exception {
+        Assume.assumeTrue(ldclient.ping(GEONAMES2));
+
+        ClientResponse response = ldclient.retrieveResource(GEONAMES2);
+
+        RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
+        connection.begin();
+        Assert.assertTrue(connection.size() == 7);
+        connection.commit();
+        connection.close();
     }
 
     /**
