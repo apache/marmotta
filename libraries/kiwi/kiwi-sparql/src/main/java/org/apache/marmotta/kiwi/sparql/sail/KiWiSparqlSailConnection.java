@@ -22,6 +22,7 @@ import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStatistics;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStrategyImpl;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiTripleSource;
+import org.apache.marmotta.kiwi.sparql.optimizer.DifferenceOptimizer;
 import org.apache.marmotta.kiwi.sparql.optimizer.DistinctLimitOptimizer;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
 import org.openrdf.query.BindingSet;
@@ -83,6 +84,9 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             new FilterOptimizer().optimize(tupleExpr, dataset, bindings);
             //new OrderLimitOptimizer().optimize(tupleExpr, dataset, bindings);
             new DistinctLimitOptimizer().optimize(tupleExpr, dataset, bindings);
+
+            // replace Difference with NOT EXISTS
+            new DifferenceOptimizer().optimize(tupleExpr,dataset,bindings);
 
             log.debug("evaluating SPARQL query:\n {}", tupleExpr);
 

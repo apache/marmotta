@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class SQLVariable  {
+public class SQLVariable  implements Cloneable{
 
     /**
      * A map for mapping the SPARQL variable names to internal names used for constructing SQL aliases.
@@ -155,4 +155,15 @@ public class SQLVariable  {
             return Collator.getInstance().compare(l.getName(), r.getName());
         }
     };
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        SQLVariable clone = new SQLVariable(getName(), getSparqlName());
+        clone.projectionType = projectionType;
+        clone.getExpressions().addAll(expressions);
+        clone.getAliases().addAll(aliases);
+        clone.getBindings().addAll(bindings);
+
+        return clone;
+    }
 }

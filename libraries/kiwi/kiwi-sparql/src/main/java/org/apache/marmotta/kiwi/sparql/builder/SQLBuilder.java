@@ -326,6 +326,7 @@ public class SQLBuilder {
 
 
         // add all extensions to the variable list so they are properly considered in projections and clauses
+        // TODO: order by variable dependency, or otherwise the evaluateExpression might fail
         for(ExtensionElem ext : extensions) {
             Var v = new Var(ext.getName());
 
@@ -724,7 +725,7 @@ public class SQLBuilder {
             // TODO: need to make sure that variables of the parent are visible in the subquery
             //       - pattern names need to be unique even in subqueries
             //       - variable lookup for expressions in the subquery need to refer to the parent
-            SQLBuilder sq_builder = new SQLBuilder(((Exists) expr).getSubQuery(), bindings, dataset, converter, dialect, "_", Collections.EMPTY_SET, variables);
+            SQLBuilder sq_builder = new SQLBuilder(((Exists) expr).getSubQuery(), bindings, dataset, converter, dialect, "_", Collections.EMPTY_SET, copyVariables(variables));
 
             return "EXISTS (" + sq_builder.build() + ")";
         } else if(expr instanceof Str) {
@@ -960,6 +961,25 @@ public class SQLBuilder {
 
 
         throw new IllegalArgumentException("unsupported value expression: "+expr);
+    }
+
+    /**
+     * Copy variables from the set to a new set suitable for a subquery; this allows passing over variable expressions
+     * from parent queries to subqueries without the subquery adding expressions that are then not visible outside
+     * @param variables
+     * @return
+     */
+    private Map<String, SQLVariable> copyVariables(Map<String, SQLVariable> variables) {
+        Map<String,SQLVariable> copy = new HashMap<>();
+        try {
+            for(Map.Entry<String,SQLVariable> entry : variables.entrySet()) {
+                    copy.put(entry.getKey(), (SQLVariable) entry.getValue().clone());
+            }
+        } catch (CloneNotSupportedException e) {
+            log.error("could not clone SQL variable:",e);
+        }
+
+        return copy;
     }
 
     private String castExpression(String arg, OPTypes type) {

@@ -42,6 +42,9 @@ public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(Extension node) throws RuntimeException {
+        // visit children before, as there might be dependencies
+        super.meet(node);
+
         for(ExtensionElem elem : node.getElements()) {
             if(elem.getExpr() instanceof Var && ((Var) elem.getExpr()).getName().equals(elem.getName())) {
                 log.debug("ignoring self-aliasing of variable {}", elem.getName());
@@ -49,7 +52,6 @@ public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
                 elements.add(elem);
             }
         }
-        super.meet(node);
     }
 
     @Override
