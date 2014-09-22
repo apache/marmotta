@@ -39,8 +39,10 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * Context Web Service
- * 
+ * Context Web Service, providing support for the SPARQL 1.1 Graph Store HTTP Protocol
+ *
+ * @see <a href="http://www.w3.org/TR/sparql11-http-rdf-update/">http://www.w3.org/TR/sparql11-http-rdf-update/</a>
+ *
  * @author Thomas Kurz
  * @author Sebastian Schaffert
  * @author Sergio Fernández
