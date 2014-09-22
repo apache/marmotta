@@ -148,6 +148,12 @@
             <version>\${jatl.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>\${javax.el.version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
