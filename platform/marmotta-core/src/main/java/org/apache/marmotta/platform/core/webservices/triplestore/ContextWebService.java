@@ -207,6 +207,14 @@ public class ContextWebService {
         return put(buildUri(uuid), type, request);     
     }
 
+    /**
+     * Deletes a named graph from the system
+     *
+     * @param context context uri
+     * @return status code
+     * @throws UnsupportedEncodingException
+     * @throws URISyntaxException
+     */
     @DELETE
     public Response delete(@QueryParam("graph") String context) {
         if (StringUtils.isBlank(context)) {
@@ -219,8 +227,7 @@ public class ContextWebService {
     
     /**
      * Deletes a named graph from the system
-     * 
-     * @param types formats accepted
+     *
      * @param uuid context identifier
      * @return status code
      * @throws UnsupportedEncodingException
