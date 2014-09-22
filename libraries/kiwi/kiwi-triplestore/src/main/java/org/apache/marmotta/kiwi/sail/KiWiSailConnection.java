@@ -56,7 +56,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Add file description here!
+ * A sail connection wrapping a KiWi database connection. Mostly delegates method calls to the underlying connection.
  * <p/>
  * Author: Sebastian Schaffert
  */
@@ -258,16 +258,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         contextSet.addAll(Lists.transform(Arrays.asList(contexts), new Function<Resource, KiWiResource>() {
             @Override
             public KiWiResource apply(Resource input) {
-                if(input == null) {
-                    if(defaultContext != null) {
-                        // null value for context means statements without context; in KiWi, this means "default context"
-                        return (KiWiUriResource)valueFactory.createURI(defaultContext);
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return valueFactory.convert(input);
-                }
+                return resolveContextInternal(input);
             }
         }));
 
@@ -457,7 +448,21 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
 
     @Override
     protected void clearInternal(Resource... contexts) throws SailException {
-        removeStatementsInternal(null, null, null, contexts);
+        // call the internal high-performance delete for this case; note that this is experimental and might have
+        // problems with long transactions or concurrency.
+        try {
+            if(contexts.length > 0) {
+                for (Resource context : contexts) {
+                    KiWiResource kctx = resolveContextInternal(context);
+                    databaseConnection.deleteContext(kctx);
+                }
+            } else {
+                databaseConnection.deleteAll();
+            }
+        } catch(SQLException ex) {
+            throw new SailException("error while deleting context",ex);
+        }
+        //removeStatementsInternal(null, null, null, contexts);
     }
 
     /**
@@ -550,6 +555,19 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         }
     }
 
+
+    protected KiWiResource resolveContextInternal(Resource input) {
+        if(input == null) {
+            if(defaultContext != null) {
+                // null value for context means statements without context; in KiWi, this means "default context"
+                return (KiWiUriResource)valueFactory.createURI(defaultContext);
+            } else {
+                return null;
+            }
+        } else {
+            return valueFactory.convert(input);
+        }
+    }
 
     public KiWiValueFactory getValueFactory() {
         return valueFactory;

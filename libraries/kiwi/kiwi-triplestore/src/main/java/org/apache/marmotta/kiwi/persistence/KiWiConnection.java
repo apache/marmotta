@@ -1283,6 +1283,142 @@ public class KiWiConnection implements AutoCloseable {
     }
 
     /**
+     * Mark all triples contained in the context passed as argument as deleted, setting the "deleted" flag to true and
+     * updating the timestamp value of "deletedAt".
+     * <p/>
+     * The triple remains in the database, because other entities might still reference it (e.g. a version).
+     * Use the method cleanupTriples() to fully remove all deleted triples without references.
+     * <p/>
+     * Warning: this method skips some concurrency and transaction safeguards for performance and therefore should
+     * only be called if run in an isolated transaction!
+     *
+     * @param ctx resource identifying the context to be deleted
+     */
+    public void deleteContext(final KiWiResource ctx) throws SQLException {
+        requireJDBCConnection();
+
+        RetryExecution<Void> execution = new RetryExecution<>("DELETE");
+        execution.setUseSavepoint(true);
+        execution.execute(connection, new RetryCommand<Void>() {
+            @Override
+            public Void run() throws SQLException {
+                // mutual exclusion: prevent parallel adding and removing of the same triple
+
+                if (ctx.getId() < 0) {
+                    log.warn("attempting to remove non-persistent context: {}", ctx);
+                } else {
+                    if (batchCommit) {
+                        // need to remove from triple batch and from database
+                        commitLock.lock();
+                        try {
+                            if (tripleBatch == null || tripleBatch.size() == 0) {
+
+                                PreparedStatement deleteTriple = getPreparedStatement("delete.context");
+                                synchronized (deleteTriple) {
+                                    deleteTriple.setLong(1, ctx.getId());
+                                    deleteTriple.executeUpdate();
+                                }
+                                // deletedStatementsLog.put(triple.getId());
+                            } else {
+                                // delete all triples from triple batch with a matching context
+                                for (Iterator<KiWiTriple> it = tripleBatch.iterator(); it.hasNext(); ) {
+                                    if (it.next().getContext().equals(ctx)) {
+                                        it.remove();
+                                    }
+                                }
+                            }
+                        } finally {
+                            commitLock.unlock();
+                        }
+                    } else {
+                        requireJDBCConnection();
+
+                        PreparedStatement deleteTriple = getPreparedStatement("delete.context");
+                        synchronized (deleteTriple) {
+                            deleteTriple.setLong(1, ctx.getId());
+                            deleteTriple.executeUpdate();
+                        }
+                        //deletedStatementsLog.put(triple.getId());
+
+
+                    }
+                }
+                //removeCachedTriple(triple);
+
+                // that's radical but safe, and the improved delete performance might be worth it
+                tripleCache.clear();
+
+                return null;
+            }
+        });
+
+
+    }
+
+    /**
+     * Mark all triples contained in the triple store as deleted, setting the "deleted" flag to true and
+     * updating the timestamp value of "deletedAt".
+     * <p/>
+     * The triple remains in the database, because other entities might still reference it (e.g. a version).
+     * Use the method cleanupTriples() to fully remove all deleted triples without references.
+     * <p/>
+     * Warning: this method skips some concurrency and transaction safeguards for performance and therefore should
+     * only be called if run in an isolated transaction!
+     *
+     */
+    public void deleteAll() throws SQLException {
+        requireJDBCConnection();
+
+        RetryExecution<Void> execution = new RetryExecution<>("DELETE");
+        execution.setUseSavepoint(true);
+        execution.execute(connection, new RetryCommand<Void>() {
+            @Override
+            public Void run() throws SQLException {
+                // mutual exclusion: prevent parallel adding and removing of the same triple
+
+                if (batchCommit) {
+                    // need to remove from triple batch and from database
+                    commitLock.lock();
+                    try {
+                        if (tripleBatch == null || tripleBatch.size() == 0) {
+
+                            PreparedStatement deleteTriple = getPreparedStatement("delete.repository");
+                            synchronized (deleteTriple) {
+                                deleteTriple.executeUpdate();
+                            }
+                            // deletedStatementsLog.put(triple.getId());
+                        } else {
+                            // delete all triples from triple batch with a matching context
+                            tripleBatch.clear();
+                        }
+                    } finally {
+                        commitLock.unlock();
+                    }
+                } else {
+                    requireJDBCConnection();
+
+                    PreparedStatement deleteTriple = getPreparedStatement("delete.repository");
+                    synchronized (deleteTriple) {
+                        deleteTriple.executeUpdate();
+                    }
+                    //deletedStatementsLog.put(triple.getId());
+
+
+                }
+                //removeCachedTriple(triple);
+
+                // that's radical but safe, and the improved delete performance might be worth it
+                tripleCache.clear();
+
+                return null;
+            }
+        });
+
+
+    }
+
+
+    /**
      * Mark the triple passed as argument as not deleted, setting the "deleted" flag to false and
      * clearing the timestamp value of "deletedAt".
      * <p/>
