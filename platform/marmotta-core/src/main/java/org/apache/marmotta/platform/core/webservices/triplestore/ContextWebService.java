@@ -61,6 +61,7 @@ public class ContextWebService {
     private static final String  UUID_PATTERN = "{uuid:[^#?]+}";
     
     /**
+     * List all contexts
      *
      * @return a list of URIs representing contexts
      */
@@ -93,9 +94,11 @@ public class ContextWebService {
     
     /**
      * Returns the content stored on this context
-     * 
-     * @param types, accepted formats
+     *
      * @param uuid, a unique context identifier
+     * @param accept Accept HTTP header
+     * @param format format requested (overwrites accept header)
+     *
      * @return redirects to the export service
      */
     @GET
@@ -109,9 +112,11 @@ public class ContextWebService {
     
     /**
      * Indirect context identification, listing in case 'graph' is missing
-     * 
-     * @param types
+     *
      * @param context uri
+     * @param accept Accept HTTP header
+     * @param format format requested (overwrites accept header)
+     *               
      * @return response
      * @throws URISyntaxException
      * @see <a href="http://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification">Indirect Graph Identification</a>
@@ -119,7 +124,7 @@ public class ContextWebService {
     @GET
     public Response get(@QueryParam("graph") String context, @HeaderParam("Accept") String accept, @QueryParam("format") String format) throws URISyntaxException {
         if (StringUtils.isBlank(context)) {
-        	return Response.seeOther(new URI(configurationService.getServerUri() + ConfigurationService.CONTEXT_PATH + "/list")).header("Accept", accept).build();
+            return Response.seeOther(new URI(configurationService.getServerUri() + ConfigurationService.CONTEXT_PATH + "/list")).header("Accept", accept).build();
         } else {
             URI uri = buildExportUri(context, accept, format);
             return Response.seeOther(uri).build();        
@@ -129,7 +134,7 @@ public class ContextWebService {
     @PUT
     public Response put(@QueryParam("graph") String context, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
         if (StringUtils.isBlank(context)) {
-            return Response.status(Status.NOT_ACCEPTABLE).entity("missing 'graph' uri for indirect grpah identification").build();
+            return Response.status(Status.NOT_ACCEPTABLE).entity("missing 'graph' uri for indirect graph identification").build();
         } else {
             if(type != null && type.lastIndexOf(';') >= 0) {
                 type = type.substring(0,type.lastIndexOf(';'));
@@ -184,7 +189,7 @@ public class ContextWebService {
     
     private URI buildExportUri(String uri, String accept, String format) throws URISyntaxException {
         List<ContentType> acceptedTypes;
-        if(format != null) {
+        if(StringUtils.isNoneBlank(format)) {
             acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(format);
         } else {
             acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(accept);
