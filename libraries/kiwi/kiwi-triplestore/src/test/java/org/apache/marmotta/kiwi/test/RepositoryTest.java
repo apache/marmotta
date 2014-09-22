@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.test;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
@@ -44,8 +45,6 @@ import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import info.aduna.iteration.Iterations;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -55,7 +54,9 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeThat;
 
 /**
@@ -677,12 +678,12 @@ public class RepositoryTest {
         //insert quadruples
         String insert =
                 "WITH <http://resource.org/video>" +
-                "INSERT {" +
-                "   <http://resource.org/video> <http://ontology.org#hasFragment> <http://resource.org/fragment1>." +
-                "   <http://resource.org/annotation1> <http://ontology.org#hasTarget> <http://resource.org/fragment1>." +
-                "   <http://resource.org/annotation1> <http://ontology.org#hasBody> <http://resource.org/subject1>." +
-                "   <http://resource.org/fragment1> <http://ontology.org#shows> <http://resource.org/subject1>." +
-                "} WHERE {}";
+                        "INSERT {" +
+                        "   <http://resource.org/video> <http://ontology.org#hasFragment> <http://resource.org/fragment1>." +
+                        "   <http://resource.org/annotation1> <http://ontology.org#hasTarget> <http://resource.org/fragment1>." +
+                        "   <http://resource.org/annotation1> <http://ontology.org#hasBody> <http://resource.org/subject1>." +
+                        "   <http://resource.org/fragment1> <http://ontology.org#shows> <http://resource.org/subject1>." +
+                        "} WHERE {}";
 
         RepositoryConnection connectionInsert = repository.getConnection();
         try {
@@ -696,23 +697,23 @@ public class RepositoryTest {
         //update quadruples
         String update =
                 "WITH <http://resource.org/video>" +
-                "DELETE { " +
-                "   ?annotation ?p ?v." +
-                "   ?fragment ?r ?s." +
-                "   <http://resource.org/video> <http://ontology.org#hasFragment> ?fragment." +
-                "} INSERT {" +
-                "   <http://resource.org/video> <http://ontology.org#hasFragment> <http://resource.org/fragment1>." +
-                "   <http://resource.org/annotation1> <http://ontology.org#hasTarget> <http://resource.org/fragment1>." +
-                "   <http://resource.org/annotation1> <http://ontology.org#hasBody> <http://resource.org/subject1>." +
-                "   <http://resource.org/fragment1> <http://ontology.org#shows> <http://resource.org/subject1>." +
-                "} WHERE {" +
-                "   ?annotation <http://ontology.org#hasTarget> ?fragment." +
-                "   ?annotation ?p ?v." +
-                "   OPTIONAL {" +
-                "       ?fragment ?r ?s" +
-                "   }" +
-                "   FILTER (?fragment = <http://resource.org/fragment1>)" +
-                "} ";
+                        "DELETE { " +
+                        "   ?annotation ?p ?v." +
+                        "   ?fragment ?r ?s." +
+                        "   <http://resource.org/video> <http://ontology.org#hasFragment> ?fragment." +
+                        "} INSERT {" +
+                        "   <http://resource.org/video> <http://ontology.org#hasFragment> <http://resource.org/fragment1>." +
+                        "   <http://resource.org/annotation1> <http://ontology.org#hasTarget> <http://resource.org/fragment1>." +
+                        "   <http://resource.org/annotation1> <http://ontology.org#hasBody> <http://resource.org/subject1>." +
+                        "   <http://resource.org/fragment1> <http://ontology.org#shows> <http://resource.org/subject1>." +
+                        "} WHERE {" +
+                        "   ?annotation <http://ontology.org#hasTarget> ?fragment." +
+                        "   ?annotation ?p ?v." +
+                        "   OPTIONAL {" +
+                        "       ?fragment ?r ?s" +
+                        "   }" +
+                        "   FILTER (?fragment = <http://resource.org/fragment1>)" +
+                        "} ";
 
         RepositoryConnection connectionUpdate = repository.getConnection();
         try {
@@ -787,4 +788,95 @@ public class RepositoryTest {
 
 
     }
+
+
+    /**
+     * MARMOTTA-506 introduces a more efficient clearing of triples, which abandons some consistency guarantees. This
+     * test aims to check for any side effect of this change.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFastClearDifferentTransactions() throws Exception {
+        String value = RandomStringUtils.randomAlphanumeric(8);
+
+        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        Literal object1 = repository.getValueFactory().createLiteral(value);
+
+        RepositoryConnection connection1 = repository.getConnection();
+        try {
+            connection1.add(subject,predicate,object1);
+            connection1.commit();
+
+            Assert.assertTrue(connection1.hasStatement(subject,predicate,object1,true));
+
+            connection1.commit();
+        } finally {
+            connection1.close();
+        }
+
+        RepositoryConnection connection2 = repository.getConnection();
+        try {
+            connection2.clear();
+
+            connection2.commit();
+
+            Assert.assertFalse(connection2.hasStatement(subject, predicate, object1, true));
+
+            connection2.commit();
+
+        } finally {
+            connection2.close();
+        }
+
+        RepositoryConnection connection3 = repository.getConnection();
+        try {
+            connection3.add(subject,predicate,object1);
+            connection3.commit();
+
+            Assert.assertTrue(connection3.hasStatement(subject, predicate, object1, true));
+            connection3.commit();
+        } finally {
+            connection3.close();
+        }
+
+    }
+
+
+    /**
+     * MARMOTTA-506 introduces a more efficient clearing of triples, which abandons some consistency guarantees. This
+     * test aims to check for any side effect of this change.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFastClearSameTransaction() throws Exception {
+        String value = RandomStringUtils.randomAlphanumeric(8);
+
+        URI subject = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        URI predicate = repository.getValueFactory().createURI("http://localhost/resource/" + RandomStringUtils.randomAlphanumeric(8));
+        Literal object1 = repository.getValueFactory().createLiteral(value);
+
+        RepositoryConnection connection1 = repository.getConnection();
+        try {
+            connection1.add(subject,predicate,object1);
+
+            Assert.assertTrue(connection1.hasStatement(subject,predicate,object1,true));
+
+            connection1.clear();
+
+            Assert.assertFalse(connection1.hasStatement(subject, predicate, object1, true));
+
+            connection1.add(subject,predicate,object1);
+
+            Assert.assertTrue(connection1.hasStatement(subject, predicate, object1, true));
+
+            connection1.commit();
+        } finally {
+            connection1.close();
+        }
+
+    }
+
 }
