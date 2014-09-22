@@ -18,8 +18,6 @@
 package org.apache.marmotta.platform.core.services.modules;
 
 import com.google.common.io.ByteStreams;
-import eu.medsea.mimeutil.MimeType;
-import eu.medsea.mimeutil.MimeUtil2;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
@@ -27,6 +25,7 @@ import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
 import org.apache.marmotta.platform.core.qualifiers.cache.MarmottaCache;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -35,7 +34,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
@@ -47,7 +45,8 @@ import java.util.concurrent.ConcurrentMap;
  * Note that the resource service is not to be confused with the RDF resources maintained by the server. It is
  * purely meant to retrieve static non-Java resources contained in the modules and web application.
  *
- * User: sschaffe
+ * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 @ApplicationScoped
 public class MarmottaResourceServiceImpl implements MarmottaResourceService {
@@ -58,47 +57,33 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
     @Inject
     private ConfigurationService configurationService;
 
-
     @Inject
     private ModuleService moduleService;
-
 
     @Inject @MarmottaCache("resource-cache")
     private ConcurrentMap resourceCache;
 
-    /**
-     * Used for detecting the mime type of resources contained in KiWi modules
-     */
-    private MimeUtil2 mimeUtil;
-
-
     private Map<String,String> resourceMap;
 
+    private Tika tika;
 
     @PostConstruct
     public void initialise() {
         // find all kiwi-module.properties and check whether they contain a baseurl property to map module web
         // resources to a certain path prefix; if yes, store the prefix and jar URL in the map for lookup and
         // resource resolving by the filter
-        this.resourceMap = new HashMap<String, String>();
-
+        this.resourceMap = new HashMap<>();
 
         for(String module : moduleService.listModules()) {
             ModuleConfiguration config = moduleService.getModuleConfiguration(module);
-
             if(config.getConfiguration().containsKey("baseurl")) {
                 String path = config.getConfiguration().getString("baseurl");
                 resourceMap.put(path.startsWith("/")?path:"/"+path,moduleService.getModuleJar(module).toString());
             }
         }
 
-
-
-        // detect the mime type of resources
-        this.mimeUtil = new MimeUtil2();
-        this.mimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector");
+        this.tika = new Tika();
     }
-
 
     /**
      * Makes sure the service is initialised on system startup
@@ -108,7 +93,6 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
     public void systemStartup(@Observes SystemStartupEvent event) {
 
     }
-
 
     /**
      * Return the resource identified by the relative URL passed as argument. The passed argument is relative
@@ -131,17 +115,13 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
         if(isCached(relativeURL)) {
             data = getFromCache(relativeURL);
         } else {
-
             try {
                 URL jarUrl = resolveResource(relativeURL);
-
                 if(jarUrl != null) {
                     try {
                         byte[] bytes = ByteStreams.toByteArray(jarUrl.openStream());
-
-                        data = new ResourceEntry(jarUrl,bytes,bytes.length,getMimeType(jarUrl));
-
-                        log.debug("retrieved resource {} (mime type {}, length {} bytes)", jarUrl.toString(), data.getContentType(),data.getLength());
+                        data = new ResourceEntry(jarUrl, bytes, bytes.length, getMimeType(relativeURL));
+                        log.debug("retrieved resource {} (mime type {}, length {} bytes)", jarUrl.toString(), data.getContentType(), data.getLength());
                     } catch (NullPointerException e) {
                         // This happens if a directory is accessed in the jar-file.
                         data = null;
@@ -149,12 +129,10 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
                     putInCache(relativeURL,data);
                 } else {
                     putInCache(relativeURL,null);
-
-                    log.debug("resource {} not found in any module",relativeURL);
+                    log.debug("resource {} not found in any module", relativeURL);
                 }
-
             } catch(IOException ex) {
-                log.debug("error while trying to retrieve resource {}: {}",relativeURL,ex.getMessage());
+                log.debug("error while trying to retrieve resource {}: {}", relativeURL, ex.getMessage());
             }
         }
         return data;
@@ -183,7 +161,7 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
                 }
 
                 // the base URL of the jar file in the file system
-                String jarUrlBase   = resourceMap.get(key);
+                String jarUrlBase = resourceMap.get(key);
 
                 // the JAR URL of the resource inside the jar file
                 String jarUrlEntry;
@@ -194,27 +172,19 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
                     jarUrlEntry = jarUrlBase + (jarUrlBase.endsWith("/")?"":"/") + "web" + ( entryPath.startsWith("/") ? entryPath : "/" + entryPath);
                 }
 
-
                 try {
                     return new URL(jarUrlEntry);
-
                 } catch(IOException ex) {
-                    log.debug("error while trying to retrieve resource {}: {}",jarUrlEntry,ex.getMessage());
-
+                    log.debug("error while trying to retrieve resource {}: {}", jarUrlEntry, ex.getMessage());
                 }
             }
         }
         return null;
     }
 
-
-
-
-
     private boolean isCacheEnabled() {
         return configurationService.getBooleanConfiguration("resources.servercache.enabled", false);
     }
-
 
     private boolean isCached(String key) {
         return isCacheEnabled() && resourceCache.containsKey(key) && resourceCache.get(key) != null;
@@ -227,26 +197,21 @@ public class MarmottaResourceServiceImpl implements MarmottaResourceService {
             return null;
     }
 
-    // Store in the cache
+    /**
+     * Store in the cache
+     */
     private void putInCache(String key, ResourceEntry data) {
         if(isCacheEnabled()) {
-            resourceCache.put(key,data);
+            resourceCache.put(key, data);
         }
     }
 
-
     private String getMimeType(URL resource) {
-
-        @SuppressWarnings("unchecked")
-        Collection<MimeType> types = mimeUtil.getMimeTypes(resource);
-
-        if(types.size() > 0) {
-            MimeType t = types.iterator().next();
-            return t.toString();
-        } else
-            return null;
-
+        return getMimeType(resource.toString());
     }
 
+    private String getMimeType(String resource) {
+        return tika.detect(resource);
+    }
 
 }
