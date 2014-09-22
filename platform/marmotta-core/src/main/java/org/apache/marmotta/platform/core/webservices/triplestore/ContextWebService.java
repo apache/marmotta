@@ -116,7 +116,7 @@ public class ContextWebService {
      * @param context uri
      * @param accept Accept HTTP header
      * @param format format requested (overwrites accept header)
-     *               
+     *
      * @return response
      * @throws URISyntaxException
      * @see <a href="http://www.w3.org/TR/sparql11-http-rdf-update/#indirect-graph-identification">Indirect Graph Identification</a>
@@ -129,10 +129,20 @@ public class ContextWebService {
             URI uri = buildExportUri(context, accept, format);
             return Response.seeOther(uri).build();        
         }
-    }    
-    
-    @PUT
-    public Response put(@QueryParam("graph") String context, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
+    }
+
+    /**
+     * Merge of the enclosed RDF payload enclosed into the RDF graph content identified by the encoded URI.
+     *
+     * @param context context URI
+     * @param type Content-Type header
+     * @param request request
+     *
+     * @return response
+     * @throws IOException
+     */
+    @POST
+    public Response post(@QueryParam("graph") String context, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
         if (StringUtils.isBlank(context)) {
             return Response.status(Status.NOT_ACCEPTABLE).entity("missing 'graph' uri for indirect graph identification").build();
         } else {
@@ -142,12 +152,56 @@ public class ContextWebService {
             Set<String> acceptedFormats = contextService.getAcceptFormats();
             if (type == null || !acceptedFormats.contains(type)) {
                 return Response.status(412).entity("define a valid content-type (types: " + acceptedFormats + ")").build();
-            }   
+            }
             final boolean imported = contextService.importContent(context, request.getInputStream(), type);
             return imported ? Response.ok().build() : Response.status(Status.NOT_FOUND).build();
-        }        
+        }
     }
-    
+
+    /**
+     * Merge of the enclosed RDF payload enclosed into the RDF graph content identified by the request URI.
+     *
+     * @param uuid context local id
+     * @param type Content-Type header
+     * @param request request
+     *
+     * @return response
+     * @throws IOException
+     */
+    @POST
+    public Response postContext(@PathParam("uuid") String uuid, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
+        return post(buildUri(uuid), type, request);
+    }
+
+    /**
+     * Store the enclosed RDF payload in the context identified by the encoded URI.
+     *
+     * @param context context uri
+     * @param type Content-Type of the payload
+     * @param request request object
+     *
+     * @return response
+     * @throws IOException
+     */
+    @PUT
+    public Response put(@QueryParam("graph") String context, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
+        if (contextService.removeContext(context)) {
+            return post(context, type, request);
+        } else {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Context was not dropped before").build();
+        }
+    }
+
+    /**
+     * Store the enclosed RDF payload in the context identified by the requested URI.
+     *
+     * @param uuid context local id
+     * @param type Content-Type of the payload
+     * @param request request object
+     *
+     * @return response
+     * @throws IOException
+     */
     @PUT
     public Response putContext(@PathParam("uuid") String uuid, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws IOException {
         return put(buildUri(uuid), type, request);     
