@@ -252,7 +252,7 @@ public class ContextWebService {
     
     private URI buildExportUri(String uri, String accept, String format) throws URISyntaxException {
         List<ContentType> acceptedTypes;
-        if(StringUtils.isNoneBlank(format)) {
+        if(StringUtils.isNotBlank(format)) {
             acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(format);
         } else {
             acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(accept);
