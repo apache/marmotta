@@ -164,7 +164,7 @@ public class LdpSuiteTest {
         String relPath = getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
         File targetDir = new File(relPath, "ldp-testsuite");
         if(!targetDir.exists()) {
-            targetDir.mkdir();
+            Assume.assumeTrue("Could not create report-directory", targetDir.mkdir());
         }
         return targetDir;
     }
