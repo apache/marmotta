@@ -244,6 +244,8 @@ public class KiWiHandler implements RDFHandler {
                     result.setId(tripleId);
 
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
+
+                    storeTriple(result);
                 } else {
                     // not found in registry, try loading from database
                     result.setId(connection.getTripleId(subject,predicate,object,context,true));
@@ -255,12 +257,15 @@ public class KiWiHandler implements RDFHandler {
                     result.setNewTriple(true);
 
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
+
+                    storeTriple(result);
                 }
             } else {
                 result.setId(connection.getNextSequence("triples"));
+
+                storeTriple(result);
             }
 
-            storeTriple(result);
 
         } catch (SQLException | ExecutionException e) {
             throw new RDFHandlerException(e);
