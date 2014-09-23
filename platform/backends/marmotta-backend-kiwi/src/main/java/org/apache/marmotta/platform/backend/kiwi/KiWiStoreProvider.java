@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.marmotta.kiwi.config.CacheMode;
 import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.config.RegistryStrategy;
 import org.apache.marmotta.kiwi.exception.DriverNotFoundException;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
@@ -122,6 +123,12 @@ public class KiWiStoreProvider implements StoreProvider {
 
         configuration.setCachingBackend(CachingBackends.valueOf(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_BACKEND, "GUAVA")));
         configuration.setCacheMode(CacheMode.valueOf(configurationService.getStringConfiguration(KiWiOptions.CLUSTERING_MODE,"LOCAL")));
+
+        if(configuration.isClustered()) {
+            configuration.setRegistryStrategy(RegistryStrategy.CACHE);
+        } else {
+            configuration.setRegistryStrategy(RegistryStrategy.LOCAL);
+        }
 
         NotifyingSail base = new KiWiStore(configuration);
 

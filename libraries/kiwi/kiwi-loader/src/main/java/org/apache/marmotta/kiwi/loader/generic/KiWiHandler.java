@@ -25,7 +25,10 @@ import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
+import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
+import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.URIImpl;
@@ -70,7 +73,7 @@ public class KiWiHandler implements RDFHandler {
     private KiWiResource overrideContext;
 
     // only used when statement existance check is enabled
-    protected DBTripleRegistry registry;
+    protected KiWiTripleRegistry registry;
 
 
     protected Date importDate;
@@ -99,7 +102,23 @@ public class KiWiHandler implements RDFHandler {
 
 
         if(config.isStatementExistanceCheck()) {
-            registry = new DBTripleRegistry(store);
+            switch (store.getPersistence().getConfiguration().getRegistryStrategy()) {
+                case DATABASE:
+                    log.info("KiWi Loader: database registry");
+                    registry        = new DBTripleRegistry(store);
+                    break;
+                case CACHE:
+                    log.info("KiWi Loader: cache registry");
+                    registry        = new CacheTripleRegistry(store.getPersistence().getCacheManager());
+                    break;
+                case LOCAL:
+                    log.info("KiWi Loader: in-memory registry");
+                    registry        = new LocalTripleRegistry();
+                    break;
+                default:
+                    log.info("KiWi Loader: in-memory registry");
+                    registry        = new LocalTripleRegistry();
+            }
         }
     }
 
