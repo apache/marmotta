@@ -370,6 +370,11 @@ public class LdpServiceImpl implements LdpService {
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
         connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
         connection.add(resource, ldpInteractionModelProperty, interactionModel.getUri(), ldpContext);
+        if (interactionModel == InteractionModel.LDPC) {
+            connection.add(resource, RDF.TYPE, LDP.Container, ldpContext);
+            // TODO: For the future we might need to check for other container types here first.
+            connection.add(resource, RDF.TYPE, LDP.BasicContainer, ldpContext);
+        }
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
