@@ -21,8 +21,6 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.exception.SuperCsvCellProcessorException;
 import org.supercsv.util.CsvContext;
 
-import java.util.Locale;
-
 /**
  * Add file description here!
  *
@@ -55,10 +53,10 @@ public class LanguageProcessor extends CellProcessorAdaptor implements CellProce
     public Object execute(Object value, CsvContext context) {
         validateInputNotNull(value, context);
 
-        if( !(value instanceof Locale) ) {
-            throw new SuperCsvCellProcessorException(Locale.class, value, context, this);
+        if( !(value instanceof String) ) {
+            throw new SuperCsvCellProcessorException(String.class, value, context, this);
         }
 
-        return ((Locale)value).getLanguage();
+        return value;
     }
 }

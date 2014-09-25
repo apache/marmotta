@@ -193,7 +193,7 @@ public class PGCopyUtil {
         a[5] = date;
         a[6] = bool;
         a[7] = dtype;
-        a[8] = lang;
+        a[8] = lang != null ? lang.getLanguage() : "";
         a[9] = created;
     }
 }
