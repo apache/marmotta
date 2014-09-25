@@ -18,11 +18,8 @@
 package org.apache.marmotta.platform.ldp.services;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.ldp.api.LdpBinaryStoreService;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
@@ -30,9 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,15 +59,26 @@ public class LdpBinaryStoreServiceImpl implements LdpBinaryStoreService {
         log.info("Initialized binary data store over {}", base.toString());
     }
 
-    private Path getFile(String resource) throws URISyntaxException {
-        java.net.URI uri = new java.net.URI(resource);
-        String schema = uri.getScheme();
-        if ("http".compareTo(schema) != 0) {
-            String msg = "Binary storage not supported for URIs with " + schema + " as schema";
+    Path getFile(String resource) throws URISyntaxException {
+        final java.net.URI uri = new java.net.URI(resource);
+        final String schema = uri.getScheme();
+        if ("http".compareTo(schema) != 0 && "https".compareTo(schema) != 0) {
+            final String msg = "Binary storage not supported for URIs with " + schema + " as schema";
             log.error(msg);
             throw new RuntimeException(msg);
         }
-        return base.resolve(StringUtils.removeStart(resource, "http://"));
+        final int port;
+        if (uri.getPort() > 0) {
+            port = uri.getPort();
+        } else if ("http".compareTo(schema) == 0) {
+            port = 80;
+        } else if ("https".compareTo(schema) == 0) {
+            port = 443;
+        } else {
+            port = 0;
+        }
+
+        return base.resolve(String.format("%s.%d/%s", uri.getHost(), port, uri.getRawPath()));
     }
 
     @Override
