@@ -18,7 +18,6 @@
 package org.apache.marmotta.kiwi.loader.generic;
 
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
-import org.apache.marmotta.kiwi.loader.pgsql.KiWiPostgresHandler;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.model.Literal;
@@ -41,7 +40,7 @@ import java.util.concurrent.ExecutionException;
  */
 public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler {
 
-    private static Logger log = LoggerFactory.getLogger(KiWiPostgresHandler.class);
+    private static Logger log = LoggerFactory.getLogger(KiWiBatchHandler.class);
 
 
     protected List<KiWiNode> nodeBacklog;
