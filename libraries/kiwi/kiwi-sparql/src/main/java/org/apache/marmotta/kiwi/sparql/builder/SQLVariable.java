@@ -45,7 +45,7 @@ public class SQLVariable  implements Cloneable{
      * depending on the number of patterns it occurs in; will look like
      * { ?x -> ["P1_V1", "P2_V1"], ?y -> ["P2_V2"], ... }
      */
-    private List<String> aliases;
+    private String alias;
 
 
     /**
@@ -72,7 +72,6 @@ public class SQLVariable  implements Cloneable{
         this.name = name;
         this.sparqlName = sparqlName;
 
-        this.aliases = new ArrayList<>();
         this.bindings = new ArrayList<>();
         this.expressions = new ArrayList<>();
     }
@@ -89,16 +88,12 @@ public class SQLVariable  implements Cloneable{
         return sparqlName;
     }
 
-    public List<String> getAliases() {
-        return aliases;
+    public String getAlias() {
+        return alias;
     }
 
-    /**
-     * Primary alias for a variable, used e.g. when projecting or evaluating in functions. All others are added with join conditions.
-     * @return
-     */
-    public String getPrimaryAlias() {
-        return aliases.get(0);
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
     public List<ValueExpr> getBindings() {
@@ -139,7 +134,7 @@ public class SQLVariable  implements Cloneable{
         return "Variable{" +
                 "SQL name='" + name + '\'' +
                 ", SPARQL name=" + sparqlName +
-                ", aliases=" + aliases +
+                ", alias=" + alias +
                 ", expressions=" + expressions +
                 ", projectionType=" + projectionType +
                 '}';
@@ -165,7 +160,7 @@ public class SQLVariable  implements Cloneable{
         SQLVariable clone = new SQLVariable(getName(), getSparqlName());
         clone.projectionType = projectionType;
         clone.getExpressions().addAll(expressions);
-        clone.getAliases().addAll(aliases);
+        clone.alias = alias;
         clone.getBindings().addAll(bindings);
 
         return clone;
