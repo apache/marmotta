@@ -58,32 +58,50 @@ public class SQLUnion extends SQLAbstractSubquery {
         int c = 0;
         Map<String,SQLVariable> leftVars = new HashMap<>();
         for(SQLVariable svl : left.getVariables().values()) {
-            leftVars.put(svl.getName(), svl);
+            leftVars.put(svl.getSparqlName(), svl);
         }
 
         Map<String,SQLVariable> rightVars = new HashMap<>();
         for(SQLVariable svr : right.getVariables().values()) {
-            rightVars.put(svr.getName(), svr);
+            rightVars.put(svr.getSparqlName(), svr);
         }
 
+        // we have to homogenize variable names in both subqueries and make sure they have the same number of columns
+        Map<String,String> sparqlToSQL = new HashMap<>();
+        for(SQLVariable svl : left.getVariables().values()) {
+            if(sparqlToSQL.containsKey(svl.getSparqlName())) {
+                svl.setName(sparqlToSQL.get(svl.getSparqlName()));
+            } else {
+                svl.setName("U"+ (++c));
+                sparqlToSQL.put(svl.getSparqlName(), svl.getName());
+            }
+        }
+        for(SQLVariable svl : right.getVariables().values()) {
+            if(sparqlToSQL.containsKey(svl.getSparqlName())) {
+                svl.setName(sparqlToSQL.get(svl.getSparqlName()));
+            } else {
+                svl.setName("U"+ (++c));
+                sparqlToSQL.put(svl.getSparqlName(), svl.getName());
+            }
+        }
+
+
         for(SQLVariable svl : leftVars.values()) {
-            if(!rightVars.containsKey(svl.getName())) {
-                String vname = "_u_"+alias+"_" + (++c);
-                SQLVariable svr = new SQLVariable(svl.getName(), vname);
+            if(!rightVars.containsKey(svl.getSparqlName())) {
+                SQLVariable svr = new SQLVariable(svl.getName(), svl.getSparqlName());
                 svr.getExpressions().add("NULL");
                 svr.setProjectionType(ProjectionType.NODE);
-                right.getVariables().put(vname,svr);
+                right.getVariables().put(svl.getSparqlName(),svr);
             }
             variables.add(svl);
         }
 
         for(SQLVariable svr : rightVars.values()) {
-            if(!leftVars.containsKey(svr.getName())) {
-                String vname = "_u_"+alias+"_" + (++c);
-                SQLVariable svl = new SQLVariable(svr.getName(), vname);
+            if(!leftVars.containsKey(svr.getSparqlName())) {
+                SQLVariable svl = new SQLVariable(svr.getName(), svr.getSparqlName());
                 svl.getExpressions().add("NULL");
                 svl.setProjectionType(ProjectionType.NODE);
-                left.getVariables().put(vname,svl);
+                left.getVariables().put(svr.getSparqlName(),svl);
             }
             variables.add(svr);
         }

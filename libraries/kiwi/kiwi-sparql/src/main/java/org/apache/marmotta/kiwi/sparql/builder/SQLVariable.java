@@ -81,6 +81,10 @@ public class SQLVariable  implements Cloneable{
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getSparqlName() {
         return sparqlName;
     }
