@@ -267,7 +267,7 @@ public class KiWiHandler implements RDFHandler {
                     storeTriple(result);
                 } else {
                     // not found in registry, try loading from database
-                    result.setId(connection.getTripleId(subject,predicate,object,context,true));
+                    result.setId(connection.getTripleId(subject,predicate,object,context));
                 }
 
                 // triple has no id from registry or database, so we create one and flag it for reasoning

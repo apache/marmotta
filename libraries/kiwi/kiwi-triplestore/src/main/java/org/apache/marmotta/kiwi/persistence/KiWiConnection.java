@@ -1181,10 +1181,9 @@ public class KiWiConnection implements AutoCloseable {
      * @param predicate
      * @param object
      * @param context
-     * @param inferred
      * @return
      */
-    public synchronized long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context, final boolean inferred) throws SQLException {
+    public synchronized long getTripleId(final KiWiResource subject, final KiWiUriResource predicate, final KiWiNode object, final KiWiResource context) throws SQLException {
         if(tripleBatch != null && tripleBatch.size() > 0) {
             Collection<KiWiTriple> batched = tripleBatch.listTriples(subject,predicate,object,context, false);
             if(batched.size() > 0) {
