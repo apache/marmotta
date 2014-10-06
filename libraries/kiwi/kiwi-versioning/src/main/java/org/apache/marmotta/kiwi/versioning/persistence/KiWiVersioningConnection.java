@@ -79,7 +79,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
         requireJDBCConnection();
 
         // first create a new entry in the version table
-        data.setId(getNextSequence("seq.versions"));
+        data.setId(getNextSequence());
 
         PreparedStatement insertVersion = getPreparedStatement("store.version");
         synchronized (insertVersion) {

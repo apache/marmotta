@@ -178,7 +178,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     @Override
     protected void storeNode(KiWiNode node) throws SQLException {
         if(node.getId() < 0) {
-            node.setId(connection.getNextSequence("nodes"));
+            node.setId(connection.getNextSequence());
         }
 
         nodeBacklog.add(node);

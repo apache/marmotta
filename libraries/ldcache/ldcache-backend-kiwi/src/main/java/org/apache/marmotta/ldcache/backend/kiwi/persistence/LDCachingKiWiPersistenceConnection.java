@@ -156,7 +156,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
         // needed before the entry can be inserted
         connection.flushBatch();
 
-        kEntry.setId(connection.getNextSequence("seq.ldcache"));
+        kEntry.setId(connection.getNextSequence());
 
         PreparedStatement insertEntry = connection.getPreparedStatement("store.entry");
         insertEntry.setLong(1, kEntry.getId());

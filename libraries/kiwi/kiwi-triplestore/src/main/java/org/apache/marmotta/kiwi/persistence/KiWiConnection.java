@@ -150,7 +150,7 @@ public class KiWiConnection implements AutoCloseable {
         this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
         this.deletedStatementsLog = BloomFilter.create(Funnels.longFunnel(), 100000);
-        this.transactionId = getNextSequence("seq.tx");
+        this.transactionId = getNextSequence();
 
         initCachePool();
         initStatementCache();
@@ -310,7 +310,7 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
-        namespace.setId(getNextSequence("seq.namespaces"));
+        namespace.setId(getNextSequence());
 
         PreparedStatement insertNamespace = getPreparedStatement("store.namespace");
         insertNamespace.setLong(1,namespace.getId());
@@ -960,7 +960,7 @@ public class KiWiConnection implements AutoCloseable {
 
         // retrieve a new node id and set it in the node object
         if(node.getId() < 0) {
-            node.setId(getNextSequence("seq.nodes"));
+            node.setId(getNextSequence());
         }
 
         // distinguish the different node types and run the appropriate updates
@@ -1104,7 +1104,7 @@ public class KiWiConnection implements AutoCloseable {
             requireJDBCConnection();
 
             if(triple.getId() < 0) {
-                triple.setId(getNextSequence("seq.triples"));
+                triple.setId(getNextSequence());
             }
 
             if(deletedStatementsLog.mightContain(triple.getId())) {
@@ -2104,36 +2104,11 @@ public class KiWiConnection implements AutoCloseable {
      * Get next number in a sequence; for databases without sequence support (e.g. MySQL), this method will first update a
      * sequence table and then return the value.
      *
-     * @param sequenceName the identifier in statements.properties for querying the sequence
      * @return a new sequence ID
      * @throws SQLException
      */
-    public long getNextSequence(String sequenceName) throws SQLException {
+    public long getNextSequence() throws SQLException {
         return persistence.getIdGenerator().getId();
-    }
-
-    public long getDatabaseSequence(String sequenceName) throws SQLException {
-        requireJDBCConnection();
-
-        // retrieve a new node id and set it in the node object
-
-        // if there is a preparation needed to update the transaction, run it first
-        if(dialect.hasStatement(sequenceName+".prep")) {
-            PreparedStatement prepNodeId = getPreparedStatement(sequenceName+".prep");
-            prepNodeId.executeUpdate();
-        }
-
-        PreparedStatement queryNodeId = getPreparedStatement(sequenceName);
-        ResultSet resultNodeId = queryNodeId.executeQuery();
-        try {
-            if(resultNodeId.next()) {
-                return resultNodeId.getLong(1);
-            } else {
-                throw new SQLException("the sequence did not return a new value");
-            }
-        } finally {
-            resultNodeId.close();
-        }
     }
 
 
@@ -2400,7 +2375,7 @@ public class KiWiConnection implements AutoCloseable {
             }
         });
 
-        this.transactionId = getNextSequence("seq.tx");
+        this.transactionId = getNextSequence();
     }
 
     /**
@@ -2429,7 +2404,7 @@ public class KiWiConnection implements AutoCloseable {
             connection.rollback();
         }
 
-        this.transactionId = getNextSequence("seq.tx");
+        this.transactionId = getNextSequence();
     }
 
     /**
@@ -2514,7 +2489,7 @@ public class KiWiConnection implements AutoCloseable {
                             for(KiWiTriple triple : tripleBatch) {
                                 // retrieve a new triple ID and set it in the object
                                 if(triple.getId() < 0) {
-                                    triple.setId(getNextSequence("seq.triples"));
+                                    triple.setId(getNextSequence());
                                 }
 
                                 insertTriple.setLong(1,triple.getId());

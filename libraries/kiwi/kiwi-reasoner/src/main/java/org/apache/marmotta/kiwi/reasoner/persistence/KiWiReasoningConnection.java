@@ -78,7 +78,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
         requireJDBCConnection();
 
         // first create a new entry in the rules table
-        rule.setId(getNextSequence("seq.rules"));
+        rule.setId(getNextSequence());
 
         PreparedStatement insertRule = getPreparedStatement("rules.insert");
         synchronized (insertRule) {
@@ -242,7 +242,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
         // 1) create a program entry in the reasoner_programs table
 
         // get sequence ID
-        program.setId(getNextSequence("seq.programs"));
+        program.setId(getNextSequence());
 
         PreparedStatement insertProgram = getPreparedStatement("programs.insert");
         synchronized (insertProgram) {
@@ -394,7 +394,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
 
                 for(Rule rule : program.getRules()) {
                     if(!old.getRules().contains(rule)) {
-                        rule.setId(getNextSequence("seq.rules"));
+                        rule.setId(getNextSequence());
 
                         insertRule.setLong(1, rule.getId());
                         insertRule.setString(2, rule.getName());
@@ -614,7 +614,7 @@ public class KiWiReasoningConnection extends KiWiConnection {
                 if(j.getId() >= 0) {
                     log.warn("justification is already stored in database, not persisting again (database ID: {})", j.getId());
                 } else {
-                    j.setId(getNextSequence("seq.justifications"));
+                    j.setId(getNextSequence());
                     j.setCreatedAt(new Date());
 
                     // insert an entry to the reasoner_justifications table
