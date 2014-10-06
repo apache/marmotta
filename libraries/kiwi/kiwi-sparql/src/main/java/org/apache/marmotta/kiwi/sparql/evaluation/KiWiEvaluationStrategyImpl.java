@@ -335,6 +335,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isAtomic(((Str) expr).getArg());
         } else if(expr instanceof Label) {
             return isAtomic(((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof Bound) {
+            return true;
         } else if(expr instanceof IsResource) {
             return isAtomic(((UnaryValueOperator) expr).getArg());
         } else if(expr instanceof IsURI) {

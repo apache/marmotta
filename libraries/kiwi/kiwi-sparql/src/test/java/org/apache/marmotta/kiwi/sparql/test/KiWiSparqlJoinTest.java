@@ -36,6 +36,7 @@ import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.openrdf.model.BNode;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
@@ -331,6 +332,13 @@ public class KiWiSparqlJoinTest {
         testQuery("query33.sparql");
     }
 
+    // MARMOTTA-546
+    @Test
+    public void testQuery34() throws Exception {
+        testQuery("query34.sparql");
+    }
+
+
 
     // INSERT/UPDATE
     @Test
@@ -502,6 +510,14 @@ public class KiWiSparqlJoinTest {
         Set<Set<Pair>> set1 = new HashSet<Set<Pair>>(Lists.transform(bindingSets1,new BindingSetPairFunction()));
         Set<Set<Pair>> set2 = new HashSet<Set<Pair>>(Lists.transform(bindingSets2,new BindingSetPairFunction()));
 
+        for(Set<Pair> p : set1) {
+            Assert.assertTrue("binding " + p + " from result set not found in reference set", set2.contains(p));
+        }
+        for(Set<Pair> p : set2) {
+            Assert.assertTrue("binding " + p + " from reference set not found in result set", set1.contains(p));
+        }
+
+
         Assert.assertTrue(CollectionUtils.isEqualCollection(set1, set2));
     }
 
@@ -512,7 +528,7 @@ public class KiWiSparqlJoinTest {
             Set<Pair> result = new HashSet<Pair>();
 
             for(Binding b : input) {
-                Pair p = new Pair(b.getName(), b.getValue() != null ? b.getValue().stringValue() : null);
+                Pair p = new Pair(b.getName(), b.getValue() != null ? (b.getValue() instanceof BNode ? "_" : b.getValue().stringValue()) : null);
                 result.add(p);
             }
 
@@ -554,6 +570,11 @@ public class KiWiSparqlJoinTest {
             int result = key.hashCode();
             result = 31 * result + (value != null ? value.hashCode() : 0);
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return key + " = " + value;
         }
     }
 

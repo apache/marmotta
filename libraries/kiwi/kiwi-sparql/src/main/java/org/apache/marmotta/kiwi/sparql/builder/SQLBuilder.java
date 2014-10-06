@@ -759,6 +759,16 @@ public class SQLBuilder {
             } else {
                 return "(" + value + " = '"+pattern.getValue().stringValue()+"' OR " + dialect.getILike(value, "'" + pattern.getValue().stringValue() + "-%' )");
             }
+        } else if(expr instanceof Bound) {
+            ValueExpr arg = ((Bound)expr).getArg();
+
+            if(arg instanceof ValueConstant) {
+                return Boolean.toString(true);
+            } else if(arg instanceof Var) {
+
+                return "(" + evaluateExpression(arg, optype) + " IS NOT NULL)";
+            }
+
         } else if(expr instanceof IsResource) {
             ValueExpr arg = ((UnaryValueOperator)expr).getArg();
 
