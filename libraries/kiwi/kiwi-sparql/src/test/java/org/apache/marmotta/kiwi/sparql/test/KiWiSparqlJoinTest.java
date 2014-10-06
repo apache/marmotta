@@ -338,6 +338,11 @@ public class KiWiSparqlJoinTest {
         testQuery("query34.sparql");
     }
 
+    // Redlink API-463
+    @Test
+    public void testQuery35() throws Exception {
+        testQuery("query35.sparql");
+    }
 
 
     // INSERT/UPDATE
