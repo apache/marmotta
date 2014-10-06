@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.kiwi.loader.generic;
 
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -46,7 +47,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     protected List<KiWiNode> nodeBacklog;
     protected List<KiWiTriple> tripleBacklog;
 
-    protected Map<Literal,KiWiLiteral> literalBacklogLookup;
+    protected Map<String,KiWiLiteral> literalBacklogLookup;
     protected Map<String,KiWiUriResource> uriBacklogLookup;
     protected Map<String,KiWiAnonResource> bnodeBacklogLookup;
 
@@ -137,6 +138,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
     public void endRDF() throws RDFHandlerException {
         try {
             flushBacklog();
+            connection.commit();
         } catch (SQLException e) {
             throw new RDFHandlerException(e);
         }
@@ -159,7 +161,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
     @Override
     protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {
-        KiWiLiteral result = literalBacklogLookup.get(l);
+        KiWiLiteral result = literalBacklogLookup.get(LiteralCommons.createCacheKey(l));
         if(result == null) {
             result = super.createLiteral(l);
         }
@@ -188,7 +190,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         } else if(node instanceof KiWiAnonResource) {
             bnodeBacklogLookup.put(node.stringValue(), (KiWiAnonResource)node);
         } else if(node instanceof KiWiLiteral) {
-            literalBacklogLookup.put((KiWiLiteral)node, (KiWiLiteral)node);
+            literalBacklogLookup.put(LiteralCommons.createCacheKey((Literal) node), (KiWiLiteral)node);
         }
 
         nodes++;
