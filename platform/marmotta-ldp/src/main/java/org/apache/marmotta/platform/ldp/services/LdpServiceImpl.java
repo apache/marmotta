@@ -370,6 +370,11 @@ public class LdpServiceImpl implements LdpService {
         connection.add(resource, RDF.TYPE, LDP.Resource, ldpContext);
         connection.add(resource, RDF.TYPE, LDP.RDFSource, ldpContext);
         connection.add(resource, ldpInteractionModelProperty, interactionModel.getUri(), ldpContext);
+        if (interactionModel == InteractionModel.LDPC) {
+            connection.add(resource, RDF.TYPE, LDP.Container, ldpContext);
+            // TODO: For the future we might need to check for other container types here first.
+            connection.add(resource, RDF.TYPE, LDP.BasicContainer, ldpContext);
+        }
         connection.add(resource, DCTERMS.created, now, ldpContext);
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
@@ -428,14 +433,13 @@ public class LdpServiceImpl implements LdpService {
     }
 
     @Override
-    public String updateResource(RepositoryConnection connection, final URI resource, InputStream stream, final String type, final boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
+    public String updateResource(final RepositoryConnection connection, final URI resource, InputStream stream, final String type, final boolean overwrite) throws RepositoryException, IncompatibleResourceTypeException, RDFParseException, IOException, InvalidModificationException {
         final ValueFactory valueFactory = connection.getValueFactory();
         final Literal now = valueFactory.createLiteral(new Date());
 
-        connection.remove(resource, DCTERMS.modified, null, ldpContext);
-        connection.add(resource, DCTERMS.modified, now, ldpContext);
 
-        final RDFFormat rdfFormat = Rio.getParserFormatForMIMEType(type);
+        // TODO: find a better way to ingest n-triples (text/plain) while still supporting regular text files
+        final RDFFormat rdfFormat = ("text/plain".equals(type) ? null : Rio.getParserFormatForMIMEType(type));
         // Check submitted format vs. real resource type (RDF-S vs. Non-RDF)
         if (rdfFormat == null && isNonRdfSourceResource(connection, resource)) {
             log.debug("Updating <{}> as LDP-NR (binary) - {}", resource, type);
@@ -444,6 +448,8 @@ public class LdpServiceImpl implements LdpService {
 
             connection.remove(resource, DCTERMS.format, null, ldpContext);
             connection.add(resource, DCTERMS.format, format, ldpContext); //nie:mimeType ?
+            connection.remove(resource, DCTERMS.modified, null, ldpContext);
+            connection.add(resource, DCTERMS.modified, now, ldpContext);
 
             final URI ldp_rs = getRdfSourceForNonRdfSource(connection, resource);
             if (ldp_rs != null) {
@@ -468,9 +474,17 @@ public class LdpServiceImpl implements LdpService {
             filtered.addRepositoryConnectionInterceptor(new RepositoryConnectionInterceptorAdapter() {
                 @Override
                 public boolean add(RepositoryConnection conn, Resource subject, URI predicate, Value object, Resource... contexts) {
-                    if (resource.equals(subject) && SERVER_MANAGED_PROPERTIES.contains(predicate)) {
-                        deniedProperties.add(predicate);
-                        return true;
+                    try {
+                        if (connection.hasStatement(subject, predicate, object, true, ldpContext)) {
+                            // Ignore/Strip any triple that is already present in the mgnt-context (i.e. "unchanged" props).
+                            return true;
+                        } else if (resource.equals(subject) && SERVER_MANAGED_PROPERTIES.contains(predicate)) {
+                            // We do NOT allow changing server-managed properties.
+                            deniedProperties.add(predicate);
+                            return true;
+                        }
+                    } catch (RepositoryException e) {
+                        log.error("Error while filtering server managed properties: {}", e.getMessage());
                     }
                     return false;
                 }
@@ -482,9 +496,14 @@ public class LdpServiceImpl implements LdpService {
                 final URI prop = deniedProperties.iterator().next();
                 log.debug("Invalid property modification in update: <{}> is a server controlled property", prop);
                 throw new InvalidModificationException(String.format("Must not update <%s> using PUT", prop));
+            } else {
+                // This has to happen *AFTER* the post-body was added:
+                connection.remove(resource, DCTERMS.modified, null, ldpContext);
+                connection.add(resource, DCTERMS.modified, now, ldpContext);
+
+                log.trace("LDP-RS <{}> updated", resource);
+                return resource.stringValue();
             }
-            log.trace("LDP-RS <{}> updated", resource);
-            return resource.stringValue();
         } else if (rdfFormat == null) {
             final String mimeType = getMimeType(connection, resource);
             log.debug("Incompatible replacement: Can't replace {} with {}", mimeType, type);
