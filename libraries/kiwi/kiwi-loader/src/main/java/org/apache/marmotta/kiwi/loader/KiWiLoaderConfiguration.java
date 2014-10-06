@@ -35,6 +35,8 @@ public class KiWiLoaderConfiguration {
     public static final String LOADER_DROP_INDEXES = "loader.dropIndexes";
     public static final String LOADER_STATISTICS_ENABLED = "loader.statistics.enabled";
     public static final String LOADER_STATISTICS_GRAPH = "loader.statistics.graph";
+    public static final String IGNORE_NAMESPACES = "loader.namespaces.ignore";
+
 
     /**
      * the size of a batch insert into the database; only when this number of statements has been processed will
@@ -109,6 +111,14 @@ public class KiWiLoaderConfiguration {
 
     public void setDropIndexes(boolean v) {
         config.setProperty(LOADER_DROP_INDEXES,v);
+    }
+
+    public boolean isIgnoreNamespaces() {
+        return config.getBoolean(IGNORE_NAMESPACES, false);
+    }
+
+    public void setIgnoreNamespaces(boolean v) {
+        config.setProperty(IGNORE_NAMESPACES,v);
     }
 
 

@@ -223,10 +223,20 @@ public class KiWiHandler implements RDFHandler {
      */
     @Override
     public void handleNamespace(String prefix, String uri) throws RDFHandlerException {
-        try {
-            connection.storeNamespace(new KiWiNamespace(prefix,uri));
-        } catch (SQLException e) {
-            throw new RDFHandlerException(e);
+        if(!config.isIgnoreNamespaces()) {
+            try {
+                KiWiNamespace result = connection.loadNamespaceByPrefix(prefix);
+                if(result != null) {
+                    if(!result.getUri().equals(uri)) {
+                        connection.deleteNamespace(result);
+                        connection.storeNamespace(new KiWiNamespace(prefix,uri));
+                    }
+                } else {
+                    connection.storeNamespace(new KiWiNamespace(prefix,uri));
+                }
+            } catch (SQLException e) {
+                throw new RDFHandlerException(e);
+            }
         }
     }
 
