@@ -757,7 +757,7 @@ public class SQLBuilder {
             } else if(pattern.getValue().stringValue().equals("")) {
                 return value + " IS NULL";
             } else {
-                return "(" + value + " = '"+pattern.getValue().stringValue()+"' OR " + dialect.getILike(value, "'" + pattern.getValue().stringValue() + "-%' )");
+                return "(" + value + " = '"+pattern.getValue().stringValue().toLowerCase()+"' OR " + dialect.getILike(value, "'" + pattern.getValue().stringValue().toLowerCase() + "-%' )");
             }
         } else if(expr instanceof Bound) {
             ValueExpr arg = ((Bound)expr).getArg();
