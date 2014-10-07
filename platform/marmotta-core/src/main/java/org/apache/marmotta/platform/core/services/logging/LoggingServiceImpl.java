@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.logging;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.ThresholdFilter;
@@ -181,6 +182,7 @@ public class LoggingServiceImpl implements LoggingService {
 
         // configure defaults for root logger
         ch.qos.logback.classic.Logger rootLogger = loggerContext.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.INFO);
         rootLogger.detachAndStopAllAppenders();
         rootLogger.addAppender(appenders.get(getOutputConfiguration("console")));
         rootLogger.addAppender(appenders.get(getOutputConfiguration("main")));
