@@ -120,6 +120,8 @@ public class KiWiHandler implements RDFHandler {
                     registry        = new LocalTripleRegistry();
             }
         }
+
+        log.info("KiWi Loader: namespaces {}", config.isIgnoreNamespaces() ? "ignored" : "enabled");
     }
 
 

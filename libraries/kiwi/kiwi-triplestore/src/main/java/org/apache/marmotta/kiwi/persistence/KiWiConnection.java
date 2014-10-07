@@ -1760,8 +1760,12 @@ public class KiWiConnection implements AutoCloseable {
         result.setId(row.getLong("id"));
         result.setCreated(new Date(row.getTimestamp("createdAt").getTime()));
 
-        namespacePrefixCache.put(result.getPrefix(),result);
-        namespaceUriCache.put(result.getUri(),result);
+        if(!namespacePrefixCache.containsKey(result.getPrefix())) {
+            namespacePrefixCache.put(result.getPrefix(), result);
+        }
+        if(!namespaceUriCache.containsKey(result.getUri())) {
+            namespaceUriCache.put(result.getUri(), result);
+        }
 
         return result;
     }
