@@ -76,6 +76,6 @@ public class KiWiLoggingModule extends BaseLoggingModule {
      */
     @Override
     public Collection<String> getPackages() {
-        return ImmutableSet.of("org.apache.marmotta.platform.backend.kiwi", "org.apache.marmotta.kiwi");
+        return ImmutableSet.of("org.apache.marmotta.platform.backend.kiwi", "org.apache.marmotta.kiwi", "com.hazelcast");
     }
 }
