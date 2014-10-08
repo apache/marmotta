@@ -88,7 +88,7 @@ public class KiWiSparqlConnection {
         try {
             final SQLBuilder builder = new SQLBuilder(join, bindings, dataset, valueFactory, parent.getDialect(), projectedVars);
 
-            final PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(builder.build());
+            final PreparedStatement queryStatement = parent.getJDBCConnection().prepareStatement(builder.build().toString());
             if (parent.getDialect().isCursorSupported()) {
                 queryStatement.setFetchSize(parent.getConfiguration().getCursorSize());
             }

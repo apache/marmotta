@@ -351,44 +351,6 @@ public class KiWiSparqlJoinTest {
         testUpdate("update01.sparql", FOAF.name);
     }
 
-    @Ignore("test for MARMOTTA-548/SES-2109")
-    @Test
-    public void testIRI() throws Exception {
-        String queryString = "SELECT * WHERE <http://it.dbpedia.org/resource/Acigné> ?p ?o } LIMIT 1";
-
-        RepositoryConnection con1 = repository.getConnection();
-        RepositoryConnection con2 = reference.getConnection();
-        try {
-            con2.begin();
-
-            TupleQuery query2 = con2.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-            TupleQueryResult result2 = query2.evaluate();
-
-            con2.commit();
-
-            Assume.assumeTrue(result2.hasNext());
-
-            con1.begin();
-
-            TupleQuery query1 = con1.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-            TupleQueryResult result1 = query1.evaluate();
-
-            con1.commit();
-
-            Assert.assertTrue(result1.hasNext());
-
-
-            compareResults(result1, result2);
-
-        } catch(RepositoryException ex) {
-            con1.rollback();
-        } finally {
-            con1.close();
-            con2.close();
-        }
-    }
-
-
 
     // fulltext search filter
     @Test

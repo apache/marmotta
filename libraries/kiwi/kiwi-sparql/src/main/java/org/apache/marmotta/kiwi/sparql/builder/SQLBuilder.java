@@ -462,9 +462,7 @@ public class SQLBuilder {
                         if (v instanceof KiWiNode) {
                             long nodeId = ((KiWiNode) v).getId();
 
-                            cCond.append(varName);
-                            cCond.append(".context = ");
-                            cCond.append(nodeId);
+                            cCond.append(varName).append(".context = ").append(nodeId);
 
                             if (it.hasNext()) {
                                 cCond.append(" OR ");
@@ -513,7 +511,7 @@ public class SQLBuilder {
     }
 
 
-    private String buildSelectClause() {
+    private StringBuilder buildSelectClause() {
         List<String> projections = new ArrayList<>();
 
         // enforce order in SELECT part, we need this for merging UNION subqueries
@@ -547,11 +545,11 @@ public class SQLBuilder {
 
         selectClause.append(CollectionUtils.fold(projections,", "));
 
-        return selectClause.toString();
+        return selectClause;
     }
 
 
-    private String buildFromClause() {
+    private StringBuilder buildFromClause() {
         // build the from-clause of the query; the from clause is constructed as follows:
         // 1. for each pattern P, there will be a "KiWiTriple P" in the from clause
         // 2. for each variable V in P occurring in
@@ -568,11 +566,11 @@ public class SQLBuilder {
             }
         }
 
-        return fromClause.toString();
+        return fromClause;
     }
 
 
-    private String buildWhereClause()  {
+    private StringBuilder buildWhereClause()  {
         // build the where clause as follows:
         // 1. iterate over all patterns and for each resource and literal field in subject,
         //    property, object, or context, and set a query condition according to the
@@ -623,10 +621,10 @@ public class SQLBuilder {
                 }
             }
         }
-        return whereClause.toString();
+        return whereClause;
     }
 
-    private String buildOrderClause() {
+    private StringBuilder buildOrderClause() {
         StringBuilder orderClause = new StringBuilder();
         if(orderby.size() > 0) {
             for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
@@ -644,10 +642,10 @@ public class SQLBuilder {
             orderClause.append(" \n");
         }
 
-        return orderClause.toString();
+        return orderClause;
     }
 
-    private String buildGroupClause() {
+    private StringBuilder buildGroupClause() {
         StringBuilder groupClause = new StringBuilder();
         if(groupLabels.size() > 0) {
             for(Iterator<String> it = groupLabels.iterator(); it.hasNext(); ) {
@@ -670,11 +668,11 @@ public class SQLBuilder {
             groupClause.append(" \n");
         }
 
-        return groupClause.toString();
+        return groupClause;
     }
 
 
-    private String buildLimitClause() {
+    private StringBuilder buildLimitClause() {
         // construct limit and offset
         StringBuilder limitClause = new StringBuilder();
         if(limit > 0) {
@@ -687,7 +685,7 @@ public class SQLBuilder {
             limitClause.append(offset);
             limitClause.append(" ");
         }
-        return limitClause.toString();
+        return limitClause;
     }
 
 
@@ -1163,13 +1161,13 @@ public class SQLBuilder {
      *
      * @return
      */
-    public String build()  {
-        String selectClause = buildSelectClause();
-        String fromClause   = buildFromClause();
-        String whereClause  = buildWhereClause();
-        String orderClause  = buildOrderClause();
-        String groupClause  = buildGroupClause();
-        String limitClause  = buildLimitClause();
+    public StringBuilder build()  {
+        StringBuilder selectClause = buildSelectClause();
+        StringBuilder fromClause   = buildFromClause();
+        StringBuilder whereClause  = buildWhereClause();
+        StringBuilder orderClause  = buildOrderClause();
+        StringBuilder groupClause  = buildGroupClause();
+        StringBuilder limitClause  = buildLimitClause();
 
 
         StringBuilder queryString = new StringBuilder();
@@ -1197,7 +1195,7 @@ public class SQLBuilder {
         log.debug("SPARQL -> SQL node variable mappings:\n {}", variables);
         log.debug("projected variables:\n {}", projectedVars);
 
-        return queryString.toString();
+        return queryString;
     }
 
 }
