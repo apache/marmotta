@@ -340,6 +340,9 @@ public class SparqlWebService {
     @Consumes("application/sparql-update")
     public Response updatePostDirectly(@Context HttpServletRequest request, @QueryParam("output") String resultType) {
 		try {
+            if(request.getCharacterEncoding() == null) {
+                request.setCharacterEncoding("utf-8");
+            }
 			String q = CharStreams.toString(request.getReader());
 	        return update(q, resultType, request);
 		} catch (IOException e) {
