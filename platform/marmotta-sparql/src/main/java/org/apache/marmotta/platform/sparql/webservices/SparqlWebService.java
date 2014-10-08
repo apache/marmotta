@@ -207,7 +207,12 @@ public class SparqlWebService {
     public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
 		try {
             if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
+            if(request.getCharacterEncoding() == null) {
+                request.setCharacterEncoding("utf-8");
+            }
 			String query = CharStreams.toString(request.getReader());
+            //String query = IOUtils.toString(request.getInputStream(),"utf-8");
+            log.debug("Query: {}",query);
 			return select(query, resultType, request);
 		} catch (IOException e) {
 			log.error("body not found", e);

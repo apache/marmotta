@@ -68,7 +68,7 @@ public class KiWiSparqlUpdateTest extends SPARQLUpdateTest {
      * See https://openrdf.atlassian.net/browse/SES-2090
      */
     @Test
-    @Ignore("ignored until fixed upstream")
+    @Ignore("ignored until fixed upstream - MARMOTTA-528")
     public void contextualInsertDeleteData() throws RepositoryException, MalformedQueryException, UpdateExecutionException {
 
         StringBuilder insert = new StringBuilder();
