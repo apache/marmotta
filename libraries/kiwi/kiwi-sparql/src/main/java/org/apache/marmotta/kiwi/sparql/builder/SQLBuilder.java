@@ -1127,9 +1127,15 @@ public class SQLBuilder {
         } else if(expr instanceof Var) {
             return ProjectionType.NODE;
         } else if(expr instanceof MathExpr) {
-            MathExpr cmp = (MathExpr)expr;
+            MathExpr cmp = (MathExpr) expr;
 
             return opTypeToProjection(new OPTypeFinder(cmp).coerce());
+        } else if(expr instanceof Count) {
+            return ProjectionType.INT;
+        } else if(expr instanceof Sum) {
+            return ProjectionType.DOUBLE;
+        } else if(expr instanceof Avg) {
+            return ProjectionType.DOUBLE;
         } else {
             return ProjectionType.STRING;
         }

@@ -137,26 +137,36 @@ public class KiWiSparqlConnection {
                                 resultRow.addBinding(sv.getSparqlName(), nodes[i]);
                             } else if(sv.getProjectionType() != ProjectionType.NONE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 // literal value
-                                String value = row.getString(sv.getName());
-                                if(value != null) {
+                                String svalue;
                                     switch (sv.getProjectionType()) {
                                         case URI:
-                                            resultRow.addBinding(sv.getSparqlName(), new URIImpl(value));
+                                            svalue = row.getString(sv.getName());
+                                            if(svalue != null)
+                                                resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
                                             break;
                                         case INT:
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value, XSD.Integer));
+                                            if(row.getObject(sv.getName()) != null) {
+                                                svalue = Integer.toString(row.getInt(sv.getName()));
+                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Integer));
+                                            }
                                             break;
                                         case DOUBLE:
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value, XSD.Double));
+                                            if(row.getObject(sv.getName()) != null) {
+                                                svalue = Double.toString(row.getDouble(sv.getName()));
+                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Double));
+                                            }
                                             break;
                                         case STRING:
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value));
+                                            svalue = row.getString(sv.getName());
+                                            if(svalue != null)
+                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
                                             break;
                                         default:
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(value));
+                                            svalue = row.getString(sv.getName());
+                                            if(svalue != null)
+                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
                                             break;
                                     }
-                                }
                             }
                         }
 
