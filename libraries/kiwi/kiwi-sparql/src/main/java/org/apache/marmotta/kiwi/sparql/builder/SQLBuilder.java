@@ -919,7 +919,7 @@ public class SQLBuilder {
         } else if(expr instanceof Max) {
             return "MAX(" + evaluateExpression(((Max) expr).getArg(), OPTypes.DOUBLE) + ")";
         } else if(expr instanceof Sum) {
-            return "SUM(" + evaluateExpression(((Max) expr).getArg(), OPTypes.DOUBLE) + ")";
+            return "SUM(" + evaluateExpression(((Sum) expr).getArg(), OPTypes.DOUBLE) + ")";
         } else if(expr instanceof FunctionCall) {
             FunctionCall fc = (FunctionCall)expr;
 
