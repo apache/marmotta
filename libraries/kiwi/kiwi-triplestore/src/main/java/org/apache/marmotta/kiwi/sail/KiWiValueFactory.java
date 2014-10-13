@@ -311,7 +311,7 @@ public class KiWiValueFactory implements ValueFactory {
                     if(result == null) {
                         result = new KiWiStringLiteral(value.toString(), locale, rtype);
                     }
-                } else if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime")) {
+                } else if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
                     final Date dvalue;
                     if(value instanceof Date) {
