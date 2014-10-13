@@ -358,7 +358,7 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.equals(Namespaces.NS_XSD+"dateTime")) {
+                } else if(type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
                     final Date dvalue = DateUtils.parseDate(value.toString());
 

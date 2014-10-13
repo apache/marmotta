@@ -676,14 +676,16 @@ public class SQLBuilder {
         // construct limit and offset
         StringBuilder limitClause = new StringBuilder();
         if(limit > 0) {
-            limitClause.append("LIMIT ");
-            limitClause.append(limit);
-            limitClause.append(" ");
+            limitClause
+                    .append("LIMIT ")
+                    .append(limit)
+                    .append(" ");
         }
         if(offset >= 0) {
-            limitClause.append("OFFSET ");
-            limitClause.append(offset);
-            limitClause.append(" ");
+            limitClause
+                    .append("OFFSET ")
+                    .append(offset)
+                    .append(" ");
         }
         return limitClause;
     }
