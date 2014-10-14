@@ -27,7 +27,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}javadoc.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
-    <link href="${SERVER_URL}core/public/img/icon/lmf.ico" rel="SHORTCUT ICON">
+    <link href="${SERVER_URL}core/public/img/icon/marmotta.ico" rel="SHORTCUT ICON">
     <script type="text/javascript">
         var _BASIC_URL = "${BASIC_URL}";
         //use _SERVER_URL for webservice calls
