@@ -61,3 +61,4 @@ org.apache.marmotta.kiwi.sparql.function.string.NStrEnds
 org.apache.marmotta.kiwi.sparql.function.string.NStrLen
 org.apache.marmotta.kiwi.sparql.function.string.NStrStarts
 org.apache.marmotta.kiwi.sparql.function.string.NUpperCase
+org.apache.marmotta.kiwi.sparql.function.string.NSubstring
