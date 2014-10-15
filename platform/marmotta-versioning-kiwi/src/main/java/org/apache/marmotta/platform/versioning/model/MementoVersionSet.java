@@ -71,7 +71,7 @@ public class MementoVersionSet {
 
     private String buildLink( String prefix, String resource, Date date, String rel ) {
         return  "<" + prefix + MementoUtils.MEMENTO_DATE_FORMAT.format(date) + "/" + resource +
-                ">;datetime=\"" + MementoUtils.MEMENTO_DATE_FORMAT.format(date.toString()) + "\";rel=\"" + rel +"\"";
+                ">;datetime=\"" + MementoUtils.MEMENTO_DATE_FORMAT.format(date) + "\";rel=\"" + rel +"\"";
     }
 
     public Resource getOriginal() {
