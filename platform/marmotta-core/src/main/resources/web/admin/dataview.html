@@ -152,8 +152,8 @@
                 $("#resources").empty().append(loader());
                 var target = $("#types").empty().append(loader()),
                     query = _graph ?
-                        "SELECT ?class (COUNT(?s) AS ?count) WHERE { GRAPH <"+_graph+"> {{?s a ?class} UNION {SELECT ?s WHERE { GRAPH <"+_graph+"> { ?s ?a ?b. FILTER NOT EXISTS{?s a ?class}}}GROUP BY ?s}}}GROUP BY ?class" :
-                        "SELECT ?class (COUNT(?s) AS ?count) WHERE {{?s a ?class} UNION {SELECT ?s WHERE{ ?s ?a ?b. FILTER NOT EXISTS{?s a ?class}}GROUP BY ?s}}GROUP BY ?class";
+                        "SELECT ?class (COUNT(?s) AS ?count) WHERE { GRAPH <"+_graph+"> {{?s a ?class} UNION { GRAPH <"+_graph+"> { ?s ?a ?b. FILTER NOT EXISTS{?s a ?class}}}}}GROUP BY ?class" :
+                        "SELECT ?class (COUNT(?s) AS ?count) WHERE {{?s a ?class} UNION { ?s ?a ?b. FILTER NOT EXISTS{?s a ?class}}}GROUP BY ?class";
                 function error() {
                     target.empty().text("Could not load classes");
                 }
