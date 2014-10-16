@@ -1350,6 +1350,12 @@
                 <version>${sesame.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-rio-testsuite</artifactId>
+                <version>${sesame.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- RDFa Parser -->
             <dependency>
                 <groupId>org.semarglproject</groupId>

@@ -33,7 +33,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -217,7 +220,7 @@ public class Statistics {
                 BufferedImage img = new BufferedImage(900,750, BufferedImage.TYPE_INT_RGB);
                 graph.render(img.getGraphics());
 
-                try (OutputStream stream = Files.newOutputStream(gFile, StandardOpenOption.TRUNCATE_EXISTING)) {
+                try (OutputStream stream = Files.newOutputStream(gFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
                     ImageIO.write(img, "png", stream);
                 }
 
