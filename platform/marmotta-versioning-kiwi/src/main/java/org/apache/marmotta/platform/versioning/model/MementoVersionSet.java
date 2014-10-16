@@ -55,7 +55,7 @@ public class MementoVersionSet {
         //first, last and current are mandatory
         if( first == null || last == null || current == null) throw new MementoException("Memento links cannot be produced");
 
-        links.add(buildLink(prefix,original.toString(),first.getCommitTime(),"first memento"));
+        links.add(buildLink(prefix, original.toString(), first.getCommitTime(), "first memento"));
         links.add(buildLink(prefix,original.toString(),last.getCommitTime(),"last memento"));
         links.add(buildLink(prefix,original.toString(),current.getCommitTime(),"memento"));
 
@@ -71,7 +71,7 @@ public class MementoVersionSet {
 
     private String buildLink( String prefix, String resource, Date date, String rel ) {
         return  "<" + prefix + MementoUtils.MEMENTO_DATE_FORMAT.format(date) + "/" + resource +
-                ">;datetime=\"" + date.toString() + "\";rel=\"" + rel +"\"";
+                ">;datetime=\"" + MementoUtils.MEMENTO_DATE_FORMAT.format(date) + "\";rel=\"" + rel +"\"";
     }
 
     public Resource getOriginal() {

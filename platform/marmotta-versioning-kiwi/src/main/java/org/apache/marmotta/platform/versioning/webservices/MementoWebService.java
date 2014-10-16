@@ -17,24 +17,7 @@
  */
 package org.apache.marmotta.platform.versioning.webservices;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
+import com.google.common.base.Preconditions;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
@@ -61,7 +44,18 @@ import org.openrdf.rio.Rio;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 
-import com.google.common.base.Preconditions;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Webservice manages memento related services, namely:
@@ -227,7 +221,7 @@ public class MementoWebService {
                         .ok()
                         .header("Link", CollectionUtils.fold(links," ,"))
                         .header("Content-Type", type.toString())
-                        .header("Memento-Datetime", versions.getCurrent().getCommitTime().toString())
+                        .header("Memento-Datetime", MementoUtils.MEMENTO_DATE_FORMAT.format(versions.getCurrent().getCommitTime()))
                         .entity(entity)
                         .build();
 
