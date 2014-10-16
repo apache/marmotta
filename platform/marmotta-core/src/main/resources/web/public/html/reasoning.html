@@ -53,7 +53,7 @@
             $("#content").append();
             $("#content").append("<br>has been inferred because of<br>");
             for(var i=0; i<data.justifications.length;i++) {
-                var box = $("<div style='border:1px solid black;'/>");
+                var box = $("<div style='font-family:monospace; border:1px solid black;'/>");
                 box.append("Triples<br>");
                 box.append(triplesToTable(data.justifications[i].triples));
                 box.append("<br>and Rules<br>");
@@ -103,7 +103,7 @@
 </head>
 <body>
     <div id="tooltip">
-        <h2 style="color:#006D8F;margin:0;">Reasoning-Maintenance</h2>
+        <h2 style="color:#0B61A4;margin:0;">Reasoning-Maintenance</h2>
         <div id="content"></div>
     </div>
 </body>

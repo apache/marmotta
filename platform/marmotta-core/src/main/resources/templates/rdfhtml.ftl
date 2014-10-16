@@ -230,11 +230,11 @@
             <#if resources?has_content>
                 <#list resources as resource>
                     <h2>
-                	<#if resource.uri?has_content>
-                		<a href="${resource.uri}" class="ldcache">${resource.uri}</a>
-                	<#else>
-                		<a href="${SERVER_URL}resource?genid=${resource.encoded_genid}">bnode://${resource.genid}</a>
-                    </#if>                		
+                    <#if resource.uri?has_content>
+                        <a href="${resource.uri}" class="ldcache">${resource.uri}</a>
+                    <#else>
+                        <a href="${SERVER_URL}resource?genid=${resource.encoded_genid}">bnode://${resource.genid}</a>
+                    </#if>
                     <#if timemaplink?? && resource.uri?has_content>
                         <a style="float:right" id="timemap_link" href="${SERVER_URL}${timemaplink}${resource.uri}">
                             <img style="width: 24px" title="browser versions" alt="memento" src="${SERVER_URL}core/public/img/icon/memento_logo_128.png">
@@ -259,7 +259,7 @@
                                 <td>
                                 </#if>
                                     <#if triple.object.uri?has_content>
-                                    	<a rel="${triple.predicate.curie}" href="${triple.object.uri}" class="${cacheClass(triple.object)}">${triple.object.curie}</a>
+                                        <a rel="${triple.predicate.curie}" href="${triple.object.uri}" class="${cacheClass(triple.object)}">${triple.object.curie}</a>
                                     <#elseif triple.object.genid?has_content>	
                                         <a rel="${triple.predicate.curie}" href="${SERVER_URL}resource?genid=${triple.object.encoded_genid}">${triple.object.genid}</a>
                                     <#else>
@@ -336,14 +336,14 @@
                 <!--
                 <div class="introspectionDetails">
                     <h4><a href="${resources[0].uri}" class="ldcache">${resources[0].uri}</a> as Context</h4>
-                	<table id="inspect_context">
+                    <table id="inspect_context">
                       <tr class="trClassHeader">
                         <th>Subject</th>
                         <th>Property</th>
                         <th>Object</th>
                         <th>Context<th>
                       </tr>
-                	</table>
+                    </table>
                 </div>
                 -->
             </div>
