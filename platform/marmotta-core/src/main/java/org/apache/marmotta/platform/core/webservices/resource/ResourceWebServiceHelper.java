@@ -39,8 +39,6 @@ import java.util.Map;
  */
 public class ResourceWebServiceHelper {
 
-    private static final String TEMPLATE_404 = "404.ftl";
-
     public static void addHeader(Response response, String name, String value) {
         response.getMetadata().add(name, value);
     }

@@ -26,7 +26,6 @@ import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
-import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
@@ -67,9 +66,6 @@ public class MetaWebService {
 
     @Inject
     private ConfigurationService configurationService;
-
-    @Inject
-    private TemplatingService templatingService;
 
     @Inject
     private ContextService contextService;
