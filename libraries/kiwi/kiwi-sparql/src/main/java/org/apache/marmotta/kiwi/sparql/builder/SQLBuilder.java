@@ -944,10 +944,9 @@ public class SQLBuilder {
             NativeFunction nf = functionRegistry.get(fnUri);
 
             if(nf != null && nf.isSupported(dialect)) {
-                OPTypes fOpType = nf.getArgumentType(0);
 
                 for (int i = 0; i < args.length; i++) {
-                    args[i] = evaluateExpression(fc.getArgs().get(i), fOpType);
+                    args[i] = evaluateExpression(fc.getArgs().get(i), nf.getArgumentType(i));
                 }
 
                 if (optype != null && optype != nf.getReturnType()) {
