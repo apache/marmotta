@@ -170,7 +170,7 @@ public class SQLBuilder {
     }
 
     private void prepareBuilder()  throws UnsatisfiableQueryException {
-        Preconditions.checkArgument(query instanceof Union || query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
+        Preconditions.checkArgument(query instanceof Projection || query instanceof Union || query instanceof Extension || query instanceof Order || query instanceof Group || query instanceof LeftJoin ||query instanceof Join || query instanceof Filter || query instanceof StatementPattern || query instanceof Distinct || query instanceof Slice || query instanceof Reduced);
 
 
         // collect all patterns in a list, using depth-first search over the join

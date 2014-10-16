@@ -345,6 +345,14 @@ public class KiWiSparqlJoinTest {
     }
 
 
+    // MARMOTTA-552
+    @Test
+    @Ignore("test skipped because of wrong evaluation in Sesame")
+    public void testQuery36() throws Exception {
+        testQuery("query36.sparql");
+    }
+
+
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {

@@ -21,6 +21,9 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.ProjectionElem;
+import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.Union;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,39 +52,50 @@ public class SQLUnion extends SQLAbstractSubquery {
     public SQLUnion(String alias, Union query, BindingSet bindings, Dataset dataset, ValueConverter converter, KiWiDialect dialect) throws UnsatisfiableQueryException {
         super(alias);
 
+        Set<String> leftProjected = getProjectedVariables(query.getLeftArg());
+        Set<String> rightProjected = getProjectedVariables(query.getRightArg());
+
         // we build a full subquery for each of the UNION's arguments
-        left  = new SQLBuilder(query.getLeftArg(), bindings, dataset, converter, dialect, Collections.EMPTY_SET);
-        right = new SQLBuilder(query.getRightArg(), bindings, dataset, converter, dialect, Collections.EMPTY_SET);
+        left  = new SQLBuilder(query.getLeftArg(), bindings, dataset, converter, dialect, leftProjected);
+        right = new SQLBuilder(query.getRightArg(), bindings, dataset, converter, dialect, rightProjected);
 
         // next we make sure that both subqueries share the same SQL variables so the SQL UNION succeeds by
         // adding NULL aliases for all variables present in one but not the other
         int c = 0;
         Map<String,SQLVariable> leftVars = new HashMap<>();
         for(SQLVariable svl : left.getVariables().values()) {
-            leftVars.put(svl.getSparqlName(), svl);
+            if(leftProjected.size() == 0 || leftProjected.contains(svl.getSparqlName())) {
+                leftVars.put(svl.getSparqlName(), svl);
+            }
         }
 
         Map<String,SQLVariable> rightVars = new HashMap<>();
         for(SQLVariable svr : right.getVariables().values()) {
-            rightVars.put(svr.getSparqlName(), svr);
+            if(rightProjected.size() == 0 || rightProjected.contains(svr.getSparqlName())) {
+                rightVars.put(svr.getSparqlName(), svr);
+            }
         }
 
         // we have to homogenize variable names in both subqueries and make sure they have the same number of columns
         Map<String,String> sparqlToSQL = new HashMap<>();
         for(SQLVariable svl : left.getVariables().values()) {
-            if(sparqlToSQL.containsKey(svl.getSparqlName())) {
-                svl.setName(sparqlToSQL.get(svl.getSparqlName()));
-            } else {
-                svl.setName("U"+ (++c));
-                sparqlToSQL.put(svl.getSparqlName(), svl.getName());
+            if(leftProjected.size() == 0 || leftProjected.contains(svl.getSparqlName())) {
+                if (sparqlToSQL.containsKey(svl.getSparqlName())) {
+                    svl.setName(sparqlToSQL.get(svl.getSparqlName()));
+                } else {
+                    svl.setName("U" + (++c));
+                    sparqlToSQL.put(svl.getSparqlName(), svl.getName());
+                }
             }
         }
-        for(SQLVariable svl : right.getVariables().values()) {
-            if(sparqlToSQL.containsKey(svl.getSparqlName())) {
-                svl.setName(sparqlToSQL.get(svl.getSparqlName()));
-            } else {
-                svl.setName("U"+ (++c));
-                sparqlToSQL.put(svl.getSparqlName(), svl.getName());
+        for(SQLVariable svr : right.getVariables().values()) {
+            if(rightProjected.size() == 0 || rightProjected.contains(svr.getSparqlName())) {
+                if (sparqlToSQL.containsKey(svr.getSparqlName())) {
+                    svr.setName(sparqlToSQL.get(svr.getSparqlName()));
+                } else {
+                    svr.setName("U" + (++c));
+                    sparqlToSQL.put(svr.getSparqlName(), svr.getName());
+                }
             }
         }
 
@@ -92,6 +106,10 @@ public class SQLUnion extends SQLAbstractSubquery {
                 svr.getExpressions().add("NULL");
                 svr.setProjectionType(ProjectionType.NODE);
                 right.getVariables().put(svl.getSparqlName(),svr);
+
+                if(rightProjected.size() > 0) {
+                    right.getProjectedVars().add(svl.getSparqlName());
+                }
             }
             variables.add(svl);
         }
@@ -102,6 +120,10 @@ public class SQLUnion extends SQLAbstractSubquery {
                 svl.getExpressions().add("NULL");
                 svl.setProjectionType(ProjectionType.NODE);
                 left.getVariables().put(svr.getSparqlName(),svl);
+
+                if(leftProjected.size() > 0) {
+                    left.getProjectedVars().add(svr.getSparqlName());
+                }
             }
             variables.add(svr);
         }
@@ -148,6 +170,18 @@ public class SQLUnion extends SQLAbstractSubquery {
     }
 
 
+    private Set<String> getProjectedVariables(TupleExpr expr) {
+        if(expr instanceof Projection) {
+            Projection projection = (Projection)expr;
+            Set<String> projectedVars = new HashSet<>();
+            for (ProjectionElem elem : projection.getProjectionElemList().getElements()) {
+                projectedVars.add(elem.getSourceName());
+            }
+            return projectedVars;
+        } else {
+            return Collections.EMPTY_SET;
+        }
+    }
 }
 
 
