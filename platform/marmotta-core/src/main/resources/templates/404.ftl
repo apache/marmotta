@@ -29,6 +29,7 @@
     <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
     <link href="${SERVER_URL}${DEFAULT_STYLE}404.css" rel="stylesheet" type="text/css" />
+    <link href="${SERVER_URL}core/public/img/icon/marmotta.ico" rel="SHORTCUT ICON">
   </head>
 
   <body>

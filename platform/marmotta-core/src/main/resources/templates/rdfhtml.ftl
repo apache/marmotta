@@ -27,6 +27,7 @@
   <script type="text/javascript" src="${SERVER_URL}webjars/jquery/1.8.2/jquery.min.js"></script>
   <link href="${SERVER_URL}${DEFAULT_STYLE}style.css" rel="stylesheet" type="text/css" />
   <link href="${SERVER_URL}${DEFAULT_STYLE}rdfhtml.css" rel="stylesheet" type="text/css" />
+  <link href="${SERVER_URL}core/public/img/icon/marmotta.ico" rel="SHORTCUT ICON">
   <#if resources?size = 1>
   <#if resources[0].uri?has_content>
   <link rel="alternate" type="application/rdf+xml" href="${SERVER_URL}resource?uri=${resources[0].encoded_uri}&amp;format=application/rdf%2Bxml" /> 
