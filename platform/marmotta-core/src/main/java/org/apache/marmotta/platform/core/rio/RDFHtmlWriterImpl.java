@@ -47,8 +47,6 @@ import java.util.*;
  */
 public class RDFHtmlWriterImpl implements RDFHtmlWriter {
 
-    protected final String TEMPLATE = "rdfhtml.ftl";
-
     protected ConfigurationService configurationService;
 
     protected PrefixService prefixService;
@@ -148,7 +146,6 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 String predicateCurie = prefixService.getCurie(predicateUri);
                 predicate.put("curie", StringUtils.isNotBlank(predicateCurie) ? predicateCurie : predicateUri);
                 triple.put("predicate", predicate);
-                predicate = null;
 
                 //object
                 Map<String, String> object = new HashMap<String, String>();
@@ -162,7 +159,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 } else if (value instanceof BNode) { //blank node
                     object.put("genid", objectValue);
                     try {
-                    	object.put("encoded_genid", URLEncoder.encode(objectValue, "UTF-8"));
+                        object.put("encoded_genid", URLEncoder.encode(objectValue, "UTF-8"));
                     } catch (UnsupportedEncodingException e) {
                         log.error("Error trying to encode '{}': {}", subject, e.getMessage());
                         object.put("encoded_genid", objectValue);
@@ -190,7 +187,6 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                     object.put("value", objectValue);
                 }
                 triple.put("object", object);
-                object = null;
 
                 if(t.getContext() != null) {
                     Map<String, String> context = new HashMap<String, String>();
@@ -199,15 +195,15 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                     String contextCurie = prefixService.getCurie(contextUri);
                     context.put("curie", StringUtils.isNotBlank(contextCurie) ? contextCurie : contextUri);
                     triple.put("context", context);
-                    context = null;
                 } else {
                     triple.put("context", ImmutableMap.of("uri","","curie",""));
                 }
 
+                //write reasoner justifications
                 if (ResourceUtils.isInferred(t)) {
-                    triple.put("info", ResourceUtils.getId(t));
+                    triple.put("info", createInfo(ResourceUtils.getId(t)));
                 } else {
-                    triple.put("info", "-");
+                    triple.put("info", "");
                 }
 
                 triples.add(triple);
@@ -222,12 +218,12 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             data.put("resources", resources);
             data.put("prefixMappings", prefixService.serializePrefixMapping());
 
-            //set timemap link
+            //set timestamp link
             if(configurationService.getBooleanConfiguration("versioning.enabled")) {
                 data.put("timemaplink", configurationService.getStringConfiguration("versioning.memento.timemap"));
             }
 
-            templatingService.process(TEMPLATE, data, writer);
+            templatingService.process(TemplatingService.RDF_HTML_TPL, data, writer);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RDFHandlerException(e);
@@ -329,8 +325,8 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      *         RDFWriter.
      * @since 2.7.0
      */
-	@Override
-	public Collection<RioSetting<?>> getSupportedSettings() {
+    @Override
+    public Collection<RioSetting<?>> getSupportedSettings() {
 		return new ArrayList<RioSetting<?>>();
 	}
 
@@ -341,8 +337,8 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      *         configuration of the writer.
      * @since 2.7.0
      */
-	@Override
-	public WriterConfig getWriterConfig() {
+    @Override
+    public WriterConfig getWriterConfig() {
 		return config;
 	}
 
@@ -353,8 +349,8 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      *        a writer configuration object.
      * @since 2.7.0
      */
-	@Override
-	public void setWriterConfig(WriterConfig config) {
+    @Override
+    public void setWriterConfig(WriterConfig config) {
 		this.config = config;
 	}    
 
