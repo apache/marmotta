@@ -36,6 +36,8 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2Utils;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipUtils;
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
+import org.apache.commons.compress.compressors.xz.XZUtils;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -234,6 +236,8 @@ public class MarmottaLoader {
                     in = new GzipCompressorInputStream(fin,true);
                 } else if (CompressorStreamFactory.BZIP2.equalsIgnoreCase(compression)) {
                     in = new BZip2CompressorInputStream(fin, true);
+                } else if (CompressorStreamFactory.XZ.equalsIgnoreCase(compression)) {
+                    in = new XZCompressorInputStream(fin, true);
                 } else {
                     // does not honour decompressConcatenated
                     in = cf.createCompressorInputStream(compression, fin);
@@ -351,6 +355,9 @@ public class MarmottaLoader {
                     } else if (CompressorStreamFactory.BZIP2.equalsIgnoreCase(archiveCompression)) {
                         log.info("auto-detected archive compression: BZIP2");
                         in = new BZip2CompressorInputStream(fin, true);
+                    } else if (CompressorStreamFactory.XZ.equalsIgnoreCase(archiveCompression)) {
+                        log.info("auto-detected archive compression: XZ");
+                        in = new XZCompressorInputStream(fin, true);
                     } else {
                         in = fin;
                     }
@@ -405,8 +412,6 @@ public class MarmottaLoader {
                 log.info("auto-detected archive format: TAR");
             } else if (stream instanceof CpioArchiveInputStream) {
                 log.info("auto-detected archive format: CPIO");
-            } else if (stream instanceof CpioArchiveInputStream) {
-                log.info("auto-detected archive format: CPIO");
             } else {
                 log.info("unknown archive format, relying on commons-compress");
             }
@@ -421,6 +426,8 @@ public class MarmottaLoader {
         } else if(file.getName().endsWith(".tar.gz")) {
             return true;
         } else if(file.getName().endsWith(".tar.bz2")) {
+            return true;
+        } else if(file.getName().endsWith(".tar.xz")) {
             return true;
         } else if(file.getName().endsWith(".tar")) {
             return true;
@@ -438,6 +445,8 @@ public class MarmottaLoader {
             return CompressorStreamFactory.BZIP2;
         } else if(GzipUtils.isCompressedFilename(file.getName())) {
             return CompressorStreamFactory.GZIP;
+        } else if(XZUtils.isCompressedFilename(file.getName())) {
+            return CompressorStreamFactory.XZ;
         } else {
             return null;
         }
@@ -448,6 +457,8 @@ public class MarmottaLoader {
             return BZip2Utils.getUncompressedFilename(file.getName());
         } else if(GzipUtils.isCompressedFilename(file.getAbsolutePath())) {
             return GzipUtils.getUncompressedFilename(file.getName());
+        } else if(XZUtils.isCompressedFilename(file.getAbsolutePath())) {
+            return XZUtils.getUncompressedFilename(file.getName());
         } else {
             return file.getName();
         }
