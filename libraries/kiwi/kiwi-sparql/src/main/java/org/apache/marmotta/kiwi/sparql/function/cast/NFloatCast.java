@@ -69,7 +69,7 @@ public class NFloatCast extends FloatCast implements NativeFunction {
      */
     @Override
     public OPTypes getReturnType() {
-        return OPTypes.DATE;
+        return OPTypes.DOUBLE;
     }
 
     /**
