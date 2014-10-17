@@ -929,7 +929,7 @@ public class SQLBuilder {
             if((XMLSchema.DOUBLE.toString().equals(fc.getURI()) || XMLSchema.FLOAT.toString().equals(fc.getURI()) ) &&
                     fc.getArgs().size() == 1) {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.DOUBLE);
-            } else if(XMLSchema.INTEGER.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
+            } else if((XMLSchema.INTEGER.toString().equals(fc.getURI()) || XMLSchema.INT.toString().equals(fc.getURI())) && fc.getArgs().size() == 1) {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.INT);
             } else if(XMLSchema.BOOLEAN.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.BOOL);
