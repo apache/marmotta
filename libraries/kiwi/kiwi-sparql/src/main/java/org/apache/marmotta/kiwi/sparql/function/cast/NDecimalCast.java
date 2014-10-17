@@ -62,7 +62,7 @@ public class NDecimalCast extends DecimalCast implements NativeFunction {
      */
     @Override
     public OPTypes getReturnType() {
-        return OPTypes.DATE;
+        return OPTypes.DOUBLE;
     }
 
     /**

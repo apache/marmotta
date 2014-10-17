@@ -69,7 +69,7 @@ public class NDoubleCast extends DoubleCast implements NativeFunction {
      */
     @Override
     public OPTypes getReturnType() {
-        return OPTypes.DATE;
+        return OPTypes.DOUBLE;
     }
 
     /**

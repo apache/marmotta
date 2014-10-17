@@ -62,7 +62,7 @@ public class NStringCast extends StringCast implements NativeFunction {
      */
     @Override
     public OPTypes getReturnType() {
-        return OPTypes.DATE;
+        return OPTypes.STRING;
     }
 
     /**

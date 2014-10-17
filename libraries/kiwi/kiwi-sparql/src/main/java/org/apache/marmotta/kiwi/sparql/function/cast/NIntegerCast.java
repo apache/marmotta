@@ -69,7 +69,7 @@ public class NIntegerCast extends IntegerCast implements NativeFunction {
      */
     @Override
     public OPTypes getReturnType() {
-        return OPTypes.DATE;
+        return OPTypes.INT;
     }
 
     /**
