@@ -59,30 +59,32 @@ public class DateUtils {
      */
     private static final DateFormat[] iso8601InputFormats = new DateFormat[] {
 
-        // yyyy-mm-ddThh...
-        ISO8601FORMAT,
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", null),
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC"),
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", null),    // With timezone
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss", null),     // Without timezone
-        // yyyy-mm-dd hh...
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'", "UTC"), // UTC/Zulu
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ssZ", null),    // With timezone
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss.SZ", null),    // With timezone
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss", null),     // Without timezone
-        
-        // GMT
-        GMTFORMAT,
-        createDateFormat("EEE, dd MMM yyyy HH:mm:ss'Z'", "GMT"),
-        
-        // Some more date formats
-        createDateFormat("EEE MMM dd HH:mm:ss z yyyy", null),     // Word documents
-        createDateFormat("EEE MMM d HH:mm:ss z yyyy", null),     // Word documents
-        createDateFormat("dd.MM.yyy' 'HH:mm:ss", null),     // German
-        createDateFormat("dd.MM.yyy' 'HH:mm", null),     // German
-        
-        // SES-711 (see https://openrdf.atlassian.net/browse/SES-711)
-        ISO8601FORMAT_DATE,
+            // yyyy-mm-ddThh...
+            ISO8601FORMAT,
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", null),
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC"),
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", null),    // With timezone
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ss", null),     // Without timezone
+            // yyyy-mm-dd hh...
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'", "UTC"), // UTC/Zulu
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ssZ", null),    // With timezone
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ss.SZ", null),    // With timezone
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ss", null),     // Without timezone
+
+
+            // GMT
+            GMTFORMAT,
+            createDateFormat("EEE, dd MMM yyyy HH:mm:ss'Z'", "GMT"),
+
+            // Some more date formats
+            createDateFormat("EEE MMM dd HH:mm:ss z yyyy", null),     // Word documents
+            createDateFormat("EEE MMM d HH:mm:ss z yyyy", null),     // Word documents
+            createDateFormat("dd.MM.yyy' 'HH:mm:ss", null),     // German
+            createDateFormat("dd.MM.yyy' 'HH:mm", null),     // German
+
+            // SES-711 (see https://openrdf.atlassian.net/browse/SES-711)
+            ISO8601FORMAT_DATE,
+            createDateFormat("yyyy-MM-ddX", null), // ISO8601 short date with zimezone
     };
 
     private static SimpleDateFormat createDateFormat(String format, String timezone) {

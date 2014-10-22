@@ -18,6 +18,7 @@
 package org.apache.marmotta.kiwi.model.rdf;
 
 import org.apache.marmotta.commons.util.DateUtils;
+import org.apache.marmotta.commons.vocabulary.XSD;
 import org.openrdf.model.Literal;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -71,7 +72,13 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
 
     public void setDateContent(Date dateContent) {
         this.dateContent = DateUtils.getDateWithoutFraction(dateContent);
-        this.content = DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
+        if(XSD.DateTime.equals(getDatatype())) {
+            this.content = DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
+        } else if(XSD.Date.equals(getDatatype())) {
+            this.content = DateUtils.ISO8601FORMAT_DATE.format(dateContent);
+        } else if(XSD.Time.equals(getDatatype())) {
+            this.content = DateUtils.ISO8601FORMAT_TIME.format(dateContent);
+        }
     }
 
     /**
