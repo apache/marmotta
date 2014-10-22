@@ -18,8 +18,6 @@
 package org.apache.marmotta.commons.sesame.model;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.marmotta.commons.sesame.model.LiteralCommons;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +48,7 @@ public class LiteralCommonsTest {
      */
     @Test
     public void testCreateCacheKey() throws Exception {
-        Assert.assertNotEquals(LiteralCommons.createCacheKey("abc",null,(String)null), LiteralCommons.createCacheKey("ABC",null,(String)null));
+        Assert.assertNotEquals(LiteralCommons.createCacheKey("abc",(String)null,(String)null), LiteralCommons.createCacheKey("ABC",(String)null,(String)null));
         Assert.assertNotEquals(LiteralCommons.createCacheKey("abc",null,(URI)null), LiteralCommons.createCacheKey("ABC",null,(URI)null));
 
         Repository repository = new SailRepository(new MemoryStore());
@@ -63,7 +61,7 @@ public class LiteralCommonsTest {
         String value1 = RandomStringUtils.random(128);
         Literal literal1 = vf.createLiteral(value1);
 
-        Assert.assertEquals(LiteralCommons.createCacheKey(value1,null,(String)null),LiteralCommons.createCacheKey(literal1));
+        Assert.assertEquals(LiteralCommons.createCacheKey(value1,(String)null,(String)null),LiteralCommons.createCacheKey(literal1));
         Assert.assertEquals(LiteralCommons.createCacheKey(value1,null,(URI)null),LiteralCommons.createCacheKey(literal1));
 
         // create a string literal with language and without datatype and test if the hash key is correct between
@@ -81,7 +79,7 @@ public class LiteralCommonsTest {
         String datatype3 = Namespaces.NS_XSD + "integer";
         Literal literal3 = vf.createLiteral(value3, vf.createURI(datatype3));
 
-        Assert.assertEquals(LiteralCommons.createCacheKey(value3,null,datatype3),LiteralCommons.createCacheKey(literal3));
+        Assert.assertEquals(LiteralCommons.createCacheKey(value3,(String)null,datatype3),LiteralCommons.createCacheKey(literal3));
 
 
         // create a Date literal and test whether the hash key is correct between the different methods

@@ -785,7 +785,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiIntLiteral loadLiteral(long value) throws SQLException {
         // look in cache
-        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),null,Namespaces.NS_XSD + "integer"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Long.toString(value),(String)null,Namespaces.NS_XSD + "integer"));
         if(element != null) {
             return (KiWiIntLiteral)element;
         }
@@ -840,7 +840,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
-        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),null,Namespaces.NS_XSD + "double"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),(String)null,Namespaces.NS_XSD + "double"));
         if(element != null) {
             return (KiWiDoubleLiteral)element;
         }
@@ -894,7 +894,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
         // look in cache
-        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),(String)null,Namespaces.NS_XSD + "boolean"));
         if(element != null && element instanceof KiWiBooleanLiteral) {
             return (KiWiBooleanLiteral)element;
         }
