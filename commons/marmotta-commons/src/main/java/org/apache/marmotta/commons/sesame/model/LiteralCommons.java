@@ -104,7 +104,7 @@ public class LiteralCommons {
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(Literal l) {
-        Hasher hasher = Hashing.goodFastHash(64).newHasher();
+        Hasher hasher = Hashing.goodFastHash(128).newHasher();
         hasher.putString(l.getLabel(), Charset.defaultCharset());
         if(l.getDatatype() != null) {
             hasher.putString(l.getDatatype().stringValue(), Charset.defaultCharset());

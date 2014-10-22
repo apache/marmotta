@@ -895,7 +895,7 @@ public class KiWiConnection implements AutoCloseable {
     public KiWiBooleanLiteral loadLiteral(boolean value) throws SQLException {
         // look in cache
         KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Boolean.toString(value),null,Namespaces.NS_XSD + "boolean"));
-        if(element != null) {
+        if(element != null && element instanceof KiWiBooleanLiteral) {
             return (KiWiBooleanLiteral)element;
         }
 
