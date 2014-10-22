@@ -48,6 +48,9 @@ public class KiWiStoreTest extends RDFStoreTest {
     }
 
 
+    /**
+     * Since we internally parse dates always into XML format the string content does not match
+     */
     @Override
     @Test
     @Ignore("time is represented properly, but string representation in KiWi is XML Gregorian")
