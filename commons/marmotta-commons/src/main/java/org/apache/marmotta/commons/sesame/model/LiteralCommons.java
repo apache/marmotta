@@ -37,6 +37,9 @@ import java.util.TimeZone;
  * Author: Sebastian Schaffert
  */
 public class LiteralCommons {
+    private static int HASH_BITS=128;
+
+
     private static DatatypeFactory dtf;
     static {
         try {
@@ -54,8 +57,8 @@ public class LiteralCommons {
 	 * @param type     datatype URI of the literal (optional)
 	 * @return a 64bit hash key for the literal
 	 */
-    public static String createCacheKey(String content, Locale language, URI type) {
-		return createCacheKey(content, language, type != null ? type.stringValue() : null);
+    public static final String createCacheKey(String content, Locale language, URI type) {
+		return createCacheKey(content, language != null ? language.getLanguage() : null, type != null ? type.stringValue() : null);
 	}
 
 	/**
@@ -66,17 +69,11 @@ public class LiteralCommons {
      * @param type     datatype URI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
-    public static String createCacheKey(String content, Locale language, String type) {
-        Hasher hasher = Hashing.goodFastHash(64).newHasher();
-        hasher.putString(content, Charset.defaultCharset());
-        if(type != null) {
-            hasher.putString(type, Charset.defaultCharset());
-        }
-        if(language != null) {
-            hasher.putString(language.getLanguage().toLowerCase(), Charset.defaultCharset());
-        }
-        return hasher.hash().toString();
+    public static final String createCacheKey(String content, Locale language, String type) {
+        return createCacheKey(content, language != null ? language.getLanguage() : null, type);
     }
+
+
 
     /**
      * Create a cache key for the date literal with the given date. Converts the date
@@ -86,14 +83,14 @@ public class LiteralCommons {
      * @param type datatype URI of the literal
      * @return a 64bit hash key for the literal
      */
-    public static String createCacheKey(Date date, String type) {
+    public static final String createCacheKey(Date date, String type) {
         GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         cal.setTime(date);
 
         XMLGregorianCalendar xml_cal = dtf.newXMLGregorianCalendar(cal).normalize();
         xml_cal.setTimezone(0);
 
-        return createCacheKey(xml_cal.toXMLFormat(), null, type);
+        return createCacheKey(xml_cal.toXMLFormat(), (String)null, type);
     }
 
     /**
@@ -103,51 +100,29 @@ public class LiteralCommons {
      * @param l the literal to create the hash for
      * @return a 64bit hash key for the literal
      */
-    public static String createCacheKey(Literal l) {
-        Hasher hasher = Hashing.goodFastHash(128).newHasher();
-        hasher.putString(l.getLabel(), Charset.defaultCharset());
-        if(l.getDatatype() != null) {
-            hasher.putString(l.getDatatype().stringValue(), Charset.defaultCharset());
-        }
-        if(l.getLanguage() != null) {
-            hasher.putString(l.getLanguage().toLowerCase(), Charset.defaultCharset());
-        }
-        return hasher.hash().toString();
+    public static final String createCacheKey(Literal l) {
+        return createCacheKey(l.getLabel(), l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
     }
 
+
     /**
-     * Get an appropriate RDF type for the mime type passed as argument.
-     * @param mime_type
-     * @return
+     * Create a cache key for a literal with the given content, locale and type
+     *
+     * @param content  string content representing the literal (can be an MD5 sum for binary types)
+     * @param language language of the literal (optional)
+     * @param type     datatype URI of the literal (optional)
+     * @return a 64bit hash key for the literal
      */
-    public static String getRDFType(String mime_type) {
-        String iw_type = "MultimediaObject";
-        if (mime_type.startsWith("image")) {
-            iw_type = "Image";
-        } else if (mime_type.startsWith("video/flash")) {
-            iw_type = "FlashVideo";
-        } else if (mime_type.startsWith("video")) {
-            iw_type = "Video";
-        } else if (mime_type.startsWith("application/pdf")) {
-            iw_type = "PDFDocument";
-        } else if (mime_type.startsWith("application/msword")) {
-            iw_type = "MSWordDocument";
-        } else if (mime_type
-                .startsWith("application/vnd.oasis.opendocument")
-                || mime_type.startsWith("application/postscript")
-                || mime_type.startsWith("application/vnd.ms-")) {
-            iw_type = "Document";
-        } else if (mime_type.startsWith("audio/mpeg")
-                || mime_type.startsWith("audio/mp3")) {
-            iw_type = "MP3Audio";
-        } else if (mime_type.startsWith("audio")) {
-            iw_type = "Audio";
-        } else if (mime_type.startsWith("text/html")) {
-            iw_type = "HTML";
-        } else if (mime_type.startsWith("text")) {
-            iw_type = "TEXT";
+    public static final String createCacheKey(String content, String language, String type) {
+        Hasher hasher = Hashing.goodFastHash(HASH_BITS).newHasher();
+        hasher.putString(content, Charset.defaultCharset());
+        if(type != null) {
+            hasher.putString(type, Charset.defaultCharset());
         }
-        return Namespaces.NS_KIWI_CORE + iw_type;
+        if(language != null) {
+            hasher.putString(language.toLowerCase(), Charset.defaultCharset());
+        }
+        return hasher.hash().toString();
     }
 
     /**
