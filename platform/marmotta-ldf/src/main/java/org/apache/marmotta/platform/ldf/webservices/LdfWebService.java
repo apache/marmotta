@@ -45,45 +45,54 @@ public class LdfWebService {
     private static final String UUID_PATTERN = "{uuid:[^#?]+}";
 
     @GET
-    public Response getFragment(@QueryParam("subject") String subject,
-                                @QueryParam("predicate") String predicate,
-                                @QueryParam("object") String object,
-                                @QueryParam("page") String page,
+    public Response getFragment(@QueryParam("subject") @DefaultValue("") String subject,
+                                @QueryParam("predicate") @DefaultValue("") String predicate,
+                                @QueryParam("object") @DefaultValue("") String object,
+                                @QueryParam("page") @DefaultValue("1") String page,
                                 @HeaderParam("Accept") String accept) {
-        return getFragment(subject, predicate, object, null, Integer.parseInt(StringUtils.defaultString(page, "1")), accept);
+        System.out.println("1");
+        return getFragment(subject, predicate, object, null, Integer.parseInt(page), accept);
     }
 
     @GET
     @Path(UUID_PATTERN)
-    public Response getFragment(@QueryParam("subject") String subject,
-                                @QueryParam("predicate") String predicate,
-                                @QueryParam("object") String object,
-                                @QueryParam("page") String page,
+    public Response getFragment(@QueryParam("subject") @DefaultValue("") String subject,
+                                @QueryParam("predicate") @DefaultValue("") String predicate,
+                                @QueryParam("object") @DefaultValue("") String object,
+                                @QueryParam("page") @DefaultValue("1") String page,
                                 @PathParam("uuid") String uuid,
                                 @HeaderParam("Accept") String accept) {
+        System.out.println("2");
         final String context = buildContextUri(uuid);
-        return getFragment(subject, predicate, object, context, Integer.parseInt(StringUtils.defaultString(page, "1")), accept);
+        return getFragment(subject, predicate, object, context, Integer.parseInt(page), accept);
     }
 
     private Response getFragment(final String subject,
-                                final String predicate,
-                                final String object,
-                                final String context,
-                                final int page,
-                                final String accept) {
+                                 final String predicate,
+                                 final String object,
+                                 final String context,
+                                 final int page,
+                                 final String accept) {
+        System.out.println("3");
         final RDFFormat format = getFormat(accept);
 
-        StreamingOutput stream = new StreamingOutput() {
-            @Override
-            public void write(OutputStream outputStream) throws IOException, WebApplicationException {
-                try {
-                    ldfService.writeFragment(subject, predicate, object, context, page, format, outputStream);
-                } catch (RepositoryException e) {
-                    throw new WebApplicationException(e);
+        try {
+            StreamingOutput stream = new StreamingOutput() {
+                @Override
+                public void write(OutputStream outputStream) throws IOException, WebApplicationException {
+                    try {
+                        ldfService.writeFragment(subject, predicate, object, context, page, format, outputStream);
+                    } catch (RepositoryException e) {
+                        throw new WebApplicationException(e);
+                    }
                 }
-            }
-        };
-        return Response.ok(stream).build();
+            };
+            return Response.ok(stream).build();
+        } catch (WebApplicationException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
     }
 
     private RDFFormat getFormat(String accept) {

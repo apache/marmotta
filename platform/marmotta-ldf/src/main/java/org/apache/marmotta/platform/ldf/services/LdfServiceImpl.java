@@ -104,7 +104,6 @@ public class LdfServiceImpl implements LdfService {
         writeFragment(subject, predicate, object, context, page, format, out);
     }
 
-
     @Override
     public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException {
         final RepositoryConnection conn = sesameService.getConnection();
@@ -119,4 +118,5 @@ public class LdfServiceImpl implements LdfService {
             conn.close();
         }
     }
+
 }
