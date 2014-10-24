@@ -28,7 +28,7 @@
     <artifactId>marmotta-ldp</artifactId>
     <packaging>jar</packaging>
 
-    <name>Apache Marmotta Platform: LDP</name>
+    <name>Apache Marmotta Platform: Linked Data Platform 1.0</name>
     <description>
         Provides support for the current working draft of the
         Linked Data Platform 1.0 specification.
