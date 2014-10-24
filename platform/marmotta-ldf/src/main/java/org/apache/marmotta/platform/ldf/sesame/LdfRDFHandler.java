@@ -128,7 +128,7 @@ public class LdfRDFHandler implements RDFHandler {
         final int size = statements.size();
         final int offset = LdfService.PAGE_SIZE * (page - 1);
         if (offset > size) {
-            throw new IllegalArgumentException("page " + page + " can't be generated");
+            throw new RDFHandlerException("page " + page + " can't be generated");
         }
         final int limit = LdfService.PAGE_SIZE < size-offset ? LdfService.PAGE_SIZE : size-offset;
         List<Statement> filteredStatements = statements.subList(offset, limit);

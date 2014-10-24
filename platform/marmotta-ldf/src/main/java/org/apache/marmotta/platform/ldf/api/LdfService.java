@@ -22,6 +22,7 @@ import org.openrdf.model.URI;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.rio.RDFHandlerException;
 
 import java.io.OutputStream;
 
@@ -45,7 +46,7 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(String subject, String predicate, String object, int page, RDFFormat format, OutputStream out) throws RepositoryException;
+    void writeFragment(String subject, String predicate, String object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
 
     /**
      * Writes a fragment matching the specified triple fragment pattern
@@ -58,7 +59,7 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException;
+    void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
 
     /**
      * Writes a fragment matching the specified quad fragment pattern
@@ -72,7 +73,7 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(String subject, String predicate, String object, String context, int page, RDFFormat format, OutputStream out) throws RepositoryException;
+    void writeFragment(String subject, String predicate, String object, String context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
 
     /**
      * Writes a fragment matching the specified quad fragment pattern
@@ -86,6 +87,6 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException;
+    void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
 
 }

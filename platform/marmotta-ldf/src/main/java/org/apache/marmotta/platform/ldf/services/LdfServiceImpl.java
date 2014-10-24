@@ -48,17 +48,17 @@ public class LdfServiceImpl implements LdfService {
     private SesameService sesameService;
 
     @Override
-    public void writeFragment(String subjectStr, String predicateStr, String objectStr, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+    public void writeFragment(String subjectStr, String predicateStr, String objectStr, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
         writeFragment(subjectStr, predicateStr, objectStr, null, page, format, out);
     }
 
     @Override
-    public void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+    public void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
         writeFragment(subject, predicate, object, null, page, format, out);
     }
 
     @Override
-    public void writeFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+    public void writeFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
         final ValueFactoryImpl vf = new ValueFactoryImpl();
 
         URI subject = null;
@@ -105,17 +105,17 @@ public class LdfServiceImpl implements LdfService {
     }
 
     @Override
-    public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+    public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
         final RepositoryConnection conn = sesameService.getConnection();
         try {
             conn.begin();
             RepositoryResult<Statement> statements = conn.getStatements(subject, predicate, object, true, context);
             RDFHandler handler = new LdfRDFHandler(Rio.createWriter(format, out), context, page);
             Rio.write(ResultUtils.iterable(statements), handler);
-        } catch (RDFHandlerException e) {
-            e.printStackTrace();
         } finally {
-            conn.close();
+            if (conn != null && conn.isOpen()) {
+                conn.close();
+            }
         }
     }
 
