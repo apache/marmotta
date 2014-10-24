@@ -41,17 +41,17 @@ public class LdfServiceImpl implements LdfService {
     private SesameService sesameService;
 
     @Override
-    public void writeFragment(URI subject, URI predicate, Value object, int offset, int limit, RDFFormat format, OutputStream out) throws RepositoryException {
-        writeFragment(subject, predicate, object, null, offset, limit, format, out);
+    public void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+        writeFragment(subject, predicate, object, null, page, format, out);
     }
 
     @Override
-    public void writeFragment(URI subject, URI predicate, Value object, Resource context, int offset, int limit, RDFFormat format, OutputStream out) throws RepositoryException {
+    public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException {
         final RepositoryConnection conn = sesameService.getConnection();
         try {
             conn.begin();
             RepositoryResult<Statement> statements = conn.getStatements(subject, predicate, object, true, context);
-            RDFHandler handler = new LdfRDFHandler(Rio.createWriter(format, out), context, offset, limit);
+            RDFHandler handler = new LdfRDFHandler(Rio.createWriter(format, out), context, page);
             Rio.write(ResultUtils.iterable(statements), handler);
         } catch (RDFHandlerException e) {
             e.printStackTrace();
