@@ -1,9 +1,3 @@
-package org.apache.marmotta.platform.ldf.api;
-
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.rio.RDFFormat;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -21,6 +15,11 @@ import org.openrdf.rio.RDFFormat;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.marmotta.platform.ldf.api;
+
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.rio.RDFFormat;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 

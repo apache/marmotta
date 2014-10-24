@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.ldf.services;
 import org.apache.marmotta.commons.sesame.repository.ResultUtils;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldf.api.LdfService;
-import org.apache.marmotta.platform.ldf.sesame.PagedRDFHandler;
+import org.apache.marmotta.platform.ldf.sesame.LdfRDFHandler;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -51,7 +51,7 @@ public class LdfServiceImpl implements LdfService {
         try {
             conn.begin();
             RepositoryResult<Statement> statements = conn.getStatements(subject, predicate, object, true, context);
-            RDFHandler handler = new PagedRDFHandler(Rio.createWriter(format, out), offset, limit);
+            RDFHandler handler = new LdfRDFHandler(Rio.createWriter(format, out), context, offset, limit);
             Rio.write(ResultUtils.iterable(statements), handler);
         } catch (RDFHandlerException e) {
             e.printStackTrace();

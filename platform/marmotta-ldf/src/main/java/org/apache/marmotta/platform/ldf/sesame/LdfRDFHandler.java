@@ -19,9 +19,15 @@ package org.apache.marmotta.platform.ldf.sesame;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.platform.ldf.vocab.HYDRA;
+import org.apache.marmotta.platform.ldf.vocab.VOID;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.impl.StatementImpl;
+import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 
@@ -31,29 +37,65 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Paginates statements before sending them to the delegated RDFHandler.
+ * Specialized statements handler doing some LDF specific thing,
+ * such as paging or metadata generation, before sending them to
+ * the delegated RDFHandler.
+ *
  * (TODO: find a more performance solution)
  *
  * @author Sergio Fernández
  */
-public class PagedRDFHandler implements RDFHandler {
+public class LdfRDFHandler implements RDFHandler {
+
+    public final static int PAGE_SIZE = 100;
 
     private List<Statement> statements;
-    private RDFHandler handler;
-    private int offset;
-    private int limit;
+    private final RDFHandler handler;
+    private final Resource context;
+    private final int page;
 
     /**
      * Constructs a PagedRDFHandler with a delegate handler
      *
      * @param handler The handler to delegate the calls to
      */
-    public PagedRDFHandler(RDFHandler handler, int offset, int limit) {
+    public LdfRDFHandler(RDFHandler handler) {
+        this(handler, null, 1);
+    }
+
+    /**
+     * Constructs a PagedRDFHandler with a delegate handler
+     *
+     * @param handler The handler to delegate the calls to
+     * @param page number of page (starting with 1)
+     */
+    public LdfRDFHandler(RDFHandler handler, int page) {
+        this(handler, null, page);
+    }
+
+    /**
+     * Constructs a PagedRDFHandler with a delegate handler
+     *
+     * @param handler The handler to delegate the calls to
+     * @param context dataset
+     */
+    public LdfRDFHandler(RDFHandler handler, Resource context) {
+        this(handler, context, 1);
+    }
+
+    /**
+     * Constructs a PagedRDFHandler with a delegate handler
+     *
+     * @param handler The handler to delegate the calls to
+     * @param context dataset
+     * @param page number of page (starting with 1)
+     */
+    public LdfRDFHandler(RDFHandler handler, Resource context, int page) {
         super();
         this.statements = new ArrayList<>();
         this.handler = handler;
-        this.offset = offset;
-        this.limit = limit;
+        this.context = context;
+        this.page = page;
     }
 
     @Override
@@ -69,7 +111,6 @@ public class PagedRDFHandler implements RDFHandler {
             public int compare(Statement s1, Statement s2) {
                 int subjectComparison = s1.getSubject().stringValue().compareTo(s2.getSubject().stringValue());
                 int predicatedComparison = s1.getPredicate().stringValue().compareTo(s2.getPredicate().stringValue());
-
                 if (subjectComparison != 0) {
                     return subjectComparison;
                 } else if (predicatedComparison != 0) {
@@ -85,12 +126,36 @@ public class PagedRDFHandler implements RDFHandler {
         });
 
         //then filter
-        List<Statement> filteredStatements = Lists.newArrayList(Iterables.limit(statements, 20));
+        final int size = statements.size();
+        final int offset = PAGE_SIZE * (page - 1);
+        if (offset > size) {
+            throw new IllegalArgumentException("page " + page + " can't be generated");
+        }
+        final int limit = PAGE_SIZE < size-offset ? PAGE_SIZE : size-offset;
+        List<Statement> filteredStatements = statements.subList(offset, limit);
 
         //send statements to delegate writer
         for (Statement statement : filteredStatements) {
             handler.handleStatement(statement);
         }
+
+        //add ldf metadata
+        final ValueFactoryImpl vf = new ValueFactoryImpl();
+
+        Resource dataset = this.context != null ? this.context : vf.createBNode();
+        handler.handleStatement(new StatementImpl(dataset, RDF.TYPE, VOID.Dataset));
+        handler.handleStatement(new StatementImpl(dataset, RDF.TYPE, HYDRA.Collection));
+
+        Resource fragment = vf.createBNode(); //TODO
+        handler.handleStatement(new StatementImpl(dataset, VOID.subset, fragment));
+        handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.Collection));
+        if (offset != 0 && limit != size) handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.PagedCollection));
+        handler.handleStatement(new StatementImpl(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
+        handler.handleStatement(new StatementImpl(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
+        handler.handleStatement(new StatementImpl(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(PAGE_SIZE), XSD.Integer)));
+        //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
+
+        //TODO: hydra controls
 
         //and actually end the rdf
         handler.endRDF();
