@@ -32,6 +32,8 @@ import java.io.OutputStream;
  */
 public interface LdfService {
 
+    final static int PAGE_SIZE = 100;
+
     /**
      * Writes a fragment matching the specified triple fragment pattern
      * specified (null values are wildcards).
@@ -39,12 +41,11 @@ public interface LdfService {
      * @param subject fragment subject
      * @param predicate fragmnent predicate
      * @param object fragment object
-     * @param offset index at which to start the page
-     * @param limit maximum number of triples
+     * @param page number of page (starting with 1)
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, int offset, int limit, RDFFormat format, OutputStream out) throws RepositoryException;
+    void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException;
 
     /**
      * Writes a fragment matching the specified quad fragment pattern
@@ -54,11 +55,10 @@ public interface LdfService {
      * @param predicate fragmnent predicate
      * @param object fragment object
      * @param context named graph
-     * @param offset index at which to start the page
-     * @param limit maximum number of triples
+     * @param page number of page (starting with 1)
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, Resource context, int offset, int limit, RDFFormat format, OutputStream out) throws RepositoryException;
+    void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException;
 
 }
