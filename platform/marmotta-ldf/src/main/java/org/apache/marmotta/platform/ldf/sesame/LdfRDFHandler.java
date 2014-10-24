@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.ldf.sesame;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.platform.ldf.api.LdfService;
 import org.apache.marmotta.platform.ldf.vocab.HYDRA;
 import org.apache.marmotta.platform.ldf.vocab.VOID;
 import org.openrdf.model.Literal;
@@ -46,8 +47,6 @@ import java.util.List;
  * @author Sergio Fernández
  */
 public class LdfRDFHandler implements RDFHandler {
-
-    public final static int PAGE_SIZE = 100;
 
     private List<Statement> statements;
     private final RDFHandler handler;
@@ -127,11 +126,11 @@ public class LdfRDFHandler implements RDFHandler {
 
         //then filter
         final int size = statements.size();
-        final int offset = PAGE_SIZE * (page - 1);
+        final int offset = LdfService.PAGE_SIZE * (page - 1);
         if (offset > size) {
             throw new IllegalArgumentException("page " + page + " can't be generated");
         }
-        final int limit = PAGE_SIZE < size-offset ? PAGE_SIZE : size-offset;
+        final int limit = LdfService.PAGE_SIZE < size-offset ? LdfService.PAGE_SIZE : size-offset;
         List<Statement> filteredStatements = statements.subList(offset, limit);
 
         //send statements to delegate writer
@@ -152,7 +151,7 @@ public class LdfRDFHandler implements RDFHandler {
         if (offset != 0 && limit != size) handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.PagedCollection));
         handler.handleStatement(new StatementImpl(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
         handler.handleStatement(new StatementImpl(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
-        handler.handleStatement(new StatementImpl(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(PAGE_SIZE), XSD.Integer)));
+        handler.handleStatement(new StatementImpl(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer)));
         //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
 
         //TODO: hydra controls

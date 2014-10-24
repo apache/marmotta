@@ -17,18 +17,23 @@
  */
 package org.apache.marmotta.platform.ldf.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResultUtils;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldf.api.LdfService;
 import org.apache.marmotta.platform.ldf.sesame.LdfRDFHandler;
 import org.openrdf.model.*;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.rio.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 
 /**
  * Linked Media Fragments service implementation
@@ -37,13 +42,68 @@ import java.io.OutputStream;
  */
 public class LdfServiceImpl implements LdfService {
 
+    private static final Logger log = LoggerFactory.getLogger(LdfServiceImpl.class);
+
     @Inject
     private SesameService sesameService;
+
+    @Override
+    public void writeFragment(String subjectStr, String predicateStr, String objectStr, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+        writeFragment(subjectStr, predicateStr, objectStr, null, page, format, out);
+    }
 
     @Override
     public void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException {
         writeFragment(subject, predicate, object, null, page, format, out);
     }
+
+    @Override
+    public void writeFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page, RDFFormat format, OutputStream out) throws RepositoryException {
+        final ValueFactoryImpl vf = new ValueFactoryImpl();
+
+        URI subject = null;
+        if (StringUtils.isNotBlank(subjectStr)) {
+            try {
+                new java.net.URI(subjectStr);
+                subject = vf.createURI(subjectStr);
+            } catch (URISyntaxException e) {
+                log.error("invalid subject '{}': {}", subjectStr, e.getMessage());
+            }
+        }
+
+        URI predicate = null;
+        if (StringUtils.isNotBlank(predicateStr)) {
+            try {
+                new java.net.URI(predicateStr);
+                predicate = vf.createURI(predicateStr);
+            } catch (URISyntaxException e) {
+                log.error("invalid predicate '{}': {}", predicateStr, e.getMessage());
+            }
+        }
+
+        Value object = null;
+        if (StringUtils.isNotBlank(objectStr)) {
+            try {
+                new java.net.URI(objectStr);
+                object = vf.createURI(objectStr);
+            } catch (URISyntaxException e) {
+                object = vf.createLiteral(objectStr);
+            }
+        }
+
+        URI context = null;
+        if (StringUtils.isNotBlank(contextStr)) {
+            try {
+                new java.net.URI(contextStr);
+                context = vf.createURI(contextStr);
+            } catch (URISyntaxException e) {
+                log.error("invalid context '{}': {}", contextStr, e.getMessage());
+            }
+        }
+
+        writeFragment(subject, predicate, object, context, page, format, out);
+    }
+
 
     @Override
     public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException {

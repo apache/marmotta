@@ -45,7 +45,34 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
+    void writeFragment(String subject, String predicate, String object, int page, RDFFormat format, OutputStream out) throws RepositoryException;
+
+    /**
+     * Writes a fragment matching the specified triple fragment pattern
+     * specified (null values are wildcards).
+     *
+     * @param subject fragment subject
+     * @param predicate fragmnent predicate
+     * @param object fragment object
+     * @param page number of page (starting with 1)
+     * @param format RDF serialization
+     * @param out output stream where write the fragment
+     */
     void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException;
+
+    /**
+     * Writes a fragment matching the specified quad fragment pattern
+     * specified (null values are wildcards).
+     *
+     * @param subject fragment subject
+     * @param predicate fragmnent predicate
+     * @param object fragment object
+     * @param context named graph
+     * @param page number of page (starting with 1)
+     * @param format RDF serialization
+     * @param out output stream where write the fragment
+     */
+    void writeFragment(String subject, String predicate, String object, String context, int page, RDFFormat format, OutputStream out) throws RepositoryException;
 
     /**
      * Writes a fragment matching the specified quad fragment pattern
