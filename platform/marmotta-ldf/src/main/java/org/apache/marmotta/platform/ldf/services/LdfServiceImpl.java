@@ -48,17 +48,17 @@ public class LdfServiceImpl implements LdfService {
     private SesameService sesameService;
 
     @Override
-    public void writeFragment(String subjectStr, String predicateStr, String objectStr, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
+    public void writeFragment(String subjectStr, String predicateStr, String objectStr, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException {
         writeFragment(subjectStr, predicateStr, objectStr, null, page, format, out);
     }
 
     @Override
-    public void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
+    public void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException {
         writeFragment(subject, predicate, object, null, page, format, out);
     }
 
     @Override
-    public void writeFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
+    public void writeFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException {
         final ValueFactoryImpl vf = new ValueFactoryImpl();
 
         URI subject = null;
@@ -105,7 +105,7 @@ public class LdfServiceImpl implements LdfService {
     }
 
     @Override
-    public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException {
+    public void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException {
         final RepositoryConnection conn = sesameService.getConnection();
         try {
             conn.begin();

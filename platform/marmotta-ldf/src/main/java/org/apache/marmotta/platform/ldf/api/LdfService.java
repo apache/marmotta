@@ -46,7 +46,7 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(String subject, String predicate, String object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
+    void writeFragment(String subject, String predicate, String object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
 
     /**
      * Writes a fragment matching the specified triple fragment pattern
@@ -59,7 +59,7 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
+    void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
 
     /**
      * Writes a fragment matching the specified quad fragment pattern
@@ -73,7 +73,7 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(String subject, String predicate, String object, String context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
+    void writeFragment(String subject, String predicate, String object, String context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
 
     /**
      * Writes a fragment matching the specified quad fragment pattern
@@ -87,6 +87,6 @@ public interface LdfService {
      * @param format RDF serialization
      * @param out output stream where write the fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException;
+    void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
 
 }

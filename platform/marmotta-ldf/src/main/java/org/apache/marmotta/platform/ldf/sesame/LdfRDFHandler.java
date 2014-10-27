@@ -29,6 +29,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 
@@ -104,6 +105,8 @@ public class LdfRDFHandler implements RDFHandler {
 
     @Override
     public void endRDF() throws RDFHandlerException {
+        final ValueFactoryImpl vf = new ValueFactoryImpl();
+
         //first order by a fixed criteria
         Collections.sort(statements, new Comparator<Statement>() {
             @Override
@@ -128,33 +131,37 @@ public class LdfRDFHandler implements RDFHandler {
         final int size = statements.size();
         final int offset = LdfService.PAGE_SIZE * (page - 1);
         if (offset > size) {
-            throw new RDFHandlerException("page " + page + " can't be generated");
+            //throw new RDFHandlerException("page " + page + " can't be generated");
+            Resource error = this.context != null ? this.context : vf.createBNode();
+            handler.handleStatement(new StatementImpl(error, RDF.TYPE, HYDRA.Error));
+            handler.handleStatement(new StatementImpl(error, RDFS.COMMENT, vf.createLiteral("page " + page + " can't be generated", "en")));
+        } else {
+            final int limit = LdfService.PAGE_SIZE < size - offset ? LdfService.PAGE_SIZE : size - offset;
+            List<Statement> filteredStatements = statements.subList(offset, limit);
+
+            //send statements to delegate writer
+            for (Statement statement : filteredStatements) {
+                handler.handleStatement(statement);
+            }
+
+            //add ldf metadata
+            Resource dataset = this.context != null ? this.context : vf.createBNode();
+            handler.handleStatement(new StatementImpl(dataset, RDF.TYPE, VOID.Dataset));
+            handler.handleStatement(new StatementImpl(dataset, RDF.TYPE, HYDRA.Collection));
+
+            Resource fragment = vf.createBNode(); //TODO
+            handler.handleStatement(new StatementImpl(dataset, VOID.subset, fragment));
+            handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.Collection));
+            if (offset != 0 && limit != size) {
+                handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.PagedCollection));
+            }
+            handler.handleStatement(new StatementImpl(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
+            handler.handleStatement(new StatementImpl(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
+            handler.handleStatement(new StatementImpl(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer)));
+            //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
+
+            //TODO: hydra controls
         }
-        final int limit = LdfService.PAGE_SIZE < size-offset ? LdfService.PAGE_SIZE : size-offset;
-        List<Statement> filteredStatements = statements.subList(offset, limit);
-
-        //send statements to delegate writer
-        for (Statement statement : filteredStatements) {
-            handler.handleStatement(statement);
-        }
-
-        //add ldf metadata
-        final ValueFactoryImpl vf = new ValueFactoryImpl();
-
-        Resource dataset = this.context != null ? this.context : vf.createBNode();
-        handler.handleStatement(new StatementImpl(dataset, RDF.TYPE, VOID.Dataset));
-        handler.handleStatement(new StatementImpl(dataset, RDF.TYPE, HYDRA.Collection));
-
-        Resource fragment = vf.createBNode(); //TODO
-        handler.handleStatement(new StatementImpl(dataset, VOID.subset, fragment));
-        handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.Collection));
-        if (offset != 0 && limit != size) handler.handleStatement(new StatementImpl(fragment, RDF.TYPE, HYDRA.PagedCollection));
-        handler.handleStatement(new StatementImpl(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
-        handler.handleStatement(new StatementImpl(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer)));
-        handler.handleStatement(new StatementImpl(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer)));
-        //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
-
-        //TODO: hydra controls
 
         //and actually end the rdf
         handler.endRDF();
