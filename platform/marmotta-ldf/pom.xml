@@ -29,7 +29,7 @@
     <packaging>jar</packaging>
 
     <name>Apache Marmotta Platform: Linked Data Fragments</name>
-    <description>Provides support for the Linked Data Fragmets.</description>
+    <description>Provides support for the Linked Data Fragments.</description>
 
     <build>
         <pluginManagement>

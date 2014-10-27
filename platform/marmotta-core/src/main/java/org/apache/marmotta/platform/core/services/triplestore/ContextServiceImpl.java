@@ -179,19 +179,19 @@ public class ContextServiceImpl implements ContextService {
         if(uri == null) {
             return null;
         }
-    	if (!UriUtil.validate(uri)) {
-    		uri = configurationService.getBaseContext() + uri;
-    		if (!UriUtil.validate(uri)) {
-    			throw new URISyntaxException(uri, "not valid context uri");
-    		}
-    	}
+        if (!UriUtil.validate(uri)) {
+            uri = configurationService.getBaseContext() + uri;
+            if (!UriUtil.validate(uri)) {
+                throw new URISyntaxException(uri, "not valid context uri");
+            }
+        }
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
                 checkConnectionNamespace(conn);
                 ValueFactory valueFactory = conn.getValueFactory();
-				URI ctx = valueFactory.createURI(uri);
+                URI ctx = valueFactory.createURI(uri);
                 if (StringUtils.isNotBlank(label)) {
                     conn.add(ctx, RDFS.LABEL, Literals.createLiteral(valueFactory, label), ctx);
                 }

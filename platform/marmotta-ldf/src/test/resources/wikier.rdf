@@ -1,0 +1,899 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:foaf="http://xmlns.com/foaf/0.1/"
+    xmlns:doap="http://usefulinc.com/ns/doap#"
+    xmlns:sioc="http://rdfs.org/sioc/ns#"
+    xmlns:sioct="http://rdfs.org/sioc/types#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:mvcb="http://webns.net/mvcb/"
+    xmlns:rss="http://purl.org/rss/1.0/"
+    xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:contact="http://www.w3.org/2000/10/swap/pim/contact#"
+    xmlns:air="http://www.daml.org/2001/10/html/airport-ont#"
+    xmlns:wn="http://xmlns.com/wordnet/1.6/"
+    xmlns:uranai="http://kota.s12.xrea.com/vocab/uranai#"
+    xmlns:rel="http://purl.org/vocab/relationship/"
+    xmlns:session="http://redfoot.net/2005/session#"
+    xmlns:cert="http://www.w3.org/ns/auth/cert#"
+    xmlns:wot="http://xmlns.com/wot/0.1/"
+    xml:base="http://www.wikier.org/foaf"
+    xml:lang="en"
+>
+
+  <foaf:Document rdf:about="">
+    <rdfs:label>Wikier's FOAF document</rdfs:label>
+    <rdfs:comment>Document with Friend-of-a-Friend description of Wikier</rdfs:comment>
+    <foaf:maker rdf:resource="http://www.wikier.org/foaf#wikier"/>
+    <dct:license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+    <foaf:primaryTopic rdf:resource="http://www.wikier.org/foaf#wikier"/>
+    <dct:created>2005-05-14</dct:created>
+    <dct:modified>2014-02-15</dct:modified>
+    <mvcb:generatorAgent rdf:resource="http://rdfohloh.wikier.org/project/emacs"/>
+    <mvcb:errorReportsTo rdf:resource="mailto:sergio@wikier.org" />
+  </foaf:Document>
+
+  <foaf:Person rdf:about="http://www.wikier.org/foaf#wikier">
+    <foaf:name xml:lang="es">Sergio Fernández</foaf:name>
+    <foaf:title>Mr</foaf:title>
+    <foaf:firstName xml:lang="es">Sergio</foaf:firstName>
+    <foaf:surname xml:lang="es">Fernández</foaf:surname>
+    <foaf:gender>male</foaf:gender>
+    <foaf:birthday>1981-10-07</foaf:birthday>
+    <foaf:nick>Wikier</foaf:nick>
+    <session:hexdigest>30e97da6ad2d5be1086a64f3fc44a03a6fecadb3</session:hexdigest>
+    <foaf:phone rdf:resource="tel:+34-667-981919" />
+    <uranai:bloodtype>O-</uranai:bloodtype>
+    <rdfs:comment>This URI indentifies me as a person. Feel free to use it when making statements about me as a person</rdfs:comment>
+    <rdfs:comment xml:lang="es">Esta URI me identifica como persona. Úsala para referirte a mi como persona</rdfs:comment>
+    <foaf:isDescribedIn rdf:resource="http://www.wikier.org/foaf.rdf" />
+
+    <foaf:mbox rdf:resource="mailto:sergio@wikier.org" />
+    <foaf:mbox_sha1sum>d0fd987214f56f70b4c47fb96795f348691f93ab</foaf:mbox_sha1sum>
+
+    <foaf:mbox rdf:resource="mailto:wikier@asturlinux.org" />
+    <foaf:mbox_sha1sum>119222cf3a2893a375cc4f884a0138155c771415</foaf:mbox_sha1sum>
+
+    <foaf:mbox rdf:resource="mailto:sergio.fernandez@salzburgresearch.at" />
+    <foaf:mbox_sha1sum>fe6d23dc07ca84b1c487eb20d816aa4caf12ee84</foaf:mbox_sha1sum>
+
+    <foaf:mbox rdf:resource="mailto:wikier@apache.org" />
+    <foaf:mbox_sha1sum>762842c4b57e9657fe68badcc5439d3053d85f05</foaf:mbox_sha1sum>
+
+    <!-- 
+        some old addresses I don't use anymore... 
+        even some are no longer under my control
+        but identify me at some point
+    -->
+    <foaf:mbox_sha1sum>3bb939b9fe7a4e45ec9d65d64074c3b2a4ce317d</foaf:mbox_sha1sum> <!-- @fundacionctic.org -->
+    <foaf:mbox_sha1sum>749774803c4b05dba1b2401d3f53acd4bbf78b9f</foaf:mbox_sha1sum> <!-- @hotmail.com -->
+    <foaf:mbox_sha1sum>a087165d16083deb201734af4dec2d64a40236fc</foaf:mbox_sha1sum> <!-- @petra.euitio.uniovi.es -->
+
+    <foaf:homepage rdf:resource="http://www.wikier.org" dct:title="Wikier.org" />
+    
+    <foaf:workplaceHomepage rdf:resource="http://www.redlink.co" dct:title="Redlink GmbH" />
+    <foaf:workplaceHomepage rdf:resource="http://www.salzburgresearch.at" dct:title="Salzburg Research" />
+
+    <foaf:schoolHomepage rdf:resource="http://www.uniovi.es" dct:title="University of Oviedo" />
+
+    <foaf:depiction>
+      <foaf:Image rdf:about="http://www.wikier.org/stuff/sergio.jpg">
+        <dct:title>Sergio Fernández</dct:title>
+        <dct:format>image/jpg</dct:format>
+      </foaf:Image>
+    </foaf:depiction>
+    
+    <owl:sameAs rdf:resource="http://rdf.freebase.com/ns/m.07zqbwz" />
+    <owl:sameAs rdf:resource="http://www.wikier.org/foaf.rdf#wikier" />
+    <owl:sameAs rdf:resource="http://www.advogato.org/person/wikier/foaf.rdf#me" />
+    <owl:sameAs rdf:resource="http://apassant.net/home/2007/12/flickrdf/data/people/7787294@N06" />
+    <owl:sameAs rdf:resource="http://www.deri.ie/about/team/member/Sergio_Fernández#me" />
+    <owl:sameAs rdf:resource="http://semanticweb.org/id/Sergio_Fernández" />
+    <owl:sameAs rdf:resource="http://community.linkeddata.org/dataspace/person/Wikier#this" />
+    <owl:sameAs rdf:resource="http://rdfohloh.wikier.org/user/17685#person" />
+    <owl:sameAs rdf:resource="http://data.semanticweb.org/person/sergio-fernandez" />
+    <owl:sameAs rdf:resource="http://identi.ca/user/41516" />
+    <owl:sameAs rdf:resource="http://alpha.libre.fm/user/wikier#me" />
+    <owl:sameAs rdf:resource="http://semantictweet.com/Wikier#me" />
+    <owl:sameAs rdf:resource="http://tagora.ecs.soton.ac.uk/delicious/Wikier" />
+    <owl:sameAs rdf:resource="http://smob.wikier.org/me" />
+    <owl:differentFrom rdf:resource="http://www.eswc2006.org/people/#sergio-fernandez" />
+    <owl:differentFrom rdf:resource="http://dbpedia.org/resource/Sergio_Fernandez" />
+
+    <foaf:openid rdf:resource="http://openid.blogs.es/Wikier" />
+    <cert:key rdf:resource="http://www.wikier.org/foaf#pk" />
+
+    <foaf:based_near rdf:resource="http://dbpedia.org/resource/Salzburg" />
+
+    <contact:nearestAirport>
+      <air:Airport rdf:about="http://dig.csail.mit.edu/2006/wikdt/airports?iata=SZG#item">
+        <air:iataCode>SZG</air:iataCode>
+        <dct:title>W. A. Mozart Airport</dct:title>
+      </air:Airport>
+    </contact:nearestAirport>
+    
+    <foaf:interest rdf:resource="http://www.w3.org/2001/sw/" dct:title="Semantic Web" />
+    <foaf:interest rdf:resource="http://www.w3.org/RDF/" dct:title="Resource Description Framework (RDF)" />
+    <foaf:interest rdf:resource="http://linkeddata.org/" dct:title="Linked Data" />
+    <foaf:interest rdf:resource="http://www.sioc-project.org/" dct:title="SIOC" />
+    <foaf:interest rdf:resource="http://dbpedia.org/resource/Social_web" dct:title="Social Web" />
+    <foaf:interest rdf:resource="http://tools.ietf.org/html/rfc2616" dct:title="HTTP" />
+    <foaf:interest rdf:resource="http://www.w3.org/WAI/" dct:title="Web Accessility" />
+    <foaf:interest rdf:resource="http://www.fsf.org/" dct:title="Free Software" />
+    <foaf:interest rdf:resource="http://www.python.org/" dct:title="Python" />
+
+    <foaf:weblog> 
+      <sioc:Forum rdf:about="http://www.wikier.org/blog">
+        <dct:title>Wikier.org blog</dct:title>
+        <sioc:has_owner rdf:resource="http://www.wikier.org/blog#wikier" />
+        <rss:channel rdf:resource="http://www.wikier.org/blog/rss" />
+        <rdf:type rdf:resource="http://rdfs.org/sioc/types#Weblog" />
+      </sioc:Forum> 
+    </foaf:weblog>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="http://www.wikier.org/blog#wikier">
+        <sioc:name>wikier</sioc:name>
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#sourceforge"> 
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://sourceforge.net/" />
+        <foaf:page rdf:resource="http://sourceforge.net/users/wikier/" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#advogato"> 
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.advogato.org/" />
+        <foaf:page rdf:resource="http://www.advogato.org/person/wikier/" />
+        <rdfs:seeAlso rdf:resource="http://www.advogato.org/person/wikier/foaf.rdf" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#delicious"> 
+        <sioc:name>Wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://delicious.com/" />
+        <foaf:page rdf:resource="http://delicious.com/Wikier" />
+        <owl:sameAs rdf:resource="http://tagora.ecs.soton.ac.uk/account/delicious/Wikier" />
+        <rdfs:seeAlso rdf:resource="http://tagora.ecs.soton.ac.uk/delicious/Wikier/rdf" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#flickr"> 
+        <sioc:name>wikier</sioc:name>
+        <sioc:id>7787294@N06</sioc:id>
+        <foaf:accountServiceHomepage rdf:resource="http://www.flickr.com/" />
+        <foaf:page rdf:resource="http://www.flickr.com/people/wikier/" />
+        <rdfs:seeAlso rdf:resource="http://apassant.net/home/2007/12/flickrdf/data/people/7787294@N06" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#linkedin">
+        <sioc:id>12286431</sioc:id>
+        <foaf:accountServiceHomepage rdf:resource="http://www.linkedin.com/" />
+        <foaf:page rdf:resource="http://www.linkedin.com/in/sergiofernandez" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#freenode">
+        <sioc:name>Wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.freenode.net/irc_servers.shtml" />
+        <owl:sameAs rdf:resource="irc://freenode/Wikier,isuser" />
+        <owl:sameAs rdf:resource="http://irc.sioc-project.org/users/Wikier#user" />
+        <rdfs:seeAlso rdf:resource="http://irc.sioc-project.org/users/Wikier" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#lastfm"> 
+        <sioc:name>Wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.last.fm/" />
+        <foaf:page rdf:resource="http://www.last.fm/user/Wikier/" />
+        <owl:sameAs rdf:resource="http://dbtune.org/last-fm/wikier" />
+        <rdfs:seeAlso rdf:resource="http://dbtune.org/last-fm/wikier.rdf" />
+        <rdfs:seeAlso rdf:resource="http://ws.audioscrobbler.com/1.0/user/wikier/profile.xml" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#twitter"> 
+        <sioc:name>Wikier</sioc:name>
+        <sioc:id>6417242</sioc:id>
+        <foaf:accountServiceHomepage rdf:resource="http://twitter.com/" />
+        <foaf:page rdf:resource="http://twitter.com/Wikier" />
+        <owl:sameAs rdf:resource="http://rdfohloh.wikier.org/user/17685" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/user/17685/rdf" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#twine"> 
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.twine.com/" />
+        <foaf:page rdf:resource="http://www.twine.com/user/wikier" />
+        <owl:sameAs rdf:resource="http://www.twine.com/user/wikier" />
+        <rdfs:seeAlso rdf:resource="http://www.twine.com/user/wikier?rdf" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#ohloh"> 
+        <sioc:name>wikier</sioc:name>
+        <sioc:id>17685</sioc:id>
+        <foaf:accountServiceHomepage rdf:resource="http://www.ohloh.net/" />
+        <foaf:page rdf:resource="http://www.ohloh.net/accounts/17685" />
+        <owl:sameAs rdf:resource="http://rdfohloh.wikier.org/user/17685" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/user/17685/rdf" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:account>
+      <sioc:UserAccount rdf:about="#facebook">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.facebook.com/" />
+        <foaf:page rdf:resource="http://www.facebook.com/wikier" />
+        <owl:sameAs rdf:resource="http://sam.tw.rpi.edu/data/face/resource/556663893#me" />
+        <rdfs:seeAlso rdf:resource="http://sam.tw.rpi.edu/data/face/resource/556663893" />
+	<owl:sameAs rdf:resource="http://www.matthew-rowe.com/FoafGeneratorRedux/files/foaf-556663893.rdf#me" />
+	<rdfs:seeAlso rdf:resource="http://www.matthew-rowe.com/FoafGeneratorRedux/files/foaf-556663893.rdf" />
+        <rdfs:seeAlso rdf:resource="http://graph.facebook.com/wikier" />
+      </sioc:UserAccount> 
+    </foaf:account>
+
+    <foaf:jabberID>wikier@jabber.org</foaf:jabberID>
+    <foaf:msnChatID>sergio@wikier.org</foaf:msnChatID>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#skype">
+        <sioc:name>sergio.fernandez.lopez</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.skype.com/" />
+        <rdfs:seeAlso rdf:resource="http://mystatus.skype.com/sergio.fernandez.lopez.xml" />
+        <owl:sameAs rdf:resource="skype://sergio.fernandez.lopez" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#friendfeed">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://friendfeed.com/" />
+        <foaf:page rdf:resource="http://friendfeed.com/wikier" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#slideshare">
+        <sioc:name>Wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.slideshare.net/" />
+        <foaf:page rdf:resource="http://www.slideshare.net/Wikier" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#rememberthemilk">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.rememberthemilk.com/" />
+        <foaf:page rdf:resource="http://www.rememberthemilk.com/home/wikier/" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#identica">
+        <sioc:name>wikier</sioc:name>
+        <sioc:id>41516</sioc:id>
+        <foaf:accountServiceHomepage rdf:resource="http://identi.ca/" />
+        <foaf:page rdf:resource="http://identi.ca/wikier" />
+        <rdfs:seeAlso rdf:resource="http://identi.ca/wikier/foaf" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#tripit">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.tripit.com/" />
+        <foaf:page rdf:resource="http://www.tripit.com/people/wikier" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#librefm">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://libre.fm/" />
+        <foaf:page rdf:resource="http://alpha.libre.fm/user/wikier" />
+        <owl:sameAs rdf:resource="http://alpha.libre.fm/user/wikier#acct" />
+	    <rdfs:seeAlso rdf:resource="http://alpha.libre.fm/rdf.php?fmt=xml&amp;page=/user/wikier" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#mendeley">
+        <foaf:accountServiceHomepage rdf:resource="http://www.mendeley.com/" />
+        <foaf:page rdf:resource="http://www.mendeley.com/profiles/sergio-fernandez/" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#w3c">
+        <sioc:name>fsergio</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://www.w3.org/" />
+        <foaf:page rdf:resource="http://esw.w3.org/User:Fsergio" />
+        <foaf:page rdf:resource="http://www.w3.org/2001/sw/wiki/User:Fsergio" />
+        <owl:sameAs rdf:resource="http://w3.org/2001/sw/wiki/Special:URIResolver/User-3AFsergio" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#bitbucket">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://bitbucket.org/" />
+        <foaf:page rdf:resource="http://bitbucket.org/wikier" />
+        <foaf:page rdf:resource="http://hg.wikier.org/" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <foaf:account> 
+      <sioc:UserAccount rdf:about="#github">
+        <sioc:name>wikier</sioc:name>
+        <foaf:accountServiceHomepage rdf:resource="http://github.com" />
+        <foaf:page rdf:resource="http://github.com/wikier" />
+      </sioc:UserAccount>
+    </foaf:account>
+
+    <!-- knows -->
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://berrueta.net/foaf.rdf#me">
+        <foaf:name>Diego Berrueta</foaf:name>
+        <foaf:mbox_sha1sum>98a99390f2fe9395041bddc41e933f50e59a5ecb</foaf:mbox_sha1sum>
+        <foaf:nick>berrueta</foaf:nick>
+        <rdfs:seeAlso rdf:resource="http://berrueta.net/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://berrueta.net/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="ttp://www.ifrade.es/#frade">
+        <foaf:name>Iván Frade</foaf:name>
+        <foaf:nick>frade</foaf:nick>
+        <foaf:nick>asjas</foaf:nick>
+        <foaf:mbox_sha1sum>84d076726727b596b08198e26ef37e4817353e97</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.ifrade.es/"/>
+        <rdfs:seeAlso rdf:resource="http://frade.no-ip.info:2080/~ivan/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.di.uniovi.es/~labra/labraFoaf.rdf#me">
+        <foaf:name>José Emilio Labra</foaf:name>
+        <foaf:mbox_sha1sum>3d0a8f16ce3d560ca75e16d36f6ded63599c60a7</foaf:mbox_sha1sum>
+        <rdfs:seeAlso rdf:resource="http://www.di.uniovi.es/~labra/labraFoaf.rdf" />
+        <foaf:homepage rdf:resource="ttp://www.di.uniovi.es/~labra/"/>
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person>
+        <foaf:name>Ruben Sánchez</foaf:name>
+        <foaf:mbox_sha1sum>bdb8f18a6f68dcbd15099401eea8e7706e4dadca</foaf:mbox_sha1sum>
+        <foaf:nick>cheto</foaf:nick>
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.w3c.es/Personal/Martin/foaf.rdf#me">
+        <foaf:name>Martín Álvarez</foaf:name>
+        <foaf:mbox_sha1sum>3d23bbb5b37a688d9c7fa781844d52d248b47ceb</foaf:mbox_sha1sum>
+        <rdfs:seeAlso rdf:resource="http://www.w3c.es/Personal/Martin/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://www.w3c.es/Personal/Martin/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.w3.org/People/Josema/#josema">
+        <foaf:name>Jose Manuel Alonso</foaf:name>
+        <foaf:mbox_sha1sum>eab0c0e0b0f26d41d2a3a3e74fb4ca67ad089bbe</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.w3.org/People/Josema/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://petra.euitio.uniovi.es/~i1637566/foaf.rdf#me">
+        <foaf:name>Jose María Álvarez</foaf:name>
+        <foaf:mbox_sha1sum>135a617c9e2e37003e1c38be6c21ce7af433552f</foaf:mbox_sha1sum>
+        <rdfs:seeAlso rdf:resource="http://petra.euitio.uniovi.es/~i1637566/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://petra.euitio.uniovi.es/~i1637566/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.kagueto.net/files/foaf.rdf#me">
+        <foaf:name>Miguel García</foaf:name>
+        <foaf:mbox_sha1sum>0363c58a9ec61db68e3fa37cfcd38b301deaab97</foaf:mbox_sha1sum>
+        <foaf:nick>kagueto</foaf:nick>
+        <rdfs:seeAlso rdf:resource="http://www.kagueto.net/files/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://www.kagueto.net/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://criptonita.com/~nacho/foaf.rdf#me">
+        <foaf:name>Nacho Barrientos</foaf:name>
+        <foaf:nick>chipi</foaf:nick>
+        <foaf:mbox_sha1sum>6b31c41e80d36cc08a489462c0c2c37d7de8d2e5</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://criptonita.com/~nacho" />
+        <rdfs:seeAlso rdf:resource="http://criptonita.com/~nacho/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://aleasoft.hopto.org/~alvaro/weblog/foaf.rdf#me">
+        <foaf:name>Álvaro Alea</foaf:name>
+        <foaf:nick>aleasoft</foaf:nick>
+        <foaf:mbox_sha1sum>eb6d13cb99da7b9895030f4c2f22286a18d23442</foaf:mbox_sha1sum>
+        <rdfs:seeAlso rdf:resource="http://aleasoft.hopto.org/~alvaro/weblog/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://www.asturlinux.org/~alvaro/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.asturlinux.org/~jsmanrique/foaf.rdf#me">
+        <foaf:name>José Manrique López</foaf:name>
+        <foaf:mbox_sha1sum>bd6566af7b3bfa28f917aa545bf4174661817d79</foaf:mbox_sha1sum>
+        <foaf:nick>jsmanrique</foaf:nick>
+        <rdfs:seeAlso rdf:resource="http://www.asturlinux.org/~jsmanrique/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://www.jsmanrique.es/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://xtrasgu.org/foaf.rdf#xtrasgu">
+        <foaf:name>Pablo López</foaf:name>
+        <foaf:mbox_sha1sum>97d9756f1281858d0e9e4489003073e4986546ce</foaf:mbox_sha1sum>
+        <foaf:nick>xtrasgu</foaf:nick>
+        <foaf:homepage rdf:resource="http://xtrasgu.org/" />
+        <rdfs:seeAlso rdf:resource="http://xtrasgu.org/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.beaufour.dk/#beaufour">
+        <foaf:name>Allan Beaufour</foaf:name>
+        <foaf:mbox_sha1sum>16f6c8cfe4360977908a3c28072adcbc7ef15a75</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.beaufour.dk/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://eikeon.com/foaf.rdf#eikeon">
+        <foaf:name>Daniel Krech</foaf:name>
+        <foaf:mbox_sha1sum>3665f4f2370ddd6358da4062f3293f6dc7f39b7c</foaf:mbox_sha1sum>
+        <foaf:nick>eikeon</foaf:nick>
+        <rdfs:seeAlso rdf:resource="http://eikeon.com/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://eikeon.com/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://captsolo.net/semweb/foaf-captsolo.rdf#Uldis_Bojars">
+        <foaf:name>Uldis Bojars</foaf:name>
+        <foaf:mbox_sha1sum>56e6f2903933a611708ebac456d45e454ddb8838</foaf:mbox_sha1sum>
+        <foaf:nick>CaptSolo</foaf:nick>
+        <rdfs:seeAlso rdf:resource="http://captsolo.net/semweb/foaf-captsolo.rdf" />
+        <foaf:homepage rdf:resource="http://captsolo.net/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.johnbreslin.com/foaf/foaf.rdf#me">
+        <foaf:name>John Breslin</foaf:name>
+        <foaf:mbox_sha1sum>9a6b7eefc08fd755d51dd9321aecfcc87992e9a2</foaf:mbox_sha1sum>
+        <foaf:nick>Cloud</foaf:nick>
+        <rdfs:seeAlso rdf:resource="http://www.johnbreslin.com/foaf/foaf.rdf"/>
+        <foaf:homepage rdf:resource="http://www.johnbreslin.com/"/>
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.koalazoo.es/foaf.rdf#me">
+        <foaf:name>Roberto Rodríguez</foaf:name>
+        <foaf:mbox_sha1sum>0ca8d97a347deaf776a0d0967dba48c571c3dd09</foaf:mbox_sha1sum>
+        <foaf:nick>koalazoo</foaf:nick>
+        <foaf:nick>Robers</foaf:nick>
+        <foaf:nick>McMan</foaf:nick>
+        <foaf:homepage rdf:resource="http://www.koalazoo.es/" />
+        <rdfs:seeAlso rdf:resource="http://www.koalazoo.es/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://iminguez.com/foaf.rdf#me">
+        <foaf:name>Iván Mínguez</foaf:name>
+        <foaf:nick>Pyro</foaf:nick>
+        <foaf:mbox_sha1sum>057048f30557d8e26f71fdec6ef43542166ca932</foaf:mbox_sha1sum>
+        <rdfs:seeAlso rdf:resource="http://iminguez.com/foaf.rdf" />
+        <foaf:homepage rdf:resource="http://iminguez.com/" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.talkdigger.com/foaf/fgiasson">
+        <foaf:name>Frédérick Giasson</foaf:name>
+        <foaf:nick>fgiasson</foaf:nick>
+        <foaf:mbox_sha1sum>bb81ecaac6992f832ea69313bd04d4fd9e2e4e0f</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="htp://fgiasson.com/" />
+        <rdfs:seeAlso rdf:resource="http://www.talkdigger.com/foaf/fgiasson" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://apassant.net/foaf.rdf#alex">
+        <foaf:name>Alexandre Passant</foaf:name>
+        <foaf:nick>terraces</foaf:nick>
+        <foaf:mbox_sha1sum>528b95cc44060ceea571d7498a9fd2c7e3ca8a4c</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://apassant.net/" />
+        <rdfs:seeAlso rdf:resource="http://apassant.net/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.ivan-herman.net/me">
+        <foaf:name>Ivan Herman</foaf:name>
+        <foaf:mbox_sha1sum>5ac8032d5f6012aa1775ea2f63e1676bafd5e80b</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.ivan-herman.net/" />
+        <rdfs:seeAlso rdf:resource="http://www.ivan-herman.net/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://tuukka.iki.fi/tuukka#person">
+        <foaf:name>Tuukka Hastrup</foaf:name>
+        <foaf:nick>tuukkah</foaf:nick>
+        <foaf:mbox_sha1sum>ab0acba1373e6822d3a2b1a62cd9f85d57855551</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://tuukka.iki.fi/" />
+        <rdfs:seeAlso rdf:resource="http://tuukka.iki.fi/tuukka" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.deri.ie/about/team/member/Darragh_Grealish#me">
+        <foaf:name>Darragh Grealish</foaf:name>
+        <foaf:mbox_sha1sum>3e12d72604e533b05b2f241fb8a8f0ca3a22dcfb</foaf:mbox_sha1sum>
+        <rdfs:seeAlso rdf:resource="http://www.deri.ie/fileadmin/scripts/foaf.php?id=312" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.deri.ie/about/team/member/Doug_Foxvog#me">
+        <foaf:name>Doug Foxvog</foaf:name>
+        <foaf:mbox_sha1sum>8c9a61823f1b41bca5c409a631d442181b8160b6</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.foxvog.org/doug/" />
+        <rdfs:seeAlso rdf:resource="http://www.deri.ie/fileadmin/scripts/foaf.php?id=78" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://richard.cyganiak.de/foaf.rdf#cygri">
+        <foaf:name>Richard Cyganiak</foaf:name>
+        <foaf:nick>cygri</foaf:nick>
+        <foaf:mbox_sha1sum>bb3df3cf988e2d5fc234840d9dc9d4a6eaf822bd</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://richard.cyganiak.de/" />
+        <foaf:weblog rdf:resource="http://dowhatimean.net/" />
+        <rdfs:seeAlso rdf:resource="http://richard.cyganiak.de/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.ifomis.org/people/holger/foaf.rdf#holger">
+        <foaf:name>Holger Stenzhorn</foaf:name>
+        <foaf:mbox_sha1sum>174ccf605f8a39a16c1c2a42db0936e638144524</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.ifomis.org/people/holger/" />
+        <rdfs:seeAlso rdf:resource="http://www.ifomis.org/people/holger/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.polleres.net/foaf.rdf#me">
+        <foaf:name>Axel Polleres</foaf:name>
+        <foaf:mbox_sha1sum>35a8d4858ba240996a6f71836d93fbfdcd2b4843</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.polleres.net/" />
+        <rdfs:seeAlso rdf:resource="http://www.polleres.net/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://danbri.org/foaf.rdf#danbri">
+        <foaf:name>Dan Brickley</foaf:name>
+        <foaf:mbox_sha1sum>6e80d02de4cb3376605a34976e31188bb16180d0</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://danbri.org/" />
+        <rdfs:seeAlso rdf:resource="http://danbri.org/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.fundacionctic.org/web/contenidos/es/personal/personal_0007.html#polo">
+        <foaf:name>Luis Polo</foaf:name>
+        <foaf:mbox_sha1sum>0d890d1a9d0f725d244e1bb099fee0d89df074a5</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.fundacionctic.org/web/contenidos/es/personal/personal_0007.html" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.tudorgroza.org/res/foaf.rdf#me">
+        <foaf:name>Tudor Groza</foaf:name>
+        <foaf:mbox_sha1sum>75691f9b8834cf1e1552893d01c7bc0dca6136ee</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.tudorgroza.org/" />
+        <rdfs:seeAlso rdf:resource="http://www.tudorgroza.org/res/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://harth.org/andreas/foaf#ah">
+        <foaf:name>Andreas Harth</foaf:name>
+        <foaf:mbox_sha1sum>349ba1da7307ffb78517ae557ade1dd5177a6dbb</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.harth.org/andreas/" />
+        <rdfs:seeAlso rdf:resource="http://harth.org/andreas/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.dayures.net/foaf.rdf#tejo">
+        <foaf:name>Carlos Tejo</foaf:name>
+        <foaf:mbox_sha1sum>3794a7355903654b1ea0aeca4d57fa7aea2c6bf9</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.dayures.net/" />
+        <rdfs:seeAlso rdf:resource="http://www.dayures.net/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://myopenlink.net/dataspace/person/kidehen%23this">
+        <foaf:name>Kingsley Idehen</foaf:name>
+        <foaf:mbox_sha1sum>349f4bf50f11185d3503b14f1a6ccfc425116b12</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.openlinksw.com/blog/~kidehen/" />
+        <rdfs:seeAlso rdf:resource="http://myopenlink.net/dataspace/kidehen/about.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.bizer.de#chris">
+        <foaf:name>Chris Bizer</foaf:name>
+        <foaf:mbox_sha1sum>50c02ff93e7d477ace450e3fbddd63d228fb23f3</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.bizer.de/" />
+        <rdfs:seeAlso rdf:resource="http://www4.wiwiss.fu-berlin.de/bizer/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://tomheath.com/id/me">
+        <foaf:name>Tom Heath</foaf:name>
+        <foaf:mbox_sha1sum>02085a0d20a5f574c1ce6cfe42bba6e85cfe07cf</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="hhttp://tomheath.com/" />
+        <rdfs:seeAlso rdf:resource="http://tomheath.com/home/rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.leobard.net/rdf/foaf.xml#me">
+        <foaf:name>Leo Sauermann</foaf:name>
+        <foaf:mbox_sha1sum>eaa363e2b75a11db14e62afb8995340a198e8b9e</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.dfki.de/~sauermann" />
+        <rdfs:seeAlso rdf:resource="http://www.leobard.net/rdf/foaf.xml" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://sw-app.org/mic.xhtml#i">
+        <foaf:name>Michael Hausenblas</foaf:name>
+        <foaf:mbox_sha1sum>636480acf3cca05e96e612e5e6da6090efd5c71f</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://sw-app.org/" />
+        <rdfs:seeAlso rdf:resource="http://www.w3.org/2007/08/pyRdfa/extract?uri=http%3A//sw-app.org/mic.xhtml" />
+        <rdfs:seeAlso rdf:resource="http://community.linkeddata.org/dataspace/mhausenblas/about.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.cs.vu.nl/~pmika/foaf.rdf#me">
+        <foaf:name>Peter Mika</foaf:name>
+        <foaf:mbox_sha1sum>ffe33bbe8be2a2123f0adb793e61a6d84ae9a739</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.cs.vu.nl/~pmika/" />
+        <rdfs:seeAlso rdf:resource="http://www.cs.vu.nl/~pmika/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.ibiblio.org/hhalpin#">
+        <foaf:name>Harry Halpin</foaf:name>
+        <foaf:mbox_sha1sum>c5e75a0dd882184416c8680f5c402a261314bb79</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.ibiblio.org/hhalpin/" />
+        <rdfs:seeAlso rdf:resource="http://www.ibiblio.org/hhalpin/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.dcs.shef.ac.uk/~mrowe/foaf.rdf#me">
+        <foaf:name>Matthew Rowe</foaf:name>
+        <foaf:mbox_sha1sum>bd2cda94c756832460fd7c8f6de5c3d2525bbdba</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.dcs.shef.ac.uk/~mrowe/" />
+        <rdfs:seeAlso rdf:resource="http://www.dcs.shef.ac.uk/~mrowe/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://www.postsubmeta.net/foaf#TK">
+        <foaf:name>Thomas Krennwallner</foaf:name>
+        <foaf:mbox_sha1sum>f6b70e5044bffbefe6703e8523be6c96ad8354dc</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://www.postsubmeta.net/" />
+        <rdfs:seeAlso rdf:resource="http://www.postsubmeta.net/foaf.rdf" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <foaf:knows>
+      <foaf:Person rdf:about="http://bblfish.net/people/henry/card#me">
+        <foaf:name>Henry Story</foaf:name>
+        <foaf:mbox_sha1sum>38cf68e5c4f300648b81c8ee7a99912ee825ae01</foaf:mbox_sha1sum>
+        <foaf:homepage rdf:resource="http://bblfish.net/" />
+        <rdfs:seeAlso rdf:resource="http://bblfish.net/people/henry/card" />
+      </foaf:Person>
+    </foaf:knows>
+
+    <!-- projects -->
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://swaml.berlios.de/doap#swaml"> 
+        <doap:name>SWAML</doap:name>
+        <doap:description>Semantic Web Archive of Mailing Lists</doap:description>
+        <doap:homepage rdf:resource="http://swaml.berlios.de/" />
+        <rdfs:seeAlso rdf:resource="http://swaml.berlios.de/doap.rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project> 
+        <doap:name>SIOC</doap:name>
+        <doap:description>Semantically-Interlinked Online Communities</doap:description>
+        <doap:homepage rdf:resource="http://sioc-project.org/" />
+        <rdfs:seeAlso rdf:resource="http://sioc-project.org/sioc/site" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="#semradar"> 
+        <doap:name>SemRadar</doap:name>
+        <doap:description>a semantic metadata detector for Mozilla Firefox</doap:description>
+        <doap:homepage rdf:resource="http://sioc-project.org/firefox" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/project/semradar/rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://futil.berlios.de/doap#futil"> 
+        <doap:name>Futil</doap:name>
+        <doap:description>FOAF Utils</doap:description>
+        <doap:homepage rdf:resource="http://futil.berlios.de/" />
+        <rdfs:seeAlso rdf:resource="http://futil.berlios.de/resources/doap.rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://vapour.sourceforge.net/doap#vapour"> 
+        <doap:name>Vapour</doap:name>
+        <doap:description>a web-based validator tool to check best practices for publishing RDF vocabularies</doap:description>
+        <doap:homepage rdf:resource="http://vapour.sourceforge.net/" />
+        <rdfs:seeAlso rdf:resource="http://vapour.sourceforge.net/resources/doap.rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project> 
+        <doap:name>MyMobileWeb</doap:name>
+        <doap:homepage rdf:resource="http://mymobileweb.morfeo-project.org/" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/project/mymobileweb/rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project> 
+        <doap:name>EzWeb</doap:name>
+        <doap:homepage rdf:resource="http://ezweb.morfeo-project.org/" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://sparql-wrapper.sourceforge.net/doap#sparql-wrapper"> 
+        <doap:name>SPARQL Endpoint interface to Python</doap:name>
+        <doap:homepage rdf:resource="http://sparql-wrapper.sourceforge.net/" />
+        <rdfs:seeAlso rdf:resource="http://sparql-wrapper.sourceforge.net/resources/doap.rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://neologism.deri.ie/doap#neologism"> 
+        <doap:name>Neologism</doap:name>
+        <doap:homepage rdf:resource="http://neologism.deri.ie/" />
+        <rdfs:seeAlso rdf:resource="http://neologism.deri.ie/resources/doap.rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://rdfohloh.wikier.org/about#rdfohloh"> 
+        <doap:name>RDFohloh</doap:name>
+        <doap:homepage rdf:resource="http://rdfohloh.wikier.org/" />
+        <rdfs:seeAlso rdf:resource="http://www.w3.org/2007/08/pyRdfa/extract?uri=http://rdfohloh.wikier.org/about" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project> 
+        <doap:name>ONTORULE</doap:name>
+        <doap:shortdesc>ONTOlogies meet business RULEs</doap:shortdesc>
+        <doap:homepage rdf:resource="http://ontorule-project.eu/" />
+        <owl:sameAs rdf:resource="http://ontorule-project.eu/meta#ontorule" />
+        <rdfs:seeAlso rdf:resource="http://ontorule-project.eu/meta" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://rdfohloh.wikier.org/project/djubby"> 
+        <doap:name>djubby</doap:name>
+        <doap:shortdesc>A Pubby clone for Django, a Linked Data frontend for SPARQL endpoints</doap:shortdesc>
+        <doap:homepage rdf:resource="http://djubby.googlecode.com/" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/project/djubby/rdf" />
+        <rdfs:seeAlso rdf:resource="http://pypi.python.org/pypi?:action=doap&amp;name=djubby" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <foaf:Project rdf:about="http://trioo.wikier.org/trioo"> 
+        <rdfs:label>trioo</rdfs:label>
+        <foaf:homepage rdf:resource="http://trioo.wikier.org/" />
+        <rdfs:seeAlso rdf:resource="http://www.w3.org/2007/08/pyRdfa/extract?uri=http://trioo.wikier.org/" />
+      </foaf:Project>
+    </foaf:pastProject>
+
+    <foaf:pastProject>
+      <doap:Project rdf:about="http://rdfohloh.wikier.org/project/lmf"> 
+        <doap:name>LMF</doap:name>
+        <doap:description>Linked Media Framework</doap:description>
+        <doap:homepage rdf:resource="http://lmf.googlecode.com" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/project/lmf.rdf" />
+      </doap:Project>
+    </foaf:pastProject>
+
+    <foaf:currentProject>
+      <doap:Project rdf:about="http://rdfohloh.wikier.org/project/marmotta"> 
+        <doap:name>Apache Marmotta</doap:name>
+        <doap:description>Apache Marmotta</doap:description>
+        <doap:homepage rdf:resource="http://marmotta.apache.org" />
+        <rdfs:seeAlso rdf:resource="http://marmotta.apache.org/doap.rdf" />
+        <rdfs:seeAlso rdf:resource="http://rdfohloh.wikier.org/project/marmotta.rdf" />
+      </doap:Project>
+    </foaf:currentProject>
+
+    <wot:hasKey>
+      <wot:PubKey>
+        <wot:hex_id>5531369F</wot:hex_id>
+        <wot:fingerprint>48B33394FA7F07D2A37FF197F21D21375531369F</wot:fingerprint>
+        <wot:pubkeyAddress rdf:resource="http://www.wikier.org/stuff/5531369F.asc" />
+      </wot:PubKey>
+    </wot:hasKey>
+
+  </foaf:Person>
+
+  <cert:RSAPublicKey rdf:about="#pk">
+    <cert:modulus rdf:datatype="http://www.w3.org/2001/XMLSchema#hexBinary">a1cf91184a0aaee6417ff8a965d13c3b28dc301ef30aefd4d7566277dea2cd0d43c19f1d27c04255c64e42855ba97ba8c50f6c27c313273bbd7bd27cb5a632ee29b0b1a47be9b5b2e54e9906c979660981ee9412cc648a693bf911b560c0c830ea14e7f520fc971d3c7805ecad905218722fd23790f1cfc2f0ddd3842ee5c0f09c025d75cb7a86ff86288783b40ecc4595fccb95801f788eb50a5d357d0b70d48e0d2c07406e495df145646f6e6e2832f310aa237b46147d61165e3ceadbc3cf92ed5aba95226a8d7190237dcb54ef80a595412bd96dba5d90f468fb8e32dc2a9704cb2927503d1f6cfd1463f53d087e2888ef12263764b64b5bd5f691e9f469</cert:modulus>
+    <cert:exponent rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">65537</cert:exponent>
+    <rdfs:label>A9:6A:3A:DF:42:B3:B2:5E:BD:BD:54:ED:45:85:E8:0E:1F:F0:EA:09</rdfs:label>
+    <dct:valid rdf:datatype="urn:iso:std:iso:8601#timeInterval">P1Y/2012-04-30</dct:valid>
+  </cert:RSAPublicKey>
+
+</rdf:RDF>
+
