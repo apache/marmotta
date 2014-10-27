@@ -5,8 +5,8 @@ import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.exporter.ExportService;
-import org.apache.marmotta.platform.core.util.WebServiceUtil;
 import org.apache.marmotta.platform.ldf.api.LdfService;
+import org.openrdf.model.Model;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -72,14 +72,23 @@ public class LdfWebService {
                                  final String context,
                                  final int page,
                                  final String accept) {
-        final RDFFormat format = getFormat(accept);
 
+        final Model fragment;
+        try {
+            fragment = ldfService.getFragment(subject, predicate, object, context, page);
+        } catch (RepositoryException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+
+        final RDFFormat format = getFormat(accept);
         StreamingOutput stream = new StreamingOutput() {
             @Override
             public void write(OutputStream outputStream) throws IOException, WebApplicationException {
                 try {
-                    ldfService.writeFragment(subject, predicate, object, context, page, format, outputStream);
-                } catch (RepositoryException | RDFHandlerException | IllegalArgumentException e) {
+                    Rio.write(fragment, outputStream, format);
+                } catch (RDFHandlerException e) {
                     throw new WebApplicationException(e);
                 }
             }

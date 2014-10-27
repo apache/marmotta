@@ -17,14 +17,11 @@
  */
 package org.apache.marmotta.platform.ldf.api;
 
+import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
-import org.openrdf.rio.RDFFormat;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFHandlerException;
-
-import java.io.OutputStream;
 
 /**
  * Linked Media Fragments service
@@ -36,33 +33,31 @@ public interface LdfService {
     final static int PAGE_SIZE = 100;
 
     /**
-     * Writes a fragment matching the specified triple fragment pattern
+     * Gets a fragment matching the specified triple fragment pattern
      * specified (null values are wildcards).
      *
      * @param subject fragment subject
      * @param predicate fragmnent predicate
      * @param object fragment object
      * @param page number of page (starting with 1)
-     * @param format RDF serialization
-     * @param out output stream where write the fragment
+     * @return fragment
      */
-    void writeFragment(String subject, String predicate, String object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
+    Model getFragment(String subject, String predicate, String object, int page) throws RepositoryException, IllegalArgumentException;
 
     /**
-     * Writes a fragment matching the specified triple fragment pattern
+     * Gets a fragment matching the specified triple fragment pattern
      * specified (null values are wildcards).
      *
      * @param subject fragment subject
      * @param predicate fragmnent predicate
      * @param object fragment object
      * @param page number of page (starting with 1)
-     * @param format RDF serialization
-     * @param out output stream where write the fragment
+     * @return fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
+    Model getFragment(URI subject, URI predicate, Value object, int page) throws RepositoryException, IllegalArgumentException;
 
     /**
-     * Writes a fragment matching the specified quad fragment pattern
+     * Gets a fragment matching the specified quad fragment pattern
      * specified (null values are wildcards).
      *
      * @param subject fragment subject
@@ -70,13 +65,12 @@ public interface LdfService {
      * @param object fragment object
      * @param context named graph
      * @param page number of page (starting with 1)
-     * @param format RDF serialization
-     * @param out output stream where write the fragment
+     * @return fragment
      */
-    void writeFragment(String subject, String predicate, String object, String context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
+    Model getFragment(String subject, String predicate, String object, String context, int page) throws RepositoryException, IllegalArgumentException;
 
     /**
-     * Writes a fragment matching the specified quad fragment pattern
+     * Gets a fragment matching the specified quad fragment pattern
      * specified (null values are wildcards).
      *
      * @param subject fragment subject
@@ -84,9 +78,8 @@ public interface LdfService {
      * @param object fragment object
      * @param context named graph
      * @param page number of page (starting with 1)
-     * @param format RDF serialization
-     * @param out output stream where write the fragment
+     * @return fragment
      */
-    void writeFragment(URI subject, URI predicate, Value object, Resource context, int page, RDFFormat format, OutputStream out) throws RepositoryException, RDFHandlerException, IllegalArgumentException;
+    Model getFragment(URI subject, URI predicate, Value object, Resource context, int page) throws RepositoryException, IllegalArgumentException;
 
 }
