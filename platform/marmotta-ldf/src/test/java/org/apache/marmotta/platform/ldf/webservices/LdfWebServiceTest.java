@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * LDF Webservice test
@@ -57,7 +56,6 @@ public class LdfWebServiceTest {
         when().
             get(LdfWebService.PATH + "/empty");
     }
-
 
     @Test
     public void testFragment() throws IOException, InterruptedException, URISyntaxException, MarmottaImportException {
@@ -102,6 +100,5 @@ public class LdfWebServiceTest {
             get(LdfWebService.PATH + "/" + ctx);
 
     }
-
 
 }
