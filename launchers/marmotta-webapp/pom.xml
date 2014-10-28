@@ -465,6 +465,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-ldf</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-ldpath</artifactId>
             <version>${project.version}</version>
         </dependency>
