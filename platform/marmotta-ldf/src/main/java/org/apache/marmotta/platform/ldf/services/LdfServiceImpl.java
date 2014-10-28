@@ -18,13 +18,13 @@
 package org.apache.marmotta.platform.ldf.services;
 
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResultUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldf.api.LdfService;
 import org.apache.marmotta.platform.ldf.vocab.HYDRA;
+import org.apache.marmotta.platform.ldf.vocab.SSD;
 import org.apache.marmotta.platform.ldf.vocab.VOID;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.TreeModel;
@@ -37,9 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,17 +56,17 @@ public class LdfServiceImpl implements LdfService {
     private SesameService sesameService;
 
     @Override
-    public Model getFragment(String subjectStr, String predicateStr, String objectStr, int page) throws RepositoryException, IllegalArgumentException {
-        return getFragment(subjectStr, predicateStr, objectStr, null, page);
+    public Model getFragment(String subjectStr, String predicateStr, String objectStr, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException {
+        return getFragment(subjectStr, predicateStr, objectStr, null, page, uri);
     }
 
     @Override
-    public Model getFragment(URI subject, URI predicate, Value object, int page) throws RepositoryException, IllegalArgumentException {
-        return getFragment(subject, predicate, object, null, page);
+    public Model getFragment(URI subject, URI predicate, Value object, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException {
+        return getFragment(subject, predicate, object, null, page, uri);
     }
 
     @Override
-    public Model getFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page) throws RepositoryException, IllegalArgumentException {
+    public Model getFragment(String subjectStr, String predicateStr, String objectStr, String contextStr, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException {
         final ValueFactoryImpl vf = new ValueFactoryImpl();
 
         URI subject = null;
@@ -108,20 +109,19 @@ public class LdfServiceImpl implements LdfService {
             }
         }
 
-        return getFragment(subject, predicate, object, context, page);
+        return getFragment(subject, predicate, object, context, page, uri);
     }
 
     @Override
-    public Model getFragment(URI subject, URI predicate, Value object, Resource context, int page) throws RepositoryException, IllegalArgumentException {
+    public Model getFragment(URI subject, URI predicate, Value object, Resource context, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException {
         final RepositoryConnection conn = sesameService.getConnection();
-        final List<Statement> statements;
         try {
             conn.begin();
 
             //first get the triple fragment for ordering by a fixed criteria
             //TODO: do this effectively
             final RepositoryResult<Statement> results = conn.getStatements(subject, predicate, object, true, context);
-            statements = FluentIterable.from(ResultUtils.iterable(results)).toSortedList(new Comparator<Statement>() {
+            final List<Statement> statements = FluentIterable.from(ResultUtils.iterable(results)).toSortedList(new Comparator<Statement>() {
                 @Override
                 public int compare(Statement s1, Statement s2) {
                     int subjectComparison = s1.getSubject().stringValue().compareTo(s2.getSubject().stringValue());
@@ -165,11 +165,15 @@ public class LdfServiceImpl implements LdfService {
             model.addAll(filteredStatements);
 
             //and add ldf metadata
-            Resource dataset = context != null ? context : vf.createBNode();
+            URI dataset = vf.createURI(UriBuilder.fromUri(uri).replaceQuery(null).build().toASCIIString());
             model.add(dataset, RDF.TYPE, VOID.Dataset);
             model.add(dataset, RDF.TYPE, HYDRA.Collection);
+            if (context != null) {
+                model.add(dataset, VOID.inDataset, context);
+                model.add(dataset, SSD.namedGraph, context);
+            }
 
-            Resource fragment = vf.createBNode(); //TODO
+            Resource fragment = vf.createBNode(String.format("fragment-%tFT%<tH-%<tM-%<tS.%<tL", new Date()));
             model.add(dataset, VOID.subset, fragment);
             model.add(fragment, RDF.TYPE, HYDRA.Collection);
             if (offset != 0 && limit != size) {
@@ -178,8 +182,13 @@ public class LdfServiceImpl implements LdfService {
             model.add(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
             model.add(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
             model.add(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer));
-            //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
-
+            model.add(fragment, HYDRA.firstPage, vf.createURI(UriBuilder.fromUri(uri).queryParam("page", 1).build().toASCIIString()));
+            if (offset > 0) {
+                model.add(fragment, HYDRA.previousPage, vf.createURI(UriBuilder.fromUri(uri).queryParam("page", page-1).build().toASCIIString()));
+            }
+            if (offset + limit < statements.size()) {
+                model.add(fragment, HYDRA.nextPage, vf.createURI(UriBuilder.fromUri(uri).queryParam("page", page+1).build().toASCIIString()));
+            }
             //TODO: hydra controls
 
             return model;

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.marmotta.platform.ldf.webservices;
 
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +32,7 @@ import org.openrdf.rio.Rio;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -46,24 +62,26 @@ public class LdfWebService {
     private static final String UUID_PATTERN = "{uuid:[^#?]+}";
 
     @GET
-    public Response getFragment(@QueryParam("subject") @DefaultValue("") String subject,
-                                @QueryParam("predicate") @DefaultValue("") String predicate,
-                                @QueryParam("object") @DefaultValue("") String object,
-                                @QueryParam("page") @DefaultValue("1") String page,
-                                @HeaderParam("Accept") String accept) {
-        return getFragment(subject, predicate, object, null, Integer.parseInt(page), accept);
+    public Response getFragment(@QueryParam("subject") @DefaultValue("") final String subject,
+                                @QueryParam("predicate") @DefaultValue("") final String predicate,
+                                @QueryParam("object") @DefaultValue("") final String object,
+                                @QueryParam("page") @DefaultValue("1") final String page,
+                                @HeaderParam("Accept") final String accept,
+                                @Context final UriInfo uriInfo) {
+        return getFragment(subject, predicate, object, null, Integer.parseInt(page), accept, uriInfo);
     }
 
     @GET
     @Path(UUID_PATTERN)
-    public Response getFragment(@QueryParam("subject") @DefaultValue("") String subject,
-                                @QueryParam("predicate") @DefaultValue("") String predicate,
-                                @QueryParam("object") @DefaultValue("") String object,
-                                @QueryParam("page") @DefaultValue("1") String page,
-                                @PathParam("uuid") String uuid,
-                                @HeaderParam("Accept") String accept) {
+    public Response getFragment(@QueryParam("subject") @DefaultValue("") final String subject,
+                                @QueryParam("predicate") @DefaultValue("") final String predicate,
+                                @QueryParam("object") @DefaultValue("") final String object,
+                                @QueryParam("page") @DefaultValue("1") final String page,
+                                @PathParam("uuid") final String uuid,
+                                @HeaderParam("Accept") final String accept,
+                                @Context final UriInfo uriInfo) {
         final String context = buildContextUri(uuid);
-        return getFragment(subject, predicate, object, context, Integer.parseInt(page), accept);
+        return getFragment(subject, predicate, object, context, Integer.parseInt(page), accept, uriInfo);
     }
 
     private Response getFragment(final String subject,
@@ -71,11 +89,12 @@ public class LdfWebService {
                                  final String object,
                                  final String context,
                                  final int page,
-                                 final String accept) {
+                                 final String accept,
+                                 final UriInfo uriInfo) {
 
         final Model fragment;
         try {
-            fragment = ldfService.getFragment(subject, predicate, object, context, page);
+            fragment = ldfService.getFragment(subject, predicate, object, context, page, uriInfo.getRequestUri());
         } catch (RepositoryException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         } catch (IllegalArgumentException e) {

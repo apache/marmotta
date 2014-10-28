@@ -42,7 +42,7 @@ public interface LdfService {
      * @param page number of page (starting with 1)
      * @return fragment
      */
-    Model getFragment(String subject, String predicate, String object, int page) throws RepositoryException, IllegalArgumentException;
+    Model getFragment(String subject, String predicate, String object, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException;
 
     /**
      * Gets a fragment matching the specified triple fragment pattern
@@ -52,9 +52,10 @@ public interface LdfService {
      * @param predicate fragmnent predicate
      * @param object fragment object
      * @param page number of page (starting with 1)
+     * @param uri uri requested
      * @return fragment
      */
-    Model getFragment(URI subject, URI predicate, Value object, int page) throws RepositoryException, IllegalArgumentException;
+    Model getFragment(URI subject, URI predicate, Value object, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException;
 
     /**
      * Gets a fragment matching the specified quad fragment pattern
@@ -65,9 +66,10 @@ public interface LdfService {
      * @param object fragment object
      * @param context named graph
      * @param page number of page (starting with 1)
+     * @param uri uri requested
      * @return fragment
      */
-    Model getFragment(String subject, String predicate, String object, String context, int page) throws RepositoryException, IllegalArgumentException;
+    Model getFragment(String subject, String predicate, String object, String context, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException;
 
     /**
      * Gets a fragment matching the specified quad fragment pattern
@@ -78,8 +80,9 @@ public interface LdfService {
      * @param object fragment object
      * @param context named graph
      * @param page number of page (starting with 1)
+     * @param uri uri requested
      * @return fragment
      */
-    Model getFragment(URI subject, URI predicate, Value object, Resource context, int page) throws RepositoryException, IllegalArgumentException;
+    Model getFragment(URI subject, URI predicate, Value object, Resource context, int page, java.net.URI uri) throws RepositoryException, IllegalArgumentException;
 
 }
