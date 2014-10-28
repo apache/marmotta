@@ -1,22 +1,14 @@
 package org.apache.marmotta.platform.ldf.webservices;
 
 import com.jayway.restassured.RestAssured;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
-import org.apache.marmotta.platform.core.api.prefix.PrefixService;
-import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
-import org.apache.marmotta.platform.core.webservices.io.ImportWebService;
-import org.apache.marmotta.platform.core.webservices.prefix.PrefixWebService;
-import org.apache.marmotta.platform.core.webservices.triplestore.ContextWebService;
 import org.junit.AfterClass;
-import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.URI;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 import java.io.IOException;

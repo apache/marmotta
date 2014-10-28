@@ -24,12 +24,12 @@ import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldf.api.LdfService;
 import org.apache.marmotta.platform.ldf.vocab.HYDRA;
+import org.apache.marmotta.platform.ldf.vocab.RDF;
 import org.apache.marmotta.platform.ldf.vocab.SSD;
 import org.apache.marmotta.platform.ldf.vocab.VOID;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -166,8 +166,8 @@ public class LdfServiceImpl implements LdfService {
 
             //and add ldf metadata
             URI dataset = vf.createURI(UriBuilder.fromUri(uri).replaceQuery(null).build().toASCIIString());
-            model.add(dataset, RDF.TYPE, VOID.Dataset);
-            model.add(dataset, RDF.TYPE, HYDRA.Collection);
+            model.add(dataset, RDF.type, VOID.Dataset);
+            model.add(dataset, RDF.type, HYDRA.Collection);
             if (context != null) {
                 model.add(dataset, VOID.inDataset, context);
                 model.add(dataset, SSD.namedGraph, context);
@@ -175,11 +175,13 @@ public class LdfServiceImpl implements LdfService {
 
             Resource fragment = vf.createBNode(String.format("fragment-%tFT%<tH-%<tM-%<tS.%<tL", new Date()));
             model.add(dataset, VOID.subset, fragment);
-            model.add(fragment, RDF.TYPE, HYDRA.Collection);
+            model.add(fragment, RDF.type, HYDRA.Collection);
             if (offset != 0 && limit != size) {
-                model.add(fragment, RDF.TYPE, HYDRA.PagedCollection);
+                model.add(fragment, RDF.type, HYDRA.PagedCollection);
             }
             model.add(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
+
+            //and add hydra controls
             model.add(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
             model.add(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer));
             model.add(fragment, HYDRA.firstPage, vf.createURI(UriBuilder.fromUri(uri).queryParam("page", 1).build().toASCIIString()));
@@ -189,7 +191,22 @@ public class LdfServiceImpl implements LdfService {
             if (offset + limit < statements.size()) {
                 model.add(fragment, HYDRA.nextPage, vf.createURI(UriBuilder.fromUri(uri).queryParam("page", page+1).build().toASCIIString()));
             }
-            //TODO: hydra controls
+            Resource triplePattern = vf.createBNode("triplePattern");
+            model.add(dataset, HYDRA.search, triplePattern);
+            model.add(triplePattern, HYDRA.template, vf.createLiteral(dataset.stringValue() + "{?subject,predicate,object}"));
+            Resource subjectMapping = vf.createBNode("subjectMapping");
+            model.add(triplePattern, HYDRA.mapping, subjectMapping);
+            model.add(subjectMapping, HYDRA.variable, vf.createLiteral("subject"));
+            model.add(subjectMapping, HYDRA.property, RDF.subject);
+            Resource predicateMapping = vf.createBNode("predicateMapping");
+            model.add(triplePattern, HYDRA.mapping, predicateMapping);
+            model.add(predicateMapping, HYDRA.variable, vf.createLiteral("predicate"));
+            model.add(predicateMapping, HYDRA.property, RDF.predicate);
+            Resource objectMapping = vf.createBNode("objectMapping");
+            model.add(triplePattern, HYDRA.mapping, objectMapping);
+            model.add(objectMapping, HYDRA.variable, vf.createLiteral("object"));
+            model.add(objectMapping, HYDRA.property, RDF.object);
+
 
             return model;
 
