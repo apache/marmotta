@@ -36,7 +36,7 @@ public class LdfWebServiceTest {
 
     @BeforeClass
     public static void setUp() {
-        marmotta = new JettyMarmotta("/marmotta", LdfWebService.class, ContextWebService.class);
+        marmotta = new JettyMarmotta("/marmotta",  LdfWebService.class);
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
@@ -59,10 +59,6 @@ public class LdfWebServiceTest {
 
     @Test
     public void testFragment() throws IOException, InterruptedException, URISyntaxException, MarmottaImportException {
-        final ImportService importService = marmotta.getService(ImportService.class);
-        final ContextService contextService = marmotta.getService(ContextService.class);
-        final ConfigurationService configurationService = marmotta.getService(ConfigurationService.class);
-
         final String ctx = RandomStringUtils.random(8, true, false);
         final String uri = "http://www.wikier.org/foaf#wikier";
 
@@ -73,14 +69,11 @@ public class LdfWebServiceTest {
             get(LdfWebService.PATH + "/" + ctx);
 
         // 2. import some data
-        final InputStream is = this.getClass().getClassLoader().getResourceAsStream("/wikier.rdf");
-        expect().
-            statusCode(200).
-        given().
-            body(IOUtils.toString(is)).
-            header("Content-Type", "application/rdf+xml").
-        when().
-            post(configurationService.getBaseContext() + ctx);
+        final ConfigurationService configurationService = marmotta.getService(ConfigurationService.class);
+        final ImportService importService = marmotta.getService(ImportService.class);
+        final InputStream is = this.getClass().getClassLoader().getResourceAsStream("wikier.rdf");
+        final ValueFactoryImpl vf = new ValueFactoryImpl();
+        importService.importData(is, "application/rdf+xml", null, vf.createURI(configurationService.getBaseContext() + ctx));
 
         // 3. request a fragment
         expect().

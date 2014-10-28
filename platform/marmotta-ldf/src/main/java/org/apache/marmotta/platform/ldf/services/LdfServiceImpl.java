@@ -114,70 +114,82 @@ public class LdfServiceImpl implements LdfService {
     @Override
     public Model getFragment(URI subject, URI predicate, Value object, Resource context, int page) throws RepositoryException, IllegalArgumentException {
         final RepositoryConnection conn = sesameService.getConnection();
-        conn.begin();
+        final List<Statement> statements;
+        try {
+            conn.begin();
 
-        //first get the triple fragment for ordering by a fixed criteria
-        //TODO: do this effectively
-        final RepositoryResult<Statement> results = conn.getStatements(subject, predicate, object, true, context);
-        final List<Statement> statements = FluentIterable.from(ResultUtils.iterable(results)).toSortedList(new Comparator<Statement>() {
-            @Override
-            public int compare(Statement s1, Statement s2) {
-                int subjectComparison = s1.getSubject().stringValue().compareTo(s2.getSubject().stringValue());
-                int predicatedComparison = s1.getPredicate().stringValue().compareTo(s2.getPredicate().stringValue());
-                if (subjectComparison != 0) {
-                    return subjectComparison;
-                } else if (predicatedComparison != 0) {
-                    return predicatedComparison;
-                } else if ((s1.getObject() instanceof Literal) && (s2.getObject() instanceof Resource)) {
-                    return 1;
-                } else if ((s1.getObject() instanceof Resource) && (s2.getObject() instanceof Literal)) {
-                    return -1;
-                } else {
-                    return s1.getObject().stringValue().compareTo(s2.getObject().stringValue());
+            //first get the triple fragment for ordering by a fixed criteria
+            //TODO: do this effectively
+            final RepositoryResult<Statement> results = conn.getStatements(subject, predicate, object, true, context);
+            statements = FluentIterable.from(ResultUtils.iterable(results)).toSortedList(new Comparator<Statement>() {
+                @Override
+                public int compare(Statement s1, Statement s2) {
+                    int subjectComparison = s1.getSubject().stringValue().compareTo(s2.getSubject().stringValue());
+                    int predicatedComparison = s1.getPredicate().stringValue().compareTo(s2.getPredicate().stringValue());
+                    if (subjectComparison != 0) {
+                        return subjectComparison;
+                    } else if (predicatedComparison != 0) {
+                        return predicatedComparison;
+                    } else if ((s1.getObject() instanceof Literal) && (s2.getObject() instanceof Resource)) {
+                        return 1;
+                    } else if ((s1.getObject() instanceof Resource) && (s2.getObject() instanceof Literal)) {
+                        return -1;
+                    } else {
+                        return s1.getObject().stringValue().compareTo(s2.getObject().stringValue());
+                    }
                 }
+            });
+            if (!results.isClosed()) {
+                //ResultUtils in theory closes the RepositoryResult connection...
+                results.close();
             }
-        });
-        //ResultUtils takes care of closing the connection when consuming the RepositoryResult
 
-        //then filter
-        final int size = statements.size();
-        final int offset = LdfService.PAGE_SIZE * (page - 1);
+            //then filter
+            final int size = statements.size();
+            final int offset = LdfService.PAGE_SIZE * (page - 1);
 
-        if (offset > size) {
-            throw new IllegalArgumentException("page " + page + " can't be generated, empty fragment");
+            if (offset > size) {
+                throw new IllegalArgumentException("page " + page + " can't be generated, empty fragment");
+            }
+
+            final Model model = new TreeModel();
+            final ValueFactoryImpl vf = new ValueFactoryImpl();
+
+            final int limit = LdfService.PAGE_SIZE < size - offset ? LdfService.PAGE_SIZE : size - offset;
+            List<Statement> filteredStatements = statements.subList(offset, limit);
+            if (filteredStatements.isEmpty()) {
+                throw new IllegalArgumentException("empty fragment");
+            }
+
+            //add the fragment
+            model.addAll(filteredStatements);
+
+            //and add ldf metadata
+            Resource dataset = context != null ? context : vf.createBNode();
+            model.add(dataset, RDF.TYPE, VOID.Dataset);
+            model.add(dataset, RDF.TYPE, HYDRA.Collection);
+
+            Resource fragment = vf.createBNode(); //TODO
+            model.add(dataset, VOID.subset, fragment);
+            model.add(fragment, RDF.TYPE, HYDRA.Collection);
+            if (offset != 0 && limit != size) {
+                model.add(fragment, RDF.TYPE, HYDRA.PagedCollection);
+            }
+            model.add(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
+            model.add(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
+            model.add(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer));
+            //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
+
+            //TODO: hydra controls
+
+            return model;
+
+        } finally {
+            conn.commit();
+            if(conn.isOpen()) {
+                conn.close();
+            }
         }
-
-        final Model model = new TreeModel();
-        final ValueFactoryImpl vf = new ValueFactoryImpl();
-
-        final int limit = LdfService.PAGE_SIZE < size - offset ? LdfService.PAGE_SIZE : size - offset;
-        List<Statement> filteredStatements = statements.subList(offset, limit);
-        if (filteredStatements.isEmpty()) {
-            throw new IllegalArgumentException("empty fragment");
-        }
-
-        //add the fragment
-        model.addAll(filteredStatements);
-
-        //and add ldf metadata
-        Resource dataset = context != null ? context : vf.createBNode();
-        model.add(dataset, RDF.TYPE, VOID.Dataset);
-        model.add(dataset, RDF.TYPE, HYDRA.Collection);
-
-        Resource fragment = vf.createBNode(); //TODO
-        model.add(dataset, VOID.subset, fragment);
-        model.add(fragment, RDF.TYPE, HYDRA.Collection);
-        if (offset != 0 && limit != size) {
-            model.add(fragment, RDF.TYPE, HYDRA.PagedCollection);
-        }
-        model.add(fragment, VOID.triples, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
-        model.add(fragment, HYDRA.totalItems, vf.createLiteral(Integer.toString(filteredStatements.size()), XSD.Integer));
-        model.add(fragment, HYDRA.itemsPerPage, vf.createLiteral(Integer.toString(LdfService.PAGE_SIZE), XSD.Integer));
-        //TODO: HYDRA_FIRSTPAGE, HYDRA_PREVIOUSPAGE, HYDRA_NEXTPAGE
-
-        //TODO: hydra controls
-
-        return model;
 
     }
 
