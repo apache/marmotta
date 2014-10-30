@@ -51,6 +51,18 @@ public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
     }
 
     @Override
+    public void meet(Count node) throws RuntimeException {
+        if(!found && node.getArg() == null) {
+            // special case: count(*), we need the variable
+            found = true;
+        } else {
+            super.meet(node);
+        }
+    }
+
+
+
+    @Override
     public void meet(Union node) throws RuntimeException {
         // stop, subquery
     }

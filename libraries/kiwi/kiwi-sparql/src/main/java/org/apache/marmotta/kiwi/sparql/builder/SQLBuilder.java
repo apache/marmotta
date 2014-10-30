@@ -483,7 +483,7 @@ public class SQLBuilder {
         // and we need to mark the pattern accordingly.
         boolean first = true;
         for(SQLFragment f : fragments) {
-            if(first) {
+            if(first && f.getConditionPosition() == SQLFragment.ConditionPosition.JOIN) {
                 // the conditions of the first fragment need to be placed in the WHERE part of the query, because
                 // there is not necessarily a JOIN ... ON where we can put it
                 f.setConditionPosition(SQLFragment.ConditionPosition.WHERE);
@@ -623,6 +623,35 @@ public class SQLBuilder {
         }
         return whereClause;
     }
+
+    private StringBuilder buildHavingClause()  {
+
+        // list of where conditions that will later be connected by AND
+        List<String> havingConditions = new LinkedList<String>();
+
+        // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
+
+        for(SQLFragment fragment : fragments) {
+            if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.HAVING) {
+                havingConditions.add(fragment.buildConditionClause());
+            }
+        }
+
+        // construct the having clause
+        StringBuilder havingClause = new StringBuilder();
+        for(Iterator<String> it = havingConditions.iterator(); it.hasNext(); ) {
+            String condition = it.next();
+            if(condition.length() > 0) {
+                havingClause.append(condition);
+                havingClause.append("\n ");
+                if (it.hasNext()) {
+                    havingClause.append("AND ");
+                }
+            }
+        }
+        return havingClause;
+    }
+
 
     private StringBuilder buildOrderClause() {
         StringBuilder orderClause = new StringBuilder();
@@ -1174,6 +1203,7 @@ public class SQLBuilder {
         StringBuilder whereClause  = buildWhereClause();
         StringBuilder orderClause  = buildOrderClause();
         StringBuilder groupClause  = buildGroupClause();
+        StringBuilder havingClause = buildHavingClause();
         StringBuilder limitClause  = buildLimitClause();
 
 
@@ -1188,6 +1218,10 @@ public class SQLBuilder {
 
         if(groupClause.length() > 0) {
             queryString.append("GROUP BY ").append(groupClause).append("\n ");
+        }
+
+        if(havingClause.length() > 9) {
+            queryString.append("HAVING ").append(havingClause).append("\n ");
         }
 
         if(orderClause.length() > 0) {

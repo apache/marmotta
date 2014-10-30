@@ -80,6 +80,10 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
     public void meet(Filter node) throws RuntimeException {
         parts.getLast().getFilters().add(node.getCondition());
 
+        if(node.getArg() instanceof Group) {
+            parts.getLast().setConditionPosition(SQLFragment.ConditionPosition.HAVING);
+        }
+
         super.meet(node);
     }
 

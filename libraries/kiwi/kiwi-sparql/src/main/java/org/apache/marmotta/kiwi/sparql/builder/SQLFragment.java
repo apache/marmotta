@@ -38,7 +38,7 @@ public class SQLFragment extends SQLClause {
      * always place it in JOIN conditions, because the first pattern will not have a JOIN.
      */
     public static enum ConditionPosition {
-        JOIN, WHERE
+        JOIN, WHERE, HAVING
     };
 
 
@@ -154,7 +154,7 @@ public class SQLFragment extends SQLClause {
     public String buildConditionClause() {
         StringBuilder conditionClause = new StringBuilder();
 
-        if(conditionPosition == ConditionPosition.WHERE) {
+        if(conditionPosition == ConditionPosition.WHERE || conditionPosition == ConditionPosition.HAVING) {
             for (Iterator<SQLClause> it = Iterators.concat(patterns.iterator(), subqueries.iterator()); it.hasNext(); ) {
                 SQLClause p = it.next();
 
