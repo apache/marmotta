@@ -54,7 +54,9 @@ public class SQLSubQuery extends SQLAbstractSubquery {
         builder = new SQLBuilder(query.getArg(), bindings, dataset, converter, dialect, projectedVars);
 
         for(SQLVariable svl : builder.getVariables().values()) {
-            variables.add(svl);
+            if(projectedVars.contains(svl.getSparqlName())) {
+                variables.add(svl);
+            }
         }
     }
 

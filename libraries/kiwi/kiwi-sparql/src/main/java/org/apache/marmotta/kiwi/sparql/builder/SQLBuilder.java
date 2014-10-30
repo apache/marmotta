@@ -487,8 +487,8 @@ public class SQLBuilder {
                 // the conditions of the first fragment need to be placed in the WHERE part of the query, because
                 // there is not necessarily a JOIN ... ON where we can put it
                 f.setConditionPosition(SQLFragment.ConditionPosition.WHERE);
-                first = false;
             }
+            first = false;
 
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
@@ -584,7 +584,7 @@ public class SQLBuilder {
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
 
         for(SQLFragment fragment : fragments) {
-            if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.WHERE) {
+            if(fragment.getConditionPosition() != SQLFragment.ConditionPosition.JOIN) {
                 whereConditions.add(fragment.buildConditionClause());
             }
         }
@@ -627,20 +627,28 @@ public class SQLBuilder {
     private StringBuilder buildHavingClause()  {
 
         // list of where conditions that will later be connected by AND
-        List<String> havingConditions = new LinkedList<String>();
+        List<CharSequence> havingConditions = new LinkedList<CharSequence>();
 
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
 
         for(SQLFragment fragment : fragments) {
             if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.HAVING) {
-                havingConditions.add(fragment.buildConditionClause());
+                StringBuilder conditionClause = new StringBuilder();
+                for(Iterator<String> cit = fragment.getConditions().iterator(); cit.hasNext(); ) {
+                    if(conditionClause.length() > 0) {
+                        conditionClause.append("\n       AND ");
+                    }
+                    conditionClause.append(cit.next());
+                }
+
+                havingConditions.add(conditionClause);
             }
         }
 
         // construct the having clause
         StringBuilder havingClause = new StringBuilder();
-        for(Iterator<String> it = havingConditions.iterator(); it.hasNext(); ) {
-            String condition = it.next();
+        for(Iterator<CharSequence> it = havingConditions.iterator(); it.hasNext(); ) {
+            CharSequence condition = it.next();
             if(condition.length() > 0) {
                 havingClause.append(condition);
                 havingClause.append("\n ");
