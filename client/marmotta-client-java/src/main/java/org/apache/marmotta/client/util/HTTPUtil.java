@@ -17,14 +17,8 @@
  */
 package org.apache.marmotta.client.util;
 
-import java.io.IOException;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.ProtocolException;
+import org.apache.http.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -40,9 +34,11 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.marmotta.client.ClientConfiguration;
 
+import java.io.IOException;
+
 /**
  * HTTP Utilities
- * 
+ *
  * @author Sebastian Schaffert
  * @author Sergio Fernández
  */
@@ -50,21 +46,25 @@ public class HTTPUtil {
 
     private static final String CONTEXT = "context";
 
-	public static HttpClient createClient(ClientConfiguration config) {
+    public static HttpClient createClient(ClientConfiguration config) {
+        return createClient(config, config.getMarmottaContext());
+    }
+
+    public static HttpClient createClient(ClientConfiguration config, String context) {
 
         HttpParams httpParams = new BasicHttpParams();
-        httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Marmotta Client Library/"+ MetaUtil.getVersion());
+        httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Marmotta Client Library/" + MetaUtil.getVersion());
 
         httpParams.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, config.getSoTimeout());
         httpParams.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, config.getConnectionTimeout());
 
-        httpParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS,true);
-        httpParams.setIntParameter(ClientPNames.MAX_REDIRECTS,3);
+        httpParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+        httpParams.setIntParameter(ClientPNames.MAX_REDIRECTS, 3);
 
-        if (StringUtils.isNotBlank(config.getMarmottaContext())) {
-        	httpParams.setParameter(CONTEXT, config.getMarmottaContext());
+        if (StringUtils.isNotBlank(context)) {
+            httpParams.setParameter(CONTEXT, context);
         }
-        
+
         DefaultHttpClient client;
         if (config.getConectionManager() != null) {
             client = new DefaultHttpClient(config.getConectionManager(), httpParams);
@@ -75,17 +75,17 @@ public class HTTPUtil {
         client.setHttpRequestRetryHandler(new MarmottaHttpRequestRetryHandler());
         return client;
     }
-	
-	public static HttpPost createPost(String path, ClientConfiguration config) {
-    	String serviceUrl = config.getMarmottaUri() + path ;
-    	
-    	//FIXME: switch to a more elegant way, such as Jersey's UriBuilder
-    	if (StringUtils.isNotBlank(config.getMarmottaContext())) {
-    		serviceUrl += "?" + CONTEXT + "=" + config.getMarmottaContext();
-    	}
+
+    public static HttpPost createPost(String path, ClientConfiguration config) {
+        String serviceUrl = config.getMarmottaUri() + path;
+
+        //FIXME: switch to a more elegant way, such as Jersey's UriBuilder
+        if (StringUtils.isNotBlank(config.getMarmottaContext())) {
+            serviceUrl += "?" + CONTEXT + "=" + config.getMarmottaContext();
+        }
 
         return new HttpPost(serviceUrl);
-	}
+    }
 
 
     private static class MarmottaRedirectStrategy extends DefaultRedirectStrategy {
@@ -126,7 +126,7 @@ public class HTTPUtil {
          *                       unsuccessfully executed
          * @param context        the context for the request execution
          * @return <code>true</code> if the method should be retried, <code>false</code>
-         *         otherwise
+         * otherwise
          */
         @Override
         public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
@@ -134,5 +134,5 @@ public class HTTPUtil {
         }
     }
 
-    
+
 }
