@@ -34,7 +34,6 @@ import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
-import org.apache.marmotta.platform.ldp.util.ResponseBuilderImpl;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -743,9 +742,7 @@ public class LdpWebService {
      * @return the provided ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, int status, String resource) throws RepositoryException {
-        // FIXME: Switch back to the general ResponseBuilder (once RESTEASY-1106 is fixed)
-        // return createResponse(connection, Response.status(status), resource);
-        return createResponse(connection, new ResponseBuilderImpl(status), resource);
+        return createResponse(connection, Response.status(status), resource);
     }
 
     /**
