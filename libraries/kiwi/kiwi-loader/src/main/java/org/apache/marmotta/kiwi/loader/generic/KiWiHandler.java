@@ -271,16 +271,10 @@ public class KiWiHandler implements RDFHandler {
                 long tripleId = registry.lookupKey(cacheKey);
 
                 if(tripleId >= 0) {
-                    // the triple has already been stored
-
-                    /*
                     // try getting id from registry
                     result.setId(tripleId);
 
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
-
-                    storeTriple(result);
-                    */
                 } else {
                     // not found in registry, try loading from database
                     result.setId(connection.getTripleId(subject,predicate,object,context));

@@ -1,0 +1,8 @@
+@prefix ns: <http://localhost:8080/> .
+
+ns:R1 a ns:T1.
+ns:R1 a ns:T1.
+ns:R1 a ns:T1.
+
+ns:R2 ns:P "V".
+ns:R2 ns:P "V".
