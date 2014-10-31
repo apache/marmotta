@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -116,7 +117,7 @@ public class ImportClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
-    public void uploadDataset(final InputStream in, final String mimeType, final String context) throws IOException, MarmottaClientException {
+    public void uploadDataset(final InputStream in, final String mimeType, final String context) throws IOException, MarmottaClientException, URISyntaxException {
         HttpClient httpClient = HTTPUtil.createClient(config, context);
         uploadDataset(in, mimeType, httpClient);
     }
@@ -130,12 +131,12 @@ public class ImportClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
-    public void uploadDataset(final InputStream in, final String mimeType) throws IOException, MarmottaClientException {
+    public void uploadDataset(final InputStream in, final String mimeType) throws IOException, MarmottaClientException, URISyntaxException {
         HttpClient httpClient = HTTPUtil.createClient(config);
         uploadDataset(in, mimeType, httpClient);
     }
 
-    private void uploadDataset(final InputStream in, final String mimeType, HttpClient httpClient) throws IOException {
+    private void uploadDataset(final InputStream in, final String mimeType, HttpClient httpClient) throws IOException, URISyntaxException {
         HttpPost post = HTTPUtil.createPost(URL_UPLOAD_SERVICE, config);
         post.setHeader("Content-Type", mimeType);
 
@@ -184,7 +185,7 @@ public class ImportClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
-    public void uploadDataset(String data, String mimeType) throws IOException, MarmottaClientException {
+    public void uploadDataset(String data, String mimeType) throws IOException, MarmottaClientException, URISyntaxException {
         uploadDataset(new ByteArrayInputStream(data.getBytes("utf-8")), mimeType);
     }
 
@@ -198,7 +199,7 @@ public class ImportClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
-    public void uploadDataset(String data, String mimeType, String context) throws IOException, MarmottaClientException {
+    public void uploadDataset(String data, String mimeType, String context) throws IOException, MarmottaClientException, URISyntaxException {
         uploadDataset(new ByteArrayInputStream(data.getBytes("utf-8")), mimeType, context);
     }
 

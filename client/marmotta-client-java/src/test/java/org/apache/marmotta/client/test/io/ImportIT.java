@@ -32,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Add file description here!
@@ -57,19 +58,17 @@ public class ImportIT {
         marmotta.shutdown();
     }
 
-
-
     @Test
-    public void testUpload() throws IOException, MarmottaClientException {
+    public void testUpload() throws IOException, MarmottaClientException, URISyntaxException {
         ImportClient client = new ImportClient(config);
 
         String data = "<http://example.com/resource/r1> <http://example.com/resource/p1> \"Test Data\".";
-        client.uploadDataset(data,"text/rdf+n3");
+        client.uploadDataset(data, "text/rdf+n3");
 
         ResourceClient resourceClient = new ResourceClient(config);
         Metadata m = resourceClient.getResourceMetadata("http://example.com/resource/r1");
         Assert.assertNotNull(m);
-        Assert.assertEquals(1,m.size());
+        Assert.assertEquals(1, m.size());
         Assert.assertEquals("Test Data", m.getFirst("http://example.com/resource/p1").toString());
 
         resourceClient.deleteResource("http://example.com/resource/r1");
