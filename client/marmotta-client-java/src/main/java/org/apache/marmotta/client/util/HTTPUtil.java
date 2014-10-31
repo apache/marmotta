@@ -25,6 +25,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -35,6 +36,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.marmotta.client.ClientConfiguration;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * HTTP Utilities
@@ -81,15 +83,14 @@ public class HTTPUtil {
         return httpClientBuilder.build();
     }
 
-    public static HttpPost createPost(String path, ClientConfiguration config) {
-        String serviceUrl = config.getMarmottaUri() + path;
+    public static HttpPost createPost(String path, ClientConfiguration config) throws URISyntaxException {
+        final URIBuilder uriBuilder = new URIBuilder(config.getMarmottaUri()).setPath(path);
 
-        //FIXME: switch to a more elegant way, such as Jersey's UriBuilder
         if (StringUtils.isNotBlank(config.getMarmottaContext())) {
-            serviceUrl += "?" + CONTEXT + "=" + config.getMarmottaContext();
+            uriBuilder.addParameter(CONTEXT, config.getMarmottaContext());
         }
 
-        return new HttpPost(serviceUrl);
+        return new HttpPost(uriBuilder.build());
     }
 
 
