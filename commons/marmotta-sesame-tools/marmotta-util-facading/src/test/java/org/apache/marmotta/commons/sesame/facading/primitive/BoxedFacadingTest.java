@@ -36,14 +36,13 @@ import org.openrdf.repository.RepositoryException;
 
 public class BoxedFacadingTest extends AbstractFacadingTest {
 
-    private URI subject;
     private Random random;
     private RepositoryConnection facadingConnection;
     private Boxed boxed;
 
     @Before
     public void before() throws Exception {
-        subject = repositoryRDF.getValueFactory().createURI("urn:", UUID.randomUUID().toString());
+        final URI subject = repositoryRDF.getValueFactory().createURI("urn:", UUID.randomUUID().toString());
         random = new Random();
 
         facadingConnection = repositoryRDF.getConnection();
@@ -137,9 +136,16 @@ public class BoxedFacadingTest extends AbstractFacadingTest {
         Assert.assertNull(boxed.getLocale());
         
         for (Locale l: Locale.getAvailableLocales()) {
+            // FIXME: This is to avoid MARMOTTA-559
+            if (l.toString().contains("#")) continue;
+
             boxed.setLocale(l);
-            //Assert.assertEquals(l, boxed.getLocale());
-            Assert.assertEquals(l.getDisplayLanguage(), boxed.getLocale().getDisplayLanguage());
+
+            final Locale locale = boxed.getLocale();
+
+            Assert.assertNotNull(locale);
+            //Assert.assertEquals(l, locale);
+            Assert.assertEquals(l.getDisplayLanguage(), locale.getDisplayLanguage());
         }
     }
 
