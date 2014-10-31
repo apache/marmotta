@@ -35,7 +35,9 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 import org.apache.marmotta.client.ClientConfiguration;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 /**
@@ -90,7 +92,19 @@ public class HTTPUtil {
             uriBuilder.addParameter(CONTEXT, config.getMarmottaContext());
         }
 
-        return new HttpPost(uriBuilder.build());
+        final HttpPost post = new HttpPost(uriBuilder.build());
+
+        if (StringUtils.isNotBlank(config.getMarmottaUser()) && StringUtils.isNotBlank(config.getMarmottaUser())) {
+            final String credentials = String.format("%s;%s", config.getMarmottaUser(), config.getMarmottaPassword());
+            try {
+                final String encoded = DatatypeConverter.printBase64Binary(credentials.getBytes("UTF-8"));
+                post.setHeader("Authorization", String.format("Basic %s", encoded));
+            } catch (UnsupportedEncodingException e) {
+                System.err.println("Error encoding credentials: " + e.getMessage());
+            }
+        }
+
+        return post;
     }
 
 
