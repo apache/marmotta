@@ -86,7 +86,8 @@ public class HTTPUtil {
     }
 
     public static HttpPost createPost(String path, ClientConfiguration config) throws URISyntaxException {
-        final URIBuilder uriBuilder = new URIBuilder(config.getMarmottaUri()).setPath(path);
+        final URIBuilder uriBuilder = new URIBuilder(config.getMarmottaUri());
+        uriBuilder.setPath(uriBuilder.getPath() + path);
 
         if (StringUtils.isNotBlank(config.getMarmottaContext())) {
             uriBuilder.addParameter(CONTEXT, config.getMarmottaContext());
