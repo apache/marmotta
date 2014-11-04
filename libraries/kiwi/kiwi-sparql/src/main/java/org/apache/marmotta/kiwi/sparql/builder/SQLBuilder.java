@@ -273,6 +273,11 @@ public class SQLBuilder {
                     sv.setProjectionType(getProjectionType(ext.getExpr()));
                 }
 
+                // Functions that return a string literal do so with the string literal of the same kind as the first
+                // argument (simple literal, plain literal with same language tag, xsd:string).
+                sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
+                sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
+
                 addVariable(sv);
             }
 
@@ -400,6 +405,7 @@ public class SQLBuilder {
     }
 
 
+
     private void prepareConditions() throws UnsatisfiableQueryException {
         // build the where clause as follows:
         // 1. iterate over all patterns and for each resource and literal field in subject,
@@ -525,6 +531,13 @@ public class SQLBuilder {
                 String fromName = v.getExpressions().get(0);
 
                 projections.add(fromName + " AS " + projectedName);
+
+                if(v.getLiteralTypeExpression() != null) {
+                    projections.add(v.getLiteralTypeExpression() + " AS " + projectedName + "_TYPE");
+                }
+                if(v.getLiteralLangExpression() != null) {
+                    projections.add(v.getLiteralLangExpression() + " AS " + projectedName + "_LANG");
+                }
             }
         }
 
@@ -967,8 +980,7 @@ public class SQLBuilder {
             FunctionCall fc = (FunctionCall)expr;
 
             // special optimizations for frequent cases with variables
-            if((XMLSchema.DOUBLE.toString().equals(fc.getURI()) || XMLSchema.FLOAT.toString().equals(fc.getURI()) ) &&
-                    fc.getArgs().size() == 1) {
+            if((XMLSchema.DOUBLE.toString().equals(fc.getURI()) || XMLSchema.FLOAT.toString().equals(fc.getURI()) ) && fc.getArgs().size() == 1) {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.DOUBLE);
             } else if((XMLSchema.INTEGER.toString().equals(fc.getURI()) || XMLSchema.INT.toString().equals(fc.getURI())) && fc.getArgs().size() == 1) {
                 return evaluateExpression(fc.getArgs().get(0), OPTypes.INT);
@@ -1203,6 +1215,33 @@ public class SQLBuilder {
                 return ProjectionType.STRING;
         }
     }
+
+
+    private String getLiteralLangExpression(ValueExpr expr) {
+        Var langVar = new LiteralTypeExpressionFinder(expr).expr;
+
+        if(langVar != null) {
+            SQLVariable sqlVar = variables.get(langVar.getName());
+            if(sqlVar != null) {
+                return sqlVar.getAlias() + ".lang";
+            }
+        }
+        return null;
+
+    }
+
+    private String getLiteralTypeExpression(ValueExpr expr) {
+        Var typeVar = new LiteralTypeExpressionFinder(expr).expr;
+
+        if(typeVar != null) {
+            SQLVariable sqlVar = variables.get(typeVar.getName());
+            if(sqlVar != null) {
+                return sqlVar.getAlias() + ".ltype";
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Construct the SQL query for the given SPARQL query part.

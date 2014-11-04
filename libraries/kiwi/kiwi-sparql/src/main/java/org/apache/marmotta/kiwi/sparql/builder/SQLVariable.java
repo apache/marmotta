@@ -68,6 +68,18 @@ public class SQLVariable  implements Cloneable{
      */
     private ProjectionType projectionType = ProjectionType.NONE;
 
+    /**
+     * The expression to project the type for the literal that will be bound to this variable, e.g. in case
+     * the main expression is a function call and the type should be preserved.
+     */
+    private String literalTypeExpression = null;
+
+    /**
+     * The expression to project the language for the literal that will be bound to this variable, e.g. in case
+     * the main expression is a function call and the language should be preserved.
+     */
+    private String literalLangExpression = null;
+
     public SQLVariable(String name, String sparqlName) {
         this.name = name;
         this.sparqlName = sparqlName;
@@ -110,6 +122,22 @@ public class SQLVariable  implements Cloneable{
 
     public void setProjectionType(ProjectionType projectionType) {
         this.projectionType = projectionType;
+    }
+
+    public String getLiteralTypeExpression() {
+        return literalTypeExpression;
+    }
+
+    public void setLiteralTypeExpression(String literalTypeExpression) {
+        this.literalTypeExpression = literalTypeExpression;
+    }
+
+    public String getLiteralLangExpression() {
+        return literalLangExpression;
+    }
+
+    public void setLiteralLangExpression(String literalLangExpression) {
+        this.literalLangExpression = literalLangExpression;
     }
 
     @Override

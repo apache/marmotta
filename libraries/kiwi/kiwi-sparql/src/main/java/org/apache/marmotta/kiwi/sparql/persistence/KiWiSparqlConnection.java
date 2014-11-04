@@ -32,6 +32,8 @@ import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
 import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
 import org.apache.marmotta.kiwi.sparql.builder.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
+import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.Binding;
@@ -138,35 +140,58 @@ public class KiWiSparqlConnection {
                             } else if(sv.getProjectionType() != ProjectionType.NONE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 // literal value
                                 String svalue;
-                                    switch (sv.getProjectionType()) {
-                                        case URI:
-                                            svalue = row.getString(sv.getName());
-                                            if(svalue != null)
-                                                resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
-                                            break;
-                                        case INT:
-                                            if(row.getObject(sv.getName()) != null) {
-                                                svalue = Integer.toString(row.getInt(sv.getName()));
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Integer));
+                                switch (sv.getProjectionType()) {
+                                    case URI:
+                                        svalue = row.getString(sv.getName());
+                                        if(svalue != null)
+                                            resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
+                                        break;
+                                    case INT:
+                                        if(row.getObject(sv.getName()) != null) {
+                                            svalue = Integer.toString(row.getInt(sv.getName()));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Integer));
+                                        }
+                                        break;
+                                    case DOUBLE:
+                                        if(row.getObject(sv.getName()) != null) {
+                                            svalue = Double.toString(row.getDouble(sv.getName()));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Double));
+                                        }
+                                        break;
+                                    case STRING:
+                                    default:
+                                        svalue = row.getString(sv.getName());
+
+                                        if(svalue != null) {
+
+                                            // retrieve optional type and language information
+                                            String lang = null;
+                                            URI type = null;
+                                            try {
+                                                lang = row.getString(sv.getName() + "_LANG");
+                                            } catch (SQLException ex) {
                                             }
-                                            break;
-                                        case DOUBLE:
-                                            if(row.getObject(sv.getName()) != null) {
-                                                svalue = Double.toString(row.getDouble(sv.getName()));
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Double));
+
+                                            try {
+                                                long typeId = row.getLong(sv.getName() + "_TYPE");
+                                                if (typeId > 0)
+                                                    type = (URI) parent.loadNodeById(typeId);
+                                            } catch (SQLException ex) {
                                             }
-                                            break;
-                                        case STRING:
-                                            svalue = row.getString(sv.getName());
-                                            if(svalue != null)
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
-                                            break;
-                                        default:
-                                            svalue = row.getString(sv.getName());
-                                            if(svalue != null)
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
-                                            break;
-                                    }
+
+                                            Literal v;
+                                            if(lang != null) {
+                                                v = new LiteralImpl(svalue,lang);
+                                            } else if(type != null) {
+                                                v = new LiteralImpl(svalue,type);
+                                            } else {
+                                                v = new LiteralImpl(svalue);
+                                            }
+
+                                            resultRow.addBinding(sv.getSparqlName(), v);
+                                        }
+                                        break;
+                                }
                             }
                         }
 
