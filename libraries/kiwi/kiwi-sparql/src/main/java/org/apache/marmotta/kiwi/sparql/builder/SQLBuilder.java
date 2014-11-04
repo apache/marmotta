@@ -778,6 +778,10 @@ public class SQLBuilder {
                     throw new IllegalArgumentException("operation "+cmp.getOperator()+" is not supported on strings");
                 }
             } else {
+                if(ot == OPTypes.ANY) {
+                    ot = OPTypes.DOUBLE;
+                }
+
                 return evaluateExpression(cmp.getLeftArg(), ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(), ot);
             }
         } else if(expr instanceof Regex) {
