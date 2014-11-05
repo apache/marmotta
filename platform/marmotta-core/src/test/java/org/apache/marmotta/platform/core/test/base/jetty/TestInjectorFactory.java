@@ -61,7 +61,7 @@ public class TestInjectorFactory implements InjectorFactory {
         this.delegate = ResteasyProviderFactory.getInstance().getInjectorFactory();
         this.extension = lookupResteasyCdiExtension();
 
-        log.info("creating new RestEasy Injector Factory for LMF Test Environment");
+        log.info("creating new RestEasy Injector Factory for Marmotta Test Environment");
     }
 
     public static void setManager(BeanManager manager) {

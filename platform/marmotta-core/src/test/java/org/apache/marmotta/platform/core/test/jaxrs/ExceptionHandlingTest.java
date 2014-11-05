@@ -55,6 +55,7 @@ public class ExceptionHandlingTest {
             getBody();
         response.print();
 
+        /*
         final ResponseBody responseJson = expect().
             log().ifError().
             statusCode(404).
@@ -67,7 +68,7 @@ public class ExceptionHandlingTest {
         responseJson.print();
         Assert.assertEquals(404, responseJson.jsonPath().get("status"));
         Assert.assertEquals("Not Found", responseJson.jsonPath().get("reason"));
-
+        */
     }
 
 }
