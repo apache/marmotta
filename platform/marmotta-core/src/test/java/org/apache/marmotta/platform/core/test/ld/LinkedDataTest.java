@@ -236,8 +236,6 @@ public class LinkedDataTest {
                     .put(resource1.stringValue());
 
 
-
-
             // now check in the Marmotta triple store if all triples are there
             RepositoryResult<Statement> statements = con.getStatements(resource1,null,null,true);
             while(statements.hasNext()) {
