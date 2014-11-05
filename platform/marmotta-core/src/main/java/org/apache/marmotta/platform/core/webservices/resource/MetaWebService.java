@@ -240,7 +240,7 @@ public class MetaWebService {
                 }
 
                 if (r == null || !ResourceUtils.isUsed(conn, r)) {
-                    throw new HttpErrorException(Response.Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future");
+                    throw new HttpErrorException(Response.Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future", ImmutableMap.of("Accept", mimetype));
                 }
 
                 // create parser
@@ -331,7 +331,7 @@ public class MetaWebService {
                 return response;
             }
             if (request.getContentLength() == 0) {
-                throw new HttpErrorException(Status.BAD_REQUEST, uri, "content may not be empty in resource update");
+                throw new HttpErrorException(Status.BAD_REQUEST, uri, "content may not be empty in resource update", ImmutableMap.of("Accept", mimetype));
             }
 
             // a intercepting connection that filters out all triples that have
@@ -355,11 +355,11 @@ public class MetaWebService {
             }
             return Response.ok().build();
         } catch (URISyntaxException e) {
-            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, "invalid target context");
+            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, "invalid target context", ImmutableMap.of("Accept", mimetype));
         } catch (IOException | RDFParseException e) {
-            throw new HttpErrorException(Status.NOT_ACCEPTABLE, uri, "could not parse request body");
+            throw new HttpErrorException(Status.NOT_ACCEPTABLE, uri, "could not parse request body", ImmutableMap.of("Accept", mimetype));
         } catch (RepositoryException e) {
-            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, e.getMessage());
+            throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, request, e);
         }
     }
 

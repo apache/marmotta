@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.ETagGenerator;
@@ -373,7 +374,7 @@ public class ResourceWebService {
                     }
                 }
                 if (r == null) {
-                    throw new HttpErrorException(Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future");
+                    throw new HttpErrorException(Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future", ImmutableMap.of("Accept", types));
                 }
                 // FIXME String appendix = uuid == null ? "?uri=" + URLEncoder.encode(uri, "utf-8") :
                 // "/" + uuid;

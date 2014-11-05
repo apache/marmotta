@@ -17,8 +17,10 @@
  */
 package org.apache.marmotta.platform.core.exception;
 
+import com.google.common.collect.ImmutableMap;
 import edu.emory.mathcs.backport.java.util.Collections;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +73,17 @@ public class HttpErrorException extends Exception {
      */
     public HttpErrorException(Response.Status status, String uri, String msg, Map<String,String> headers) {
         this(status.getStatusCode(), status.getReasonPhrase(), uri, msg, headers);
+    }
+
+    /**
+     * Constructs an instance with the specified details
+     *
+     * @param status http status code
+     * @param request http servlet request
+     * @param e exception
+     */
+    public HttpErrorException(Response.Status status, HttpServletRequest request, Exception e) {
+        this(status.getStatusCode(), status.getReasonPhrase(), request.getRequestURI(), e.getMessage(), ImmutableMap.of("Accept", request.getHeader("Accept")));
     }
 
     /**

@@ -27,7 +27,7 @@ public class ExceptionHandlingTest {
     private static JettyMarmotta marmotta;
 
     @BeforeClass
-    public static void setUp() throws RepositoryException, IOException, RDFParseException {
+    public static void setUp() {
         marmotta = new JettyMarmotta("/marmotta", ResourceWebService.class);
 
         RestAssured.baseURI = "http://localhost";
@@ -41,10 +41,9 @@ public class ExceptionHandlingTest {
     }
 
     @Test
-    public void testNotFound() throws MarmottaException, IOException {
+    public void testNotFound() {
 
         final ResponseBody response = expect().
-            //log().ifError().
             statusCode(404).
             contentType("text/html").
         given().
@@ -52,10 +51,9 @@ public class ExceptionHandlingTest {
         when().
             get(ConfigurationService.RESOURCE_PATH + "/foo").
             getBody();
-        response.print();
+        //response.print();
 
         final ResponseBody responseJson = expect().
-            //log().ifError().
             statusCode(404).
             contentType("application/json").
         given().
