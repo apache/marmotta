@@ -76,9 +76,7 @@ public class HttpErrorExceptionMapper implements CDIExceptionMapper<HttpErrorExc
             final String acceptHeader = exceptionHeaders.get("Accept");
             final ContentType bestContentType = MarmottaHttpUtils.bestContentType(Arrays.asList(MarmottaHttpUtils.parseContentType("text/html"), MarmottaHttpUtils.parseContentType("application/json")),
                     Arrays.asList(MarmottaHttpUtils.parseContentType(acceptHeader)));
-            if (bestContentType.matches(MarmottaHttpUtils.parseContentType("application/json"))) {
-                htmlError = false;
-            }
+            htmlError = bestContentType.matches(MarmottaHttpUtils.parseContentType("text/html"));
         }
 
         Response.ResponseBuilder responseBuilder;
