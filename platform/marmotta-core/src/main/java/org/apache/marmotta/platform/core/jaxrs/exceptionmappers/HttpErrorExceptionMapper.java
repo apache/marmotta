@@ -18,9 +18,12 @@ package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
 import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
+import org.apache.marmotta.platform.core.jaxrs.ErrorMessage;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.Dependent;
@@ -30,6 +33,7 @@ import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,34 +68,55 @@ public class HttpErrorExceptionMapper implements CDIExceptionMapper<HttpErrorExc
      */
     @Override
     public Response toResponse(HttpErrorException exception) {
-        Map<String, Object> data = new HashMap<String, Object>();
-        data.put("status", exception.getStatus());
-        data.put("reason", exception.getReason());
 
-        data.put("message", exception.getMessage());
-        if (StringUtils.isNotBlank(exception.getUri())) {
-            data.put("uri", exception.getUri());
-            try {
-                data.put("encoded_uri", URLEncoder.encode(exception.getUri(), "UTF-8"));
-            } catch (UnsupportedEncodingException uee) {
-                data.put("encoded_uri", exception.getUri());
+        final Map<String, String> exceptionHeaders = exception.getHeaders();
+
+        boolean htmlError = true; //HTML still by default
+        if (exceptionHeaders.containsKey("Accept")) {
+            final String acceptHeader = exceptionHeaders.get("Accept");
+            final ContentType bestContentType = MarmottaHttpUtils.bestContentType(Arrays.asList(MarmottaHttpUtils.parseContentType("text/html"), MarmottaHttpUtils.parseContentType("application/json")),
+                    Arrays.asList(MarmottaHttpUtils.parseContentType(acceptHeader)));
+            if (bestContentType.matches(MarmottaHttpUtils.parseContentType("application/json"))) {
+                htmlError = false;
             }
-        } else {
-            data.put("uri", "");
-            data.put("encoded_uri", "");
         }
 
         Response.ResponseBuilder responseBuilder;
-        try {
-            responseBuilder = Response.status(exception.getStatus()).entity(templatingService.process(TEMPLATE, data));
-        } catch (IOException | TemplateException e) {
-            log.error("Error rendering template {}: {}", TEMPLATE, e.getMessage());
-            responseBuilder = Response.status(exception.getStatus()).entity(e.getMessage());
+        if (htmlError) {
+            //html rendering
+            Map<String, Object> data = new HashMap<>();
+            data.put("status", exception.getStatus());
+            data.put("reason", exception.getReason());
+
+            data.put("message", exception.getMessage());
+            if (StringUtils.isNotBlank(exception.getUri())) {
+                data.put("uri", exception.getUri());
+                try {
+                    data.put("encoded_uri", URLEncoder.encode(exception.getUri(), "UTF-8"));
+                } catch (UnsupportedEncodingException uee) {
+                    data.put("encoded_uri", exception.getUri());
+                }
+            } else {
+                data.put("uri", "");
+                data.put("encoded_uri", "");
+            }
+
+            try {
+                responseBuilder = Response.status(exception.getStatus()).entity(templatingService.process(TEMPLATE, data));
+            } catch (IOException | TemplateException e) {
+                log.error("Error rendering html error template {}: {}", TEMPLATE, e.getMessage());
+                responseBuilder = Response.status(exception.getStatus()).entity(e.getMessage());
+            }
+        } else {
+            //simple json error message
+            responseBuilder = Response.status(exception.getStatus()).entity(new ErrorMessage(exception));
         }
-        Response response = responseBuilder.build();
-        for (Map.Entry<String, String> entry : exception.getHeaders().entrySet()) {
-            response.getMetadata().add(entry.getKey(), entry.getValue());
+
+        //forward headers
+        for (Map.Entry<String, String> entry : exceptionHeaders.entrySet()) {
+            responseBuilder.header(entry.getKey(), entry.getValue());
         }
-        return response;
+
+        return responseBuilder.build();
     }
 }

@@ -24,14 +24,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Resource Not Found Exception
+ * HTTP Error Exception
  *
  * @author Sergio Fernández
  */
 public class HttpErrorException extends Exception {
 
     private final int status;
+
     private final String reason;
+
     private final String uri;
 
     private final Map<String, String> headers;
@@ -80,7 +82,7 @@ public class HttpErrorException extends Exception {
      * @param msg message
      * @param headers custom headers
      */
-    public HttpErrorException(int status, String reason, String uri, String msg, Map<String,String> headers) {
+    public HttpErrorException(int status, String reason, String uri, String msg, Map<String, String> headers) {
         super(msg);
         this.status = status;
         this.reason = reason;

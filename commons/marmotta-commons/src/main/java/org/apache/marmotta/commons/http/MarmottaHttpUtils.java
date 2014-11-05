@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.openrdf.query.resultio.QueryResultFormat;
 
