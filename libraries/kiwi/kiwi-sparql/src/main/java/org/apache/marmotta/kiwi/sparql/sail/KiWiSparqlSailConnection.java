@@ -73,7 +73,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             EvaluationStrategy strategy = new KiWiEvaluationStrategyImpl(tripleSource, dataset, connection);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
-            new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
+            //new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
             new CompareOptimizer().optimize(tupleExpr, dataset, bindings);
             new ConjunctiveConstraintSplitter().optimize(tupleExpr, dataset, bindings);
 

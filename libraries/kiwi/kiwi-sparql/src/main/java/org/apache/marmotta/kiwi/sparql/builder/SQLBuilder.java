@@ -803,8 +803,16 @@ public class SQLBuilder {
         } else if(expr instanceof IRIFunction) {
             IRIFunction str = (IRIFunction)expr;
 
-            // get value of argument and express it as string
-            return evaluateExpression(str.getArg(), OPTypes.STRING);
+            if(str.getBaseURI() != null) {
+                String ex = evaluateExpression(str.getArg(), OPTypes.STRING);
+
+                return "CASE WHEN position(':' IN " + ex +") > 0 THEN " + ex + " ELSE " +
+                    NativeFunctionRegistry.getInstance().get(FN.CONCAT.stringValue()).getNative(dialect,"'"+str.getBaseURI()+"'", ex) +
+                        " END ";
+            } else {
+                // get value of argument and express it as string
+                return evaluateExpression(str.getArg(), OPTypes.STRING);
+            }
         } else if(expr instanceof Lang) {
             Lang lang = (Lang)expr;
 
@@ -1315,9 +1323,11 @@ public class SQLBuilder {
 
 
         StringBuilder queryString = new StringBuilder();
-        queryString
-                .append("SELECT ").append(selectClause).append("\n ")
-                .append("FROM ").append(fromClause).append("\n ");
+        queryString.append("SELECT ").append(selectClause).append("\n ");
+
+        if(fromClause.length() > 0) {
+            queryString.append("FROM ").append(fromClause).append("\n ");
+        }
 
         if(whereClause.length() > 0) {
             queryString.append("WHERE ").append(whereClause).append("\n ");

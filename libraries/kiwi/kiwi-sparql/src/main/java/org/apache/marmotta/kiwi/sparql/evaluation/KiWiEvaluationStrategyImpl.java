@@ -279,6 +279,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
                 }
             }
             return isSupported(((Group) expr).getArg());
+        } else if(expr instanceof SingletonSet) {
+            return true;
         } else {
             return false;
         }

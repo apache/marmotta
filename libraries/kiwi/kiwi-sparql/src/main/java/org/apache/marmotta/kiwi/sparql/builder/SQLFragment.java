@@ -23,6 +23,7 @@ import org.openrdf.query.algebra.ValueExpr;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 /**
  * An SQL fragment is a part of the SQL query where all patterns are joinedwith  INNER JOINS and not LEFT JOINS. Several
@@ -41,6 +42,7 @@ public class SQLFragment extends SQLClause {
         JOIN, WHERE, HAVING
     };
 
+    private static Random singletonSetGenerator = new Random();
 
     /**
      * The patterns contained in this fragment. All patterns are joined using an INNER JOIN.
@@ -92,57 +94,61 @@ public class SQLFragment extends SQLClause {
     public String buildFromClause() {
         StringBuilder fromClause = new StringBuilder();
 
-        for (Iterator<SQLClause> it = Iterators.concat(patterns.iterator(), subqueries.iterator()); it.hasNext(); ) {
+        if(patterns.size() > 0 || subqueries.size() > 0) {
+            for (Iterator<SQLClause> it = Iterators.concat(patterns.iterator(), subqueries.iterator()); it.hasNext(); ) {
 
-            SQLClause p = it.next();
-
-
-            StringBuilder conditionClause = new StringBuilder();
-
-            // in case we add the condition to the JOIN, build first the conditions for the pattern; otherwise, the
-            // conditions for the pattern will be added to the WHERE clause
-            if(conditionPosition == ConditionPosition.JOIN) {
-                conditionClause.append(p.buildConditionClause());
-            }
+                SQLClause p = it.next();
 
 
-            // in case the pattern is the last of the fragment, also add the filter conditions of the fragment (TODO: verify this does indeed the right thing)
-            if(conditionPosition == ConditionPosition.JOIN && !it.hasNext()) {
-                // if this is the last pattern of the fragment, add the filter conditions
-                for(Iterator<String> cit = getConditions().iterator(); cit.hasNext(); ) {
-                    String next = cit.next();
-                    if(conditionClause.length() > 0 && next.length() > 0) {
-                        conditionClause.append("\n       AND ");
+                StringBuilder conditionClause = new StringBuilder();
+
+                // in case we add the condition to the JOIN, build first the conditions for the pattern; otherwise, the
+                // conditions for the pattern will be added to the WHERE clause
+                if (conditionPosition == ConditionPosition.JOIN) {
+                    conditionClause.append(p.buildConditionClause());
+                }
+
+
+                // in case the pattern is the last of the fragment, also add the filter conditions of the fragment (TODO: verify this does indeed the right thing)
+                if (conditionPosition == ConditionPosition.JOIN && !it.hasNext()) {
+                    // if this is the last pattern of the fragment, add the filter conditions
+                    for (Iterator<String> cit = getConditions().iterator(); cit.hasNext(); ) {
+                        String next = cit.next();
+                        if (conditionClause.length() > 0 && next.length() > 0) {
+                            conditionClause.append("\n       AND ");
+                        }
+                        conditionClause.append(next);
                     }
-                    conditionClause.append(next);
                 }
-            }
 
 
-            // when the pattern builds a join with the nodes table and we have fragment-wide conditions, we need to
-            // wrap the pattern's from clause in parentheses
-            if(conditionClause.length() > 0) {
-                if(p.needsParentheses())
-                    fromClause.append("(");
-                fromClause.append(p.buildFromClause());
-                if(p.needsParentheses())
+                // when the pattern builds a join with the nodes table and we have fragment-wide conditions, we need to
+                // wrap the pattern's from clause in parentheses
+                if (conditionClause.length() > 0) {
+                    if (p.needsParentheses())
+                        fromClause.append("(");
+                    fromClause.append(p.buildFromClause());
+                    if (p.needsParentheses())
+                        fromClause.append(")");
+                    fromClause.append(" ON (");
+                    fromClause.append(conditionClause);
                     fromClause.append(")");
-                fromClause.append(" ON (");
-                fromClause.append(conditionClause);
-                fromClause.append(")");
 
-            } else {
-                fromClause.append(p.buildFromClause());
-            }
-
-
-            if (it.hasNext()) {
-                if(conditionPosition == ConditionPosition.JOIN) {
-                    fromClause.append("\n JOIN \n  ");
                 } else {
-                    fromClause.append("\n CROSS JOIN \n  ");
+                    fromClause.append(p.buildFromClause());
+                }
+
+
+                if (it.hasNext()) {
+                    if (conditionPosition == ConditionPosition.JOIN) {
+                        fromClause.append("\n JOIN \n  ");
+                    } else {
+                        fromClause.append("\n CROSS JOIN \n  ");
+                    }
                 }
             }
+        } else {
+            fromClause.append("(SELECT true) AS _EMPTY"+singletonSetGenerator.nextInt(1000));
         }
 
         return fromClause.toString();
