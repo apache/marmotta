@@ -17,6 +17,7 @@
 package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
@@ -66,12 +67,18 @@ public class HttpErrorExceptionMapper implements CDIExceptionMapper<HttpErrorExc
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("status", exception.getStatus());
         data.put("reason", exception.getReason());
-        data.put("uri", exception.getUri());
+
         data.put("message", exception.getMessage());
-        try {
-            data.put("encoded_uri", URLEncoder.encode(exception.getUri(), "UTF-8"));
-        } catch (UnsupportedEncodingException uee) {
-            data.put("encoded_uri", exception.getUri());
+        if (StringUtils.isNotBlank(exception.getUri())) {
+            data.put("uri", exception.getUri());
+            try {
+                data.put("encoded_uri", URLEncoder.encode(exception.getUri(), "UTF-8"));
+            } catch (UnsupportedEncodingException uee) {
+                data.put("encoded_uri", exception.getUri());
+            }
+        } else {
+            data.put("uri", "");
+            data.put("encoded_uri", "");
         }
 
         Response.ResponseBuilder responseBuilder;
