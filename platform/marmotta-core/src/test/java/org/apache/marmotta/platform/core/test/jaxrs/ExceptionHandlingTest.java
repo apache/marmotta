@@ -44,7 +44,7 @@ public class ExceptionHandlingTest {
     public void testNotFound() throws MarmottaException, IOException {
 
         final ResponseBody response = expect().
-            log().ifError().
+            //log().ifError().
             statusCode(404).
             contentType("text/html").
         given().
@@ -55,7 +55,7 @@ public class ExceptionHandlingTest {
         response.print();
 
         final ResponseBody responseJson = expect().
-            log().ifError().
+            //log().ifError().
             statusCode(404).
             contentType("application/json").
         given().

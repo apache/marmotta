@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.platform.core.services.jaxrs;
 
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.jaxrs.ExceptionMapperService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.core.jaxrs.exceptionmappers.CDIExceptionMapper;
@@ -48,13 +49,18 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
     @Inject
     private Instance<CDIExceptionMapper<?>> mappers;
 
+    @Inject
+    private ConfigurationService configurationService;
+
     /**
      * Register Exception Mappers
      */
     @PostConstruct
     public void initialise() {
-        ResteasyProviderFactory factory = ResteasyProviderFactory.getInstance();
-        register(factory);
+        if(!configurationService.getBooleanConfiguration("testing.enabled", false)) {
+            ResteasyProviderFactory factory = ResteasyProviderFactory.getInstance();
+            register(factory);
+        }
     }
 
     public void register(ResteasyProviderFactory factory) {
