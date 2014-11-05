@@ -23,5 +23,5 @@ package org.apache.marmotta.kiwi.sparql.builder;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public enum ProjectionType {
-    NODE, URI, STRING, INT, DOUBLE, DATE, NONE
+    NODE, URI, BNODE, STRING, INT, DOUBLE, DATE, NONE
 }

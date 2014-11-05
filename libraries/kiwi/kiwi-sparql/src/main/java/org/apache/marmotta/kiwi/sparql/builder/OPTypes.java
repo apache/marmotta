@@ -23,5 +23,5 @@ package org.apache.marmotta.kiwi.sparql.builder;
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
 public enum OPTypes {
-    STRING, DOUBLE, INT, DATE, BOOL, VALUE, ANY, URI
+    STRING, DOUBLE, INT, DATE, BOOL, VALUE, ANY, TERM, URI, BNODE
 }

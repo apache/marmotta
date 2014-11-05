@@ -76,8 +76,12 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
             new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
             new CompareOptimizer().optimize(tupleExpr, dataset, bindings);
             new ConjunctiveConstraintSplitter().optimize(tupleExpr, dataset, bindings);
-            new DisjunctiveConstraintOptimizer().optimize(tupleExpr, dataset, bindings);
-            new SameTermFilterOptimizer().optimize(tupleExpr, dataset, bindings);
+
+            // these are better handled by SQL directly
+            //new DisjunctiveConstraintOptimizer().optimize(tupleExpr, dataset, bindings);
+            //new SameTermFilterOptimizer().optimize(tupleExpr, dataset, bindings);
+
+
             new QueryModelNormalizer().optimize(tupleExpr, dataset, bindings);
             new QueryJoinOptimizer(new KiWiEvaluationStatistics()).optimize(tupleExpr, dataset, bindings);
             new IterativeEvaluationOptimizer().optimize(tupleExpr, dataset, bindings);

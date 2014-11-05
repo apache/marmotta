@@ -64,10 +64,11 @@ public abstract class SQLClause {
         StringBuilder onClause = new StringBuilder();
 
         for(Iterator<String> cit = conditions.iterator(); cit.hasNext(); ) {
-            if(onClause.length() > 0) {
+            String next = cit.next();
+            if(onClause.length() > 0 && next.length() > 0) {
                 onClause.append("\n      AND ");
             }
-            onClause.append(cit.next());
+            onClause.append(next);
         }
 
         return onClause.toString();

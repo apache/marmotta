@@ -17,7 +17,9 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
-import org.openrdf.query.algebra.*;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Var;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.HashSet;
@@ -30,7 +32,7 @@ import java.util.Set;
 */
 public class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    Set<String> variableNames = new HashSet<>();
+    Set<Var> variables = new HashSet<>();
 
     public VariableFinder(TupleExpr expr) {
         expr.visit(this);
@@ -39,27 +41,12 @@ public class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(Var node) throws RuntimeException {
-        variableNames.add(node.getName());
-    }
-
-    @Override
-    public void meet(ExtensionElem node) throws RuntimeException {
-        variableNames.add(node.getName());
-        // don't recurse to the children, as this would project non-grouped elements
-    }
-
-    @Override
-    public void meet(Group node) throws RuntimeException {
-        variableNames.addAll(node.getGroupBindingNames());
-        // don't recurse to the children, as this would project non-grouped elements
+        variables.add(node);
     }
 
 
     @Override
     public void meet(Projection node) throws RuntimeException {
-        for(ProjectionElem elem : node.getProjectionElemList().getElements()) {
-            variableNames.add(elem.getSourceName());
-        }
         // stop at projection, subquery
     }
 

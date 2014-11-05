@@ -83,6 +83,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         supportedConstructs.add(Var.class);
         supportedConstructs.add(Str.class);
         supportedConstructs.add(Label.class);
+        supportedConstructs.add(BNodeGenerator.class);
+        supportedConstructs.add(IRIFunction.class);
         supportedConstructs.add(IsResource.class);
         supportedConstructs.add(IsURI.class);
         supportedConstructs.add(IsBNode.class);
@@ -317,6 +319,8 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
             return isSupported(((Sum) expr).getArg());
         } else if(expr instanceof Compare) {
             return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
+        } else if(expr instanceof SameTerm) {
+            return isSupported(((SameTerm) expr).getLeftArg()) && isSupported(((SameTerm) expr).getRightArg());
         } else if(expr instanceof MathExpr) {
             return isSupported(((MathExpr) expr).getLeftArg()) && isSupported(((MathExpr) expr).getRightArg());
         } else if(expr instanceof And) {
@@ -334,6 +338,14 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
         } else if(expr instanceof Str) {
             return isAtomic(((Str) expr).getArg());
         } else if(expr instanceof Label) {
+            return isAtomic(((UnaryValueOperator) expr).getArg());
+        } else if(expr instanceof BNodeGenerator) {
+            if(((BNodeGenerator) expr).getNodeIdExpr() != null) {
+                return isAtomic(((BNodeGenerator) expr).getNodeIdExpr());
+            } else {
+                return true;
+            }
+        } else if(expr instanceof IRIFunction) {
             return isAtomic(((UnaryValueOperator) expr).getArg());
         } else if(expr instanceof Bound) {
             return true;

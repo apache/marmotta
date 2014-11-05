@@ -110,10 +110,11 @@ public class SQLFragment extends SQLClause {
             if(conditionPosition == ConditionPosition.JOIN && !it.hasNext()) {
                 // if this is the last pattern of the fragment, add the filter conditions
                 for(Iterator<String> cit = getConditions().iterator(); cit.hasNext(); ) {
-                    if(conditionClause.length() > 0) {
+                    String next = cit.next();
+                    if(conditionClause.length() > 0 && next.length() > 0) {
                         conditionClause.append("\n       AND ");
                     }
-                    conditionClause.append(cit.next());
+                    conditionClause.append(next);
                 }
             }
 
@@ -173,10 +174,11 @@ public class SQLFragment extends SQLClause {
             // in case the pattern is the last of the fragment, also add the filter conditions of the fragment
             // if this is the last pattern of the fragment, add the filter conditions
             for(Iterator<String> cit = getConditions().iterator(); cit.hasNext(); ) {
-                if(conditionClause.length() > 0) {
+                String next = cit.next();
+                if(conditionClause.length() > 0 && next.length() > 0) {
                     conditionClause.append("\n       AND ");
                 }
-                conditionClause.append(cit.next());
+                conditionClause.append(next);
             }
         }
 
