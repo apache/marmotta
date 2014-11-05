@@ -2,7 +2,6 @@ package org.apache.marmotta.platform.core.test.jaxrs;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.ResponseBody;
-import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
@@ -55,7 +54,6 @@ public class ExceptionHandlingTest {
             getBody();
         response.print();
 
-        /*
         final ResponseBody responseJson = expect().
             log().ifError().
             statusCode(404).
@@ -68,7 +66,7 @@ public class ExceptionHandlingTest {
         responseJson.print();
         Assert.assertEquals(404, responseJson.jsonPath().get("status"));
         Assert.assertEquals("Not Found", responseJson.jsonPath().get("reason"));
-        */
+
     }
 
 }

@@ -32,6 +32,7 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;

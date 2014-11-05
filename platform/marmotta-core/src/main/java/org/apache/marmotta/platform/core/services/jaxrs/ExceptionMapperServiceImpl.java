@@ -53,19 +53,15 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
      */
     @PostConstruct
     public void initialise() {
-
         ResteasyProviderFactory factory = ResteasyProviderFactory.getInstance();
-
         register(factory);
     }
-
 
     public void register(ResteasyProviderFactory factory) {
         log.info("initialising JAX-RS exception mappers");
 
         for(CDIExceptionMapper<?> mapper : mappers) {
-            log.debug("registering exception mapper: {}", mapper.getClass().getName());
-
+            log.info("registering exception mapper: {}", mapper.getClass().getName());
             factory.registerProviderInstance(mapper);
         }
     }
@@ -74,6 +70,5 @@ public class ExceptionMapperServiceImpl implements ExceptionMapperService {
     public void initEvent(@Observes SystemStartupEvent e) {
 
     }
-
 
 }

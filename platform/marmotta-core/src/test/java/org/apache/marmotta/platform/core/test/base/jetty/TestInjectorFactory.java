@@ -123,8 +123,7 @@ public class TestInjectorFactory implements InjectorFactory {
      *
      * @return ResteasyCdiExtension instance
      */
-    private ResteasyCdiExtension lookupResteasyCdiExtension()
-    {
+    private ResteasyCdiExtension lookupResteasyCdiExtension() {
         Set<Bean<?>> beans = manager.getBeans(ResteasyCdiExtension.class);
         Bean<?> bean = manager.resolve(beans);
         if (bean == null) throw new IllegalStateException("Unable to obtain ResteasyCdiExtension instance.");

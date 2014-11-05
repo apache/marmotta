@@ -41,7 +41,6 @@ public class TestStoreProvider implements StoreProvider {
 
     private static Logger log = LoggerFactory.getLogger(TestStoreProvider.class);
 
-
     /**
      * Create the repository using the sail given as argument. This method is needed because some backends
      * use custom implementations of SailRepository.
@@ -84,4 +83,5 @@ public class TestStoreProvider implements StoreProvider {
     public boolean isEnabled() {
         return true;
     }
+
 }
