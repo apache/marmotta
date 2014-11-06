@@ -169,38 +169,43 @@ public class KiWiSparqlConnection {
 
                                         if(svalue != null) {
 
-                                            if (svalue.length() > 0) {
-                                                // retrieve optional type and language information, because string functions
-                                                // need to preserve this in certain cases, even when constructing new literals
-                                                String lang = null;
-                                                URI type = null;
-                                                try {
-                                                    lang = row.getString(sv.getName() + "_LANG");
-                                                } catch (SQLException ex) {
-                                                }
-
-                                                try {
-                                                    long typeId = row.getLong(sv.getName() + "_TYPE");
-                                                    if (typeId > 0)
-                                                        type = (URI) parent.loadNodeById(typeId);
-                                                } catch (SQLException ex) {
-                                                }
-
-                                                if (lang != null) {
-                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, lang));
-                                                } else if (type != null) {
-                                                    if(type.stringValue().equals(XSD.String.stringValue())) {
-                                                        // string functions on other datatypes than string should yield no binding
-                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
-                                                    }
-                                                } else {
-                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
-                                                }
-
-                                            } else {
-                                                // string functions that return empty literal should yield no type or language
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                            // retrieve optional type and language information, because string functions
+                                            // need to preserve this in certain cases, even when constructing new literals
+                                            String lang = null;
+                                            URI type = null;
+                                            try {
+                                                lang = row.getString(sv.getName() + "_LANG");
+                                            } catch (SQLException ex) {
                                             }
+
+                                            try {
+                                                long typeId = row.getLong(sv.getName() + "_TYPE");
+                                                if (typeId > 0)
+                                                    type = (URI) parent.loadNodeById(typeId);
+                                            } catch (SQLException ex) {
+                                            }
+
+                                            if (lang != null) {
+                                                if (svalue.length() > 0) {
+                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, lang));
+                                                } else {
+                                                    // string functions that return empty literal should yield no type or language
+                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                                }
+                                            } else if (type != null) {
+                                                if(type.stringValue().equals(XSD.String.stringValue())) {
+                                                    // string functions on other datatypes than string should yield no binding
+                                                    if (svalue.length() > 0) {
+                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                                    } else {
+                                                        // string functions that return empty literal should yield no type or language
+                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                                    }
+                                                }
+                                            } else {
+                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
+                                            }
+
                                         }
                                         break;
                                 }

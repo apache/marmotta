@@ -60,6 +60,10 @@ public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
         }
     }
 
+    @Override
+    public void meet(StatementPattern node) throws RuntimeException {
+        // stop, no condition
+    }
 
 
     @Override
