@@ -163,6 +163,12 @@ public class KiWiSparqlConnection {
                                             resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Double));
                                         }
                                         break;
+                                    case BOOL:
+                                        if(row.getObject(sv.getName()) != null) {
+                                            svalue = Boolean.toString(row.getBoolean(sv.getName()));
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue.toLowerCase(), XSD.Boolean));
+                                        }
+                                        break;
                                     case STRING:
                                     default:
                                         svalue = row.getString(sv.getName());
