@@ -798,7 +798,7 @@ public class SQLBuilder {
                 // get value of argument and express it as string
                 return evaluateExpression(str.getNodeIdExpr(), OPTypes.STRING);
             } else {
-                return "\"" + Long.toHexString(System.currentTimeMillis())+Integer.toHexString(anonIdGenerator.nextInt(1000)) + "\"";
+                return "'" + Long.toHexString(System.currentTimeMillis())+Integer.toHexString(anonIdGenerator.nextInt(1000)) + "'";
             }
         } else if(expr instanceof IRIFunction) {
             IRIFunction str = (IRIFunction)expr;
