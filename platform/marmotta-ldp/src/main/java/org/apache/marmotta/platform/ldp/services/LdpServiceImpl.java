@@ -290,6 +290,7 @@ public class LdpServiceImpl implements LdpService {
                     }
                 };
             }
+            @SuppressWarnings("unchecked")
             final CloseableIteration<Statement, RepositoryException> statements = new UnionIteration<>(
                     ldpStatements, contentStatements
             );

@@ -121,7 +121,9 @@ public class LdpUtils {
         writer.handleNamespace(XSD.PREFIX, XSD.NAMESPACE);
         writer.handleNamespace(DCTERMS.PREFIX, DCTERMS.NAMESPACE);
 
-        writer.handleNamespace("", subject.stringValue());
+        writer.handleNamespace("parent", subject.getNamespace());
+        writer.handleNamespace("child", subject.stringValue().replaceFirst("/*$", "/"));
+        writer.handleNamespace("this", subject.stringValue().replaceFirst("/*$", "#"));
 
         while (iteration.hasNext()) {
             writer.handleStatement(iteration.next());
