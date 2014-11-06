@@ -251,7 +251,7 @@ public class SQLBuilder {
                             String pName = p.getName();
                             String vName = sv.getName();
 
-                            if (new ConditionFinder(v.getName(), query).found) {
+                            if (sv.getAlias() == null && new ConditionFinder(v.getName(), query).found) {
                                 sv.setAlias(pName + "_" + positions[i] + "_" + vName);
                             }
 
@@ -277,7 +277,7 @@ public class SQLBuilder {
                         String sqName = sq.getAlias();
                         String vName = sv.getName();
 
-                        if (new ConditionFinder(sq_v.getSparqlName(), query).found) {
+                        if (sv.getAlias() == null && new ConditionFinder(sq_v.getSparqlName(), query).found) {
                             sv.setAlias(sqName + "_" + vName);
                         }
 
@@ -519,6 +519,7 @@ public class SQLBuilder {
         // in any filters or functions; in this case, the corresponding field needs to be joined with the NODES table
         // and we need to mark the pattern accordingly.
         boolean first = true;
+        Set<String> joined = new HashSet<>();
         for(SQLFragment f : fragments) {
             if(first && f.getConditionPosition() == SQLFragment.ConditionPosition.JOIN) {
                 // the conditions of the first fragment need to be placed in the WHERE part of the query, because
@@ -529,18 +530,21 @@ public class SQLBuilder {
 
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
-                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && new ConditionFinder(fieldEntry.getValue().getName(),query).found) {
+                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && !joined.contains(fieldEntry.getValue().getName())
+                        && new ConditionFinder(fieldEntry.getValue().getName(),query).found) {
                         p.setJoinField(fieldEntry.getKey(), variables.get(fieldEntry.getValue().getName()).getName());
+                        joined.add(fieldEntry.getValue().getName());
                     }
                 }
             }
 
             for(SQLAbstractSubquery sq : f.getSubqueries()) {
                 for(SQLVariable sq_v : sq.getQueryVariables()) {
-                    if(new ConditionFinder(sq_v.getSparqlName(),query).found && sq_v.getProjectionType() == ProjectionType.NODE) {
+                    if(!joined.contains(sq_v.getName()) && new ConditionFinder(sq_v.getSparqlName(),query).found && sq_v.getProjectionType() == ProjectionType.NODE) {
                         // this is needed in case we need to JOIN with the NODES table to retrieve values
                         SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
                         sq.getJoinFields().add(new SQLAbstractSubquery.VariableMapping(sv.getName(), sq_v.getName()));
+                        joined.add(sv.getName());
                     }
                 }
             }
