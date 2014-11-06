@@ -18,6 +18,7 @@
 package org.apache.marmotta.platform.ldpath.webservices;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.util.JSONUtils;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
@@ -148,6 +149,12 @@ public class LDPathWebService {
     @Produces("application/json")
     public Response evaluateProgramQuery(@QueryParam("program") String program, @QueryParam("uri") String resourceUri) {
         //Preconditions.checkArgument(urlValidator.isValid(resourceUri));
+        if (StringUtils.isBlank(program)) {
+            return Response.status(Status.BAD_REQUEST).entity("ldpath program must be provided").build();
+        }
+        if (StringUtils.isBlank(resourceUri)) {
+            return Response.status(Status.BAD_REQUEST).entity("context 'uri' to start ldpath evaluation must be provided").build();
+        }
 
         try {
             RepositoryConnection con = sesameService.getConnection();
