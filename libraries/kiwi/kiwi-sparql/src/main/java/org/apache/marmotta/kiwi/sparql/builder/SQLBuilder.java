@@ -1323,7 +1323,13 @@ public class SQLBuilder {
 
 
         StringBuilder queryString = new StringBuilder();
-        queryString.append("SELECT ").append(selectClause).append("\n ");
+        queryString.append("SELECT ");
+
+        if(selectClause.length() > 0) {
+            queryString.append(selectClause).append("\n ");
+        } else {
+            queryString.append("* \n");
+        }
 
         if(fromClause.length() > 0) {
             queryString.append("FROM ").append(fromClause).append("\n ");
