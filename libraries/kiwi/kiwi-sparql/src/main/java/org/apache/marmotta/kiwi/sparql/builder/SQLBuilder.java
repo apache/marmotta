@@ -290,38 +290,6 @@ public class SQLBuilder {
 
 
 
-        // add all extensions to the variable list so they are properly considered in projections and clauses
-        // TODO: order by variable dependency, or otherwise the evaluateExpression might fail
-        for(ExtensionElem ext : extensions) {
-            Var v = new Var(ext.getName());
-
-            SQLVariable sv = variables.get(v.getName());
-            if(!variables.containsKey(v.getName())) {
-                sv = new SQLVariable("V" + (++variableCount), v.getName());
-
-                // select those variables that are really projected and not only needed in a grouping construct
-                if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
-                    sv.setProjectionType(getProjectionType(ext.getExpr()));
-                }
-
-                // Functions that return a string literal do so with the string literal of the same kind as the first
-                // argument (simple literal, plain literal with same language tag, xsd:string).
-                sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
-                sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
-
-                addVariable(sv);
-            }
-
-            // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
-            //       of variables in conditions etc
-            if (new ConditionFinder(v.getName(), query).found) {
-                //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
-                sv.getBindings().add(ext.getExpr());
-            }
-
-            sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
-
-        }
 
         // calculate for each variable the SQL expressions representing them and any necessary JOIN conditions
 
@@ -365,6 +333,38 @@ public class SQLBuilder {
             }
         }
 
+        // add all extensions to the variable list so they are properly considered in projections and clauses
+        // TODO: order by variable dependency, or otherwise the evaluateExpression might fail
+        for(ExtensionElem ext : extensions) {
+            Var v = new Var(ext.getName());
+
+            SQLVariable sv = variables.get(v.getName());
+            if(!variables.containsKey(v.getName())) {
+                sv = new SQLVariable("V" + (++variableCount), v.getName());
+
+                // select those variables that are really projected and not only needed in a grouping construct
+                if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
+                    sv.setProjectionType(getProjectionType(ext.getExpr()));
+                }
+
+                // Functions that return a string literal do so with the string literal of the same kind as the first
+                // argument (simple literal, plain literal with same language tag, xsd:string).
+                sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
+                sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
+
+                addVariable(sv);
+            }
+
+            // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
+            //       of variables in conditions etc
+            if (new ConditionFinder(v.getName(), query).found) {
+                //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
+                sv.getBindings().add(ext.getExpr());
+            }
+
+            sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+
+        }
 
 
         // find context restrictions of patterns and match them with potential restrictions given in the

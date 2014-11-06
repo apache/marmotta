@@ -540,16 +540,13 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
                         builder.append(var).append(".svalue");
                         break;
                     case TERM:
-                        if(var == null) {
-                            // might happen in case the variable has been bound to a constant value and not
-                            // joined in a pattern query
+                    case ANY:
+                        if(sv.getExpressions().size() > 0) {
+                            // this allows us to avoid joins with the nodes table for simple expressions that only need the ID
                             builder.append(sv.getExpressions().get(0));
                         } else {
                             builder.append(var).append(".id");
                         }
-                        break;
-                    case ANY:
-                        builder.append(var).append(".id");
                         break;
                 }
             }
