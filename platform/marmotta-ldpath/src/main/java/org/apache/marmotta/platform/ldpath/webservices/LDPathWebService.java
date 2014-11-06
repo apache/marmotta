@@ -41,6 +41,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.Collator;
 import java.util.*;
 
@@ -189,6 +190,32 @@ public class LDPathWebService {
         }
     }
 
+    /**
+     * Evaluate a LDPath program using the program string passed as argument and starting at the resource identified
+     * by the uri. Returns a map from field names to lists of RDF nodes using the same syntax as RDF/JSON, i.e.
+     * <ul>
+     * <li> <code>{ "type": "uri", "value": "..." }</code> for resources</li>
+     * <li><code>{ "type": "literal", "value": "...", "language": "...", "datatype": "..."}</code> for literals (datatype and language optional)</li>
+     * </ul>
+     *
+     * @param body      the program to evaluate
+     * @param resourceUri  the URI of the resource where to start
+     * @return a map from field names to lists of rdf nodes in rdf/json format
+     * @HTTP 404 in case the resource with the given URI does not exist
+     * @HTTP 400 in case the path could not be parsed or the resource is not a valid URI
+     * @HTTP 200 in case the query was evaluated successfully
+     */
+    @POST
+    @Path("/program")
+    @Produces("application/json")
+    public Response evaluateProgramQuery(InputStream body, @QueryParam("uri") String resourceUri) {
+        try {
+            String program = IOUtils.toString(body);
+            return evaluateProgramQuery(program, resourceUri);
+        } catch (IOException e) {
+            return Response.serverError().entity("could not read ldpath program: "+e.getMessage()).build();
+        }
+    }
 
     /**
      * Return a list of all LDPath functions that have been registered in the LDPath installation.
