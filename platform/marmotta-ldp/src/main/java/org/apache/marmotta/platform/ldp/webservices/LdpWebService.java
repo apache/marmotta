@@ -347,7 +347,7 @@ public class LdpWebService {
     }
 
     /**
-     * LDP Post Request
+     * LDP Post Request.
      *
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpr-HTTP_POST">5.4 LDP-R POST</a>
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpc-HTTP_POST">6.4 LDP-C POST</a>

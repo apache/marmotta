@@ -56,6 +56,14 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
+import static org.apache.marmotta.commons.sesame.test.SesameMatchers.hasStatement;
+import static org.apache.marmotta.commons.sesame.test.SesameMatchers.rdfStringMatches;
+import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.hasEntityTag;
+import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.headerNotPresent;
+import static org.apache.marmotta.platform.ldp.webservices.util.HeaderMatchers.isLink;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -119,15 +127,15 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                                HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                                HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, container,
-                        SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
+                .body(rdfStringMatches(mimeType, container,
+                        hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
+                        hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
                 ))
             .get(container);
 
@@ -137,15 +145,15 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, container,
-                        SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
+                .body(rdfStringMatches(mimeType, container,
+                        hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
+                        hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
                 ))
             .get(newResource);
 
@@ -153,9 +161,9 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(204)
-                .header(HttpHeaders.LINK, HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY))
-                .header(HttpHeaders.ETAG, HeaderMatchers.headerNotPresent())
-                .header(HttpHeaders.LAST_MODIFIED, HeaderMatchers.headerNotPresent())
+                .header(HttpHeaders.LINK, isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY))
+                .header(HttpHeaders.ETAG, headerNotPresent())
+                .header(HttpHeaders.LAST_MODIFIED, headerNotPresent())
             .delete(newResource);
 
         // now the new resource does not exist any more.
@@ -184,10 +192,10 @@ public class LdpWebServiceTest {
                 .contentType(mimeType)
             .expect()
                 .statusCode(201)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
                                 //  HeaderMatchers.isLink(metaResource, "describedby"),
-                                HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                                HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
             .post(container)
                 .headers();
@@ -211,19 +219,19 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), container,
-                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.RDFSource),
-                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.Container),
-                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer),
-                        SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(container), LDP.contains, new URIImpl(binaryResource)))
+                .body(rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), container,
+                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.Resource),
+                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.RDFSource),
+                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.Container),
+                                hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer),
+                                hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
+                                hasStatement(new URIImpl(container), LDP.contains, new URIImpl(binaryResource)))
                 )
             .get(container);
 
@@ -234,18 +242,18 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE),
-                        HeaderMatchers.isLink(LDP.RDFSource.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE),
+                                isLink(LDP.RDFSource.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), metaResource,
-                        SesameMatchers.hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.RDFSource),
-                        SesameMatchers.hasStatement(new URIImpl(metaResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(metaResource), DCTERMS.HAS_FORMAT, new URIImpl(binaryResource))
+                .body(rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), metaResource,
+                        hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.Resource),
+                        hasStatement(new URIImpl(metaResource), RDF.TYPE, LDP.RDFSource),
+                        hasStatement(new URIImpl(metaResource), DCTERMS.MODIFIED, null),
+                        hasStatement(new URIImpl(metaResource), DCTERMS.HAS_FORMAT, new URIImpl(binaryResource))
                 ))
             .get(metaResource);
 
@@ -255,19 +263,19 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, RDFFormat.TURTLE.getDefaultMIMEType())
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE),
-                        HeaderMatchers.isLink(LDP.NonRDFSource.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE),
+                                isLink(LDP.NonRDFSource.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(RDFFormat.TURTLE.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), binaryResource,
-                        SesameMatchers.hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.Resource),
-                        SesameMatchers.hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.NonRDFSource),
-                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
-                        SesameMatchers.hasStatement(new URIImpl(binaryResource), DCTERMS.IS_FORMAT_OF, new URIImpl(metaResource))
+                .body(rdfStringMatches(RDFFormat.TURTLE.getDefaultMIMEType(), binaryResource,
+                        hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.Resource),
+                        hasStatement(new URIImpl(binaryResource), RDF.TYPE, LDP.NonRDFSource),
+                        hasStatement(new URIImpl(binaryResource), DCTERMS.MODIFIED, null),
+                        hasStatement(new URIImpl(binaryResource), DCTERMS.FORMAT, new LiteralImpl(mimeType)),
+                        hasStatement(new URIImpl(binaryResource), DCTERMS.IS_FORMAT_OF, new URIImpl(metaResource))
                 ))
             .get(binaryResource);
 
@@ -278,12 +286,12 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, mimeType)
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                        HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                        HeaderMatchers.isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE),
-                        HeaderMatchers.isLink(LDP.RDFSource.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE),
+                                isLink(LDP.RDFSource.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(false)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(false)) // FIXME: be more specific here
                 .contentType(mimeType)
             .get(binaryResource)
                 .body().asByteArray();
@@ -352,10 +360,10 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
-                        SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
-                        CoreMatchers.not(SesameMatchers.hasStatement(uri, RDFS.LABEL, null)),
-                        CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
+                .body(rdfStringMatches(RDFFormat.RDFXML, resource,
+                        hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        not(hasStatement(uri, RDFS.LABEL, null)),
+                        not(hasStatement(uri, LDP.contains, uri))
                 ))
             .get(resource)
                 .getHeader(HttpHeaders.ETAG));
@@ -396,10 +404,10 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
-                        SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
-                        SesameMatchers.hasStatement(uri, RDFS.LABEL, null),
-                        CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
+                .body(rdfStringMatches(RDFFormat.RDFXML, resource,
+                        hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        hasStatement(uri, RDFS.LABEL, null),
+                        not(hasStatement(uri, LDP.contains, uri))
                 ))
             .get(resource)
                 .header(HttpHeaders.ETAG));
@@ -421,11 +429,11 @@ public class LdpWebServiceTest {
                 .header(HttpHeaders.ACCEPT, RDFFormat.RDFXML.getDefaultMIMEType())
             .expect()
                 .contentType(RDFFormat.RDFXML.getDefaultMIMEType())
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(etag))
-                .body(SesameMatchers.rdfStringMatches(RDFFormat.RDFXML, resource,
-                        SesameMatchers.hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
-                        SesameMatchers.hasStatement(uri, RDFS.LABEL, null),
-                        CoreMatchers.not(SesameMatchers.hasStatement(uri, LDP.contains, uri))
+                .header(HttpHeaders.ETAG, hasEntityTag(etag))
+                .body(rdfStringMatches(RDFFormat.RDFXML, resource,
+                        hasStatement(uri, RDF.TYPE, new URIImpl("http://example.com/Example")),
+                        hasStatement(uri, RDFS.LABEL, null),
+                        not(hasStatement(uri, LDP.contains, uri))
                 ))
             .get(resource);
     }
@@ -443,7 +451,7 @@ public class LdpWebServiceTest {
                 .body("<> a <http://example.com/unit-test> .".getBytes())
             .expect()
                 .statusCode(HttpStatusSuccessMatcher.isSuccessful())
-                .header(HttpHeaders.LOCATION, CoreMatchers.notNullValue())
+                .header(HttpHeaders.LOCATION, notNullValue())
             .post(baseUrl + LdpWebService.PATH)
                 .getHeader(HttpHeaders.LOCATION);
     }
@@ -475,15 +483,15 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                                HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                                HeaderMatchers.isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.BasicContainer.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, container,
-                        SesameMatchers.hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
+                .body(rdfStringMatches(mimeType, container,
+                        hasStatement(new URIImpl(container), DCTERMS.MODIFIED, null),
+                        hasStatement(new URIImpl(container), RDF.TYPE, LDP.BasicContainer)
                 ))
             .get(container);
 
@@ -491,15 +499,15 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(200)
-                .header(HttpHeaders.LINK, CoreMatchers.anyOf( //TODO: RestAssured only checks the FIRST header...
-                                HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
-                                HeaderMatchers.isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE))
+                .header(HttpHeaders.LINK, anyOf( //TODO: RestAssured only checks the FIRST header...
+                                isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY),
+                                isLink(LDP.Resource.stringValue(), LdpWebService.LINK_REL_TYPE))
                 )
-                .header(HttpHeaders.ETAG, HeaderMatchers.hasEntityTag(true)) // FIXME: be more specific here
+                .header(HttpHeaders.ETAG, hasEntityTag(true)) // FIXME: be more specific here
                 .contentType(mimeType)
-                .body(SesameMatchers.rdfStringMatches(mimeType, container,
-                        SesameMatchers.hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
-                        SesameMatchers.hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
+                .body(rdfStringMatches(mimeType, container,
+                        hasStatement(new URIImpl(newResource), DCTERMS.MODIFIED, null),
+                        hasStatement(new URIImpl(newResource), RDF.TYPE, LDP.Resource)
                 ))
             .get(newResource);
 
@@ -507,9 +515,9 @@ public class LdpWebServiceTest {
         RestAssured
             .expect()
                 .statusCode(204)
-                .header(HttpHeaders.LINK, HeaderMatchers.isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY))
-                .header(HttpHeaders.ETAG, HeaderMatchers.headerNotPresent())
-                .header(HttpHeaders.LAST_MODIFIED, HeaderMatchers.headerNotPresent())
+                .header(HttpHeaders.LINK, isLink(LdpWebService.LDP_SERVER_CONSTRAINTS, LdpWebService.LINK_REL_CONSTRAINEDBY))
+                .header(HttpHeaders.ETAG, headerNotPresent())
+                .header(HttpHeaders.LAST_MODIFIED, headerNotPresent())
             .delete(newResource);
 
         // now the new resource does not exist.
