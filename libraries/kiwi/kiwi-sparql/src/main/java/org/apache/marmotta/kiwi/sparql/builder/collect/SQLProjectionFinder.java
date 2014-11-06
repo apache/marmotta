@@ -15,39 +15,69 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
 * Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class GroupFinder extends QueryModelVisitorBase<RuntimeException> {
+public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    Set<String>     bindings = new HashSet<>();
-    List<GroupElem> elements = new ArrayList<>();
+    private static Logger log = LoggerFactory.getLogger(SQLProjectionFinder.class);
 
-    public GroupFinder(TupleExpr expr) {
+    public List<ExtensionElem> elements = new ArrayList<>();
+
+    private String needle;
+
+    public boolean found = false;
+
+    public SQLProjectionFinder(TupleExpr expr, String needle) {
+        this.needle = needle;
         expr.visit(this);
     }
 
     @Override
-    public void meet(Group node) throws RuntimeException {
-        bindings.addAll(node.getGroupBindingNames());
-        elements.addAll(node.getGroupElements());
-        super.meet(node);
+    public void meet(ExtensionElem node) throws RuntimeException {
+        if(node.getName().equals(needle)) {
+            found = true;
+        }
+        // don't recurse to the children, as this would project non-grouped elements
     }
 
     @Override
+    public void meet(Group node) throws RuntimeException {
+        for(String g : node.getGroupBindingNames()) {
+            if(g.equals(needle)) {
+                found = true;
+            }
+        }
+        // don't recurse to the children, as this would project non-grouped elements
+    }
+
+    @Override
+    public void meet(Var node) throws RuntimeException {
+        if(node.getName().equals(needle)) {
+            found = true;
+        }
+    }
+
+
+    @Override
     public void meet(Projection node) throws RuntimeException {
+        for(ProjectionElem elem : node.getProjectionElemList().getElements()) {
+            if(elem.getSourceName().equals(needle)) {
+                found = true;
+            }
+        }
         // stop at projection, subquery
     }
 

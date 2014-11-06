@@ -15,9 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
+import org.apache.marmotta.kiwi.sparql.builder.ValueConverter;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLPattern;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLSubQuery;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLUnion;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.*;
@@ -33,7 +38,7 @@ import java.util.Set;
 */
 public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
-    LinkedList<SQLFragment> parts   = new LinkedList<>();
+    public LinkedList<SQLFragment> parts   = new LinkedList<>();
 
     int counter = 0;
 

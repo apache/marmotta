@@ -24,6 +24,11 @@ import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
+import org.apache.marmotta.kiwi.sparql.builder.collect.*;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLAbstractSubquery;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLPattern;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
@@ -533,7 +538,7 @@ public class SQLBuilder {
                     if(new ConditionFinder(sq_v.getSparqlName(),query).found && sq_v.getProjectionType() == ProjectionType.NODE) {
                         // this is needed in case we need to JOIN with the NODES table to retrieve values
                         SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
-                        sq.getJoinFields().add(new VariableMapping(sv.getName(), sq_v.getName()));
+                        sq.getJoinFields().add(new SQLAbstractSubquery.VariableMapping(sv.getName(), sq_v.getName()));
                     }
                 }
             }

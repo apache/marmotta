@@ -15,41 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.*;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Var;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
-* Find the offset and limit values in a tuple expression
+* Find distinct/reduced in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class OrderFinder extends QueryModelVisitorBase<RuntimeException> {
+public class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    List<OrderElem> elements = new ArrayList<>();
+    public Set<Var> variables = new HashSet<>();
 
-    public OrderFinder(TupleExpr expr) {
+    public VariableFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
-    @Override
-    public void meet(Order node) throws RuntimeException {
-        elements.addAll(node.getElements());
-    }
 
+    @Override
+    public void meet(Var node) throws RuntimeException {
+        variables.add(node);
+    }
 
 
     @Override
     public void meet(Projection node) throws RuntimeException {
-        // stop at projection, subquery
-    }
-
-    @Override
-    public void meet(Union node) throws RuntimeException {
         // stop at projection, subquery
     }
 

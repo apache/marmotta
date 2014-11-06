@@ -15,34 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.Projection;
-import org.openrdf.query.algebra.Slice;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.query.algebra.Union;
+import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
 * Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
+public class OrderFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    long limit = -1, offset = -1;
+    public List<OrderElem> elements = new ArrayList<>();
 
-    public LimitFinder(TupleExpr expr) {
+    public OrderFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
-    public void meet(Slice node) throws RuntimeException {
-        if(node.hasLimit())
-            limit = node.getLimit();
-        if(node.hasOffset())
-            offset = node.getOffset();
+    public void meet(Order node) throws RuntimeException {
+        elements.addAll(node.getElements());
     }
+
 
 
     @Override

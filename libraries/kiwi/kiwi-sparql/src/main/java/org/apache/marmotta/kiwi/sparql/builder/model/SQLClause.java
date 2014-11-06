@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.model;
 
 import java.util.ArrayList;
 import java.util.Iterator;

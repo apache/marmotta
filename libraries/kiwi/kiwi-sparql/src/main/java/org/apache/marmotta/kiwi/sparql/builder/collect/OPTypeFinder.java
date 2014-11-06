@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.model.Literal;
@@ -35,7 +36,7 @@ import java.util.List;
  */
 public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    List<OPTypes> optypes = new ArrayList<>();
+    public List<OPTypes> optypes = new ArrayList<>();
 
 
 

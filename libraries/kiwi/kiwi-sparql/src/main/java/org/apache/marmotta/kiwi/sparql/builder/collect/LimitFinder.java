@@ -15,33 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.*;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.Slice;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Union;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 /**
-* Find distinct/reduced in a tuple expression.
+* Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
+public class LimitFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    boolean distinct = false;
+    public long limit = -1, offset = -1;
 
-    public DistinctFinder(TupleExpr expr) {
+    public LimitFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
-    public void meet(Distinct node) throws RuntimeException {
-        distinct = true;
+    public void meet(Slice node) throws RuntimeException {
+        if(node.hasLimit())
+            limit = node.getLimit();
+        if(node.hasOffset())
+            offset = node.getOffset();
     }
 
-    @Override
-    public void meet(Reduced node) throws RuntimeException {
-        distinct = true;
-    }
 
     @Override
     public void meet(Projection node) throws RuntimeException {
@@ -52,4 +54,5 @@ public class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
     public void meet(Union node) throws RuntimeException {
         // stop at projection, subquery
     }
+
 }

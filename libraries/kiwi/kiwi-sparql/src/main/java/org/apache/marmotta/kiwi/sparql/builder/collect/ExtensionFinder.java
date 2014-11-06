@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
@@ -30,59 +30,37 @@ import java.util.List;
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException> {
+public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    private static Logger log = LoggerFactory.getLogger(SQLProjectionFinder.class);
+    private static Logger log = LoggerFactory.getLogger(ExtensionFinder.class);
 
-    List<ExtensionElem> elements = new ArrayList<>();
+    public List<ExtensionElem> elements = new ArrayList<>();
 
-    String needle;
-
-    boolean found = false;
-
-    public SQLProjectionFinder(TupleExpr expr, String needle) {
-        this.needle = needle;
+    public ExtensionFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
-    public void meet(ExtensionElem node) throws RuntimeException {
-        if(node.getName().equals(needle)) {
-            found = true;
-        }
-        // don't recurse to the children, as this would project non-grouped elements
-    }
+    public void meet(Extension node) throws RuntimeException {
+        // visit children before, as there might be dependencies
+        super.meet(node);
 
-    @Override
-    public void meet(Group node) throws RuntimeException {
-        for(String g : node.getGroupBindingNames()) {
-            if(g.equals(needle)) {
-                found = true;
+        for(ExtensionElem elem : node.getElements()) {
+            if(elem.getExpr() instanceof Var && ((Var) elem.getExpr()).getName().equals(elem.getName())) {
+                log.debug("ignoring self-aliasing of variable {}", elem.getName());
+            } else {
+                elements.add(elem);
             }
         }
-        // don't recurse to the children, as this would project non-grouped elements
     }
-
-    @Override
-    public void meet(Var node) throws RuntimeException {
-        if(node.getName().equals(needle)) {
-            found = true;
-        }
-    }
-
 
     @Override
     public void meet(Projection node) throws RuntimeException {
-        for(ProjectionElem elem : node.getProjectionElemList().getElements()) {
-            if(elem.getSourceName().equals(needle)) {
-                found = true;
-            }
-        }
-        // stop at projection, subquery
+        // stop here, this is a subquery in SQL
     }
 
     @Override
     public void meet(Union node) throws RuntimeException {
-        // stop at union, subquery
+        // stop here, this is a subquery in SQL
     }
 }

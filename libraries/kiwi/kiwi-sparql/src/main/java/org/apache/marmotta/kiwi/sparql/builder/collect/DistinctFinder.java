@@ -15,52 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
-* Find the offset and limit values in a tuple expression
+* Find distinct/reduced in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class ExtensionFinder extends QueryModelVisitorBase<RuntimeException> {
+public class DistinctFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    private static Logger log = LoggerFactory.getLogger(ExtensionFinder.class);
+    public boolean distinct = false;
 
-    List<ExtensionElem> elements = new ArrayList<>();
-
-    public ExtensionFinder(TupleExpr expr) {
+    public DistinctFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
-    public void meet(Extension node) throws RuntimeException {
-        // visit children before, as there might be dependencies
-        super.meet(node);
+    public void meet(Distinct node) throws RuntimeException {
+        distinct = true;
+    }
 
-        for(ExtensionElem elem : node.getElements()) {
-            if(elem.getExpr() instanceof Var && ((Var) elem.getExpr()).getName().equals(elem.getName())) {
-                log.debug("ignoring self-aliasing of variable {}", elem.getName());
-            } else {
-                elements.add(elem);
-            }
-        }
+    @Override
+    public void meet(Reduced node) throws RuntimeException {
+        distinct = true;
     }
 
     @Override
     public void meet(Projection node) throws RuntimeException {
-        // stop here, this is a subquery in SQL
+        // stop at projection, subquery
     }
 
     @Override
     public void meet(Union node) throws RuntimeException {
-        // stop here, this is a subquery in SQL
+        // stop at projection, subquery
     }
 }

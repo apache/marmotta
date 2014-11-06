@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
@@ -27,7 +27,7 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
  */
 public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    boolean found = false;
+    public boolean found = false;
 
     private String varName;
 

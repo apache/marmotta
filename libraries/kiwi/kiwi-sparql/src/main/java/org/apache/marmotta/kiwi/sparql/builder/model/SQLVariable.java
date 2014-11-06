@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.model;
 
+import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
 import org.openrdf.query.algebra.ValueExpr;
 
 import java.text.Collator;
@@ -184,7 +185,7 @@ public class SQLVariable  implements Cloneable{
     };
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
         SQLVariable clone = new SQLVariable(getName(), getSparqlName());
         clone.projectionType = projectionType;
         clone.getExpressions().addAll(expressions);

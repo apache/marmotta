@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.model;
 
 import com.google.common.collect.Iterators;
 import org.openrdf.query.algebra.ValueExpr;

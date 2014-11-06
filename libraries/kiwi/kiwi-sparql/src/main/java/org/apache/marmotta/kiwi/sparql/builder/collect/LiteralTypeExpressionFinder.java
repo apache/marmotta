@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.marmotta.kiwi.sparql.builder;
+package org.apache.marmotta.kiwi.sparql.builder.collect;
 
+import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.query.algebra.FunctionCall;
@@ -34,7 +35,7 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
  */
 public class LiteralTypeExpressionFinder  extends QueryModelVisitorBase<RuntimeException> {
 
-    protected Var expr = null;
+    public Var expr = null;
 
     public LiteralTypeExpressionFinder(ValueExpr expr) {
         expr.visit(this);
