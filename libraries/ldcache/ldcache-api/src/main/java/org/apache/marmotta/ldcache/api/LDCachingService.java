@@ -16,6 +16,7 @@
  */
 package org.apache.marmotta.ldcache.api;
 
+import com.google.common.collect.Multimap;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
 
@@ -80,6 +81,13 @@ public interface LDCachingService {
      */
     public void shutdown();
 
+    /**
+     * Get the headers from the response
+     * @param resource the resource to retrieve headers for
+     * @param options  options for refreshing
+     * @return a Multimap of the header name and the header values
+     */
+    Multimap<String, String> headers(URI resource, RefreshOpts... options);
 
 
     public enum RefreshOpts {

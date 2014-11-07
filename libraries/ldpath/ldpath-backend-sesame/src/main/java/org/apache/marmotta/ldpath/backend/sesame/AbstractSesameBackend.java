@@ -137,4 +137,10 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
     }
 
 
+    @Override
+    public Collection<Value> getHeaders(Value context, Value property) {
+        Set<Value> result = new HashSet<Value>();
+        return result;
+    }
+
 }

@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.ldclient.services.provider;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -166,7 +168,7 @@ public abstract class AbstractHttpProvider implements DataProvider {
                 log.info("retrieved {} triples for resource {}; expiry date: {}", new Object[]{handler.triples.size(), resource, expiresDate});
             }
 
-            ClientResponse result = new ClientResponse(handler.httpStatus, handler.triples);
+            ClientResponse result = new ClientResponse(handler.httpStatus, handler.triples, handler.httpHeaders);
             result.setExpires(expiresDate);
             return result;
         } catch (RepositoryException e) {
@@ -221,6 +223,8 @@ public abstract class AbstractHttpProvider implements DataProvider {
 
         private int httpStatus;
 
+        private Multimap<String,String> httpHeaders;
+
         public ResponseHandler(String resource, Endpoint endpoint) throws RepositoryException {
             this.resource = resource;
             this.endpoint = endpoint;
@@ -244,6 +248,13 @@ public abstract class AbstractHttpProvider implements DataProvider {
 	            }
 
                 this.httpStatus = response.getStatusLine().getStatusCode();
+                final ImmutableMultimap.Builder<String, String> headerBuilder = ImmutableMultimap.builder();
+
+                for (Header header : response.getAllHeaders()) {
+                    headerBuilder.put(header.getName(), header.getValue());
+                }
+
+                this.httpHeaders = headerBuilder.build();
 
                 if (entity != null) {
                     String parseContentType = "application/rdf+xml";

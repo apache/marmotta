@@ -17,6 +17,9 @@
  */
 package org.apache.marmotta.ldpath.backend.linkeddata;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Multimap;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.infinispan.LDCachingInfinispanBackend;
 import org.apache.marmotta.ldcache.model.CacheConfiguration;
@@ -338,5 +341,27 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listSubjects(Value property, Value object) {
         throw new UnsupportedOperationException("reverse traversal not supported for Linked Data backend");
+    }
+
+    /**
+     * Retrieve the values of response header for a given resource
+     * @param subject the subject of the header to look for
+     * @param header the header to look for
+     * @return
+     */
+    @Override
+    public Collection<Value> getHeaders(Value subject, Value header) {
+        if(subject instanceof org.openrdf.model.URI) {
+            org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
+            return Collections2.transform(ldcache.headers(s).get(stringValue(header)), new Function<String, Value>() {
+                @Override
+                public Value apply(String s) {
+                    return createLiteral(s);
+                }
+            });
+        } else {
+            Set<Value> result = new HashSet<Value>();
+            return result;
+        }
     }
 }

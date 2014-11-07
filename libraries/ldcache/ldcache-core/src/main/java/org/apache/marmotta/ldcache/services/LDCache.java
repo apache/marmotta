@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.ldcache.services;
 
+import com.google.common.collect.Multimap;
 import org.apache.marmotta.commons.locking.ObjectLocks;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.api.LDCachingService;
@@ -28,6 +29,7 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.openrdf.model.Model;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.impl.TreeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +126,7 @@ public class LDCache implements LDCachingService {
                     newEntry.setResource(resource);
                     newEntry.setExpiryDate(response.getExpires());
                     newEntry.setLastRetrieved(new Date());
+                    newEntry.setHeaders(response.getHeaders());
                     if(entry != null) {
                         newEntry.setUpdateCount(entry.getUpdateCount()+1);
                     } else {
@@ -221,6 +224,18 @@ public class LDCache implements LDCachingService {
     @Override
     public void shutdown() {
         backend.shutdown();
+    }
+
+    /**
+     * Get the headers from the response
+     * @param resource the resource to retrieve headers for
+     * @param options  options for refreshing
+     * @return a Multimap of the header name and the header values
+     */
+    @Override
+    public Multimap<String, String> headers(URI resource, RefreshOpts... options) {
+        refresh(resource, options);
+        return backend.getEntry(resource).getHeaders();
     }
 
 

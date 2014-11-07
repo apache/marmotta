@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.ldclient.model;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.openrdf.model.Model;
@@ -47,22 +49,30 @@ public class ClientResponse {
 
     private Date expires;
 
+    private Multimap<String, String> headers;
+
     @Deprecated
     public ClientResponse(int httpStatus, Repository triples) {
         this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
         this.httpStatus = httpStatus;
 
         try {
-        this.data = ModelCommons.asModel(triples);
+            this.data = ModelCommons.asModel(triples);
         } catch (RepositoryException e) {
             this.data = new TreeModel();
         }
+        this.headers = ImmutableMultimap.of();
     }
 
     public ClientResponse(int httpStatus, Model triples) {
+        this(httpStatus, triples, new ImmutableMultimap.Builder<String,String>().build());
+    }
+
+    public ClientResponse(int httpStatus, Model triples, Multimap<String, String> headers) {
         this.data = triples;
         this.expires = DateUtils.addDays(new Date(), DEFAULT_EXPIRATION_IN_DAYS);
         this.httpStatus = httpStatus;
+        this.headers = headers;
     }
 
 
@@ -93,5 +103,13 @@ public class ClientResponse {
 
     public void setHttpStatus(int httpStatus) {
         this.httpStatus = httpStatus;
+    }
+
+    public void setHeaders(Multimap<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public Multimap<String, String> getHeaders() {
+        return headers;
     }
 }

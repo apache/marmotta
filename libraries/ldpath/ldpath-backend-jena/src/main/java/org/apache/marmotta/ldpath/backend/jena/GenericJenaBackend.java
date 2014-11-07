@@ -34,7 +34,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
@@ -467,5 +469,11 @@ public class GenericJenaBackend implements RDFBackend<RDFNode> {
             } catch(ClassCastException ex) {
             throw new IllegalArgumentException("property was no valid resource in the Jena model",ex);
         }
+    }
+
+    @Override
+    public Collection<RDFNode> getHeaders(RDFNode context, RDFNode property) {
+        Set<RDFNode> result = new HashSet<RDFNode>();
+        return result;
     }
 }

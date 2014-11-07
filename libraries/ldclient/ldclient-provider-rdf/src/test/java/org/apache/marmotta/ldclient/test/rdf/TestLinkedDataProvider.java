@@ -27,6 +27,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openrdf.repository.RepositoryConnection;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Test if the LinkedDataProvider is working properly.
  * 
@@ -127,6 +129,12 @@ public class TestLinkedDataProvider extends ProviderTestBase {
     public void testSSL() throws Exception {
         ClientResponse response = ldclient.retrieveResource(SSL);
         Assert.assertTrue(response.getData().size() == 0);
+    }
+
+    @Test
+    public void testHeaders() throws Exception {
+        ClientResponse response = ldclient.retrieveResource(WIKIER);
+        assertEquals(1, response.getHeaders().get("Date").size());
     }
 
 }
