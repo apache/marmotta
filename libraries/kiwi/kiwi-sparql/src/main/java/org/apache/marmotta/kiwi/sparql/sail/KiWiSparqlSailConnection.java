@@ -18,13 +18,13 @@
 package org.apache.marmotta.kiwi.sparql.sail;
 
 import info.aduna.iteration.CloseableIteration;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStatistics;
-import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStrategyImpl;
+import org.apache.marmotta.kiwi.sparql.evaluation.KiWiEvaluationStrategy;
 import org.apache.marmotta.kiwi.sparql.evaluation.KiWiTripleSource;
 import org.apache.marmotta.kiwi.sparql.optimizer.DifferenceOptimizer;
 import org.apache.marmotta.kiwi.sparql.optimizer.DistinctLimitOptimizer;
-import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
@@ -48,10 +48,10 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
 
     private static Logger log = LoggerFactory.getLogger(KiWiSparqlSailConnection.class);
 
-    private KiWiSparqlConnection connection;
+    private KiWiConnection connection;
     private KiWiValueFactory valueFactory;
 
-    public KiWiSparqlSailConnection(NotifyingSailConnection parent, KiWiSparqlConnection connection, KiWiValueFactory valueFactory) {
+    public KiWiSparqlSailConnection(NotifyingSailConnection parent, KiWiConnection connection, KiWiValueFactory valueFactory) {
         super(parent);
         this.connection = connection;
         this.valueFactory = valueFactory;
@@ -70,7 +70,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
 
         try {
             KiWiTripleSource tripleSource = new KiWiTripleSource(this,valueFactory,includeInferred);
-            EvaluationStrategy strategy = new KiWiEvaluationStrategyImpl(tripleSource, dataset, connection);
+            EvaluationStrategy strategy = new KiWiEvaluationStrategy(tripleSource, dataset, connection, valueFactory);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
             //new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
