@@ -18,10 +18,10 @@
 package org.apache.marmotta.kiwi.sparql.builder;
 
 /**
- * Add file description here!
- *
- * @author Sebastian Schaffert (sschaffert@apache.org)
- */
-public enum ProjectionType {
-    NODE, URI, BNODE, STRING, INT, DOUBLE, DATE, BOOL, NONE
+* Operand types for operations - used for implicit type coercion.
+*
+* @author Sebastian Schaffert (sschaffert@apache.org)
+*/
+public enum ValueType {
+    DOUBLE, INT, DATE, BOOL, STRING, NODE, TERM, URI, BNODE, NONE
 }

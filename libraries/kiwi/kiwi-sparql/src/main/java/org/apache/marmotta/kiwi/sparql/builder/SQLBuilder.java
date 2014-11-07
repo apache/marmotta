@@ -230,7 +230,7 @@ public class SQLBuilder {
 
                     // select those variables that are really projected and not only needed in a grouping construct
                     if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
-                        sv.setProjectionType(ProjectionType.NODE);
+                        sv.setProjectionType(ValueType.NODE);
                     }
 
                     sv.getExpressions().add(""+ converter.convert(v.getValue()).getId());
@@ -258,7 +258,7 @@ public class SQLBuilder {
 
                             // select those variables that are really projected and not only needed in a grouping construct
                             if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
-                                sv.setProjectionType(ProjectionType.NODE);
+                                sv.setProjectionType(ValueType.NODE);
                             }
 
                             String pName = p.getName();
@@ -319,8 +319,8 @@ public class SQLBuilder {
 
                 // Functions that return a string literal do so with the string literal of the same kind as the first
                 // argument (simple literal, plain literal with same language tag, xsd:string).
-                ProjectionType type = getProjectionType(ext.getExpr());
-                if(type == ProjectionType.STRING) {
+                ValueType type = getProjectionType(ext.getExpr());
+                if(type == ValueType.STRING) {
                     sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
                     sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
                     // TODO: the following will produce invalid results for aggregation functions
@@ -341,7 +341,7 @@ public class SQLBuilder {
             }
 
             try {
-                sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+                sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
             } catch(IllegalStateException ex) {
                 deferredExtensions.add(ext);
             }
@@ -394,7 +394,7 @@ public class SQLBuilder {
             Var v = new Var(ext.getName());
 
             SQLVariable sv = variables.get(v.getName());
-            sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+            sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
         }
 
         // find context restrictions of patterns and match them with potential restrictions given in the
@@ -479,7 +479,7 @@ public class SQLBuilder {
         // iterate over all fragments and add translate the filter conditions into SQL
         for(SQLFragment f : fragments) {
             for(ValueExpr e : f.getFilters()) {
-                f.getConditions().add(evaluateExpression(e, OPTypes.ANY));
+                f.getConditions().add(evaluateExpression(e, ValueType.NODE));
             }
         }
 
@@ -570,7 +570,7 @@ public class SQLBuilder {
 
             for(SQLAbstractSubquery sq : f.getSubqueries()) {
                 for(SQLVariable sq_v : sq.getQueryVariables()) {
-                    if(!joined.contains(sq_v.getSparqlName()) && resolveVariables.contains(sq_v.getSparqlName()) && sq_v.getProjectionType() == ProjectionType.NODE) {
+                    if(!joined.contains(sq_v.getSparqlName()) && resolveVariables.contains(sq_v.getSparqlName()) && sq_v.getProjectionType() == ValueType.NODE) {
                         // this is needed in case we need to JOIN with the NODES table to retrieve values
                         SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
                         sq.getJoinFields().add(new SQLAbstractSubquery.VariableMapping(sv.getName(), sq_v.getName()));
@@ -591,7 +591,7 @@ public class SQLBuilder {
 
 
         for(SQLVariable v : vars) {
-            if(v.getProjectionType() != ProjectionType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
+            if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
                 String projectedName = v.getName();
                 String fromName = v.getExpressions().get(0);
 
@@ -610,7 +610,7 @@ public class SQLBuilder {
         int counter = 0;
         if(distinct) {
             for(OrderElem e : orderby) {
-                projections.add(evaluateExpression(e.getExpr(), OPTypes.VALUE) + " AS _OB" + (++counter));
+                projections.add(evaluateExpression(e.getExpr(), ValueType.STRING) + " AS _OB" + (++counter));
             }
         }
 
@@ -744,7 +744,7 @@ public class SQLBuilder {
         if(orderby.size() > 0) {
             for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
                 OrderElem elem = it.next();
-                orderClause.append(evaluateExpression(elem.getExpr(), OPTypes.VALUE));
+                orderClause.append(evaluateExpression(elem.getExpr(), ValueType.STRING));
                 if(elem.isAscending()) {
                     orderClause.append(" ASC");
                 } else {
@@ -806,22 +806,22 @@ public class SQLBuilder {
     }
 
 
-    private String evaluateExpression(ValueExpr expr, final OPTypes optype) {
+    private String evaluateExpression(ValueExpr expr, final ValueType optype) {
         return new ValueExpressionEvaluator(expr, this, optype).build();
     }
 
 
-    protected ProjectionType getProjectionType(ValueExpr expr) {
+    protected ValueType getProjectionType(ValueExpr expr) {
         if(expr instanceof BNodeGenerator) {
-            return ProjectionType.BNODE;
+            return ValueType.BNODE;
         } else if(expr instanceof IRIFunction) {
-            return ProjectionType.URI;
+            return ValueType.URI;
         } else if(expr instanceof FunctionCall) {
-            return opTypeToProjection(functionRegistry.get(((FunctionCall) expr).getURI()).getReturnType());
+            return functionRegistry.get(((FunctionCall) expr).getURI()).getReturnType();
         } else if(expr instanceof NAryValueOperator) {
             return getProjectionType(((NAryValueOperator) expr).getArguments().get(0));
         } else if(expr instanceof ValueConstant) {
-            return ProjectionType.NODE;
+            return ValueType.NODE;
             /*
             if (((ValueConstant) expr).getValue() instanceof URI) {
                 return ProjectionType.URI;
@@ -840,45 +840,23 @@ public class SQLBuilder {
             }
             */
         } else if(expr instanceof Var) {
-            return ProjectionType.NODE;
+            return ValueType.NODE;
         } else if(expr instanceof MathExpr) {
             MathExpr cmp = (MathExpr) expr;
 
-            return opTypeToProjection(new OPTypeFinder(cmp).coerce());
+            return new OPTypeFinder(cmp).coerce();
         } else if(expr instanceof Count) {
-            return ProjectionType.INT;
+            return ValueType.INT;
         } else if(expr instanceof Sum) {
-            return ProjectionType.DOUBLE;
+            return ValueType.DOUBLE;
         } else if(expr instanceof Avg) {
-            return ProjectionType.DOUBLE;
+            return ValueType.DOUBLE;
         } else if(expr instanceof Compare) {
-            return ProjectionType.BOOL;
+            return ValueType.BOOL;
         } else {
-            return ProjectionType.STRING;
+            return ValueType.STRING;
         }
 
-    }
-
-    private ProjectionType opTypeToProjection(OPTypes t) {
-        switch (t) {
-            case ANY:
-                return ProjectionType.NODE;
-            case URI:
-                return ProjectionType.URI;
-            case DOUBLE:
-                return ProjectionType.DOUBLE;
-            case INT:
-                return ProjectionType.INT;
-            case DATE:
-                return ProjectionType.DATE;
-            case STRING:
-                return ProjectionType.STRING;
-            case BOOL:
-                return ProjectionType.BOOL;
-            default:
-                log.warn("optype {} cannot be projected!",t);
-                return ProjectionType.STRING;
-        }
     }
 
 

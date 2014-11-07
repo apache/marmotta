@@ -19,7 +19,7 @@ package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.model.Literal;
@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    public List<OPTypes> optypes = new ArrayList<>();
+    public List<ValueType> optypes = new ArrayList<>();
 
 
 
@@ -53,7 +53,7 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
             if(StringUtils.equals(Namespaces.NS_XSD + "double", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "float", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "decimal", type)) {
-                optypes.add(OPTypes.DOUBLE);
+                optypes.add(ValueType.DOUBLE);
             } else if(StringUtils.equals(Namespaces.NS_XSD + "integer", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "long", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "int", type)
@@ -66,43 +66,43 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
                     || StringUtils.equals(Namespaces.NS_XSD + "unsignedShort", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "byte", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "unsignedByte", type)) {
-                optypes.add(OPTypes.INT);
+                optypes.add(ValueType.INT);
             } else if(StringUtils.equals(Namespaces.NS_XSD + "dateTime", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "date", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "time", type)) {
-                optypes.add(OPTypes.DATE);
+                optypes.add(ValueType.DATE);
             } else {
-                optypes.add(OPTypes.ANY);
+                optypes.add(ValueType.NODE);
             }
         } else {
-            optypes.add(OPTypes.STRING);
+            optypes.add(ValueType.STRING);
         }
     }
 
     @Override
     public void meet(SameTerm node) throws RuntimeException {
-        optypes.add(OPTypes.BOOL);
+        optypes.add(ValueType.BOOL);
     }
 
 
     @Override
     public void meet(Str node) throws RuntimeException {
-        optypes.add(OPTypes.STRING);
+        optypes.add(ValueType.STRING);
     }
 
     @Override
     public void meet(Lang node) throws RuntimeException {
-        optypes.add(OPTypes.STRING);
+        optypes.add(ValueType.STRING);
     }
 
     @Override
     public void meet(LocalName node) throws RuntimeException {
-        optypes.add(OPTypes.STRING);
+        optypes.add(ValueType.STRING);
     }
 
     @Override
     public void meet(Label node) throws RuntimeException {
-        optypes.add(OPTypes.STRING);
+        optypes.add(ValueType.STRING);
     }
 
 
@@ -121,20 +121,20 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
         node.getAlternative().visit(this);
     }
 
-    public OPTypes coerce() {
-        OPTypes left = OPTypes.ANY;
+    public ValueType coerce() {
+        ValueType left = ValueType.NODE;
 
-        for(OPTypes right : optypes) {
-            if(left == OPTypes.ANY) {
+        for(ValueType right : optypes) {
+            if(left == ValueType.NODE) {
                 left = right;
-            } else if(right == OPTypes.ANY) {
+            } else if(right == ValueType.NODE) {
                 // keep left
             } else if(left == right) {
                 // keep left
-            } else if( (left == OPTypes.INT && right == OPTypes.DOUBLE) || (left == OPTypes.DOUBLE && right == OPTypes.INT)) {
-                left = OPTypes.DOUBLE;
-            } else if( (left == OPTypes.STRING) || (right == OPTypes.STRING)) {
-                left = OPTypes.STRING;
+            } else if( (left == ValueType.INT && right == ValueType.DOUBLE) || (left == ValueType.DOUBLE && right == ValueType.INT)) {
+                left = ValueType.DOUBLE;
+            } else if( (left == ValueType.STRING) || (right == ValueType.STRING)) {
+                left = ValueType.STRING;
             } else {
                 throw new IllegalArgumentException("unsupported type coercion: " + left + " and " + right);
             }

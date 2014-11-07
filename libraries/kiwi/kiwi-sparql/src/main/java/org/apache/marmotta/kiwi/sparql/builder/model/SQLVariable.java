@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.model;
 
-import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.openrdf.query.algebra.ValueExpr;
 
 import java.text.Collator;
@@ -67,7 +67,7 @@ public class SQLVariable  implements Cloneable{
      * Set to something else than NONE when this variable is contained in the SELECT part of the query, i.e. needs to be projected.
      * Decides on how the variable will be projected (as node -> ID, as value -> string or numeric field)
      */
-    private ProjectionType projectionType = ProjectionType.NONE;
+    private ValueType projectionType = ValueType.NONE;
 
     /**
      * The expression to project the type for the literal that will be bound to this variable, e.g. in case
@@ -117,11 +117,11 @@ public class SQLVariable  implements Cloneable{
         return expressions;
     }
 
-    public ProjectionType getProjectionType() {
+    public ValueType getProjectionType() {
         return projectionType;
     }
 
-    public void setProjectionType(ProjectionType projectionType) {
+    public void setProjectionType(ValueType projectionType) {
         this.projectionType = projectionType;
     }
 

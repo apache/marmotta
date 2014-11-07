@@ -24,8 +24,8 @@ import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
 import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.builder.collect.SupportedFinder;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
@@ -243,7 +243,7 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                         long[] nodeIds = new long[vars.size()];
                         for(int i=0; i<vars.size(); i++) {
                             SQLVariable sv = vars.get(i);
-                            if(sv.getProjectionType() == ProjectionType.NODE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
+                            if(sv.getProjectionType() == ValueType.NODE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 nodeIds[i] = row.getLong(sv.getName());
                             }
                         }
@@ -254,7 +254,7 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                             if(nodes[i] != null) {
                                 // resolved node
                                 resultRow.addBinding(sv.getSparqlName(), nodes[i]);
-                            } else if(sv.getProjectionType() != ProjectionType.NONE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
+                            } else if(sv.getProjectionType() != ValueType.NONE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 // literal value
                                 String svalue;
                                 switch (sv.getProjectionType()) {

@@ -22,9 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
-import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
 import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.builder.collect.OPTypeFinder;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
@@ -69,15 +68,15 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
     private StringBuilder builder = new StringBuilder();
 
-    private Deque<OPTypes> optypes = new ArrayDeque<>();
+    private Deque<ValueType> optypes = new ArrayDeque<>();
 
     private SQLBuilder parent;
 
     public ValueExpressionEvaluator(ValueExpr expr, SQLBuilder parent) {
-        this(expr,parent, OPTypes.ANY);
+        this(expr,parent, ValueType.NODE);
     }
 
-    public ValueExpressionEvaluator(ValueExpr expr, SQLBuilder parent, OPTypes optype) {
+    public ValueExpressionEvaluator(ValueExpr expr, SQLBuilder parent, ValueType optype) {
         this.parent = parent;
 
         optypes.push(optype);
@@ -140,19 +139,19 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     public void meet(FunctionCall fc) throws RuntimeException {
         // special optimizations for frequent cases with variables
         if((XMLSchema.DOUBLE.toString().equals(fc.getURI()) || XMLSchema.FLOAT.toString().equals(fc.getURI()) ) && fc.getArgs().size() == 1) {
-            optypes.push(OPTypes.DOUBLE);
+            optypes.push(ValueType.DOUBLE);
             fc.getArgs().get(0).visit(this);
             optypes.pop();
         } else if((XMLSchema.INTEGER.toString().equals(fc.getURI()) || XMLSchema.INT.toString().equals(fc.getURI())) && fc.getArgs().size() == 1) {
-            optypes.push(OPTypes.INT);
+            optypes.push(ValueType.INT);
             fc.getArgs().get(0).visit(this);
             optypes.pop();
         } else if(XMLSchema.BOOLEAN.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
-            optypes.push(OPTypes.BOOL);
+            optypes.push(ValueType.BOOL);
             fc.getArgs().get(0).visit(this);
             optypes.pop();
         } else if(XMLSchema.DATE.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
-            optypes.push(OPTypes.DATE);
+            optypes.push(ValueType.DATE);
             fc.getArgs().get(0).visit(this);
             optypes.pop();
         } else {
@@ -184,7 +183,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(Avg node) throws RuntimeException {
         builder.append("AVG(");
-        optypes.push(OPTypes.DOUBLE);
+        optypes.push(ValueType.DOUBLE);
         node.getArg().visit(this);
         optypes.pop();
         builder.append(")");
@@ -194,7 +193,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     public void meet(BNodeGenerator gen) throws RuntimeException {
         if(gen.getNodeIdExpr() != null) {
             // get value of argument and express it as string
-            optypes.push(OPTypes.STRING);
+            optypes.push(ValueType.STRING);
             gen.getNodeIdExpr().visit(this);
             optypes.pop();
         } else {
@@ -210,7 +209,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             builder.append(Boolean.toString(true));
         } else if(arg instanceof Var) {
             builder.append("(");
-            optypes.push(OPTypes.ANY);
+            optypes.push(ValueType.NODE);
             arg.visit(this);
             optypes.pop();
             builder.append(" IS NOT NULL)");
@@ -253,7 +252,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
             List<String> countVariables = new ArrayList<>();
             for(SQLVariable v : parent.getVariables().values()) {
-                if(v.getProjectionType() == ProjectionType.NONE) {
+                if(v.getProjectionType() == ValueType.NONE) {
                     Preconditions.checkState(v.getExpressions().size() > 0, "no expressions available for variable");
 
                     countVariables.add(v.getExpressions().get(0));
@@ -264,7 +263,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             builder.append("]");
 
         } else {
-            optypes.push(OPTypes.ANY);
+            optypes.push(ValueType.NODE);
             node.getArg().visit(this);
             optypes.pop();
         }
@@ -275,11 +274,11 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(GroupConcat node) throws RuntimeException {
         if(node.getSeparator() == null) {
-            builder.append(parent.getDialect().getGroupConcat(new ValueExpressionEvaluator(node.getArg(), parent, OPTypes.STRING).build(), null, node.isDistinct()));
+            builder.append(parent.getDialect().getGroupConcat(new ValueExpressionEvaluator(node.getArg(), parent, ValueType.STRING).build(), null, node.isDistinct()));
         } else {
             builder.append(parent.getDialect().getGroupConcat(
-                    new ValueExpressionEvaluator(node.getArg(), parent, OPTypes.STRING).build(),
-                    new ValueExpressionEvaluator(node.getSeparator(), parent, OPTypes.STRING).build(),
+                    new ValueExpressionEvaluator(node.getArg(), parent, ValueType.STRING).build(),
+                    new ValueExpressionEvaluator(node.getSeparator(), parent, ValueType.STRING).build(),
                     node.isDistinct()
             ));
         }
@@ -290,7 +289,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     public void meet(If node) throws RuntimeException {
         builder.append("CASE WHEN ");
 
-        optypes.push(OPTypes.BOOL);
+        optypes.push(ValueType.BOOL);
         node.getCondition().visit(this);
         optypes.pop();
 
@@ -409,7 +408,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     public void meet(IRIFunction fun) throws RuntimeException {
         if(fun.getBaseURI() != null) {
 
-            String ex = new ValueExpressionEvaluator(fun.getArg(), parent, OPTypes.STRING).build();
+            String ex = new ValueExpressionEvaluator(fun.getArg(), parent, ValueType.STRING).build();
 
             builder
                     .append("CASE WHEN position(':' IN ").append(ex).append(") > 0 THEN ").append(ex)
@@ -417,7 +416,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                     .append(" END ");
         } else {
             // get value of argument and express it as string
-            optypes.push(OPTypes.STRING);
+            optypes.push(ValueType.STRING);
             fun.getArg().visit(this);
             optypes.pop();
         }
@@ -425,7 +424,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
     @Override
     public void meet(Label node) throws RuntimeException {
-        optypes.push(OPTypes.STRING);
+        optypes.push(ValueType.STRING);
         node.getArg().visit(this);
         optypes.pop();
     }
@@ -467,14 +466,14 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(Like node) throws RuntimeException {
         if(node.isCaseSensitive()) {
-            optypes.push(OPTypes.STRING);
+            optypes.push(ValueType.STRING);
             node.getArg().visit(this);
             optypes.pop();
 
             builder.append(" LIKE ");
             node.getPattern();
         } else {
-            builder.append(parent.getDialect().getILike(new ValueExpressionEvaluator(node.getArg(),parent, OPTypes.STRING).build(), node.getOpPattern()));
+            builder.append(parent.getDialect().getILike(new ValueExpressionEvaluator(node.getArg(),parent, ValueType.STRING).build(), node.getOpPattern()));
         }
 
     }
@@ -487,17 +486,17 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
     @Override
     public void meet(MathExpr expr) throws RuntimeException {
-        OPTypes ot = new OPTypeFinder(expr).coerce();
+        ValueType ot = new OPTypeFinder(expr).coerce();
 
-        if(ot == OPTypes.STRING) {
+        if(ot == ValueType.STRING) {
             if(expr.getOperator() == MathExpr.MathOp.PLUS) {
                 builder.append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(),new ValueExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ValueExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
             } else {
                 throw new IllegalArgumentException("operation "+expr.getOperator()+" is not supported on strings");
             }
         } else {
-            if(ot == OPTypes.ANY || ot == OPTypes.TERM) {
-                ot = OPTypes.DOUBLE;
+            if(ot == ValueType.NODE || ot == ValueType.TERM) {
+                ot = ValueType.DOUBLE;
             }
 
             optypes.push(ot);
@@ -511,7 +510,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(Max node) throws RuntimeException {
         builder.append("MAX(");
-        optypes.push(OPTypes.DOUBLE);
+        optypes.push(ValueType.DOUBLE);
         node.getArg().visit(this);
         optypes.pop();
         builder.append(")");
@@ -520,7 +519,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(Min node) throws RuntimeException {
         builder.append("MIN(");
-        optypes.push(OPTypes.DOUBLE);
+        optypes.push(ValueType.DOUBLE);
         node.getArg().visit(this);
         optypes.pop();
         builder.append(")");
@@ -529,8 +528,8 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(Regex re) throws RuntimeException {
         builder.append(optimizeRegexp(
-                new ValueExpressionEvaluator(re.getArg(), parent, OPTypes.STRING).build(),
-                new ValueExpressionEvaluator(re.getPatternArg(), parent, OPTypes.STRING).build(),
+                new ValueExpressionEvaluator(re.getArg(), parent, ValueType.STRING).build(),
+                new ValueExpressionEvaluator(re.getPatternArg(), parent, ValueType.STRING).build(),
                 re.getFlagsArg()
         ));
     }
@@ -538,7 +537,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(SameTerm cmp) throws RuntimeException {
         // covered by value binding in variables
-        optypes.push(OPTypes.TERM);
+        optypes.push(ValueType.TERM);
         cmp.getLeftArg().visit(this);
         builder.append(" = ");
         cmp.getRightArg().visit(this);
@@ -547,7 +546,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
     @Override
     public void meet(Str node) throws RuntimeException {
-        optypes.push(OPTypes.STRING);
+        optypes.push(ValueType.STRING);
         node.getArg().visit(this);
         optypes.pop();
     }
@@ -555,7 +554,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
     @Override
     public void meet(Sum node) throws RuntimeException {
         builder.append("SUM(");
-        optypes.push(OPTypes.DOUBLE);
+        optypes.push(ValueType.DOUBLE);
         node.getArg().visit(this);
         optypes.pop();
         builder.append(")");
@@ -575,7 +574,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
         } else {
             String var = sv.getAlias();
 
-            if(sv.getProjectionType() != ProjectionType.NODE && sv.getProjectionType() != ProjectionType.NONE) {
+            if(sv.getProjectionType() != ValueType.NODE && sv.getProjectionType() != ValueType.NONE) {
                 // in case the variable represents a constructed or bound value instead of a node, we need to
                 // use the SQL expression as value; SQL should take care of proper casting...
                 // TODO: explicit casting needed?
@@ -605,16 +604,12 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".tvalue");
                         break;
-                    case VALUE:
-                        Preconditions.checkState(var != null, "no alias available for variable");
-                        builder.append(var).append(".svalue");
-                        break;
                     case URI:
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".svalue");
                         break;
                     case TERM:
-                    case ANY:
+                    case NODE:
                         if(sv.getExpressions().size() > 0) {
                             // this allows us to avoid joins with the nodes table for simple expressions that only need the ID
                             builder.append(sv.getExpressions().get(0));
@@ -634,7 +629,6 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
             switch (optypes.peek()) {
                 case STRING:
-                case VALUE:
                 case URI:
                     builder.append("'").append(val).append("'");
                     break;
@@ -653,7 +647,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
                 // in this case we should return a node ID and also need to make sure it actually exists
                 case TERM:
-                case ANY:
+                case NODE:
                     KiWiNode n = parent.getConverter().convert(node.getValue());
                     builder.append(n.getId());
                     break;
@@ -690,7 +684,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
         return copy;
     }
 
-    private String castExpression(String arg, OPTypes type) {
+    private String castExpression(String arg, ValueType type) {
         if(type == null) {
             return arg;
         }
@@ -704,9 +698,9 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                 return functionRegistry.get(XMLSchema.BOOLEAN).getNative(parent.getDialect(), arg);
             case DATE:
                 return functionRegistry.get(XMLSchema.DATETIME).getNative(parent.getDialect(), arg);
-            case VALUE:
+            case STRING:
                 return arg;
-            case ANY:
+            case NODE:
                 return arg;
             default:
                 return arg;

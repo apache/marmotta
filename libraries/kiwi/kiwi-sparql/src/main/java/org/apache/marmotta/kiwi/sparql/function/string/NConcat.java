@@ -22,7 +22,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.openrdf.query.algebra.evaluation.function.string.Concat;
 
@@ -67,8 +67,8 @@ public class NConcat extends Concat implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getReturnType() {
-        return OPTypes.STRING;
+    public ValueType getReturnType() {
+        return ValueType.STRING;
     }
 
     /**
@@ -79,8 +79,8 @@ public class NConcat extends Concat implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getArgumentType(int arg) {
-        return OPTypes.STRING;
+    public ValueType getArgumentType(int arg) {
+        return ValueType.STRING;
     }
 
     /**

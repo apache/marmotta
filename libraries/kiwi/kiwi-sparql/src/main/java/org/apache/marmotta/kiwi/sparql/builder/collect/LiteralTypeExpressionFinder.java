@@ -17,7 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.query.algebra.FunctionCall;
@@ -44,7 +44,7 @@ public class LiteralTypeExpressionFinder  extends QueryModelVisitorBase<RuntimeE
     @Override
     public void meet(FunctionCall node) throws RuntimeException {
         NativeFunction nf = NativeFunctionRegistry.getInstance().get(node.getURI());
-        if(node.getArgs().size() > 0 && nf.getReturnType() == OPTypes.STRING) {
+        if(node.getArgs().size() > 0 && nf.getReturnType() == ValueType.STRING) {
             node.getArgs().get(0).visit(this);
         }
         // otherwise stop here, the function call hides the type and language anyways

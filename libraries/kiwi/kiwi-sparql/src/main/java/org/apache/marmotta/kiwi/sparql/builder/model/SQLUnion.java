@@ -18,9 +18,9 @@
 package org.apache.marmotta.kiwi.sparql.builder.model;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.sparql.builder.ProjectionType;
 import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
 import org.apache.marmotta.kiwi.sparql.builder.ValueConverter;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
@@ -107,7 +107,7 @@ public class SQLUnion extends SQLAbstractSubquery {
             if(!rightVars.containsKey(svl.getSparqlName())) {
                 SQLVariable svr = new SQLVariable(svl.getName(), svl.getSparqlName());
                 svr.getExpressions().add("NULL");
-                svr.setProjectionType(ProjectionType.NODE);
+                svr.setProjectionType(ValueType.NODE);
                 right.getVariables().put(svl.getSparqlName(),svr);
 
                 if(rightProjected.size() > 0) {
@@ -121,7 +121,7 @@ public class SQLUnion extends SQLAbstractSubquery {
             if(!leftVars.containsKey(svr.getSparqlName())) {
                 SQLVariable svl = new SQLVariable(svr.getName(), svr.getSparqlName());
                 svl.getExpressions().add("NULL");
-                svl.setProjectionType(ProjectionType.NODE);
+                svl.setProjectionType(ValueType.NODE);
                 left.getVariables().put(svr.getSparqlName(),svl);
 
                 if(leftProjected.size() > 0) {
