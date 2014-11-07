@@ -199,6 +199,11 @@ public abstract class KiWiDialect {
     public abstract String getILike(String text, String pattern);
 
 
+    /**
+     * Return the name of the aggregate function for group concatenation (string_agg in postgres, GROUP_CONCAT in MySQL)
+     * @return
+     */
+    public abstract String getGroupConcat(String value, String separator, boolean distinct);
 
 
     /**

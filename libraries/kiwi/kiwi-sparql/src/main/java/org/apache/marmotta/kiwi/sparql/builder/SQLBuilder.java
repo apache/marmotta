@@ -23,7 +23,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
 import org.apache.marmotta.kiwi.sparql.builder.collect.*;
-import org.apache.marmotta.kiwi.sparql.builder.eval.ExpressionEvaluator;
+import org.apache.marmotta.kiwi.sparql.builder.eval.ValueExpressionEvaluator;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLAbstractSubquery;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLPattern;
@@ -807,7 +807,7 @@ public class SQLBuilder {
 
 
     private String evaluateExpression(ValueExpr expr, final OPTypes optype) {
-        return new ExpressionEvaluator(expr, this, optype).build();
+        return new ValueExpressionEvaluator(expr, this, optype).build();
     }
 
 

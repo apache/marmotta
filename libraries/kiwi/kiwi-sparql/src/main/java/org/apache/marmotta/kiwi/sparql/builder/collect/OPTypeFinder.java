@@ -72,12 +72,18 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
                     || StringUtils.equals(Namespaces.NS_XSD + "time", type)) {
                 optypes.add(OPTypes.DATE);
             } else {
-                optypes.add(OPTypes.STRING);
+                optypes.add(OPTypes.ANY);
             }
         } else {
             optypes.add(OPTypes.STRING);
         }
     }
+
+    @Override
+    public void meet(SameTerm node) throws RuntimeException {
+        optypes.add(OPTypes.BOOL);
+    }
+
 
     @Override
     public void meet(Str node) throws RuntimeException {
@@ -109,6 +115,11 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
         }
     }
 
+    @Override
+    public void meet(If node) throws RuntimeException {
+        node.getResult().visit(this);
+        node.getAlternative().visit(this);
+    }
 
     public OPTypes coerce() {
         OPTypes left = OPTypes.ANY;

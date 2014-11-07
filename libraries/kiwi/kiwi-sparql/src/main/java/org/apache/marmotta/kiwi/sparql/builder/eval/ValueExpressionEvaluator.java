@@ -49,9 +49,9 @@ import java.util.regex.Pattern;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException> {
+public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeException> {
 
-    private static Logger log = LoggerFactory.getLogger(ExpressionEvaluator.class);
+    private static Logger log = LoggerFactory.getLogger(ValueExpressionEvaluator.class);
 
     /**
      * Date format used for SQL timestamps.
@@ -73,11 +73,11 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
 
     private SQLBuilder parent;
 
-    public ExpressionEvaluator(ValueExpr expr, SQLBuilder parent) {
+    public ValueExpressionEvaluator(ValueExpr expr, SQLBuilder parent) {
         this(expr,parent, OPTypes.ANY);
     }
 
-    public ExpressionEvaluator(ValueExpr expr, SQLBuilder parent, OPTypes optype) {
+    public ValueExpressionEvaluator(ValueExpr expr, SQLBuilder parent, OPTypes optype) {
         this.parent = parent;
 
         optypes.push(optype);
@@ -166,7 +166,7 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
             if (nf != null && nf.isSupported(parent.getDialect())) {
 
                 for (int i = 0; i < args.length; i++) {
-                    args[i] = new ExpressionEvaluator(fc.getArgs().get(i), parent, nf.getArgumentType(i)).build();
+                    args[i] = new ValueExpressionEvaluator(fc.getArgs().get(i), parent, nf.getArgumentType(i)).build();
                 }
 
                 if (optypes.peek() != nf.getReturnType()) {
@@ -210,7 +210,9 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
             builder.append(Boolean.toString(true));
         } else if(arg instanceof Var) {
             builder.append("(");
+            optypes.push(OPTypes.ANY);
             arg.visit(this);
+            optypes.pop();
             builder.append(" IS NOT NULL)");
         }
     }
@@ -268,6 +270,39 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
         }
         builder.append(")");
     }
+
+
+    @Override
+    public void meet(GroupConcat node) throws RuntimeException {
+        if(node.getSeparator() == null) {
+            builder.append(parent.getDialect().getGroupConcat(new ValueExpressionEvaluator(node.getArg(), parent, OPTypes.STRING).build(), null, node.isDistinct()));
+        } else {
+            builder.append(parent.getDialect().getGroupConcat(
+                    new ValueExpressionEvaluator(node.getArg(), parent, OPTypes.STRING).build(),
+                    new ValueExpressionEvaluator(node.getSeparator(), parent, OPTypes.STRING).build(),
+                    node.isDistinct()
+            ));
+        }
+    }
+
+
+    @Override
+    public void meet(If node) throws RuntimeException {
+        builder.append("CASE WHEN ");
+
+        optypes.push(OPTypes.BOOL);
+        node.getCondition().visit(this);
+        optypes.pop();
+
+        optypes.push(new OPTypeFinder(node).coerce());
+        builder.append(" THEN ");
+        node.getResult().visit(this);
+        builder.append(" ELSE ");
+        node.getAlternative().visit(this);
+        builder.append(" END");
+        optypes.pop();
+    }
+
 
     @Override
     public void meet(IsBNode node) throws RuntimeException {
@@ -374,7 +409,7 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
     public void meet(IRIFunction fun) throws RuntimeException {
         if(fun.getBaseURI() != null) {
 
-            String ex = new ExpressionEvaluator(fun.getArg(), parent, OPTypes.STRING).build();
+            String ex = new ValueExpressionEvaluator(fun.getArg(), parent, OPTypes.STRING).build();
 
             builder
                     .append("CASE WHEN position(':' IN ").append(ex).append(") > 0 THEN ").append(ex)
@@ -430,6 +465,22 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
     }
 
     @Override
+    public void meet(Like node) throws RuntimeException {
+        if(node.isCaseSensitive()) {
+            optypes.push(OPTypes.STRING);
+            node.getArg().visit(this);
+            optypes.pop();
+
+            builder.append(" LIKE ");
+            node.getPattern();
+        } else {
+            builder.append(parent.getDialect().getILike(new ValueExpressionEvaluator(node.getArg(),parent, OPTypes.STRING).build(), node.getOpPattern()));
+        }
+
+    }
+
+
+    @Override
     public void meet(LocalName node) throws RuntimeException {
         super.meet(node);
     }
@@ -440,7 +491,7 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
 
         if(ot == OPTypes.STRING) {
             if(expr.getOperator() == MathExpr.MathOp.PLUS) {
-                builder.append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(),new ExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
+                builder.append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(),new ValueExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ValueExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
             } else {
                 throw new IllegalArgumentException("operation "+expr.getOperator()+" is not supported on strings");
             }
@@ -478,8 +529,8 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
     @Override
     public void meet(Regex re) throws RuntimeException {
         builder.append(optimizeRegexp(
-                new ExpressionEvaluator(re.getArg(), parent, OPTypes.STRING).build(),
-                new ExpressionEvaluator(re.getPatternArg(), parent, OPTypes.STRING).build(),
+                new ValueExpressionEvaluator(re.getArg(), parent, OPTypes.STRING).build(),
+                new ValueExpressionEvaluator(re.getPatternArg(), parent, OPTypes.STRING).build(),
                 re.getFlagsArg()
         ));
     }
@@ -546,6 +597,10 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".dvalue");
                         break;
+                    case BOOL:
+                        Preconditions.checkState(var != null, "no alias available for variable");
+                        builder.append(var).append(".bvalue");
+                        break;
                     case DATE:
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".tvalue");
@@ -588,6 +643,9 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
                     break;
                 case DOUBLE:
                     builder.append(Double.parseDouble(val));
+                    break;
+                case BOOL:
+                    builder.append(Boolean.parseBoolean(val));
                     break;
                 case DATE:
                     builder.append("'").append(sqlDateFormat.format(DateUtils.parseDate(val))).append("'");

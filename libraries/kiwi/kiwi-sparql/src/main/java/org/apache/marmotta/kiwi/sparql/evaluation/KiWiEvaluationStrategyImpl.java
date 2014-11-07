@@ -19,7 +19,7 @@ package org.apache.marmotta.kiwi.sparql.evaluation;
 
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
-import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
+import org.apache.marmotta.kiwi.sparql.builder.collect.SupportedFinder;
 import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
@@ -52,48 +52,6 @@ import java.util.Set;
 public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategyImpl.class);
-
-    // TODO: supported features should be checked based on this Set
-    private static Set<Class> supportedConstructs = new HashSet<>();
-    static {
-        supportedConstructs.add(Join.class);
-        supportedConstructs.add(LeftJoin.class);
-        supportedConstructs.add(Filter.class);
-        supportedConstructs.add(Extension.class);
-        supportedConstructs.add(StatementPattern.class);
-        supportedConstructs.add(Slice.class);
-        supportedConstructs.add(Reduced.class);
-        supportedConstructs.add(Distinct.class);
-        supportedConstructs.add(Union.class);
-        supportedConstructs.add(Projection.class); // subquery only
-        supportedConstructs.add(Order.class);
-        supportedConstructs.add(Group.class);
-
-        supportedConstructs.add(Coalesce.class);
-        supportedConstructs.add(Count.class);
-        supportedConstructs.add(Avg.class);
-        supportedConstructs.add(Min.class);
-        supportedConstructs.add(Max.class);
-        supportedConstructs.add(Sum.class);
-        supportedConstructs.add(Compare.class);
-        supportedConstructs.add(MathExpr.class);
-        supportedConstructs.add(And.class);
-        supportedConstructs.add(Or.class);
-        supportedConstructs.add(Not.class);
-        supportedConstructs.add(Var.class);
-        supportedConstructs.add(Str.class);
-        supportedConstructs.add(Label.class);
-        supportedConstructs.add(BNodeGenerator.class);
-        supportedConstructs.add(IRIFunction.class);
-        supportedConstructs.add(IsResource.class);
-        supportedConstructs.add(IsURI.class);
-        supportedConstructs.add(IsBNode.class);
-        supportedConstructs.add(IsLiteral.class);
-        supportedConstructs.add(Lang.class);
-        supportedConstructs.add(LangMatches.class);
-        supportedConstructs.add(Regex.class);
-        supportedConstructs.add(FunctionCall.class); // need to check for supported functions
-    }
 
 
     /**
@@ -234,157 +192,11 @@ public class KiWiEvaluationStrategyImpl extends EvaluationStrategyImpl{
     /**
      * Test if a tuple expression is supported nby the optimized evaluation; in this case we can apply a specific optimization.
      *
-     * TODO: implement as visitor
-     *
      * @param expr
      * @return
      */
     private boolean isSupported(TupleExpr expr) {
-        if(expr instanceof Join) {
-            return isSupported(((Join) expr).getLeftArg()) && isSupported(((Join) expr).getRightArg());
-        } else if(expr instanceof LeftJoin) {
-            return isSupported(((LeftJoin) expr).getLeftArg()) && isSupported(((LeftJoin) expr).getRightArg()) && isSupported(((LeftJoin)expr).getCondition());
-        } else if(expr instanceof Filter) {
-            return isSupported(((Filter) expr).getArg()) && isSupported(((Filter) expr).getCondition());
-        } else if(expr instanceof Extension) {
-            for(ExtensionElem elem : ((Extension) expr).getElements()) {
-                if(!isSupported(elem.getExpr())) {
-                    return false;
-                }
-            }
-            return isSupported(((Extension) expr).getArg());
-        } else if(expr instanceof StatementPattern) {
-            return true;
-        } else if(expr instanceof Slice) {
-            return isSupported(((Slice) expr).getArg());
-        } else if(expr instanceof Reduced) {
-            return isSupported(((Reduced) expr).getArg());
-        } else if(expr instanceof Distinct) {
-            return isSupported(((Distinct) expr).getArg());
-        } else if(expr instanceof Union) {
-            return isSupported(((Union) expr).getLeftArg()) && isSupported(((Union)expr).getRightArg());
-        } else if(expr instanceof Projection) {
-            return isSupported(((Projection) expr).getArg());
-        } else if(expr instanceof Order) {
-            for(OrderElem elem : ((Order) expr).getElements()) {
-                if(!isSupported(elem.getExpr())) {
-                    return false;
-                }
-            }
-            return isSupported(((Order) expr).getArg());
-        } else if(expr instanceof Group) {
-            for(GroupElem elem : ((Group) expr).getGroupElements()) {
-                if(!isSupported(elem.getOperator())) {
-                    return false;
-                }
-            }
-            return isSupported(((Group) expr).getArg());
-        } else if(expr instanceof SingletonSet) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Test if the value expression construct and all its subexpressions are supported by the optimized evaluation
-     * strategy. Returns true if yes, false otherwise.
-     *
-     * TODO: implement as visitor
-     *
-     * @param expr
-     * @return
-     */
-    private boolean isSupported(ValueExpr expr) {
-        if(expr == null) {
-            return true;
-        } else if(expr instanceof Coalesce) {
-            for(ValueExpr e : ((Coalesce) expr).getArguments()) {
-                if(!isSupported(e)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if(expr instanceof Count) {
-            if(((Count) expr).getArg() == null) {
-                return connection.getDialect().isArraySupported();
-            } else {
-                return isSupported(((Count) expr).getArg());
-            }
-        } else if(expr instanceof Avg) {
-            return isSupported(((Avg) expr).getArg());
-        } else if(expr instanceof Min) {
-            return isSupported(((Min) expr).getArg());
-        } else if(expr instanceof Max) {
-            return isSupported(((Max) expr).getArg());
-        } else if(expr instanceof Sum) {
-            return isSupported(((Sum) expr).getArg());
-        } else if(expr instanceof Compare) {
-            return isSupported(((Compare) expr).getLeftArg()) && isSupported(((Compare) expr).getRightArg());
-        } else if(expr instanceof SameTerm) {
-            return isSupported(((SameTerm) expr).getLeftArg()) && isSupported(((SameTerm) expr).getRightArg());
-        } else if(expr instanceof MathExpr) {
-            return isSupported(((MathExpr) expr).getLeftArg()) && isSupported(((MathExpr) expr).getRightArg());
-        } else if(expr instanceof And) {
-            return isSupported(((And) expr).getLeftArg()) && isSupported(((And) expr).getRightArg());
-        } else if(expr instanceof Or) {
-            return isSupported(((Or) expr).getLeftArg()) && isSupported(((Or) expr).getRightArg());
-        } else if(expr instanceof Not) {
-            return isSupported(((Not) expr).getArg());
-        } else if(expr instanceof Exists) {
-            return isSupported(((Exists) expr).getSubQuery());
-        } else if(expr instanceof ValueConstant) {
-            return true;
-        } else if(expr instanceof Var) {
-            return true;
-        } else if(expr instanceof Str) {
-            return isAtomic(((Str) expr).getArg());
-        } else if(expr instanceof Label) {
-            return isAtomic(((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof BNodeGenerator) {
-            if(((BNodeGenerator) expr).getNodeIdExpr() != null) {
-                return isAtomic(((BNodeGenerator) expr).getNodeIdExpr());
-            } else {
-                return true;
-            }
-        } else if(expr instanceof IRIFunction) {
-            return isAtomic(((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof Bound) {
-            return true;
-        } else if(expr instanceof IsResource) {
-            return isAtomic(((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof IsURI) {
-            return isAtomic(((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof IsBNode) {
-            return isAtomic(((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof IsLiteral) {
-            return isAtomic(((UnaryValueOperator) expr).getArg());
-        } else if(expr instanceof Lang) {
-            return isAtomic(((Lang) expr).getArg());
-        } else if(expr instanceof LangMatches) {
-            return isSupported(((LangMatches) expr).getLeftArg()) && isConstant(((LangMatches) expr).getRightArg());
-        } else if(expr instanceof Regex) {
-            ValueExpr flags = ((Regex) expr).getFlagsArg();
-            String _flags = flags != null && flags instanceof ValueConstant ? ((ValueConstant)flags).getValue().stringValue() : null;
-            return isSupported(((Regex) expr).getArg()) && isAtomic(((Regex) expr).getPatternArg()) && connection.getDialect().isRegexpSupported(_flags);
-        } else if(expr instanceof FunctionCall) {
-            return isFunctionSupported((FunctionCall)expr);
-        } else {
-            return false;
-        }
-    }
-
-    private boolean isFunctionSupported(FunctionCall fc) {
-        return NativeFunctionRegistry.getInstance().get(fc.getURI()) != null && NativeFunctionRegistry.getInstance().get(fc.getURI()).isSupported(connection.getDialect());
-    }
-
-
-    private static boolean isAtomic(ValueExpr expr) {
-        return expr instanceof Var || expr instanceof ValueConstant;
-    }
-
-    private static boolean isConstant(ValueExpr expr) {
-        return expr instanceof ValueConstant;
+        return new SupportedFinder(expr, connection.getDialect()).isSupported();
     }
 
 }

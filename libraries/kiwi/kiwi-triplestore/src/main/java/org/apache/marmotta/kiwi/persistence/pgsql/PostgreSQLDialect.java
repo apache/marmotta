@@ -90,6 +90,24 @@ public class PostgreSQLDialect extends KiWiDialect {
         return text + " ILIKE " + pattern;
     }
 
+    /**
+     * Return the name of the aggregate function for group concatenation (string_agg in postgres, GROUP_CONCAT in MySQL)
+     *
+     * @param value
+     * @param separator
+     * @return
+     */
+    @Override
+    public String getGroupConcat(String value, String separator, boolean distinct) {
+        if(distinct) {
+            value = "DISTINCT " + value;
+        }
+        if(separator != null) {
+            return String.format("string_agg(%s, %s)", value, separator);
+        } else {
+            return String.format("string_agg(%s, '')", value);
+        }
+    }
 
     /**
      * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
