@@ -22,8 +22,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.Monitor;
 
-import java.util.HashSet;
-
 /**
  * An implementation of dynamic name-based locks that allows more fine-grained locking methods based on a string name.
  *

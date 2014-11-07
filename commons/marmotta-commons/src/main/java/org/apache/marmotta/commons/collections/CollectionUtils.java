@@ -17,15 +17,8 @@
  */
 package org.apache.marmotta.commons.collections;
 
-import com.google.common.base.Equivalence;
-
 import java.text.Format;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class contains static helper methods for supporting java collections
