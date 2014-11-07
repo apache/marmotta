@@ -1070,7 +1070,7 @@ public class KiWiConnection implements AutoCloseable {
             }
 
             if(stringLiteral.getLocale() != null) {
-                insertNode.setString(5, stringLiteral.getLocale().getLanguage());
+                insertNode.setString(5, stringLiteral.getLocale().getLanguage().toLowerCase());
             } else {
                 insertNode.setObject(5, null);
             }

@@ -97,10 +97,21 @@ public class SQLBuilder {
 
 
     /**
-     * The triple patterns collected from the query.
+     * The SQL fragments and triple patterns collected from the query. SQLFragments are LEFT JOINed with each other,
+     * so for each OPTIONAL found in the query, a new fragment is appended here. Inside a fragment, the patterns
+     * are CROSS JOINed with each other.
+     *
+     * @see org.apache.marmotta.kiwi.sparql.builder.collect.PatternCollector
      */
     private List<SQLFragment> fragments;
 
+    /**
+     * Contains the names  those variables for which the value is needed instead of the ID, because the value is used
+     * somewhere in a condition, function or other kind of value expression.
+     *
+     * @see org.apache.marmotta.kiwi.sparql.builder.collect.ConditionFinder
+     */
+    private Set<String> resolveVariables;
 
     private TupleExpr query;
 
@@ -205,8 +216,10 @@ public class SQLBuilder {
         // find extensions (BIND)
         extensions = new ExtensionFinder(query).elements;
 
-        int variableCount = 0;
+        // find variables that need to be resolved
+        resolveVariables = new ConditionFinder(query).neededVariables;
 
+        int variableCount = 0;
 
         // find all variables that have been bound already, even if they do not appear in a pattern
         for(Var v : new VariableFinder(query).variables) {
@@ -251,7 +264,7 @@ public class SQLBuilder {
                             String pName = p.getName();
                             String vName = sv.getName();
 
-                            if (sv.getAlias() == null && new ConditionFinder(v.getName(), query).found) {
+                            if (sv.getAlias() == null && resolveVariables.contains(v.getName())) {
                                 sv.setAlias(pName + "_" + positions[i] + "_" + vName);
                             }
 
@@ -277,7 +290,7 @@ public class SQLBuilder {
                         String sqName = sq.getAlias();
                         String vName = sv.getName();
 
-                        if (sv.getAlias() == null && new ConditionFinder(sq_v.getSparqlName(), query).found) {
+                        if (sv.getAlias() == null && resolveVariables.contains(sq_v.getSparqlName())) {
                             sv.setAlias(sqName + "_" + vName);
                         }
 
@@ -289,11 +302,55 @@ public class SQLBuilder {
         }
 
 
+        // add all extensions to the variable list so they are properly considered in projections and clauses
+        // TODO: order by variable dependency, or otherwise the evaluateExpression might fail
+        List<ExtensionElem> deferredExtensions = new ArrayList<>(); // some extension might need to be evaluated later because their expressions cannot be computed yet
+        for(ExtensionElem ext : extensions) {
+            Var v = new Var(ext.getName());
+
+            SQLVariable sv = variables.get(v.getName());
+            if(!variables.containsKey(v.getName())) {
+                sv = new SQLVariable("V" + (++variableCount), v.getName());
+
+                // select those variables that are really projected and not only needed in a grouping construct
+                if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
+                    sv.setProjectionType(getProjectionType(ext.getExpr()));
+                }
+
+                // Functions that return a string literal do so with the string literal of the same kind as the first
+                // argument (simple literal, plain literal with same language tag, xsd:string).
+                ProjectionType type = getProjectionType(ext.getExpr());
+                if(type == ProjectionType.STRING) {
+                    sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
+                    sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
+                    // TODO: the following will produce invalid results for aggregation functions
+                /*
+                } else if(type == ProjectionType.INT || type == ProjectionType.DOUBLE || type == ProjectionType.BOOL) {
+                    sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
+                */
+                }
+
+                addVariable(sv);
+            }
+
+            // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
+            //       of variables in conditions etc
+            if (resolveVariables.contains(v.getName())) {
+                //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
+                sv.getBindings().add(ext.getExpr());
+            }
+
+            try {
+                sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+            } catch(IllegalStateException ex) {
+                deferredExtensions.add(ext);
+            }
+
+        }
 
 
         // calculate for each variable the SQL expressions representing them and any necessary JOIN conditions
-
-        for(SQLFragment f : fragments) {
+        for (SQLFragment f : fragments) {
             for (SQLPattern p : f.getPatterns()) {
                 // build pattern
                 Var[] fields = p.getFields();
@@ -316,8 +373,8 @@ public class SQLBuilder {
             }
 
             // subqueries: look up which variables are bound in the subqueries and add proper aliases
-            for(SQLAbstractSubquery sq : f.getSubqueries()) {
-                for(SQLVariable sq_v : sq.getQueryVariables()) {
+            for (SQLAbstractSubquery sq : f.getSubqueries()) {
+                for (SQLVariable sq_v : sq.getQueryVariables()) {
                     SQLVariable sv = variables.get(sq_v.getSparqlName());
 
                     String sqName = sq.getAlias();
@@ -333,39 +390,12 @@ public class SQLBuilder {
             }
         }
 
-        // add all extensions to the variable list so they are properly considered in projections and clauses
-        // TODO: order by variable dependency, or otherwise the evaluateExpression might fail
-        for(ExtensionElem ext : extensions) {
+        for(ExtensionElem ext : deferredExtensions) {
             Var v = new Var(ext.getName());
 
             SQLVariable sv = variables.get(v.getName());
-            if(!variables.containsKey(v.getName())) {
-                sv = new SQLVariable("V" + (++variableCount), v.getName());
-
-                // select those variables that are really projected and not only needed in a grouping construct
-                if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
-                    sv.setProjectionType(getProjectionType(ext.getExpr()));
-                }
-
-                // Functions that return a string literal do so with the string literal of the same kind as the first
-                // argument (simple literal, plain literal with same language tag, xsd:string).
-                sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
-                sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
-
-                addVariable(sv);
-            }
-
-            // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
-            //       of variables in conditions etc
-            if (new ConditionFinder(v.getName(), query).found) {
-                //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
-                sv.getBindings().add(ext.getExpr());
-            }
-
             sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
-
         }
-
 
         // find context restrictions of patterns and match them with potential restrictions given in the
         // dataset (MARMOTTA-340)
@@ -531,7 +561,7 @@ public class SQLBuilder {
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
                     if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && !joined.contains(fieldEntry.getValue().getName())
-                        && new ConditionFinder(fieldEntry.getValue().getName(),query).found) {
+                        && resolveVariables.contains(fieldEntry.getValue().getName())) {
                         p.setJoinField(fieldEntry.getKey(), variables.get(fieldEntry.getValue().getName()).getName());
                         joined.add(fieldEntry.getValue().getName());
                     }
@@ -540,11 +570,11 @@ public class SQLBuilder {
 
             for(SQLAbstractSubquery sq : f.getSubqueries()) {
                 for(SQLVariable sq_v : sq.getQueryVariables()) {
-                    if(!joined.contains(sq_v.getName()) && new ConditionFinder(sq_v.getSparqlName(),query).found && sq_v.getProjectionType() == ProjectionType.NODE) {
+                    if(!joined.contains(sq_v.getSparqlName()) && resolveVariables.contains(sq_v.getSparqlName()) && sq_v.getProjectionType() == ProjectionType.NODE) {
                         // this is needed in case we need to JOIN with the NODES table to retrieve values
                         SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
                         sq.getJoinFields().add(new SQLAbstractSubquery.VariableMapping(sv.getName(), sq_v.getName()));
-                        joined.add(sv.getName());
+                        joined.add(sq_v.getSparqlName());
                     }
                 }
             }

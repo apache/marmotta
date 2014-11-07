@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
+import com.google.common.base.Preconditions;
 import org.apache.marmotta.commons.sesame.model.URICommons;
 import org.openrdf.model.URI;
 
@@ -47,11 +48,13 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     public KiWiUriResource(String uri) {
         super();
+        Preconditions.checkArgument(uri.indexOf(':') >= 0, "Not a valid (absolute) URI: " + uri);
         this.uri = uri;
     }
 
     public KiWiUriResource(String uri, Date created) {
         super(created);
+        Preconditions.checkArgument(uri.indexOf(':') >= 0, "Not a valid (absolute) URI: " + uri);
         this.uri = uri;
     }
 
@@ -66,6 +69,7 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     @Deprecated
     public void setUri(String uri) {
+        Preconditions.checkArgument(uri.indexOf(':') >= 0, "Not a valid (absolute) URI: " + uri);
         this.uri = uri;
     }
 

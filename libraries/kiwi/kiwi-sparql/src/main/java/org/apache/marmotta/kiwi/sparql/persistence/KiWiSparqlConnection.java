@@ -154,13 +154,29 @@ public class KiWiSparqlConnection {
                                     case INT:
                                         if(row.getObject(sv.getName()) != null) {
                                             svalue = Integer.toString(row.getInt(sv.getName()));
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Integer));
+                                            URI type = XSD.Integer;
+                                            try {
+                                                long typeId = row.getLong(sv.getName() + "_TYPE");
+                                                if (typeId > 0)
+                                                    type = (URI) parent.loadNodeById(typeId);
+                                            } catch (SQLException ex) {
+                                            }
+
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
                                         }
                                         break;
                                     case DOUBLE:
                                         if(row.getObject(sv.getName()) != null) {
                                             svalue = Double.toString(row.getDouble(sv.getName()));
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, XSD.Double));
+                                            URI type = XSD.Double;
+                                            try {
+                                                long typeId = row.getLong(sv.getName() + "_TYPE");
+                                                if (typeId > 0)
+                                                    type = (URI) parent.loadNodeById(typeId);
+                                            } catch (SQLException ex) {
+                                            }
+
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
                                         }
                                         break;
                                     case BOOL:
@@ -178,12 +194,12 @@ public class KiWiSparqlConnection {
                                             // retrieve optional type and language information, because string functions
                                             // need to preserve this in certain cases, even when constructing new literals
                                             String lang = null;
-                                            URI type = null;
                                             try {
                                                 lang = row.getString(sv.getName() + "_LANG");
                                             } catch (SQLException ex) {
                                             }
 
+                                            URI type = null;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)

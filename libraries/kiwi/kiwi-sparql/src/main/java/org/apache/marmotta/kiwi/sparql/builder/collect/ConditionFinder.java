@@ -20,6 +20,9 @@ package org.apache.marmotta.kiwi.sparql.builder.collect;
 import org.openrdf.query.algebra.*;
 import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Check if a variable is used as a condition somewhere and therefore needs to be resolved.
  *
@@ -27,31 +30,21 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
  */
 public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    public boolean found = false;
+    // indicate (if > 0) if the value of variables in recursive calls need to be retrieved because the
+    // enclosing construct operates on values instead of nodes
+    int valueNeeded = 0;
 
-    private String varName;
-    private boolean valueNeeded = false; // indicate if the value of the node is actually needed or the id is sufficient
+    // set of variables that need a value to be resolved (used by ExtensionElem resolution)
+    public Set<String> neededVariables = new HashSet<>();
 
-    public ConditionFinder(String varName, TupleExpr expr) {
-        this.varName = varName;
-
+    public ConditionFinder(TupleExpr expr) {
         expr.visit(this);
     }
 
     @Override
     public void meet(Var node) throws RuntimeException {
-        if(valueNeeded && !found) {
-            found = node.getName().equals(varName);
-        }
-    }
-
-    @Override
-    public void meet(Count node) throws RuntimeException {
-        if(!found && node.getArg() == null) {
-            // special case: count(*), we need the variable
-            found = true;
-        } else {
-            super.meet(node);
+        if(valueNeeded > 0) {
+            neededVariables.add(node.getName());
         }
     }
 
@@ -76,158 +69,197 @@ public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(Avg node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(BNodeGenerator node) throws RuntimeException {
-        valueNeeded = true;
-        super.meet(node);
+        valueNeeded++;
+        if(node.getNodeIdExpr() != null) {
+            node.getNodeIdExpr().visit(this);
+        }
+        valueNeeded--;
     }
 
     @Override
     public void meet(Compare node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Datatype node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(IRIFunction node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(IsBNode node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(IsLiteral node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(IsNumeric node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(IsResource node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(IsURI node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Label node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Lang node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(LangMatches node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Like node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(MathExpr node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(LocalName node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Max node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Min node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Namespace node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Regex node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(SameTerm node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Str node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(Sum node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(FunctionCall node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
     }
 
     @Override
     public void meet(OrderElem node) throws RuntimeException {
-        valueNeeded = true;
-        super.meet(node);
+        valueNeeded++;
+        node.getExpr().visit(this);
+        valueNeeded--;
     }
 
     @Override
     public void meet(GroupElem node) throws RuntimeException {
-        valueNeeded = true;
+        valueNeeded++;
         super.meet(node);
+        valueNeeded--;
+    }
+
+    @Override
+    public void meet(ExtensionElem node) throws RuntimeException {
+        if(neededVariables.contains(node.getName())) {
+            valueNeeded++;
+            super.meet(node);
+            valueNeeded--;
+        } else {
+            super.meet(node);
+        }
     }
 
 }

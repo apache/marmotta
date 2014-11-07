@@ -17,6 +17,7 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.eval;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -251,8 +252,9 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
             List<String> countVariables = new ArrayList<>();
             for(SQLVariable v : parent.getVariables().values()) {
                 if(v.getProjectionType() == ProjectionType.NONE) {
-                    //countVariables.add(v.getExpressions().get(0));
-                    countVariables.add(v.getAlias());
+                    Preconditions.checkState(v.getExpressions().size() > 0, "no expressions available for variable");
+
+                    countVariables.add(v.getExpressions().get(0));
                 }
             }
             builder.append("ARRAY[");
@@ -291,6 +293,8 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 
+            Preconditions.checkState(var != null, "no alias available for variable");
+
             builder.append("(")
                     .append(var)
                     .append(".ntype = 'string' OR ")
@@ -320,6 +324,8 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 
+            Preconditions.checkState(var != null, "no alias available for variable");
+
             builder.append("(")
                     .append(var)
                     .append(".ntype = 'int' OR ")
@@ -338,6 +344,8 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 
+            Preconditions.checkState(var != null, "no alias available for variable");
+
             builder .append("(")
                     .append(var)
                     .append(".ntype = 'uri' OR ")
@@ -355,6 +363,8 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
             builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof URI));
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
+
+            Preconditions.checkState(var != null, "no alias available for variable");
 
             builder.append(var).append(".ntype = 'uri'");
         }
@@ -388,7 +398,10 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
     @Override
     public void meet(Lang lang) throws RuntimeException {
         if(lang.getArg() instanceof Var) {
-            builder.append(getVariableAlias((Var) lang.getArg()));
+            String var = getVariableAlias((Var) lang.getArg());
+            Preconditions.checkState(var != null, "no alias available for variable");
+
+            builder.append(var);
             builder.append(".lang");
         }
     }
@@ -404,15 +417,15 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
             lm.getLeftArg().visit(this);
             builder.append(" IS NULL");
         } else {
-            builder.append("(lower(");
+            builder.append("(");
             lm.getLeftArg().visit(this);
-            builder.append(") = lower('");
+            builder.append(" = '");
             builder.append(pattern.getValue().stringValue().toLowerCase());
-            builder.append("') OR lower(");
+            builder.append("' OR ");
             lm.getLeftArg().visit(this);
-            builder.append(") LIKE lower('");
+            builder.append(" LIKE '");
             builder.append(pattern.getValue().stringValue().toLowerCase());
-            builder.append("-%') )");
+            builder.append("-%' )");
         }
     }
 
@@ -522,21 +535,27 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
                 // operator type
                 switch (optypes.peek()) {
                     case STRING:
+                        Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".svalue");
                         break;
                     case INT:
+                        Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".ivalue");
                         break;
                     case DOUBLE:
+                        Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".dvalue");
                         break;
                     case DATE:
+                        Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".tvalue");
                         break;
                     case VALUE:
+                        Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".svalue");
                         break;
                     case URI:
+                        Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".svalue");
                         break;
                     case TERM:
@@ -545,6 +564,7 @@ public class ExpressionEvaluator extends QueryModelVisitorBase<RuntimeException>
                             // this allows us to avoid joins with the nodes table for simple expressions that only need the ID
                             builder.append(sv.getExpressions().get(0));
                         } else {
+                            Preconditions.checkState(var != null, "no alias available for variable");
                             builder.append(var).append(".id");
                         }
                         break;
