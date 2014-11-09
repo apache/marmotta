@@ -155,7 +155,7 @@ public class SparqlServiceImpl implements SparqlService {
                     RepositoryConnection connection = sesameService.getConnection();
                     try {
                         connection.begin();
-                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query, configurationService.getBaseUri());
 
                         if (sparqlQuery instanceof TupleQuery) {
                             query((TupleQuery) sparqlQuery, tupleWriter);
@@ -220,7 +220,7 @@ public class SparqlServiceImpl implements SparqlService {
                     RepositoryConnection connection = sesameService.getConnection();
                     try {
                         connection.begin();
-                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query, configurationService.getBaseUri());
 
                         if (sparqlQuery instanceof TupleQuery) {
                             query((TupleQuery) sparqlQuery, (TupleQueryResultWriter)writer);
@@ -284,7 +284,7 @@ public class SparqlServiceImpl implements SparqlService {
                     RepositoryConnection connection = sesameService.getConnection();
                     try {
                         connection.begin();
-                        Query sparqlQuery = connection.prepareQuery(language, query);
+                        Query sparqlQuery = connection.prepareQuery(language, query, configurationService.getBaseUri());
 
                         if (sparqlQuery instanceof TupleQuery) {
                             query((TupleQuery)sparqlQuery, output, format);
@@ -485,7 +485,7 @@ public class SparqlServiceImpl implements SparqlService {
             RepositoryConnection connection = sesameService.getConnection();
             try {
                 connection.begin();
-                BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query);
+                BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query, configurationService.getBaseUri());
                 result = ask.evaluate();
                 connection.commit();
             } catch (MalformedQueryException e) {
