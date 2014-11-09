@@ -342,6 +342,9 @@ public class SQLBuilder {
 
             try {
                 sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
+                if(sv.getProjectionType() == ValueType.NODE && getProjectionType(ext.getExpr()) != ValueType.NODE) {
+                    sv.setProjectionType(getProjectionType(ext.getExpr()));
+                }
             } catch(IllegalStateException ex) {
                 deferredExtensions.add(ext);
             }
@@ -364,7 +367,28 @@ public class SQLBuilder {
 
                         // if the variable has been used before, add a join condition to the first occurrence
                         if(sv.getExpressions().size() > 0) {
-                            p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
+                            switch (sv.getProjectionType()) {
+                                case INT:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".ivalue");
+                                    break;
+                                case DOUBLE:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".dvalue");
+                                    break;
+                                case DATE:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".tvalue");
+                                    break;
+                                case BOOL:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".bvalue");
+                                    break;
+                                case URI:
+                                case STRING:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".svalue");
+                                    break;
+
+                                default:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
+                                    break;
+                            }
                         }
 
                         sv.getExpressions().add(pName + "." + positions[i]);

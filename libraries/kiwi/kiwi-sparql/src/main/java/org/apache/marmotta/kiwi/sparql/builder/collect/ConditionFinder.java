@@ -253,13 +253,11 @@ public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
 
     @Override
     public void meet(ExtensionElem node) throws RuntimeException {
-        if(neededVariables.contains(node.getName())) {
-            valueNeeded++;
-            super.meet(node);
-            valueNeeded--;
-        } else {
-            super.meet(node);
-        }
+        neededVariables.add(node.getName());
+
+        valueNeeded++;
+        super.meet(node);
+        valueNeeded--;
     }
 
 }
