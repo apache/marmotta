@@ -81,6 +81,14 @@ public class SupportedFinder extends QueryModelVisitorBase<RuntimeException> {
 
 
     @Override
+    public void meet(Datatype node) throws RuntimeException {
+        // datatype checking would require a self-join of the nodes table for variables and some other magic for
+        // generated values, so it is currently not yet supported
+        supported = false;
+    }
+
+
+    @Override
     public void meet(DescribeOperator node) throws RuntimeException {
         supported = false;
     }
