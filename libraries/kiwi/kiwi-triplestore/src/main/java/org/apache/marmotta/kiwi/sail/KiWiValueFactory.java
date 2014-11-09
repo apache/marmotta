@@ -345,7 +345,8 @@ public class KiWiValueFactory implements ValueFactory {
                     }
                 } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
                         Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
-                        type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
+                        type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float") ||
+                        type.equals(Namespaces.NS_XSD+"decimal")) {
                     double dvalue = 0.0;
                     if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
                         dvalue = (Float)value;

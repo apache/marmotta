@@ -853,6 +853,8 @@ public class SQLBuilder {
             return ValueType.DOUBLE;
         } else if(expr instanceof Compare) {
             return ValueType.BOOL;
+        } else if(expr instanceof If) {
+            return getProjectionType(((If) expr).getResult());
         } else {
             return ValueType.STRING;
         }
