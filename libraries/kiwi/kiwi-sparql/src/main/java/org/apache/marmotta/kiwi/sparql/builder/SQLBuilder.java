@@ -367,6 +367,9 @@ public class SQLBuilder {
 
                         // if the variable has been used before, add a join condition to the first occurrence
                         if(sv.getExpressions().size() > 0) {
+                            // case distinction: is this variable projected as node or as another value in an extension?
+                            // if it is a value, we need to refer to the corresponding typed column of the node, otherwise
+                            // to the node ID (field ID is sufficient)
                             switch (sv.getProjectionType()) {
                                 case INT:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".ivalue");
