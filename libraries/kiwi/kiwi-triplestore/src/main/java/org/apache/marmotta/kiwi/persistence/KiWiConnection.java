@@ -1849,12 +1849,13 @@ public class KiWiConnection implements AutoCloseable {
             cacheNode(result);
             return result;
         } else if("date".equals(ntype)) {
-            KiWiDateLiteral result = new KiWiDateLiteral(new DateTime(row.getTimestamp(6, calendarUTC).getTime(), DateTimeZone.forOffsetMillis(row.getInt(7)*1000)), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
-            result.setId(id);
-
+            KiWiDateLiteral result;
             if(row.getLong(10) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
+                result = new KiWiDateLiteral(new DateTime(row.getTimestamp(6, calendarUTC).getTime(), DateTimeZone.forOffsetMillis(row.getInt(7)*1000)), (KiWiUriResource) loadNodeById(row.getLong(10)), new Date(row.getTimestamp(11, calendarUTC).getTime()));
+            } else {
+                result = new KiWiDateLiteral(new DateTime(row.getTimestamp(6, calendarUTC).getTime(), DateTimeZone.forOffsetMillis(row.getInt(7)*1000)), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             }
+            result.setId(id);
 
             cacheNode(result);
             return result;

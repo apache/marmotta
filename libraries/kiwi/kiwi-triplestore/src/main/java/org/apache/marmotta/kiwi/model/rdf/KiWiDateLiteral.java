@@ -88,7 +88,15 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
      */
     @Override
     public String getContent() {
-        return DateUtils.getXMLCalendar(dateContent).toXMLFormat();
+        if(XSD.DateTime.equals(getDatatype())) {
+            return DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
+        } else if(XSD.Date.equals(getDatatype())) {
+            return ISODateTimeFormat.date().print(dateContent);
+        } else if(XSD.Time.equals(getDatatype())) {
+            return ISODateTimeFormat.time().print(dateContent);
+        } else {
+            return DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
+        }
     }
 
     /**
@@ -109,7 +117,7 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
      */
     @Override
     public String getLabel() {
-        return calendarValue().toXMLFormat();
+        return getContent();
     }
 
     /**
