@@ -16,13 +16,12 @@
  */
 package org.apache.marmotta.kiwi.loader.csv;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.DateCellProcessor;
 import org.supercsv.exception.SuperCsvCellProcessorException;
 import org.supercsv.util.CsvContext;
-
-import java.sql.Timestamp;
-import java.util.Date;
 
 /**
  * Add file description here!
@@ -42,11 +41,10 @@ public class SQLTimestampProcessor extends CellProcessorAdaptor implements DateC
             return null;
         }
 
-        if( !(value instanceof Date) ) {
-            throw new SuperCsvCellProcessorException(Date.class, value, context, this);
+        if( !(value instanceof DateTime) ) {
+            throw new SuperCsvCellProcessorException(DateTime.class, value, context, this);
         }
 
-        Timestamp date = new Timestamp(((Date)value).getTime());
-        return date.toString();
+        return ISODateTimeFormat.dateTime().withZoneUTC().print((DateTime)value);
     }
 }

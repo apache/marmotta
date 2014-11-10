@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.kiwi.loader.csv.*;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.joda.time.DateTime;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,7 +151,7 @@ public class MySQLLoadUtil {
                 createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDateLiteral) {
                 KiWiDateLiteral l = (KiWiDateLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent().toDate(), l.getDateContent().getZone().getOffset(l.getDateContent()), null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), l.getDateContent().getZone().getOffset(l.getDateContent()), null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
 
@@ -176,7 +177,7 @@ public class MySQLLoadUtil {
         return IOUtils.toInputStream(out.toString());
     }
 
-    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, Date date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
         a[0] = id;
         a[1] = type;
         a[2] = content;
