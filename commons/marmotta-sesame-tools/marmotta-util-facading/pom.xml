@@ -66,6 +66,11 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-model-vocabs</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-queryparser-api</artifactId>
             <scope>test</scope>
