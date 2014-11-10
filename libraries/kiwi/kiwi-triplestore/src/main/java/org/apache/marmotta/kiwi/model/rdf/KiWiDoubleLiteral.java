@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.model.rdf;
 import org.apache.marmotta.commons.vocabulary.XSD;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Date;
 
 /**
@@ -68,7 +69,7 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
         this.doubleContent = doubleContent;
 
         if(XSD.Decimal.equals(getType())) {
-            this.content = new BigDecimal(doubleContent.toString()).toString();
+            this.content = new BigDecimal(doubleContent, MathContext.DECIMAL64).toString();
         } else {
             this.content = doubleContent.toString();
         }
