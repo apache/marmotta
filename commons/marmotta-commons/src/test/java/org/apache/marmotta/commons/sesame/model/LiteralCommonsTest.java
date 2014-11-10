@@ -19,6 +19,7 @@ package org.apache.marmotta.commons.sesame.model;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.util.DateUtils;
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openrdf.model.Literal;
@@ -83,7 +84,7 @@ public class LiteralCommonsTest {
 
 
         // create a Date literal and test whether the hash key is correct between the different methods
-        Date value4 = new Date();
+        DateTime value4 = DateTime.now();
         String datatype4 = LiteralCommons.getXSDType(value4.getClass());
         Literal literal4 = vf.createLiteral(DateUtils.getXMLCalendar(value4));
 

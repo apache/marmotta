@@ -604,6 +604,10 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".tvalue");
                         break;
+                    case TZDATE:
+                        Preconditions.checkState(var != null, "no alias available for variable");
+                        builder.append(parent.getDialect().getDateTimeTZ(var));
+                        break;
                     case URI:
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".svalue");

@@ -19,6 +19,7 @@ package org.apache.marmotta.commons.sesame.model;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
+import org.joda.time.DateTime;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 
@@ -29,7 +30,6 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.TimeZone;
 
 /**
  * Utility methods for working with literals.
@@ -83,12 +83,10 @@ public class LiteralCommons {
      * @param type datatype URI of the literal
      * @return a 64bit hash key for the literal
      */
-    public static final String createCacheKey(Date date, String type) {
-        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        cal.setTime(date);
+    public static final String createCacheKey(DateTime date, String type) {
+        GregorianCalendar cal = date.toGregorianCalendar();
 
-        XMLGregorianCalendar xml_cal = dtf.newXMLGregorianCalendar(cal).normalize();
-        xml_cal.setTimezone(0);
+        XMLGregorianCalendar xml_cal = dtf.newXMLGregorianCalendar(cal);
 
         return createCacheKey(xml_cal.toXMLFormat(), (String)null, type);
     }
@@ -141,7 +139,7 @@ public class LiteralCommons {
             return Namespaces.NS_XSD+"double";
         } else if(Float.class.isAssignableFrom(javaClass) || float.class.isAssignableFrom(javaClass)) {
             return Namespaces.NS_XSD+"float";
-        } else if(Date.class.isAssignableFrom(javaClass)) {
+        } else if(Date.class.isAssignableFrom(javaClass) || DateTime.class.isAssignableFrom(javaClass)) {
             return Namespaces.NS_XSD+"dateTime";
         } else if(Boolean.class.isAssignableFrom(javaClass) || boolean.class.isAssignableFrom(javaClass)) {
             return Namespaces.NS_XSD+"boolean";

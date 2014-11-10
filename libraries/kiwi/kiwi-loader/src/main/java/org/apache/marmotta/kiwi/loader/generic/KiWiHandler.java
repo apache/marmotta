@@ -21,7 +21,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -30,6 +29,8 @@ import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.rio.RDFHandler;
@@ -354,7 +355,7 @@ public class KiWiHandler implements RDFHandler {
                     }
                 } else if(type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
-                    final Date dvalue = DateUtils.parseDate(value.toString());
+                    final DateTime dvalue = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(value.toString());
 
                     result = connection.loadLiteral(dvalue);
 

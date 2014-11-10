@@ -81,7 +81,7 @@ public class NHours extends Hours implements NativeFunction {
      */
     @Override
     public ValueType getArgumentType(int arg) {
-        return ValueType.DATE;
+        return ValueType.TZDATE;
     }
 
     /**

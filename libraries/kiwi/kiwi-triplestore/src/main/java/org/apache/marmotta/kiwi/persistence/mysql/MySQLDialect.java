@@ -118,6 +118,19 @@ public class MySQLDialect extends KiWiDialect {
         }
     }
 
+
+    /**
+     * Return the SQL timezone value for a KiWiDateLiteral, corrected by the timezone offset. In PostgreSQL, this is
+     * e.g. computed by (ALIAS.tvalue + ALIAS.tzoffset * INTERVAL '1 second')
+     *
+     * @param alias
+     * @return
+     */
+    @Override
+    public String getDateTimeTZ(String alias) {
+        return String.format("DATE_ADD(%s.tvalue, INTERVAL %s.tzoffset SECOND)");
+    }
+
     /**
      * Get the query string that can be used for validating that a JDBC connection to this database is still valid.
      * Typically, this should be an inexpensive operation like "SELECT 1",

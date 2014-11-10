@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.joda.time.DateTime;
 import org.openrdf.model.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -260,9 +261,10 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(XMLGregorianCalendar calendar) {
-        Date value = calendar.toGregorianCalendar().getTime();
+        KiWiLiteral l = new KiWiDateLiteral(new DateTime(calendar.toGregorianCalendar()), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Date.class)), new Date());
+        l.setId(idGenerator.getId());
 
-        return createLiteral(value);
+        return l;
     }
 
     /**
@@ -274,7 +276,7 @@ public class TestValueFactory implements ValueFactory {
      */
     @Override
     public Literal createLiteral(Date date) {
-        KiWiLiteral l = new KiWiDateLiteral(date, (KiWiUriResource) createURI(LiteralCommons.getXSDType(Date.class)), new Date());
+        KiWiLiteral l = new KiWiDateLiteral(new DateTime(date), (KiWiUriResource) createURI(LiteralCommons.getXSDType(Date.class)), new Date());
         l.setId(idGenerator.getId());
 
         return l;

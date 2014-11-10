@@ -37,7 +37,7 @@ public abstract class KiWiDialect {
 
     private static Logger log = LoggerFactory.getLogger(KiWiDialect.class);
 
-    private final static int VERSION = 2;
+    public final static int VERSION = 4;
 
     private Properties statements;
 
@@ -205,6 +205,14 @@ public abstract class KiWiDialect {
      */
     public abstract String getGroupConcat(String value, String separator, boolean distinct);
 
+
+    /**
+     * Return the SQL timezone value for a KiWiDateLiteral, corrected by the timezone offset. In PostgreSQL, this is
+     * e.g. computed by (ALIAS.tvalue + ALIAS.tzoffset * INTERVAL '1 second')
+     * @param alias
+     * @return
+     */
+    public abstract String getDateTimeTZ(String alias);
 
     /**
      * Get the query string that can be used for validating that a JDBC connection to this database is still valid.

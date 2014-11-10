@@ -378,6 +378,7 @@ public class SQLBuilder {
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".dvalue");
                                     break;
                                 case DATE:
+                                case TZDATE:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".tvalue");
                                     break;
                                 case BOOL:

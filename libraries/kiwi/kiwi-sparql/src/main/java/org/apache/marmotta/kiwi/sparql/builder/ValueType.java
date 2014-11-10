@@ -23,5 +23,15 @@ package org.apache.marmotta.kiwi.sparql.builder;
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
 public enum ValueType {
-    DOUBLE, INT, DATE, BOOL, STRING, NODE, TERM, URI, BNODE, NONE
+    DOUBLE, // double, float or decimal value
+    INT,    // long or integer value
+    DATE,   // UTC date, dateTime or time
+    TZDATE, // date, dateTime or time with timezone
+    BOOL,   // boolean value
+    STRING, // string value
+    NODE,   // database node ID of existing node
+    TERM,   // value of constructed term
+    URI,    // constructed URI
+    BNODE,  // constructed BNODE
+    NONE    // not projected
 }

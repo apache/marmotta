@@ -20,6 +20,7 @@ CREATE TABLE nodes (
   dvalue    double precision,
   ivalue    bigint,
   tvalue    datetime   DEFAULT NULL,
+  tzoffset  INT,
   bvalue    boolean,
   ltype     bigint     REFERENCES nodes(id),
   lang      varchar(5),
@@ -80,5 +81,5 @@ CREATE INDEX idx_namespaces_uri ON namespaces(uri);
 CREATE INDEX idx_namespaces_prefix ON namespaces(prefix);
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','3');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','4');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s') );

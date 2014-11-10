@@ -105,6 +105,18 @@ public class H2Dialect extends KiWiDialect {
         }
     }
 
+    /**
+     * Return the SQL timezone value for a KiWiDateLiteral, corrected by the timezone offset. In PostgreSQL, this is
+     * e.g. computed by (ALIAS.tvalue + ALIAS.tzoffset * INTERVAL '1 second')
+     *
+     * @param alias
+     * @return
+     */
+    @Override
+    public String getDateTimeTZ(String alias) {
+        return String.format("DATEADD('SECOND', %s.tzoffset, %s.tvalue)");
+    }
+
 
     /**
      * Get the query string that can be used for validating that a JDBC connection to this database is still valid.

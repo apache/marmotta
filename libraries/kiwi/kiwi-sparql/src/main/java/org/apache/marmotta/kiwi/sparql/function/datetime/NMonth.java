@@ -81,7 +81,7 @@ public class NMonth extends Month implements NativeFunction {
      */
     @Override
     public ValueType getArgumentType(int arg) {
-        return ValueType.DATE;
+        return ValueType.TZDATE;
     }
 
     /**

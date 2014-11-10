@@ -26,13 +26,14 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
@@ -110,6 +111,8 @@ public class KiWiConnection implements AutoCloseable {
      * Cache instances of locales for language tags
      */
     private static Map<String,Locale> localeMap = new HashMap<String, Locale>();
+
+    private static Calendar calendarUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
 
     private Map<String,PreparedStatement> statementCache;
@@ -729,9 +732,9 @@ public class KiWiConnection implements AutoCloseable {
      * @return a KiWiDateLiteral with the correct date, or null if it does not exist
      * @throws SQLException
      */
-    public KiWiDateLiteral loadLiteral(Date date) throws SQLException {
+    public KiWiDateLiteral loadLiteral(DateTime date) throws SQLException {
         // look in cache
-        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(DateUtils.getDateWithoutFraction(date),Namespaces.NS_XSD + "dateTime"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(date.withMillisOfSecond(0),Namespaces.NS_XSD + "dateTime"));
         if(element != null && element instanceof KiWiDateLiteral) {
             return (KiWiDateLiteral)element;
         }
@@ -749,8 +752,9 @@ public class KiWiConnection implements AutoCloseable {
 
             // otherwise prepare a query, depending on the parameters given
             PreparedStatement query = getPreparedStatement("load.literal_by_tv");
-            query.setTimestamp(1, new Timestamp(DateUtils.getDateWithoutFraction(date).getTime()));
-            query.setLong(2,ltype.getId());
+            query.setTimestamp(1, new Timestamp(date.getMillis()), calendarUTC);
+            query.setInt(2, date.getZone().getOffset(date)/1000);
+            query.setLong(3,ltype.getId());
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
@@ -970,7 +974,7 @@ public class KiWiConnection implements AutoCloseable {
             PreparedStatement insertNode = getPreparedStatement("store.uri");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2,uriResource.stringValue());
-            insertNode.setTimestamp(3, new Timestamp(uriResource.getCreated().getTime()));
+            insertNode.setTimestamp(3, new Timestamp(uriResource.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
 
@@ -980,7 +984,7 @@ public class KiWiConnection implements AutoCloseable {
             PreparedStatement insertNode = getPreparedStatement("store.bnode");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2,anonResource.stringValue());
-            insertNode.setTimestamp(3, new Timestamp(anonResource.getCreated().getTime()));
+            insertNode.setTimestamp(3, new Timestamp(anonResource.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
         } else if(node instanceof KiWiDateLiteral) {
@@ -989,12 +993,13 @@ public class KiWiConnection implements AutoCloseable {
             PreparedStatement insertNode = getPreparedStatement("store.tliteral");
             insertNode.setLong(1,node.getId());
             insertNode.setString(2, dateLiteral.stringValue());
-            insertNode.setTimestamp(3, new Timestamp(dateLiteral.getDateContent().getTime()));
+            insertNode.setTimestamp(3, new Timestamp(dateLiteral.getDateContent().getMillis()), calendarUTC);
+            insertNode.setInt(4, dateLiteral.getDateContent().getZone().getOffset(dateLiteral.getDateContent())/1000);
             if(dateLiteral.getType() != null)
-                insertNode.setLong(4,dateLiteral.getType().getId());
+                insertNode.setLong(5,dateLiteral.getType().getId());
             else
                 throw new IllegalStateException("a date literal must have a datatype");
-            insertNode.setTimestamp(5, new Timestamp(dateLiteral.getCreated().getTime()));
+            insertNode.setTimestamp(6, new Timestamp(dateLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
         } else if(node instanceof KiWiIntLiteral) {
@@ -1009,7 +1014,7 @@ public class KiWiConnection implements AutoCloseable {
                 insertNode.setLong(5,intLiteral.getType().getId());
             else
                 throw new IllegalStateException("an integer literal must have a datatype");
-            insertNode.setTimestamp(6, new Timestamp(intLiteral.getCreated().getTime()));
+            insertNode.setTimestamp(6, new Timestamp(intLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
         } else if(node instanceof KiWiDoubleLiteral) {
@@ -1023,7 +1028,7 @@ public class KiWiConnection implements AutoCloseable {
                 insertNode.setLong(4,doubleLiteral.getType().getId());
             else
                 throw new IllegalStateException("a double literal must have a datatype");
-            insertNode.setTimestamp(5, new Timestamp(doubleLiteral.getCreated().getTime()));
+            insertNode.setTimestamp(5, new Timestamp(doubleLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
         } else if(node instanceof KiWiBooleanLiteral) {
@@ -1037,7 +1042,7 @@ public class KiWiConnection implements AutoCloseable {
                 insertNode.setLong(4,booleanLiteral.getType().getId());
             else
                 throw new IllegalStateException("a boolean literal must have a datatype");
-            insertNode.setTimestamp(5, new Timestamp(booleanLiteral.getCreated().getTime()));
+            insertNode.setTimestamp(5, new Timestamp(booleanLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
         } else if(node instanceof KiWiStringLiteral) {
@@ -1079,7 +1084,7 @@ public class KiWiConnection implements AutoCloseable {
             } else {
                 insertNode.setObject(6, null);
             }
-            insertNode.setTimestamp(7, new Timestamp(stringLiteral.getCreated().getTime()));
+            insertNode.setTimestamp(7, new Timestamp(stringLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.executeUpdate();
         } else {
@@ -1777,8 +1782,8 @@ public class KiWiConnection implements AutoCloseable {
      * @return
      */
     protected KiWiNode constructNodeFromDatabase(ResultSet row) throws SQLException {
-        // column order; id,ntype,svalue,ivalue,dvalue,tvalue,bvalue,lang,ltype,createdAt
-        //               1 ,2    ,3     ,4     ,5     ,6     ,7     ,8   ,9    ,10
+        // column order; id,ntype,svalue,ivalue,dvalue,tvalue,tzoffset,bvalue,lang,ltype,createdAt
+        //               1 ,2    ,3     ,4     ,5     ,6     ,7        ,8   ,9    ,10    .11
 
         long id = row.getLong(1);
 
@@ -1791,64 +1796,64 @@ public class KiWiConnection implements AutoCloseable {
 
         String ntype = row.getString(2);
         if("uri".equals(ntype)) {
-            KiWiUriResource result = new KiWiUriResource(row.getString(3),new Date(row.getTimestamp(10).getTime()));
+            KiWiUriResource result = new KiWiUriResource(row.getString(3),new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
             cacheNode(result);
             return result;
         } else if("bnode".equals(ntype)) {
-            KiWiAnonResource result = new KiWiAnonResource(row.getString(3), new Date(row.getTimestamp(10).getTime()));
+            KiWiAnonResource result = new KiWiAnonResource(row.getString(3), new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
             cacheNode(result);
             return result;
         } else if("string".equals(ntype)) {
-            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString(3), new Date(row.getTimestamp(10).getTime()));
+            final KiWiStringLiteral result = new KiWiStringLiteral(row.getString(3), new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
-            if(row.getString(8) != null) {
-                result.setLocale(getLocale(row.getString(8)));
+            if(row.getString(9) != null) {
+                result.setLocale(getLocale(row.getString(9)));
             }
-            if(row.getLong(9) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
+            if(row.getLong(10) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
             return result;
         } else if("int".equals(ntype)) {
-            KiWiIntLiteral result = new KiWiIntLiteral(row.getLong(4), null, new Date(row.getTimestamp(10).getTime()));
+            KiWiIntLiteral result = new KiWiIntLiteral(row.getLong(4), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
-            if(row.getLong(9) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
+            if(row.getLong(10) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
             return result;
         } else if("double".equals(ntype)) {
-            KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble(5), null, new Date(row.getTimestamp(10).getTime()));
+            KiWiDoubleLiteral result = new KiWiDoubleLiteral(row.getDouble(5), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
-            if(row.getLong(9) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
+            if(row.getLong(10) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
             return result;
         } else if("boolean".equals(ntype)) {
-            KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean(7),null,new Date(row.getTimestamp(10).getTime()));
+            KiWiBooleanLiteral result = new KiWiBooleanLiteral(row.getBoolean(8),null,new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
-            if(row.getLong(9) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
+            if(row.getLong(10) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);
             return result;
         } else if("date".equals(ntype)) {
-            KiWiDateLiteral result = new KiWiDateLiteral(new Date(row.getTimestamp(6).getTime()), null, new Date(row.getTimestamp(10).getTime()));
+            KiWiDateLiteral result = new KiWiDateLiteral(new DateTime(row.getTimestamp(6, calendarUTC).getTime(), DateTimeZone.forOffsetMillis(row.getInt(7)*1000)), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
-            if(row.getLong(9) != 0) {
-                result.setType((KiWiUriResource) loadNodeById(row.getLong(9)));
+            if(row.getLong(10) != 0) {
+                result.setType((KiWiUriResource) loadNodeById(row.getLong(10)));
             }
 
             cacheNode(result);

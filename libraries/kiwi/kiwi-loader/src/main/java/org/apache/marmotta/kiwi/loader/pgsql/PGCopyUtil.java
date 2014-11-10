@@ -58,6 +58,7 @@ public class PGCopyUtil {
             new Optional(),                           // dvalue
             new Optional(),                           // ivalue
             new SQLTimestampProcessor(),              // tvalue
+            new Optional(),                           // tzoffset
             new Optional(new SQLBooleanProcessor()),  // bvalue
             new Optional(new NodeIDProcessor()),      // ltype
             new Optional(new LanguageProcessor()),    // lang
@@ -145,22 +146,22 @@ public class PGCopyUtil {
         for(KiWiNode n : nodeBacklog) {
             if(n instanceof KiWiUriResource) {
                 KiWiUriResource u = (KiWiUriResource)n;
-                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, u.getCreated());
+                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, null, u.getCreated());
             } else if(n instanceof KiWiAnonResource) {
                 KiWiAnonResource a = (KiWiAnonResource)n;
-                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, a.getCreated());
+                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, null, a.getCreated());
             } else if(n instanceof KiWiIntLiteral) {
                 KiWiIntLiteral l = (KiWiIntLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDoubleLiteral) {
                 KiWiDoubleLiteral l = (KiWiDoubleLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiBooleanLiteral) {
                 KiWiBooleanLiteral l = (KiWiBooleanLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDateLiteral) {
                 KiWiDateLiteral l = (KiWiDateLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent().toDate(), l.getDateContent().getZone().getOffset(l.getDateContent()), null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
 
@@ -174,7 +175,7 @@ public class PGCopyUtil {
                         // ignore, keep NaN
                     }
                 }
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else {
                 log.warn("unknown node type, cannot flush to import stream: {}", n.getClass());
             }
@@ -184,16 +185,17 @@ public class PGCopyUtil {
         writer.close();
     }
 
-    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, Date date, Boolean bool, URI dtype, Locale lang, Date created) {
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, Date date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
         a[0] = id;
         a[1] = type;
         a[2] = content;
         a[3] = dbl;
         a[4] = lng;
         a[5] = date;
-        a[6] = bool;
-        a[7] = dtype;
-        a[8] = lang != null ? lang.getLanguage() : "";
-        a[9] = created;
+        a[6] = tzoffset;
+        a[7] = bool;
+        a[8] = dtype;
+        a[9] = lang != null ? lang.getLanguage() : "";
+        a[10] = created;
     }
 }
