@@ -16,6 +16,8 @@
  */
 package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
@@ -74,9 +76,9 @@ public class HttpErrorExceptionMapper implements CDIExceptionMapper<HttpErrorExc
         boolean htmlError = true; //HTML still by default
         if (exceptionHeaders.containsKey("Accept")) {
             final String acceptHeader = exceptionHeaders.get("Accept");
-            final ContentType bestContentType = MarmottaHttpUtils.bestContentType(Arrays.asList(MarmottaHttpUtils.parseContentType("text/html"), MarmottaHttpUtils.parseContentType("application/json")),
-                    Arrays.asList(MarmottaHttpUtils.parseContentType(acceptHeader)));
-            htmlError = bestContentType == null || !bestContentType.matches(MarmottaHttpUtils.parseContentType("application/json"));
+            final ContentType bestContentType = MarmottaHttpUtils.bestContentType(Arrays.asList(new ContentType("text", "html"), new ContentType("application", "json")),
+                    MarmottaHttpUtils.parseAcceptHeader(acceptHeader));
+            htmlError = bestContentType == null || !bestContentType.matches(new ContentType("application", "json"));
         }
 
         Response.ResponseBuilder responseBuilder;
