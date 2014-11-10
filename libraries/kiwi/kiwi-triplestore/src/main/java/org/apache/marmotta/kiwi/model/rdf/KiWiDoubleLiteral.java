@@ -68,7 +68,7 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
         this.doubleContent = doubleContent;
 
         if(XSD.Decimal.equals(getType())) {
-            this.content = new BigDecimal(doubleContent).toString();
+            this.content = new BigDecimal(doubleContent.toString()).toString();
         } else {
             this.content = doubleContent.toString();
         }
