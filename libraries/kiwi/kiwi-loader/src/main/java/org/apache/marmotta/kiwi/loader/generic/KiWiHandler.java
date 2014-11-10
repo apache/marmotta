@@ -353,7 +353,7 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
+                } else if(type.stringValue().equals(Namespaces.NS_XSD + "dateTime") || type.stringValue().equals(Namespaces.NS_XSD + "date") || type.stringValue().equals(Namespaces.NS_XSD + "time")) {
                     // parse if necessary
                     final DateTime dvalue = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(value.toString());
 
@@ -364,7 +364,7 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.equals(Namespaces.NS_XSD+"integer") || type.equals(Namespaces.NS_XSD+"long")) {
+                } else if(type.stringValue().equals(Namespaces.NS_XSD + "integer") || type.stringValue().equals(Namespaces.NS_XSD + "long")) {
                     long ivalue = Long.parseLong(value.toString());
 
                     result = connection.loadLiteral(ivalue);
@@ -374,7 +374,7 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
+                } else if(type.stringValue().equals(Namespaces.NS_XSD + "double") || type.stringValue().equals(Namespaces.NS_XSD + "float")) {
                     double dvalue = Double.parseDouble(value.toString());
 
                     result = connection.loadLiteral(dvalue);
@@ -384,7 +384,7 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.equals(Namespaces.NS_XSD+"boolean")) {
+                } else if(type.stringValue().equals(Namespaces.NS_XSD+"boolean")) {
                     boolean bvalue = Boolean.parseBoolean(value.toString());
 
                     result = connection.loadLiteral(bvalue);

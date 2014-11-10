@@ -56,7 +56,7 @@ public class MySQLLoadUtil {
             new NotNull(),                            // svalue
             new Optional(),                           // dvalue
             new Optional(),                           // ivalue
-            new SQLTimestampProcessor(),              // tvalue
+            new SQLDateTimeProcessor(),              // tvalue
             new Optional(),                           // tzoffset
             new Optional(new SQLBooleanProcessor()),  // bvalue
             new Optional(new NodeIDProcessor()),      // ltype
@@ -151,7 +151,7 @@ public class MySQLLoadUtil {
                 createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDateLiteral) {
                 KiWiDateLiteral l = (KiWiDateLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), l.getDateContent().getZone().getOffset(l.getDateContent()), null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), l.getDateContent().getZone().getOffset(l.getDateContent()) / 1000, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
 
