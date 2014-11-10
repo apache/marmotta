@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.reasoner.test.persistence;
 import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.reasoner.model.program.Program;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
@@ -106,7 +107,7 @@ public class KWRLProgramPersistenceTest {
             Assert.assertThat(connection.getDatabaseTables(), hasItems(
                     "reasoner_programs", "reasoner_program_namespaces", "reasoner_program_rules",
                     "reasoner_rules", "reasoner_justifications", "reasoner_just_supp_triples", "reasoner_just_supp_rules"));
-            Assert.assertEquals(3, connection.getDatabaseVersion());
+            Assert.assertEquals(KiWiDialect.VERSION, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
