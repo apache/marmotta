@@ -33,9 +33,9 @@ public interface DependenciesService {
     String ARTIFACT = "artifactId";
     String VERSION  = "version";
 
-    List<Map<String, String>> getArtifacs();
+    List<Map<String, String>> getArtifacts();
 
-    List<Map<String, String>> getArtifacs(String groupId);
+    List<Map<String, String>> getArtifacts(String groupId);
 
     String getVersion(String groupId, String artifactId);
 
