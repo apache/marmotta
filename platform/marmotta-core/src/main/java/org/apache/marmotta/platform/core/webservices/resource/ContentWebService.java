@@ -27,6 +27,7 @@ import org.apache.marmotta.platform.core.events.ContentCreatedEvent;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
+import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -62,8 +63,6 @@ import static org.apache.marmotta.platform.core.webservices.resource.ResourceWeb
 @ApplicationScoped
 @Path("/" + ConfigurationService.CONTENT_PATH)
 public class ContentWebService {
-
-    private static final String ENHANCER_STANBOL_ENHANCER_ENABLED = "enhancer.stanbol.enhancer.enabled";
 
     @Inject
     private ConfigurationService configurationService;
@@ -154,8 +153,7 @@ public class ContentWebService {
                 final String mimeType = contentService.getContentType(resource);
                 if (mimeType != null) {
                     return Response
-                            .status(configurationService.getIntConfiguration(
-                                    "linkeddata.redirect.status", 303))
+                            .status(configurationService.getIntConfiguration(CoreOptions.LINKEDDATA_REDIRECT_STATUS, 303))
                             .header(VARY, ACCEPT)
                             .header(CONTENT_TYPE, mimeType + "; rel=content")
                             .location(
@@ -171,9 +169,7 @@ public class ContentWebService {
             } finally {
                 conn.close();
             }
-        } catch (RepositoryException ex) {
-            return Response.serverError().entity(ex.getMessage()).build();
-        } catch (URISyntaxException ex) {
+        } catch (RepositoryException | URISyntaxException ex) {
             return Response.serverError().entity(ex.getMessage()).build();
         }
     }
@@ -271,9 +267,7 @@ public class ContentWebService {
                 conn.commit();
                 conn.close();
             }
-        } catch (MarmottaException ex) {
-            return Response.serverError().entity(ex.getMessage()).build();
-        } catch (RepositoryException ex) {
+        } catch (MarmottaException | RepositoryException ex) {
             return Response.serverError().entity(ex.getMessage()).build();
         }
     }
@@ -362,9 +356,7 @@ public class ContentWebService {
             } finally {
                 conn.close();
             }
-        } catch (IOException e) {
-            return Response.serverError().entity(e.getMessage()).build();
-        } catch (RepositoryException e) {
+        } catch (IOException | RepositoryException e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
     }
@@ -391,9 +383,6 @@ public class ContentWebService {
                 throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "content may not be empty for writing");
             }
             contentService.setContentStream(resource, request.getInputStream(), mimetype); // store content
-            if(configurationService.getBooleanConfiguration(ENHANCER_STANBOL_ENHANCER_ENABLED, false)) {
-                afterContentCreated.fire(new ContentCreatedEvent(resource)); //enhancer
-            }
             return Response.ok().build();
         } catch (IOException e) {
             throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "could not read request body");

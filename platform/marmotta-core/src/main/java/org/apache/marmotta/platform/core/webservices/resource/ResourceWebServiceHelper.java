@@ -17,20 +17,18 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.templating.TemplatingService;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import org.apache.marmotta.commons.http.ContentType;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Helper methods shared accross the difference resource web services
@@ -43,23 +41,13 @@ public class ResourceWebServiceHelper {
         response.getMetadata().add(name, value);
     }
 
-    public static String appendTypes(List<String> datamimes, String mime) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(appendContentTypes(mime));
-        sb.append(appendMetaTypes(datamimes));
-        return sb.toString();
-    }
-
     public static String appendMetaTypes(List<String> datamimes) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < datamimes.size(); i++) {
-            sb.append(datamimes.get(i));
-            sb.append(";rel=meta");
-            if (i < datamimes.size() - 1) {
-                sb.append(",");
+        return Joiner.on(',').join(Iterables.transform(datamimes, new Function<String, String>() {
+            @Override
+            public String apply(String input) {
+                return input + ";rel=meta";
             }
-        }
-        return sb.toString();
+        }));
     }
 
     public static String appendContentTypes(String mime) {
@@ -68,13 +56,6 @@ public class ResourceWebServiceHelper {
         } else {
             return "";
         }
-    }
-
-    /**
-     * @deprecated Use {@link #buildContentLink(URI, String, ConfigurationService)} instead
-     */
-    public static String buildContentLink(URI resource, String uuid, String mime, ConfigurationService configurationService) {
-        return buildContentLink(resource, mime, configurationService);
     }
 
     public static String buildContentLink(Resource resource, String mime, ConfigurationService configurationService) {
@@ -91,13 +72,6 @@ public class ResourceWebServiceHelper {
             b.append(";rel=content");
         }
         return b.toString();
-    }
-
-    /**
-     * @deprecated Use {@link #buildMetaLinks(URI, List<String>,ConfigurationService)} instead
-     */
-    public static String buildMetaLinks(URI resource, String uuid, List<String> datamimes, ConfigurationService configurationService) {
-        return buildMetaLinks(resource, datamimes, configurationService);
     }
 
     public static String buildMetaLinks(URI resource, List<String> datamimes, ConfigurationService configurationService) {
@@ -119,8 +93,7 @@ public class ResourceWebServiceHelper {
     }
 
     public static String buildResourceLink(URI resource, ContentType cType, ConfigurationService configurationService) {
-        return buildResourceLink(resource, cType.getParameter("rel"),
-                cType.getMime(), configurationService);
+        return buildResourceLink(resource, cType.getParameter("rel"), cType.getMime(), configurationService);
     }
 
     public static String buildResourceLink(Resource resource, String rel, String mime, ConfigurationService configurationService) {

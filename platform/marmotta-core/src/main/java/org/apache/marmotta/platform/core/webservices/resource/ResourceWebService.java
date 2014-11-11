@@ -53,6 +53,7 @@ import java.util.UUID;
 
 import static com.google.common.net.HttpHeaders.*;
 import static javax.ws.rs.core.Response.status;
+import static org.apache.marmotta.platform.core.model.config.CoreOptions.*;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
 
 /**
@@ -110,14 +111,10 @@ public class ResourceWebService {
             reqHeaders = "Accept, Content-Type";
         }
 
-        if (uri == null)
-            return Response.ok()
-                    .header(ALLOW, "POST")
-                    .header(ACCESS_CONTROL_ALLOW_METHODS, "POST")
-                    .header(ACCESS_CONTROL_ALLOW_HEADERS, reqHeaders)
-                    .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("kiwi.allow_origin", "*"))
-                    .build();
-        else {
+        String methods;
+        if (uri == null) {
+            methods = "POST";
+        } else {
             try {
                 uri = URLDecoder.decode(uri, "utf-8");
 
@@ -127,29 +124,21 @@ public class ResourceWebService {
                     URI resource = ResourceUtils.getUriResource(conn, uri);
                     conn.commit();
 
-                    if (resource != null) return Response.ok()
-                            .header(ALLOW, "PUT, GET, DELETE")
-                            .header(ACCESS_CONTROL_ALLOW_METHODS, "PUT, GET, DELETE")
-                            .header(ACCESS_CONTROL_ALLOW_HEADERS, reqHeaders)
-                            .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("kiwi.allow_origin", "*"))
-                            .build();
-                    else
-                        return Response.ok()
-                                .header(ALLOW, "POST")
-                                .header(ACCESS_CONTROL_ALLOW_METHODS, "POST")
-                                .header(ACCESS_CONTROL_ALLOW_HEADERS, reqHeaders)
-                                .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("kiwi.allow_origin", "*"))
-                                .build();
+                    methods = resource != null ? "PUT, GET, DELETE" : "POST";
                 } finally {
                     conn.close();
                 }
-
-            } catch (UnsupportedEncodingException ex) {
-                return Response.serverError().entity(ex.getMessage()).build();
-            } catch (RepositoryException ex) {
+            } catch (UnsupportedEncodingException | RepositoryException ex) {
                 return Response.serverError().entity(ex.getMessage()).build();
             }
         }
+
+        return Response.ok()
+                .header(ALLOW, methods)
+                .header(ACCESS_CONTROL_ALLOW_METHODS, methods)
+                .header(ACCESS_CONTROL_ALLOW_HEADERS, reqHeaders)
+                .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration(HTTP_ALLOW_ORIGIN, "*"))
+                .build();
 
     }
 
@@ -182,27 +171,20 @@ public class ResourceWebService {
                     URI resource = ResourceUtils.getUriResource(conn, uri);
                     conn.commit();
 
+                    String methods = resource != null ? "PUT, GET, DELETE" : "POST";
 
-                    if (resource != null) return Response.ok()
-                            .header(ALLOW, "PUT, GET, DELETE")
-                            .header(ACCESS_CONTROL_ALLOW_METHODS, "PUT, GET, DELETE")
+
+                    return Response.ok()
+                            .header(ALLOW, methods)
+                            .header(ACCESS_CONTROL_ALLOW_METHODS, methods)
                             .header(ACCESS_CONTROL_ALLOW_HEADERS, reqHeaders)
-                            .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("kiwi.allow_origin", "*"))
+                            .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration(HTTP_ALLOW_ORIGIN, "*"))
                             .build();
-                    else
-                        return Response.ok()
-                                .header(ALLOW, "POST")
-                                .header(ACCESS_CONTROL_ALLOW_METHODS, "POST")
-                                .header(ACCESS_CONTROL_ALLOW_HEADERS, reqHeaders)
-                                .header(ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("kiwi.allow_origin", "*"))
-                                .build();
 
                 } finally {
                     conn.close();
                 }
-            } catch (UnsupportedEncodingException ex) {
-                return Response.serverError().entity(ex.getMessage()).build();
-            } catch (RepositoryException ex) {
+            } catch (UnsupportedEncodingException | RepositoryException ex) {
                 return Response.serverError().entity(ex.getMessage()).build();
             }
         }
@@ -265,10 +247,11 @@ public class ResourceWebService {
                     conn.getValueFactory().createURI(uri);
                     status = Status.CREATED;
                 }
-                Response response = status(status).entity(uri).build();
-                response.getMetadata().add(LOCATION, location);
-                response.getMetadata().add(VARY, CONTENT_TYPE);
-                return response;
+                return status(status)
+                                .header(LOCATION, location)
+                                .header(VARY, CONTENT_TYPE)
+                                .entity(uri)
+                                .build();
             } finally {
                 conn.commit();
                 conn.close();
@@ -403,8 +386,8 @@ public class ResourceWebService {
 
                 if (bestType != null) {
                     Response response = buildGetResponse(r, bestType);
-                    response.getMetadata().add("Last-Modified", ResourceUtils.getLastModified(conn, r));
-                    response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
+                    response.getMetadata().add(LAST_MODIFIED, ResourceUtils.getLastModified(conn, r));
+                    response.getMetadata().add(ETAG, "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
                     return response;
                 } else {
                     return build406(acceptedTypes, offeredTypes);
@@ -457,7 +440,7 @@ public class ResourceWebService {
      */
     @PUT
     @Path(UUID_PATTERN)
-    public Response putLocal(@PathParam("uuid") String uuid, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
+    public Response putLocal(@PathParam("uuid") String uuid, @HeaderParam(CONTENT_TYPE) String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
         String uri = configurationService.getBaseUri() + "resource/" + uuid;
         try {
             return put(uri, type, uuid, request);
@@ -485,7 +468,7 @@ public class ResourceWebService {
      * @ResponseHeader Location (for HTTP 303) the url where data can be put
      */
     @PUT
-    public Response putRemote(@QueryParam("uri") String uri, @HeaderParam("Content-Type") String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
+    public Response putRemote(@QueryParam("uri") String uri, @HeaderParam(CONTENT_TYPE) String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
         try {
             if (uri != null) return put(URLDecoder.decode(uri, "utf-8"), type, null, request);
             else
@@ -507,7 +490,7 @@ public class ResourceWebService {
             List<ContentType> types = MarmottaHttpUtils.parseAcceptHeader(mimetype);
             for (ContentType type : types) {
                 if (type.getParameter("rel") == null) {
-                    type.setParameter("rel", configurationService.getStringConfiguration("linkeddata.mime.rel.default", "meta"));
+                    type.setParameter("rel", configurationService.getStringConfiguration(LINKEDDATA_MIME_REL_DEFAULT, "meta"));
                 }
             }
 
@@ -525,14 +508,14 @@ public class ResourceWebService {
             ContentType bestType = MarmottaHttpUtils.bestContentType(types, acceptable);
 
             if (bestType != null) {
-                if (configurationService.getBooleanConfiguration("linkeddata.redirect.put", true)) {
+                if (configurationService.getBooleanConfiguration(LINKEDDATA_REDIRECT_PUT, true)) {
                     final RepositoryConnection con = sesameService.getConnection();
                     try {
                         con.begin();
                         URI resource = ResourceUtils.getUriResource(con, uri);
                         con.commit();
                         return Response
-                                .status(configurationService.getIntConfiguration("linkeddata.redirect.status", 303))
+                                .status(configurationService.getIntConfiguration(LINKEDDATA_REDIRECT_STATUS, 303))
                                         // .location(new URI(configurationService.getBaseUri() +
                                         // bestType.getParameter("rel") + "/" + bestType.getMime() + appendix))
                                 .location(new java.net.URI(ResourceWebServiceHelper.buildResourceLink(resource, bestType, configurationService)))
@@ -618,7 +601,7 @@ public class ResourceWebService {
 
             return Response
                     .status(configurationService.getIntConfiguration(
-                            "linkeddata.redirect.status", 303))
+                            LINKEDDATA_REDIRECT_STATUS, 303))
                     .header("Vary", ACCEPT)
                     .header(CONTENT_TYPE, type.toString())
                             // .location(new URI(configurationService.getBaseUri() +

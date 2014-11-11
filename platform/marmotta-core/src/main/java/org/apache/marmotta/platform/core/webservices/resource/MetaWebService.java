@@ -19,7 +19,6 @@ package org.apache.marmotta.platform.core.webservices.resource;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.http.UriUtil;
@@ -45,7 +44,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.*;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,8 +54,8 @@ import java.net.URLDecoder;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.google.common.net.HttpHeaders.ACCEPT;
-import static com.google.common.net.HttpHeaders.LINK;
+import static com.google.common.net.HttpHeaders.*;
+import static javax.ws.rs.core.Response.*;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebService.CHARSET;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
 
@@ -204,7 +203,7 @@ public class MetaWebService {
                 // delete all triples for given subject
                 connection.remove(subject, null, null);
 
-                return Response.ok().build();
+                return ok().build();
             } finally {
                 connection.commit();
                 connection.close();
@@ -246,13 +245,13 @@ public class MetaWebService {
                 }
 
                 if (r == null || !ResourceUtils.isUsed(conn, r)) {
-                    throw new HttpErrorException(Response.Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future", ImmutableMap.of(ACCEPT, mimetype));
+                    throw new HttpErrorException(Status.NOT_FOUND, resource, "the requested resource could not be found in Marmotta right now, but may be available again in the future", ImmutableMap.of(ACCEPT, mimetype));
                 }
 
                 // create parser
                 final RDFFormat serializer = kiWiIOService.getSerializer(mimetype);
                 if (serializer == null) {
-                    ImmutableMap<String, String> headers = ImmutableMap.of(HttpHeaders.CONTENT_TYPE, appendMetaTypes(kiWiIOService.getProducedTypes()));
+                    ImmutableMap<String, String> headers = ImmutableMap.of(CONTENT_TYPE, appendMetaTypes(kiWiIOService.getProducedTypes()));
                     throw new HttpErrorException(Status.NOT_ACCEPTABLE, resource, "mimetype can not be processed", headers);
                 }
 
@@ -282,8 +281,10 @@ public class MetaWebService {
                 };
 
                 // build response
-                Response response = Response.ok(entity).lastModified(ResourceUtils.getLastModified(conn, r)).build();
-                response.getMetadata().add("ETag", "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
+                ResponseBuilder response =
+                        ok(entity)
+                                .lastModified(ResourceUtils.getLastModified(conn, r));
+                response.header(ETAG, "W/\"" + ETagGenerator.getWeakETag(conn, r) + "\"");
 
                 if (!mimetype.contains("html")) { // then create a proper filename
                     String[] components;
@@ -293,14 +294,14 @@ public class MetaWebService {
                         components = resource.split("/");
                     }
                     final String fileName = components[components.length - 1] + "." + serializer.getDefaultFileExtension();
-                    response.getMetadata().add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+                    response.header(CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
                 }
 
                 // create the Content-Type header for the response
                 if (mimetype.startsWith("text/") || mimetype.startsWith("application/")) {
-                    response.getMetadata().add(HttpHeaders.CONTENT_TYPE, mimetype + "; charset=" + CHARSET);
+                    response.header(CONTENT_TYPE, mimetype + "; charset=" + CHARSET);
                 } else {
-                    response.getMetadata().add(HttpHeaders.CONTENT_TYPE, mimetype);
+                    response.header(CONTENT_TYPE, mimetype);
                 }
 
                 // create the Link headers for the response
@@ -313,9 +314,9 @@ public class MetaWebService {
                 }
 
                 if (links.size() > 0) {
-                    response.getMetadata().add(LINK, Joiner.on(", ").join(links));
+                    response.header(LINK, Joiner.on(", ").join(links));
                 }
-                return response;
+                return response.build();
             } finally {
                 if (conn.isOpen()) {
                     conn.commit();
@@ -332,9 +333,9 @@ public class MetaWebService {
             // create parser
             RDFFormat parser = kiWiIOService.getParser(mimetype);
             if (parser == null) {
-                Response response = Response.status(Status.UNSUPPORTED_MEDIA_TYPE).entity("media type " + mimetype + " not supported").build();
-                ResourceWebServiceHelper.addHeader(response, HttpHeaders.CONTENT_TYPE, appendMetaTypes(kiWiIOService.getProducedTypes()));
-                return response;
+                return status(Status.UNSUPPORTED_MEDIA_TYPE)
+                        .header(CONTENT_TYPE, appendMetaTypes(kiWiIOService.getProducedTypes()))
+                        .entity("media type " + mimetype + " not supported").build();
             }
             if (request.getContentLength() == 0) {
                 throw new HttpErrorException(Status.BAD_REQUEST, uri, "content may not be empty in resource update", ImmutableMap.of(ACCEPT, mimetype));
@@ -359,7 +360,7 @@ public class MetaWebService {
                 connection.commit();
                 connection.close();
             }
-            return Response.ok().build();
+            return ok().build();
         } catch (URISyntaxException e) {
             throw new HttpErrorException(Status.INTERNAL_SERVER_ERROR, uri, "invalid target context", ImmutableMap.of(ACCEPT, mimetype));
         } catch (IOException | RDFParseException e) {
