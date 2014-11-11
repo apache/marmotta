@@ -17,11 +17,6 @@
 
 package org.apache.marmotta.commons.sesame.facading.primitive;
 
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
-import java.util.UUID;
-
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
@@ -33,6 +28,11 @@ import org.junit.Test;
 import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+
+import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
+import java.util.UUID;
 
 public class BoxedFacadingTest extends AbstractFacadingTest {
 
@@ -143,7 +143,7 @@ public class BoxedFacadingTest extends AbstractFacadingTest {
 
             final Locale locale = boxed.getLocale();
 
-            Assert.assertNotNull(locale);
+            Assert.assertNotNull("Locale " + l + "not properly unboxed",locale);
             //Assert.assertEquals(l, locale);
             Assert.assertEquals(l.getDisplayLanguage(), locale.getDisplayLanguage());
         }

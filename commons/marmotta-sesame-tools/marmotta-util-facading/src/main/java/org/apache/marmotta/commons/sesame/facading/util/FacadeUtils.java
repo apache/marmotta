@@ -19,12 +19,12 @@ package org.apache.marmotta.commons.sesame.facading.util;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
-import org.apache.marmotta.commons.util.DateUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 
 import java.lang.annotation.Annotation;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
@@ -354,8 +354,19 @@ public class FacadeUtils {
                 return null;
             } else {
                 try {
-                    return returnType.cast(DateUtils.ISO8601FORMAT.parse(value));
-                } catch (final ParseException e) {
+                    return returnType.cast(ISODateTimeFormat.dateTimeParser().parseDateTime(value).toDate());
+                } catch (final IllegalArgumentException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        } else if (DateTime.class.equals(returnType)) {
+            if(value == null) {
+                return null;
+            } else {
+                try {
+                    return returnType.cast(ISODateTimeFormat.dateTimeParser().parseDateTime(value));
+                } catch (final IllegalArgumentException e) {
                     e.printStackTrace();
                     return null;
                 }
