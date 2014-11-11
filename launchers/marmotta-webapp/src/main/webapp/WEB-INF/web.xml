@@ -70,6 +70,10 @@
             <param-name>cors.supportedMethods</param-name>
             <param-value>GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS</param-value>
         </init-param>
+        <init-param>
+            <param-name>cors.exposedHeaders</param-name>
+            <param-value>Location, Link</param-value>
+        </init-param>
 
     </filter>
     <filter-mapping>
