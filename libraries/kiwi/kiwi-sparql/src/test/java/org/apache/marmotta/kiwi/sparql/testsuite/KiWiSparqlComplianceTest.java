@@ -163,6 +163,22 @@ public class KiWiSparqlComplianceTest {
     }
 
 
+    @Test
+    public void testQueryFloor() throws Exception {
+        testQuery("floor.sparql");
+    }
+
+    @Test
+    public void testQueryCeil() throws Exception {
+        testQuery("ceil.sparql");
+    }
+
+    @Test
+    public void testQueryRound() throws Exception {
+        testQuery("round.sparql");
+    }
+
+
     private void testQuery(String filename) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
 

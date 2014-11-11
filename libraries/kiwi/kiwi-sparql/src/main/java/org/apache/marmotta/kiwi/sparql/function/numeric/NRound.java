@@ -52,7 +52,11 @@ public class NRound extends Round implements NativeFunction {
      */
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
-        return String.format("round(%s)", args[0]);
+        if(dialect instanceof PostgreSQLDialect) {
+            return String.format("round(CAST(%s as decimal))", args[0]);
+        } else {
+            return String.format("round(%s)", args[0]);
+        }
     }
 
     /**
