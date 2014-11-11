@@ -19,7 +19,6 @@ package org.apache.marmotta.commons.sesame.tripletable;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import org.apache.marmotta.commons.collections.EquivalenceHashSet;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
