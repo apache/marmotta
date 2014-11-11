@@ -17,8 +17,10 @@
  */
 package org.apache.marmotta.platform.security.model;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import org.apache.marmotta.platform.security.util.SubnetInfo;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,34 +268,40 @@ public class SecurityConstraint implements Comparable<SecurityConstraint> {
 
     @Override
     public String toString() {
-        String s = "security constraint "+name+":";
+        StringBuilder s = new StringBuilder();
+
+        s.append("security constraint ").append(name).append(":");
         if(type == Type.PERMISSION) {
-            s += " allow ";
+            s.append(" allow ");
         } else {
-            s += " deny ";
+            s.append(" deny ");
         }
         if(methods.size() > 0) {
-            s += "{" + CollectionUtils.fold(methods, ",") + "} of ";
+            s.append("{");
+            Joiner.on(',').appendTo(s, methods);
+            s.append("} of ");
         }
-        s += urlPattern;
+        s.append(urlPattern);
         if(hostPatterns.size() > 0) {
-            s += " from " + CollectionUtils.fold(hostPatterns, new CollectionUtils.StringSerializer<SubnetInfo>() {
+            s.append(" from ");
+            Joiner.on(',').appendTo(s, Iterables.transform(hostPatterns,new Function<SubnetInfo, String>() {
                 @Override
-                public String serialize(SubnetInfo subnetInfo) {
+                public String apply(SubnetInfo subnetInfo) {
                     return subnetInfo.getCidrSignature();
                 }
-            }, ",");
+            }));
         }
-        s += ": ";
+        s.append(": ");
         if(enabled) {
-            s += " enabled";
+            s.append(" enabled");
             if(roles.size() > 0) {
-                s += " to " + CollectionUtils.fold(roles, ", ");
+                s.append(" to ");
+                Joiner.on(", ").appendTo(s, roles);
             }
         } else {
-            s += " unrestricted";
+            s.append(" unrestricted");
         }
-        return s;
+        return s.toString();
     }
 
     public Type getType() {

@@ -17,15 +17,16 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap.mapping;
 
-import java.util.Collections;
-import java.util.Set;
-
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class UriPredicateFactory extends PredicateObjectFactory {
 
-    public UriPredicateFactory(String predicateURI) {
+    public UriPredicateFactory(URI predicateURI) {
         super(predicateURI);
     }
 

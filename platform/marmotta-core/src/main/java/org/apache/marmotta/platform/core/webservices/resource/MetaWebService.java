@@ -17,10 +17,10 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
@@ -56,6 +56,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.LINK;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebService.CHARSET;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
 
@@ -312,7 +313,7 @@ public class MetaWebService {
                 }
 
                 if (links.size() > 0) {
-                    response.getMetadata().add("Link", CollectionUtils.fold(links, ", "));
+                    response.getMetadata().add(LINK, Joiner.on(", ").join(links));
                 }
                 return response;
             } finally {

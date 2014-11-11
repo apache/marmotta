@@ -17,10 +17,10 @@
  */
 package org.apache.marmotta.platform.core.model.module;
 
-import org.apache.marmotta.commons.util.DateUtils;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import org.apache.commons.configuration.Configuration;
-import org.apache.marmotta.commons.collections.CollectionUtils;
+import org.apache.marmotta.commons.util.DateUtils;
 
 import java.util.Date;
 
@@ -126,7 +126,7 @@ public class ModuleConfiguration {
      * @return the build time of the module in ISO time (GMT)
      */
     public String getBuildTimestamp() {
-        String timestamp = CollectionUtils.fold(config.getStringArray("build.timestamp"), ", ");
+        String timestamp = Joiner.on(", ").join(config.getStringArray("build.timestamp"));
         if("".equals(timestamp)) {
             return DateUtils.GMTFORMAT.format(new Date());
         } else {

@@ -27,7 +27,8 @@ import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
-import org.apache.marmotta.commons.constants.Namespace;
+import org.apache.marmotta.commons.vocabulary.DCTERMS;
+import org.apache.marmotta.commons.vocabulary.FOAF;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.ldclient.api.provider.DataProvider;
@@ -42,6 +43,7 @@ import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,21 +71,21 @@ public class LdapFoafProvider implements DataProvider {
     private static final Map<String, PredicateObjectFactory> MAPPING;
     static {
         Map<String, PredicateObjectFactory> m = new HashMap<String, PredicateObjectFactory>();
-        m.put("distinguishedName", new LiteralPredicateFactory(Namespace.DCTERMS.identifier));
-        m.put("name", new LiteralPredicateFactory(Namespace.FOAF.name));
-        m.put("givenName", new LiteralPredicateFactory(Namespace.FOAF.firstName));
-        m.put("sn", new LiteralPredicateFactory(Namespace.FOAF.surname));
-        m.put("mail", new UriPredicateFactory(Namespace.FOAF.mbox) {
+        m.put("distinguishedName", new LiteralPredicateFactory(DCTERMS.identifier));
+        m.put("name", new LiteralPredicateFactory(FOAF.name));
+        m.put("givenName", new LiteralPredicateFactory(FOAF.firstName));
+        m.put("sn", new LiteralPredicateFactory(FOAF.surname));
+        m.put("mail", new UriPredicateFactory(FOAF.mbox) {
             @Override
             public Set<Value> createObjects(String value, ValueFactory valueFactory) {
                 return super.createObjects("mailto:" + value, valueFactory);
             }
         });
-        m.put("objectClass", new UriPredicateFactory(Namespace.RDF.type) {
+        m.put("objectClass", new UriPredicateFactory(RDF.TYPE) {
             @Override
             public Set<Value> createObjects(String value, ValueFactory valueFactory) {
                 if (value.equalsIgnoreCase("person"))
-                    return super.createObjects(Namespace.FOAF.Person, valueFactory);
+                    return super.createObjects(FOAF.Person.stringValue(), valueFactory);
                 else
                     return Collections.emptySet();
             }

@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.platform.versioning.webservices;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -129,7 +129,7 @@ public class MementoWebService {
                         .location(MementoUtils.resourceURI(resource_string, versions.getCurrent().getCommitTime(), configurationService.getBaseUri()))
                         .header(VARY, "negotiate, accept-datetime, accept")
                         .header("Memento-Datetime", versions.getCurrent().getCommitTime().toString())
-                        .header(LINK, CollectionUtils.fold(links, ", "))
+                        .header(LINK, Joiner.on(", ").join(links))
                         .build();
 
             } catch (MementoException e) {
@@ -221,7 +221,7 @@ public class MementoWebService {
                 //create response
                 return Response
                         .ok()
-                        .header(LINK, CollectionUtils.fold(links," ,"))
+                        .header(LINK, Joiner.on(", ").join(links))
                         .header(CONTENT_TYPE, type.toString())
                         .header("Memento-Datetime", MementoUtils.MEMENTO_DATE_FORMAT.format(versions.getCurrent().getCommitTime()))
                         .entity(entity)
@@ -287,7 +287,7 @@ public class MementoWebService {
                 //create response
                 return Response
                         .ok()
-                        .header(LINK, CollectionUtils.fold(links," ,"))
+                        .header(LINK, Joiner.on(", ").join(links))
                         .header(CONTENT_TYPE, serializer.getContentType().toString())
                         .entity(entity)
                         .build();

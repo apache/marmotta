@@ -17,9 +17,9 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.eval;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.sparql.builder.SQLBuilder;
@@ -259,7 +259,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                 }
             }
             builder.append("ARRAY[");
-            builder.append(CollectionUtils.fold(countVariables,","));
+            Joiner.on(',').appendTo(builder, countVariables);
             builder.append("]");
 
         } else {

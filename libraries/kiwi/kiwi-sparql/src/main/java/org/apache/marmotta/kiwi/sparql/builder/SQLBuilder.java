@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
@@ -650,7 +650,7 @@ public class SQLBuilder {
             selectClause.append("DISTINCT ");
         }
 
-        selectClause.append(CollectionUtils.fold(projections,", "));
+        Joiner.on(", ").appendTo(selectClause, projections);
 
         return selectClause;
     }
