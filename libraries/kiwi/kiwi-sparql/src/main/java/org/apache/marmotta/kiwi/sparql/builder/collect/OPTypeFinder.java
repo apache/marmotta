@@ -51,9 +51,10 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
             String type = l.getDatatype() != null ? l.getDatatype().stringValue() : null;
 
             if(StringUtils.equals(Namespaces.NS_XSD + "double", type)
-                    || StringUtils.equals(Namespaces.NS_XSD + "float", type)
-                    || StringUtils.equals(Namespaces.NS_XSD + "decimal", type)) {
+                    || StringUtils.equals(Namespaces.NS_XSD + "float", type)) {
                 optypes.add(ValueType.DOUBLE);
+            } else if(StringUtils.equals(Namespaces.NS_XSD + "decimal", type)) {
+                optypes.add(ValueType.DECIMAL);
             } else if(StringUtils.equals(Namespaces.NS_XSD + "integer", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "long", type)
                     || StringUtils.equals(Namespaces.NS_XSD + "int", type)
@@ -131,8 +132,8 @@ public class OPTypeFinder extends QueryModelVisitorBase<RuntimeException> {
                 // keep left
             } else if(left == right) {
                 // keep left
-            } else if( (left == ValueType.INT && right == ValueType.DOUBLE) || (left == ValueType.DOUBLE && right == ValueType.INT)) {
-                left = ValueType.DOUBLE;
+            } else if(left.isNumeric() && right.isNumeric()) {
+                left =  left.compareTo(right) < 0 ? left : right;
             } else if( (left == ValueType.STRING) || (right == ValueType.STRING)) {
                 left = ValueType.STRING;
             } else {

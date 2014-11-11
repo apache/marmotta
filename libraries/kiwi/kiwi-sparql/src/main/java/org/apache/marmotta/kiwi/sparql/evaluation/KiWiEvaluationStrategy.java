@@ -296,6 +296,20 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                                             resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
                                         }
                                         break;
+                                    case DECIMAL:
+                                        if(row.getObject(sv.getName()) != null) {
+                                            svalue = row.getBigDecimal(sv.getName()).toString();
+                                            URI type = XSD.Decimal;
+                                            try {
+                                                long typeId = row.getLong(sv.getName() + "_TYPE");
+                                                if (typeId > 0)
+                                                    type = (URI) connection.loadNodeById(typeId);
+                                            } catch (SQLException ex) {
+                                            }
+
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                        }
+                                        break;
                                     case BOOL:
                                         if(row.getObject(sv.getName()) != null) {
                                             svalue = Boolean.toString(row.getBoolean(sv.getName()));

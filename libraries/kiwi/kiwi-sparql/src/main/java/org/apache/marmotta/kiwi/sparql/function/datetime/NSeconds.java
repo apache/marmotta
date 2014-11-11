@@ -69,7 +69,7 @@ public class NSeconds extends Seconds implements NativeFunction {
      */
     @Override
     public ValueType getReturnType() {
-        return ValueType.DOUBLE;
+        return ValueType.DECIMAL;
     }
 
     /**

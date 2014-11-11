@@ -62,7 +62,7 @@ public class NDecimalCast extends DecimalCast implements NativeFunction {
      */
     @Override
     public ValueType getReturnType() {
-        return ValueType.DOUBLE;
+        return ValueType.DECIMAL;
     }
 
     /**

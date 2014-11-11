@@ -23,7 +23,8 @@ package org.apache.marmotta.kiwi.sparql.builder;
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
 public enum ValueType {
-    DOUBLE, // double, float or decimal value
+    DOUBLE, // double or float value
+    DECIMAL,// decimal value
     INT,    // long or integer value
     DATE,   // UTC date, dateTime or time
     TZDATE, // date, dateTime or time with timezone
@@ -33,5 +34,10 @@ public enum ValueType {
     TERM,   // value of constructed term
     URI,    // constructed URI
     BNODE,  // constructed BNODE
-    NONE    // not projected
+    NONE;    // not projected
+
+
+    public final boolean isNumeric() {
+        return this == DOUBLE || this == DECIMAL || this == INT;
+    }
 }

@@ -374,6 +374,7 @@ public class SQLBuilder {
                                 case INT:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".ivalue");
                                     break;
+                                case DECIMAL:
                                 case DOUBLE:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".dvalue");
                                     break;

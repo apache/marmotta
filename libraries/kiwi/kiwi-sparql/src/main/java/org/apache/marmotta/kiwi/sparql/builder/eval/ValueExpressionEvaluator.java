@@ -592,6 +592,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".ivalue");
                         break;
+                    case DECIMAL:
                     case DOUBLE:
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".dvalue");
@@ -639,6 +640,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                 case INT:
                     builder.append(Integer.parseInt(val));
                     break;
+                case DECIMAL:
                 case DOUBLE:
                     builder.append(Double.parseDouble(val));
                     break;
@@ -694,6 +696,8 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
         }
 
         switch (type) {
+            case DECIMAL:
+                return functionRegistry.get(XMLSchema.DECIMAL).getNative(parent.getDialect(), arg);
             case DOUBLE:
                 return functionRegistry.get(XMLSchema.DOUBLE).getNative(parent.getDialect(), arg);
             case INT:
