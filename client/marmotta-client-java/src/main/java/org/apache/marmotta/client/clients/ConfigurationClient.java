@@ -17,15 +17,8 @@
  */
 package org.apache.marmotta.client.clients;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
@@ -41,8 +34,13 @@ import org.apache.marmotta.client.util.HTTPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.*;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 /**
  * A client that supports accessing the configuration webservice of the Apache Marmotta. May be used for
@@ -73,7 +71,7 @@ public class ConfigurationClient {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         HttpGet get = new HttpGet(config.getMarmottaUri() + URL_CONFIG_SERVICE + "/list");
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
 
         try {
             
@@ -108,7 +106,7 @@ public class ConfigurationClient {
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/list" + (prefix != null? "?prefix="+ URLEncoder.encode(prefix,"utf-8") : "");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
         
         try {
 
@@ -150,7 +148,7 @@ public class ConfigurationClient {
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/data/" + URLEncoder.encode(key,"utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
         
         try {
 
@@ -195,7 +193,7 @@ public class ConfigurationClient {
         String serviceUrl = config.getMarmottaUri() + URL_CONFIG_SERVICE + "/data/" + URLEncoder.encode(key,"utf-8");
 
         HttpPost post = new HttpPost(serviceUrl);
-        post.setHeader("Content-Type", "application/json");
+        post.setHeader(CONTENT_TYPE, "application/json");
         ContentProducer cp = new ContentProducer() {
             @Override
             public void writeTo(OutputStream outstream) throws IOException {

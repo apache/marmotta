@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.net.HttpHeaders.*;
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
@@ -93,7 +94,7 @@ public class ExportWebService {
      */
     @GET
     @Path("/download")
-    public Response downloadData(@HeaderParam("Accept") String types, @QueryParam("format") String qFormat, @QueryParam("context") String context_string) throws IOException {
+    public Response downloadData(@HeaderParam(ACCEPT) String types, @QueryParam("format") String qFormat, @QueryParam("context") String context_string) throws IOException {
         List<ContentType> acceptedTypes;
         if(qFormat != null) {
             acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(qFormat);
@@ -155,14 +156,14 @@ public class ExportWebService {
 
             return Response
                     .status(Response.Status.OK)
-                    .header("Content-Type", bestType.getMime())
-                    .header("Content-Disposition", "attachment; filename=\""+fileName+"\"")
+                    .header(CONTENT_TYPE, bestType.getMime())
+                    .header(CONTENT_DISPOSITION, "attachment; filename=\""+fileName+"\"")
                     .entity(entity)
                     .build();
 
         } else
             return Response.status(406)
-                    .header("Content-Type", exportService.getProducedTypes())
+                    .header(CONTENT_TYPE, exportService.getProducedTypes())
                     .entity("could not find matching type for " + acceptedTypes + "; see Content-Type header for possible types")
                     .build();
 

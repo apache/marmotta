@@ -17,14 +17,9 @@
  */
 package org.apache.marmotta.client.clients;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteStreams;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -40,9 +35,16 @@ import org.apache.marmotta.client.util.HTTPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 /**
  * This client class provides support for importing ontologies in various formats into the Apache Marmotta.
@@ -85,7 +87,7 @@ public class ImportClient {
         String serviceUrl = config.getMarmottaUri() + URL_TYPES_SERVICE;
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
         
         try {
             HttpResponse response = httpClient.execute(get);
@@ -138,7 +140,7 @@ public class ImportClient {
 
     private void uploadDataset(final InputStream in, final String mimeType, HttpClient httpClient) throws IOException, URISyntaxException {
         HttpPost post = HTTPUtil.createPost(URL_UPLOAD_SERVICE, config);
-        post.setHeader("Content-Type", mimeType);
+        post.setHeader(CONTENT_TYPE, mimeType);
 
         ContentProducer cp = new ContentProducer() {
             @Override

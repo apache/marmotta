@@ -167,16 +167,6 @@ public class DateUtils {
 
 
     /**
-     * Cut the fraction part of a date object, since some database systems do not support nanoseconds.
-     * @param date
-     * @return
-     */
-    public static Date getDateWithoutFraction(Date date) {
-        long seconds = date.getTime() / 1000L;
-        return new Date(seconds * 1000L);
-    }
-
-    /**
      * Transform a Java date into a XML calendar. Useful for working with date literals.
      * @param date
      * @return

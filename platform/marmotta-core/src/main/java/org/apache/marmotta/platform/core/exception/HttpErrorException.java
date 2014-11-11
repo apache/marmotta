@@ -25,6 +25,8 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+
 /**
  * HTTP Error Exception
  *
@@ -83,7 +85,7 @@ public class HttpErrorException extends Exception {
      * @param e exception
      */
     public HttpErrorException(Response.Status status, HttpServletRequest request, Exception e) {
-        this(status.getStatusCode(), status.getReasonPhrase(), request.getRequestURI(), e.getMessage(), ImmutableMap.of("Accept", request.getHeader("Accept")));
+        this(status.getStatusCode(), status.getReasonPhrase(), request.getRequestURI(), e.getMessage(), ImmutableMap.of(ACCEPT, request.getHeader(ACCEPT)));
     }
 
     /**

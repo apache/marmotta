@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseContentType;
 
 /**
@@ -133,8 +135,8 @@ public abstract class AbstractHttpProvider implements DataProvider {
                 if(!visited.contains(requestUrl)) {
                     HttpGet get = new HttpGet(requestUrl);
                     try {
-                        get.setHeader("Accept",contentType);
-                        get.setHeader("Accept-Language", "*"); // PoolParty compatibility
+                        get.setHeader(ACCEPT, contentType);
+                        get.setHeader(ACCEPT_LANGUAGE, "*"); // PoolParty compatibility
 
                         log.info("retrieving resource data for {} from '{}' endpoint, request URI is <{}>", new Object[]  {resource, getName(), get.getURI().toASCIIString()});
 

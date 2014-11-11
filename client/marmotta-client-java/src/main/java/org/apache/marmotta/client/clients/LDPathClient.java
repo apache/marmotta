@@ -17,13 +17,9 @@
  */
 package org.apache.marmotta.client.clients;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -37,9 +33,14 @@ import org.apache.marmotta.client.util.RDFJSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
 
 /**
  * Add file description here!
@@ -79,7 +80,7 @@ public class LDPathClient {
                                                                   + "&uri="  + URLEncoder.encode(uri, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
         
         try {
 
@@ -124,7 +125,7 @@ public class LDPathClient {
                                                                                    + "&uri="  + URLEncoder.encode(uri, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
         
         try {
 

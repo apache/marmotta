@@ -54,6 +54,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
+
 /**
  * A provider that accesses objects exposed by the Facebook Graph API (in JSON format). The provider will map the
  * properties of Facebook Objects to RDF and tries choosing the most appropriate RDF types and vocabularies. The base
@@ -357,8 +360,8 @@ public class FacebookGraphProvider implements DataProvider {
             for(String lang : languages) {
                 HttpGet get = new HttpGet(requestUri);
                 try {
-                    get.setHeader("Accept",contentType);
-                    get.setHeader("Accept-Language", lang);
+                    get.setHeader(ACCEPT, contentType);
+                    get.setHeader(ACCEPT_LANGUAGE, lang);
 
                     log.info("retrieving resource data for {} from '{}' endpoint, request URI is <{}>", new Object[]  {resourceUri, getName(), get.getURI().toASCIIString()});
 

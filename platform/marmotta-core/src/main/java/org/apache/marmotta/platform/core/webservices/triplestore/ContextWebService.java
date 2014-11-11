@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.webservices.triplestore;
 
+import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
@@ -126,7 +127,7 @@ public class ContextWebService {
     @GET
     public Response get(@QueryParam("graph") String context, @HeaderParam("Accept") String accept, @QueryParam("format") String format) throws URISyntaxException {
         if (StringUtils.isBlank(context)) {
-            return Response.seeOther(new URI(configurationService.getServerUri() + ConfigurationService.CONTEXT_PATH + "/list")).header("Accept", accept).build();
+            return Response.seeOther(new URI(configurationService.getServerUri() + ConfigurationService.CONTEXT_PATH + "/list")).header(HttpHeaders.ACCEPT, accept).build();
         } else {
             URI uri = buildExportUri(context, accept, format);
             return Response.seeOther(uri).build();        
