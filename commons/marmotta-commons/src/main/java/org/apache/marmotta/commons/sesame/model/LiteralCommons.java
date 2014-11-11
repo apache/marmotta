@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -37,14 +37,16 @@ import java.util.Locale;
  * Author: Sebastian Schaffert
  */
 public class LiteralCommons {
-    private static int HASH_BITS=128;
+
+    private static final int HASH_BITS=128;
 
 
     private static DatatypeFactory dtf;
     static {
         try {
             dtf = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
+        } catch (DatatypeConfigurationException ignored) {
+            //nop;
         }
     }
 
@@ -57,7 +59,7 @@ public class LiteralCommons {
 	 * @param type     datatype URI of the literal (optional)
 	 * @return a 64bit hash key for the literal
 	 */
-    public static final String createCacheKey(String content, Locale language, URI type) {
+    public static String createCacheKey(String content, Locale language, URI type) {
 		return createCacheKey(content, language != null ? language.getLanguage() : null, type != null ? type.stringValue() : null);
 	}
 
@@ -69,7 +71,7 @@ public class LiteralCommons {
      * @param type     datatype URI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
-    public static final String createCacheKey(String content, Locale language, String type) {
+    public static String createCacheKey(String content, Locale language, String type) {
         return createCacheKey(content, language != null ? language.getLanguage() : null, type);
     }
 
@@ -83,7 +85,7 @@ public class LiteralCommons {
      * @param type datatype URI of the literal
      * @return a 64bit hash key for the literal
      */
-    public static final String createCacheKey(DateTime date, String type) {
+    public static String createCacheKey(DateTime date, String type) {
         GregorianCalendar cal = date.toGregorianCalendar();
 
         XMLGregorianCalendar xml_cal = dtf.newXMLGregorianCalendar(cal);
@@ -98,7 +100,7 @@ public class LiteralCommons {
      * @param l the literal to create the hash for
      * @return a 64bit hash key for the literal
      */
-    public static final String createCacheKey(Literal l) {
+    public static String createCacheKey(Literal l) {
         return createCacheKey(l.getLabel(), l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
     }
 
@@ -111,7 +113,7 @@ public class LiteralCommons {
      * @param type     datatype URI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
-    public static final String createCacheKey(String content, String language, String type) {
+    public static String createCacheKey(String content, String language, String type) {
         Hasher hasher = Hashing.goodFastHash(HASH_BITS).newHasher();
         hasher.putString(content, Charset.defaultCharset());
         if(type != null) {
@@ -125,23 +127,23 @@ public class LiteralCommons {
 
     /**
      * Return the appropriate XSD type for RDF literals for the provided Java class.
-     * @param javaClass
-     * @return
+     * @param clazz the Class
+     * @return the XSD type for RDF literals of the provided Class
      */
-    public static String getXSDType(Class<?> javaClass) {
-        if(String.class.isAssignableFrom(javaClass)) {
+    public static String getXSDType(Class<?> clazz) {
+        if(String.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"string";
-        } else if(Integer.class.isAssignableFrom(javaClass) || int.class.isAssignableFrom(javaClass)) {
+        } else if(Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"integer";
-        } else if(Long.class.isAssignableFrom(javaClass) || long.class.isAssignableFrom(javaClass)) {
+        } else if(Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"long";
-        } else if(Double.class.isAssignableFrom(javaClass) || double.class.isAssignableFrom(javaClass)) {
+        } else if(Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"double";
-        } else if(Float.class.isAssignableFrom(javaClass) || float.class.isAssignableFrom(javaClass)) {
+        } else if(Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"float";
-        } else if(Date.class.isAssignableFrom(javaClass) || DateTime.class.isAssignableFrom(javaClass)) {
+        } else if(Date.class.isAssignableFrom(clazz) || DateTime.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"dateTime";
-        } else if(Boolean.class.isAssignableFrom(javaClass) || boolean.class.isAssignableFrom(javaClass)) {
+        } else if(Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz)) {
             return Namespaces.NS_XSD+"boolean";
         } else {
             // FIXME: MARMOTTA-39 (no default datatype before RDF-1.1)
@@ -155,5 +157,9 @@ public class LiteralCommons {
      */
     public static String getRDFLangStringType() {
     	return Namespaces.NS_RDF + "langString";
+    }
+
+    private LiteralCommons() {
+        // static access only
     }
 }
