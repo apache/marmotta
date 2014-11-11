@@ -25,31 +25,31 @@
         SQUEBI = {
             selectService : "../select",
             updateService : "../update",
-            app : "../../webjars/squebi/0.0.9",
-            bower : ".",
+            home : "../../webjars/squebi/0.0.10-SNAPSHOT",
             hints : [],
             container : '#squebi_container',
             browse : {
                 showFlags : false
             },
             "samples": [
-                {"name":"Select first 10 triples", "value":"SELECT * WHERE {\n  ?subject ?property ?object\n} LIMIT 10","type":"browse"},
+                {"name":"Select first 10 triples", "value":"SELECT * WHERE {\n  ?subject ?property ?object\n}\nLIMIT 10","type":"browse"},
                 {"name":"List types", "value":"SELECT DISTINCT ?type WHERE {\n  [] a ?type\n} ORDER BY ?type","type":"browse"},
-                {"name":"List properties", "value":"SELECT DISTINCT ?property WHERE {\n  [] ?property []\n} ORDER BY ?property","type":"browse"},
-                {"name":"List classes and count their usage as pie chart", "value":"SELECT ?class (COUNT (?s) AS ?count) WHERE {\n  ?s a ?class\n}\nGROUP BY ?class\nORDER BY DESC(?count)","type":"piechart"},
+                {"name":"List properties", "value":"SELECT DISTINCT ?property WHERE {\n  [] ?property []\n} ORDER BY ?property","type":"browse"}
+                //,{"name":"List classes and count their usage as pie chart", "value":"SELECT ?class (COUNT (?s) AS ?count) WHERE {\n  ?s a ?class\n}\nGROUP BY ?class\nORDER BY DESC(?count)","type":"piechart"},
             ],
             "writers": [
                 "browse","csv","json","pie","xml"
             ]
         };
     </script>
-    <script data-main="../../webjars/squebi/0.0.9/main" src="../../webjars/squebi/0.0.9/requirejs/require.js"></script>
+    <script data-main="../../webjars/squebi/0.0.10-SNAPSHOT/squebi" src="../../webjars/requirejs/2.1.15/require.js"></script>
+    <link href="../../webjars/squebi/0.0.10-SNAPSHOT/squebi.css" rel="stylesheet" type="text/css">
     <!--###END_HEAD###-->
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
 <div id="appLoader" style="margin-top: 100px; text-align: center; margin-bottom: 100px">
-    <img src="../../webjars/squebi/0.0.9/squebi/img/ajax-loader-big.gif">
+    <img src="../../webjars/squebi/0.0.10-SNAPSHOT/img/ajax-loader-big.gif">
 </div>
 <div style="display: none" id="squebi_container" class="container">
     <div ng-controller="SampleCtrl" class="header">
@@ -78,7 +78,7 @@
         <div id="query-container">
             <textarea id="input" ng-model="query" ui-codemirror="editorOptions"></textarea>
         </div>
-        <a class="btn btn-lg btn-success btn-query" ng-click="triggerQuery()">
+        <a class="btn btn-run btn-lg btn-success btn-query" ng-click="triggerQuery()">
             <i class="fa fa-play-circle"></i> Run
         </a>
     </div>
@@ -102,7 +102,7 @@
     <div ng-show="showResults" ng-controller="ResultCtrl" class="row result">
         <div ng-show="!loader" ng-include src="template"></div>
         <div class="loader" ng-show="loader">
-            <img src="../../webjars/squebi/0.0.9/squebi/img/ajax-loader.gif">
+            <img src="../../webjars/squebi/0.0.10-SNAPSHOT/img/ajax-loader-big.gif">
         </div>
     </div>
 

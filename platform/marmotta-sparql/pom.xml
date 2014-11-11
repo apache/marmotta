@@ -34,6 +34,17 @@
         UIs for exploring SPARQL results.
     </description>
 
+    <repositories>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -178,11 +189,15 @@
         <dependency>
             <groupId>com.github.tkurz.webjars</groupId>
             <artifactId>squebi</artifactId>
-            <version>0.0.9</version>
+            <version>0.0.10-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>codemirror</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>requirejs</artifactId>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
