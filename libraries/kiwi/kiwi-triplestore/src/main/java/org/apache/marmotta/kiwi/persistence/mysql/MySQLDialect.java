@@ -128,7 +128,7 @@ public class MySQLDialect extends KiWiDialect {
      */
     @Override
     public String getDateTimeTZ(String alias) {
-        return String.format("DATE_ADD(%s.tvalue, INTERVAL %s.tzoffset SECOND)");
+        return String.format("DATE_ADD(%s.tvalue, INTERVAL %s.tzoffset SECOND)", alias, alias);
     }
 
     /**

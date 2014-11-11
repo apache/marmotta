@@ -114,7 +114,7 @@ public class H2Dialect extends KiWiDialect {
      */
     @Override
     public String getDateTimeTZ(String alias) {
-        return String.format("DATEADD('SECOND', %s.tzoffset, %s.tvalue)");
+        return String.format("DATEADD('SECOND', %s.tzoffset, %s.tvalue)", alias, alias);
     }
 
 
