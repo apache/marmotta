@@ -21,6 +21,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
+import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -346,16 +347,16 @@ public class KiWiHandler implements RDFHandler {
                 // differentiate between the different types of the value
                 if (type == null) {
                     // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                    result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
+                    result = connection.loadLiteral(sanitizeString(value), lang, null);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype, importDate);
+                        result = new KiWiStringLiteral(sanitizeString(value), locale, null, importDate);
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.stringValue().equals(Namespaces.NS_XSD + "dateTime") || type.stringValue().equals(Namespaces.NS_XSD + "date") || type.stringValue().equals(Namespaces.NS_XSD + "time")) {
+                } else if(type.equals(XSD.DateTime) || type.equals(XSD.Date) || type.equals(XSD.Time)) {
                     // parse if necessary
-                    final DateTime dvalue = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(value.toString());
+                    final DateTime dvalue = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(value);
 
                     result = connection.loadLiteral(dvalue);
 
@@ -364,8 +365,8 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.stringValue().equals(Namespaces.NS_XSD + "integer") || type.stringValue().equals(Namespaces.NS_XSD + "long")) {
-                    long ivalue = Long.parseLong(value.toString());
+                } else if(type.equals(XSD.Integer) || type.equals(XSD.Long)) {
+                    long ivalue = Long.parseLong(value);
 
                     result = connection.loadLiteral(ivalue);
 
@@ -374,8 +375,8 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.stringValue().equals(Namespaces.NS_XSD + "double") || type.stringValue().equals(Namespaces.NS_XSD + "float")) {
-                    double dvalue = Double.parseDouble(value.toString());
+                } else if(type.equals(XSD.Double) || type.equals(XSD.Float) || type.equals(XSD.Decimal)) {
+                    double dvalue = Double.parseDouble(value);
 
                     result = connection.loadLiteral(dvalue);
 
@@ -384,8 +385,8 @@ public class KiWiHandler implements RDFHandler {
                     } else {
                         nodesLoaded++;
                     }
-                } else if(type.stringValue().equals(Namespaces.NS_XSD+"boolean")) {
-                    boolean bvalue = Boolean.parseBoolean(value.toString());
+                } else if(type.equals(XSD.Boolean)) {
+                    boolean bvalue = Boolean.parseBoolean(value);
 
                     result = connection.loadLiteral(bvalue);
 
@@ -395,23 +396,23 @@ public class KiWiHandler implements RDFHandler {
                         nodesLoaded++;
                     }
                 } else {
-                    result = connection.loadLiteral(sanitizeString(value.toString()), lang, rtype);
+                    result = connection.loadLiteral(sanitizeString(value), lang, rtype);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, rtype, importDate);
+                        result = new KiWiStringLiteral(sanitizeString(value), locale, rtype, importDate);
                     } else {
                         nodesLoaded++;
                     }
                 }
             } catch(IllegalArgumentException ex) {
                 // malformed number or date
-                log.warn("malformed argument for typed literal of type {}: {}", rtype.stringValue(), value);
+                log.warn("malformed argument for typed literal of type {}: {}", rtype, value);
                 KiWiUriResource mytype = createURI(Namespaces.NS_XSD+"string");
 
-                result = connection.loadLiteral(sanitizeString(value.toString()), lang, mytype);
+                result = connection.loadLiteral(sanitizeString(value), lang, mytype);
 
                 if(result == null) {
-                    result = new KiWiStringLiteral(sanitizeString(value.toString()), locale, mytype, importDate);
+                    result = new KiWiStringLiteral(sanitizeString(value), locale, mytype, importDate);
                 } else {
                     nodesLoaded++;
                 }
