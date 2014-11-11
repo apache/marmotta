@@ -55,7 +55,7 @@ public class NSeconds extends Seconds implements NativeFunction {
         if (dialect instanceof PostgreSQLDialect) {
             return String.format("extract(second from %s)", args[0]);
         } else if (dialect instanceof H2Dialect) {
-            return String.format("MINUTE(%s) + EXTRACT(MILLISECOND FROM %s)/1000.0", args[0], args[0]);
+            return String.format("SECOND(%s) + EXTRACT(MILLISECOND FROM %s)/1000.0", args[0], args[0]);
         } else if(dialect instanceof MySQLDialect) {
             return String.format("SECOND(%s) + MICROSECOND(%s)/1000000.0", args[0], args[0]);
         }
