@@ -14,3 +14,5 @@
 -- limitations under the License.
 
 ALTER TABLE nodes ADD COLUMN tzoffset int4 default 0;
+
+UPDATE METADATA SET mvalue = '4' WHERE mkey = 'version';
