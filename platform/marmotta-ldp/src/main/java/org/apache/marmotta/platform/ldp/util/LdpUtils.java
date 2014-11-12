@@ -148,13 +148,15 @@ public class LdpUtils {
     }
 
     public static String getContainer(String resource) throws MalformedURLException, URISyntaxException {
-        java.net.URI uri = new java.net.URI(resource);
-        java.net.URI parent = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
-        return parent.toASCIIString();
+        final int fragmentIndex = resource.indexOf('#');
+        if (fragmentIndex >= 0) {
+            return resource.substring(0, fragmentIndex);
+        }
+        return resource.substring(0, resource.lastIndexOf('/', resource.length() - 1));
     }
 
     public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
-        return new URIImpl(resource.getNamespace());
+        return new URIImpl(getContainer(resource.stringValue()));
     }
 
     /**

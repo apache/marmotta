@@ -407,7 +407,7 @@ public class LdpWebService {
                 uriGenerator = new SlugUriGenerator(ldpService, container, slug, conn);
             }
 
-            String newResource = uriGenerator.generateResourceUri();
+            final String newResource = uriGenerator.generateResourceUri();
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
             // connection is closed by buildPostResponse
