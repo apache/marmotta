@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.commons.util;
 
+import org.joda.time.DateTime;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -59,30 +61,32 @@ public class DateUtils {
      */
     private static final DateFormat[] iso8601InputFormats = new DateFormat[] {
 
-        // yyyy-mm-ddThh...
-        ISO8601FORMAT,
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", null),
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC"),
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", null),    // With timezone
-        createDateFormat("yyyy-MM-dd'T'HH:mm:ss", null),     // Without timezone
-        // yyyy-mm-dd hh...
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'", "UTC"), // UTC/Zulu
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ssZ", null),    // With timezone
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss.SZ", null),    // With timezone
-        createDateFormat("yyyy-MM-dd' 'HH:mm:ss", null),     // Without timezone
-        
-        // GMT
-        GMTFORMAT,
-        createDateFormat("EEE, dd MMM yyyy HH:mm:ss'Z'", "GMT"),
-        
-        // Some more date formats
-        createDateFormat("EEE MMM dd HH:mm:ss z yyyy", null),     // Word documents
-        createDateFormat("EEE MMM d HH:mm:ss z yyyy", null),     // Word documents
-        createDateFormat("dd.MM.yyy' 'HH:mm:ss", null),     // German
-        createDateFormat("dd.MM.yyy' 'HH:mm", null),     // German
-        
-        // SES-711 (see https://openrdf.atlassian.net/browse/SES-711)
-        ISO8601FORMAT_DATE,
+            // yyyy-mm-ddThh...
+            ISO8601FORMAT,
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", null),
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", "UTC"),
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", null),    // With timezone
+            createDateFormat("yyyy-MM-dd'T'HH:mm:ss", null),     // Without timezone
+            // yyyy-mm-dd hh...
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'", "UTC"), // UTC/Zulu
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ssZ", null),    // With timezone
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ss.SZ", null),    // With timezone
+            createDateFormat("yyyy-MM-dd' 'HH:mm:ss", null),     // Without timezone
+
+
+            // GMT
+            GMTFORMAT,
+            createDateFormat("EEE, dd MMM yyyy HH:mm:ss'Z'", "GMT"),
+
+            // Some more date formats
+            createDateFormat("EEE MMM dd HH:mm:ss z yyyy", null),     // Word documents
+            createDateFormat("EEE MMM d HH:mm:ss z yyyy", null),     // Word documents
+            createDateFormat("dd.MM.yyy' 'HH:mm:ss", null),     // German
+            createDateFormat("dd.MM.yyy' 'HH:mm", null),     // German
+
+            // SES-711 (see https://openrdf.atlassian.net/browse/SES-711)
+            ISO8601FORMAT_DATE,
+            createDateFormat("yyyy-MM-ddX", null), // ISO8601 short date with zimezone
     };
 
     private static SimpleDateFormat createDateFormat(String format, String timezone) {
@@ -155,7 +159,7 @@ public class DateUtils {
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         c.setTime(date);
         try {
-            return getDatatypeFactory().newXMLGregorianCalendar(c).normalize();
+            return getDatatypeFactory().newXMLGregorianCalendar(c);
         } catch (DatatypeConfigurationException e) {
             return null;
         }
@@ -163,12 +167,16 @@ public class DateUtils {
 
 
     /**
-     * Cut the fraction part of a date object, since some database systems do not support nanoseconds.
+     * Transform a Java date into a XML calendar. Useful for working with date literals.
      * @param date
      * @return
      */
-    public static Date getDateWithoutFraction(Date date) {
-        long seconds = date.getTime() / 1000L;
-        return new Date(seconds * 1000L);
+    public static XMLGregorianCalendar getXMLCalendar(DateTime date) {
+        GregorianCalendar c = date.toGregorianCalendar();
+        try {
+            return getDatatypeFactory().newXMLGregorianCalendar(c);
+        } catch (DatatypeConfigurationException e) {
+            return null;
+        }
     }
 }

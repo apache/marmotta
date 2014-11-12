@@ -206,7 +206,7 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
 
  * Apache Tomcat, http://tomcat.apache.org
  * Guava, http://guava-libraries.googlecode.com
- * Jackson, http://jackson.codehaus.org
+ * Jackson, https://github.com/FasterXML/jackson
  * MimeUtil, http://mime-util.sourceforge.net
  * Apache Ant, http://ant.apache.org
  * IzPack, http://izpack.org

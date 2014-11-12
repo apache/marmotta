@@ -118,6 +118,11 @@ public class KiWiConfiguration {
     private CacheMode cacheMode = CacheMode.REPLICATED;
 
     /**
+     * Enable JMX statistics collection
+     */
+    private boolean jmxEnabled = true;
+
+    /**
      * Enable to turn on cluster mode (e.g. for cache replication)
      */
     private boolean clustered = false;
@@ -184,24 +189,27 @@ public class KiWiConfiguration {
         return queryLoggingEnabled;
     }
 
-    public void setQueryLoggingEnabled(boolean queryLoggingEnabled) {
+    public KiWiConfiguration setQueryLoggingEnabled(boolean queryLoggingEnabled) {
         this.queryLoggingEnabled = queryLoggingEnabled;
+        return this;
     }
 
     public String getDefaultContext() {
         return defaultContext;
     }
 
-    public void setDefaultContext(String defaultContext) {
+    public KiWiConfiguration setDefaultContext(String defaultContext) {
         this.defaultContext = defaultContext;
+        return this;
     }
 
     public String getInferredContext() {
         return inferredContext;
     }
 
-    public void setInferredContext(String inferredContext) {
+    public KiWiConfiguration setInferredContext(String inferredContext) {
         this.inferredContext = inferredContext;
+        return this;
     }
 
     /**
@@ -220,18 +228,20 @@ public class KiWiConfiguration {
      * once the limit is reached or the connection committed. Enabling this can significantly improve the
      * performance, and is usually quite safe for triples.
      */
-    public void setTripleBatchCommit(boolean tripleBatchCommit) {
+    public KiWiConfiguration setTripleBatchCommit(boolean tripleBatchCommit) {
         if(dialect.isBatchSupported()) {
             this.tripleBatchCommit = tripleBatchCommit;
         }
+        return this;
     }
 
     public int getTripleBatchSize() {
         return tripleBatchSize;
     }
 
-    public void setTripleBatchSize(int tripleBatchSize) {
+    public KiWiConfiguration setTripleBatchSize(int tripleBatchSize) {
         this.tripleBatchSize = tripleBatchSize;
+        return this;
     }
 
     /**
@@ -250,8 +260,9 @@ public class KiWiConfiguration {
      *
      * @see java.sql.PreparedStatement#setFetchSize(int)
      */
-    public void setCursorSize(int cursorSize) {
+    public KiWiConfiguration setCursorSize(int cursorSize) {
         this.cursorSize = cursorSize;
+        return this;
     }
 
     /**
@@ -270,8 +281,9 @@ public class KiWiConfiguration {
      * will prepare the database with appropriate fulltext index support. Since this adds additional overhead, it is
      * not enabled by default.
      */
-    public void setFulltextEnabled(boolean fulltextEnabled) {
+    public KiWiConfiguration setFulltextEnabled(boolean fulltextEnabled) {
         this.fulltextEnabled = fulltextEnabled;
+        return this;
     }
 
     /**
@@ -288,8 +300,9 @@ public class KiWiConfiguration {
      * separate fulltext index for each supported language, adding additional overhead. In case you only want generic
      * fulltext support, use the empty array.
      */
-    public void setFulltextLanguages(String[] fulltextLanguages) {
+    public KiWiConfiguration setFulltextLanguages(String[] fulltextLanguages) {
         this.fulltextLanguages = fulltextLanguages;
+        return this;
     }
 
     /**
@@ -297,8 +310,9 @@ public class KiWiConfiguration {
      * separate fulltext index for each supported language, adding additional overhead. In case you only want generic
      * fulltext support, use the empty array.
      */
-    public void setFulltextLanguages(List<String> fulltextLanguages) {
+    public KiWiConfiguration setFulltextLanguages(List<String> fulltextLanguages) {
         this.fulltextLanguages = new ArrayList<String>(fulltextLanguages).toArray(new String[fulltextLanguages.size()]);
+        return this;
     }
 
 
@@ -314,8 +328,9 @@ public class KiWiConfiguration {
      * Fully qualified class name of the cache manager factory to use. Falls back to the Guava
      * cache manager if not found
      */
-    public void setCachingBackend(CachingBackends cachingBackend) {
+    public KiWiConfiguration setCachingBackend(CachingBackends cachingBackend) {
         this.cachingBackend = cachingBackend;
+        return this;
     }
 
     /**
@@ -329,8 +344,9 @@ public class KiWiConfiguration {
     /**
      * The maximum size of the node ID cache used by the KiWiValueFactory (default: 1000000)
      */
-    public void setNodeCacheSize(int nodeCacheSize) {
+    public KiWiConfiguration setNodeCacheSize(int nodeCacheSize) {
         this.nodeCacheSize = nodeCacheSize;
+        return this;
     }
 
     /**
@@ -344,8 +360,9 @@ public class KiWiConfiguration {
     /**
      * The maximum size of the literal cache used by the KiWiValueFactory (default: 100000)
      */
-    public void setLiteralCacheSize(int literalCacheSize) {
+    public KiWiConfiguration setLiteralCacheSize(int literalCacheSize) {
         this.literalCacheSize = literalCacheSize;
+        return this;
     }
 
     /**
@@ -359,8 +376,9 @@ public class KiWiConfiguration {
     /**
      * The maximum size of the BNode cache used by the KiWiValueFactory (default: 10000)
      */
-    public void setBNodeCacheSize(int bNodeCacheSize) {
+    public KiWiConfiguration setBNodeCacheSize(int bNodeCacheSize) {
         this.bNodeCacheSize = bNodeCacheSize;
+        return this;
     }
 
     /**
@@ -374,8 +392,9 @@ public class KiWiConfiguration {
     /**
      * The maximum size of the URI cache used by the KiWiValueFactory (default: 500000)
      */
-    public void setUriCacheSize(int uriCacheSize) {
+    public KiWiConfiguration setUriCacheSize(int uriCacheSize) {
         this.uriCacheSize = uriCacheSize;
+        return this;
     }
 
 
@@ -390,8 +409,9 @@ public class KiWiConfiguration {
     /**
      * The maximum size of the triple cache used for looking up triples by id
      */
-    public void setTripleCacheSize(int tripleCacheSize) {
+    public KiWiConfiguration setTripleCacheSize(int tripleCacheSize) {
         this.tripleCacheSize = tripleCacheSize;
+        return this;
     }
 
     /**
@@ -404,8 +424,9 @@ public class KiWiConfiguration {
     /**
      * The maximum size of the namespace cache used for looking up namespaces by prefix and uri
      */
-    public void setNamespaceCacheSize(int namespaceCacheSize) {
+    public KiWiConfiguration setNamespaceCacheSize(int namespaceCacheSize) {
         this.namespaceCacheSize = namespaceCacheSize;
+        return this;
     }
 
     /**
@@ -422,8 +443,9 @@ public class KiWiConfiguration {
      * The datacenter ID of this server for generating unique database IDs.
      * @return
      */
-    public void setDatacenterId(int datacenterId) {
+    public KiWiConfiguration setDatacenterId(int datacenterId) {
         this.datacenterId = datacenterId;
+        return this;
     }
 
 
@@ -439,8 +461,9 @@ public class KiWiConfiguration {
      * Change the strategy to use for synchronizing between transactions. Currently either "database" or "cache".
      * @return
      */
-    public void setRegistryStrategy(RegistryStrategy registryStrategy) {
+    public KiWiConfiguration setRegistryStrategy(RegistryStrategy registryStrategy) {
         this.registryStrategy = registryStrategy;
+        return this;
     }
 
     /**
@@ -455,8 +478,9 @@ public class KiWiConfiguration {
     /**
      * If true, support for special cluster features is enabled (e.g. replicated caches).
      */
-    public void setClustered(boolean clustered) {
+    public KiWiConfiguration setClustered(boolean clustered) {
         this.clustered = clustered;
+        return this;
     }
 
 
@@ -499,8 +523,9 @@ public class KiWiConfiguration {
      *
      * @param cacheMode
      */
-    public void setCacheMode(CacheMode cacheMode) {
+    public KiWiConfiguration setCacheMode(CacheMode cacheMode) {
         this.cacheMode = cacheMode;
+        return this;
     }
 
     /**
@@ -517,8 +542,9 @@ public class KiWiConfiguration {
      * Change the name of the cluster. This name is e.g. used by the Infinispan cache to identify other cache members
      * in the same cluster,
      */
-    public void setClusterName(String clusterName) {
+    public KiWiConfiguration setClusterName(String clusterName) {
         this.clusterName = clusterName;
+        return this;
     }
 
     /**
@@ -543,8 +569,9 @@ public class KiWiConfiguration {
      *
      * @return
      */
-    public void setClusterPort(int clusterPort) {
+    public KiWiConfiguration setClusterPort(int clusterPort) {
         this.clusterPort = clusterPort;
+        return this;
     }
 
     /**
@@ -580,8 +607,9 @@ public class KiWiConfiguration {
      *
      * @return
      */
-    public void setClusterAddress(String clusterAddress) {
+    public KiWiConfiguration setClusterAddress(String clusterAddress) {
         this.clusterAddress = clusterAddress;
+        return this;
     }
 
 
@@ -591,5 +619,26 @@ public class KiWiConfiguration {
 
     public void setClusterTimeout(int clusterTimeout) {
         this.clusterTimeout = clusterTimeout;
+    }
+
+
+    /**
+     * Return true if statistics collection in JMX. The JMX name of the KiWi statistics bean will be
+     * org.apache.marmotta.kiwi.jmx:type=KiWiStatisticsMBean
+     */
+    public boolean isJmxEnabled() {
+        return jmxEnabled;
+    }
+
+    /**
+     * Enable/disable statistics collection in JMX. The JMX name of the KiWi statistics bean will be
+     * org.apache.marmotta.kiwi.jmx:type=KiWiStatisticsMBean
+     *
+     * @param jmxEnabled
+     */
+    public KiWiConfiguration setJmxEnabled(boolean jmxEnabled) {
+        this.jmxEnabled = jmxEnabled;
+
+        return this;
     }
 }

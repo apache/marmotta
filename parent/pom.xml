@@ -50,7 +50,7 @@
         <postgresql.version>9.3-1100-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.2.1.v20140609</jetty.version>
-        <resteasy.version>3.0.8.Final</resteasy.version>
+        <resteasy.version>3.0.10.Final</resteasy.version>
         <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
         <jax.doclets.version>0.10.1</jax.doclets.version>
@@ -737,6 +737,14 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.5</version>
+            </dependency>
+
+
+            <!-- XML Processing -->
+            <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>2.10.0</version>
@@ -746,8 +754,6 @@
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
             </dependency>
-
-            <!-- XML Processing -->
             <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
@@ -1701,7 +1707,7 @@
             <dependency>
                 <groupId>com.thetransactioncompany</groupId>
                 <artifactId>cors-filter</artifactId>
-                <version>1.9</version>
+                <version>2.2.1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.servlet</groupId>

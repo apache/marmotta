@@ -20,7 +20,7 @@ package org.apache.marmotta.kiwi.sparql.function.rdfterm;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
 
@@ -65,8 +65,8 @@ public class NUUID extends UUID implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getReturnType() {
-        return OPTypes.URI;
+    public ValueType getReturnType() {
+        return ValueType.URI;
     }
 
     /**
@@ -77,8 +77,8 @@ public class NUUID extends UUID implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getArgumentType(int arg) {
-        return OPTypes.ANY;
+    public ValueType getArgumentType(int arg) {
+        return ValueType.NODE;
     }
 
     /**

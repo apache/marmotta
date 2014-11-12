@@ -62,6 +62,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static javax.ws.rs.core.HttpHeaders.ACCEPT;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static org.openrdf.rio.RDFFormat.RDFXML;
 
 /**
@@ -230,7 +232,7 @@ public class SparqlWebService {
      */
 	private Response select(String query, String resultType, HttpServletRequest request) {
 		try {
-	    	String acceptHeader = StringUtils.defaultString(request.getHeader("Accept"), "");
+	    	String acceptHeader = StringUtils.defaultString(request.getHeader(ACCEPT), "");
 	    	if (StringUtils.isBlank(query)) { //empty query
 	            if (acceptHeader.contains("html")) {
 	                return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
@@ -387,7 +389,7 @@ public class SparqlWebService {
                 return Response.ok().build();
             } else {
                 if (resultType == null) {
-                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
+                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader(ACCEPT));
                     List<ContentType> offeredTypes = MarmottaHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
                     ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
                     if (bestType != null) {
@@ -459,10 +461,10 @@ public class SparqlWebService {
     
     private Response createServiceDescriptionResponse(final HttpServletRequest request, final boolean isUpdate) {
         final List<ContentType> acceptedTypes;
-        if (StringUtils.isBlank(request.getHeader("Accept"))) {
+        if (StringUtils.isBlank(request.getHeader(ACCEPT))) {
             acceptedTypes = Collections.singletonList(MarmottaHttpUtils.parseContentType(RDFXML.getDefaultMIMEType()));
         } else {
-            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader("Accept"));
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader(ACCEPT));
         }
         
         ContentType _bestType = null;
@@ -516,7 +518,7 @@ public class SparqlWebService {
             }
         };
         
-        final ResponseBuilder responseBuilder = Response.ok().entity(entity).header("Content-Type", format.getMime());
+        final ResponseBuilder responseBuilder = Response.ok().entity(entity).header(CONTENT_TYPE, format.getMime());
         final TupleQueryResultFormat fmt = QueryResultIO.getWriterFormatForMIMEType(format.getMime());
         if (fmt != null) {
             responseBuilder.header("Content-Disposition", String.format("attachment; filename=\"%s.%s\"", queryType.toString().toLowerCase(), fmt.getDefaultFileExtension()));

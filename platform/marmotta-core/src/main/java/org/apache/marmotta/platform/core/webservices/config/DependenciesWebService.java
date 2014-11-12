@@ -44,14 +44,14 @@ public class DependenciesWebService {
     @Path("/")
     @Produces("application/json")
     public List<Map<String, String>> getArtifacs() {
-        return dependenciesService.getArtifacs();
+        return dependenciesService.getArtifacts();
     }
 
     @GET
     @Path("/{groupId: [a-z]+(\\.[a-z]+)*}")
     @Produces("application/json")
     public List<Map<String, String>> getArtifacs(@PathParam("groupId") String groupId) {
-        return dependenciesService.getArtifacs(groupId);
+        return dependenciesService.getArtifacts(groupId);
     }
 
     @GET

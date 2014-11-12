@@ -16,10 +16,6 @@
  */
 package org.apache.marmotta.kiwi.test;
 
-import static org.hamcrest.Matchers.hasItem;
-
-import java.util.Set;
-
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -28,6 +24,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+
+import static org.hamcrest.Matchers.hasItem;
 
 /**
  * Test if the dialects returns correct values
@@ -77,7 +77,7 @@ public class DialectTest {
         Assert.assertNotNull(migrateScript);
         Assert.assertFalse("".equals(migrateScript));
 
-        String migrateScript2 = dialect.getMigrationScript(2,"base");
+        String migrateScript2 = dialect.getMigrationScript(4,"base");
 
         Assert.assertNotNull(migrateScript2);
         Assert.assertTrue("".equals(migrateScript2));

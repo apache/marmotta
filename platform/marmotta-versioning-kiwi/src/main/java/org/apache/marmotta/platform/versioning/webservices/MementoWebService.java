@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.platform.versioning.webservices;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.commons.util.DateUtils;
@@ -56,6 +56,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.google.common.net.HttpHeaders.*;
 
 /**
  * Webservice manages memento related services, namely:
@@ -125,9 +127,9 @@ public class MementoWebService {
                 return Response
                         .status(301)
                         .location(MementoUtils.resourceURI(resource_string, versions.getCurrent().getCommitTime(), configurationService.getBaseUri()))
-                        .header("Vary", "negotiate, accept-datetime, accept")
+                        .header(VARY, "negotiate, accept-datetime, accept")
                         .header("Memento-Datetime", versions.getCurrent().getCommitTime().toString())
-                        .header("Link", CollectionUtils.fold(links, ", "))
+                        .header(LINK, Joiner.on(", ").join(links))
                         .build();
 
             } catch (MementoException e) {
@@ -160,7 +162,7 @@ public class MementoWebService {
     @Path("/" + MementoUtils.MEMENTO_RESOURCE + "/{date:[^/]+}/{resource:.+}")
     public Response resourceService(@PathParam("date")String date_string,
                                     @PathParam("resource") String resource_string,
-                                    @HeaderParam("Accept") String types_string) {
+                                    @HeaderParam(ACCEPT) String types_string) {
 
         try {
             //check preconditions
@@ -219,8 +221,8 @@ public class MementoWebService {
                 //create response
                 return Response
                         .ok()
-                        .header("Link", CollectionUtils.fold(links," ,"))
-                        .header("Content-Type", type.toString())
+                        .header(LINK, Joiner.on(", ").join(links))
+                        .header(CONTENT_TYPE, type.toString())
                         .header("Memento-Datetime", MementoUtils.MEMENTO_DATE_FORMAT.format(versions.getCurrent().getCommitTime()))
                         .entity(entity)
                         .build();
@@ -247,7 +249,7 @@ public class MementoWebService {
     @GET
     @Path("/" + MementoUtils.MEMENTO_TIMEMAP + "/{resource:.+}")
     public Response timemapService(@PathParam("resource") String resource_string,
-                                   @HeaderParam("Accept") String types_string) {
+                                   @HeaderParam(ACCEPT) String types_string) {
 
         try {
             //check preconditions
@@ -285,8 +287,8 @@ public class MementoWebService {
                 //create response
                 return Response
                         .ok()
-                        .header("Link", CollectionUtils.fold(links," ,"))
-                        .header("Content-Type", serializer.getContentType().toString())
+                        .header(LINK, Joiner.on(", ").join(links))
+                        .header(CONTENT_TYPE, serializer.getContentType().toString())
                         .entity(entity)
                         .build();
 

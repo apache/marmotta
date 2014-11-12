@@ -33,4 +33,10 @@ public class CoreOptions {
     public static final String HTTP_MAX_CONNECTIONS = "core.http.max_connections";
     public static final String HTTP_MAX_CONNECTIONS_PER_ROUTE = "core.http.max_connections_per_route";
     public static final String HTTP_CLIENT_CACHE_ENABLE = "core.http.client_cache_enable";
+
+    // webservices
+    public static final String HTTP_ALLOW_ORIGIN = "kiwi.allow_origin";
+    public static final String LINKEDDATA_REDIRECT_PUT = "linkeddata.redirect.put";
+    public static final String LINKEDDATA_REDIRECT_STATUS = "linkeddata.redirect.status";
+    public static final String LINKEDDATA_MIME_REL_DEFAULT = "linkeddata.mime.rel.default";
 }

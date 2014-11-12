@@ -47,7 +47,7 @@ public class DateFunctionsTest extends AbstractTestBase {
 
     @Before
     public void loadData() throws RepositoryException, RDFParseException, IOException {
-        final int delta = 60 * 60 * 24 * 365;
+        final int day = 60 * 60 * 24, delta = day * 365;
         now = new Date(1000*(System.currentTimeMillis() / 1000));
         first = new Date(now.getTime() - 1000l * delta);
 
@@ -64,7 +64,7 @@ public class DateFunctionsTest extends AbstractTestBase {
 
             final Random rnd = new Random();
             for (int i = 0; i < 20; i++) {
-                Date d = new Date(first.getTime() + rnd.nextInt(delta) * 1000l);
+                Date d = new Date(first.getTime() + (day + rnd.nextInt(delta-2)) * 1000l);
                 con.add(vF.createStatement(uri, prop, vF.createLiteral(DateUtils.getXMLCalendar(d))));
             }
 

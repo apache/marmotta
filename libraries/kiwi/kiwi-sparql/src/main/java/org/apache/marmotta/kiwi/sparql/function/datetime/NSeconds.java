@@ -21,7 +21,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.openrdf.query.algebra.evaluation.function.datetime.Seconds;
 
@@ -55,7 +55,7 @@ public class NSeconds extends Seconds implements NativeFunction {
         if (dialect instanceof PostgreSQLDialect) {
             return String.format("extract(second from %s)", args[0]);
         } else if (dialect instanceof H2Dialect) {
-            return String.format("MINUTE(%s) + EXTRACT(MILLISECOND FROM %s)/1000.0", args[0], args[0]);
+            return String.format("SECOND(%s) + EXTRACT(MILLISECOND FROM %s)/1000.0", args[0], args[0]);
         } else if(dialect instanceof MySQLDialect) {
             return String.format("SECOND(%s) + MICROSECOND(%s)/1000000.0", args[0], args[0]);
         }
@@ -68,8 +68,8 @@ public class NSeconds extends Seconds implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getReturnType() {
-        return OPTypes.DOUBLE;
+    public ValueType getReturnType() {
+        return ValueType.DECIMAL;
     }
 
     /**
@@ -80,8 +80,8 @@ public class NSeconds extends Seconds implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getArgumentType(int arg) {
-        return OPTypes.DATE;
+    public ValueType getArgumentType(int arg) {
+        return ValueType.TZDATE;
     }
 
     /**

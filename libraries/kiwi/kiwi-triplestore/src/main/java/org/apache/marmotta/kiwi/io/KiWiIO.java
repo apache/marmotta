@@ -22,6 +22,8 @@ import org.apache.marmotta.commons.io.DataIO;
 import org.apache.marmotta.commons.vocabulary.SCHEMA;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.openrdf.model.vocabulary.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,7 +440,8 @@ public class KiWiIO {
             out.writeLong(-1L);
         } else {
             out.writeLong(literal.getId());
-            out.writeLong(literal.getDateContent().getTime());
+            out.writeLong(literal.getDateContent().getMillis());
+            out.writeInt(literal.getDateContent().getZone().getOffset(literal.getDateContent()));
             writeURI(out, literal.getType());
             out.writeLong(literal.getCreated().getTime());
         }
@@ -458,7 +461,7 @@ public class KiWiIO {
         if(id == -1) {
             return null;
         } else {
-            Date content = new Date(input.readLong());
+            DateTime content = new DateTime(input.readLong(), DateTimeZone.forOffsetMillis(input.readInt()));
 
             KiWiUriResource dtype = readURI(input);
 

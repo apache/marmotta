@@ -171,6 +171,7 @@ public class Preference {
      * @return a non-minimal preference, with only the provided parts included.
      * @see <a href="http://www.w3.org/TR/ldp/#h5_prefer-uris">http://www.w3.org/TR/ldp/#h5_prefer-uris</a>
      */
+    @SuppressWarnings("deprecation")
     public static Preference includePreference(String... includes) {
         final Preference pref = new Preference(false, false);
         pref.content = false;
@@ -197,23 +198,24 @@ public class Preference {
      * @return a non-minimal preference, with all provided parts excluded.
      * @see <a href="http://www.w3.org/TR/ldp/#h5_prefer-uris">http://www.w3.org/TR/ldp/#h5_prefer-uris</a>
      */
-     public static Preference omitPreference(String... omits) {
-         final Preference pref = new Preference(false, true);
-         pref.content = true;
-         for (String e: omits) {
-             if (LDP.PreferContainment.stringValue().equals(e)) {
-                 pref.setContainment(false);
-             } else if (LDP.PreferMembership.stringValue().equals(e)) {
-                 pref.setMembership(false);
-             } else if (LDP.PreferMinimalContainer.stringValue().equals(e)) {
-                 pref.setMinimalContainer(false);
-             } else if (LDP.PreferEmptyContainer.stringValue().equals(e)) {
-                 pref.setMinimalContainer(false);
-             } else {
-                 // ignore unknown omits
-             }
-         }
-         return pref;
+    @SuppressWarnings("deprecation")
+    public static Preference omitPreference(String... omits) {
+        final Preference pref = new Preference(false, true);
+        pref.content = true;
+        for (String e: omits) {
+            if (LDP.PreferContainment.stringValue().equals(e)) {
+                pref.setContainment(false);
+            } else if (LDP.PreferMembership.stringValue().equals(e)) {
+                pref.setMembership(false);
+            } else if (LDP.PreferMinimalContainer.stringValue().equals(e)) {
+                pref.setMinimalContainer(false);
+            } else if (LDP.PreferEmptyContainer.stringValue().equals(e)) {
+                pref.setMinimalContainer(false);
+            } else {
+                // ignore unknown omits
+            }
+        }
+        return pref;
     }
 
 }

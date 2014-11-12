@@ -16,6 +16,7 @@
  */
 package org.apache.marmotta.kiwi.loader;
 
+import info.aduna.iteration.Iterations;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
 import org.apache.marmotta.kiwi.loader.mysql.KiWiMySQLHandler;
@@ -28,6 +29,9 @@ import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -39,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Add file description here!
@@ -89,18 +94,45 @@ public class KiWiHandlerTest {
 
     @Test
     public void testImportNoCheck() throws Exception {
-        testImport(new KiWiLoaderConfiguration());
+        testImport(new KiWiLoaderConfiguration(),"demo-data.foaf", RDFFormat.RDFXML);
     }
 
     @Test
     public void testImportExistanceCheck() throws Exception {
         KiWiLoaderConfiguration cfg = new KiWiLoaderConfiguration();
         cfg.setStatementExistanceCheck(true);
-        testImport(cfg);
+        testImport(cfg, "demo-duplicates.ttl", RDFFormat.TURTLE);
+
+        // check for duplicates
+        URI R1 = repository.getValueFactory().createURI("http://localhost:8080/R1");
+        URI R2 = repository.getValueFactory().createURI("http://localhost:8080/R2");
+        URI T1 = repository.getValueFactory().createURI("http://localhost:8080/T1");
+
+        try {
+            RepositoryConnection con = repository.getConnection();
+            try {
+                con.begin();
+
+                List<Statement> r1l = Iterations.asList(con.getStatements(R1, RDF.TYPE, T1, true));
+                Assert.assertEquals(1, r1l.size());
+
+                List<Statement> r2l = Iterations.asList(con.getStatements(R2, null, null, true));
+                Assert.assertEquals(1, r2l.size());
+
+                con.commit();
+            } catch(RepositoryException ex) {
+                con.rollback();
+            } finally {
+                con.close();
+            }
+        } catch(RepositoryException ex) {
+            ex.printStackTrace(); // TODO: handle error
+        }
+
     }
 
 
-    private void testImport(KiWiLoaderConfiguration c) throws RDFParseException, IOException, RDFHandlerException {
+    private void testImport(KiWiLoaderConfiguration c, String file, RDFFormat fmt) throws RDFParseException, IOException, RDFHandlerException {
         KiWiHandler handler;
         if(store.getPersistence().getDialect() instanceof PostgreSQLDialect) {
             handler = new KiWiPostgresHandler(store, c);
@@ -113,9 +145,9 @@ public class KiWiHandlerTest {
         try {
             // bulk import
             long start = System.currentTimeMillis();
-            RDFParser parser = Rio.createParser(RDFFormat.RDFXML);
+            RDFParser parser = Rio.createParser(fmt);
             parser.setRDFHandler(handler);
-            parser.parse(this.getClass().getResourceAsStream("demo-data.foaf"),"");
+            parser.parse(this.getClass().getResourceAsStream(file),"");
 
             logger.info("bulk import in {} ms", System.currentTimeMillis() - start);
 

@@ -20,8 +20,6 @@ package org.apache.marmotta.ldclient.test.freebase;
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Some tests over random data to Freebase to warranty that the provider
@@ -82,10 +80,23 @@ public class TestFreebaseProvider extends ProviderTestBase {
     }
 
     @Test
-    public void testAditional() throws Exception {
+    public void test_m_0b1t1() throws Exception {
         testResource("http://rdf.freebase.com/ns/m.0b1t1");
+    }
+
+    @Test
+    @Ignore("Error in the Response-Encoding: newline")
+    public void test_m_04jpl() throws Exception {
         testResource("http://rdf.freebase.com/ns/m.04jpl");
+    }
+
+    @Test
+    public void test_m_036wy() throws Exception {
         testResource("http://rdf.freebase.com/ns/m.036wy");
+    }
+
+    @Test
+    public void test_m_01d0fp() throws Exception {
         testResource("http://rdf.freebase.com/ns/m.01d0fp");
     }
 

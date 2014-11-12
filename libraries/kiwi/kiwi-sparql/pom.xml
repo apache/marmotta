@@ -103,10 +103,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
-            <artifactId>marmotta-commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-util-filter</artifactId>
         </dependency>
         <dependency>

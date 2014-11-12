@@ -24,6 +24,7 @@ CREATE TABLE nodes (
   dvalue    double precision,
   ivalue    bigint,
   tvalue    timestamp,
+  tzoffset  INT4,
   bvalue    boolean,
   ltype     bigint     REFERENCES nodes(id),
   lang      varchar(5),
@@ -102,5 +103,5 @@ DO INSTEAD NOTHING;
 -- a function for cleaning up table rows without incoming references
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','3');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','4');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );

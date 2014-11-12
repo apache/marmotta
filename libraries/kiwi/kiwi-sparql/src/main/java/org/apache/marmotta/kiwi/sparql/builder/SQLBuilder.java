@@ -17,30 +17,30 @@
 
 package org.apache.marmotta.kiwi.sparql.builder;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.collections.CollectionUtils;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
+import org.apache.marmotta.kiwi.sparql.builder.collect.*;
+import org.apache.marmotta.kiwi.sparql.builder.eval.ValueExpressionEvaluator;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLAbstractSubquery;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLPattern;
+import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
-import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.model.*;
-import org.openrdf.model.vocabulary.FN;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.SESAME;
-import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.algebra.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * A builder for translating SPARQL queries into SQL.
@@ -55,11 +55,6 @@ public class SQLBuilder {
      * Simplify access to different node ids
      */
     private static final String[] positions = new String[] {"subject","predicate","object","context"};
-
-    /**
-     * Date format used for SQL timestamps.
-     */
-    private static final DateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 
 
     /**
@@ -102,10 +97,21 @@ public class SQLBuilder {
 
 
     /**
-     * The triple patterns collected from the query.
+     * The SQL fragments and triple patterns collected from the query. SQLFragments are LEFT JOINed with each other,
+     * so for each OPTIONAL found in the query, a new fragment is appended here. Inside a fragment, the patterns
+     * are CROSS JOINed with each other.
+     *
+     * @see org.apache.marmotta.kiwi.sparql.builder.collect.PatternCollector
      */
     private List<SQLFragment> fragments;
 
+    /**
+     * Contains the names  those variables for which the value is needed instead of the ID, because the value is used
+     * somewhere in a condition, function or other kind of value expression.
+     *
+     * @see org.apache.marmotta.kiwi.sparql.builder.collect.ConditionFinder
+     */
+    private Set<String> resolveVariables;
 
     private TupleExpr query;
 
@@ -164,6 +170,21 @@ public class SQLBuilder {
         return variables;
     }
 
+    public ValueConverter getConverter() {
+        return converter;
+    }
+
+    public KiWiDialect getDialect() {
+        return dialect;
+    }
+
+    public Dataset getDataset() {
+        return dataset;
+    }
+
+    public BindingSet getBindings() {
+        return bindings;
+    }
 
     public Set<String> getProjectedVars() {
         return projectedVars;
@@ -195,17 +216,40 @@ public class SQLBuilder {
         // find extensions (BIND)
         extensions = new ExtensionFinder(query).elements;
 
+        // find variables that need to be resolved
+        resolveVariables = new ConditionFinder(query).neededVariables;
+
+        int variableCount = 0;
+
+        // find all variables that have been bound already, even if they do not appear in a pattern
+        for(Var v : new VariableFinder(query).variables) {
+            if(v.hasValue() && !v.getName().startsWith("-const")) {
+                SQLVariable sv = variables.get(v.getName());
+                if(sv == null) {
+                    sv = new SQLVariable("V" + (++variableCount), v.getName());
+
+                    // select those variables that are really projected and not only needed in a grouping construct
+                    if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
+                        sv.setProjectionType(ValueType.NODE);
+                    }
+
+                    sv.getExpressions().add(""+ converter.convert(v.getValue()).getId());
+
+                    addVariable(sv);
+                }
+            }
+        }
+
         // find all variables occurring in the patterns and create a map to map them to
         // field names in the database query; each variable will have one or several field names,
         // one for each pattern it occurs in; field names are constructed automatically by a counter
         // and the pattern name to ensure the name is a valid HQL identifier
-        int variableCount = 0;
         for(SQLFragment f : fragments) {
             for (SQLPattern p : f.getPatterns()) {
                 // build pattern
                 Var[] fields = p.getFields();
                 for (int i = 0; i < fields.length; i++) {
-                    if (fields[i] != null && !fields[i].hasValue()) {
+                    if (fields[i] != null && (!fields[i].hasValue() || !fields[i].getName().startsWith("-const"))) {
                         Var v = fields[i];
 
                         SQLVariable sv = variables.get(v.getName());
@@ -214,13 +258,13 @@ public class SQLBuilder {
 
                             // select those variables that are really projected and not only needed in a grouping construct
                             if(projectedVars.contains(sv.getSparqlName()) || new SQLProjectionFinder(query,v.getName()).found) {
-                                sv.setProjectionType(ProjectionType.NODE);
+                                sv.setProjectionType(ValueType.NODE);
                             }
 
                             String pName = p.getName();
                             String vName = sv.getName();
 
-                            if (new ConditionFinder(v.getName(), query).found) {
+                            if (sv.getAlias() == null && resolveVariables.contains(v.getName())) {
                                 sv.setAlias(pName + "_" + positions[i] + "_" + vName);
                             }
 
@@ -246,7 +290,7 @@ public class SQLBuilder {
                         String sqName = sq.getAlias();
                         String vName = sv.getName();
 
-                        if (new ConditionFinder(sq_v.getSparqlName(), query).found) {
+                        if (sv.getAlias() == null && resolveVariables.contains(sq_v.getSparqlName())) {
                             sv.setAlias(sqName + "_" + vName);
                         }
 
@@ -258,9 +302,9 @@ public class SQLBuilder {
         }
 
 
-
         // add all extensions to the variable list so they are properly considered in projections and clauses
         // TODO: order by variable dependency, or otherwise the evaluateExpression might fail
+        List<ExtensionElem> deferredExtensions = new ArrayList<>(); // some extension might need to be evaluated later because their expressions cannot be computed yet
         for(ExtensionElem ext : extensions) {
             Var v = new Var(ext.getName());
 
@@ -273,28 +317,48 @@ public class SQLBuilder {
                     sv.setProjectionType(getProjectionType(ext.getExpr()));
                 }
 
+                // Functions that return a string literal do so with the string literal of the same kind as the first
+                // argument (simple literal, plain literal with same language tag, xsd:string).
+                ValueType type = getProjectionType(ext.getExpr());
+                if(type == ValueType.STRING) {
+                    sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
+                    sv.setLiteralLangExpression(getLiteralLangExpression(ext.getExpr()));
+                    // TODO: the following will produce invalid results for aggregation functions
+                /*
+                } else if(type == ProjectionType.INT || type == ProjectionType.DOUBLE || type == ProjectionType.BOOL) {
+                    sv.setLiteralTypeExpression(getLiteralTypeExpression(ext.getExpr()));
+                */
+                }
+
                 addVariable(sv);
             }
 
             // TODO: ANY as OPType here is dangerous, because the OPType should depends on projection and actual use
             //       of variables in conditions etc
-            if (new ConditionFinder(v.getName(), query).found) {
+            if (resolveVariables.contains(v.getName())) {
                 //sv.getAliases().add(evaluateExpression(ext.getExpr(), OPTypes.VALUE));
                 sv.getBindings().add(ext.getExpr());
             }
 
-            sv.getExpressions().add(evaluateExpression(ext.getExpr(), OPTypes.ANY));
+            try {
+                sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
+                if(sv.getProjectionType() == ValueType.NODE && getProjectionType(ext.getExpr()) != ValueType.NODE) {
+                    sv.setProjectionType(getProjectionType(ext.getExpr()));
+                }
+            } catch(IllegalStateException ex) {
+                deferredExtensions.add(ext);
+            }
 
         }
 
-        // calculate for each variable the SQL expressions representing them and any necessary JOIN conditions
 
-        for(SQLFragment f : fragments) {
+        // calculate for each variable the SQL expressions representing them and any necessary JOIN conditions
+        for (SQLFragment f : fragments) {
             for (SQLPattern p : f.getPatterns()) {
                 // build pattern
                 Var[] fields = p.getFields();
                 for (int i = 0; i < fields.length; i++) {
-                    if (fields[i] != null && !fields[i].hasValue()) {
+                    if (fields[i] != null && (!fields[i].hasValue() || !fields[i].getName().startsWith("-const"))) {
                         Var v = fields[i];
 
                         SQLVariable sv = variables.get(v.getName());
@@ -303,7 +367,33 @@ public class SQLBuilder {
 
                         // if the variable has been used before, add a join condition to the first occurrence
                         if(sv.getExpressions().size() > 0) {
-                            p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
+                            // case distinction: is this variable projected as node or as another value in an extension?
+                            // if it is a value, we need to refer to the corresponding typed column of the node, otherwise
+                            // to the node ID (field ID is sufficient)
+                            switch (sv.getProjectionType()) {
+                                case INT:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".ivalue");
+                                    break;
+                                case DECIMAL:
+                                case DOUBLE:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".dvalue");
+                                    break;
+                                case DATE:
+                                case TZDATE:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".tvalue");
+                                    break;
+                                case BOOL:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".bvalue");
+                                    break;
+                                case URI:
+                                case STRING:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".svalue");
+                                    break;
+
+                                default:
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
+                                    break;
+                            }
                         }
 
                         sv.getExpressions().add(pName + "." + positions[i]);
@@ -312,8 +402,8 @@ public class SQLBuilder {
             }
 
             // subqueries: look up which variables are bound in the subqueries and add proper aliases
-            for(SQLAbstractSubquery sq : f.getSubqueries()) {
-                for(SQLVariable sq_v : sq.getQueryVariables()) {
+            for (SQLAbstractSubquery sq : f.getSubqueries()) {
+                for (SQLVariable sq_v : sq.getQueryVariables()) {
                     SQLVariable sv = variables.get(sq_v.getSparqlName());
 
                     String sqName = sq.getAlias();
@@ -329,7 +419,12 @@ public class SQLBuilder {
             }
         }
 
+        for(ExtensionElem ext : deferredExtensions) {
+            Var v = new Var(ext.getName());
 
+            SQLVariable sv = variables.get(v.getName());
+            sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
+        }
 
         // find context restrictions of patterns and match them with potential restrictions given in the
         // dataset (MARMOTTA-340)
@@ -400,6 +495,7 @@ public class SQLBuilder {
     }
 
 
+
     private void prepareConditions() throws UnsatisfiableQueryException {
         // build the where clause as follows:
         // 1. iterate over all patterns and for each resource and literal field in subject,
@@ -412,7 +508,7 @@ public class SQLBuilder {
         // iterate over all fragments and add translate the filter conditions into SQL
         for(SQLFragment f : fragments) {
             for(ValueExpr e : f.getFilters()) {
-                f.getConditions().add(evaluateExpression(e, OPTypes.ANY));
+                f.getConditions().add(evaluateExpression(e, ValueType.NODE));
             }
         }
 
@@ -482,28 +578,32 @@ public class SQLBuilder {
         // in any filters or functions; in this case, the corresponding field needs to be joined with the NODES table
         // and we need to mark the pattern accordingly.
         boolean first = true;
+        Set<String> joined = new HashSet<>();
         for(SQLFragment f : fragments) {
-            if(first) {
+            if(first && f.getConditionPosition() == SQLFragment.ConditionPosition.JOIN) {
                 // the conditions of the first fragment need to be placed in the WHERE part of the query, because
                 // there is not necessarily a JOIN ... ON where we can put it
                 f.setConditionPosition(SQLFragment.ConditionPosition.WHERE);
-                first = false;
             }
+            first = false;
 
             for (SQLPattern p : f.getPatterns()) {
                 for(Map.Entry<SQLPattern.TripleColumns, Var> fieldEntry : p.getTripleFields().entrySet()) {
-                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && new ConditionFinder(fieldEntry.getValue().getName(),query).found) {
+                    if(fieldEntry.getValue() != null && !fieldEntry.getValue().hasValue() && !joined.contains(fieldEntry.getValue().getName())
+                        && resolveVariables.contains(fieldEntry.getValue().getName())) {
                         p.setJoinField(fieldEntry.getKey(), variables.get(fieldEntry.getValue().getName()).getName());
+                        joined.add(fieldEntry.getValue().getName());
                     }
                 }
             }
 
             for(SQLAbstractSubquery sq : f.getSubqueries()) {
                 for(SQLVariable sq_v : sq.getQueryVariables()) {
-                    if(new ConditionFinder(sq_v.getSparqlName(),query).found && sq_v.getProjectionType() == ProjectionType.NODE) {
+                    if(!joined.contains(sq_v.getSparqlName()) && resolveVariables.contains(sq_v.getSparqlName()) && sq_v.getProjectionType() == ValueType.NODE) {
                         // this is needed in case we need to JOIN with the NODES table to retrieve values
                         SQLVariable sv = variables.get(sq_v.getSparqlName());  // fetch the name of the variable in the enclosing query
-                        sq.getJoinFields().add(new VariableMapping(sv.getName(), sq_v.getName()));
+                        sq.getJoinFields().add(new SQLAbstractSubquery.VariableMapping(sv.getName(), sq_v.getName()));
+                        joined.add(sq_v.getSparqlName());
                     }
                 }
             }
@@ -520,11 +620,18 @@ public class SQLBuilder {
 
 
         for(SQLVariable v : vars) {
-            if(v.getProjectionType() != ProjectionType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
+            if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
                 String projectedName = v.getName();
                 String fromName = v.getExpressions().get(0);
 
                 projections.add(fromName + " AS " + projectedName);
+
+                if(v.getLiteralTypeExpression() != null) {
+                    projections.add(v.getLiteralTypeExpression() + " AS " + projectedName + "_TYPE");
+                }
+                if(v.getLiteralLangExpression() != null) {
+                    projections.add(v.getLiteralLangExpression() + " AS " + projectedName + "_LANG");
+                }
             }
         }
 
@@ -532,7 +639,7 @@ public class SQLBuilder {
         int counter = 0;
         if(distinct) {
             for(OrderElem e : orderby) {
-                projections.add(evaluateExpression(e.getExpr(), OPTypes.VALUE) + " AS _OB" + (++counter));
+                projections.add(evaluateExpression(e.getExpr(), ValueType.STRING) + " AS _OB" + (++counter));
             }
         }
 
@@ -543,7 +650,7 @@ public class SQLBuilder {
             selectClause.append("DISTINCT ");
         }
 
-        selectClause.append(CollectionUtils.fold(projections,", "));
+        Joiner.on(", ").appendTo(selectClause, projections);
 
         return selectClause;
     }
@@ -584,7 +691,7 @@ public class SQLBuilder {
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
 
         for(SQLFragment fragment : fragments) {
-            if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.WHERE) {
+            if(fragment.getConditionPosition() != SQLFragment.ConditionPosition.JOIN) {
                 whereConditions.add(fragment.buildConditionClause());
             }
         }
@@ -624,12 +731,49 @@ public class SQLBuilder {
         return whereClause;
     }
 
+    private StringBuilder buildHavingClause()  {
+
+        // list of where conditions that will later be connected by AND
+        List<CharSequence> havingConditions = new LinkedList<CharSequence>();
+
+        // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
+
+        for(SQLFragment fragment : fragments) {
+            if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.HAVING) {
+                StringBuilder conditionClause = new StringBuilder();
+                for(Iterator<String> cit = fragment.getConditions().iterator(); cit.hasNext(); ) {
+                    if(conditionClause.length() > 0) {
+                        conditionClause.append("\n       AND ");
+                    }
+                    conditionClause.append(cit.next());
+                }
+
+                havingConditions.add(conditionClause);
+            }
+        }
+
+        // construct the having clause
+        StringBuilder havingClause = new StringBuilder();
+        for(Iterator<CharSequence> it = havingConditions.iterator(); it.hasNext(); ) {
+            CharSequence condition = it.next();
+            if(condition.length() > 0) {
+                havingClause.append(condition);
+                havingClause.append("\n ");
+                if (it.hasNext()) {
+                    havingClause.append("AND ");
+                }
+            }
+        }
+        return havingClause;
+    }
+
+
     private StringBuilder buildOrderClause() {
         StringBuilder orderClause = new StringBuilder();
         if(orderby.size() > 0) {
             for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
                 OrderElem elem = it.next();
-                orderClause.append(evaluateExpression(elem.getExpr(), OPTypes.VALUE));
+                orderClause.append(evaluateExpression(elem.getExpr(), ValueType.STRING));
                 if(elem.isAscending()) {
                     orderClause.append(" ASC");
                 } else {
@@ -691,423 +835,22 @@ public class SQLBuilder {
     }
 
 
+    private String evaluateExpression(ValueExpr expr, final ValueType optype) {
+        return new ValueExpressionEvaluator(expr, this, optype).build();
+    }
 
-    private String evaluateExpression(ValueExpr expr, final OPTypes optype) {
-        if(expr instanceof And) {
-            return "(" + evaluateExpression(((And) expr).getLeftArg(), optype) + " AND " + evaluateExpression(((And) expr).getRightArg(), optype) + ")";
-        } else if(expr instanceof Or) {
-            return "(" + evaluateExpression(((Or) expr).getLeftArg(), optype) + " OR " + evaluateExpression(((Or) expr).getRightArg(), optype) + ")";
-        } else if(expr instanceof Not) {
-            return "NOT (" + evaluateExpression(((Not) expr).getArg(), optype) + ")";
-        } else if(expr instanceof Exists) {
 
-            // TODO: need to make sure that variables of the parent are visible in the subquery
-            //       - pattern names need to be unique even in subqueries
-            //       - variable lookup for expressions in the subquery need to refer to the parent
-            SQLBuilder sq_builder = new SQLBuilder(((Exists) expr).getSubQuery(), bindings, dataset, converter, dialect, "_", Collections.EMPTY_SET, copyVariables(variables));
-
-            return "EXISTS (" + sq_builder.build() + ")";
-        } else if(expr instanceof Str) {
-            Str str = (Str)expr;
-
-            // get value of argument and express it as string
-            return evaluateExpression(str.getArg(), OPTypes.STRING);
-        } else if(expr instanceof Label) {
-            Label str = (Label)expr;
-
-            // get value of argument and express it as string
-            return evaluateExpression(str.getArg(), OPTypes.STRING);
-        } else if(expr instanceof Lang) {
-            Lang lang = (Lang)expr;
-
-            if(lang.getArg() instanceof Var) {
-                return variables.get(((Var) lang.getArg()).getName()).getAlias() + ".lang";
-            }
-        } else if(expr instanceof Compare) {
-            Compare cmp = (Compare)expr;
-
-            OPTypes ot = new OPTypeFinder(cmp).coerce();
-
-            return evaluateExpression(cmp.getLeftArg(), ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(), ot);
-        } else if(expr instanceof MathExpr) {
-            MathExpr cmp = (MathExpr)expr;
-
-            OPTypes ot = new OPTypeFinder(cmp).coerce();
-
-            if(ot == OPTypes.STRING) {
-                if(cmp.getOperator() == MathExpr.MathOp.PLUS) {
-                    return NativeFunctionRegistry.getInstance().get(FN.CONCAT.stringValue()).getNative(dialect,evaluateExpression(cmp.getLeftArg(), ot), evaluateExpression(cmp.getRightArg(), ot));
-                } else {
-                    throw new IllegalArgumentException("operation "+cmp.getOperator()+" is not supported on strings");
-                }
-            } else {
-                return evaluateExpression(cmp.getLeftArg(), ot) + getSQLOperator(cmp.getOperator()) + evaluateExpression(cmp.getRightArg(), ot);
-            }
-        } else if(expr instanceof Regex) {
-            Regex re = (Regex)expr;
-
-            return optimizeRegexp(evaluateExpression(re.getArg(), OPTypes.STRING), evaluateExpression(re.getPatternArg(), OPTypes.STRING), re.getFlagsArg());
-        } else if(expr instanceof LangMatches) {
-            LangMatches lm = (LangMatches)expr;
-            String value = evaluateExpression(lm.getLeftArg(), optype);
-            ValueConstant pattern = (ValueConstant) lm.getRightArg();
-
-            if(pattern.getValue().stringValue().equals("*")) {
-                return value + " LIKE '%'";
-            } else if(pattern.getValue().stringValue().equals("")) {
-                return value + " IS NULL";
-            } else {
-                return "(" + value + " = '"+pattern.getValue().stringValue().toLowerCase()+"' OR " + dialect.getILike(value, "'" + pattern.getValue().stringValue().toLowerCase() + "-%' )");
-            }
-        } else if(expr instanceof Bound) {
-            ValueExpr arg = ((Bound)expr).getArg();
-
-            if(arg instanceof ValueConstant) {
-                return Boolean.toString(true);
-            } else if(arg instanceof Var) {
-
-                return "(" + evaluateExpression(arg, optype) + " IS NOT NULL)";
-            }
-
-        } else if(expr instanceof IsResource) {
-            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
-
-            // operator must be a variable or a constant
-            if(arg instanceof ValueConstant) {
-                return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI || ((ValueConstant) arg).getValue() instanceof BNode);
-            } else if(arg instanceof Var) {
-                String var = variables.get(((Var) arg).getName()).getAlias();
-
-                return "(" + var + ".ntype = 'uri' OR " + var + ".ntype = 'bnode')";
-            }
-        } else if(expr instanceof IsURI) {
-            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
-
-            // operator must be a variable or a constant
-            if(arg instanceof ValueConstant) {
-                return Boolean.toString(((ValueConstant) arg).getValue() instanceof URI);
-            } else if(arg instanceof Var) {
-                String var = variables.get(((Var) arg).getName()).getAlias();
-
-                return var + ".ntype = 'uri'";
-            }
-        } else if(expr instanceof IsBNode) {
-            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
-
-            // operator must be a variable or a constant
-            if(arg instanceof ValueConstant) {
-                return Boolean.toString(((ValueConstant) arg).getValue() instanceof BNode);
-            } else if(arg instanceof Var) {
-                String var = variables.get(((Var) arg).getName()).getAlias();
-
-                return var + ".ntype = 'bnode'";
-            }
-        } else if(expr instanceof IsLiteral) {
-            ValueExpr arg = ((UnaryValueOperator)expr).getArg();
-
-            // operator must be a variable or a constant
-            if(arg instanceof ValueConstant) {
-                return Boolean.toString(((ValueConstant) arg).getValue() instanceof Literal);
-            } else if(arg instanceof Var) {
-                String var = variables.get(((Var) arg).getName()).getAlias();
-
-                return "(" + var + ".ntype = 'string' OR " + var + ".ntype = 'int' OR " + var + ".ntype = 'double'  OR " + var + ".ntype = 'date'  OR " + var + ".ntype = 'boolean')";
-            }
-        } else if(expr instanceof Var) {
-            // distinguish between the case where the variable is plain and the variable is bound
-            SQLVariable sv = variables.get(((Var) expr).getName());
-
-            if(sv.getBindings().size() > 0) {
-                // in case the variable is actually an alias for an expression, we evaluate that expression instead, effectively replacing the
-                // variable occurrence with its value
-                return evaluateExpression(sv.getBindings().get(0),optype);
-            } else {
-                String var = sv.getAlias();
-
-                if(sv.getProjectionType() != ProjectionType.NODE && sv.getProjectionType() != ProjectionType.NONE) {
-                    // in case the variable represents a constructed or bound value instead of a node, we need to
-                    // use the SQL expression as value; SQL should take care of proper casting...
-                    // TODO: explicit casting needed?
-                    return sv.getExpressions().get(0);
-                } else {
-                    // in case the variable represents an entry from the NODES table (i.e. has been bound to a node
-                    // in the database, we take the NODES alias and resolve to the correct column according to the
-                    // operator type
-                    if (optype == null) {
-                        return var + ".svalue";
-                    } else {
-                        switch (optype) {
-                            case STRING:
-                                return var + ".svalue";
-                            case INT:
-                                return var + ".ivalue";
-                            case DOUBLE:
-                                return var + ".dvalue";
-                            case DATE:
-                                return var + ".tvalue";
-                            case VALUE:
-                                return var + ".svalue";
-                            case URI:
-                                return var + ".svalue";
-                            case ANY:
-                                return var + ".id";
-                        }
-                    }
-                }
-            }
-        } else if(expr instanceof ValueConstant) {
-            String val = ((ValueConstant) expr).getValue().stringValue();
-
-            if(optype == null) {
-                return "'" + val + "'";
-            } else {
-                switch (optype) {
-                    case STRING: return "'" + val + "'";
-                    case VALUE:  return "'" + val + "'";
-                    case URI:    return "'" + val + "'";
-                    case INT:    return ""  + Integer.parseInt(val);
-                    case DOUBLE: return ""  + Double.parseDouble(val);
-                    case DATE:   return "'" + sqlDateFormat.format(DateUtils.parseDate(val)) + "'";
-
-                    // in this case we should return a node ID and also need to make sure it actually exists
-                    case ANY:
-                        KiWiNode n = converter.convert(((ValueConstant) expr).getValue());
-                        return "" + n.getId();
-
-                    default: throw new IllegalArgumentException("unsupported value type: " + optype);
-                }
-            }
-        } else if(expr instanceof Coalesce) {
-            return "COALESCE(" + CollectionUtils.fold(((Coalesce) expr).getArguments(), new CollectionUtils.StringSerializer<ValueExpr>() {
-                @Override
-                public String serialize(ValueExpr valueExpr) {
-                    return evaluateExpression(valueExpr, optype);
-                }
-            },", ") + ")";
-        } else if(expr instanceof Count) {
-            StringBuilder countExp = new StringBuilder();
-            countExp.append("COUNT(");
-
-            if(((Count) expr).isDistinct()) {
-                countExp.append("DISTINCT ");
-            }
-
-            if(((Count) expr).getArg() == null) {
-                // this is a weird special case where we need to expand to all variables selected in the query wrapped
-                // by the group; we cannot simply use "*" because the concept of variables is a different one in SQL,
-                // so instead we construct an ARRAY of the bindings of all variables
-
-                List<String> countVariables = new ArrayList<>();
-                for(SQLVariable v : variables.values()) {
-                    if(v.getProjectionType() == ProjectionType.NONE) {
-                        //countVariables.add(v.getExpressions().get(0));
-                        countVariables.add(v.getAlias());
-                    }
-                }
-                countExp.append("ARRAY[");
-                countExp.append(CollectionUtils.fold(countVariables,","));
-                countExp.append("]");
-
-            } else {
-                countExp.append(evaluateExpression(((Count) expr).getArg(), OPTypes.ANY));
-            }
-            countExp.append(")");
-
-            return countExp.toString();
-        } else if(expr instanceof Avg) {
-            return "AVG(" + evaluateExpression(((Avg) expr).getArg(), OPTypes.DOUBLE) + ")";
-        } else if(expr instanceof Min) {
-            return "MIN(" + evaluateExpression(((Min) expr).getArg(), OPTypes.DOUBLE) + ")";
-        } else if(expr instanceof Max) {
-            return "MAX(" + evaluateExpression(((Max) expr).getArg(), OPTypes.DOUBLE) + ")";
-        } else if(expr instanceof Sum) {
-            return "SUM(" + evaluateExpression(((Sum) expr).getArg(), OPTypes.DOUBLE) + ")";
+    protected ValueType getProjectionType(ValueExpr expr) {
+        if(expr instanceof BNodeGenerator) {
+            return ValueType.BNODE;
+        } else if(expr instanceof IRIFunction) {
+            return ValueType.URI;
         } else if(expr instanceof FunctionCall) {
-            FunctionCall fc = (FunctionCall)expr;
-
-            // special optimizations for frequent cases with variables
-            if((XMLSchema.DOUBLE.toString().equals(fc.getURI()) || XMLSchema.FLOAT.toString().equals(fc.getURI()) ) &&
-                    fc.getArgs().size() == 1) {
-                return evaluateExpression(fc.getArgs().get(0), OPTypes.DOUBLE);
-            } else if((XMLSchema.INTEGER.toString().equals(fc.getURI()) || XMLSchema.INT.toString().equals(fc.getURI())) && fc.getArgs().size() == 1) {
-                return evaluateExpression(fc.getArgs().get(0), OPTypes.INT);
-            } else if(XMLSchema.BOOLEAN.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
-                return evaluateExpression(fc.getArgs().get(0), OPTypes.BOOL);
-            } else if(XMLSchema.DATE.toString().equals(fc.getURI()) && fc.getArgs().size() == 1) {
-                return evaluateExpression(fc.getArgs().get(0), OPTypes.DATE);
-            }
-
-            String fnUri = fc.getURI();
-
-            String[] args = new String[fc.getArgs().size()];
-
-            NativeFunction nf = functionRegistry.get(fnUri);
-
-            if(nf != null && nf.isSupported(dialect)) {
-
-                for (int i = 0; i < args.length; i++) {
-                    args[i] = evaluateExpression(fc.getArgs().get(i), nf.getArgumentType(i));
-                }
-
-                if (optype != null && optype != nf.getReturnType()) {
-                    return castExpression(nf.getNative(dialect, args), optype);
-                } else {
-                    return nf.getNative(dialect, args);
-                }
-            } else {
-                throw new IllegalArgumentException("the function "+fnUri+" is not supported by the SQL translation");
-            }
-        }
-
-
-        throw new IllegalArgumentException("unsupported value expression: "+expr);
-    }
-
-    /**
-     * Copy variables from the set to a new set suitable for a subquery; this allows passing over variable expressions
-     * from parent queries to subqueries without the subquery adding expressions that are then not visible outside
-     * @param variables
-     * @return
-     */
-    private Map<String, SQLVariable> copyVariables(Map<String, SQLVariable> variables) {
-        Map<String,SQLVariable> copy = new HashMap<>();
-        try {
-            for(Map.Entry<String,SQLVariable> entry : variables.entrySet()) {
-                    copy.put(entry.getKey(), (SQLVariable) entry.getValue().clone());
-            }
-        } catch (CloneNotSupportedException e) {
-            log.error("could not clone SQL variable:",e);
-        }
-
-        return copy;
-    }
-
-    private String castExpression(String arg, OPTypes type) {
-        if(type == null) {
-            return arg;
-        }
-
-        switch (type) {
-            case DOUBLE:
-                return functionRegistry.get(XMLSchema.DOUBLE).getNative(dialect, arg);
-            case INT:
-                return functionRegistry.get(XMLSchema.INTEGER).getNative(dialect, arg);
-            case BOOL:
-                return functionRegistry.get(XMLSchema.BOOLEAN).getNative(dialect, arg);
-            case DATE:
-                return functionRegistry.get(XMLSchema.DATETIME).getNative(dialect, arg);
-            case VALUE:
-                return arg;
-            case ANY:
-                return arg;
-            default:
-                return arg;
-        }
-    }
-
-    private String getSQLOperator(Compare.CompareOp op) {
-        switch (op) {
-            case EQ: return " = ";
-            case GE: return " >= ";
-            case GT: return " > ";
-            case LE: return " <= ";
-            case LT: return " < ";
-            case NE: return " <> ";
-        }
-        throw new IllegalArgumentException("unsupported operator type for comparison: "+op);
-    }
-
-
-    private String getSQLOperator(MathExpr.MathOp op) {
-        switch (op) {
-            case PLUS: return " + ";
-            case MINUS: return " - ";
-            case DIVIDE: return " / ";
-            case MULTIPLY: return " / ";
-        }
-        throw new IllegalArgumentException("unsupported operator type for math expression: "+op);
-    }
-
-
-    /**
-     * Test if the regular expression given in the pattern can be simplified to a LIKE SQL statement; these are
-     * considerably more efficient to evaluate in most databases, so in case we can simplify, we return a LIKE.
-     *
-     * @param value
-     * @param pattern
-     * @return
-     */
-    private String optimizeRegexp(String value, String pattern, ValueExpr flags) {
-        String _flags = flags != null && flags instanceof ValueConstant ? ((ValueConstant)flags).getValue().stringValue() : null;
-
-        String simplified = pattern;
-
-        // apply simplifications
-
-        // remove SQL quotes at beginning and end
-        simplified = simplified.replaceFirst("^'","");
-        simplified = simplified.replaceFirst("'$","");
-
-
-        // remove .* at beginning and end, they are the default anyways
-        simplified = simplified.replaceFirst("^\\.\\*","");
-        simplified = simplified.replaceFirst("\\.\\*$","");
-
-        // replace all occurrences of % with \% and _ with \_, as they are special characters in SQL
-        simplified = simplified.replaceAll("%","\\%");
-        simplified = simplified.replaceAll("_","\\_");
-
-        // if pattern now does not start with a ^, we put a "%" in front
-        if(!simplified.startsWith("^")) {
-            simplified = "%" + simplified;
-        } else {
-            simplified = simplified.substring(1);
-        }
-
-        // if pattern does not end with a "$", we put a "%" at the end
-        if(!simplified.endsWith("$")) {
-            simplified = simplified + "%";
-        } else {
-            simplified = simplified.substring(0,simplified.length()-1);
-        }
-
-        // replace all non-escaped occurrences of .* with %
-        simplified = simplified.replaceAll("(?<!\\\\)\\.\\*","%");
-
-        // replace all non-escaped occurrences of .+ with _%
-        simplified = simplified.replaceAll("(?<!\\\\)\\.\\+","_%");
-
-        // the pattern is not simplifiable if the simplification still contains unescaped regular expression constructs
-        Pattern notSimplifiable = Pattern.compile("(?<!\\\\)[\\.\\*\\+\\{\\}\\[\\]\\|]");
-
-        if(notSimplifiable.matcher(simplified).find()) {
-            return dialect.getRegexp(value, pattern, _flags);
-        } else {
-            if(!simplified.startsWith("%") && !simplified.endsWith("%")) {
-                if(StringUtils.containsIgnoreCase(_flags, "i")) {
-                    return String.format("lower(%s) = lower('%s')", value, simplified);
-                } else {
-                    return String.format("%s = '%s'", value, simplified);
-                }
-            } else {
-                if(StringUtils.containsIgnoreCase(_flags,"i")) {
-                    return dialect.getILike(value, "'" + simplified + "'");
-                } else {
-                    return value + " LIKE '"+simplified+"'";
-                }
-            }
-        }
-
-    }
-
-
-    protected ProjectionType getProjectionType(ValueExpr expr) {
-        if(expr instanceof FunctionCall) {
-            return opTypeToProjection(functionRegistry.get(((FunctionCall) expr).getURI()).getReturnType());
+            return functionRegistry.get(((FunctionCall) expr).getURI()).getReturnType();
         } else if(expr instanceof NAryValueOperator) {
             return getProjectionType(((NAryValueOperator) expr).getArguments().get(0));
         } else if(expr instanceof ValueConstant) {
-            return ProjectionType.NODE;
+            return ValueType.NODE;
             /*
             if (((ValueConstant) expr).getValue() instanceof URI) {
                 return ProjectionType.URI;
@@ -1126,42 +869,53 @@ public class SQLBuilder {
             }
             */
         } else if(expr instanceof Var) {
-            return ProjectionType.NODE;
+            return ValueType.NODE;
         } else if(expr instanceof MathExpr) {
             MathExpr cmp = (MathExpr) expr;
 
-            return opTypeToProjection(new OPTypeFinder(cmp).coerce());
+            return new OPTypeFinder(cmp).coerce();
         } else if(expr instanceof Count) {
-            return ProjectionType.INT;
+            return ValueType.INT;
         } else if(expr instanceof Sum) {
-            return ProjectionType.DOUBLE;
+            return ValueType.DOUBLE;
         } else if(expr instanceof Avg) {
-            return ProjectionType.DOUBLE;
+            return ValueType.DOUBLE;
+        } else if(expr instanceof Compare) {
+            return ValueType.BOOL;
+        } else if(expr instanceof If) {
+            return getProjectionType(((If) expr).getResult());
         } else {
-            return ProjectionType.STRING;
+            return ValueType.STRING;
         }
 
     }
 
-    private ProjectionType opTypeToProjection(OPTypes t) {
-        switch (t) {
-            case ANY:
-                return ProjectionType.NODE;
-            case URI:
-                return ProjectionType.URI;
-            case DOUBLE:
-                return ProjectionType.DOUBLE;
-            case INT:
-                return ProjectionType.INT;
-            case DATE:
-                return ProjectionType.DATE;
-            case STRING:
-                return ProjectionType.STRING;
-            default:
-                log.warn("optype {} cannot be projected!",t);
-                return ProjectionType.STRING;
+
+    private String getLiteralLangExpression(ValueExpr expr) {
+        Var langVar = new LiteralTypeExpressionFinder(expr).expr;
+
+        if(langVar != null) {
+            SQLVariable sqlVar = variables.get(langVar.getName());
+            if(sqlVar != null) {
+                return sqlVar.getAlias() + ".lang";
+            }
         }
+        return null;
+
     }
+
+    private String getLiteralTypeExpression(ValueExpr expr) {
+        Var typeVar = new LiteralTypeExpressionFinder(expr).expr;
+
+        if(typeVar != null) {
+            SQLVariable sqlVar = variables.get(typeVar.getName());
+            if(sqlVar != null) {
+                return sqlVar.getAlias() + ".ltype";
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Construct the SQL query for the given SPARQL query part.
@@ -1174,13 +928,22 @@ public class SQLBuilder {
         StringBuilder whereClause  = buildWhereClause();
         StringBuilder orderClause  = buildOrderClause();
         StringBuilder groupClause  = buildGroupClause();
+        StringBuilder havingClause = buildHavingClause();
         StringBuilder limitClause  = buildLimitClause();
 
 
         StringBuilder queryString = new StringBuilder();
-        queryString
-                .append("SELECT ").append(selectClause).append("\n ")
-                .append("FROM ").append(fromClause).append("\n ");
+        queryString.append("SELECT ");
+
+        if(selectClause.length() > 0) {
+            queryString.append(selectClause).append("\n ");
+        } else {
+            queryString.append("* \n");
+        }
+
+        if(fromClause.length() > 0) {
+            queryString.append("FROM ").append(fromClause).append("\n ");
+        }
 
         if(whereClause.length() > 0) {
             queryString.append("WHERE ").append(whereClause).append("\n ");
@@ -1188,6 +951,10 @@ public class SQLBuilder {
 
         if(groupClause.length() > 0) {
             queryString.append("GROUP BY ").append(groupClause).append("\n ");
+        }
+
+        if(havingClause.length() > 9) {
+            queryString.append("HAVING ").append(havingClause).append("\n ");
         }
 
         if(orderClause.length() > 0) {

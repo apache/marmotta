@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.sparql.function;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.openrdf.query.algebra.evaluation.function.Function;
 
 /**
@@ -51,7 +51,7 @@ public interface NativeFunction extends Function {
      * Get the return type of the function. This is needed for SQL type casting inside KiWi.
      * @return
      */
-    public OPTypes getReturnType();
+    public ValueType getReturnType();
 
     /**
      * Get the argument type of the function for the arg'th argument (starting to count at 0).
@@ -60,7 +60,7 @@ public interface NativeFunction extends Function {
      * @param arg
      * @return
      */
-    public OPTypes getArgumentType(int arg);
+    public ValueType getArgumentType(int arg);
 
     /**
      * Return the minimum number of arguments this function requires.

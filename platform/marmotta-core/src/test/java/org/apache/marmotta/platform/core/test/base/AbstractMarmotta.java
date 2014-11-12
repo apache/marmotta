@@ -70,12 +70,12 @@ public abstract class AbstractMarmotta {
 
         // put bean manager into JNDI
         try {
-            new InitialContext().bind("java:comp/BeanManager",container.getBeanManager());
+            new InitialContext().bind("java:comp/BeanManager", container.getBeanManager());
         } catch (NamingException e) {
-            log.error("error adding bean manager to JNDI",e);
+            log.error("error adding bean manager to JNDI", e);
         }
 
-        // create temporary LMF home directory
+        // create temporary marmotta home directory
         home = Files.createTempDir();
 
         // create a temporary configuration with an in-memory database URL for H2
@@ -84,7 +84,7 @@ public abstract class AbstractMarmotta {
         override.setProperty("logging.template", "/logback-testing.xml");
         override.setProperty("testing.enabled", true);
 
-        // initialise LMF using a temporary directory
+        // initialise marmotta using a temporary directory
         startupService = getService(MarmottaStartupService.class);
     }
 
@@ -106,16 +106,17 @@ public abstract class AbstractMarmotta {
         }
     }
 
-
     private void cleanJNDI() {
         try {
             new InitialContext().unbind("java:comp/env/BeanManager");
         } catch (NamingException e) {
         }
+
         try {
             new InitialContext().unbind("java:comp/BeanManager");
         } catch (NamingException e) {
         }
+
         try {
             new InitialContext().unbind("java:app/BeanManager");
         } catch (NamingException e) {

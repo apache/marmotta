@@ -17,13 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.prefix;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.http.HttpEntity;
@@ -35,6 +28,14 @@ import org.apache.marmotta.platform.core.api.http.HttpClientService;
 import org.apache.marmotta.platform.core.api.prefix.PrefixProvider;
 import org.apache.marmotta.platform.core.util.http.HttpRequestUtil;
 import org.slf4j.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
 
 /**
  * Prefix.cc Provider
@@ -59,7 +60,7 @@ public class PrefixCC implements PrefixProvider {
     public String getNamespace(final String prefix) {
         HttpGet get = new HttpGet(URI + prefix + ".file.txt");
         HttpRequestUtil.setUserAgentString(get, USER_AGENT);
-        get.setHeader("Accept", "text/plain");
+        get.setHeader(ACCEPT, "text/plain");
         try {
             return httpClientService.execute(get, new ResponseHandler<String>() {
 
@@ -95,7 +96,7 @@ public class PrefixCC implements PrefixProvider {
         try {
             HttpGet get = new HttpGet(URI + "reverse?format=txt&uri=" + URLEncoder.encode(namespace, "utf-8"));
             HttpRequestUtil.setUserAgentString(get, USER_AGENT);
-            get.setHeader("Accept", "text/plain");
+            get.setHeader(ACCEPT, "text/plain");
 
             return httpClientService.execute(get, new ResponseHandler<String>() {
 

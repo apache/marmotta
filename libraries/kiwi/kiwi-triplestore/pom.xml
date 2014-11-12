@@ -119,8 +119,17 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.marmotta</groupId>
+            <artifactId>marmotta-model-vocabs</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

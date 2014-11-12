@@ -21,7 +21,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.openrdf.query.algebra.evaluation.function.numeric.Floor;
 
@@ -61,8 +61,8 @@ public class NFloor extends Floor implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getReturnType() {
-        return OPTypes.INT;
+    public ValueType getReturnType() {
+        return ValueType.INT;
     }
 
     /**
@@ -73,8 +73,8 @@ public class NFloor extends Floor implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getArgumentType(int arg) {
-        return OPTypes.DOUBLE;
+    public ValueType getArgumentType(int arg) {
+        return ValueType.DOUBLE;
     }
 
     /**

@@ -30,7 +30,6 @@ public class TestApplication extends Application {
     // this is a hack, since there is no other way to inject a service class into a JAX-RS application
     private static Set<Class<?>> testedWebService;
 
-
     @Override
     public Set<Class<?>> getClasses() {
         return testedWebService;
