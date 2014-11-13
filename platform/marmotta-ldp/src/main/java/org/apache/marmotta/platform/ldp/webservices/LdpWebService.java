@@ -58,7 +58,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.Locale;
 
 /**
  * Linked Data Platform web services.
@@ -107,17 +107,18 @@ public class LdpWebService {
     public LdpWebService() {
         producedRdfTypes = new ArrayList<>();
 
+        final List<RDFFormat> availableWriters = LdpUtils.filterAvailableWriters(LdpService.SERVER_PREFERED_RDF_FORMATS);
         for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
             final String primaryQ;
-            if (format == RDFFormat.TURTLE) {
-                primaryQ = ";q=1.0";
-            } else if (format == RDFFormat.JSONLD) {
-                primaryQ = ";q=0.9";
-            } else if (format == RDFFormat.RDFXML) {
-                primaryQ = ";q=0.8";
-            } else {
+            final int idx = availableWriters.indexOf(format);
+            if (idx < 0) {
+                // not a prefered format
                 primaryQ = ";q=0.5";
+            } else {
+                // a prefered format
+                primaryQ = String.format(Locale.ENGLISH, ";q=%.1f", Math.max(1.0-(idx*0.1), 0.55));
             }
+
             final String secondaryQ = ";q=0.3";
             final List<String> mimeTypes = format.getMIMETypes();
             for (int i = 0; i < mimeTypes.size(); i++) {

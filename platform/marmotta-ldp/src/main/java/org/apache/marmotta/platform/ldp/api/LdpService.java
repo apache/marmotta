@@ -49,6 +49,7 @@ import java.util.*;
 public interface LdpService {
 
     public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(LDP.contains));
+    public static final List<RDFFormat> SERVER_PREFERED_RDF_FORMATS = Arrays.asList(RDFFormat.TURTLE, RDFFormat.JSONLD, RDFFormat.RDFXML, RDFFormat.N3, RDFFormat.NTRIPLES);
 
     public static enum InteractionModel {
         LDPR(LDP.Resource),

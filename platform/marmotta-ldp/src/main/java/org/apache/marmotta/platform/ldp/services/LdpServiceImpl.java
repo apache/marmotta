@@ -380,8 +380,7 @@ public class LdpServiceImpl implements LdpService {
         connection.add(resource, DCTERMS.modified, now, ldpContext);
 
         // Add the bodyContent
-        // TODO: find a better way to ingest n-triples (text/plain) while still supporting regular text files
-        final RDFFormat rdfFormat = ("text/plain".equals(type) ? null : Rio.getParserFormatForMIMEType(type));
+        final RDFFormat rdfFormat = LdpUtils.matchDefaultMIMEType(type, LdpUtils.filterAvailableParsers(SERVER_PREFERED_RDF_FORMATS), null);
         if (rdfFormat == null) {
             log.debug("Creating new LDP-NR, because no suitable RDF parser found for type {}", type);
             final Literal format = valueFactory.createLiteral(type);
@@ -477,7 +476,7 @@ public class LdpServiceImpl implements LdpService {
                 public boolean add(RepositoryConnection conn, Resource subject, URI predicate, Value object, Resource... contexts) {
                     try {
                         if (connection.hasStatement(subject, predicate, object, true, ldpContext)) {
-                            // Ignore/Strip any triple that is already present in the mgnt-context (i.e. "unchanged" props).
+                            // Ignore/Strip any triple that is already present in the mgmt-context (i.e. "unchanged" props).
                             return true;
                         } else if (resource.equals(subject) && SERVER_MANAGED_PROPERTIES.contains(predicate)) {
                             // We do NOT allow changing server-managed properties.
