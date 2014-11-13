@@ -25,6 +25,7 @@ import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -48,7 +49,12 @@ import java.util.*;
  */
 public interface LdpService {
 
-    public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(LDP.contains));
+    public static final Set<URI> SERVER_MANAGED_PROPERTIES = new HashSet<>(Arrays.asList(
+            LDP.contains, DCTERMS.CREATED, DCTERMS.MODIFIED
+    ));
+    public static final List<RDFFormat> SERVER_PREFERED_RDF_FORMATS = Arrays.asList(
+            RDFFormat.TURTLE, RDFFormat.JSONLD, RDFFormat.RDFXML, RDFFormat.N3, RDFFormat.NTRIPLES
+    );
 
     public static enum InteractionModel {
         LDPR(LDP.Resource),
