@@ -34,6 +34,7 @@ import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
+import org.apache.marmotta.platform.ldp.util.ServerManagedPropertiesInterceptor;
 import org.apache.marmotta.platform.ldp.webservices.LdpWebService;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -43,7 +44,6 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.event.base.InterceptingRepositoryConnectionWrapper;
-import org.openrdf.repository.event.base.RepositoryConnectionInterceptorAdapter;
 import org.openrdf.rio.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -410,8 +409,11 @@ public class LdpServiceImpl implements LdpService {
             log.debug("Creating new LDP-RS, data provided as {}", rdfFormat.getName());
             connection.add(container, LDP.contains, resource, ldpContext);
 
-            // FIXME: We are (are we?) allowed to filter out server-managed properties here
-            connection.add(stream, resource.stringValue(), rdfFormat, resource);
+            final InterceptingRepositoryConnectionWrapper filtered = new InterceptingRepositoryConnectionWrapper(connection.getRepository(), connection);
+            final ServerManagedPropertiesInterceptor managedPropertiesInterceptor = new ServerManagedPropertiesInterceptor(ldpContext, resource);
+            filtered.addRepositoryConnectionInterceptor(managedPropertiesInterceptor);
+
+            filtered.add(stream, resource.stringValue(), rdfFormat, resource);
 
             return resource.stringValue();
         }
@@ -470,28 +472,12 @@ public class LdpServiceImpl implements LdpService {
 
             connection.clear(resource);
             final InterceptingRepositoryConnectionWrapper filtered = new InterceptingRepositoryConnectionWrapper(connection.getRepository(), connection);
-            final Set<URI> deniedProperties = new HashSet<>();
-            filtered.addRepositoryConnectionInterceptor(new RepositoryConnectionInterceptorAdapter() {
-                @Override
-                public boolean add(RepositoryConnection conn, Resource subject, URI predicate, Value object, Resource... contexts) {
-                    try {
-                        if (connection.hasStatement(subject, predicate, object, true, ldpContext)) {
-                            // Ignore/Strip any triple that is already present in the mgmt-context (i.e. "unchanged" props).
-                            return true;
-                        } else if (resource.equals(subject) && SERVER_MANAGED_PROPERTIES.contains(predicate)) {
-                            // We do NOT allow changing server-managed properties.
-                            deniedProperties.add(predicate);
-                            return true;
-                        }
-                    } catch (RepositoryException e) {
-                        log.error("Error while filtering server managed properties: {}", e.getMessage());
-                    }
-                    return false;
-                }
-            });
+            final ServerManagedPropertiesInterceptor managedPropertiesInterceptor = new ServerManagedPropertiesInterceptor(ldpContext, resource);
+            filtered.addRepositoryConnectionInterceptor(managedPropertiesInterceptor);
 
             filtered.add(stream, resource.stringValue(), rdfFormat, resource);
 
+            final Set<URI> deniedProperties = managedPropertiesInterceptor.getDeniedProperties();
             if (!deniedProperties.isEmpty()) {
                 final URI prop = deniedProperties.iterator().next();
                 log.debug("Invalid property modification in update: <{}> is a server controlled property", prop);
