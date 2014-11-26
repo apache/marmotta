@@ -118,6 +118,7 @@ public class MarmottaStartupService {
                 log.info("Apache Marmotta Core (Development Version) starting up ... ");
             }
 
+            //TODO: refactor this code
             if(StringUtils.isBlank(home)) {
                 home = System.getProperty("marmotta.home");
                 if(StringUtils.isNotBlank(home)) {
@@ -131,48 +132,48 @@ public class MarmottaStartupService {
                         if(StringUtils.isNotBlank(home)) {
                             log.info("Configured working directory {} from system property kiwi.home", home);
                         } else {                    
-		                    home = System.getenv("MARMOTTA_HOME");
-		                    if(StringUtils.isNotBlank(home)) {
-		                        log.info("Configured working directory {} from environment variable MARMOTTA_HOME", home);
-		                    } else {
-		                        home = System.getenv("LMF_HOME");
-		                        if(StringUtils.isNotBlank(home)) {
-		                            log.info("Configured working directory {} from environment variable LMF_HOME", home);
-		                        } else {
-		                            home = System.getenv("KIWI_HOME");
-		                            if(StringUtils.isNotBlank(home)) {
-		                                log.info("Configured working directory {} from environment variable KIWI_HOME", home);
-		                            } else {
-		                            	if (context != null) {
-			                                home = context.getInitParameter("marmotta.home");
-			                                if(StringUtils.isNotBlank(home)) {
-			                                    log.info("Configured working directory {} from servlet context parameter marmotta.home", home);
-			                                }
-		                            	} else {
-		                            		log.error("could not determine Apache Marmotta home directory, please set the environment variable MARMOTTA_HOME");
-		                            	}
-		                            }
-		                        }
-		                    }
+                            home = System.getenv("MARMOTTA_HOME");
+                            if(StringUtils.isNotBlank(home)) {
+                                log.info("Configured working directory {} from environment variable MARMOTTA_HOME", home);
+                            } else {
+                                home = System.getenv("LMF_HOME");
+                                if(StringUtils.isNotBlank(home)) {
+                                    log.info("Configured working directory {} from environment variable LMF_HOME", home);
+                                } else {
+                                    home = System.getenv("KIWI_HOME");
+                                    if(StringUtils.isNotBlank(home)) {
+                                        log.info("Configured working directory {} from environment variable KIWI_HOME", home);
+                                    } else {
+                                        if (context != null) {
+                                            home = context.getInitParameter("marmotta.home");
+                                            if(StringUtils.isNotBlank(home)) {
+                                                log.info("Configured working directory {} from servlet context parameter marmotta.home", home);
+                                            }
+                                        } else {
+                                            log.error("could not determine Apache Marmotta home directory, please set the environment variable MARMOTTA_HOME");
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
 
             if(StringUtils.isNotBlank(home)) {
-            	if (home.startsWith("~" + File.separator)) {
-            	    home = System.getProperty("user.home") + home.substring(1);
-            	}
+                if (home.startsWith("~" + File.separator)) {
+                    home = System.getProperty("user.home") + home.substring(1);
+                }
                 configurationService.setHome(home);
             } else {
-            	log.error("home directory not properly initialized!!!");
+                log.error("home directory not properly initialized!!!");
             }
 
             if(context != null) {
                 configurationService.setServletContext(context);
             }
 
-            configurationService.initialize(home,configurationOverride);
+            configurationService.initialize(home, configurationOverride);
 
 
             configurationService.setConfiguration("kiwi.version", versionNumber);
@@ -181,8 +182,8 @@ public class MarmottaStartupService {
                 configurationService.setConfiguration("kiwi.path", context.getContextPath());
 
                 // register the systray links provided by the different components
-                Map<String, String> demoLinks  = new HashMap<String, String>();
-                Map<String, String> adminLinks = new HashMap<String, String>();
+                Map<String, String> demoLinks  = new HashMap<>();
+                Map<String, String> adminLinks = new HashMap<>();
 
                 for(MarmottaSystrayLink link : CDIContext.getInstances(MarmottaSystrayLink.class)) {
                     if(link.getSection() == MarmottaSystrayLink.Section.DEMO) {
