@@ -55,9 +55,9 @@ public class JettyMarmotta extends AbstractMarmotta {
 
     private Server jetty;
     
-    private int port;
+    private final int port;
 
-    private String context;
+    private final String context;
 
     public JettyMarmotta(String context) {
         this(context, getRandomPort());
@@ -80,7 +80,7 @@ public class JettyMarmotta extends AbstractMarmotta {
     }
 
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
-        this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
+        this(context,port, new HashSet<>(Arrays.asList(webservices)));
     }
 
     public JettyMarmotta(Configuration override, String context, Set<Class<?>> webservices) {
@@ -171,6 +171,7 @@ public class JettyMarmotta extends AbstractMarmotta {
 
     @Override
     public void shutdown() {
+        container = null;
         try {
             jetty.stop();
         } catch (Exception e) {

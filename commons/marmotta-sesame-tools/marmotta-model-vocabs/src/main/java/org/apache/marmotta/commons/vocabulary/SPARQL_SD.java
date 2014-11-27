@@ -22,7 +22,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
  * Namespace SPARQL_SD - SparqlServiceDescription.
- * @see http://www.w3.org/TR/sparql11-service-description/
+ * @see <a href="http://www.w3.org/TR/sparql11-service-description/">http://www.w3.org/TR/sparql11-service-description/</a>
  */
 public class SPARQL_SD {
 
