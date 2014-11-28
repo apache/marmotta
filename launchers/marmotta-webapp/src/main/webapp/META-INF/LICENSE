@@ -225,6 +225,7 @@ The Apache License, Version 2.0, also applies to the following subcomponents:
  * XML Commons External Components XML APIs, http://xml.apache.org/commons/components/external/
  * Timeknots Webjar, https://github.com/webjars/timeknots
  * Squebi Webjar, https://github.com/tkurz/squebi
+ * Joda Time, http://www.joda.org/joda-time/
  * RequireJS Webjar, https://github.com/webjars/requirejs
 
 
@@ -2404,7 +2405,6 @@ For the angularjs webjar,
 
         Copyright 2014 jQuery Foundation and other contributors
         http://jquery.com/
-
     the requirejs webjar
 
         Copyright (c) 2010-2014, The Dojo Foundation. http://www.requirejs.org/
@@ -2480,6 +2480,7 @@ For the Sgvizler webjar,
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
 
 Apache Marmotta code subcomponents:
 ===================================

@@ -40,3 +40,6 @@ This product also includes some third-party binary components:
 
  * Javolution, Copyright (c) 2012 Javolution, is licensed under BSD license. The
    original source code is available from http://javolution.org
+
+ * Joda-Time, which includes software developed by Joda.org (http://www.joda.org/).
+   The original source code is available from https://github.com/JodaOrg/joda-time
