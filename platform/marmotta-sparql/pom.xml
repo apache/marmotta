@@ -178,7 +178,6 @@
         <dependency>
             <groupId>com.github.tkurz.webjars</groupId>
             <artifactId>squebi</artifactId>
-            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -191,7 +190,6 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>sgvizler</artifactId>
-            <version>0.6</version>
             <scope>runtime</scope>
         </dependency>
 
