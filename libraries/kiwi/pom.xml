@@ -44,14 +44,14 @@
                     <configuration>
                         <systemPropertyVariables>
                             <!-- enable or pass on command line for testing local PostgreSQL -->
-                            <postgresql.url>jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3&amp;socketTimeout=2</postgresql.url>
-                            <postgresql.user>lmf</postgresql.user>
-                            <postgresql.pass>lmf</postgresql.pass>
+                            <postgresql.url>jdbc:postgresql://localhost:5432/kiwitest?prepareThreshold=3&amp;socketTimeout=2</postgresql.url>
+                            <postgresql.user>kiwi</postgresql.user>
+                            <postgresql.pass>kiwi</postgresql.pass>
 
                             <!-- enable or pass on command line for testing local MySQL -->
                             <mysql.url>jdbc:mysql://localhost:3306/kiwitest?socketTimeout=2000</mysql.url>
-                            <mysql.user>lmf</mysql.user>
-                            <mysql.pass>lmf</mysql.pass>
+                            <mysql.user>kiwi</mysql.user>
+                            <mysql.pass>kiwi</mysql.pass>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
