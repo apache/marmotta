@@ -79,12 +79,10 @@ public class KiWiConnection implements AutoCloseable {
      */
     private Map<Long,KiWiTriple> tripleCache;
 
-
     /**
      * Cache URI resources by uri
      */
     private Map<String,KiWiUriResource> uriCache;
-
 
     /**
      * Cache BNodes by BNode ID
@@ -95,7 +93,6 @@ public class KiWiConnection implements AutoCloseable {
      * Cache literals by literal cache key (LiteralCommons#createCacheKey(String,Locale,URI))
      */
     private Map<String,KiWiLiteral> literalCache;
-
 
     /**
      * Look up namespaces by URI
@@ -130,7 +127,6 @@ public class KiWiConnection implements AutoCloseable {
     private ReentrantLock literalLock;
     private ReentrantLock uriLock;
     private ReentrantLock bnodeLock;
-
 
     // this set keeps track of all statements that have been deleted in the active transaction of this connection
     // this is needed to be able to determine if adding the triple again will merely undo a deletion or is a
@@ -604,7 +600,6 @@ public class KiWiConnection implements AutoCloseable {
         }
     }
 
-
     /**
      * Load a KiWiAnonResource by anonymous ID. The method will first look in the node cache for
      * cached nodes. If no cache entry is found, it will run a database query ('load.bnode_by_anonid')
@@ -625,7 +620,6 @@ public class KiWiConnection implements AutoCloseable {
         }
 
         requireJDBCConnection();
-
 
         bnodeLock.lock();
 
@@ -844,7 +838,7 @@ public class KiWiConnection implements AutoCloseable {
      */
     public KiWiDoubleLiteral loadLiteral(double value) throws SQLException {
         // look in cache
-        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value),(String)null,Namespaces.NS_XSD + "double"));
+        KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(Double.toString(value), (String)null,Namespaces.NS_XSD + "double"));
         if(element != null && element instanceof KiWiDoubleLiteral) {
             return (KiWiDoubleLiteral)element;
         }
@@ -864,17 +858,21 @@ public class KiWiConnection implements AutoCloseable {
             // otherwise prepare a query, depending on the parameters given
             PreparedStatement query = getPreparedStatement("load.literal_by_dv");
             query.setDouble(1, value);
-            query.setLong(2,ltype.getId());
+            query.setLong(2, ltype.getId());
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
             // caching the constructed node for future calls
             ResultSet result = query.executeQuery();
+            KiWiNode kiWiNode = null;
             try {
-                if(result.next()) {
-                    return (KiWiDoubleLiteral)constructNodeFromDatabase(result);
+                if (result.next()) {
+                    return (KiWiDoubleLiteral) constructNodeFromDatabase(result);
                 } else {
                     return null;
                 }
+            } catch (RuntimeException e) {
+                log.error("Unable to create KiWiDoubleLiteral for node value '{}' (id={}): {}", value, kiWiNode.getId(), e.getMessage(), e);
+                throw e;
             } finally {
                 result.close();
             }
@@ -902,7 +900,6 @@ public class KiWiConnection implements AutoCloseable {
         if(element != null && element instanceof KiWiBooleanLiteral) {
             return (KiWiBooleanLiteral)element;
         }
-
 
         requireJDBCConnection();
 
@@ -1177,7 +1174,6 @@ public class KiWiConnection implements AutoCloseable {
         }
     }
 
-
     /**
      * Return the identifier of the triple with the given subject, predicate, object and context, or null if this
      * triple does not exist. Used for quick existance checks of triples.
@@ -1283,7 +1279,6 @@ public class KiWiConnection implements AutoCloseable {
             }
         });
 
-
     }
 
     /**
@@ -1356,7 +1351,6 @@ public class KiWiConnection implements AutoCloseable {
             }
         });
 
-
     }
 
     /**
@@ -1418,7 +1412,6 @@ public class KiWiConnection implements AutoCloseable {
             }
         });
 
-
     }
 
 
@@ -1443,10 +1436,9 @@ public class KiWiConnection implements AutoCloseable {
         triple.setDeleted(false);
         triple.setDeletedAt(null);
 
-
         synchronized (triple) {
             if(!triple.isDeleted()) {
-                log.warn("attemting to undelete triple that was not deleted: {}",triple);
+                log.warn("attempting to undelete triple that was not deleted: {}",triple);
             }
 
             PreparedStatement undeleteTriple = getPreparedStatement("undelete.triple");
@@ -1459,7 +1451,6 @@ public class KiWiConnection implements AutoCloseable {
         }
 
     }
-
 
     /**
      * List all contexts used in this triple store. See query.contexts .

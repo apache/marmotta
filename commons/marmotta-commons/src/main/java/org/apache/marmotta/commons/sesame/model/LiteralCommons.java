@@ -40,7 +40,6 @@ public class LiteralCommons {
 
     private static final int HASH_BITS=128;
 
-
     private static DatatypeFactory dtf;
     static {
         try {
@@ -50,7 +49,6 @@ public class LiteralCommons {
         }
     }
 
-    
     /**
 	 * Create a cache key for a literal with the given content, locale and type
 	 *
@@ -74,8 +72,6 @@ public class LiteralCommons {
     public static String createCacheKey(String content, Locale language, String type) {
         return createCacheKey(content, language != null ? language.getLanguage() : null, type);
     }
-
-
 
     /**
      * Create a cache key for the date literal with the given date. Converts the date
@@ -162,4 +158,5 @@ public class LiteralCommons {
     private LiteralCommons() {
         // static access only
     }
+
 }
