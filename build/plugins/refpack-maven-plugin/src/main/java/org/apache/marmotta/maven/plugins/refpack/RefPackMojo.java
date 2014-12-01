@@ -17,30 +17,13 @@
  */
 package org.apache.marmotta.maven.plugins.refpack;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingRequest;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.DefaultProjectBuildingRequest;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuilder;
-import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.project.ProjectBuildingResult;
+import org.apache.maven.plugins.annotations.*;
+import org.apache.maven.project.*;
 import org.jdom2.Element;
 import org.jdom2.Text;
 import org.jdom2.output.Format;
@@ -57,6 +40,15 @@ import org.sonatype.aether.resolution.DependencyRequest;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.resolution.DependencyResult;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Generate IzPack refpack descriptions from Maven dependencies
@@ -199,7 +191,8 @@ public class RefPackMojo extends AbstractMojo {
                 // but not the commons and the JS-client
                 && !artifactId.equals("marmotta-commons") && !artifactId.equals("marmotta-client-js") 
                 // and not the marmotta-sesame-tools
-                && !artifactId.startsWith("marmotta-util-") && !artifactId.startsWith("marmotta-sail-") && !artifactId.startsWith("marmotta-rio-");
+                && !artifactId.startsWith("marmotta-util-") && !artifactId.startsWith("marmotta-sail-")
+                && !artifactId.startsWith("marmotta-rio-") && !artifactId.startsWith("marmotta-model-");
     }
 
     /**
