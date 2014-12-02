@@ -46,3 +46,9 @@ This product also includes some third-party binary components:
 
  * Apache HttpComponents, which contains annotations derived from JCIP-ANNOTATIONS
    Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
+
+ * Apache Commons Compress, which contains files in the package
+   org.apache.commons.compress.archivers.sevenz were derived from the
+   LZMA SDK, version 9.20 (C/ and CPP/7zip/), which has been placed in
+   the public domain: 
+   "LZMA SDK is placed in the public domain." (http://www.7-zip.org/sdk.html)
