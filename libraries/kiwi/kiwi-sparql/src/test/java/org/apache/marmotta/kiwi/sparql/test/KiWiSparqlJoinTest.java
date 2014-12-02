@@ -60,11 +60,11 @@ import java.util.Set;
 
 /**
  * Test the KiWi SPARQL Join optimization.
+ *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 @RunWith(KiWiDatabaseRunner.class)
 public class KiWiSparqlJoinTest {
-
 
     private KiWiStore store;
 
@@ -82,7 +82,6 @@ public class KiWiSparqlJoinTest {
         dbConfig.setFulltextEnabled(true);
         dbConfig.setFulltextLanguages(new String[] {"en"});
     }
-
 
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException {
@@ -138,7 +137,6 @@ public class KiWiSparqlJoinTest {
             logger.info("{} being run...", description.getMethodName());
         }
     };
-
 
     /**
      * This method tests a simple triple join with two triple patterns.
@@ -272,7 +270,6 @@ public class KiWiSparqlJoinTest {
         testQuery("query24.sparql");
     }
 
-
     // simple group by
     @Test
     public void testQuery25() throws Exception {
@@ -284,7 +281,6 @@ public class KiWiSparqlJoinTest {
     public void testQuery27() throws Exception {
         testQuery("query27.sparql");
     }
-
 
     // simple union
     @Test
@@ -298,21 +294,17 @@ public class KiWiSparqlJoinTest {
         testQuery("query28.sparql");
     }
 
-
     // union with bind and order by
     @Test
     public void testQuery29() throws Exception {
         testQuery("query29.sparql");
     }
 
-
-
     // bind with order by
     @Test
     public void testQuery30() throws Exception {
         testQuery("query30.sparql");
     }
-
 
     // subquery with outer order by
     @Test
@@ -344,7 +336,6 @@ public class KiWiSparqlJoinTest {
         testQuery("query35.sparql");
     }
 
-
     // MARMOTTA-552
     @Test
     @Ignore("test skipped because of wrong evaluation in Sesame")
@@ -352,13 +343,11 @@ public class KiWiSparqlJoinTest {
         testQuery("query36.sparql");
     }
 
-
     // INSERT/UPDATE
     @Test
     public void testUpdate01() throws Exception {
         testUpdate("update01.sparql", FOAF.name);
     }
-
 
     // fulltext search filter
     @Test
@@ -418,7 +407,6 @@ public class KiWiSparqlJoinTest {
         }
 
     }
-
 
     private void testQuery(String filename) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
@@ -515,7 +503,6 @@ public class KiWiSparqlJoinTest {
         }
     }
 
-
     private void compareResults(TupleQueryResult result1, TupleQueryResult result2) throws QueryEvaluationException {
         List<BindingSet> bindingSets1 = Iterations.asList(result1);
         List<BindingSet> bindingSets2 = Iterations.asList(result2);
@@ -533,7 +520,6 @@ public class KiWiSparqlJoinTest {
 
         Assert.assertTrue(CollectionUtils.isEqualCollection(set1, set2));
     }
-
 
     private static class BindingSetPairFunction implements Function<BindingSet, Set<Pair>> {
         @Override
@@ -589,7 +575,7 @@ public class KiWiSparqlJoinTest {
         public String toString() {
             return key + " = " + value;
         }
-    }
 
+    }
 
 }
