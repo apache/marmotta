@@ -43,3 +43,6 @@ This product also includes some third-party binary components:
 
  * Joda-Time, which includes software developed by Joda.org (http://www.joda.org/).
    The original source code is available from https://github.com/JodaOrg/joda-time
+
+ * Apache HttpComponents, which contains annotations derived from JCIP-ANNOTATIONS
+   Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
