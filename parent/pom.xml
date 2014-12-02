@@ -1523,7 +1523,7 @@
             <dependency>
                 <groupId>com.github.jsonld-java</groupId>
                 <artifactId>jsonld-java-sesame</artifactId>
-                <version>0.5.0</version>
+                <version>0.5.1</version>
             </dependency>
 
             <!-- Freemarker -->
