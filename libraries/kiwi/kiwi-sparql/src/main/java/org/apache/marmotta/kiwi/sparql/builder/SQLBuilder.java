@@ -702,7 +702,7 @@ public class SQLBuilder {
             for(String v : bindings.getBindingNames()) {
                 SQLVariable sv = variables.get(v);
 
-                if(!sv.getExpressions().isEmpty()) {
+                if(sv != null && !sv.getExpressions().isEmpty()) {
                     List<String> vNames = sv.getExpressions();
                     String vName = vNames.get(0);
                     Value binding = converter.convert(bindings.getValue(v));

@@ -1853,7 +1853,7 @@ public class KiWiConnection implements AutoCloseable {
             cacheNode(result);
             return result;
         } else {
-            throw new IllegalArgumentException("unknown node type in database result: "+ntype);
+            throw new IllegalArgumentException("unknown node type in database result for node id " + id + ": " + ntype);
         }
     }
 
