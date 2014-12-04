@@ -20,20 +20,24 @@ package org.apache.marmotta.ldclient.test.provider;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.model.ModelCommons;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
+import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.apache.marmotta.ldclient.test.helper.TestLDClient;
 import org.junit.*;
+import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
@@ -74,42 +78,46 @@ public class ProviderTestBase {
 
     protected void testResource(String uri) throws Exception {
 
-        Assume.assumeTrue(ldclient.ping(uri));
+        Assume.assumeTrue("LDClient endpoint for <" + uri + "> not available", ldclient.ping(uri));
 
         ClientResponse response = ldclient.retrieveResource(uri);
 
         RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
-        connection.begin();
-        Assert.assertTrue(connection.size() > 0);
-
-        connection.commit();
-        connection.close();
+        try {
+            connection.begin();
+            Assert.assertTrue(connection.size() > 0);
+        }finally {
+            connection.commit();
+            connection.close();
+        }
     }
 
     protected void testResource(String uri, String sparqlFile) throws Exception {
 
-        Assume.assumeTrue(ldclient.ping(uri));
+        Assume.assumeTrue("LDClient endpoint for <" + uri + "> not available", ldclient.ping(uri));
 
         ClientResponse response = ldclient.retrieveResource(uri);
 
         RepositoryConnection connection = ModelCommons.asRepository(response.getData()).getConnection();
-        connection.begin();
-        Assert.assertTrue(connection.size() > 0);
+        try {
+            connection.begin();
+            Assert.assertTrue(connection.size() > 0);
 
-        // run a SPARQL test to see if the returned data is correct
-        InputStream sparql = this.getClass().getResourceAsStream(sparqlFile);
-        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql, "UTF-8"));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
+            // run a SPARQL test to see if the returned data is correct
+            InputStream sparql = this.getClass().getResourceAsStream(sparqlFile);
+            BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql, "UTF-8"));
+            Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
 
-        if(log.isDebugEnabled()) {
-            StringWriter out = new StringWriter();
-            connection.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
+            if (log.isDebugEnabled()) {
+                StringWriter out = new StringWriter();
+                connection.export(Rio.createWriter(RDFFormat.TURTLE, out));
+                log.debug("DATA:");
+                log.debug(out.toString());
+            }
+        } finally {
+            connection.commit();
+            connection.close();
         }
-
-        connection.commit();
-        connection.close();
     }
 
 }
