@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.3.0</version>
         <relativePath>../../parent</relativePath>
     </parent>
     <artifactId>archetypes-reactor</artifactId>
