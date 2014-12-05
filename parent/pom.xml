@@ -1821,13 +1821,23 @@
                     <url>file://${java.io.tmpdir}${file.separator}repo</url>
                 </snapshotRepository>
             </distributionManagement>
+        </profile>
 
+        <profile>
+            <!-- Quickbuild without tests -->
+            <id>quickbuild</id>
+            <activation>
+                <property>
+                    <name>quick</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <properties>
+                <skipTests>true</skipTests>
+                <skipITs>true</skipITs>
+            </properties>
         </profile>
     </profiles>
 
-<!--
-    <scm>
-        <tag>3.1.0</tag>
-    </scm>
--->
 </project>
