@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>kiwi-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>kiwi-loader</artifactId>
