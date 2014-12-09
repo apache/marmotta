@@ -142,7 +142,6 @@ public class PostgreSQLDialect extends KiWiDialect {
         return true;
     }
 
-
     /**
      * Return true in case the database supports creating arrays with ARRAY[...]
      *
@@ -152,6 +151,5 @@ public class PostgreSQLDialect extends KiWiDialect {
     public boolean isArraySupported() {
         return true;
     }
-
 
 }

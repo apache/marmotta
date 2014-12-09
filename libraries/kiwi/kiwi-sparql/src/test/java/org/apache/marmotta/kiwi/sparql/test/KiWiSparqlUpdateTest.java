@@ -41,6 +41,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Run the Sesame SPARQL Update Test Suite.
+ *
  * @author Jakob Frank <jakob@apache.org>
  *
  */
@@ -59,7 +60,6 @@ public class KiWiSparqlUpdateTest extends SPARQLUpdateTest {
         KiWiSparqlSail ssail = new KiWiSparqlSail(store);
         return new SailRepository(ssail);
     }
-
 
     /**
      * This bug is apparently an issue in Sesame and does not really concern our own SPARQL implementation. Not sure
@@ -99,4 +99,5 @@ public class KiWiSparqlUpdateTest extends SPARQLUpdateTest {
         assertFalse(msg, con.hasStatement(alice, FOAF.KNOWS, bob, true, graph2));
         assertFalse(msg, con.hasStatement(alice, FOAF.MBOX, f.createLiteral("alice@example.org"), true, graph2));
     }
+
 }
