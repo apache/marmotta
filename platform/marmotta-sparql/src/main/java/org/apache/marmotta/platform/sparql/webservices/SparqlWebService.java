@@ -79,20 +79,20 @@ import static org.openrdf.rio.RDFFormat.RDFXML;
 @ApplicationScoped
 @Path("/" + SparqlWebService.PATH)
 public class SparqlWebService {
-	
+
     public static final String PATH = "sparql";
     public static final String SELECT = "/select";
     public static final String UPDATE = "/update";
 
-    private static final Map<String,String> outputMapper = new HashMap<String,String>(){
-        private static final long serialVersionUID = 1L;
-    {
-        put("json","application/sparql-results+json");
-        put("xml","application/sparql-results+xml");
-        put("tabs","text/tab-separated-values");
-        put("csv","text/csv");
-        put("html","text/html");
-    }};
+    private static final Map<String,String> outputMapper = new HashMap<String, String>() {
+        {
+            put("json","application/sparql-results+json");
+            put("xml","application/sparql-results+xml");
+            put("tabs","text/tab-separated-values");
+            put("csv","text/csv");
+            put("html","text/html");
+        }
+    };
 
     @Inject
     private Logger log;
@@ -121,17 +121,17 @@ public class SparqlWebService {
      */
     @GET
     public Response get(@QueryParam("query") String query, @QueryParam("update") String update, @Context HttpServletRequest request) throws URISyntaxException {
-    	if (StringUtils.isNotBlank(update)) {
-    		String msg = "update operations are not supported through get"; //or yes?
-    		log.error(msg);
-			return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
-    	} else {
-    		UriBuilder builder = UriBuilder.fromPath(PATH + SELECT);
-    		if (StringUtils.isNotBlank(query)) {    		
-    			builder.replaceQuery(request.getQueryString());
-    		}
-			return Response.seeOther(builder.build()).build();
-		}
+        if (StringUtils.isNotBlank(update)) {
+            String msg = "update operations are not supported through get"; //or yes?
+            log.error(msg);
+            return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
+        } else {
+            UriBuilder builder = UriBuilder.fromPath(PATH + SELECT);
+            if (StringUtils.isNotBlank(query)) {
+                builder.replaceQuery(request.getQueryString());
+            }
+            return Response.seeOther(builder.build()).build();
+        }
     }
     
     /** 
@@ -142,11 +142,11 @@ public class SparqlWebService {
      */
     @POST
     public Response post(@Context HttpServletRequest request) {
-    	//String query = CharStreams.toString(request.getReader());        
-    	//TODO: introspect the query to determine the operation type
-    	String msg = "impossible to determine which type of operation (query/update) the request contains";
-    	log.error(msg);
-		return Response.status(Response.Status.CONFLICT).entity(msg).build();
+        //String query = CharStreams.toString(request.getReader());
+        //TODO: introspect the query to determine the operation type
+        String msg = "impossible to determine which type of operation (query/update) the request contains";
+        log.error(msg);
+        return Response.status(Response.Status.CONFLICT).entity(msg).build();
     }
 
     /**
@@ -167,8 +167,10 @@ public class SparqlWebService {
         if (StringUtils.isBlank(query)) {
             return createServiceDescriptionResponse(request, false);
         }
-    	//get real return type: even it is not in the standard, this is useful
-        if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
+        //get real return type: even it is not in the standard, this is useful
+        if(resultType != null && outputMapper.containsKey(resultType)) {
+            resultType = outputMapper.get(resultType);
+        }
         return select(query, resultType, request);
     }
     
@@ -207,19 +209,19 @@ public class SparqlWebService {
     @POST
     @Path(SELECT)
     public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
-		try {
-            if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
-            if(request.getCharacterEncoding() == null) {
+        try {
+            if (resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
+            if (request.getCharacterEncoding() == null) {
                 request.setCharacterEncoding("utf-8");
             }
-			String query = CharStreams.toString(request.getReader());
+            String query = CharStreams.toString(request.getReader());
             //String query = IOUtils.toString(request.getInputStream(),"utf-8");
-            log.debug("Query: {}",query);
-			return select(query, resultType, request);
-		} catch (IOException e) {
-			log.error("body not found", e);
-			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-		}
+            log.debug("Query: {}", query);
+            return select(query, resultType, request);
+        } catch (IOException e) {
+            log.error("body not found", e);
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
     }    
 
     /**
@@ -230,54 +232,54 @@ public class SparqlWebService {
      * @param request
      * @return
      */
-	private Response select(String query, String resultType, HttpServletRequest request) {
-		try {
-	    	String acceptHeader = StringUtils.defaultString(request.getHeader(ACCEPT), "");
-	    	if (StringUtils.isBlank(query)) { //empty query
-	            if (acceptHeader.contains("html")) {
-	                return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
-	            } else {
-	            	return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
-	            }
-	    	} else {
-	    		//query duck typing
-	        	QueryType queryType = sparqlService.getQueryType(QueryLanguage.SPARQL, query);
-	        	List<ContentType> acceptedTypes;
-	        	List<ContentType> offeredTypes;
-	        	if (resultType != null) {
-	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(resultType);
-	        	} else {
-	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
-	        	}
-	        	if (QueryType.TUPLE.equals(queryType)) {
-	        		offeredTypes  = MarmottaHttpUtils.parseQueryResultFormatList(TupleQueryResultWriterRegistry.getInstance().getKeys());
-	        	} else if (QueryType.BOOL.equals(queryType)) {
-	        		offeredTypes  = MarmottaHttpUtils.parseQueryResultFormatList(BooleanQueryResultWriterRegistry.getInstance().getKeys());
-	        	} else if (QueryType.GRAPH.equals(queryType)) {
-	        		Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
-	        		producedTypes.remove("application/xml");
-	        		producedTypes.remove("text/plain");
-	        		producedTypes.remove("text/html");
-	        		producedTypes.remove("application/xhtml+xml");
-	        		offeredTypes  = MarmottaHttpUtils.parseStringList(producedTypes);
-	        	} else {
-	        		return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
-	        	}
-	            ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
-	            if (bestType == null) {
-	            	return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).entity("no result format specified or unsupported result format").build();
-	            } else {
-	            	return buildQueryResponse(bestType, query, queryType);
-	            }
-	    	}
+    private Response select(String query, String resultType, HttpServletRequest request) {
+        try {
+            String acceptHeader = StringUtils.defaultString(request.getHeader(ACCEPT), "");
+            if (StringUtils.isBlank(query)) { //empty query
+                if (acceptHeader.contains("html")) {
+                    return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
+                } else {
+                    return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
+                }
+            } else {
+                //query duck typing
+                QueryType queryType = sparqlService.getQueryType(QueryLanguage.SPARQL, query);
+                List<ContentType> acceptedTypes;
+                List<ContentType> offeredTypes;
+                if (resultType != null) {
+                    acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(resultType);
+                } else {
+                    acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
+                }
+                if (QueryType.TUPLE.equals(queryType)) {
+                    offeredTypes = MarmottaHttpUtils.parseQueryResultFormatList(TupleQueryResultWriterRegistry.getInstance().getKeys());
+                } else if (QueryType.BOOL.equals(queryType)) {
+                    offeredTypes = MarmottaHttpUtils.parseQueryResultFormatList(BooleanQueryResultWriterRegistry.getInstance().getKeys());
+                } else if (QueryType.GRAPH.equals(queryType)) {
+                    Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
+                    producedTypes.remove("application/xml");
+                    producedTypes.remove("text/plain");
+                    producedTypes.remove("text/html");
+                    producedTypes.remove("application/xhtml+xml");
+                    offeredTypes = MarmottaHttpUtils.parseStringList(producedTypes);
+                } else {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("no result format specified or unsupported result format").build();
+                }
+                ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
+                if (bestType == null) {
+                    return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).entity("no result format specified or unsupported result format").build();
+                } else {
+                    return buildQueryResponse(bestType, query, queryType);
+                }
+            }
         } catch (InvalidArgumentException e) {
             log.error("query parsing threw an exception", e);
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("query execution threw an exception", e);
             return Response.serverError().entity("query not supported").build();
         }
-	}
+    }
 
     /**
      * For CORS operations TODO: make it more fine grained (maybe user dependent)
@@ -318,10 +320,10 @@ public class SparqlWebService {
     @GET
     @Path(UPDATE)
     public Response updateGet(@QueryParam("update") String update, @QueryParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-    	String q = getUpdateQuery(update, query);
-    	if (StringUtils.isBlank(q)) {
-    	    return createServiceDescriptionResponse(request, true);
-    	}
+        String q = getUpdateQuery(update, query);
+        if (StringUtils.isBlank(q)) {
+            return createServiceDescriptionResponse(request, true);
+        }
         return update(q, resultType, request);
     }
     
@@ -341,15 +343,15 @@ public class SparqlWebService {
     @Path(UPDATE)
     @Consumes("application/sparql-update")
     public Response updatePostDirectly(@Context HttpServletRequest request, @QueryParam("output") String resultType) {
-		try {
-            if(request.getCharacterEncoding() == null) {
+        try {
+            if (request.getCharacterEncoding() == null) {
                 request.setCharacterEncoding("utf-8");
             }
-			String q = CharStreams.toString(request.getReader());
-	        return update(q, resultType, request);
-		} catch (IOException e) {
-			return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-		}
+            String q = CharStreams.toString(request.getReader());
+            return update(q, resultType, request);
+        } catch (IOException e) {
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        }
     }
     
     /**
@@ -368,22 +370,22 @@ public class SparqlWebService {
     @Path(UPDATE)
     @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
     public Response updatePostUrlEncoded(@Context HttpServletRequest request) {
-    	try {
-	    	Map<String,String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));  
-			String q = StringUtils.defaultString(params.get("update"));
-			String resultType = StringUtils.defaultString(params.get("output"));
-	        return update(q, resultType, request);
-    	} catch (IOException e) {
-			return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
-		}
+        try {
+            Map<String, String> params = parseEncodedQueryParameters(CharStreams.toString(request.getReader()));
+            String q = StringUtils.defaultString(params.get("update"));
+            String resultType = StringUtils.defaultString(params.get("output"));
+            return update(q, resultType, request);
+        } catch (IOException e) {
+            return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
+        }
     }    
 
     /**
      * Actual update implementation
      * 
      */
-	private Response update(String update, String resultType, HttpServletRequest request) {
-		try {
+    private Response update(String update, String resultType, HttpServletRequest request) {
+        try {
             if (StringUtils.isNotBlank(update)) {
                 sparqlService.update(QueryLanguage.SPARQL, update);
                 return Response.ok().build();
@@ -411,7 +413,7 @@ public class SparqlWebService {
         } catch (URISyntaxException e) {
             return Response.serverError().entity(WebServiceUtil.jsonErrorResponse(e)).build();
         }
-	}
+    }
 
     /**
      * Get right update query from both possible parameters, for keeping
@@ -439,25 +441,25 @@ public class SparqlWebService {
      * @return parameters
      */
     private Map<String,String> parseEncodedQueryParameters(String body) {
-    	Map<String,String> params = new HashMap<String,String>();
+        Map<String,String> params = new HashMap<String,String>();
         for (String pair : body.split("&")) {
             int eq = pair.indexOf("=");
             try {
-	            if (eq < 0) {
-	                // key with no value
-	                params.put(URLDecoder.decode(pair, "UTF-8"), "");
-	            } else {
-	                // key=value
-	                String key = URLDecoder.decode(pair.substring(0, eq), "UTF-8");
-	                String value = URLDecoder.decode(pair.substring(eq + 1), "UTF-8");
-	                params.put(key, value);
-	            }
+                if (eq < 0) {
+                    // key with no value
+                    params.put(URLDecoder.decode(pair, "UTF-8"), "");
+                } else {
+                    // key=value
+                    String key = URLDecoder.decode(pair.substring(0, eq), "UTF-8");
+                    String value = URLDecoder.decode(pair.substring(eq + 1), "UTF-8");
+                    params.put(key, value);
+                }
             } catch (UnsupportedEncodingException e) {
-            	log.error("Query parameter cannot be decoded: {}", e.getMessage(), e);
+                log.error("Query parameter cannot be decoded: {}", e.getMessage(), e);
             }
         }
-		return params;
-	}
+        return params;
+    }
     
     private Response createServiceDescriptionResponse(final HttpServletRequest request, final boolean isUpdate) {
         final List<ContentType> acceptedTypes;
@@ -502,7 +504,7 @@ public class SparqlWebService {
         return Response.ok(entity, new MediaType(returnType.getType(), returnType.getSubtype(), returnType.getCharset().name())).build();
     }
     
-	private Response buildQueryResponse(final ContentType format, final String query, final QueryType queryType) throws Exception {		
+    private Response buildQueryResponse(final ContentType format, final String query, final QueryType queryType) throws Exception {
         StreamingOutput entity = new StreamingOutput() {
             @Override
             public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -524,7 +526,7 @@ public class SparqlWebService {
             responseBuilder.header("Content-Disposition", String.format("attachment; filename=\"%s.%s\"", queryType.toString().toLowerCase(), fmt.getDefaultFileExtension()));
         }
         return responseBuilder.build();
-	}
+    }
 
     private static Pattern subTypePattern = Pattern.compile("[a-z]+/([a-z0-9-._]+\\+)?([a-z0-9-._]+)(;.*)?");
     private String parseSubType(String mimeType) {
@@ -534,4 +536,5 @@ public class SparqlWebService {
         else
             return mimeType;
     }
+
 }
