@@ -45,7 +45,8 @@ import java.util.*;
 /**
  * A builder for translating SPARQL queries into SQL.
  *
- * @author Sebastian Schaffert (sschaffert@apache.org)
+ * @author Sebastian Schaffert
+ * @author Sergio Fernández
  */
 public class SQLBuilder {
 
@@ -164,7 +165,6 @@ public class SQLBuilder {
 
         prepareBuilder();
     }
-
 
     public Map<String, SQLVariable> getVariables() {
         return variables;
@@ -610,14 +610,12 @@ public class SQLBuilder {
         }
     }
 
-
     private StringBuilder buildSelectClause() {
         List<String> projections = new ArrayList<>();
 
         // enforce order in SELECT part, we need this for merging UNION subqueries
         List<SQLVariable> vars = new ArrayList<>(variables.values());
         Collections.sort(vars, SQLVariable.sparqlNameComparator);
-
 
         for(SQLVariable v : vars) {
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
@@ -791,6 +789,7 @@ public class SQLBuilder {
 
     private StringBuilder buildGroupClause() {
         StringBuilder groupClause = new StringBuilder();
+
         if(groupLabels.size() > 0) {
             for(Iterator<String> it = groupLabels.iterator(); it.hasNext(); ) {
                 SQLVariable sv = variables.get(it.next());
@@ -809,6 +808,18 @@ public class SQLBuilder {
                     groupClause.append(", ");
                 }
             }
+
+            if (orderby.size() > 0) {
+                groupClause.append(", ");
+                for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
+                    OrderElem elem = it.next();
+                    groupClause.append(evaluateExpression(elem.getExpr(), ValueType.STRING));
+                    if (it.hasNext()) {
+                        groupClause.append(", ");
+                    }
+                }
+            }
+
             groupClause.append(" \n");
         }
 
