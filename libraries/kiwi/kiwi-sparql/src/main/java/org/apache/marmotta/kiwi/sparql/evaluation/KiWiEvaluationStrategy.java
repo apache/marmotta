@@ -68,7 +68,6 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategy.class);
 
-
     /**
      * The database connection offering specific SPARQL-SQL optimizations.
      */
@@ -108,7 +107,6 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
 
         return super.evaluate(projection, bindings);
     }
-
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Union union, BindingSet bindings) throws QueryEvaluationException {
