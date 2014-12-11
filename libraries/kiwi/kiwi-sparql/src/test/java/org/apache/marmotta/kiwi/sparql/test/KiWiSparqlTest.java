@@ -138,7 +138,7 @@ public class KiWiSparqlTest {
      */
     @Test
     public void testQuery37() throws Exception {
-        testQuery("query37.sparql");
+        testQuery("MARMOTTA-578.sparql");
     }
 
     //TODO: generalize this infrastructure code also used by KiWiSparqlJoinTest

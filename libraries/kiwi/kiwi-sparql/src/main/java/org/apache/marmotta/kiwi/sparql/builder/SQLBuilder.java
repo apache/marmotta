@@ -57,7 +57,6 @@ public class SQLBuilder {
      */
     private static final String[] positions = new String[] {"subject","predicate","object","context"};
 
-
     /**
      * Reference to the registry of natively supported functions with parameter and return types as well as SQL translation
      */
