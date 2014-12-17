@@ -74,14 +74,14 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
      * values. This is necessary because {@link SimpleDateFormat} is not thread 
      * save and therefore we do not directly use a public static member.
      */
-    private SimpleDateFormat dateFormat = (SimpleDateFormat)FormatUtils.ISO8601FORMAT_DATE.clone();
+    private final SimpleDateFormat dateFormat = (SimpleDateFormat)FormatUtils.ISO8601FORMAT_DATE.clone();
     
     /**
      * A clone of the DateFormat provided by {@link FormatUtils} to parse xsd:time 
      * values. This is necessary because {@link SimpleDateFormat} is not thread 
      * save and therefore we do not directly use a public static member.
      */
-    private SimpleDateFormat timeFormat = (SimpleDateFormat)FormatUtils.ISO8601FORMAT_TIME.clone();
+    private final SimpleDateFormat timeFormat = (SimpleDateFormat)FormatUtils.ISO8601FORMAT_TIME.clone();
     /**
      * Parses the Double value of the parsed node based on its lexical form as
      * returned by {@link #stringValue(Object)}.
@@ -104,7 +104,7 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
      */
     public Float floatValue(Node node) {
         return new Float(trimPlusSign(stringValue(node)));
-    };
+    }
 
     /**
      * Parses the {@link BigDecimal#longValueExact() Long value} of the parsed 
@@ -138,7 +138,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
     @Override
     public Integer intValue(Node node) {
         return decimalValue(node).intValueExact();
-    };
+    }
+
     /**
      * Parses the {@link BigDecimal} value from the lexical form of the parsed
      * node as returned by {@link RDFBackend#stringValue(Object)}. This
@@ -152,7 +153,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
      */
     public BigDecimal decimalValue(Node node) {
         return new BigDecimal(trimPlusSign(stringValue(node)));
-    };
+    }
+
     /**
      * Parses the {@link BigDecimal#toBigIntegerExact() BugIneger value} of the parsed 
      * node by using {@link #decimalValue(Object)}. This has the advantage, that
@@ -162,7 +164,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
      */
     public java.math.BigInteger integerValue(Node node) {
         return decimalValue(node).toBigIntegerExact();
-    };
+    }
+
     /**
      * Parses the boolean value from the {@link #stringValue(Object) lexical form}.
      * Supports both '1' and {@link Boolean#parseBoolean(String)}.
@@ -176,7 +179,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
         } else {
             return Boolean.parseBoolean(lexicalForm);
         }
-    };
+    }
+
     /**
      * Parses date vales based on the ISO8601 specification by using the
      * {@link #stringValue(Object) lexical form} of the parsed node.
@@ -194,8 +198,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
             throw new IllegalArgumentException("could not parse ISO8601 date from '"+
                 lexicalForm+"'!",e);
         }
-    };
-    
+    }
+
     /**
      * Parses time value based on the ISO8601 specification by using the
      * {@link #stringValue(Object) lexical form} of the parsed node.
@@ -213,8 +217,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
             throw new IllegalArgumentException("could not parse ISO8601 time from '"+
                 lexicalForm+"'!",e);
         }
-    };
-    
+    }
+
     /**
      * Parses dateTime value based on the {@link #stringValue(Object) lexical form} 
      * of the parsed node. For details about parsing see
@@ -233,8 +237,8 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
         } else {
             return date;
         }
-    };
-    
+    }
+
     @Override
     public abstract String stringValue(Node node);
     
@@ -247,22 +251,24 @@ public abstract class AbstractBackend<Node> implements NodeBackend<Node> {
     private static String trimPlusSign(String s) {
         return (s.length() > 0 && s.charAt(0) == '+') ? s.substring(1) : s;
     }
+
     /**
      * Utility to parse xsd:date strings
-     * @param dateString
-     * @return
+     * @param dateString date-string to parse, in ISO8601
      * @throws ParseException
+     * @see org.apache.marmotta.ldpath.util.FormatUtils#ISO8601FORMAT_DATE
      */
     protected Date parseDate(String dateString) throws ParseException {
         synchronized (dateFormat) {
             return dateFormat.parse(dateString);
         }
     }
+
     /**
      * Utility to parse xsd:time strings
-     * @param timeString
-     * @return
+     * @param timeString time-string to parse, in ISO8601
      * @throws ParseException
+     * @see org.apache.marmotta.ldpath.util.FormatUtils#ISO8601FORMAT_TIME
      */
     protected Date parseTime(String timeString) throws ParseException {
         synchronized (timeFormat) {

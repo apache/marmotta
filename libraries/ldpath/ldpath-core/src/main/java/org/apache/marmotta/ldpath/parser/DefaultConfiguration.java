@@ -57,7 +57,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
 
     public static final Map<String, String> DEFAULT_NAMESPACES;
     static {
-        HashMap<String, String> defNS = new HashMap<String, String>();
+        HashMap<String, String> defNS = new HashMap<>();
         defNS.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         defNS.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         defNS.put("owl", "http://www.w3.org/2002/07/owl#");
@@ -71,7 +71,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
         DEFAULT_NAMESPACES = Collections.unmodifiableMap(defNS);
     }
 
-    public static final Set<Class<?>> DEFAULT_FUNCTIONS = new HashSet<Class<?>>();
+    public static final Set<Class<?>> DEFAULT_FUNCTIONS = new HashSet<>();
     static {
         DEFAULT_FUNCTIONS.add(ConcatenateFunction.class);
         DEFAULT_FUNCTIONS.add(FirstFunction.class);

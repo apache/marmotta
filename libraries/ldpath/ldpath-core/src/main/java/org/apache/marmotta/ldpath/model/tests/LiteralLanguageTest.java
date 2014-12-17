@@ -45,7 +45,6 @@ public class LiteralLanguageTest<Node> extends NodeTest<Node> {
      * Throws IllegalArgumentException if the function cannot be applied to the nodes passed as argument
      * or the number of arguments is not correct.
      *
-     * @param args a nested list of KiWiNodes
      * @return
      */
     @Override

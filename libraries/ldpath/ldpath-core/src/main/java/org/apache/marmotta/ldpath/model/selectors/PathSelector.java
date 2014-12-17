@@ -60,7 +60,7 @@ public class PathSelector<Node> implements NodeSelector<Node> {
         // a new map for storing the result path for the left selector
         Map<Node,List<Node>> myResultPaths = null;
         if(resultPaths != null && path != null) {
-            myResultPaths = new HashMap<Node, List<Node>>();
+            myResultPaths = new HashMap<>();
         }
         
         Collection<Node> nodesLeft = left.select(rdfBackend,context,path,myResultPaths);

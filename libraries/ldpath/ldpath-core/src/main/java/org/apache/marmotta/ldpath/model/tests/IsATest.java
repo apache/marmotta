@@ -29,7 +29,7 @@ import org.apache.marmotta.ldpath.model.selectors.PropertySelector;
 public class IsATest<Node> extends PathEqualityTest<Node> {
 
     public IsATest(Node rdfType, Node node) {
-        super(new PropertySelector<Node>(rdfType), node);
+        super(new PropertySelector<>(rdfType), node);
     }
     
     @Override

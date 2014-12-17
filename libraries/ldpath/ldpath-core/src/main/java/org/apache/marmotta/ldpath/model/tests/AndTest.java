@@ -26,7 +26,7 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  * <p/>
  * Author: Sebastian Schaffert <sebastian.schaffert@salzburgresearch.at>
  *
- * @param <T> the type of object to filter
+ * @param <Node> the type of object to filter
  */
 public class AndTest<Node> extends ComplexTest<Node> {
 

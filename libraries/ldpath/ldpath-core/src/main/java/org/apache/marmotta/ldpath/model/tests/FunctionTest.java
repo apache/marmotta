@@ -41,7 +41,7 @@ public class FunctionTest<Node> extends NodeTest<Node> {
     @Override
     public boolean accept(RDFBackend<Node> backend, Node context, Node target) throws IllegalArgumentException {
 
-        ArrayList<Collection<Node>> fktArgs = new ArrayList<Collection<Node>>();
+        ArrayList<Collection<Node>> fktArgs = new ArrayList<>();
         for (NodeSelector<Node> sel : argSelectors) {
             fktArgs.add(sel.select(backend, target, null, null));
         }

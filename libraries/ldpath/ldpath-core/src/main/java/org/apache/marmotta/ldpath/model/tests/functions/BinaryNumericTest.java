@@ -27,7 +27,7 @@ import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;
 public abstract  class BinaryNumericTest<Node> extends TestFunction<Node> {
 
 
-    protected final DoubleTransformer<Node> transformer = new DoubleTransformer<Node>();
+    protected final DoubleTransformer<Node> transformer = new DoubleTransformer<>();
 
     @Override
     @SafeVarargs

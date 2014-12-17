@@ -61,10 +61,10 @@ public class Configuration<Node> {
     protected Map<String, TestFunction<Node>> testFunctions;
 
     public Configuration() {
-        namespaces   = new HashMap<String,String>();
-        transformers = new HashMap<String, NodeTransformer<?, Node>>();
-        functions    = new HashMap<String, SelectorFunction<Node>>();
-        testFunctions = new HashMap<String, TestFunction<Node>>();
+        namespaces   = new HashMap<>();
+        transformers = new HashMap<>();
+        functions    = new HashMap<>();
+        testFunctions = new HashMap<>();
     }
 
     /**

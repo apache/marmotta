@@ -51,9 +51,6 @@ public class LastFunction<Node> extends SelectorFunction<Node> {
 
     /**
      * Return the name of the NodeFunction for registration in the function registry
-     *
-     * @return
-     * @param backend
      */
     @Override
     public String getLocalName() {
@@ -64,8 +61,6 @@ public class LastFunction<Node> extends SelectorFunction<Node> {
      * A string describing the signature of this node function, e.g. "fn:content(uris : Nodes) : Nodes". The
      * syntax for representing the signature can be chosen by the implementer. This method is for informational
      * purposes only.
-     *
-     * @return
      */
     @Override
     public String getSignature() {
@@ -74,8 +69,6 @@ public class LastFunction<Node> extends SelectorFunction<Node> {
 
     /**
      * A short human-readable description of what the node function does.
-     *
-     * @return
      */
     @Override
     public String getDescription() {

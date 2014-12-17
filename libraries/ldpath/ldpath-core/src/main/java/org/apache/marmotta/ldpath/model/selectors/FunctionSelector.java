@@ -97,7 +97,6 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
     /**
      * Return the name of the NodeSelector for registration in the selector registry
      *
-     * @return
      * @param backend
      */
     @Override

@@ -40,7 +40,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
 
     public static final Map<String, String> DEFAULT_NAMESPACES;
     static {
-        HashMap<String, String> defNS = new HashMap<String, String>();
+        HashMap<String, String> defNS = new HashMap<>();
         defNS.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         defNS.put("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         defNS.put("owl", "http://www.w3.org/2002/07/owl#");
@@ -82,9 +82,9 @@ public class Program<Node> implements LDPathConstruct<Node> {
     private Set<FieldMapping<?,Node>> fields;
 
     public Program() {
-        namespaces = new LinkedHashMap<String, String>();
-        fields = new LinkedHashSet<FieldMapping<?,Node>>();
-        graphs = new LinkedHashSet<URI>();
+        namespaces = new LinkedHashMap<>();
+        fields = new LinkedHashSet<>();
+        graphs = new LinkedHashSet<>();
     }
 
     public void addNamespace(String prefix, String uri) {
@@ -133,7 +133,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     }
 
     public void setNamespaces(Map<String, String> namespaces) {
-        this.namespaces = new LinkedHashMap<String, String>(namespaces);
+        this.namespaces = new LinkedHashMap<>(namespaces);
     }
 
     public Set<URI> getGraphs() {
@@ -141,7 +141,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
     }
 
     public URI[] getGraphArr() {
-        return this.graphs.toArray(new URI[0]);
+        return this.graphs.toArray(new URI[this.graphs.size()]);
     }
 
     public void setGraphs(Collection<URI> graphs) {
@@ -155,7 +155,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
      * @return The result
      */
     public Map<String,Collection<?>> execute(RDFBackend<Node> backend, Node context) {
-        Map<String,Collection<?>> result = new HashMap<String, Collection<?>>();
+        Map<String,Collection<?>> result = new HashMap<>();
 
         for(FieldMapping<?,Node> mapping : getFields()) {
             result.put(mapping.getFieldName(),mapping.getValues(backend,context));
@@ -170,7 +170,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
      * @return The result
      */
     public Map<String,Collection<?>> execute(RDFBackend<Node> backend, Node context, Map<Node, List<Node>> paths) {
-        Map<String,Collection<?>> result = new HashMap<String, Collection<?>>();
+        Map<String,Collection<?>> result = new HashMap<>();
 
         for(FieldMapping<?,Node> mapping : getFields()) {
             result.put(mapping.getFieldName(),mapping.getValues(backend,context, paths));
@@ -216,7 +216,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
         String progWithoutNamespace = sb.toString();
 
         // Defined Namespaces (reverse sorted, to give longer prefixes precedence over shorter)
-        final TreeSet<Entry<String, String>> sortedNamespaces = new TreeSet<Entry<String,String>>(new Comparator<Entry<String, String>>() {
+        final TreeSet<Entry<String, String>> sortedNamespaces = new TreeSet<>(new Comparator<Entry<String, String>>() {
             @Override
             public int compare(Entry<String, String> e1, Entry<String, String> e2) {
                 return e2.getValue().compareTo(e1.getValue());
