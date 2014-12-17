@@ -66,7 +66,8 @@ public class ProgramTest {
         });
 
         program = rdfPathParser.parseProgram();
-        
+
+        /* remove comments from the input */
         expr = expr.replaceAll("/\\*(?:.|[\\n\\r])*?\\*/", "");
     }
 

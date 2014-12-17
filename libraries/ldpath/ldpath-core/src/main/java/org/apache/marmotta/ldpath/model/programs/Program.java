@@ -215,7 +215,7 @@ public class Program<Node> implements LDPathConstruct<Node> {
         }
         String progWithoutNamespace = sb.toString();
 
-        // Definded Namespaces (reverse sorted, to give longer prefixes precedence over shorter)
+        // Defined Namespaces (reverse sorted, to give longer prefixes precedence over shorter)
         final TreeSet<Entry<String, String>> sortedNamespaces = new TreeSet<Entry<String,String>>(new Comparator<Entry<String, String>>() {
             @Override
             public int compare(Entry<String, String> e1, Entry<String, String> e2) {
