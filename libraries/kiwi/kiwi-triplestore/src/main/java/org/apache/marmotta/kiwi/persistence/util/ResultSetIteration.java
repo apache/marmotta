@@ -75,7 +75,7 @@ public class ResultSetIteration<E> implements CloseableIteration<E,SQLException>
             if(closeStatement)
                 result.getStatement().close();
             closed = true;
-        } catch (SQLException e) {
+        } catch (SQLException ignore) {
         }
     }
 
