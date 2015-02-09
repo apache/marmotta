@@ -286,7 +286,7 @@ public class ScriptRunner {
     private void println(Object o) {
         if(logBuffer != null) {
             logBuffer.append(o.toString());
-            log.debug("SQL: ()",logBuffer.toString());
+            log.debug("SQL: {}",logBuffer.toString());
             logBuffer = null;
         } else {
             log.debug("SQL: {}",o.toString());
