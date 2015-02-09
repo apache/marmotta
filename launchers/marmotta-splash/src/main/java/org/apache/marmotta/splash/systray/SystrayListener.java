@@ -189,7 +189,7 @@ public class SystrayListener implements LifecycleListener {
                 public void actionPerformed(ActionEvent e) {
                     MessageDialog.show("Apache Marmotta",
                             "About Apache Marmotta \n",
-                            "(c)2014 The Apache Software Foundation \n" +
+                            "(c) 2015 The Apache Software Foundation \n" +
                             "Visit http://marmotta.apache.org for further details");
                 }
             });
