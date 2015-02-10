@@ -19,6 +19,7 @@ package org.apache.marmotta.platform.sparql.webservices;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
+import org.apache.commons.collections.EnumerationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
@@ -234,13 +235,15 @@ public class SparqlWebService {
      */
     private Response select(String query, String resultType, HttpServletRequest request) {
         try {
-            String acceptHeader = StringUtils.defaultString(request.getHeader(ACCEPT), "");
+            List<String> acceptHeaders = EnumerationUtils.toList(request.getHeaders(ACCEPT));
             if (StringUtils.isBlank(query)) { //empty query
-                if (acceptHeader.contains("html")) {
-                    return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
-                } else {
-                    return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
+                for(String acceptHeader : acceptHeaders) {
+                    if (acceptHeader.contains("html")) {
+                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
+                    }
                 }
+
+                return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
             } else {
                 //query duck typing
                 QueryType queryType = sparqlService.getQueryType(QueryLanguage.SPARQL, query);
@@ -249,7 +252,7 @@ public class SparqlWebService {
                 if (resultType != null) {
                     acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(resultType);
                 } else {
-                    acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
+                    acceptedTypes = MarmottaHttpUtils.parseAcceptHeaders(acceptHeaders);
                 }
                 if (QueryType.TUPLE.equals(queryType)) {
                     offeredTypes = MarmottaHttpUtils.parseQueryResultFormatList(TupleQueryResultWriterRegistry.getInstance().getKeys());
@@ -391,7 +394,7 @@ public class SparqlWebService {
                 return Response.ok().build();
             } else {
                 if (resultType == null) {
-                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader(ACCEPT));
+                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeaders(EnumerationUtils.toList(request.getHeaders(ACCEPT)));
                     List<ContentType> offeredTypes = MarmottaHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
                     ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
                     if (bestType != null) {
@@ -466,7 +469,7 @@ public class SparqlWebService {
         if (StringUtils.isBlank(request.getHeader(ACCEPT))) {
             acceptedTypes = Collections.singletonList(MarmottaHttpUtils.parseContentType(RDFXML.getDefaultMIMEType()));
         } else {
-            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader(ACCEPT));
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeaders(EnumerationUtils.toList(request.getHeaders(ACCEPT)));
         }
         
         ContentType _bestType = null;

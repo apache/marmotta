@@ -190,4 +190,18 @@ public class SparqlWebServiceTest {
                 get("/sparql/select");
     }
 
+    @Test
+    public void testMultipleAcceptHeaders() throws IOException, InterruptedException {
+        expect().
+                log().ifError().
+                statusCode(200).
+                contentType("application/rdf+json").
+                given().
+                header("Accept", "application/na").
+                header("Accept", "application/rdf+json; q=1.0").
+                param("query", "DESCRIBE <http://www.wikier.org/foaf#wikier>").
+                when().
+                get("/sparql/select");
+    }
+
 }
