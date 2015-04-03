@@ -131,6 +131,7 @@
                         </goals>
                         <configuration>
                             <signPackage>true</signPackage>
+                            <keyring>${user.home}${file.separator}.gnupg${file.separator}secring.gpg</keyring>
                             <verbose>false</verbose>
                             <deb>${project.build.directory}/${project.build.finalName}_[[version]]_all.deb</deb>
                             <changesOut>${project.build.directory}/${project.build.finalName}_[[version]]_all.changes</changesOut>
