@@ -37,6 +37,7 @@
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
         <marmotta.backend>kiwi</marmotta.backend>
+        <jdeb.signing>true</jdeb.signing>
     </properties>
 
     <build>
@@ -130,7 +131,7 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <signPackage>true</signPackage>
+                            <signPackage>${jdeb.signing}</signPackage>
                             <keyring>${user.home}${file.separator}.gnupg${file.separator}secring.gpg</keyring>
                             <verbose>false</verbose>
                             <deb>${project.build.directory}/${project.build.finalName}_[[version]]_all.deb</deb>
