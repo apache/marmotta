@@ -232,12 +232,8 @@ public class SparqlWebService {
      */
 	private Response select(String query, String resultType, HttpServletRequest request) {
 		try {
-		    // MARMOTTA-606 - check all "Accept" Headers, not only the first one
-		    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeaders(ACCEPT));
 	    	String acceptHeader = StringUtils.defaultString(request.getHeader(ACCEPT), "");
 	    	if (StringUtils.isBlank(query)) { //empty query
-	    	    // combine the list of accepted types to search for HTML header 
-	    	    acceptHeader = StringUtils.join(acceptedTypes, ",");
 	            if (acceptHeader.contains("html")) {
 	                return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
 	            } else {
@@ -246,14 +242,13 @@ public class SparqlWebService {
 	    	} else {
 	    		//query duck typing
 	        	QueryType queryType = sparqlService.getQueryType(QueryLanguage.SPARQL, query);
-	        	// List<ContentType> acceptedTypes;
+	        	List<ContentType> acceptedTypes;
 	        	List<ContentType> offeredTypes;
 	        	if (resultType != null) {
 	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(resultType);
-	        	} 
-//	        	else {
-//	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
-//	        	}
+	        	} else {
+	        		acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(acceptHeader);
+	        	}
 	        	if (QueryType.TUPLE.equals(queryType)) {
 	        		offeredTypes  = MarmottaHttpUtils.parseQueryResultFormatList(TupleQueryResultWriterRegistry.getInstance().getKeys());
 	        	} else if (QueryType.BOOL.equals(queryType)) {
@@ -394,8 +389,7 @@ public class SparqlWebService {
                 return Response.ok().build();
             } else {
                 if (resultType == null) {
-                    // MARMOTTA-606: Check all provdes accept headers, not only the first one
-                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeaders(ACCEPT));
+                    List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader(ACCEPT));
                     List<ContentType> offeredTypes = MarmottaHttpUtils.parseStringList(Lists.newArrayList("*/*", "text/html"));
                     ContentType bestType = MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes);
                     if (bestType != null) {
@@ -470,8 +464,7 @@ public class SparqlWebService {
         if (StringUtils.isBlank(request.getHeader(ACCEPT))) {
             acceptedTypes = Collections.singletonList(MarmottaHttpUtils.parseContentType(RDFXML.getDefaultMIMEType()));
         } else {
-            // MARMOTTA-606 - retrieve all headers instead of the first one 
-            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeaders(ACCEPT));
+            acceptedTypes = MarmottaHttpUtils.parseAcceptHeader(request.getHeader(ACCEPT));
         }
         
         ContentType _bestType = null;
