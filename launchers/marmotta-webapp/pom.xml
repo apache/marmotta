@@ -37,6 +37,7 @@
         <marmotta.context>/</marmotta.context>
         <marmotta.port>8080</marmotta.port>
         <marmotta.backend>kiwi</marmotta.backend>
+        <jdeb.signing>true</jdeb.signing>
     </properties>
 
     <build>
@@ -122,7 +123,7 @@
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
-                <version>1.1.1</version>
+                <version>1.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -130,7 +131,8 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <signPackage>true</signPackage>
+                            <signPackage>${jdeb.signing}</signPackage>
+                            <keyring>${user.home}${file.separator}.gnupg${file.separator}secring.gpg</keyring>
                             <verbose>false</verbose>
                             <deb>${project.build.directory}/${project.build.finalName}_[[version]]_all.deb</deb>
                             <changesOut>${project.build.directory}/${project.build.finalName}_[[version]]_all.changes</changesOut>
