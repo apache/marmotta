@@ -18,13 +18,17 @@
 package org.apache.marmotta.commons.http;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openrdf.query.resultio.QueryResultFormat;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Add file description here!
@@ -32,6 +36,36 @@ import java.util.List;
  * Author: Sebastian Schaffert
  */
 public class MarmottaHttpUtils {
+    public static final String ACCEPT = "Accept";
+    /**
+     * A utility method for parsing Content-Type and Accept header
+     * @param request the {@link HttpServletRequest} provided
+     * @return An ordered list of {@link ContentType} elements
+     */
+    public static List<ContentType> parseAcceptHeader(HttpServletRequest request) {
+        Enumeration<String> acceptHeaderStrings = request.getHeaders(ACCEPT);
+        return parseAcceptHeader(acceptHeaderStrings);
+    }
+    /**
+     * A utility method for parsing Content-Type out of the provided Accept headers. 
+     * 
+     * @param request the {@link HttpServletRequest} provided
+     * @return An ordered list of {@link ContentType} elements.
+     * @see HttpServletRequest#getHeaders(String)
+     */
+    public static List<ContentType> parseAcceptHeader(Enumeration<String> acceptHeaderStrings) {
+        List<ContentType> contentTypes = new ArrayList<>();
+        while ( acceptHeaderStrings.hasMoreElements() ) {
+            ContentType contentType = parseContentType(acceptHeaderStrings.nextElement());
+            if ( contentType != null ) {
+                contentTypes.add(contentType);
+            }
+        }
+        //
+        Collections.sort(contentTypes);
+        
+        return contentTypes;
+    }
 
     /**
      * A utility method for parsing HTTP Content-Type and Accept header, taking into account different parameters that
