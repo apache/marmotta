@@ -65,9 +65,9 @@ public class InterceptorServiceImpl implements InterceptorService {
         }
     }
 
-    // trigger startup once configuration service is finished with initialisation
+    /*// trigger startup once configuration service is finished with initialisation
     protected void initEvent(@Observes SystemStartupEvent e) {
 
-    }
+    }*/
 
 }
