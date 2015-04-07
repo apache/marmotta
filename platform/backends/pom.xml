@@ -67,6 +67,7 @@
         <module>marmotta-backend-native</module>
         <module>marmotta-backend-memory</module>
         <module>marmotta-backend-titan</module>
+        <module>marmotta-backend-accumulograph</module>
     </modules>
 
 
