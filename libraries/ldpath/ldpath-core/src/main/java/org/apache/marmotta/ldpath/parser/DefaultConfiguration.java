@@ -119,7 +119,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
         while (functions.hasNext()) {
             try {
                 SelectorFunction<Node> f = functions.next();
-                log.info("registering LDPath function: {}", f.getSignature());
+                log.debug("registering LDPath function: {}", f.getSignature());
                 addFunction(f);
             } catch (ServiceConfigurationError e) {
                 log.warn("Unable to load function because of an "
@@ -137,7 +137,7 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     	while(testFunctions.hasNext()){
             try {
         		TestFunction testFunction = testFunctions.next();
-                log.info("registering LDPath test function: {}", 
+                log.debug("registering LDPath test function: {}", 
                         testFunction.getSignature());
                 addTestFunction(testFunction);
             } catch (ServiceConfigurationError e) {
