@@ -87,6 +87,7 @@ public class LdpWebService {
     public static final String HTTP_HEADER_PREFER = "Prefer";
     public static final String HTTP_HEADER_PREFERENCE_APPLIED = "Preference-Applied";
     public static final String HTTP_METHOD_PATCH = "PATCH";
+    public static final String HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -668,7 +669,6 @@ public class LdpWebService {
                 return resp.build();
             }
 
-
             Response.ResponseBuilder builder = createResponse(con, Response.Status.OK, resource);
 
             addOptionsHeader(con, resource, builder);
@@ -705,6 +705,9 @@ public class LdpWebService {
             // Sec. 4.2.7.1
             builder.header(HTTP_HEADER_ACCEPT_PATCH, RdfPatchParser.MIME_TYPE);
         }
+
+        //FIXME: this was not supposed to be done by the filter?
+        builder.header(HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("ldp.allow_origin", "*"));
 
         return builder;
     }
