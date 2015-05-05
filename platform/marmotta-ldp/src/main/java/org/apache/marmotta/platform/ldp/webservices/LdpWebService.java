@@ -706,7 +706,7 @@ public class LdpWebService {
             builder.header(HTTP_HEADER_ACCEPT_PATCH, RdfPatchParser.MIME_TYPE);
         }
 
-        //FIXME: this was not supposed to be done by the filter?
+        //TODO: do it via the cors filter (MARMOTTA-610)
         builder.header(HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, configurationService.getStringConfiguration("ldp.allow_origin", "*"));
 
         return builder;
