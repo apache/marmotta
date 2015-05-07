@@ -79,8 +79,8 @@ public class GroupedSelector<Node> implements NodeSelector<Node> {
     }
 
     /**
-     * Getter for the child content NodeSelector
-     * @return the child content NodeSelector
+     * Getter for child content NodeSelector
+     * @return child content NodeSelector
      */
     public NodeSelector<Node> getContent() {
         return content;

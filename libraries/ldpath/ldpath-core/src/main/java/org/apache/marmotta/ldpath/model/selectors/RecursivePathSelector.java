@@ -114,7 +114,31 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
         return delegate.getName(nodeRDFBackend);
     }
 
-    /**
+	/**
+	 * Getter for child delegate NodeSelector
+	 * @return child delegate NodeSelector
+	 */
+	public NodeSelector<Node> getDelegate() {
+		return delegate;
+	}
+
+	/**
+	 * Getter for the number of minimum recursions
+	 * @return number of minimum recursions
+	 */
+	public int getMinRecursions() {
+		return minRecursions;
+	}
+
+	/**
+	 * Getter for the number of maximumg recursions
+	 * @return number of maximum recursions
+	 */
+	public int getMaxRecursions() {
+		return maxRecursions;
+	}
+
+	/**
      * <code>(delegate)*</code>
      * @param delegate the delegate
      */

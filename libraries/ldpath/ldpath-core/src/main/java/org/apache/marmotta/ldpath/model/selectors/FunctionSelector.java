@@ -101,6 +101,14 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
     }
 
     /**
+     * Getter for child NodeFunction
+     * @return child NodeFunction
+     */
+    public NodeFunction<Collection<Node>, Node> getFunction() {
+        return function;
+    }
+
+    /**
      * Return the name of the NodeSelector for registration in the selector registry
      *
      * @param backend

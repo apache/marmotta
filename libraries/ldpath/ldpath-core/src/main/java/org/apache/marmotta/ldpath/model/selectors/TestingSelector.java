@@ -84,6 +84,22 @@ public class TestingSelector<Node> implements NodeSelector<Node> {
     }
 
     /**
+     * Getter for child delegate node
+     * @return child delegate NodeSelector
+     */
+    public NodeSelector<Node> getDelegate() {
+        return delegate;
+    }
+
+    /**
+     * Getter for child test node
+     * @return child NodeTest
+     */
+    public NodeTest<Node> getTest() {
+        return test;
+    }
+
+    /**
      * Return a name for this selector to be used as the name for the whole path if not explicitly
      * specified. In complex selector expressions, this is typically delegated to the first
      * occurrence of an atomic selector.

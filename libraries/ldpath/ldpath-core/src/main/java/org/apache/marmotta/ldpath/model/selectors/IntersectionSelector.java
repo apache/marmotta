@@ -79,20 +79,21 @@ public class IntersectionSelector<Node> implements NodeSelector<Node> {
     }
 
     /**
-     * Getter for the left child node of the path selection.
-     * @return the left NodeSelector
+     * Getter for left child node of the intersection selection.
+     * @return left NodeSelector
      */
     public NodeSelector<Node> getLeft() {
         return left;
     }
 
     /**
-     * Getter for the right child node of the path selection.
-     * @return the right NodeSelector
+     * Getter for  right child node of the intersection selection.
+     * @return right NodeSelector
      */
     public NodeSelector<Node> getRight() {
         return right;
     }
+
 
     @Override
     public boolean equals(Object o) {

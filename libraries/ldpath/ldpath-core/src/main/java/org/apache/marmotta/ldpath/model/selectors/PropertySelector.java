@@ -95,6 +95,14 @@ public class PropertySelector<Node> implements NodeSelector<Node> {
         }
     }
 
+    /**
+     * Getter for child property node
+     * @return child property node
+     */
+    public Node getProperty() {
+        return property;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
