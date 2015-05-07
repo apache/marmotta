@@ -92,7 +92,13 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
         return result;
     }
 
-
+    /**
+     * Getter for child NodeSelectors
+     * @return child NodeSelectors
+     */
+    public List<NodeSelector<Node>> getSelectors() {
+        return selectors;
+    }
 
     /**
      * Return the name of the NodeSelector for registration in the selector registry

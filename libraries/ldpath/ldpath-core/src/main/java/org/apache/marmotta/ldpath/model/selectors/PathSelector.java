@@ -109,6 +109,22 @@ public class PathSelector<Node> implements NodeSelector<Node> {
         return true;
     }
 
+    /**
+     * Getter for the left child node of the path selection.
+     * @return the left NodeSelector
+     */
+    public NodeSelector<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Getter for the right child node of the path selection.
+     * @return the right NodeSelector
+     */
+    public NodeSelector<Node> getRight() {
+        return right;
+    }
+
     @Override
     public int hashCode() {
         int result = left != null ? left.hashCode() : 0;

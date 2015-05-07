@@ -78,6 +78,13 @@ public class GroupedSelector<Node> implements NodeSelector<Node> {
         throw new UnsupportedOperationException("cannot use a group in unnamed field definitions because the name is ambiguous");
     }
 
+    /**
+     * Getter for the child content NodeSelector
+     * @return the child content NodeSelector
+     */
+    public NodeSelector<Node> getContent() {
+        return content;
+    }
 
     @Override
     public boolean equals(Object o) {
