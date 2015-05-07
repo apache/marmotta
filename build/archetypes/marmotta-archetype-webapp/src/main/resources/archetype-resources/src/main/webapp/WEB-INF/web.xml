@@ -72,7 +72,7 @@
         </init-param>
         <init-param>
             <param-name>cors.exposedHeaders</param-name>
-            <param-value>Location, Link</param-value>
+            <param-value>Location, Link, ETag, Accept-Post, Accept-Patch</param-value>
         </init-param>
     </filter>
     <filter-mapping>

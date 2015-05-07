@@ -619,13 +619,16 @@ public class SQLBuilder {
         for(SQLVariable v : vars) {
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
                 String projectedName = v.getName();
-                String fromName = v.getExpressions().get(0);
 
-                projections.add(fromName + " AS " + projectedName);
+                if (v.getExpressions() != null && v.getExpressions().size() > 0) {
+                    String fromName = v.getExpressions().get(0);
+                    projections.add(fromName + " AS " + projectedName);
+                }
 
                 if(v.getLiteralTypeExpression() != null) {
                     projections.add(v.getLiteralTypeExpression() + " AS " + projectedName + "_TYPE");
                 }
+                
                 if(v.getLiteralLangExpression() != null) {
                     projections.add(v.getLiteralLangExpression() + " AS " + projectedName + "_LANG");
                 }
