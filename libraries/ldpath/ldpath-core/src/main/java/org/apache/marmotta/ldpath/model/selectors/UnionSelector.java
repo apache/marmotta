@@ -87,6 +87,22 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
         throw new UnsupportedOperationException("cannot use unions in unnamed field definitions because the name is ambiguous");
     }
 
+    /**
+     * Getter for left child node of the union selection.
+     * @return left NodeSelector
+     */
+    public NodeSelector<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Getter for right child node of the union selection.
+     * @return right NodeSelector
+     */
+    public NodeSelector<Node> getRight() {
+        return right;
+    }
+
 
     @Override
     public boolean equals(Object o) {

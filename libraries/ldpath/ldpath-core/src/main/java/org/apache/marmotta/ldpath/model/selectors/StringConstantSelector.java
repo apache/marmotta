@@ -79,6 +79,14 @@ public class StringConstantSelector<Node> implements NodeSelector<Node> {
         return constant;
     }
 
+    /**
+     * Getter for the constant value
+     * @return the constant value
+     */
+    public String getConstant() {
+        return constant;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
