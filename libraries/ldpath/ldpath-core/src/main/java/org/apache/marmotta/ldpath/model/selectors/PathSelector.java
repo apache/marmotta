@@ -18,16 +18,11 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.*;
 
 /**
  * Traverse a path by following several edges in the RDF graph. Each step is separated by a "/".
@@ -36,8 +31,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class PathSelector<Node> implements NodeSelector<Node> {
 
-    private NodeSelector<Node> left;
-    private NodeSelector<Node> right;
+    private final NodeSelector<Node> left;
+    private final NodeSelector<Node> right;
 
     public PathSelector(NodeSelector<Node> left, NodeSelector<Node> right) {
         this.left = left;

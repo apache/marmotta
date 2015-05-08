@@ -18,15 +18,11 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.*;
 
 /**
  * Builds the union of two node selectors. Will eliminate duplicates.
@@ -37,8 +33,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class UnionSelector<Node> implements NodeSelector<Node> {
 
-    private NodeSelector<Node> left;
-    private NodeSelector<Node> right;
+    private final NodeSelector<Node> left;
+    private final NodeSelector<Node> right;
 
     public UnionSelector(NodeSelector<Node> left, NodeSelector<Node> right) {
         this.left = left;
