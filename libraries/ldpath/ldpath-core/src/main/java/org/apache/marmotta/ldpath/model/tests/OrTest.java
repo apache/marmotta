@@ -28,8 +28,8 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class OrTest<Node> extends ComplexTest<Node> {
 
-    private NodeTest<Node> left;
-    private NodeTest<Node> right;
+    private final NodeTest<Node> left;
+    private final NodeTest<Node> right;
 
     public OrTest(NodeTest<Node> left, NodeTest<Node> right) {
         this.left = left;
@@ -81,6 +81,22 @@ public class OrTest<Node> extends ComplexTest<Node> {
     @Override
     public String getDescription() {
         return "Tests the disjunction of two tests";
+    }
+
+    /**
+     * Get the left test of this OR
+     * @return the left NodeTest
+     */
+    public NodeTest<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Get the right test of this OR
+     * @return the right NodeTest
+     */
+    public NodeTest<Node> getRight() {
+        return right;
     }
 
     @Override

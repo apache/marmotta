@@ -51,7 +51,7 @@ public class IsATest<Node> extends PathEqualityTest<Node> {
     
     @Override
     public String getDescription() {
-        return "tests if a node has a certain type";
+        return "tests if a node has a certain rdf:type";
     }
     
 }

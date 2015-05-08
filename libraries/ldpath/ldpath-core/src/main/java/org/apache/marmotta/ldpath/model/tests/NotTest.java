@@ -65,6 +65,14 @@ public class NotTest<Node> extends NodeTest<Node> {
         return "Negates the test given as argument";
     }
 
+    /**
+     * Get the delegate that is negated
+     * @return the delegate NodeTest
+     */
+    public NodeTest<Node> getDelegate() {
+        return delegate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
