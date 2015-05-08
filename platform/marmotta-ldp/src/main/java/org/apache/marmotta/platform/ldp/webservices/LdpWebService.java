@@ -688,17 +688,17 @@ public class LdpWebService {
         log.debug("Adding required LDP Headers (OPTIONS, GET); see Sec. 8.2.8 and Sec. 4.2.2.2");
         if (ldpService.isNonRdfSourceResource(connection, resource)) {
             // Sec. 4.2.8.2
-            log.trace("<{}> is an LDP-NR: GET, HEAD, PUT and OPTIONS allowed", resource);
-            builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.OPTIONS);
+            log.trace("<{}> is an LDP-NR: GET, HEAD, PUT, DELETE and OPTIONS allowed", resource);
+            builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS);
         } else if (ldpService.isRdfSourceResource(connection, resource)) {
             if (ldpService.getInteractionModel(connection, resource) == LdpService.InteractionModel.LDPR) {
-                log.trace("<{}> is a LDP-RS (LDPR interaction model): GET, HEAD, PUT, PATCH and OPTIONS allowed", resource);
+                log.trace("<{}> is a LDP-RS (LDPR interaction model): GET, HEAD, PUT, DELETE, PATCH and OPTIONS allowed", resource);
                 // Sec. 4.2.8.2
-                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
+                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.DELETE, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
             } else {
                 // Sec. 4.2.8.2
-                log.trace("<{}> is a LDP-RS (LDPC interaction model): GET, HEAD, POST, PUT, PATCH and OPTIONS allowed", resource);
-                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.POST, HttpMethod.PUT, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
+                log.trace("<{}> is a LDP-RS (LDPC interaction model): GET, HEAD, POST, PUT, DELETE, PATCH and OPTIONS allowed", resource);
+                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
                 // Sec. 4.2.3 / Sec. 5.2.3
                 builder.header(HTTP_HEADER_ACCEPT_POST, LdpUtils.getAcceptPostHeader("*/*"));
             }
