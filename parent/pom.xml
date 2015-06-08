@@ -1526,6 +1526,11 @@
                 <artifactId>jsonld-java-sesame</artifactId>
                 <version>0.5.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.rdfhdt</groupId>
+                <artifactId>hdt-java-core</artifactId>
+                <version>1.1</version>
+            </dependency>
 
             <!-- Freemarker -->
             <dependency>

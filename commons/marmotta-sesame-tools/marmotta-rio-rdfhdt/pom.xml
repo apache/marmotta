@@ -57,12 +57,21 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>marmotta-rio-api</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.rdfhdt</groupId>
+            <artifactId>hdt-java-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.openrdf.sesame</groupId>

@@ -71,6 +71,7 @@
         <module>marmotta-rio-ical</module>
         <module>marmotta-rio-rss</module>
         <module>marmotta-rio-vcard</module>
+        <module>marmotta-rio-rdfhdt</module>
         <module>marmotta-sail-contextaware</module>
         <module>marmotta-sail-transactions</module>
         <module>marmotta-sesame-matchers</module>
