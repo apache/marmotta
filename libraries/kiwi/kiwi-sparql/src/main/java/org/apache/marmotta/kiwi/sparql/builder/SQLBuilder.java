@@ -388,6 +388,7 @@ public class SQLBuilder {
                                 case STRING:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".svalue");
                                     break;
+                                case GEOMETRY:
 
                                 default:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
