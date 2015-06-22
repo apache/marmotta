@@ -16,13 +16,11 @@
  */
 package org.apache.marmotta.kiwi.sparql.function.geosparql;
 
-
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.vocabulary.FN_GEOSPARQL;
-import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
@@ -40,7 +38,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * Note that for performance reasons it might be preferrable to create a geometry index for your database. Please
  * consult your database documentation on how to do this.
  *
- * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
+ * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  */
 public class SfIntersectsFunction implements NativeFunction {
 
@@ -86,9 +84,9 @@ public class SfIntersectsFunction implements NativeFunction {
             if(args.length == 2) {
                 if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON)|| args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT))
                 {  //If users insert Direct the WKT  Geometry 
-                    return "st_Intersects(substring( " + args[0] + " from position(' ' in " +  args[0] + ") + 1 for char_length( " + args[0] + " ) ), " + args[1] + " )";    
+                    return String.format("st_Intersects(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), %s )", args[0], args[0], args[0], args[1]);
                 }        
-                return "st_Intersects(substring( " + args[0] + " from position(' ' in " +  args[0] + ") + 1 for char_length( " + args[0] + " ) ), substring( " + args[1] + " from position(' ' in " +  args[1] + ") + 1 for char_length( " + args[1] + " ) ) ) ";
+                return String.format("st_Intersects(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), substring( %s from position(' ' in %s) + 1 for char_length( %s ) ) ) ", args[0], args[0], args[0], args[1], args[1], args[1]);
             } 
 
         }

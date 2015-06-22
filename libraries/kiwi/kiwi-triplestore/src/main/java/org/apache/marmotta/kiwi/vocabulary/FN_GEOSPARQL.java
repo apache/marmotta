@@ -26,7 +26,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
  * Implement geof Function from GeoSPARQL standard
  *
  *
- * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
+ * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  */
 public class FN_GEOSPARQL {
 
