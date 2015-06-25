@@ -26,6 +26,7 @@ org.apache.marmotta.kiwi.sparql.function.geosparql.SfOverlapsFunction
 
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfBufferFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfConvexHullFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.IntersectionFunction
 
 org.apache.marmotta.kiwi.sparql.function.cast.NBooleanCast
 org.apache.marmotta.kiwi.sparql.function.cast.NDateTimeCast

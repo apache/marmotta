@@ -61,6 +61,7 @@ public class FN_GEOSPARQL {
     //Non-Topological  FUNCTION 
     public static final URI BUFFER;
     public static final URI CONVEX_HULL;
+    public static final URI INTERSECTION;
     
     static {
         ValueFactory f = new ValueFactoryImpl();
@@ -76,6 +77,7 @@ public class FN_GEOSPARQL {
         
         BUFFER = f.createURI(NAMESPACE,"buffer");
         CONVEX_HULL = f.createURI(NAMESPACE,"convexHull");
+        INTERSECTION = f.createURI(NAMESPACE,"intersection");
         
         
         POINT = "POINT";

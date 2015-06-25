@@ -14,3 +14,4 @@ org.apache.marmotta.kiwi.sparql.function.geosparql.SfOverlapsFunction
 
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfBufferFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfConvexHullFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.IntersectionFunction
