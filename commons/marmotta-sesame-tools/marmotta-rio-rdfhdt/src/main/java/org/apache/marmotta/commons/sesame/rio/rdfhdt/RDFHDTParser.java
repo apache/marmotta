@@ -17,24 +17,25 @@
  */
 package org.apache.marmotta.commons.sesame.rio.rdfhdt;
 
+import static org.apache.marmotta.commons.sesame.rio.rdfhdt.RDFHDTConstants.MAGIC;
+import info.aduna.io.IOUtil;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.Properties;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.helpers.RDFParserBase;
-import org.rdfhdt.hdt.exceptions.NotFoundException;
-import org.rdfhdt.hdt.hdt.HDT;
-import org.rdfhdt.hdt.hdt.HDTManager;
-import org.rdfhdt.hdt.triples.IteratorTripleString;
-import org.rdfhdt.hdt.triples.TripleString;
+import org.rdfhdt.hdt.exceptions.IllegalFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,79 +101,83 @@ public class RDFHDTParser extends RDFParserBase {
 
 		setBaseURI(baseURI);
 
-		HDT hdt = HDTManager.loadHDT(in, null);
 		rdfHandler.startRDF();
-
-		// Search pattern: Empty string means "any"
-		IteratorTripleString it;
-		try {
-			it = hdt.search("", "", "");
-
-			while (it.hasNext()) {
-				TripleString ts = it.next();
-				System.out.println(ts);
-				Statement statement = parseStatement(ts);
-				rdfHandler.handleStatement(statement);
-			}
-		} catch (NotFoundException e) {
-			throw new IOException(e);
-		}
+		DataInputStream input = new DataInputStream(new BufferedInputStream(in));
+		parseGlobalInfo(input);
 
 		rdfHandler.endRDF();
-
 	}
 
-	private Statement parseStatement(TripleString ts) throws RDFParseException,
-			RDFHandlerException {
-		Value subject = this.parseValue(ts.getSubject());
-		Value predicate = this.parseValue(ts.getPredicate());
-		Value object = this.parseValue(ts.getObject());
-
-		Resource subj = null;
-		if (subject instanceof Resource) {
-			subj = (Resource) subject;
-		} else {
-			reportFatalError("Invalid subject type: " + subject);
+	private void parseGlobalInfo(DataInputStream in) throws RDFParseException,
+			IOException {
+		parseMagic(in);
+		byte type = parseType(in);
+		byte globalInfoType = 1;
+		if (type != globalInfoType) {
+			reportFatalError("The global Information setion type should be: "
+					+ globalInfoType);
 		}
-
-		URI pred = null;
-		if (predicate instanceof URI) {
-			pred = (URI) predicate;
-		} else {
-			reportFatalError("Invalid predicate type: " + predicate);
+		String format = parseFormat(in);
+		if(!RDFHDTConstants.HDT_CONTAINER.equals(format)){
+			throw new IllegalFormatException("This software cannot open this version of HDT File");
 		}
-
-		if (object == null) {
-			reportFatalError("Invalid object type: " + null);
-		}
-
-		return createStatement(subj, pred, object);
-
+		
+		parseProperties(in);
 	}
 
-	private Value parseValue(CharSequence chars) throws RDFParseException {
-		String str = chars.toString();
-		char firstChar = chars.charAt(0);
-		if (firstChar == '_') {
-			return createBNode(str);
-		} else if (firstChar == '"') {
-			return createLiteral(str, null, null, -1, -1);
-		} else {
-			return createURI(str);
+	private void parseMagic(DataInputStream input) throws IOException,
+			RDFParseException {
+
+		// Check magic number
+		byte[] magicNumber = IOUtil.readBytes(input, MAGIC.length);
+		if (!Arrays.equals(magicNumber, MAGIC)) {
+			reportFatalError("File does not contain a binary RDF document");
 		}
+	}
+
+	private byte parseType(DataInputStream input) throws IOException {
+		return input.readByte();
+	}
+
+	private String parseFormat(DataInputStream input) throws IOException{
+		return parseString(input);
+
+	}
+	
+	private Properties parseProperties(DataInputStream input) throws IOException{
+		Properties properties = new Properties();
+        String propertiesStr = this.parseString(input);   
+        for(String item : propertiesStr.split(";")) {
+        	int pos = item.indexOf('=');
+        	if(pos!=-1) {
+        		String property = item.substring(0, pos);
+        		String value = item.substring(pos+1);
+        		properties.put(property, value);
+        	}
+        }
+        return properties;
+	}
+	
+	private String parseString(DataInputStream input) throws IOException{
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		while (true) {
+			int value = input.read();
+			if (value == -1) {
+				throw new EOFException();
+			}
+			if (value == '\0') {
+				break;
+			}
+			buf.write(value);
+		}
+		return new String(buf.toByteArray()); // Uses default encoding
 	}
 
 	@Override
 	public void parse(Reader reader, String baseURI) throws IOException,
 			RDFParseException, RDFHandlerException {
 		throw new UnsupportedOperationException();
+		
+	}
 
-	}
-	
-	public static void main(String[] args){
-		
-		
-		
-		
-	}
 }

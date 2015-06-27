@@ -15,6 +15,6 @@ public class RDFHDTFormat {
 
 	public static final RDFFormat FORMAT = new RDFFormat("RDFHDT",
 			Arrays.asList("application/rdf+hdt"), null, Arrays.asList("hdt"),
-			false, false);
+			RDFFormat.SUPPORTS_NAMESPACES, RDFFormat.SUPPORTS_CONTEXTS);
 
 }
