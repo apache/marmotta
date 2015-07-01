@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -41,13 +41,12 @@ import javax.ws.rs.core.Response.Status;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.REFERER;
 
 /**
  * User-Account related webservices, accessable by every user (each for his/her own data)
@@ -248,7 +247,7 @@ public class UserWebService {
 
                     java.net.URI u = new java.net.URI(configurationService.getServerUri() + "resource?uri=" + URLEncoder.encode(user.stringValue(), "utf-8"));
 
-                    return Response.seeOther(u).header("Accept", types).build();
+                    return Response.seeOther(u).header(ACCEPT, types).build();
                 } finally {
                     conn.commit();
                     conn.close();
@@ -275,7 +274,7 @@ public class UserWebService {
      */
     @GET
     @Path("/login")
-    public Response login(@HeaderParam("Referer") String ref, @QueryParam("logout") @DefaultValue("false") boolean logout,
+    public Response login(@HeaderParam(REFERER) String ref, @QueryParam("logout") @DefaultValue("false") boolean logout,
                           @QueryParam("user") String login) {
         // Check whether we want to logout
         if (logout) {

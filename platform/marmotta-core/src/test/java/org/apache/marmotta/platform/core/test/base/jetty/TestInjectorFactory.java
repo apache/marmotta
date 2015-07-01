@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -61,7 +61,7 @@ public class TestInjectorFactory implements InjectorFactory {
         this.delegate = ResteasyProviderFactory.getInstance().getInjectorFactory();
         this.extension = lookupResteasyCdiExtension();
 
-        log.info("creating new RestEasy Injector Factory for LMF Test Environment");
+        log.info("creating new RestEasy Injector Factory for Marmotta Test Environment");
     }
 
     public static void setManager(BeanManager manager) {
@@ -123,8 +123,7 @@ public class TestInjectorFactory implements InjectorFactory {
      *
      * @return ResteasyCdiExtension instance
      */
-    private ResteasyCdiExtension lookupResteasyCdiExtension()
-    {
+    private ResteasyCdiExtension lookupResteasyCdiExtension() {
         Set<Bean<?>> beans = manager.getBeans(ResteasyCdiExtension.class);
         Bean<?> bean = manager.resolve(beans);
         if (bean == null) throw new IllegalStateException("Unable to obtain ResteasyCdiExtension instance.");

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -178,7 +178,6 @@
         <dependency>
             <groupId>com.github.tkurz.webjars</groupId>
             <artifactId>squebi</artifactId>
-            <version>0.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
@@ -186,8 +185,11 @@
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
+            <artifactId>requirejs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
             <artifactId>sgvizler</artifactId>
-            <version>0.6</version>
             <scope>runtime</scope>
         </dependency>
 

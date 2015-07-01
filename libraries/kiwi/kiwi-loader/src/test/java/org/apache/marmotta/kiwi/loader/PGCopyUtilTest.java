@@ -26,6 +26,7 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +42,10 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 
@@ -182,7 +186,7 @@ public class PGCopyUtilTest {
                 break;
             case 5: object = new KiWiBooleanLiteral(rnd.nextBoolean(), TYPE_BOOL);
                 break;
-            case 6: object = new KiWiDateLiteral(new Date(), TYPE_DATE);
+            case 6: object = new KiWiDateLiteral(DateTime.now().withMillisOfSecond(0), TYPE_DATE);
                 break;
             default: object = new KiWiUriResource("http://localhost/"+ RandomStringUtils.randomAlphanumeric(8));
                 break;

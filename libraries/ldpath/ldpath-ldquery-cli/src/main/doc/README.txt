@@ -1,5 +1,5 @@
-LDPath Linked Data Backend
-==========================
+LDPath Linked Data Query CLI
+============================
 
 LDPath is a query language designed for querying the Linked Data Cloud. It
 gives you the possibility to navigate between interlinked resources by
@@ -13,7 +13,7 @@ providers (currently Facebook, YouTube, Vimeo, Wikipedia).
 
 To get an overview over the available command line options, run:
 
-java -jar ldpath-${project.version}.jar
+java -jar ldquery-${project.version}.jar
 
 
 1. Basic Usage
@@ -24,7 +24,7 @@ For the basic usage, you need to provide the URI of a Linked Data resource
 rdfs:label). The following query would give you the Spanish label for
 Salzburg:
 
-java -jar ldpath-${project.version}.jar \
+java -jar ldquery-${project.version}.jar \
      -context http://dbpedia.org/resource/Salzburg \
      -path "rdfs:label[@es]"
 
@@ -51,7 +51,7 @@ will retrieve the label, short description, name of the country and names
 of the types associated with the resource. LDPath programs need to be
 stored in a file and can be executed using:
 
-java -jar ldpath-${project.version}.jar \
+java -jar ldquery-${project.version}.jar \
      -context http://dbpedia.org/resource/Salzburg \
      -program <filename>
 
@@ -65,13 +65,13 @@ data resources by mapping their proprietary data structures to RDF, among
 them Facebook, YouTube, Vimeo and Wikipedia. For example, the label of
 Salzburg can also be retrieved from Wikipedia:
 
-java -jar ldpath-${project.version}.jar \
+java -jar ldquery-${project.version}.jar \
      -context http://en.wikipedia.org/wiki/Salzburg \
      -path "dct:title"
 
 ... or from Facebook:
 
-java -jar ldpath-${project.version}.jar \
+java -jar ldquery-${project.version}.jar \
      -context http://graph.facebook.com/102189213155511 \
      -path "dct:title"
 
@@ -89,7 +89,7 @@ locally caching data that has already been retrieved. By default, the cached
 data will only exist during execution of the query. If you want to create
 a persistent cache, you can pass a cache directory on the command line:
 
-java -jar ldpath-${project.version}.jar \
+java -jar ldquery-${project.version}.jar \
      -store /tmp/ldcache \
      -context http://graph.facebook.com/102189213155511 \
      -path "dct:title"

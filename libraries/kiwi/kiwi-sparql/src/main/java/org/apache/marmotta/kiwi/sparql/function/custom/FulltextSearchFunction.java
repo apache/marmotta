@@ -18,7 +18,7 @@ package org.apache.marmotta.kiwi.sparql.function.custom;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.Value;
@@ -101,8 +101,8 @@ public class FulltextSearchFunction implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getReturnType() {
-        return OPTypes.BOOL;
+    public ValueType getReturnType() {
+        return ValueType.BOOL;
     }
 
     /**
@@ -113,8 +113,8 @@ public class FulltextSearchFunction implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getArgumentType(int arg) {
-        return OPTypes.STRING;
+    public ValueType getArgumentType(int arg) {
+        return ValueType.STRING;
     }
 
     /**

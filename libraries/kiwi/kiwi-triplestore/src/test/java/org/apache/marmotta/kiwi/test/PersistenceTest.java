@@ -19,12 +19,13 @@ package org.apache.marmotta.kiwi.test;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,10 +36,7 @@ import org.openrdf.model.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 import static org.apache.marmotta.commons.sesame.model.LiteralCommons.getRDFLangStringType;
 import static org.hamcrest.Matchers.hasItem;
@@ -84,7 +82,7 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(),hasItems("nodes","triples","namespaces"));
-            Assert.assertEquals(3, connection.getDatabaseVersion());
+            Assert.assertEquals(KiWiDialect.VERSION, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
@@ -895,7 +893,7 @@ public class PersistenceTest {
             KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "dateTime");
 
 
-            Date value = new Date();
+            DateTime value = DateTime.now().withMillisOfSecond(0);
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiDateLiteral literal = new KiWiDateLiteral(value, uri);
             connection.storeNode(literal);
@@ -973,7 +971,7 @@ public class PersistenceTest {
             Assert.assertTrue(result.next());
             Assert.assertEquals((long) literal.getId(), result.getLong("id"));
             Assert.assertEquals(literal.stringValue(),result.getString("svalue"));
-            Assert.assertEquals(DateUtils.getDateWithoutFraction(value).getTime(),result.getTimestamp("tvalue").getTime());
+            Assert.assertEquals(value.getMillis(), result.getTimestamp("tvalue", Calendar.getInstance(TimeZone.getTimeZone("UTC"))).getTime());
             Assert.assertEquals("date",result.getString("ntype"));
             Assert.assertNull(result.getString("lang"));
             Assert.assertEquals((long) uri.getId(), result.getLong("ltype"));

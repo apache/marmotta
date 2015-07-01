@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -31,17 +31,8 @@ import org.apache.marmotta.client.util.HTTPUtil;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryResultHandler;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultParseException;
-import org.openrdf.query.resultio.QueryResultParser;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.UnsupportedQueryResultFormatException;
+import org.openrdf.query.*;
+import org.openrdf.query.resultio.*;
 import org.openrdf.query.resultio.helpers.QueryResultCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +44,9 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static org.openrdf.query.resultio.TupleQueryResultFormat.JSON;
 
 /**
  * Add file description here!
@@ -86,7 +80,7 @@ public class SPARQLClient {
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(query, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", TupleQueryResultFormat.JSON.getDefaultMIMEType());
+        get.setHeader(ACCEPT, JSON.getDefaultMIMEType());
         
         try {
 
@@ -176,7 +170,7 @@ public class SPARQLClient {
         String serviceUrl = config.getMarmottaUri() + URL_QUERY_SERVICE + "?query=" + URLEncoder.encode(askQuery, "utf-8");
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", BooleanQueryResultFormat.JSON.getDefaultMIMEType());
+        get.setHeader(ACCEPT, BooleanQueryResultFormat.JSON.getDefaultMIMEType());
         
         try {
 

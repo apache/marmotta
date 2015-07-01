@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 package org.apache.marmotta.commons.util;
+
+import org.joda.time.DateTime;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -157,7 +159,7 @@ public class DateUtils {
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         c.setTime(date);
         try {
-            return getDatatypeFactory().newXMLGregorianCalendar(c).normalize();
+            return getDatatypeFactory().newXMLGregorianCalendar(c);
         } catch (DatatypeConfigurationException e) {
             return null;
         }
@@ -165,12 +167,16 @@ public class DateUtils {
 
 
     /**
-     * Cut the fraction part of a date object, since some database systems do not support nanoseconds.
+     * Transform a Java date into a XML calendar. Useful for working with date literals.
      * @param date
      * @return
      */
-    public static Date getDateWithoutFraction(Date date) {
-        long seconds = date.getTime() / 1000L;
-        return new Date(seconds * 1000L);
+    public static XMLGregorianCalendar getXMLCalendar(DateTime date) {
+        GregorianCalendar c = date.toGregorianCalendar();
+        try {
+            return getDatatypeFactory().newXMLGregorianCalendar(c);
+        } catch (DatatypeConfigurationException e) {
+            return null;
+        }
     }
 }

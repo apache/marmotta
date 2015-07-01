@@ -24,7 +24,6 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.apache.marmotta.kiwi.sparql.persistence.KiWiSparqlConnection;
 import org.openrdf.sail.*;
 import org.openrdf.sail.helpers.NotifyingSailWrapper;
 import org.openrdf.sail.helpers.SailConnectionWrapper;
@@ -201,11 +200,7 @@ public class KiWiSparqlSail extends NotifyingSailWrapper {
         NotifyingSailConnection connection = super.getConnection();
         KiWiSailConnection root   = getRootConnection(connection);
 
-        try {
-            return new KiWiSparqlSailConnection(connection, new KiWiSparqlConnection(root.getDatabaseConnection(), root.getValueFactory()), root.getValueFactory());
-        } catch (SQLException e) {
-            throw new SailException(e);
-        }
+        return new KiWiSparqlSailConnection(connection, root.getDatabaseConnection(), root.getValueFactory());
     }
 
 

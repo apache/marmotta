@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,15 +17,16 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap.mapping;
 
-import java.util.Collections;
-import java.util.Set;
-
+import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class LiteralPredicateFactory extends PredicateObjectFactory {
 
-    public LiteralPredicateFactory(String predicateURI) {
+    public LiteralPredicateFactory(URI predicateURI) {
         super(predicateURI);
     }
 

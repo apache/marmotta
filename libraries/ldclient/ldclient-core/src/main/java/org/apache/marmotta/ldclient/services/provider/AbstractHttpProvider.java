@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,9 @@
  */
 package org.apache.marmotta.ldclient.services.provider;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -25,7 +28,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.util.EntityUtils;
-import org.apache.marmotta.commons.collections.CollectionUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
@@ -42,6 +44,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.ACCEPT_LANGUAGE;
 import static org.apache.marmotta.commons.http.MarmottaHttpUtils.parseContentType;
 
 /**
@@ -104,14 +108,15 @@ public abstract class AbstractHttpProvider implements DataProvider {
 
             String contentType;
             if(endpoint != null && endpoint.getContentTypes().size() > 0) {
-                contentType = CollectionUtils.fold(endpoint.getContentTypes(), new CollectionUtils.StringSerializer<ContentType>() {
+                contentType = Joiner.on(',').join(Iterables.transform(endpoint.getContentTypes(), new Function<ContentType, String>() {
                     @Override
-                    public String serialize(ContentType contentType) {
-                        return contentType.toString("q");
+                    public String apply(ContentType input) {
+                        return input.toString("q");
                     }
-                },",");
+                }));
+
             } else {
-                contentType = CollectionUtils.fold(Arrays.asList(listMimeTypes()), ",");
+                contentType = Joiner.on(',').join(Arrays.asList(listMimeTypes()));
             }
 
             long defaultExpires = client.getClientConfiguration().getDefaultExpiry();
@@ -133,8 +138,8 @@ public abstract class AbstractHttpProvider implements DataProvider {
                 if(!visited.contains(requestUrl)) {
                     HttpGet get = new HttpGet(requestUrl);
                     try {
-                        get.setHeader("Accept",contentType);
-                        get.setHeader("Accept-Language", "*"); // PoolParty compatibility
+                        get.setHeader(ACCEPT, contentType);
+                        get.setHeader(ACCEPT_LANGUAGE, "*"); // PoolParty compatibility
 
                         log.info("retrieving resource data for {} from '{}' endpoint, request URI is <{}>", new Object[]  {resource, getName(), get.getURI().toASCIIString()});
 

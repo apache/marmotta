@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -122,6 +122,17 @@
         <contributor>
             <name>Chris Beer</name>
             <url>http://cbeer.info/</url>
+        </contributor>
+        <contributor>
+            <name>Mark A. Matienzo</name>
+            <url>http://matienzo.org/</url>
+            <organization>Digital Public Library of America</organization>
+            <organizationUrl>http://dp.la/</organizationUrl>
+        </contributor>
+        <contributor>
+            <name>Kai Schlegel</name>
+            <organization>University of Passau</organization>
+            <organizationUrl>http://www.uni-passau.de/</organizationUrl>
         </contributor>
     </contributors>
 

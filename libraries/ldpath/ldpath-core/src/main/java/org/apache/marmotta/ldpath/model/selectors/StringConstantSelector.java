@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,14 +18,14 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
  * Add file description here!
@@ -34,7 +34,7 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class StringConstantSelector<Node> implements NodeSelector<Node> {
 
-	private String constant;
+	private final String constant;
 
 	public StringConstantSelector(String constant) {
 		this.constant = constant;
@@ -76,6 +76,14 @@ public class StringConstantSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public String getName(NodeBackend<Node> nodeRDFBackend) {
+        return constant;
+    }
+
+    /**
+     * Getter for the constant value
+     * @return the constant value
+     */
+    public String getConstant() {
         return constant;
     }
 

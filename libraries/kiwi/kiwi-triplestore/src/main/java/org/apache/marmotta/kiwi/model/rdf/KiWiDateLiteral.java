@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,14 +19,14 @@ package org.apache.marmotta.kiwi.model.rdf;
 
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.openrdf.model.Literal;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 /**
  * Add file description here!
@@ -38,7 +38,7 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
 	private static final long serialVersionUID = -7710255732571214481L;
 
 
-	private Date dateContent;
+	private DateTime dateContent;
 
 
     private static DatatypeFactory dtf;
@@ -55,29 +55,29 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
     }
 
 
-    public KiWiDateLiteral(Date dateContent, KiWiUriResource type) {
-        super(DateUtils.getXMLCalendar(DateUtils.getDateWithoutFraction(dateContent)).toXMLFormat(),null,type);
+    public KiWiDateLiteral(DateTime dateContent, KiWiUriResource type) {
+        super(DateUtils.getXMLCalendar(dateContent.withMillisOfSecond(0)).toXMLFormat(),null,type);
         setDateContent(dateContent);
     }
 
-    public KiWiDateLiteral(Date dateContent, KiWiUriResource type, Date created) {
-        super(DateUtils.getXMLCalendar(DateUtils.getDateWithoutFraction(dateContent)).toXMLFormat(),null,type, created);
+    public KiWiDateLiteral(DateTime dateContent, KiWiUriResource type, Date created) {
+        super(DateUtils.getXMLCalendar(dateContent.withMillisOfSecond(0)).toXMLFormat(),null,type, created);
         setDateContent(dateContent);
     }
 
 
-    public Date getDateContent() {
-        return new Date(dateContent.getTime());
+    public DateTime getDateContent() {
+        return dateContent;
     }
 
-    public void setDateContent(Date dateContent) {
-        this.dateContent = DateUtils.getDateWithoutFraction(dateContent);
+    public void setDateContent(DateTime dateContent) {
+        this.dateContent = dateContent.withMillisOfSecond(0);
         if(XSD.DateTime.equals(getDatatype())) {
             this.content = DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
         } else if(XSD.Date.equals(getDatatype())) {
-            this.content = DateUtils.ISO8601FORMAT_DATE.format(dateContent);
+            this.content = ISODateTimeFormat.date().print(dateContent);
         } else if(XSD.Time.equals(getDatatype())) {
-            this.content = DateUtils.ISO8601FORMAT_TIME.format(dateContent);
+            this.content = ISODateTimeFormat.time().print(dateContent);
         }
     }
 
@@ -88,7 +88,15 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
      */
     @Override
     public String getContent() {
-        return DateUtils.getXMLCalendar(dateContent).toXMLFormat();
+        if(XSD.DateTime.equals(getDatatype())) {
+            return DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
+        } else if(XSD.Date.equals(getDatatype())) {
+            return ISODateTimeFormat.date().print(dateContent);
+        } else if(XSD.Time.equals(getDatatype())) {
+            return ISODateTimeFormat.time().print(dateContent);
+        } else {
+            return DateUtils.getXMLCalendar(this.dateContent).toXMLFormat();
+        }
     }
 
     /**
@@ -98,7 +106,7 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
      */
     @Override
     public void setContent(String content) {
-        setDateContent(DateUtils.parseDate(content));
+        setDateContent(ISODateTimeFormat.dateTimeParser().parseDateTime(content));
     }
 
 
@@ -109,7 +117,7 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
      */
     @Override
     public String getLabel() {
-        return calendarValue().toXMLFormat();
+        return getContent();
     }
 
     /**
@@ -126,12 +134,7 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
      */
     @Override
     public XMLGregorianCalendar calendarValue() {
-        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-        cal.setTime(getDateContent());
-
-        XMLGregorianCalendar xml_cal = dtf.newXMLGregorianCalendar(cal).normalize();
-        xml_cal.setTimezone(0);
-        return xml_cal;
+        return DateUtils.getXMLCalendar(dateContent);
     }
 
 

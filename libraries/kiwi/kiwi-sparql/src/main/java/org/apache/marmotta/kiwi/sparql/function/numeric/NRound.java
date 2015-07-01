@@ -21,7 +21,7 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.sparql.builder.OPTypes;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.openrdf.query.algebra.evaluation.function.numeric.Round;
 
@@ -52,7 +52,11 @@ public class NRound extends Round implements NativeFunction {
      */
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
-        return String.format("round(%s)", args[0]);
+        if(dialect instanceof PostgreSQLDialect) {
+            return String.format("round(CAST(%s as decimal))", args[0]);
+        } else {
+            return String.format("round(%s)", args[0]);
+        }
     }
 
     /**
@@ -61,8 +65,8 @@ public class NRound extends Round implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getReturnType() {
-        return OPTypes.INT;
+    public ValueType getReturnType() {
+        return ValueType.INT;
     }
 
     /**
@@ -73,8 +77,8 @@ public class NRound extends Round implements NativeFunction {
      * @return
      */
     @Override
-    public OPTypes getArgumentType(int arg) {
-        return OPTypes.DOUBLE;
+    public ValueType getArgumentType(int arg) {
+        return ValueType.DOUBLE;
     }
 
     /**

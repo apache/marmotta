@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,28 +18,6 @@
 package org.apache.marmotta.platform.sparql.services.sparql;
 
 import info.aduna.lang.FileFormat;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.SPARQL_SD;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -52,50 +30,25 @@ import org.apache.marmotta.platform.sparql.api.sparql.SparqlService;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml.SPARQLHTMLSettings;
 import org.apache.marmotta.platform.sparql.webservices.SparqlWebService;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.query.parser.ParsedBooleanQuery;
-import org.openrdf.query.parser.ParsedGraphQuery;
-import org.openrdf.query.parser.ParsedQuery;
-import org.openrdf.query.parser.ParsedTupleQuery;
-import org.openrdf.query.parser.QueryParser;
-import org.openrdf.query.parser.QueryParserUtil;
-import org.openrdf.query.resultio.BooleanQueryResultFormat;
-import org.openrdf.query.resultio.BooleanQueryResultWriter;
-import org.openrdf.query.resultio.QueryResultFormat;
-import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.QueryResultWriter;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
+import org.openrdf.query.*;
+import org.openrdf.query.parser.*;
+import org.openrdf.query.resultio.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.RDFWriterRegistry;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
+import org.openrdf.rio.*;
 import org.slf4j.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Sparql Service implementation
@@ -202,7 +155,7 @@ public class SparqlServiceImpl implements SparqlService {
                     RepositoryConnection connection = sesameService.getConnection();
                     try {
                         connection.begin();
-                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query, configurationService.getBaseUri());
 
                         if (sparqlQuery instanceof TupleQuery) {
                             query((TupleQuery) sparqlQuery, tupleWriter);
@@ -244,6 +197,7 @@ public class SparqlServiceImpl implements SparqlService {
             throw new TimeoutException("SPARQL query execution aborted due to timeout (" + configurationService.getIntConfiguration("sparql.timeout",60)+"s)");
         } catch (ExecutionException e) {
             log.info("SPARQL query execution aborted due to exception");
+            log.debug("exception details",e);
             if(e.getCause() instanceof MarmottaException) {
                 throw (MarmottaException)e.getCause();
             } else if(e.getCause() instanceof MalformedQueryException) {
@@ -266,7 +220,7 @@ public class SparqlServiceImpl implements SparqlService {
                     RepositoryConnection connection = sesameService.getConnection();
                     try {
                         connection.begin();
-                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query);
+                        Query sparqlQuery = connection.prepareQuery(queryLanguage, query, configurationService.getBaseUri());
 
                         if (sparqlQuery instanceof TupleQuery) {
                             query((TupleQuery) sparqlQuery, (TupleQueryResultWriter)writer);
@@ -308,6 +262,7 @@ public class SparqlServiceImpl implements SparqlService {
             throw new TimeoutException("SPARQL query execution aborted due to timeout (" + timeoutInSeconds+"s)");
         } catch (ExecutionException e) {
             log.info("SPARQL query execution aborted due to exception");
+            log.debug("exception details", e);
             if(e.getCause() instanceof MarmottaException) {
                 throw (MarmottaException)e.getCause();
             } else if(e.getCause() instanceof MalformedQueryException) {
@@ -329,7 +284,7 @@ public class SparqlServiceImpl implements SparqlService {
                     RepositoryConnection connection = sesameService.getConnection();
                     try {
                         connection.begin();
-                        Query sparqlQuery = connection.prepareQuery(language, query);
+                        Query sparqlQuery = connection.prepareQuery(language, query, configurationService.getBaseUri());
 
                         if (sparqlQuery instanceof TupleQuery) {
                             query((TupleQuery)sparqlQuery, output, format);
@@ -372,6 +327,7 @@ public class SparqlServiceImpl implements SparqlService {
             throw new TimeoutException("SPARQL query execution aborted due to timeout (" + configurationService.getIntConfiguration("sparql.timeout",60)+"s)");
         } catch (ExecutionException e) {
             log.info("SPARQL query execution aborted due to exception");
+            log.debug("exception details", e);
             if(e.getCause() instanceof MarmottaException) {
                 throw (MarmottaException)e.getCause();
             } else if(e.getCause() instanceof MalformedQueryException) {
@@ -529,7 +485,7 @@ public class SparqlServiceImpl implements SparqlService {
             RepositoryConnection connection = sesameService.getConnection();
             try {
                 connection.begin();
-                BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query);
+                BooleanQuery ask = connection.prepareBooleanQuery(queryLanguage, query, configurationService.getBaseUri());
                 result = ask.evaluate();
                 connection.commit();
             } catch (MalformedQueryException e) {

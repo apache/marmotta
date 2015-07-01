@@ -23,7 +23,7 @@ public class PropBuilder extends AbstractNamespacePropBuilder {
 
     @Override
     protected String getNamespace() {
-        return "http://persistence.text/prop#";
+        return "http://persistence.test/prop#";
     }
 
 }

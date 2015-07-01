@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -99,6 +99,37 @@ public class MySQLDialect extends KiWiDialect {
     }
 
 
+    /**
+     * Return the name of the aggregate function for group concatenation (string_agg in postgres, GROUP_CONCAT in MySQL)
+     *
+     * @param value
+     * @param separator
+     * @return
+     */
+    @Override
+    public String getGroupConcat(String value, String separator, boolean distinct) {
+        if(distinct) {
+            value = "DISTINCT " + value;
+        }
+        if(separator != null) {
+            return String.format("GROUP_CONCAT(%s SEPARATOR %s)", value, separator);
+        } else {
+            return String.format("GROUP_CONCAT(%s)", value);
+        }
+    }
+
+
+    /**
+     * Return the SQL timezone value for a KiWiDateLiteral, corrected by the timezone offset. In PostgreSQL, this is
+     * e.g. computed by (ALIAS.tvalue + ALIAS.tzoffset * INTERVAL '1 second')
+     *
+     * @param alias
+     * @return
+     */
+    @Override
+    public String getDateTimeTZ(String alias) {
+        return String.format("DATE_ADD(%s.tvalue, INTERVAL %s.tzoffset SECOND)", alias, alias);
+    }
 
     /**
      * Get the query string that can be used for validating that a JDBC connection to this database is still valid.

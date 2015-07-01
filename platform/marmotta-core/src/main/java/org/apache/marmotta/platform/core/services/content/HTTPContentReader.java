@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -40,6 +40,8 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
@@ -127,7 +129,7 @@ public class HTTPContentReader implements ContentReader {
                 if(location != null) {
                     log.info("reading remote resource {}",location);
                     HttpGet get = new HttpGet(location);
-                    get.setHeader("Accept",mimetype);
+                    get.setHeader(ACCEPT, mimetype);
 
                     HttpResponse response = httpClientService.execute(get);
                     if(response.getStatusLine().getStatusCode() == 200)
@@ -174,7 +176,7 @@ public class HTTPContentReader implements ContentReader {
                     if(location != null) {
                         log.info("reading remote resource {}",location);
                         HttpHead head = new HttpHead(location);
-                        head.setHeader("Accept",mimetype);
+                        head.setHeader(ACCEPT, mimetype);
 
                         return httpClientService.execute(head, new ResponseHandler<Boolean>() {
                             @Override
@@ -227,7 +229,7 @@ public class HTTPContentReader implements ContentReader {
                             @Override
                             public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
                                 if (response.getStatusLine().getStatusCode() == 200)
-                                    return response.getFirstHeader("Content-Type").getValue().split(";")[0];
+                                    return response.getFirstHeader(CONTENT_TYPE).getValue().split(";")[0];
                                 else
                                     return null;
                             }

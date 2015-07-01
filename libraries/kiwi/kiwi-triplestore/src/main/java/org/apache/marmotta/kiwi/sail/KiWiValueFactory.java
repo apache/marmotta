@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -20,13 +20,14 @@ package org.apache.marmotta.kiwi.sail;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
-import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.slf4j.Logger;
@@ -34,10 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.IllformedLocaleException;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -311,13 +309,15 @@ public class KiWiValueFactory implements ValueFactory {
                     if(result == null) {
                         result = new KiWiStringLiteral(value.toString(), locale, rtype);
                     }
-                } else if(value instanceof Date || type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
+                } else if(value instanceof Date || value instanceof DateTime ||type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
-                    final Date dvalue;
-                    if(value instanceof Date) {
-                        dvalue = (Date)value;
+                    final DateTime dvalue;
+                    if(value instanceof DateTime) {
+                        dvalue = ((DateTime) value).withMillisOfDay(0);
+                    } else if(value instanceof Date || value instanceof Calendar) {
+                        dvalue = new DateTime(value);
                     } else {
-                        dvalue = DateUtils.parseDate(value.toString());
+                        dvalue = ISODateTimeFormat.dateTimeParser().withOffsetParsed().parseDateTime(value.toString()).withMillisOfSecond(0);
                     }
 
                     result = connection.loadLiteral(dvalue);
@@ -345,7 +345,8 @@ public class KiWiValueFactory implements ValueFactory {
                     }
                 } else if(Double.class.equals(value.getClass())   || double.class.equals(value.getClass())  ||
                         Float.class.equals(value.getClass())    || float.class.equals(value.getClass()) ||
-                        type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float")) {
+                        type.equals(Namespaces.NS_XSD+"double") || type.equals(Namespaces.NS_XSD+"float") ||
+                        type.equals(Namespaces.NS_XSD+"decimal")) {
                     double dvalue = 0.0;
                     if(Float.class.equals(value.getClass()) || float.class.equals(value.getClass())) {
                         dvalue = (Float)value;

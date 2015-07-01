@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -23,11 +23,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentProducer;
 import org.apache.http.entity.EntityTemplate;
 import org.apache.http.util.EntityUtils;
@@ -48,6 +44,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 /**
  * Add file description here!
@@ -151,7 +150,7 @@ public class ResourceClient {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         HttpGet get = new HttpGet(getServiceUrl(uri));
-        get.setHeader("Accept", "application/rdf+json; rel=meta");
+        get.setHeader(ACCEPT, "application/rdf+json; rel=meta");
         
         try {
             
@@ -200,7 +199,7 @@ public class ResourceClient {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         HttpPut put = new HttpPut(getServiceUrl(uri));
-        put.setHeader("Content-Type", "application/rdf+json; rel=meta");
+        put.setHeader(CONTENT_TYPE, "application/rdf+json; rel=meta");
         ContentProducer cp = new ContentProducer() {
             @Override
             public void writeTo(OutputStream outstream) throws IOException {
@@ -251,7 +250,7 @@ public class ResourceClient {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         HttpGet get = new HttpGet(getServiceUrl(uri));
-        get.setHeader("Accept", mimeType+"; rel=content");
+        get.setHeader(ACCEPT, mimeType + "; rel=content");
         
         try {
 
@@ -295,7 +294,7 @@ public class ResourceClient {
         HttpClient httpClient = HTTPUtil.createClient(config);
 
         HttpPut put = new HttpPut(getServiceUrl(uri));
-        put.setHeader("Content-Type", content.getMimeType()+"; rel=content");
+        put.setHeader(CONTENT_TYPE, content.getMimeType() + "; rel=content");
         ContentProducer cp = new ContentProducer() {
             @Override
             public void writeTo(OutputStream outstream) throws IOException {

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -32,6 +32,7 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
@@ -54,9 +55,9 @@ public class JettyMarmotta extends AbstractMarmotta {
 
     private Server jetty;
     
-    private int port;
+    private final int port;
 
-    private String context;
+    private final String context;
 
     public JettyMarmotta(String context) {
         this(context, getRandomPort());
@@ -79,7 +80,7 @@ public class JettyMarmotta extends AbstractMarmotta {
     }
 
     public JettyMarmotta(String context, int port, Class<?>... webservices) {
-        this(context,port, new HashSet<Class<?>>(Arrays.asList(webservices)));
+        this(context,port, new HashSet<>(Arrays.asList(webservices)));
     }
 
     public JettyMarmotta(Configuration override, String context, Set<Class<?>> webservices) {
@@ -170,6 +171,7 @@ public class JettyMarmotta extends AbstractMarmotta {
 
     @Override
     public void shutdown() {
+        container = null;
         try {
             jetty.stop();
         } catch (Exception e) {

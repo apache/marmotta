@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.webservices.resource;
 
+import com.google.common.net.HttpHeaders;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -315,7 +316,9 @@ public class InspectionWebService {
 
         ps.println();
         ps.println("</body></html>");
-        return Response.ok().header("Content-Type", "text/html;charset=" + CHARSET).header("Last-Modified", ResourceUtils.getLastModified(conn, rsc))
+        return Response.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "text/html;charset=" + CHARSET)
+                .header(HttpHeaders.LAST_MODIFIED, ResourceUtils.getLastModified(conn, rsc))
                 .entity(os.toString(CHARSET)).build();
     }
 

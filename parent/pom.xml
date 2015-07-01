@@ -29,7 +29,7 @@
     <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-parent</artifactId>
     <packaging>pom</packaging>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
 
     <name>Apache Marmotta Parent</name>
     <description>Parent POM for the Apache Marmotta project</description>
@@ -50,9 +50,10 @@
         <postgresql.version>9.3-1100-jdbc4</postgresql.version>
         <mysql.version>5.1.21</mysql.version>
         <jetty.version>9.2.1.v20140609</jetty.version>
-        <resteasy.version>3.0.8.Final</resteasy.version>
+        <resteasy.version>3.0.10.Final</resteasy.version>
         <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
+        <accumulograph.version>0.2.1</accumulograph.version>
         <jax.doclets.version>0.10.1</jax.doclets.version>
     </properties>
 
@@ -662,6 +663,11 @@
                 <version>1.8.1</version>
             </dependency>
             <dependency>
+                <groupId>org.tukaani</groupId>
+                <artifactId>xz</artifactId>
+                <version>1.5</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>4.3.2</version>
@@ -737,6 +743,14 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.5</version>
+            </dependency>
+
+
+            <!-- XML Processing -->
+            <dependency>
                 <groupId>xerces</groupId>
                 <artifactId>xercesImpl</artifactId>
                 <version>2.10.0</version>
@@ -746,8 +760,6 @@
                 <artifactId>xml-apis</artifactId>
                 <version>1.4.01</version>
             </dependency>
-
-            <!-- XML Processing -->
             <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
@@ -989,6 +1001,18 @@
                 <scope>runtime</scope>
             </dependency>
             <dependency>
+                <groupId>com.github.tkurz.webjars</groupId>
+                <artifactId>squebi</artifactId>
+                <version>1.0.3</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>requirejs</artifactId>
+                <version>2.1.15</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>jquery-ui-themes</artifactId>
                 <version>1.10.3</version>
@@ -1004,6 +1028,12 @@
                 <groupId>org.webjars</groupId>
                 <artifactId>angularjs</artifactId>
                 <version>1.2.2</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>sgvizler</artifactId>
+                <version>0.6</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -1494,7 +1524,7 @@
             <dependency>
                 <groupId>com.github.jsonld-java</groupId>
                 <artifactId>jsonld-java-sesame</artifactId>
-                <version>0.5.0</version>
+                <version>0.5.1</version>
             </dependency>
 
             <!-- Freemarker -->
@@ -1695,7 +1725,7 @@
             <dependency>
                 <groupId>com.thetransactioncompany</groupId>
                 <artifactId>cors-filter</artifactId>
-                <version>1.9</version>
+                <version>2.4</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.servlet</groupId>
@@ -1792,13 +1822,22 @@
                     <url>file://${java.io.tmpdir}${file.separator}repo</url>
                 </snapshotRepository>
             </distributionManagement>
+        </profile>
 
+        <profile>
+            <!-- Quickbuild without tests -->
+            <id>quickbuild</id>
+            <activation>
+                <property>
+                    <name>quick</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <properties>
+                <skipTests>true</skipTests>
+                <skipITs>true</skipITs>
+            </properties>
         </profile>
     </profiles>
-
-<!--
-    <scm>
-        <tag>3.1.0</tag>
-    </scm>
--->
 </project>

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -32,11 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * KiWi (LMF) Content Util
+ * Marmotta CDI Context Util
  * 
  * @author Sebastian Schaffert
  */
 public class CDIContext {
+
     private static BeanManager beanManager;
 
     private static final List<String> beanManagerLocations;
@@ -44,7 +45,7 @@ public class CDIContext {
     private static Logger log = LoggerFactory.getLogger(CDIContext.class);
 
     static {
-        beanManagerLocations = new ArrayList<String>();
+        beanManagerLocations = new ArrayList<>();
         beanManagerLocations.add("java:comp/env/BeanManager");
         beanManagerLocations.add("java:comp/BeanManager");
         beanManagerLocations.add("java:app/BeanManager");
@@ -52,8 +53,7 @@ public class CDIContext {
 
 
     protected static BeanManager getBeanManager() {
-        if (beanManager == null)
-        {
+        if (beanManager == null) {
             beanManager = lookupBeanManager();
         }
         return beanManager;
@@ -85,7 +85,6 @@ public class CDIContext {
 
     @SuppressWarnings("unchecked")
     public static <T> T getInstance(Class<T> type) {
-
         BeanManager beanManager = getBeanManager();
         Bean<T> bean = (Bean<T>) beanManager.getBeans(type).iterator().next();
         CreationalContext<T> context = beanManager.createCreationalContext(bean);
@@ -171,6 +170,5 @@ public class CDIContext {
             }
         }catch ( NamingException ex ) {}
     }
-
 
 }

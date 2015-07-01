@@ -205,12 +205,15 @@
 The Apache License, Version 2.0, also applies to the following subcomponents:
 
  * Guava, http://guava-libraries.googlecode.com
- * Jackson, http://jackson.codehaus.org
+ * Jackson, https://github.com/FasterXML/jackson
  * Semargl, http://semarglproject.org
  * Infinispan, http://infinispan.org
  * JBoss Marshalling, https://github.com/jboss-remoting/jboss-marshalling/
+ * JBoss Logging 3, https://github.com/jboss-logging/jboss-logging
  * JGroups, http://www.jgroups.org
  * JsonPath, https://github.com/jayway/JsonPath
+ * Json Smart, https://github.com/netplex/json-smart-v1
+ * Joda Time, http://www.joda.org/joda-time/
 
 
 Apache Marmotta subcomponents:

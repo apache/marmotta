@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,9 +34,6 @@ import java.util.Date;
  */
 public abstract class KiWiNode implements Value, Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 4652575123005436645L;
 
     /**
@@ -45,12 +42,10 @@ public abstract class KiWiNode implements Value, Serializable {
      */
     private long id = -1L;
 
-
     /**
      * The creation date of the KiWiNode.
      **/
     private Date created;
-
 
     protected KiWiNode() {
         this(new Date());
@@ -59,7 +54,6 @@ public abstract class KiWiNode implements Value, Serializable {
     protected KiWiNode(Date created) {
         this.created   = created;
     }
-
 
     /**
      * Return the database ID of this node. Can be used to refer to the node in the context of one triple store
@@ -70,7 +64,6 @@ public abstract class KiWiNode implements Value, Serializable {
     public long getId() {
         return id;
     }
-
 
     /**
      * Update the database id of the node.

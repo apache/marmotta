@@ -28,16 +28,13 @@ import org.openrdf.query.parser.sparql.ComplexSPARQLQueryTest;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 
-
 /**
  * Run the Sesame Complex SPARQL Query Test Suite.
 
  * @author Jakob Frank <jakob@apache.org>
- *
  */
 @RunWith(KiWiDatabaseRunner.class)
 public class ComplexKiWiSparqlQueryTest extends ComplexSPARQLQueryTest {
-
 
     private final KiWiConfiguration config;
 

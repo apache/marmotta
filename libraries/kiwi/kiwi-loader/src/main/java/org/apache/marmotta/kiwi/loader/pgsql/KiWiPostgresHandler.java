@@ -52,7 +52,7 @@ public class KiWiPostgresHandler extends KiWiBatchHandler implements RDFHandler 
     protected void flushBacklogInternal() throws SQLException {
         try {
             // flush out nodes
-            PGCopyOutputStream nodesOut = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(connection.getJDBCConnection()), "COPY nodes FROM STDIN (FORMAT csv)");
+            PGCopyOutputStream nodesOut = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(connection.getJDBCConnection()), "COPY nodes(id,ntype,svalue,dvalue,ivalue,tvalue,tzoffset,bvalue,ltype,lang,createdAt) FROM STDIN (FORMAT csv)");
             PGCopyUtil.flushNodes(nodeBacklog, nodesOut);
             nodesOut.close();
 

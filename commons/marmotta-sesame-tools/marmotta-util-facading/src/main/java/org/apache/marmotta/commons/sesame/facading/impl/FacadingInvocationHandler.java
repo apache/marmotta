@@ -25,22 +25,15 @@ import org.apache.marmotta.commons.sesame.facading.api.FacadingPredicateBuilder;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
 import org.apache.marmotta.commons.util.DateUtils;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.joda.time.DateTime;
+import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -756,6 +749,8 @@ class FacadingInvocationHandler implements InvocationHandler {
     private Value createLiteral(Object o, Locale loc) {
         if (o instanceof Date) {
             return connection.getValueFactory().createLiteral(DateUtils.getXMLCalendar((Date) o));
+        } else if (o instanceof DateTime) {
+            return connection.getValueFactory().createLiteral(DateUtils.getXMLCalendar((DateTime) o));
         } else if (Integer.class.isAssignableFrom(o.getClass())) {
             return connection.getValueFactory().createLiteral((Integer) o);
         } else if (Long.class.isAssignableFrom(o.getClass())) {

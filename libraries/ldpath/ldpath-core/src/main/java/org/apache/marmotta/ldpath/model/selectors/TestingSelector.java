@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,15 +19,14 @@ package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A node selector that wraps a node test around the selection and delegates the selection to another selector.
@@ -37,8 +36,8 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class TestingSelector<Node> implements NodeSelector<Node> {
 
-    private NodeSelector<Node> delegate;
-    private NodeTest<Node> test;
+    private final NodeSelector<Node> delegate;
+    private final NodeTest<Node> test;
 
 
     public TestingSelector(NodeSelector<Node> delegate, NodeTest<Node> test) {
@@ -81,6 +80,22 @@ public class TestingSelector<Node> implements NodeSelector<Node> {
     @Override
     public String getPathExpression(NodeBackend<Node> rdfBackend) {
         return String.format("%s[%s]", delegate.getPathExpression(rdfBackend), test.getPathExpression(rdfBackend));
+    }
+
+    /**
+     * Getter for child delegate node
+     * @return child delegate NodeSelector
+     */
+    public NodeSelector<Node> getDelegate() {
+        return delegate;
+    }
+
+    /**
+     * Getter for child test node
+     * @return child NodeTest
+     */
+    public NodeTest<Node> getTest() {
+        return test;
     }
 
     /**

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -35,7 +35,7 @@ public class MarmottaInitialContextFactoryBuilder implements InitialContextFacto
 
     @Override
     public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> hashtable) throws NamingException {
-        // check if we are inside the LMF or outside; inside the LMF we return our own context factory,
+        // check if we are inside the Marmotta or outside; inside the Marmotta we return our own context factory,
         // outside the system default
         try {
             return (InitialContextFactory) Thread.currentThread().getContextClassLoader().loadClass(MarmottaContextFactory.class.getName()).getMethod("getInstance").invoke(null);

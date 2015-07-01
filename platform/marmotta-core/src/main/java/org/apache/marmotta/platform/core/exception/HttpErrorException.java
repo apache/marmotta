@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,21 +17,27 @@
  */
 package org.apache.marmotta.platform.core.exception;
 
+import com.google.common.collect.ImmutableMap;
 import edu.emory.mathcs.backport.java.util.Collections;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.google.common.net.HttpHeaders.ACCEPT;
+
 /**
- * Resource Not Found Exception
+ * HTTP Error Exception
  *
  * @author Sergio Fernández
  */
 public class HttpErrorException extends Exception {
 
     private final int status;
+
     private final String reason;
+
     private final String uri;
 
     private final Map<String, String> headers;
@@ -75,12 +81,23 @@ public class HttpErrorException extends Exception {
      * Constructs an instance with the specified details
      *
      * @param status http status code
+     * @param request http servlet request
+     * @param e exception
+     */
+    public HttpErrorException(Response.Status status, HttpServletRequest request, Exception e) {
+        this(status.getStatusCode(), status.getReasonPhrase(), request.getRequestURI(), e.getMessage(), ImmutableMap.of(ACCEPT, request.getHeader(ACCEPT)));
+    }
+
+    /**
+     * Constructs an instance with the specified details
+     *
+     * @param status http status code
      * @param reason reason phrase
      * @param uri resource uri
      * @param msg message
      * @param headers custom headers
      */
-    public HttpErrorException(int status, String reason, String uri, String msg, Map<String,String> headers) {
+    public HttpErrorException(int status, String reason, String uri, String msg, Map<String, String> headers) {
         super(msg);
         this.status = status;
         this.reason = reason;

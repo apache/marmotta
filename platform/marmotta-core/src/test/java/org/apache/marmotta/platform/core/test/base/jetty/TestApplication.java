@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -29,7 +29,6 @@ public class TestApplication extends Application {
 
     // this is a hack, since there is no other way to inject a service class into a JAX-RS application
     private static Set<Class<?>> testedWebService;
-
 
     @Override
     public Set<Class<?>> getClasses() {

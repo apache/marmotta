@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,23 +17,15 @@
  */
 package org.apache.marmotta.platform.core.services.config;
 
-import org.apache.marmotta.platform.core.api.config.DependenciesService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.core.api.config.DependenciesService;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * Provides meta information about the current dependencies
@@ -103,12 +95,12 @@ public class DependenciesServiceImpl implements DependenciesService {
     }
 
     @Override
-    public List<Map<String, String>> getArtifacs() {
+    public List<Map<String, String>> getArtifacts() {
         return Collections.unmodifiableList(this.dependencies);
     }
 
     @Override
-    public List<Map<String, String>> getArtifacs(String groupId) {
+    public List<Map<String, String>> getArtifacts(String groupId) {
         List<Map<String, String>> deps = new ArrayList<Map<String, String>>();
         for (Map<String, String> dep : this.dependencies) {
             if (groupId.equals(dep.get(DependenciesService.GROUP))) {

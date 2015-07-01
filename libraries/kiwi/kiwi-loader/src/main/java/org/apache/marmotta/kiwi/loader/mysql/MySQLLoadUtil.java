@@ -19,20 +19,9 @@ package org.apache.marmotta.kiwi.loader.mysql;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.marmotta.kiwi.loader.csv.LanguageProcessor;
-import org.apache.marmotta.kiwi.loader.csv.NodeIDProcessor;
-import org.apache.marmotta.kiwi.loader.csv.NodeTypeProcessor;
-import org.apache.marmotta.kiwi.loader.csv.SQLBooleanProcessor;
-import org.apache.marmotta.kiwi.loader.csv.SQLTimestampProcessor;
-import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
-import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
-import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
-import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.apache.marmotta.kiwi.loader.csv.*;
+import org.apache.marmotta.kiwi.model.rdf.*;
+import org.joda.time.DateTime;
 import org.openrdf.model.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +56,8 @@ public class MySQLLoadUtil {
             new NotNull(),                            // svalue
             new Optional(),                           // dvalue
             new Optional(),                           // ivalue
-            new SQLTimestampProcessor(),              // tvalue
+            new SQLDateTimeProcessor(),              // tvalue
+            new Optional(),                           // tzoffset
             new Optional(new SQLBooleanProcessor()),  // bvalue
             new Optional(new NodeIDProcessor()),      // ltype
             new Optional(new LanguageProcessor()),    // lang
@@ -140,28 +130,28 @@ public class MySQLLoadUtil {
         CsvListWriter writer = new CsvListWriter(out, nodesPreference);
 
         // reuse the same array to avoid unnecessary object allocation
-        Object[] rowArray = new Object[10];
+        Object[] rowArray = new Object[11];
         List<Object> row = Arrays.asList(rowArray);
 
         for(KiWiNode n : nodeBacklog) {
             if(n instanceof KiWiUriResource) {
                 KiWiUriResource u = (KiWiUriResource)n;
-                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, u.getCreated());
+                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, null, u.getCreated());
             } else if(n instanceof KiWiAnonResource) {
                 KiWiAnonResource a = (KiWiAnonResource)n;
-                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, a.getCreated());
+                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, null, a.getCreated());
             } else if(n instanceof KiWiIntLiteral) {
                 KiWiIntLiteral l = (KiWiIntLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDoubleLiteral) {
                 KiWiDoubleLiteral l = (KiWiDoubleLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiBooleanLiteral) {
                 KiWiBooleanLiteral l = (KiWiBooleanLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiDateLiteral) {
                 KiWiDateLiteral l = (KiWiDateLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), l.getDateContent().getZone().getOffset(l.getDateContent()) / 1000, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
 
@@ -175,7 +165,7 @@ public class MySQLLoadUtil {
                         // ignore, keep NaN
                     }
                 }
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
             } else {
                 log.warn("unknown node type, cannot flush to import stream: {}", n.getClass());
             }
@@ -187,17 +177,18 @@ public class MySQLLoadUtil {
         return IOUtils.toInputStream(out.toString());
     }
 
-    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, Date date, Boolean bool, URI dtype, Locale lang, Date created) {
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
         a[0] = id;
         a[1] = type;
         a[2] = content;
         a[3] = dbl;
         a[4] = lng;
         a[5] = date;
-        a[6] = bool;
-        a[7] = dtype;
-        a[8] = lang;
-        a[9] = created;
+        a[6] = tzoffset;
+        a[7] = bool;
+        a[8] = dtype;
+        a[9] = lang;
+        a[10] = created;
     }
 
 }

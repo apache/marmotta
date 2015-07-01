@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -24,6 +24,7 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.versioning.model.Version;
@@ -87,7 +88,7 @@ public class VersioningPersistenceTest {
         KiWiConnection connection = vpersistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(), hasItems("versions", "versions_added", "versions_removed"));
-            Assert.assertEquals(3, connection.getDatabaseVersion());
+            Assert.assertEquals(KiWiDialect.VERSION, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {

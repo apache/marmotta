@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -27,6 +27,7 @@ import org.apache.marmotta.platform.core.events.ContentCreatedEvent;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
+import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
@@ -50,6 +51,9 @@ import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.google.common.net.HttpHeaders.*;
+import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendContentTypes;
+
 /**
  * Content Web Services
  *
@@ -59,8 +63,6 @@ import java.util.regex.Pattern;
 @ApplicationScoped
 @Path("/" + ConfigurationService.CONTENT_PATH)
 public class ContentWebService {
-
-    private static final String ENHANCER_STANBOL_ENHANCER_ENABLED = "enhancer.stanbol.enhancer.enabled";
 
     @Inject
     private ConfigurationService configurationService;
@@ -151,10 +153,9 @@ public class ContentWebService {
                 final String mimeType = contentService.getContentType(resource);
                 if (mimeType != null) {
                     return Response
-                            .status(configurationService.getIntConfiguration(
-                                    "linkeddata.redirect.status", 303))
-                            .header("Vary", "Accept")
-                            .header("Content-Type", mimeType + "; rel=content")
+                            .status(configurationService.getIntConfiguration(CoreOptions.LINKEDDATA_REDIRECT_STATUS, 303))
+                            .header(VARY, ACCEPT)
+                            .header(CONTENT_TYPE, mimeType + "; rel=content")
                             .location(
                                     new java.net.URI(ResourceWebServiceHelper
                                             .buildResourceLink(resource,
@@ -168,9 +169,7 @@ public class ContentWebService {
             } finally {
                 conn.close();
             }
-        } catch (RepositoryException ex) {
-            return Response.serverError().entity(ex.getMessage()).build();
-        } catch (URISyntaxException ex) {
+        } catch (RepositoryException | URISyntaxException ex) {
             return Response.serverError().entity(ex.getMessage()).build();
         }
     }
@@ -268,9 +267,7 @@ public class ContentWebService {
                 conn.commit();
                 conn.close();
             }
-        } catch (MarmottaException ex) {
-            return Response.serverError().entity(ex.getMessage()).build();
-        } catch (RepositoryException ex) {
+        } catch (MarmottaException | RepositoryException ex) {
             return Response.serverError().entity(ex.getMessage()).build();
         }
     }
@@ -321,47 +318,45 @@ public class ContentWebService {
                             try {
                                 fromL = Long.parseLong(from);
                                 is.skip(fromL);
-                                response.getMetadata().add("Content-Range","bytes "+fromL+"-"+(length-1)+"/"+length);
+                                response.getMetadata().add(CONTENT_RANGE,"bytes "+fromL+"-"+(length-1)+"/"+length);
                             } catch(NumberFormatException ex) {
-                                response.getMetadata().add("Content-Range","bytes 0-"+(length-1)+"/"+length);
+                                response.getMetadata().add(CONTENT_RANGE,"bytes 0-"+(length-1)+"/"+length);
                             }
                         } else {
-                            response.getMetadata().add("Content-Range","bytes 0-"+(length-1)+"/"+length);
+                            response.getMetadata().add(CONTENT_RANGE,"bytes 0-"+(length-1)+"/"+length);
                         }
-                        response.getMetadata().add("Accept-Ranges","bytes");
+                        response.getMetadata().add(ACCEPT_RANGES,"bytes");
                     } else {
                         response = Response.ok(is).build();
-                        response.getMetadata().add("Accept-Ranges","bytes");
+                        response.getMetadata().add(ACCEPT_RANGES,"bytes");
                     }
 
                     if(mimetype.startsWith("text") || mimetype.startsWith("application/json")) {
                         // Content-Encoding is not what it seems, known values are: gzip, compress,
                         // deflate, identity
                         // response.getMetadata().add("Content-Encoding", "utf-8");
-                        response.getMetadata().add("Content-Type", mimetype + "; charset=utf-8");
+                        response.getMetadata().add(CONTENT_TYPE, mimetype + "; charset=utf-8");
                     } else {
-                        response.getMetadata().add("Content-Type", mimetype);
+                        response.getMetadata().add(CONTENT_TYPE, mimetype);
                     }
                     if(length > 0) {
-                        response.getMetadata().add("Content-Length",length-fromL);
+                        response.getMetadata().add(CONTENT_LENGTH,length-fromL);
                     }
 
                     // append data links
                     String s = ResourceWebServiceHelper.buildMetaLinks(resource, kiWiIOService.getProducedTypes(), configurationService);
                     if (s != null) {
-                        response.getMetadata().add("Links", s);
+                        response.getMetadata().add(LINK, s);
                     }
                     return response;
                 } else {
-                    ImmutableMap<String, String> headers = ImmutableMap.of("Content-Type", ResourceWebServiceHelper.appendContentTypes(contentService.getContentType(resource)));
+                    ImmutableMap<String, String> headers = ImmutableMap.of(CONTENT_TYPE, appendContentTypes(contentService.getContentType(resource)));
                     throw new HttpErrorException(Status.NOT_ACCEPTABLE, resource.stringValue(), "no content for mimetype " + mimetype, headers);
                 }
             } finally {
                 conn.close();
             }
-        } catch (IOException e) {
-            return Response.serverError().entity(e.getMessage()).build();
-        } catch (RepositoryException e) {
+        } catch (IOException | RepositoryException e) {
             return Response.serverError().entity(e.getMessage()).build();
         }
     }
@@ -388,9 +383,6 @@ public class ContentWebService {
                 throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "content may not be empty for writing");
             }
             contentService.setContentStream(resource, request.getInputStream(), mimetype); // store content
-            if(configurationService.getBooleanConfiguration(ENHANCER_STANBOL_ENHANCER_ENABLED, false)) {
-                afterContentCreated.fire(new ContentCreatedEvent(resource)); //enhancer
-            }
             return Response.ok().build();
         } catch (IOException e) {
             throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "could not read request body");

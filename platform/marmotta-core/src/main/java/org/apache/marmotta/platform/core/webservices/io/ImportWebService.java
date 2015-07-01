@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+
 /**
  * A webservice offering functionality to import data from the KiWi knowledge base.
  * <p/>
@@ -103,7 +105,7 @@ public class ImportWebService {
      */
     @POST
     @Path("/upload")
-    public Response uploadData(@HeaderParam("Content-Type") String type, @Context HttpServletRequest request, @QueryParam("context") String context_string) throws IOException, MarmottaImportException {
+    public Response uploadData(@HeaderParam(CONTENT_TYPE) String type, @Context HttpServletRequest request, @QueryParam("context") String context_string) throws IOException, MarmottaImportException {
         if(type != null && type.lastIndexOf(';') >= 0) {
             type = type.substring(0,type.lastIndexOf(';'));
         }
@@ -149,7 +151,7 @@ public class ImportWebService {
      */
     @POST
     @Path("/external")
-    public Response externalData(@HeaderParam("Content-Type") String type, @QueryParam("url") String url, @QueryParam("context") String context) throws IOException, MarmottaImportException {
+    public Response externalData(@HeaderParam(CONTENT_TYPE) String type, @QueryParam("url") String url, @QueryParam("context") String context) throws IOException, MarmottaImportException {
         try {
             log.debug("Received 'external' request for {} with {}%n", type, url);
             if(type != null && type.lastIndexOf(';') >= 0) {

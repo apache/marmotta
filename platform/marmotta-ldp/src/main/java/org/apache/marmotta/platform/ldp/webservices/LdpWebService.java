@@ -33,8 +33,10 @@ import org.apache.marmotta.platform.ldp.exceptions.InvalidModificationException;
 import org.apache.marmotta.platform.ldp.patch.InvalidPatchDocumentException;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
+import org.apache.marmotta.platform.ldp.util.AbstractResourceUriGenerator;
 import org.apache.marmotta.platform.ldp.util.LdpUtils;
-import org.apache.marmotta.platform.ldp.util.ResponseBuilderImpl;
+import org.apache.marmotta.platform.ldp.util.RandomUriGenerator;
+import org.apache.marmotta.platform.ldp.util.SlugUriGenerator;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -56,7 +58,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.Locale;
 
 /**
  * Linked Data Platform web services.
@@ -85,6 +87,7 @@ public class LdpWebService {
     public static final String HTTP_HEADER_PREFER = "Prefer";
     public static final String HTTP_HEADER_PREFERENCE_APPLIED = "Preference-Applied";
     public static final String HTTP_METHOD_PATCH = "PATCH";
+    public static final String HTTP_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 
     private Logger log = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
@@ -105,17 +108,18 @@ public class LdpWebService {
     public LdpWebService() {
         producedRdfTypes = new ArrayList<>();
 
+        final List<RDFFormat> availableWriters = LdpUtils.filterAvailableWriters(LdpService.SERVER_PREFERED_RDF_FORMATS);
         for(RDFFormat format : RDFWriterRegistry.getInstance().getKeys()) {
             final String primaryQ;
-            if (format == RDFFormat.TURTLE) {
-                primaryQ = ";q=1.0";
-            } else if (format == RDFFormat.JSONLD) {
-                primaryQ = ";q=0.9";
-            } else if (format == RDFFormat.RDFXML) {
-                primaryQ = ";q=0.8";
-            } else {
+            final int idx = availableWriters.indexOf(format);
+            if (idx < 0) {
+                // not a prefered format
                 primaryQ = ";q=0.5";
+            } else {
+                // a prefered format
+                primaryQ = String.format(Locale.ENGLISH, ";q=%.1f", Math.max(1.0-(idx*0.1), 0.55));
             }
+
             final String secondaryQ = ";q=0.3";
             final List<String> mimeTypes = format.getMIMETypes();
             for (int i = 0; i < mimeTypes.size(); i++) {
@@ -345,7 +349,7 @@ public class LdpWebService {
     }
 
     /**
-     * LDP Post Request
+     * LDP Post Request.
      *
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpr-HTTP_POST">5.4 LDP-R POST</a>
      * @see <a href="https://dvcs.w3.org/hg/ldpwg/raw-file/default/ldp.html#ldpc-HTTP_POST">6.4 LDP-C POST</a>
@@ -387,21 +391,6 @@ public class LdpWebService {
             // Get the LDP-Interaction Model (Sec. 5.2.3.4 and Sec. 4.2.1.4)
             final LdpService.InteractionModel ldpInteractionModel = ldpService.getInteractionModel(linkHeaders);
 
-            final String localName;
-            if (StringUtils.isBlank(slug)) {
-                /* Sec. 5.2.3.8) */
-                // FIXME: Maybe us a shorter uid?
-                localName = UUID.randomUUID().toString();
-            } else {
-                // Honor client wishes from Slug-header (Sec. 5.2.3.10)
-                //    http://www.ietf.org/rfc/rfc5023.txt
-                log.trace("Slug-Header is '{}'", slug);
-                localName = LdpUtils.urify(slug);
-                log.trace("Slug-Header urified: {}", localName);
-            }
-
-            String newResource = uriInfo.getRequestUriBuilder().path(localName).build().toString();
-
             if (ldpService.isNonRdfSourceResource(conn, container)) {
                 log.info("POSTing to a NonRdfSource is not allowed ({})", container);
                 final Response.ResponseBuilder response = createResponse(conn, Response.Status.METHOD_NOT_ALLOWED, container).entity("POST to NonRdfSource is not allowed\n");
@@ -409,19 +398,18 @@ public class LdpWebService {
                 return response.build();
             }
 
-            log.trace("Checking possible name clash for new resource <{}>", newResource);
-            if (ldpService.exists(conn, newResource) || ldpService.isReusedURI(conn, newResource)) {
-                int i = 0;
-                final String base = newResource;
-                do {
-                    final String candidate = base + "-" + (++i);
-                    log.trace("<{}> already exists, trying <{}>", newResource, candidate);
-                    newResource = candidate;
-                } while (ldpService.exists(conn, newResource) || ldpService.isReusedURI(conn, newResource));
-                log.debug("resolved name clash, new resource will be <{}>", newResource);
+            final AbstractResourceUriGenerator uriGenerator;
+            if (StringUtils.isBlank(slug)) {
+                /* Sec. 5.2.3.8) */
+                uriGenerator = new RandomUriGenerator(ldpService, container, conn);
             } else {
-                log.debug("no name clash for <{}>", newResource);
+                // Honor client wishes from Slug-header (Sec. 5.2.3.10)
+                //    http://www.ietf.org/rfc/rfc5023.txt
+                log.trace("Slug-Header is '{}'", slug);
+                uriGenerator = new SlugUriGenerator(ldpService, container, slug, conn);
             }
+
+            final String newResource = uriGenerator.generateResourceUri();
 
             log.debug("POST to <{}> will create new LDP-R <{}>", container, newResource);
             // connection is closed by buildPostResponse
@@ -450,7 +438,7 @@ public class LdpWebService {
             String location = ldpService.addResource(connection, container, newResource, interactionModel, mimeType, requestBody);
             final Response.ResponseBuilder response = createResponse(connection, Response.Status.CREATED, container).location(java.net.URI.create(location));
             if (newResource.compareTo(location) != 0) {
-                response.links(Link.fromUri(newResource).rel(LINK_REL_DESCRIBEDBY).param(LINK_PARAM_ANCHOR, location).build()); //FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
+                response.links(Link.fromUri(newResource).rel(LINK_REL_DESCRIBEDBY).param(LINK_PARAM_ANCHOR, location).build());
             }
             connection.commit();
             return response.build();
@@ -681,7 +669,6 @@ public class LdpWebService {
                 return resp.build();
             }
 
-
             Response.ResponseBuilder builder = createResponse(con, Response.Status.OK, resource);
 
             addOptionsHeader(con, resource, builder);
@@ -701,17 +688,17 @@ public class LdpWebService {
         log.debug("Adding required LDP Headers (OPTIONS, GET); see Sec. 8.2.8 and Sec. 4.2.2.2");
         if (ldpService.isNonRdfSourceResource(connection, resource)) {
             // Sec. 4.2.8.2
-            log.trace("<{}> is an LDP-NR: GET, HEAD, PUT and OPTIONS allowed", resource);
-            builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.OPTIONS);
+            log.trace("<{}> is an LDP-NR: GET, HEAD, PUT, DELETE and OPTIONS allowed", resource);
+            builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.OPTIONS);
         } else if (ldpService.isRdfSourceResource(connection, resource)) {
             if (ldpService.getInteractionModel(connection, resource) == LdpService.InteractionModel.LDPR) {
-                log.trace("<{}> is a LDP-RS (LDPR interaction model): GET, HEAD, PUT, PATCH and OPTIONS allowed", resource);
+                log.trace("<{}> is a LDP-RS (LDPR interaction model): GET, HEAD, PUT, DELETE, PATCH and OPTIONS allowed", resource);
                 // Sec. 4.2.8.2
-                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
+                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.PUT, HttpMethod.DELETE, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
             } else {
                 // Sec. 4.2.8.2
-                log.trace("<{}> is a LDP-RS (LDPC interaction model): GET, HEAD, POST, PUT, PATCH and OPTIONS allowed", resource);
-                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.POST, HttpMethod.PUT, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
+                log.trace("<{}> is a LDP-RS (LDPC interaction model): GET, HEAD, POST, PUT, DELETE, PATCH and OPTIONS allowed", resource);
+                builder.allow(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HTTP_METHOD_PATCH, HttpMethod.OPTIONS);
                 // Sec. 4.2.3 / Sec. 5.2.3
                 builder.header(HTTP_HEADER_ACCEPT_POST, LdpUtils.getAcceptPostHeader("*/*"));
             }
@@ -743,9 +730,7 @@ public class LdpWebService {
      * @return the provided ResponseBuilder for chaining
      */
     protected Response.ResponseBuilder createResponse(RepositoryConnection connection, int status, String resource) throws RepositoryException {
-        // FIXME: Switch back to the general ResponseBuilder (once RESTEASY-1106 is fixed)
-        // return createResponse(connection, Response.status(status), resource);
-        return createResponse(connection, new ResponseBuilderImpl(status), resource);
+        return createResponse(connection, Response.status(status), resource);
     }
 
     /**
@@ -772,14 +757,13 @@ public class LdpWebService {
             final URI rdfSource = ldpService.getRdfSourceForNonRdfSource(connection, resource);
             if (rdfSource != null) {
                 // Sec. 5.2.8.1 and 5.2.3.12
-                // FIXME: Sec. 5.2.3.12, see also http://www.w3.org/2012/ldp/track/issues/15
                 rb.link(rdfSource.stringValue(), LINK_REL_DESCRIBEDBY);
-                // TODO: Propose to LDP-WG?
+                // This is not covered by the Spec, but is very convenient to have
                 rb.link(rdfSource.stringValue(), LINK_REL_META);
             }
             final URI nonRdfSource = ldpService.getNonRdfSourceForRdfSource(connection, resource);
             if (nonRdfSource != null) {
-                // TODO: Propose to LDP-WG?
+                // This is not covered by the Spec, but is very convenient to have
                 rb.link(nonRdfSource.stringValue(), LINK_REL_CONTENT);
             }
 

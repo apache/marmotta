@@ -46,7 +46,7 @@ public class SQLTimestampProcessor extends CellProcessorAdaptor implements DateC
             throw new SuperCsvCellProcessorException(Date.class, value, context, this);
         }
 
-        Timestamp date = new Timestamp(((Date)value).getTime());
+        Timestamp date = new Timestamp(((Date) value).getTime());
         return date.toString();
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -167,7 +167,7 @@ public class LDCachePersistenceTest {
         LDCachingKiWiPersistenceConnection connection = vpersistence.getConnection();
         try {
             Assert.assertThat(connection.getDatabaseTables(), hasItems("ldcache_entries"));
-            Assert.assertEquals(3, connection.getDatabaseVersion());
+            Assert.assertEquals(KiWiDialect.VERSION, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {

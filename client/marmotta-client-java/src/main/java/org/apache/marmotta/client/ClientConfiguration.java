@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.client;
 
-import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.HttpClientConnectionManager;
 
 /**
  * Add file description here!
@@ -58,7 +58,7 @@ public class ClientConfiguration {
 	 */
 	private int connectionTimeout = 10000;
 	
-	private ClientConnectionManager conectionManager;
+	private HttpClientConnectionManager conectionManager;
 
 	public ClientConfiguration(String marmottaUri) {
         if (marmottaUri.endsWith("/")) {
@@ -122,11 +122,11 @@ public class ClientConfiguration {
 		this.connectionTimeout = connectionTimeout;
 	}
 
-    public ClientConnectionManager getConectionManager() {
+    public HttpClientConnectionManager getConectionManager() {
         return conectionManager;
     }
 
-    public void setConectionManager(ClientConnectionManager conectionManager) {
+    public void setConectionManager(HttpClientConnectionManager conectionManager) {
         this.conectionManager = conectionManager;
     }
 }

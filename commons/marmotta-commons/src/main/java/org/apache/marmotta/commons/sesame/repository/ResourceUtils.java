@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -54,12 +54,12 @@ public class ResourceUtils {
     /**
      * Check whenever the uri actually exists. 
      * Existence of a URI (Resource) is bound to the existence of a
-     * Statement referencing the Resource, so this method simply delegates to {@link #isUsed(RepositoryConnection, String)}.
+     * Statement referencing the Resource, so this method simply delegates to {@link #isUsed(RepositoryConnection, Resource)}.
      *
      * @param conn connection with the repository
      * @param uri uri of the resource to check
      * @return resource exists or not
-     * @deprecated the name of this method is missleading. use {@link #isUsed(RepositoryConnection, String)}.
+     * @deprecated the name of this method is missleading. use {@link #isUsed(RepositoryConnection, Resource)}.
      */
     @Deprecated
     public static boolean existsResource(RepositoryConnection conn, String uri) {
@@ -79,7 +79,7 @@ public class ResourceUtils {
     /**
      * Check whether the {@link Resource} is ever used as subject. 
      * @param conn connection with the repository
-     * @param uri the {@link Resource} to check
+     * @param rsc the {@link Resource} to check
      * @return true if the {@link Resource} is ever used as subject.
      */
     public static boolean isSubject(RepositoryConnection conn, final Resource rsc) {

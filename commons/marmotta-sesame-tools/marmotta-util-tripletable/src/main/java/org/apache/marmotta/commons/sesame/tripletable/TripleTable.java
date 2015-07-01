@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,7 +19,6 @@ package org.apache.marmotta.commons.sesame.tripletable;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import org.apache.marmotta.commons.collections.EquivalenceHashSet;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;

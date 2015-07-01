@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -46,14 +46,14 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
 
     public KiWiDoubleLiteral(Double content, KiWiUriResource type) {
         super();
-        setDoubleContent(content);
         setType(type);
+        setDoubleContent(content);
      }
 
     public KiWiDoubleLiteral(Double content, KiWiUriResource type, Date created) {
         super(created);
-        setDoubleContent(content);
         setType(type);
+        setDoubleContent(content);
     }
 
 
@@ -63,7 +63,7 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
 
     public void setDoubleContent(Double doubleContent) {
         this.doubleContent = doubleContent;
-        this.content       = doubleContent.toString();
+        this.content = fmt(doubleContent);
     }
 
 
@@ -87,5 +87,14 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
     @Override
     public double doubleValue() {
         return getDoubleContent().doubleValue();
+    }
+
+
+    private static String fmt(double d)
+    {
+        if(d == (long) d)
+            return String.format("%d",(long)d);
+        else
+            return String.format("%s",d);
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -63,6 +63,14 @@ public class NotTest<Node> extends NodeTest<Node> {
     @Override
     public String getDescription() {
         return "Negates the test given as argument";
+    }
+
+    /**
+     * Get the delegate that is negated
+     * @return the delegate NodeTest
+     */
+    public NodeTest<Node> getDelegate() {
+        return delegate;
     }
 
     @Override

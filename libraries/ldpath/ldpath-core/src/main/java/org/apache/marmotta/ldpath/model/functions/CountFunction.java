@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -34,7 +34,7 @@ public class CountFunction<Node> extends SelectorFunction<Node> {
     @SafeVarargs
     public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
 
-        LinkedList<Node> result = new LinkedList<Node>();
+        LinkedList<Node> result = new LinkedList<>();
         for (Collection<Node> coll : args) {
             final Node intLit = backend.createLiteral(String.valueOf(coll.size()), null, dataType);
             result.add(intLit);

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,13 +17,9 @@
  */
 package org.apache.marmotta.client.clients;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteStreams;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -39,9 +35,16 @@ import org.apache.marmotta.client.util.HTTPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 /**
  * This client class provides support for importing ontologies in various formats into the Apache Marmotta.
@@ -84,7 +87,7 @@ public class ImportClient {
         String serviceUrl = config.getMarmottaUri() + URL_TYPES_SERVICE;
 
         HttpGet get = new HttpGet(serviceUrl);
-        get.setHeader("Accept", "application/json");
+        get.setHeader(ACCEPT, "application/json");
         
         try {
             HttpResponse response = httpClient.execute(get);
@@ -112,17 +115,33 @@ public class ImportClient {
      *
      * @param in InputStream to read the dataset from; will be consumed by this method
      * @param mimeType mime type of the input data
+     * @param context named graph to import in
      * @throws IOException
      * @throws MarmottaClientException
      */
-    public void uploadDataset(final InputStream in, final String mimeType) throws IOException, MarmottaClientException {
-        //Preconditions.checkArgument(acceptableTypes.contains(mimeType));
+    public void uploadDataset(final InputStream in, final String mimeType, final String context) throws IOException, MarmottaClientException, URISyntaxException {
+        HttpClient httpClient = HTTPUtil.createClient(config, context);
+        uploadDataset(in, mimeType, httpClient);
+    }
 
+    /**
+     * Upload/Import a dataset in the Marmotta Server. The dataset is given as an Inputstream that contains data of the
+     * mime type passed as argument. The mime type must be one of the acceptable types of the server.
+     *
+     * @param in InputStream to read the dataset from; will be consumed by this method
+     * @param mimeType mime type of the input data
+     * @throws IOException
+     * @throws MarmottaClientException
+     */
+    public void uploadDataset(final InputStream in, final String mimeType) throws IOException, MarmottaClientException, URISyntaxException {
         HttpClient httpClient = HTTPUtil.createClient(config);
+        uploadDataset(in, mimeType, httpClient);
+    }
 
+    private void uploadDataset(final InputStream in, final String mimeType, HttpClient httpClient) throws IOException, URISyntaxException {
         HttpPost post = HTTPUtil.createPost(URL_UPLOAD_SERVICE, config);
-        post.setHeader("Content-Type", mimeType);
-        
+        post.setHeader(CONTENT_TYPE, mimeType);
+
         ContentProducer cp = new ContentProducer() {
             @Override
             public void writeTo(OutputStream outstream) throws IOException {
@@ -130,7 +149,7 @@ public class ImportClient {
             }
         };
         post.setEntity(new EntityTemplate(cp));
-        
+
         ResponseHandler<Boolean> handler = new ResponseHandler<Boolean>() {
             @Override
             public Boolean handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
@@ -157,7 +176,6 @@ public class ImportClient {
         } finally {
             post.releaseConnection();
         }
-
     }
 
     /**
@@ -169,8 +187,22 @@ public class ImportClient {
      * @throws IOException
      * @throws MarmottaClientException
      */
-    public void uploadDataset(String data, String mimeType) throws IOException, MarmottaClientException {
+    public void uploadDataset(String data, String mimeType) throws IOException, MarmottaClientException, URISyntaxException {
         uploadDataset(new ByteArrayInputStream(data.getBytes("utf-8")), mimeType);
+    }
+
+    /**
+     * Upload the data contained in the string using the given mime type; convenience method wrapping the generic
+     * InputStream-based method.
+     *
+     * @param data
+     * @param mimeType
+     * @param context
+     * @throws IOException
+     * @throws MarmottaClientException
+     */
+    public void uploadDataset(String data, String mimeType, String context) throws IOException, MarmottaClientException, URISyntaxException {
+        uploadDataset(new ByteArrayInputStream(data.getBytes("utf-8")), mimeType, context);
     }
 
 }

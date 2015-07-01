@@ -1,5 +1,5 @@
 Apache Marmotta Installer
-Copyright 2012-2014 The Apache Software Foundation
+Copyright 2012-2015 The Apache Software Foundation
 
 This product includes software developed at 
 The Apache Software Foundation (http://www.apache.org).
@@ -40,3 +40,41 @@ This product also includes some third-party binary components:
 
  * Javolution, Copyright (c) 2012 Javolution, is licensed under BSD license. The
    original source code is available from http://javolution.org
+
+ * Joda-Time, which includes software developed by Joda.org (http://www.joda.org/).
+   The original source code is available from https://github.com/JodaOrg/joda-time
+
+ * Apache HttpComponents, which contains annotations derived from JCIP-ANNOTATIONS
+   Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
+
+ * Apache Commons Compress, which contains files in the package
+   org.apache.commons.compress.archivers.sevenz were derived from the
+   LZMA SDK, version 9.20 (C/ and CPP/7zip/), which has been placed in
+   the public domain: 
+   "LZMA SDK is placed in the public domain." (http://www.7-zip.org/sdk.html)
+
+ * Apache Tomcat, which contains compilation software for JSP pages
+   that is provided by Eclipse, which is open source software.  The
+   original software and related information is available at
+   http://www.eclipse.org;
+
+   and the bayeux implementation:
+   The org.apache.cometd.bayeux API is derivative work originating at
+   the Dojo Foundation
+       * Copyright 2007-2008 Guy Molinari
+       * Copyright 2007-2008 Filip Hanik
+       * Copyright 2007 Dojo Foundation
+       * Copyright 2007 Mort Bay Consulting Pty. Ltd;
+
+   and the original XML Schemas for Java EE Deployment Descriptors:
+       - javaee_5.xsd
+       - javaee_web_services_1_2.xsd
+       - javaee_web_services_client_1_2.xsd
+       - javaee_6.xsd
+       - javaee_web_services_1_3.xsd
+       - javaee_web_services_client_1_3.xsd
+       - jsp_2_2.xsd
+       - web-app_3_0.xsd
+       - web-common_3_0.xsd
+       - web-fragment_3_0.xsd
+   may be obtained from http://java.sun.com/xml/ns/javaee/

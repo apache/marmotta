@@ -18,9 +18,11 @@
 package org.apache.marmotta.platform.ldp.util;
 
 import info.aduna.iteration.CloseableIteration;
+import info.aduna.lang.FileFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.vocabulary.LDP;
 import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.apache.marmotta.platform.ldp.api.Preference;
 import org.apache.marmotta.platform.ldp.webservices.PreferHeader;
 import org.apache.tika.mime.MimeTypeException;
@@ -30,17 +32,17 @@ import org.openrdf.model.URI;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParserRegistry;
-import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.*;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.MediaType;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
@@ -118,10 +120,13 @@ public class LdpUtils {
 
         writer.handleNamespace(LDP.PREFIX, LDP.NAMESPACE);
         writer.handleNamespace(RDF.PREFIX, RDF.NAMESPACE);
+        writer.handleNamespace(RDFS.PREFIX, RDFS.NAMESPACE);
         writer.handleNamespace(XSD.PREFIX, XSD.NAMESPACE);
         writer.handleNamespace(DCTERMS.PREFIX, DCTERMS.NAMESPACE);
 
-        writer.handleNamespace("", subject.stringValue());
+        writer.handleNamespace("parent", subject.getNamespace());
+        writer.handleNamespace("child", subject.stringValue().replaceFirst("/*$", "/"));
+        writer.handleNamespace("this", subject.stringValue().replaceFirst("/*$", "#"));
 
         while (iteration.hasNext()) {
             writer.handleStatement(iteration.next());
@@ -131,7 +136,7 @@ public class LdpUtils {
     }
 
     public static String getAcceptPostHeader(String extraFormats) {
-        final Set<RDFFormat> rdfFormats = RDFParserRegistry.getInstance().getKeys();
+        final Collection<RDFFormat> rdfFormats = filterAvailableParsers(LdpService.SERVER_PREFERED_RDF_FORMATS);
         final StringBuilder sb = new StringBuilder();
         for (RDFFormat rdfFormat : rdfFormats) {
             sb.append(rdfFormat.getDefaultMIMEType());
@@ -139,20 +144,66 @@ public class LdpUtils {
         }
         if (StringUtils.isNotBlank(extraFormats)) {
             sb.append(extraFormats);
-        } else {
+        } else if (sb.length() > 1) {
             sb.delete(sb.length()-2, sb.length());
         }
         return sb.toString();
     }
 
+    /**
+     * Tries to match the specified MIME type with the MIME types of the supplied
+     * file formats.
+     * This method does exactly the same as {@link info.aduna.lang.FileFormat#matchMIMEType(String, Iterable)}
+     * but only considers the <strong>default</strong> mimeTypes.
+     *
+     * @param mimeType A MIME type, e.g. "text/plain".
+     * @param fileFormats The file formats to match the MIME type against.
+     * @return A FileFormat object if the MIME type was recognized, or {@code null} otherwise.
+     *
+     * @see #matchDefaultMIMEType(String, Iterable, info.aduna.lang.FileFormat)
+     * @see info.aduna.lang.FileFormat#matchMIMEType(String, Iterable)
+     *
+     */
+    public static <FF extends FileFormat> FF matchDefaultMIMEType(String mimeType, Iterable<FF> fileFormats) {
+        return matchDefaultMIMEType(mimeType, fileFormats, null);
+    }
+
+    /**
+     * Tries to match the specified MIME type with the default MIME types of the supplied
+     * file formats. The supplied fallback format will be returned when no
+     * matching format was found.
+     * This method does exactly the same as {@link info.aduna.lang.FileFormat#matchMIMEType(String, Iterable, info.aduna.lang.FileFormat)}
+     * but only considers the <strong>default</strong> mimeTypes.
+     *
+     * @param mimeType A MIME type, e.g. "text/plain".
+     * @param fileFormats The file formats to match the MIME type against.
+     * @param fallback The file format to return if no matching format can be found.
+     * @return A FileFormat that matches the MIME type, or the fallback format if the extension was not recognized.
+     *
+     * @see info.aduna.lang.FileFormat#matchMIMEType(String, Iterable, info.aduna.lang.FileFormat)
+     *
+     */
+    public static <FF extends FileFormat> FF matchDefaultMIMEType(String mimeType, Iterable<FF> fileFormats,
+                                                           FF fallback) {
+        // Try to match with the default MIME type
+        for (FF fileFormat : fileFormats) {
+            if (fileFormat.hasDefaultMIMEType(mimeType)) {
+                return fileFormat;
+            }
+        }
+        return fallback;
+    }
+
     public static String getContainer(String resource) throws MalformedURLException, URISyntaxException {
-        java.net.URI uri = new java.net.URI(resource);
-        java.net.URI parent = uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
-        return parent.toASCIIString();
+        final int fragmentIndex = resource.indexOf('#');
+        if (fragmentIndex >= 0) {
+            return resource.substring(0, fragmentIndex);
+        }
+        return resource.substring(0, resource.lastIndexOf('/', resource.length() - 1));
     }
 
     public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
-        return new URIImpl(resource.getNamespace());
+        return new URIImpl(getContainer(resource.stringValue()));
     }
 
     /**
@@ -185,6 +236,29 @@ public class LdpUtils {
         }
         return null;
     }
+
+    public static List<RDFFormat> filterAvailableParsers(List<RDFFormat> rdfFormats) {
+        final List<RDFFormat> result = new ArrayList<>();
+        final RDFParserRegistry parserRegistry = RDFParserRegistry.getInstance();
+        for (RDFFormat f: rdfFormats) {
+            if (parserRegistry.has(f)) {
+                result.add(f);
+            }
+        }
+        return result;
+    }
+
+    public static List<RDFFormat> filterAvailableWriters(List<RDFFormat> rdfFormats) {
+        final List<RDFFormat> result = new ArrayList<>();
+        final RDFWriterRegistry writerRegistry = RDFWriterRegistry.getInstance();
+        for (RDFFormat f: rdfFormats) {
+            if (writerRegistry.has(f)) {
+                result.add(f);
+            }
+        }
+        return result;
+    }
+
 
     private LdpUtils() {
         // Static access only
