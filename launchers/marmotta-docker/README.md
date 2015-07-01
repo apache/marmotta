@@ -5,12 +5,17 @@ Apache Marmotta.
 
 ## Build image
 
-    sudo docker build .
+    sudo docker build -t marmotta .
 
 ## Get image
 
 @@TODO@@: push it to asf or docker hub
 
-## Run it
+## Run
 
     docker run -p 8080:8080
+
+## Accesss
+
+Access Marmotta runing inside the container, at [172.17.42.1:8080/marmotta](http://172.17.42.1:8080/marmotta) 
+(IP address may be different, use `docker inspect CONTAINER_ID` for details).
