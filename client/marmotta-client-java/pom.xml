@@ -114,8 +114,13 @@
         </dependency>
         <dependency>
         	<groupId>org.openrdf.sesame</groupId>
-        	<artifactId>sesame-queryresultio-sparqljson</artifactId>
-        	<scope>runtime</scope>
+            <artifactId>sesame-queryresultio-sparqlxml</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-queryresultio-sparqljson</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -18,15 +18,14 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
  * A path definition selecting the value of a property. Either a URI enclosed in <> or a namespace prefix and a
@@ -36,7 +35,7 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class PropertySelector<Node> implements NodeSelector<Node> {
 
-	private Node property;
+	private final Node property;
 
 
 	public PropertySelector(Node property) {
@@ -93,6 +92,14 @@ public class PropertySelector<Node> implements NodeSelector<Node> {
         } else {
             throw new UnsupportedOperationException("cannot use wildcards in unnamed field definitions because the name is undefined");
         }
+    }
+
+    /**
+     * Getter for child property node
+     * @return child property node
+     */
+    public Node getProperty() {
+        return property;
     }
 
     @Override

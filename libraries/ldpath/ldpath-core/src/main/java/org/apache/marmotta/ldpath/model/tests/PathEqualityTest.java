@@ -97,6 +97,22 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
         return "Tests whether the two node lists intersect";
     }
 
+    /**
+     * Get the Path/Selector to run the test on
+     * @return the Selector to test
+     */
+    public NodeSelector<Node> getPath() {
+        return path;
+    }
+
+    /**
+     * Get the expected value to test for
+     * @return the value to test for.
+     */
+    public Node getNode() {
+        return node;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

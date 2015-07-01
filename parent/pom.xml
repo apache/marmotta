@@ -53,6 +53,7 @@
         <resteasy.version>3.0.10.Final</resteasy.version>
         <jackson.version>2.3.3</jackson.version>
         <titan.version>0.4.2</titan.version>
+        <accumulograph.version>0.2.1</accumulograph.version>
         <jax.doclets.version>0.10.1</jax.doclets.version>
     </properties>
 
@@ -1002,7 +1003,7 @@
             <dependency>
                 <groupId>com.github.tkurz.webjars</groupId>
                 <artifactId>squebi</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.3</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -1724,7 +1725,7 @@
             <dependency>
                 <groupId>com.thetransactioncompany</groupId>
                 <artifactId>cors-filter</artifactId>
-                <version>2.2.1</version>
+                <version>2.4</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.servlet</groupId>

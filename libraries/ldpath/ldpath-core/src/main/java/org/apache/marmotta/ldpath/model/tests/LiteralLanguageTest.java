@@ -18,11 +18,11 @@
 package org.apache.marmotta.ldpath.model.tests;
 
 
-import java.util.Locale;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
+
+import java.util.Locale;
 
 /**
  * Tests if the language of the literal node matches the language configured for the test. If the language of the test
@@ -33,7 +33,7 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class LiteralLanguageTest<Node> extends NodeTest<Node> {
 
-    private String lang;
+    private final String lang;
 
 
     public LiteralLanguageTest(String lang) {
@@ -93,6 +93,14 @@ public class LiteralLanguageTest<Node> extends NodeTest<Node> {
     @Override
     public String getDescription() {
         return "Tests the language of the literal nodes passed as argument";
+    }
+
+    /**
+     * Get the language to test for
+     * @return the language tag.
+     */
+    public String getLang() {
+        return lang;
     }
 
     @Override

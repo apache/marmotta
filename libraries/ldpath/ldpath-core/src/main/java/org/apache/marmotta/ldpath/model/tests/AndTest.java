@@ -30,8 +30,8 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class AndTest<Node> extends ComplexTest<Node> {
 
-    private NodeTest<Node> left;
-    private NodeTest<Node> right;
+    private final NodeTest<Node> left;
+    private final NodeTest<Node> right;
 
 
     public AndTest(NodeTest<Node> left, NodeTest<Node> right) {
@@ -84,6 +84,22 @@ public class AndTest<Node> extends ComplexTest<Node> {
     @Override
     public String getDescription() {
         return "Tests the conjunction of two tests";
+    }
+
+    /**
+     * Get the left Test
+     * @return the left Test of the And
+     */
+    public NodeTest<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Get the right Test
+     * @return the right Test of the And
+     */
+    public NodeTest<Node> getRight() {
+        return right;
     }
 
     @Override

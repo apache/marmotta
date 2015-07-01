@@ -18,12 +18,12 @@
 package org.apache.marmotta.ldpath.model.tests;
 
 
-import java.util.Collection;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
+
+import java.util.Collection;
 
 /**
  * Tests whether the path given as argument for the constructor yields at least one node when evaluated
@@ -33,7 +33,7 @@ import org.apache.marmotta.ldpath.api.tests.NodeTest;
  */
 public class PathTest<Node> extends NodeTest<Node> {
 
-    private NodeSelector<Node> path;
+    private final NodeSelector<Node> path;
 
     public PathTest(NodeSelector<Node> path) {
         this.path = path;
@@ -89,6 +89,14 @@ public class PathTest<Node> extends NodeTest<Node> {
     @Override
     public String getDescription() {
         return "Tests whether the node list is non-empty";
+    }
+
+    /**
+     * Get the Path/Selector to check existence for
+     * @return the Selector to check.
+     */
+    public NodeSelector<Node> getPath() {
+        return path;
     }
 
     @Override
