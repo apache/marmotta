@@ -141,15 +141,18 @@ public abstract class BaseLDCacheTest {
 
         // run a SPARQL test to see if the returned data is correct
         InputStream sparql = BaseLDCacheTest.class.getResourceAsStream(sparqlFile);
-        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, IOUtils.toString(sparql));
-        Assert.assertTrue("SPARQL test query failed", testLabel.evaluate());
+        final String query = IOUtils.toString(sparql);
+        BooleanQuery testLabel = connection.prepareBooleanQuery(QueryLanguage.SPARQL, query);
+        final boolean testResult = testLabel.evaluate();
 
-        if(log.isDebugEnabled()) {
+        if(!testResult && log.isDebugEnabled()) {
+            log.debug("QUERY: {}", query);
+
             StringWriter out = new StringWriter();
             connection.export(Rio.createWriter(RDFFormat.TURTLE, out));
-            log.debug("DATA:");
-            log.debug(out.toString());
+            log.debug("DATA: {}", out.toString());
         }
+        Assert.assertTrue("SPARQL test query failed", testResult);
 
         connection.commit();
         connection.close();
