@@ -77,6 +77,7 @@ public class KiWiIO {
     private static final int TYPE_DOUBLE    = 5;
     private static final int TYPE_INT       = 6;
     private static final int TYPE_STRING    = 7;
+    private static final int TYPE_GEOMETRY    = 8;
 
 
     public static final int MODE_DEFAULT    = 1; // no compression
@@ -112,6 +113,7 @@ public class KiWiIO {
         classTable.put(KiWiDoubleLiteral.class,  TYPE_DOUBLE);
         classTable.put(KiWiIntLiteral.class,     TYPE_INT);
         classTable.put(KiWiStringLiteral.class,  TYPE_STRING);
+        classTable.put(KiWiGeometryLiteral.class,  TYPE_GEOMETRY);
     }
 
 
@@ -168,6 +170,9 @@ public class KiWiIO {
                 case TYPE_STRING:
                     writeStringLiteral(output, (KiWiStringLiteral) node);
                     break;
+                case TYPE_GEOMETRY:
+                    writeGeometryLiteral(output, (KiWiGeometryLiteral) node);
+                    break;
                 default:
                     throw new IllegalArgumentException("unknown KiWiNode type: "+node.getClass());
             }
@@ -202,6 +207,8 @@ public class KiWiIO {
                 return readIntLiteral(input);
             case TYPE_STRING:
                 return readStringLiteral(input);
+            case TYPE_GEOMETRY:
+                return readGeometryLiteral(input);
             default:
                 throw new IllegalArgumentException("unknown KiWiNode type: "+type);
         }
@@ -668,7 +675,110 @@ public class KiWiIO {
         }
     }
 
+/**
+     * Efficiently serialize a KiWiGeometryLiteral to a DataOutput destination.
+     *add on MARMOTA 584 - GeoSPARQL Support
+     * @param out the destination
+     * @param literal the KiWiGeometryLiteral to serialize
+     * @throws IOException
+     */
+    public static void writeGeometryLiteral(DataOutput out, KiWiGeometryLiteral literal) throws IOException {
+        if(literal == null) {
+            out.writeLong(-1L);
+        } else {
+            out.writeLong(literal.getId());
+            writeContent(out, literal.getContent());
+            if(langTable.containsKey(literal.getLanguage())) {
+                out.writeByte(langTable.get(literal.getLanguage()));
+            } else {
+                out.writeByte(LANG_UNKNOWN);
+                DataIO.writeString(out, literal.getLanguage());
+            }
+            writeURI(out, literal.getType());
+            out.writeLong(literal.getCreated().getTime());
+        }
+    }
 
+    
+    
+    /**
+     * Read a KiWiGeometyrLiteral serialized with writeGeometryLiteral from a DataInput source
+     *
+     * @param input the source
+     * @return the de-serialized KiWiStringLiteral
+     * @throws IOException
+     */
+    public static KiWiGeometryLiteral readGeometryLiteral(DataInput input) throws IOException {
+        long id = input.readLong();
+
+        if(id == -1) {
+            return null;
+        } else {
+            String content = readContent(input);
+            byte   langB   = input.readByte();
+            String lang;
+
+            switch (langB) {
+                case LANG_EN:
+                    lang = "en";
+                    break;
+                case LANG_DE:
+                    lang = "de";
+                    break;
+                case LANG_FR:
+                    lang = "fr";
+                    break;
+                case LANG_ES:
+                    lang = "es";
+                    break;
+                case LANG_IT:
+                    lang = "it";
+                    break;
+                case LANG_PT:
+                    lang = "pt";
+                    break;
+                case LANG_NL:
+                    lang = "nl";
+                    break;
+                case LANG_SV:
+                    lang = "sv";
+                    break;
+                case LANG_NO:
+                    lang = "no";
+                    break;
+                case LANG_FI:
+                    lang = "fi";
+                    break;
+                case LANG_RU:
+                    lang = "ru";
+                    break;
+                case LANG_DK:
+                    lang = "dk";
+                    break;
+                case LANG_PL:
+                    lang = "pl";
+                    break;
+                default:
+                    lang = DataIO.readString(input);
+            }
+
+
+
+            KiWiUriResource dtype = readURI(input);
+
+            Date created = new Date(input.readLong());
+
+            KiWiGeometryLiteral r = new KiWiGeometryLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
+            r.setId(id);
+
+            return r;
+        }
+    }
+    
+    
+    
+    
+    
     /**
      * Efficiently serialize a KiWiTriple to a DataOutput destination.
      *
