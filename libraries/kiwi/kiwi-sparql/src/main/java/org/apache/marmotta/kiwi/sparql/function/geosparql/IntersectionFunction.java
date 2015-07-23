@@ -16,6 +16,7 @@
  */
 package org.apache.marmotta.kiwi.sparql.function.geosparql;
 
+
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
@@ -38,7 +39,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * Note that for performance reasons it might be preferrable to create a geometry index for your database. Please
  * consult your database documentation on how to do this.
  *
- * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
+ * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
 public class IntersectionFunction implements NativeFunction {
 
@@ -81,13 +82,18 @@ public class IntersectionFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if(dialect instanceof PostgreSQLDialect) {
-            if(args.length == 2) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON)|| args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)){  
-                    //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(st_Intersection(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), %s ) )", args[0], args[0], args[0], args[1]);
+
+                  if(args.length == 2) {
+                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON)|| args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT))
+                {  //If users insert Direct the WKT  Geometry 
+                    return "ST_AsText(st_Intersection(" + args[0] + " , " + args[1] + " ) )";    
                 }        
-                return String.format("ST_AsText(st_Intersection(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), substring( %s from position(' ' in %s) + 1 for char_length( %s ) ) ) )", args[0], args[0], args[0], args[1], args[1], args[1]);
+                return "ST_AsText(st_Intersection(" + args[0] + " , " + args[1] + " ) )";
             } 
+
+            
+            
+            
         }
         throw new UnsupportedOperationException("intersection function not supported by dialect "+dialect);
     }
@@ -111,7 +117,7 @@ public class IntersectionFunction implements NativeFunction {
      */
     @Override
     public ValueType getArgumentType(int arg) {
-        return ValueType.STRING;
+        return ValueType.GEOMETRY;
     }
 
     /**

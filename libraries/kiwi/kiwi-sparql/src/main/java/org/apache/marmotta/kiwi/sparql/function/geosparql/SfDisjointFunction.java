@@ -16,6 +16,7 @@
  */
 package org.apache.marmotta.kiwi.sparql.function.geosparql;
 
+
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
@@ -38,7 +39,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * Note that for performance reasons it might be preferrable to create a geometry index for your database. Please
  * consult your database documentation on how to do this.
  *
- * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
+ * @author Xavier Zumba (xavier.sumba93@ucuenca.ec))
  */
 public class SfDisjointFunction implements NativeFunction {
 
@@ -84,9 +85,9 @@ public class SfDisjointFunction implements NativeFunction {
             if(args.length == 2) {
                 if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON)|| args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT))
                 {  //If users insert Direct the WKT  Geometry 
-                    return String.format("st_Disjoint(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), %s )", args[0], args[0], args[0], args[1]);
+                    return "st_Disjoint(" + args[0] + " , " + args[1] + " )";    
                 }        
-                return String.format("st_Disjoint(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), substring( %s from position(' ' in %s) + 1 for char_length( %s ) ) ) ", args[0], args[0], args[0], args[1], args[1], args[1]);
+                return "st_Disjoint(" + args[0] + " , " + args[1] + " )";
             } 
 
         }
@@ -112,7 +113,7 @@ public class SfDisjointFunction implements NativeFunction {
      */
     @Override
     public ValueType getArgumentType(int arg) {
-        return ValueType.STRING;
+        return ValueType.GEOMETRY;
     }
 
     /**

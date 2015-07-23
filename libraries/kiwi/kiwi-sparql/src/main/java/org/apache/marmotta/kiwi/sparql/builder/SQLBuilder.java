@@ -45,8 +45,7 @@ import java.util.*;
 /**
  * A builder for translating SPARQL queries into SQL.
  *
- * @author Sebastian Schaffert
- * @author Sergio Fernández
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class SQLBuilder {
 
@@ -56,6 +55,7 @@ public class SQLBuilder {
      * Simplify access to different node ids
      */
     private static final String[] positions = new String[] {"subject","predicate","object","context"};
+
 
     /**
      * Reference to the registry of natively supported functions with parameter and return types as well as SQL translation
@@ -164,6 +164,7 @@ public class SQLBuilder {
 
         prepareBuilder();
     }
+
 
     public Map<String, SQLVariable> getVariables() {
         return variables;
@@ -389,7 +390,8 @@ public class SQLBuilder {
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".svalue");
                                     break;
                                 case GEOMETRY:
-
+                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".gvalue");
+                                    break;
                                 default:
                                     p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
                                     break;
@@ -610,6 +612,7 @@ public class SQLBuilder {
         }
     }
 
+
     private StringBuilder buildSelectClause() {
         List<String> projections = new ArrayList<>();
 
@@ -617,19 +620,17 @@ public class SQLBuilder {
         List<SQLVariable> vars = new ArrayList<>(variables.values());
         Collections.sort(vars, SQLVariable.sparqlNameComparator);
 
+
         for(SQLVariable v : vars) {
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
                 String projectedName = v.getName();
+                String fromName = v.getExpressions().get(0);
 
-                if (v.getExpressions() != null && v.getExpressions().size() > 0) {
-                    String fromName = v.getExpressions().get(0);
-                    projections.add(fromName + " AS " + projectedName);
-                }
+                projections.add(fromName + " AS " + projectedName);
 
                 if(v.getLiteralTypeExpression() != null) {
                     projections.add(v.getLiteralTypeExpression() + " AS " + projectedName + "_TYPE");
                 }
-                
                 if(v.getLiteralLangExpression() != null) {
                     projections.add(v.getLiteralLangExpression() + " AS " + projectedName + "_LANG");
                 }
@@ -792,7 +793,6 @@ public class SQLBuilder {
 
     private StringBuilder buildGroupClause() {
         StringBuilder groupClause = new StringBuilder();
-
         if(groupLabels.size() > 0) {
             for(Iterator<String> it = groupLabels.iterator(); it.hasNext(); ) {
                 SQLVariable sv = variables.get(it.next());
@@ -811,18 +811,6 @@ public class SQLBuilder {
                     groupClause.append(", ");
                 }
             }
-
-            if (orderby.size() > 0) {
-                groupClause.append(", ");
-                for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
-                    OrderElem elem = it.next();
-                    groupClause.append(evaluateExpression(elem.getExpr(), ValueType.STRING));
-                    if (it.hasNext()) {
-                        groupClause.append(", ");
-                    }
-                }
-            }
-
             groupClause.append(" \n");
         }
 

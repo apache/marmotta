@@ -16,6 +16,7 @@
  */
 package org.apache.marmotta.kiwi.sparql.function.geosparql;
 
+
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
@@ -38,14 +39,14 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * Note that for performance reasons it might be preferrable to create a geometry index for your database. Please
  * consult your database documentation on how to do this.
  *
- * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
+ * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
-public class SfConvexHullFunction implements NativeFunction {
+public class ConvexHullFunction implements NativeFunction {
 
     // auto-register for SPARQL environment
     static {
         if(!FunctionRegistry.getInstance().has(FN_GEOSPARQL.CONVEX_HULL.toString())) {
-            FunctionRegistry.getInstance().add(new SfConvexHullFunction());
+            FunctionRegistry.getInstance().add(new ConvexHullFunction());
         }
     }
 
@@ -84,9 +85,9 @@ public class SfConvexHullFunction implements NativeFunction {
             if(args.length == 1) {
                 if (args[0].contains(FN_GEOSPARQL.MULTIPOLYGON)|| args[0].contains(FN_GEOSPARQL.MULTILINESTRING) || args[0].contains(FN_GEOSPARQL.POINT))
                 {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(st_convexHull( %s ))", args[0]);   
+                    return "ST_AsText(st_convexHull( " + args[0] + " ))";    
                 }        
-                return String.format("ST_AsText(st_convexHull(substring( %s from position(' ' in %s) + 1 for char_length( %s )))) ", args[0], args[0], args[0]);
+                return "ST_AsText(st_convexHull(" + args[0] +"))";
             } 
 
         }
@@ -112,7 +113,7 @@ public class SfConvexHullFunction implements NativeFunction {
      */
     @Override
     public ValueType getArgumentType(int arg) {
-        return ValueType.STRING;
+        return ValueType.GEOMETRY;
     }
 
     /**

@@ -85,7 +85,7 @@ public class SfWithinFunction implements NativeFunction {
             if(args.length == 2) {
          //       if (args[0].contains(FN_GEOSPARQL.POINT.toString()) && args[1].contains(FN_GEOSPARQL.MULTIPOLYGON.toString()))
          //       { 
-                return String.format("st_Within(substring( %s from position(' ' in %s) + 1 for char_length( %s ) ), substring( %s from position(' ' in %s) + 1 for char_length( %s ) ) ) ", args[0], args[0], args[0], args[1], args[1], args[1]);
+                return "st_Within("+args[0]+","+args[1]+")";
               //  }
             //    else
            //     if (args[0].contains(FN_GEOSPARQL.POINT.toString()) && args[1].contains(FN_GEOSPARQL.MULTILINESTRING.toString()))
@@ -116,7 +116,7 @@ public class SfWithinFunction implements NativeFunction {
      */
     @Override
     public ValueType getArgumentType(int arg) {
-        return ValueType.STRING;
+        return ValueType.GEOMETRY;
     }
 
     /**
