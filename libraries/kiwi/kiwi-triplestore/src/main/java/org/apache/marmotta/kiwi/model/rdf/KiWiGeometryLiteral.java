@@ -23,7 +23,7 @@ import java.util.Locale;
 /**
  * A RDF geometry literal (of type geo:wktLiteral), possibly with language information.
  * <p/>
- * User: Xavier 
+ * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  */
 public class KiWiGeometryLiteral extends KiWiLiteral {
 
