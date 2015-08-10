@@ -39,7 +39,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * Note that for performance reasons it might be preferrable to create a geometry index for your database. Please
  * consult your database documentation on how to do this.
  *
- * @author Xavier Zumba (xavier.sumba93@ucuenca.ec))
+ * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
 public class SfContainsFunction implements NativeFunction {
 
@@ -85,9 +85,9 @@ public class SfContainsFunction implements NativeFunction {
             if(args.length == 2) {
                 if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON)|| args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT))
                 {  //If users insert Direct the WKT  Geometry 
-                    return "st_Contains(" + args[0] + " , " + args[1] + " )";    
+                    return String.format("st_Contains(%s , %s )",args[0],args[1]);
                 }        
-                return "st_Contains(" + args[0] + " , " +  args[1] + " )";
+                return String.format("st_Contains(%s , %s )",args[0],args[1]);
             } 
 
         }

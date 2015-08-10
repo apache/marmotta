@@ -27,13 +27,13 @@ import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
 import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
- * A SPARQL function for doing a buffer of a geometry. Should be implemented
- * directly in the database, as the in-memory implementation is non-functional.
- * Only support by postgres - POSTGIS
+ * A SPARQL function for doing a union between two geometries. Should be
+ * implemented directly in the database, as the in-memory implementation is
+ * non-functional. Only support by postgres - POSTGIS
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:buffer(?geometryA, radius) </li>
+ * <li>geof:union(?geometryA, ?geometryB) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -42,12 +42,12 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
-public class BufferFunction implements NativeFunction {
+public class UnionFunction implements NativeFunction {
 
     // auto-register for SPARQL environment
     static {
-        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.BUFFER.toString())) {
-            FunctionRegistry.getInstance().add(new BufferFunction());
+        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.UNION.toString())) {
+            FunctionRegistry.getInstance().add(new UnionFunction());
         }
     }
 
@@ -58,7 +58,7 @@ public class BufferFunction implements NativeFunction {
 
     @Override
     public String getURI() {
-        return FN_GEOSPARQL.BUFFER.toString();
+        return FN_GEOSPARQL.UNION.toString();
     }
 
     /**
@@ -86,13 +86,13 @@ public class BufferFunction implements NativeFunction {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 2) {
                 if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(st_Buffer(%s , %s ))", args[0], args[1]);
+                    return String.format("ST_AsText(ST_Union(%s , %s ) )", args[0], args[1]);
                 }
-                return String.format("ST_AsText(st_Buffer(%s , %s )) ", args[0], args[1]);
+                return String.format("ST_AsText(ST_Union(%s , %s ) )", args[0], args[1]);
             }
 
         }
-        throw new UnsupportedOperationException("buffer function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("union function not supported by dialect " + dialect);
     }
 
     /**
@@ -135,6 +135,6 @@ public class BufferFunction implements NativeFunction {
      */
     @Override
     public int getMaxArgs() {
-        return 3;
+        return 2;
     }
 }

@@ -7,7 +7,7 @@
  * the License.  You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,13 +27,13 @@ import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
 import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
- * A SPARQL function for doing a buffer of a geometry. Should be implemented
- * directly in the database, as the in-memory implementation is non-functional.
- * Only support by postgres - POSTGIS
+ * A SPARQL function for doing a relate between two geometries. Should be
+ * implemented directly in the database, as the in-memory implementation is
+ * non-functional. Only support by postgres - POSTGIS
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:buffer(?geometryA, radius) </li>
+ * <li>geof:relate (?geom1, ?geom2, ?pattern-matrix)</li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -42,12 +42,12 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
-public class BufferFunction implements NativeFunction {
+public class RelateFunction implements NativeFunction {
 
     // auto-register for SPARQL environment
     static {
-        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.BUFFER.toString())) {
-            FunctionRegistry.getInstance().add(new BufferFunction());
+        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.RELATE.toString())) {
+            FunctionRegistry.getInstance().add(new RelateFunction());
         }
     }
 
@@ -58,7 +58,7 @@ public class BufferFunction implements NativeFunction {
 
     @Override
     public String getURI() {
-        return FN_GEOSPARQL.BUFFER.toString();
+        return FN_GEOSPARQL.RELATE.toString();
     }
 
     /**
@@ -84,15 +84,15 @@ public class BufferFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            if (args.length == 2) {
+            if (args.length == 3) {
                 if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(st_Buffer(%s , %s ))", args[0], args[1]);
+                    return String.format("ST_Relate(%s, %s, %s )", args[0], args[1], args[2]);
                 }
-                return String.format("ST_AsText(st_Buffer(%s , %s )) ", args[0], args[1]);
+                return String.format("ST_Relate(%s, %s , %s)", args[0], args[1], args[2]);
             }
 
         }
-        throw new UnsupportedOperationException("buffer function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("Relate function not supported by dialect " + dialect);
     }
 
     /**
@@ -103,7 +103,7 @@ public class BufferFunction implements NativeFunction {
      */
     @Override
     public ValueType getReturnType() {
-        return ValueType.GEOMETRY;
+        return ValueType.BOOL;
     }
 
     /**
@@ -125,7 +125,7 @@ public class BufferFunction implements NativeFunction {
      */
     @Override
     public int getMinArgs() {
-        return 2;
+        return 3;
     }
 
     /**
