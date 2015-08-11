@@ -768,7 +768,7 @@ public class KiWiIO {
 
             Date created = new Date(input.readLong());
 
-            KiWiGeometryLiteral r = new KiWiGeometryLiteral(content, lang != null ? Locale.forLanguageTag(lang) : null, dtype, created);
+            KiWiGeometryLiteral r = new KiWiGeometryLiteral(content, dtype, created);
             r.setId(id);
 
             return r;

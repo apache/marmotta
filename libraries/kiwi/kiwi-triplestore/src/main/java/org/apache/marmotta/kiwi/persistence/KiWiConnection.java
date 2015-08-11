@@ -754,9 +754,9 @@ public class KiWiConnection implements AutoCloseable {
      * exist
      * @throws SQLException
      */
-    public KiWiLiteral loadLiteral(boolean isGeo, String value, String lang, KiWiUriResource ltype) throws SQLException {
+    public KiWiLiteral loadLiteral(String value, KiWiUriResource ltype) throws SQLException {
         // look in cache
-        final KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(value, getLocale(lang), ltype));
+        final KiWiLiteral element = literalCache.get(LiteralCommons.createCacheKey(value, null, ltype));
         if (element != null) {
             return element;
         }
@@ -773,15 +773,8 @@ public class KiWiConnection implements AutoCloseable {
         try {
             // otherwise prepare a query, depending on the parameters given
             final PreparedStatement query;
-            if (lang == null && ltype == null) {
-                query = getPreparedStatement("load.literal_by_v");
-                query.setString(1, value);
-            } else if (lang != null) {
-                query = getPreparedStatement("load.literal_by_vl");
-                query.setString(1, value);
-                query.setString(2, lang);
-            } else if (ltype != null) {
-                query = getPreparedStatement("load.literal_by_gv");///aqui cambiar load.literal_by_gv
+            if (ltype != null) {
+                query = getPreparedStatement("load.literal_by_gv");
                 query.setString(1, value);
                 query.setLong(2, ltype.getId());
             } else {

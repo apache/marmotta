@@ -375,11 +375,10 @@ public class KiWiValueFactory implements ValueFactory {
                         result = new KiWiBooleanLiteral(bvalue, rtype);
                     }
                 } else if (isGeometry(value.toString()) || type.equals(Namespaces.NS_GEO + "wktLiteral")) {
-                    boolean isGeo = true;
-                    result = connection.loadLiteral(isGeo, value.toString(), lang, rtype);
+                    result = connection.loadLiteral(value.toString(), rtype);
 
                     if (result == null) {
-                        result = new KiWiGeometryLiteral(value.toString(), locale, rtype);
+                        result = new KiWiGeometryLiteral(value.toString(), rtype);
                     }
                 } else {
                     result = connection.loadLiteral(value.toString(), lang, rtype);
