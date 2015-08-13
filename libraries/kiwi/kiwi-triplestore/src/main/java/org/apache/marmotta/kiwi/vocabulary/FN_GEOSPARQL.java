@@ -58,7 +58,7 @@ public class FN_GEOSPARQL {
     public static final URI SF_DISJOINT;
     public static final URI SF_EQUALS;
     public static final URI RELATE;
-    
+
     //Non-Topological  FUNCTION 
     public static final URI BUFFER;
     public static final URI CONVEX_HULL;
@@ -70,13 +70,15 @@ public class FN_GEOSPARQL {
     public static final URI ENVELOPE;
     public static final URI BOUNDARY;
 
-    //measure units
+    //measure units:  namespace, URI
     public static final String unitsNAMESPACE = "http://www.opengis.net/def/uom/OGC/1.0/";
     public static final String unitsPREFIX = "units";
-
-    public static final Namespace unitsNS = new NamespaceImpl(unitsPREFIX, unitsNAMESPACE);
-
     public static final URI meter;
+
+    // Default CRS
+    public static final String sridNamespace = "http://www.opengis.net/def/crs/";
+    public static final URI defaultSRID;
+    public static final int defaultEPSG;
 
     static {
         ValueFactory f = new ValueFactoryImpl();
@@ -90,7 +92,7 @@ public class FN_GEOSPARQL {
         SF_DISJOINT = f.createURI(NAMESPACE, "sfDisjoint");
         SF_EQUALS = f.createURI(NAMESPACE, "sfEquals");
         RELATE = f.createURI(NAMESPACE, "relate");
-        
+
         BUFFER = f.createURI(NAMESPACE, "buffer");
         CONVEX_HULL = f.createURI(NAMESPACE, "convexHull");
         INTERSECTION = f.createURI(NAMESPACE, "intersection");
@@ -107,5 +109,7 @@ public class FN_GEOSPARQL {
         MULTIPOLYGON = "MULTIPOLYGON";
         MULTILINESTRING = "MULTILINESTRING";
 
+        defaultSRID = f.createURI(sridNamespace, "OGC/1.3/CRS84");
+        defaultEPSG = 4326;
     }
 }

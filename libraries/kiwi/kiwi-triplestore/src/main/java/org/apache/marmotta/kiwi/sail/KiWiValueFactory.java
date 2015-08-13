@@ -211,7 +211,7 @@ public class KiWiValueFactory implements ValueFactory {
      * Schema type. If no mapping is available, the method returns a literal
      * with the string representation of the supplied object as the value, and
      * {@link org.openrdf.model.vocabulary.XMLSchema#STRING} as the datatype.
-     * Recognized types are      {@link Boolean}, {@link Byte}, {@link Double}, {@link Float},
+     * Recognized types are null     {@link Boolean}, {@link Byte}, {@link Double}, {@link Float},
      * {@link Integer}, {@link Long}, {@link Short}, {@link javax.xml.datatype.XMLGregorianCalendar
      * }
      * , and {@link java.util.Date}.
@@ -376,9 +376,16 @@ public class KiWiValueFactory implements ValueFactory {
                     }
                 } else if (isGeometry(value.toString()) || type.equals(Namespaces.NS_GEO + "wktLiteral")) {
                     result = connection.loadLiteral(value.toString(), rtype);
+                    int sridvalue = 4326; //ESPG:4326 default SRID
+                    /*
+                     * Extract SRID  : default = http://www.opengis.net/def/crs/OGC/1.3/CRS84   
+                     */
+                    if (value.toString().contains("CRS84")) {
+                        sridvalue = 4326;
+                    }
 
                     if (result == null) {
-                        result = new KiWiGeometryLiteral(value.toString(), rtype);
+                        result = new KiWiGeometryLiteral(value.toString(), rtype, sridvalue);
                     }
                 } else {
                     result = connection.loadLiteral(value.toString(), lang, rtype);
@@ -648,14 +655,13 @@ public class KiWiValueFactory implements ValueFactory {
     public void close() {
     }
 
-   
     /**
      *
      * @param value
      * @return
      */
     public boolean isGeometry(String value) {
-        if (value.contains("POINT(") || value.contains("MULTILINESTRING(") || value.contains("MULTIPOLYGON(")) {
+        if (value.contains("POINT") || value.contains("MULTILINESTRING") || value.contains("MULTIPOLYGON")) {
             return true;
         }
         return false;
