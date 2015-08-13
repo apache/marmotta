@@ -1149,20 +1149,10 @@ public class KiWiConnection implements AutoCloseable {
         } else if (node instanceof KiWiGeometryLiteral) {
             KiWiGeometryLiteral geoLiteral = (KiWiGeometryLiteral) node;
 
-            Double dbl_value = null;
-            Long lng_value = null;
             String gvalue = "";
-            if (geoLiteral.getContent().length() < 64 && NumberUtils.isNumber(geoLiteral.getContent())) {
-                try {
-                    dbl_value = Double.parseDouble(geoLiteral.getContent());
-                    lng_value = Long.parseLong(geoLiteral.getContent());
-                } catch (NumberFormatException ex) {
-                    // ignore, keep NaN
-                }
-            }
 
             if (geoLiteral.getContent().contains("POINT")) {
-                gvalue =  geoLiteral.getContent().substring(geoLiteral.getContent().indexOf("POINT"));
+                gvalue = geoLiteral.getContent().substring(geoLiteral.getContent().indexOf("POINT"));
             }
             if (geoLiteral.getContent().contains("MULTILINESTRING")) {
                 gvalue = geoLiteral.getContent().substring(geoLiteral.getContent().indexOf("MULTILINESTRING"));
@@ -1170,33 +1160,27 @@ public class KiWiConnection implements AutoCloseable {
             if (geoLiteral.getContent().contains("MULTIPOLYGON")) {
                 gvalue = geoLiteral.getContent().substring(geoLiteral.getContent().indexOf("MULTIPOLYGON"));
             }
-            
+
             PreparedStatement insertNode = getPreparedStatement("store.gliteral");
             insertNode.setLong(1, node.getId());
             insertNode.setString(2, "Geometry Resource");
-            insertNode.setString(8, gvalue);
-            if (dbl_value != null) {
-                insertNode.setDouble(3, dbl_value);
-            } else {
-                insertNode.setObject(3, null);
-            }
-            if (lng_value != null) {
-                insertNode.setLong(4, lng_value);
-            } else {
-                insertNode.setObject(4, null);
-            }
 
-            if (geoLiteral.getLocale() != null) {
-                insertNode.setString(5, geoLiteral.getLocale().getLanguage().toLowerCase());
-            } else {
-                insertNode.setObject(5, null);
-            }
+            insertNode.setObject(3, null);
+
+            insertNode.setObject(4, null);
+
+            insertNode.setObject(5, null);
+
             if (geoLiteral.getType() != null) {
                 insertNode.setLong(6, geoLiteral.getType().getId());
             } else {
                 insertNode.setObject(6, null);
             }
             insertNode.setTimestamp(7, new Timestamp(geoLiteral.getCreated().getTime()), calendarUTC);
+
+            insertNode.setString(8, gvalue);
+
+            insertNode.setInt(9, geoLiteral.getSRID());
 
             insertNode.executeUpdate();
         } else if (node instanceof KiWiStringLiteral) {
@@ -1978,7 +1962,7 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        }else if ("geom".equals(ntype)) {
+        } else if ("geom".equals(ntype)) {
             final KiWiGeometryLiteral result = new KiWiGeometryLiteral(row.getString(12), new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
 
@@ -1991,8 +1975,7 @@ public class KiWiConnection implements AutoCloseable {
 
             cacheNode(result);
             return result;
-        }  
-        else if ("int".equals(ntype)) {
+        } else if ("int".equals(ntype)) {
             KiWiIntLiteral result = new KiWiIntLiteral(row.getLong(4), null, new Date(row.getTimestamp(11, calendarUTC).getTime()));
             result.setId(id);
             if (row.getLong(10) != 0) {
