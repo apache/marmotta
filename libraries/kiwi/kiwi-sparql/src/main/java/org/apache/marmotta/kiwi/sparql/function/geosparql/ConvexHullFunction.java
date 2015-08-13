@@ -85,14 +85,10 @@ public class ConvexHullFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 1) {
-                if (args[0].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[0].contains(FN_GEOSPARQL.MULTILINESTRING) || args[0].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(st_convexHull( %s ))", args[0]);
-                }
                 return String.format("ST_AsText(st_convexHull(%s))", args[0]);
             }
-
         }
-        throw new UnsupportedOperationException("convexHull function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("ConvexHull function not supported by dialect " + dialect);
     }
 
     /**

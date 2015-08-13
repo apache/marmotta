@@ -29,7 +29,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 /**
  * A SPARQL function for doing a intersection between two geometries. Should be
  * implemented directly in the database, as the in-memory implementation is
- * non-functional. Only support by postgres - POSTGIS
+ * non-functional. Only support by postgres - POSTGIS.
  * <p/>
  * The function can be called either as:
  * <ul>

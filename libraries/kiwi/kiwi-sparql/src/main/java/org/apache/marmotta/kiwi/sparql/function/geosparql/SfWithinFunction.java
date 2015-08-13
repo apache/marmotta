@@ -83,16 +83,8 @@ public class SfWithinFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if(dialect instanceof PostgreSQLDialect) {
             if(args.length == 2) {
-         //       if (args[0].contains(FN_GEOSPARQL.POINT.toString()) && args[1].contains(FN_GEOSPARQL.MULTIPOLYGON.toString()))
-         //       { 
                 return "st_Within("+args[0]+","+args[1]+")";
-              //  }
-            //    else
-           //     if (args[0].contains(FN_GEOSPARQL.POINT.toString()) && args[1].contains(FN_GEOSPARQL.MULTILINESTRING.toString()))
-           //     {               return "st_Intersects(substring( " + args[0] + " from position('" + FN_GEOSPARQL.POINT.toString() + "' in " + args[0] + "  ) for 60 ), substring( " + args[1] + " from position('"+FN_GEOSPARQL.MULTILINESTRING.toString()+"' in " + args[1] + " ) for char_length( " + args[1] + " ) ) ) ";
-           //     }
             } 
-
         }
         throw new UnsupportedOperationException("Within function not supported by dialect "+dialect);
     }
@@ -136,6 +128,6 @@ public class SfWithinFunction implements NativeFunction {
      */
     @Override
     public int getMaxArgs() {
-        return 3;
+        return 2;
     }
 }

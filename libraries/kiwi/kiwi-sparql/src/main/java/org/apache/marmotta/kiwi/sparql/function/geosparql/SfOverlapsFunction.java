@@ -85,13 +85,10 @@ public class SfOverlapsFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 2) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("st_Overlaps(%s , %s )", args[0], args[1]);
-                }
                 return String.format("st_Overlaps(%s , %s )", args[0], args[1]);
             }
         }
-        throw new UnsupportedOperationException("sfOverlaps function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("Overlaps function not supported by dialect " + dialect);
     }
 
     /**
@@ -134,6 +131,6 @@ public class SfOverlapsFunction implements NativeFunction {
      */
     @Override
     public int getMaxArgs() {
-        return 3;
+        return 2;
     }
 }

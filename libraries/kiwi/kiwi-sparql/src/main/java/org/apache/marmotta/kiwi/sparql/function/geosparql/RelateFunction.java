@@ -85,12 +85,8 @@ public class RelateFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 3) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_Relate(%s, %s, %s )", args[0], args[1], args[2]);
-                }
                 return String.format("ST_Relate(%s, %s , %s)", args[0], args[1], args[2]);
             }
-
         }
         throw new UnsupportedOperationException("Relate function not supported by dialect " + dialect);
     }

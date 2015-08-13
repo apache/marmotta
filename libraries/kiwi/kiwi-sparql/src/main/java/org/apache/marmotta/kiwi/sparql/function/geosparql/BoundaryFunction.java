@@ -85,9 +85,6 @@ public class BoundaryFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 2) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(ST_Boundary(%s))", args[0]);
-                }
                 return String.format("ST_AsText(ST_Boundary(%s)) ", args[0]);
             }
 
