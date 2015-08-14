@@ -27,13 +27,13 @@ import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
 import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
- * A SPARQL function for doing a symDifference of a geometry. Should be implemented
- * directly in the database, as the in-memory implementation is non-functional.
- * Only support by postgres - POSTGIS
+ * A SPARQL function for doing a symDifference of a geometry. Should be
+ * implemented directly in the database, as the in-memory implementation is
+ * non-functional. Only support by postgres - POSTGIS
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:symDifference(?geometryA, ?geometryB) </li>
+ *      <li>geof:symDifference(?geometryA, ?geometryB) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -85,13 +85,10 @@ public class SymDifferenceFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 2) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(ST_SymDifference(%s , %s ))", args[0], args[1]);
-                }
                 return String.format("ST_AsText(ST_SymDifference(%s , %s )) ", args[0], args[1]);
             }
         }
-        throw new UnsupportedOperationException("symDifference function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("SymDifference function not supported by dialect " + dialect);
     }
 
     /**

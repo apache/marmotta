@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:distance(?geometryA, ?geometryB, units:meter) </li>
+ *      <li>geof:distance(?geometryA, ?geometryB, units:meter) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -87,10 +87,8 @@ public class DistanceFunction implements NativeFunction {
             if (args.length == 3) {
                 if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'")) {
                     return "ST_Distance( ST_Transform( " + args[0] + " ,26986), ST_Transform( " + args[1] + " ,26986))";
-
                 }
             }
-
         }
         throw new UnsupportedOperationException("Distance function not supported by dialect " + dialect);
     }
@@ -125,7 +123,7 @@ public class DistanceFunction implements NativeFunction {
      */
     @Override
     public int getMinArgs() {
-        return 2;
+        return 3;
     }
 
     /**

@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:envelope(?geometryA) </li>
+ *      <li>geof:envelope(?geometryA) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -84,13 +84,9 @@ public class EnvelopeFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            if (args.length == 2) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(ST_Envelope(%s))", args[0]);
-                }
+            if (args.length == 1) {
                 return String.format("ST_AsText(ST_Envelope(%s)) ", args[0]);
             }
-
         }
         throw new UnsupportedOperationException("Envelope function not supported by dialect " + dialect);
     }

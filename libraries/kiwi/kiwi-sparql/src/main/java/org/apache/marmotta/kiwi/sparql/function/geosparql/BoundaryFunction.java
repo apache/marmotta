@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:boundary(?geometry) </li>
+ *      <li>geof:boundary(?geometry) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -84,10 +84,9 @@ public class BoundaryFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            if (args.length == 2) {
+            if (args.length == 1) {
                 return String.format("ST_AsText(ST_Boundary(%s)) ", args[0]);
             }
-
         }
         throw new UnsupportedOperationException("Boundary function not supported by dialect " + dialect);
     }

@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:relate (?geom1, ?geom2, ?pattern-matrix)</li>
+ *      <li>geof:relate (?geom1, ?geom2, ?pattern-matrix)</li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable

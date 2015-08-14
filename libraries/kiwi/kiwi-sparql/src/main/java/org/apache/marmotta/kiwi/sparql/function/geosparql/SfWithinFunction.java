@@ -16,7 +16,6 @@
  */
 package org.apache.marmotta.kiwi.sparql.function.geosparql;
 
-
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
@@ -28,16 +27,18 @@ import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
 import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
- * A SPARQL function for doing a within between two geometries. Should be implemented directly in
- * the database, as the in-memory implementation is non-functional. Only support by postgres - POSTGIS
+ * A SPARQL function for doing a within between two geometries. Should be
+ * implemented directly in the database, as the in-memory implementation is
+ * non-functional. Only support by postgres - POSTGIS
  * <p/>
  * The function can be called either as:
  * <ul>
- *     <li>geof:sfWithin(?geometryA, ?geometryB) </li>
+ *      <li>geof:sfWithin(?geometryA, ?geometryB) </li>
  * </ul>
- * Its necesary enable postgis in your database with the next command "CREATE EXTENSION postgis;"
- * Note that for performance reasons it might be preferrable to create a geometry index for your database. Please
- * consult your database documentation on how to do this.
+ * Its necesary enable postgis in your database with the next command "CREATE
+ * EXTENSION postgis;" Note that for performance reasons it might be preferrable
+ * to create a geometry index for your database. Please consult your database
+ * documentation on how to do this.
  *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
@@ -45,7 +46,7 @@ public class SfWithinFunction implements NativeFunction {
 
     // auto-register for SPARQL environment
     static {
-        if(!FunctionRegistry.getInstance().has(FN_GEOSPARQL.SF_WITHIN.toString())) {
+        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.SF_WITHIN.toString())) {
             FunctionRegistry.getInstance().add(new SfWithinFunction());
         }
     }
@@ -60,9 +61,9 @@ public class SfWithinFunction implements NativeFunction {
         return FN_GEOSPARQL.SF_WITHIN.toString();
     }
 
-
     /**
-     * Return true if this function has available native support for the given dialect
+     * Return true if this function has available native support for the given
+     * dialect
      *
      * @param dialect
      * @return
@@ -73,7 +74,8 @@ public class SfWithinFunction implements NativeFunction {
     }
 
     /**
-     * Return a string representing how this GeoSPARQL function is translated into SQL ( Postgis Function ) in the given dialect
+     * Return a string representing how this GeoSPARQL function is translated
+     * into SQL ( Postgis Function ) in the given dialect
      *
      * @param dialect
      * @param args
@@ -81,16 +83,17 @@ public class SfWithinFunction implements NativeFunction {
      */
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
-        if(dialect instanceof PostgreSQLDialect) {
-            if(args.length == 2) {
-                return "st_Within("+args[0]+","+args[1]+")";
-            } 
+        if (dialect instanceof PostgreSQLDialect) {
+            if (args.length == 2) {
+                return "st_Within(" + args[0] + "," + args[1] + ")";
+            }
         }
-        throw new UnsupportedOperationException("Within function not supported by dialect "+dialect);
+        throw new UnsupportedOperationException("Within function not supported by dialect " + dialect);
     }
 
     /**
-     * Get the return type of the function. This is needed for SQL type casting inside KiWi.
+     * Get the return type of the function. This is needed for SQL type casting
+     * inside KiWi.
      *
      * @return
      */
@@ -100,8 +103,8 @@ public class SfWithinFunction implements NativeFunction {
     }
 
     /**
-     * Get the argument type of the function for the arg'th argument (starting to count at 0).
-     * This is needed for SQL type casting inside KiWi.
+     * Get the argument type of the function for the arg'th argument (starting
+     * to count at 0). This is needed for SQL type casting inside KiWi.
      *
      * @param arg
      * @return

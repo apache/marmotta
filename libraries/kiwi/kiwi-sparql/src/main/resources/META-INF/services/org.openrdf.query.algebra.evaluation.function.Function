@@ -11,7 +11,24 @@ org.apache.marmotta.kiwi.sparql.function.geosparql.SfCrossesFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfDisjointFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfEqualsFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.SfOverlapsFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.RelateFunction
+
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8DCFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8ECFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8EQFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8NTPPFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8NTPPiFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8POFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8TPPFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8TPPiFunction
+
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhContainsFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhCoveredByFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhDisjointFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhEqualsFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhInsideFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhMeetFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhOverlapFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.EhCoversFunction
 
 org.apache.marmotta.kiwi.sparql.function.geosparql.BufferFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.ConvexHullFunction
@@ -22,3 +39,5 @@ org.apache.marmotta.kiwi.sparql.function.geosparql.SymDifferenceFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.EnvelopeFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.BoundaryFunction
 org.apache.marmotta.kiwi.sparql.function.geosparql.UnionFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.RelateFunction
+org.apache.marmotta.kiwi.sparql.function.geosparql.GetSRIDFunction

@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:intersection(?geometryA, ?geometryB) </li>
+ *      <li>geof:intersection(?geometryA, ?geometryB) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -84,16 +84,11 @@ public class IntersectionFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-
             if (args.length == 2) {
-                if (args[1].contains(FN_GEOSPARQL.MULTIPOLYGON) || args[1].contains(FN_GEOSPARQL.MULTILINESTRING) || args[1].contains(FN_GEOSPARQL.POINT)) {  //If users insert Direct the WKT  Geometry 
-                    return String.format("ST_AsText(st_Intersection(%s , %s ) )", args[0], args[1]);
-                }
                 return String.format("ST_AsText(st_Intersection(%s , %s ) )", args[0], args[1]);
             }
-
         }
-        throw new UnsupportedOperationException("intersection function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("Intersection function not supported by dialect " + dialect);
     }
 
     /**

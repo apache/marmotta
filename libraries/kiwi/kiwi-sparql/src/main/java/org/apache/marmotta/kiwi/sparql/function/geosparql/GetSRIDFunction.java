@@ -27,13 +27,13 @@ import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
 import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
- * A SPARQL function for doing a overlaps between geometries. Should be
- * implemented directly in the database, as the in-memory implementation is
- * non-functional. Only support by postgres - POSTGIS
+ * Returns the spatial reference system URI for geom.. Should be implemented
+ * directly in the database, as the in-memory implementation is non-functional.
+ * Only support by postgres - POSTGIS
  * <p/>
  * The function can be called either as:
  * <ul>
- *      <li>geof:sfOverlaps(?geometryA, ?geometryB) </li>
+ *      <li>geof:getSRID(?geometryA) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -42,12 +42,12 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec))
  */
-public class SfOverlapsFunction implements NativeFunction {
+public class GetSRIDFunction implements NativeFunction {
 
     // auto-register for SPARQL environment
     static {
-        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.SF_OVERLAPS.toString())) {
-            FunctionRegistry.getInstance().add(new SfOverlapsFunction());
+        if (!FunctionRegistry.getInstance().has(FN_GEOSPARQL.GETSRID.toString())) {
+            FunctionRegistry.getInstance().add(new GetSRIDFunction());
         }
     }
 
@@ -58,7 +58,7 @@ public class SfOverlapsFunction implements NativeFunction {
 
     @Override
     public String getURI() {
-        return FN_GEOSPARQL.SF_OVERLAPS.toString();
+        return FN_GEOSPARQL.GETSRID.toString();
     }
 
     /**
@@ -84,11 +84,9 @@ public class SfOverlapsFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            if (args.length == 2) {
-                return String.format("st_Overlaps(%s , %s )", args[0], args[1]);
-            }
+            return String.format("ST_SRID(%s)", args[0]);
         }
-        throw new UnsupportedOperationException("Overlaps function not supported by dialect " + dialect);
+        throw new UnsupportedOperationException("getSRID function not supported by dialect " + dialect);
     }
 
     /**
@@ -99,7 +97,7 @@ public class SfOverlapsFunction implements NativeFunction {
      */
     @Override
     public ValueType getReturnType() {
-        return ValueType.BOOL;
+        return ValueType.INT;
     }
 
     /**
@@ -121,7 +119,7 @@ public class SfOverlapsFunction implements NativeFunction {
      */
     @Override
     public int getMinArgs() {
-        return 2;
+        return 1;
     }
 
     /**
@@ -131,6 +129,6 @@ public class SfOverlapsFunction implements NativeFunction {
      */
     @Override
     public int getMaxArgs() {
-        return 2;
+        return 1;
     }
 }
