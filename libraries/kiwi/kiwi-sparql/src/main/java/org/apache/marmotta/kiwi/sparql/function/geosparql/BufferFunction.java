@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- *      <li>geof:buffer(?geometryA, radius) </li>
+ * <li>geof:buffer(?geometryA, radius) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -84,8 +84,10 @@ public class BufferFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            if (args.length == 2) {
-                return String.format("ST_AsText(st_Buffer(%s , %s )) ", args[0], args[1]);
+            if (args.length == 3) {
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'")) {
+                    return String.format("ST_AsText(ST_Buffer( ST_Transform( %s ,26986), %s))", args[0], args[1]);
+                }
             }
         }
         throw new UnsupportedOperationException("Buffer function not supported by dialect " + dialect);

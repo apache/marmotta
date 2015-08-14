@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- *      <li>geof:sfWithin(?geometryA, ?geometryB) </li>
+ * <li>geof:sfWithin(?geometryA, ?geometryB) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -85,7 +85,7 @@ public class SfWithinFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 2) {
-                return "st_Within(" + args[0] + "," + args[1] + ")";
+                return String.format("st_Within(%s,%s)", args[0], args[1]);
             }
         }
         throw new UnsupportedOperationException("Within function not supported by dialect " + dialect);
