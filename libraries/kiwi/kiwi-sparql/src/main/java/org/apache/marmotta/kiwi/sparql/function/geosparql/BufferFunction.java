@@ -85,8 +85,8 @@ public class BufferFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 3) {
-                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'")) {
-                    return String.format("ST_AsText(ST_Buffer( ST_Transform( %s ,26986), %s))", args[0], args[1]);
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
+                    return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", args[0], args[1]);
                 }
             }
         }

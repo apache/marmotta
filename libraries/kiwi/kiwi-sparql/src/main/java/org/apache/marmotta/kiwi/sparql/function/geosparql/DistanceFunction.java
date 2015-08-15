@@ -85,7 +85,7 @@ public class DistanceFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 3) {
-                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'")) {
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
                     return String.format("ST_Distance( ST_Transform( %s ,26986), ST_Transform( %s ,26986))", args[0], args[1]);
                 }
             }
