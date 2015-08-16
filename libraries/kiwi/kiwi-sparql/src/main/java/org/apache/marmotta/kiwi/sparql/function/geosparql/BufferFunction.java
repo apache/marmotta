@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- * <li>geof:buffer(?geometryA, radius) </li>
+ *      <li>geof:buffer(?geometryA, radius, unit) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -85,8 +85,16 @@ public class BufferFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 3) {
+                String geom1 = args[0];
+                String SRID_default = "4326";
+                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON")) {
+                    geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
+                }
                 if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
-                    return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", args[0], args[1]);
+                    return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", geom1, args[1]);
+                }
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
+                    return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", geom1, args[1]);
                 }
             }
         }

@@ -85,7 +85,12 @@ public class BoundaryFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 1) {
-                return String.format("ST_AsText(ST_Boundary(%s)) ", args[0]);
+                String geom1 = args[0];
+                String SRID_default = "4326";
+                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON")) {
+                    geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
+                }
+                return String.format("ST_AsText(ST_Boundary(%s)) ", geom1);
             }
         }
         throw new UnsupportedOperationException("Boundary function not supported by dialect " + dialect);

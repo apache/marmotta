@@ -84,7 +84,18 @@ public class EhCoveredByFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            return String.format("ST_Relate(%s, %s, 'TFF*TFT**')", args[0], args[1]);
+            if (args.length == 2) {
+                String geom1 = args[0];
+                String geom2 = args[1];
+                String SRID_default = "4326";
+                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON")) {
+                    geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
+                }
+                if (args[1].contains("POINT") || args[1].contains("MULTIPOINT") || args[1].contains("LINESTRING") || args[1].contains("MULTILINESTRING") || args[1].contains("POLYGON") || args[1].contains("MULTIPOLYGON")) {
+                    geom2 = String.format("ST_GeomFromText(%s,%s)", args[1], SRID_default);
+                }
+                return String.format("ST_Relate(%s, %s, 'TFF*TFT**')", geom1, geom2);
+            }
         }
         throw new UnsupportedOperationException("ehCoveredBy function not supported by dialect " + dialect);
     }

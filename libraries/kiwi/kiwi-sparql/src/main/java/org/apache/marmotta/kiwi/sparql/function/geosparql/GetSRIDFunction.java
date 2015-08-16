@@ -84,7 +84,9 @@ public class GetSRIDFunction implements NativeFunction {
     @Override
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
-            return String.format("ST_SRID(%s)", args[0]);
+            if (args.length == 1) {
+                return String.format("ST_SRID(%s)", args[0]);
+            }
         }
         throw new UnsupportedOperationException("getSRID function not supported by dialect " + dialect);
     }
