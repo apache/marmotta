@@ -34,3 +34,4 @@ DROP TABLE IF EXISTS registry;
 
 DROP TYPE IF EXISTS nodetype;
 
+DROP EXTENSION postgis;
