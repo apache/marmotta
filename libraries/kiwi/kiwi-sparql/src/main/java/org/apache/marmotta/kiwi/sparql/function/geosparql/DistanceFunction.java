@@ -97,6 +97,12 @@ public class DistanceFunction implements NativeFunction {
                 if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
                     return String.format("ST_Distance( ST_Transform( %s ,26986), ST_Transform( %s ,26986))", geom1, geom2);
                 }
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.degree.toString() + "'")) {
+                    return String.format("ST_Distance(%s, %s)", geom1, geom2);
+                }
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.radian.toString() + "'")) {
+                    return String.format("RADIANS(ST_Distance(%s, %s))", geom1, geom2);
+                }
             }
         }
         throw new UnsupportedOperationException("Distance function not supported by dialect " + dialect);

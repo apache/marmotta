@@ -96,6 +96,12 @@ public class BufferFunction implements NativeFunction {
                 if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
                     return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", geom1, args[1]);
                 }
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.degree.toString() + "'")) {
+                    return String.format("ST_AsText(ST_Buffer(%s, %s))", geom1, args[1]);
+                }
+                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.radian.toString() + "'")) {
+                    return String.format("ST_AsText(ST_Buffer(%s, DEGREES(%s)))", geom1, args[1]);
+                }
             }
         }
         throw new UnsupportedOperationException("Buffer function not supported by dialect " + dialect);

@@ -102,8 +102,11 @@ public class FN_GEOSPARQL {
     //measure units:  namespace, URI
     public static final String unitsNAMESPACE = "http://www.opengis.net/def/uom/OGC/1.0/";
     public static final String unitsPREFIX = "units";
+
     public static final URI meter;
     public static final URI metre;
+    public static final URI degree;
+    public static final URI radian;
 
     // Default CRS
     public static final String sridNamespace = "http://www.opengis.net/def/crs/";
@@ -154,6 +157,8 @@ public class FN_GEOSPARQL {
 
         meter = f.createURI(unitsNAMESPACE, "meter");
         metre = f.createURI(unitsNAMESPACE, "metre");
+        degree = f.createURI(unitsNAMESPACE, "degree");
+        radian = f.createURI(unitsNAMESPACE, "radian");
 
         POINT = "POINT";
         MULTIPOLYGON = "MULTIPOLYGON";
