@@ -33,7 +33,7 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * <p/>
  * The function can be called either as:
  * <ul>
- *      <li>geof:getSRID(?geometryA) </li>
+ * <li>geof:getSRID(?geometryA) </li>
  * </ul>
  * Its necesary enable postgis in your database with the next command "CREATE
  * EXTENSION postgis;" Note that for performance reasons it might be preferrable
@@ -85,19 +85,7 @@ public class GetSRIDFunction implements NativeFunction {
     public String getNative(KiWiDialect dialect, String... args) {
         if (dialect instanceof PostgreSQLDialect) {
             if (args.length == 1) {
-                String geom1 = args[0];
-                String SRID_default = "4326";
-                /*
-                 * The following condition is required to read WKT  inserted directly into args[0] and create a geometries with SRID
-                 * POINT, MULTIPOINT, LINESTRING ... and MULTIPOLYGON conditions: 
-                 *   example: geof:boundary("POLYGON(( -7 43, -2 43, -2 38, -7 38, -7 43))"^^geo:wktLiteral)
-                 * st_AsText condition: It is to use the geometry that is the result of another function geosparql.
-                 *   example: geof:boundary(geof:buffer(?geom, 50, units:meter))
-                 */
-                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON") || args[0].contains("ST_AsText")) {
-                    geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
-                }
-                return String.format("ST_AsText(ST_Boundary(%s)) ", geom1);
+                return String.format("ST_SRID(%s)", args[0]);
             }
         }
         throw new UnsupportedOperationException("getSRID function not supported by dialect " + dialect);

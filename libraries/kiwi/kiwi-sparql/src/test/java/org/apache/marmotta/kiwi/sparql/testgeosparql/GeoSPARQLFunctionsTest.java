@@ -36,14 +36,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 
 /**
- * A collection of tests from the SPARQL 1.1 testsuite, for testing compliance.
- *
+ * Test suite for all the functions of GeoSPARQL implemented. There is 35 test
+ * cases for each function. 
+ *      Simple Features Topological Relations (8)
+ *      Egenhofer Topological Relations (8)
+ *      RCC8 Topological Relations (8) 
+ *      Non-Topological Functions (11)
+ * 
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  */
 public class GeoSPARQLFunctionsTest {
@@ -56,7 +60,6 @@ public class GeoSPARQLFunctionsTest {
 
     public GeoSPARQLFunctionsTest() {
         logger.info("creating test setup...");
-
         dbConfig = KiWiDatabaseRunner.createKiWiConfig("PostgreSQL", new PostgreSQLDialect());
         DBConnectionChecker.checkDatabaseAvailability(dbConfig);
 
@@ -203,6 +206,71 @@ public class GeoSPARQLFunctionsTest {
     @Test
     public void testUnion() throws Exception {
         testQueryGeometry("union.sparql");
+    }
+
+    @Test
+    public void testEhEquals() throws Exception {
+        testQueryBoolean("ehEquals.sparql", "equals");
+    }
+
+    @Test
+    public void testEhDisjoint() throws Exception {
+        testQueryBoolean("ehDisjoint.sparql", "disjoint");
+    }
+
+    @Test
+    public void testEhOverlap() throws Exception {
+        testQueryBoolean("ehOverlap.sparql", "overlap");
+    }
+
+    @Test
+    public void testEhCovers() throws Exception {
+        testQueryBoolean("ehCovers.sparql", "covers");
+    }
+
+    @Test
+    public void testEhCoveredBy() throws Exception {
+        testQueryBoolean("ehCoveredBy.sparql", "coveredBy");
+    }
+
+    @Test
+    public void testEhInside() throws Exception {
+        testQueryBoolean("ehInside.sparql", "inside");
+    }
+
+    @Test
+    public void testEhContains() throws Exception {
+        testQueryBoolean("ehContains.sparql", "contains");
+    }
+
+    @Test
+    public void testRcc8eq() throws Exception {
+        testQueryBoolean("rcc8eq.sparql", "rcc8eq");
+    }
+
+    @Test
+    public void testRcc8dc() throws Exception {
+        testQueryBoolean("rcc8dc.sparql", "rcc8dc");
+    }
+
+    @Test
+    public void testRcc8tppi() throws Exception {
+        testQueryBoolean("rcc8tppi.sparql", "rcc8tppi");
+    }
+
+    @Test
+    public void testRcc8tpp() throws Exception {
+        testQueryBoolean("rcc8tpp.sparql", "rcc8tpp");
+    }
+
+    @Test
+    public void testRcc8ntpp() throws Exception {
+        testQueryBoolean("rcc8ntpp.sparql", "rcc8ntpp");
+    }
+
+    @Test
+    public void testRcc8ntppi() throws Exception {
+        testQueryBoolean("rcc8ntppi.sparql", "rcc8ntppi");
     }
 
     private void testQueryBoolean(String filename, String function) throws Exception {
