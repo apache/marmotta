@@ -88,10 +88,17 @@ public class EhContainsFunction implements NativeFunction {
                 String geom1 = args[0];
                 String geom2 = args[1];
                 String SRID_default = "4326";
-                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON")) {
+                /*
+                 * The following condition is required to read WKT  inserted directly into args[0] or args[1] and create a geometries with SRID
+                 * POINT, MULTIPOINT, LINESTRING ... and MULTIPOLYGON conditions: 
+                 *   example: geof:ehContains(?geom1, "POLYGON(( -7 43, -2 43, -2 38, -7 38, -7 43))"^^geo:wktLiteral)
+                 * st_AsText condition: It is to use the geometry that is the result of another function geosparql.
+                 *   example: geof:ehContains(?geom1, geof:buffer(?geom2, 50, units:meter))
+                 */
+                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON") || args[0].contains("ST_AsText")) {
                     geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
                 }
-                if (args[1].contains("POINT") || args[1].contains("MULTIPOINT") || args[1].contains("LINESTRING") || args[1].contains("MULTILINESTRING") || args[1].contains("POLYGON") || args[1].contains("MULTIPOLYGON")) {
+                if (args[1].contains("POINT") || args[1].contains("MULTIPOINT") || args[1].contains("LINESTRING") || args[1].contains("MULTILINESTRING") || args[1].contains("POLYGON") || args[1].contains("MULTIPOLYGON") || args[1].contains("ST_AsText")) {
                     geom2 = String.format("ST_GeomFromText(%s,%s)", args[1], SRID_default);
                 }
                 return String.format("ST_Relate(%s, %s, 'T*TFF*FF*')", geom1, geom2);

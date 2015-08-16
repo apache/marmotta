@@ -87,7 +87,14 @@ public class EnvelopeFunction implements NativeFunction {
             if (args.length == 1) {
                 String geom1 = args[0];
                 String SRID_default = "4326";
-                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON")) {
+                /*
+                 * The following conditions is required to read WKT  inserted directly into args[0] and create a geometries with SRID
+                 * POINT, MULTIPOINT, LINESTRING ... and MULTIPOLYGON conditions: 
+                 *   example: geof:envelope("POLYGON(( -7 43, -2 43, -2 38, -7 38, -7 43))"^^geo:wktLiteral)
+                 * st_AsText condition: It is to use the geometry that is the result of another function geosparql.
+                 *   example: geof:envelope(geof:buffer(?geom, 50, units:meter))
+                 */
+                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON") || args[0].contains("ST_AsText")) {
                     geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
                 }
                 return String.format("ST_AsText(ST_Envelope(%s)) ", geom1);

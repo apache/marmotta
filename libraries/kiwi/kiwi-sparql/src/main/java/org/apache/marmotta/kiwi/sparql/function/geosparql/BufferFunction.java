@@ -87,11 +87,15 @@ public class BufferFunction implements NativeFunction {
             if (args.length == 3) {
                 String geom1 = args[0];
                 String SRID_default = "4326";
-                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON")) {
+                /*
+                 * The following condition is required to read WKT  inserted directly into args[0] and create a geometries with SRID
+                 * POINT, MULTIPOINT, LINESTRING ... and MULTIPOLYGON conditions: 
+                 *   example: geof:buffer("POLYGON(( -7 43, -2 43, -2 38, -7 38, -7 43))"^^geo:wktLiteral)
+                 * st_AsText condition: It is to use the geometry that is the result of another function geosparql.
+                 *   example: geof:buffer(geof:convexhull(?geom))
+                 */
+                if (args[0].contains("POINT") || args[0].contains("MULTIPOINT") || args[0].contains("LINESTRING") || args[0].contains("MULTILINESTRING") || args[0].contains("POLYGON") || args[0].contains("MULTIPOLYGON") || args[0].contains("ST_AsText")) {
                     geom1 = String.format("ST_GeomFromText(%s,%s)", args[0], SRID_default);
-                }
-                if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
-                    return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", geom1, args[1]);
                 }
                 if (args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.meter.toString() + "'") || args[2].equalsIgnoreCase("'" + FN_GEOSPARQL.metre.toString() + "'")) {
                     return String.format("ST_AsText(ST_Transform(ST_Buffer( ST_Transform( %s ,26986), %s),4326))", geom1, args[1]);
