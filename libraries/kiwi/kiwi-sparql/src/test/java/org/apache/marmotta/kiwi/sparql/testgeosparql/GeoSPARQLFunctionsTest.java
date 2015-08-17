@@ -43,11 +43,11 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 /**
  * Test suite for all the functions of GeoSPARQL implemented. There is 35 test
  * cases for each function. 
- *      Simple Features Topological Relations (8)
- *      Egenhofer Topological Relations (8)
+ *      Simple Features Topological Relations (8) 
+ *      Egenhofer Topological Relations (8) 
  *      RCC8 Topological Relations (8) 
  *      Non-Topological Functions (11)
- * 
+ *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  */
 public class GeoSPARQLFunctionsTest {
@@ -219,6 +219,11 @@ public class GeoSPARQLFunctionsTest {
     }
 
     @Test
+    public void testEhMeet() throws Exception {
+        testQueryBoolean("ehMeet.sparql", "ehMeet");
+    }
+
+    @Test
     public void testEhOverlap() throws Exception {
         testQueryBoolean("ehOverlap.sparql", "overlap");
     }
@@ -251,6 +256,16 @@ public class GeoSPARQLFunctionsTest {
     @Test
     public void testRcc8dc() throws Exception {
         testQueryBoolean("rcc8dc.sparql", "rcc8dc");
+    }
+
+    @Test
+    public void testRcc8ec() throws Exception {
+        testQueryBoolean("rcc8ec.sparql", "rcc8ec");
+    }
+
+    @Test
+    public void testRcc8po() throws Exception {
+        testQueryBoolean("rcc8po.sparql", "rcc8po");
     }
 
     @Test

@@ -101,7 +101,7 @@ public class EhMeetFunction implements NativeFunction {
                 if (args[1].contains("POINT") || args[1].contains("MULTIPOINT") || args[1].contains("LINESTRING") || args[1].contains("MULTILINESTRING") || args[1].contains("POLYGON") || args[1].contains("MULTIPOLYGON") || args[1].contains("ST_AsText")) {
                     geom2 = String.format("ST_GeomFromText(%s,%s)", args[1], SRID_default);
                 }
-                return String.format("ST_Relate(%s, %s, 'F**T*****')", geom1, geom2);
+                return String.format("ST_Relate(%s, %s, 'F***T****')", geom1, geom2);
             }
         }
         throw new UnsupportedOperationException("ehMeet function not supported by dialect " + dialect);
