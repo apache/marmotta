@@ -28,12 +28,8 @@ update nodes set ntype = ntype_old::text::nodetype;
 -- 6. remove old column and type
 alter table nodes drop column ntype_old;
 
--- 3. delete old enum type
+-- 7. delete old enum type
 drop type nodetype_old;
-
-
---ALTER TYPE nodetype ADD VALUE 'geom'  AFTER  'boolean';
-
 
 --necessary for use spatial queries
 CREATE EXTENSION IF NOT EXISTS POSTGIS;
