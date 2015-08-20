@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -58,8 +58,8 @@ public class KiWiGarbageCollector extends Thread {
 
         this.persistence = persistence;
 
-        this.tripleTableDependencies = new HashSet<TableDependency>();
-        this.nodeTableDependencies   = new HashSet<TableDependency>();
+        this.tripleTableDependencies = new HashSet<>();
+        this.nodeTableDependencies   = new HashSet<>();
     }
 
     /**
@@ -71,7 +71,7 @@ public class KiWiGarbageCollector extends Thread {
 
     /**
      * Set the interval to wait between garbage collections (milliseconds)
-     * @param interval
+     * @param interval GC interval in milliseconds.
      */
     public void setInterval(long interval) {
         this.interval = interval;
@@ -82,8 +82,8 @@ public class KiWiGarbageCollector extends Thread {
      * is used when cleaning up unreferenced deleted entries in the triples table. In theory, we could
      * get this information from the database, but each database has a very different way of doing this, so
      * it is easier to simply let dependent modules register this information.
-     * @param tableName
-     * @param columnName
+     * @param tableName name of the depending table in the database
+     * @param columnName name of the depending column in the table
      */
     public void addTripleTableDependency(String tableName, String columnName) {
         tripleTableDependencies.add(new TableDependency(tableName,columnName));
@@ -94,8 +94,8 @@ public class KiWiGarbageCollector extends Thread {
      * is used when cleaning up unreferenced deleted entries in the nodes table. In theory, we could
      * get this information from the database, but each database has a very different way of doing this, so
      * it is easier to simply let dependent modules register this information.
-     * @param tableName
-     * @param columnName
+     * @param tableName name of the depending table in the database
+     * @param columnName name of the depending column in the table
      */
     public void addNodeTableDependency(String tableName, String columnName) {
         nodeTableDependencies.add(new TableDependency(tableName,columnName));
@@ -104,6 +104,7 @@ public class KiWiGarbageCollector extends Thread {
     protected boolean checkConsistency() throws SQLException {
         boolean consistent = true;
 
+        // FIXME: Should this SQL Query be moved to the SQL-Dialect?
         String checkNodeDuplicatesQuery = "SELECT svalue, ntype, count(id) FROM nodes group by svalue, ntype having count(id) > 1";
 
         try(Connection con = persistence.getJDBCConnection()) {
@@ -138,6 +139,7 @@ public class KiWiGarbageCollector extends Thread {
 
 
     protected void fixConsistency() throws SQLException {
+        // FIXME: These queries are never used - and if they are beeing, used they should move the the SQL Dialect.
         String checkNodeDuplicatesQuery = "SELECT svalue, ntype, count(id), max(id) FROM nodes group by svalue, ntype having count(id) > 1";
         String getNodeIdsQuery = "SELECT id FROM nodes WHERE svalue = ? AND ntype = ? AND id != ?";
 
@@ -182,6 +184,7 @@ public class KiWiGarbageCollector extends Thread {
                 }
 
                 // finally we clean up all now unused node ids
+                // FIXME: Should this query be moved to the SQL-Dialect?
                 String deleteDuplicatesQuery = "DELETE FROM nodes WHERE id = ?";
                 PreparedStatement deleteDuplicatesStatement = con.prepareStatement(deleteDuplicatesQuery);
                 for(Long id : ids) {
@@ -268,6 +271,7 @@ public class KiWiGarbageCollector extends Thread {
                     log.info("running garbage collection ...");
                     try {
                         int count = garbageCollect();
+                        log.debug("GC touched {} rows in the DB", count);
                     } catch (SQLException e) {
                         log.error("error while executing garbage collection: {}",e.getMessage());
                     }
@@ -275,7 +279,7 @@ public class KiWiGarbageCollector extends Thread {
                 started = true;
                 try {
                     this.wait(interval);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignore) {
                 }
             }
         }

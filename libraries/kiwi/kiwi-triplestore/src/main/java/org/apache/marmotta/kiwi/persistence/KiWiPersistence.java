@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -105,8 +105,8 @@ public class KiWiPersistence {
 
         try {
             logPoolInfo();
-        } catch (SQLException e) {
-
+        } catch (SQLException ignore) {
+            // must not happen!
         }
 
         idGenerator = new SnowflakeIDGenerator(configuration.getDatacenterId());
@@ -359,7 +359,7 @@ public class KiWiPersistence {
 
     /**
      * Return a raw JDBC connection from the connection pool, which already has the auto-commit disabled.
-     * @return
+     * @return a raw JDBC connection, with auto-commit disabled
      * @throws SQLException
      */
     public Connection getJDBCConnection() throws SQLException {
@@ -368,7 +368,8 @@ public class KiWiPersistence {
 
     /**
      * Return a raw JDBC connection from the connection pool, which already has the auto-commit disabled.
-     * @return
+     * @param maintenance put the database in maintenance mode - further calls to this method will block.
+     * @return a raw JDBC connection, with auto-commit disabled
      * @throws SQLException
      */
     public Connection getJDBCConnection(boolean maintenance) throws SQLException {
@@ -376,7 +377,7 @@ public class KiWiPersistence {
             if(this.maintenance) {
                 try {
                     this.wait();
-                } catch (InterruptedException e) { }
+                } catch (InterruptedException ignore) { }
             }
             if(maintenance) {
                 this.maintenance = true;
@@ -397,7 +398,7 @@ public class KiWiPersistence {
     /**
      * Release the JDBC connection passed as argument. This method will close the connection and release
      * any locks that might be held by the caller.
-     * @param con
+     * @param con the JDBC connection to release
      * @throws SQLException
      */
     public void releaseJDBCConnection(Connection con) throws SQLException {
@@ -426,8 +427,8 @@ public class KiWiPersistence {
      * is used when cleaning up unreferenced deleted entries in the nodes table. In theory, we could
      * get this information from the database, but each database has a very different way of doing this, so
      * it is easier to simply let dependent modules register this information.
-     * @param tableName
-     * @param columnName
+     * @param tableName name of the depending table in the database
+     * @param columnName name of the depending column in the table
      */
     public void addNodeTableDependency(String tableName, String columnName) {
         garbageCollector.addNodeTableDependency(tableName, columnName);
@@ -438,8 +439,8 @@ public class KiWiPersistence {
      * is used when cleaning up unreferenced deleted entries in the triples table. In theory, we could
      * get this information from the database, but each database has a very different way of doing this, so
      * it is easier to simply let dependent modules register this information.
-     * @param tableName
-     * @param columnName
+     * @param tableName name of the depending table in the database
+     * @param columnName name of the depending column in the table
      */
     public void addTripleTableDependency(String tableName, String columnName) {
         garbageCollector.addTripleTableDependency(tableName, columnName);

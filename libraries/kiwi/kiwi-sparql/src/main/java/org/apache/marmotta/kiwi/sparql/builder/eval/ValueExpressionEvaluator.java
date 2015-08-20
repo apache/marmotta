@@ -584,6 +584,10 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
                 // in the database, we take the NODES alias and resolve to the correct column according to the
                 // operator type
                 switch (optypes.peek()) {
+                    case GEOMETRY:
+                        Preconditions.checkState(var != null, "no alias available for variable");
+                        builder.append(var).append(".gvalue");
+                        break;
                     case STRING:
                         Preconditions.checkState(var != null, "no alias available for variable");
                         builder.append(var).append(".svalue");
@@ -633,6 +637,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
         String val = node.getValue().stringValue();
 
             switch (optypes.peek()) {
+                case GEOMETRY:
                 case STRING:
                 case URI:
                     builder.append("'").append(val).append("'");

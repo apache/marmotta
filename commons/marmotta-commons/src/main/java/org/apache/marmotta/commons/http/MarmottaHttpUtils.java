@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -62,6 +62,28 @@ public class MarmottaHttpUtils {
         Collections.sort(contentTypes);
 
         return contentTypes;
+    }
+
+    /**
+     * A utility method for parsing HTTP Content-Type and Accept header, taking into account different parameters that
+     * are typically passed. Recognized parameters:
+     * - charset: gives the charset of the content
+     * - q: gives the precedence of the content
+     * The result is an ordered list of content types in order of the computed preference in the header value passed as
+     * string argument.
+     * <p/>
+     * Author: Kai Schlegel
+     */
+    public static List<ContentType> parseAcceptHeaders(List<String> headers) {
+        List<ContentType> result = new ArrayList<>();
+
+        for(String header : headers) {
+            result.addAll(parseAcceptHeader(header));
+        }
+
+        Collections.sort(result);
+
+        return result;
     }
 
 

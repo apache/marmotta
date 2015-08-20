@@ -52,7 +52,7 @@ import java.util.List;
  * <ul>
  *     <li>PostgreSQL:
  *     <ul>
- *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5433/kiwitest?prepareThreshold=3</li>
+ *         <li>postgresql.url, e.g. jdbc:postgresql://localhost:5432/kiwitest?prepareThreshold=3</li>
  *         <li>postgresql.user (default: kiwi)</li>
  *         <li>postgresql.pass (default: kiwi)</li>
  *     </ul>
@@ -314,7 +314,6 @@ public class KiWiDatabaseRunner extends Suite {
         
         private class ExecutionLogger extends TestWatcher implements MethodRule {
 
-
             @Override
             public Statement apply(final Statement base, final FrameworkMethod method,
                     Object target) {
@@ -347,6 +346,5 @@ public class KiWiDatabaseRunner extends Suite {
     private List<FrameworkField> getFieldsAnnotatedByKiWiConfig() {
         return getTestClass().getAnnotatedFields(KiWiConfig.class);
     }
-    
     
 }

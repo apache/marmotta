@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,15 +18,15 @@
 package org.apache.marmotta.ldpath.model.tests;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.TestFunction;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.tests.NodeTest;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class FunctionTest<Node> extends NodeTest<Node> {
 
@@ -41,7 +41,7 @@ public class FunctionTest<Node> extends NodeTest<Node> {
     @Override
     public boolean accept(RDFBackend<Node> backend, Node context, Node target) throws IllegalArgumentException {
 
-        ArrayList<Collection<Node>> fktArgs = new ArrayList<Collection<Node>>();
+        ArrayList<Collection<Node>> fktArgs = new ArrayList<>();
         for (NodeSelector<Node> sel : argSelectors) {
             fktArgs.add(sel.select(backend, target, null, null));
         }
@@ -60,6 +60,22 @@ public class FunctionTest<Node> extends NodeTest<Node> {
     @Override
     public String getDescription() {
         return "Delegate the test to a TestFunction";
+    }
+
+    /**
+     * Get the Function of this Test
+     * @return the TestFunction
+     */
+    public TestFunction<Node> getTest() {
+        return test;
+    }
+
+    /**
+     * Get the argument list of the TestFunction
+     * @return the arguments of the TestFunction
+     */
+    public List<NodeSelector<Node>> getArgSelectors() {
+        return argSelectors;
     }
 
     @Override

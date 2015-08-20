@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -20,17 +20,16 @@ package org.apache.marmotta.ldpath.model.fields;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-
-import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.api.LDPathConstruct;
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
+
+import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A field mapping maps a field name to a node selection and transforms it into the appropriate type.

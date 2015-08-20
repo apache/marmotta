@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -78,6 +78,13 @@ public class GroupedSelector<Node> implements NodeSelector<Node> {
         throw new UnsupportedOperationException("cannot use a group in unnamed field definitions because the name is ambiguous");
     }
 
+    /**
+     * Getter for child content NodeSelector
+     * @return child content NodeSelector
+     */
+    public NodeSelector<Node> getContent() {
+        return content;
+    }
 
     @Override
     public boolean equals(Object o) {

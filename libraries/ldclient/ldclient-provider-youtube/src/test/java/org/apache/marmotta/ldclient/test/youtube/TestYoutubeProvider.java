@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -18,6 +18,7 @@
 package org.apache.marmotta.ldclient.test.youtube;
 
 import org.apache.marmotta.ldclient.test.provider.ProviderTestBase;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -25,6 +26,7 @@ import org.junit.Test;
  * <p/>
  * Author: Sebastian Schaffert (sschaffert@apache.org)
  */
+@Ignore("MARMOTTA-612: Youtube-Provider fails because of APIv2 deprecation")
 public class TestYoutubeProvider extends ProviderTestBase {
 
     /**

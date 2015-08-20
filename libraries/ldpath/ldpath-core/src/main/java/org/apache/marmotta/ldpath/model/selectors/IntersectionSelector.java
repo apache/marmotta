@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -19,14 +19,13 @@ package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
  * Add file description here!
@@ -35,8 +34,8 @@ import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
  */
 public class IntersectionSelector<Node> implements NodeSelector<Node> {
 
-	private NodeSelector<Node> left;
-	private NodeSelector<Node> right;
+	private final NodeSelector<Node> left;
+	private final NodeSelector<Node> right;
 
 	public IntersectionSelector(NodeSelector<Node> left, NodeSelector<Node> right) {
 		this.left = left;
@@ -76,6 +75,22 @@ public class IntersectionSelector<Node> implements NodeSelector<Node> {
     @Override
     public String getName(NodeBackend<Node> nodeRDFBackend) {
         throw new UnsupportedOperationException("cannot use intersections in unnamed field definitions because the name is ambiguous");
+    }
+
+    /**
+     * Getter for left child node of the intersection selection.
+     * @return left NodeSelector
+     */
+    public NodeSelector<Node> getLeft() {
+        return left;
+    }
+
+    /**
+     * Getter for  right child node of the intersection selection.
+     * @return right NodeSelector
+     */
+    public NodeSelector<Node> getRight() {
+        return right;
     }
 
 

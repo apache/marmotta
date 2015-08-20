@@ -32,12 +32,13 @@ import java.util.Set;
  * method should return a PreparedStatement that can be executed on the respective JDBC connection
  * <p/>
  * Author: Sebastian Schaffert
+ * Version 5 is implemented in MARMOTTA 584
  */
 public abstract class KiWiDialect {
 
     private static Logger log = LoggerFactory.getLogger(KiWiDialect.class);
 
-    public final static int VERSION = 4;
+    public final static int VERSION = 5;
 
     private Properties statements;
 
@@ -229,4 +230,6 @@ public abstract class KiWiDialect {
     public boolean isCursorSupported() {
         return false;
     }
+    
+   
 }

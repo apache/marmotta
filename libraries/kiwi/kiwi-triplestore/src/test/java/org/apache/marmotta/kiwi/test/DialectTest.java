@@ -77,7 +77,7 @@ public class DialectTest {
         Assert.assertNotNull(migrateScript);
         Assert.assertFalse("".equals(migrateScript));
 
-        String migrateScript2 = dialect.getMigrationScript(4,"base");
+        String migrateScript2 = dialect.getMigrationScript(5,"base");
 
         Assert.assertNotNull(migrateScript2);
         Assert.assertTrue("".equals(migrateScript2));

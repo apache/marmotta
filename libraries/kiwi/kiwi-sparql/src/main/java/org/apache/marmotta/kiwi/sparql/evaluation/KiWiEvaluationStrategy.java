@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 
 /**
  * An implementation of the SPARQL query evaluation strategy with specific extensions and optimizations. The KiWi
@@ -67,7 +68,6 @@ import java.util.concurrent.*;
 public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategy.class);
-
 
     /**
      * The database connection offering specific SPARQL-SQL optimizations.
@@ -108,7 +108,6 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
 
         return super.evaluate(projection, bindings);
     }
-
 
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(Union union, BindingSet bindings) throws QueryEvaluationException {
@@ -314,6 +313,21 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                                         if(row.getObject(sv.getName()) != null) {
                                             svalue = Boolean.toString(row.getBoolean(sv.getName()));
                                             resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue.toLowerCase(), XSD.Boolean));
+                                        }
+                                        break;
+                                    case GEOMETRY:
+                                        if (row.getObject(sv.getName()) != null) {
+                                            svalue = row.getString(sv.getName());
+                                            URI type = new KiWiUriResource("http://www.opengis.net/ont/geosparql#wktLiteral");
+                                            try {
+                                                long typeId = row.getLong(sv.getName() + "_TYPE");
+                                                if (typeId > 0) {
+                                                    type = (URI) connection.loadNodeById(typeId);
+                                                }
+                                            } catch (SQLException ex) {
+                                            }
+
+                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
                                         }
                                         break;
                                     case STRING:

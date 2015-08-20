@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0-SNAPSHOT</version>
         <relativePath>parent</relativePath>
     </parent>
 
@@ -129,6 +129,11 @@
             <organization>Digital Public Library of America</organization>
             <organizationUrl>http://dp.la/</organizationUrl>
         </contributor>
+        <contributor>
+            <name>Kai Schlegel</name>
+            <organization>University of Passau</organization>
+            <organizationUrl>http://www.uni-passau.de/</organizationUrl>
+        </contributor>
     </contributors>
 
     <organization>
@@ -140,7 +145,7 @@
         <url>https://git-wip-us.apache.org/repos/asf/marmotta.git</url>
         <connection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</connection>
         <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/marmotta.git</developerConnection>
-        <tag>3.3.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>

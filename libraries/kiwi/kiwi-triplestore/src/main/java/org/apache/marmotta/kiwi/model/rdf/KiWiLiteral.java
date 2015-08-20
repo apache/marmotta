@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -60,7 +60,11 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
         super(created);
     }
 
-
+    protected KiWiLiteral(KiWiUriResource type) {
+        this();
+        this.type = type;
+    }
+    
     protected KiWiLiteral(Locale locale, KiWiUriResource type) {
         this();
         this.locale = locale;
@@ -72,7 +76,6 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
         this.locale = locale;
         this.type = type;
     }
-
 
     /**
      * Return the content of the literal, using the parametrized Java type

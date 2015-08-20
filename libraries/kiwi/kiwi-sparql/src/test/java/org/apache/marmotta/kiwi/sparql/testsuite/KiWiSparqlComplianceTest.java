@@ -62,7 +62,6 @@ import java.util.Set;
 @RunWith(KiWiDatabaseRunner.class)
 public class KiWiSparqlComplianceTest {
 
-
     private KiWiStore store;
 
     private KiWiSparqlSail ssail;
