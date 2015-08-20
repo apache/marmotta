@@ -12,7 +12,15 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-CREATE TYPE nodetype AS ENUM ('uri','bnode','string','int','double','date','boolean');
+
+-- MARMOTA 584: GeoSPARQL Support. Alter DB to support GeoSpatial Queries.
+
+CREATE TYPE nodetype AS ENUM ('uri','bnode','string','int','double','date','boolean','geom');
+
+
+--necessary for use geometry queries
+CREATE EXTENSION postgis;
+
 
 -- requires super user privileges:
 -- CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -29,6 +37,7 @@ CREATE TABLE nodes (
   ltype     bigint     REFERENCES nodes(id),
   lang      varchar(5),
   createdAt timestamp  NOT NULL DEFAULT now(),
+  gvalue    geometry,
   PRIMARY KEY(id)
 );
 
@@ -103,5 +112,5 @@ DO INSTEAD NOTHING;
 -- a function for cleaning up table rows without incoming references
 
 -- insert initial metadata
-INSERT INTO metadata(mkey,mvalue) VALUES ('version','4');
+INSERT INTO metadata(mkey,mvalue) VALUES ('version','5');
 INSERT INTO metadata(mkey,mvalue) VALUES ('created',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );

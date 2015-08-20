@@ -34,7 +34,8 @@ public enum ValueType {
     TERM,   // value of constructed term
     URI,    // constructed URI
     BNODE,  // constructed BNODE
-    NONE;    // not projected
+    NONE,    // not projected
+    GEOMETRY; //geometry value
 
 
     public final boolean isNumeric() {
