@@ -38,3 +38,4 @@ CREATE EXTENSION IF NOT EXISTS POSTGIS;
 ALTER TABLE nodes ADD COLUMN gvalue geometry;
 
 UPDATE METADATA SET mvalue = '5' WHERE mkey = 'version';
+INSERT INTO metadata(mkey,mvalue) VALUES ('updated',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );
