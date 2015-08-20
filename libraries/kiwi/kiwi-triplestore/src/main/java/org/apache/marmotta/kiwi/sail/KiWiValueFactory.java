@@ -661,7 +661,7 @@ public class KiWiValueFactory implements ValueFactory {
      * @return
      */
     public boolean isGeometry(String value) {
-        if (value.contains("POINT") || value.contains("MULTILINESTRING") || value.contains("MULTIPOLYGON")) {
+        if (value.contains("POINT") || value.contains("MULTIPOINT") || value.contains("LINESTRING") || value.contains("MULTILINESTRING") || value.contains("POLYGON") || value.contains("MULTIPOLYGON")) {
             return true;
         }
         return false;
