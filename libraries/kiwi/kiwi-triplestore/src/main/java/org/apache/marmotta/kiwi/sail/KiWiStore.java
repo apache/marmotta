@@ -38,7 +38,6 @@ import java.sql.SQLException;
  */
 public class KiWiStore extends NotifyingSailBase {
 
-
     /**
      * The repository-wide value factory, using the valueFactoryConnection above. Will be initialised when
      * getValueFactory() is called for the first time.

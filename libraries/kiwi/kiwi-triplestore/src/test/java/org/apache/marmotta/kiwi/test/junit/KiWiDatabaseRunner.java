@@ -241,8 +241,6 @@ public class KiWiDatabaseRunner extends Suite {
             return method.getName();
         }
 
-
-        
         @Override
         protected void validateConstructor(List<Throwable> errors) {
             validateOnlyOneConstructor(errors);

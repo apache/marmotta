@@ -19,14 +19,18 @@ package org.apache.marmotta.kiwi.sparql.geosparql;
 import info.aduna.iteration.Iterations;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
+import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
+import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.*;
-import org.junit.internal.AssumptionViolatedException;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.query.*;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -35,12 +39,13 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
-import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
-import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 
 /**
  * Test suite for all the functions of GeoSPARQL implemented.
@@ -74,10 +79,10 @@ public class GeoSPARQLFunctionsTest {
 
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException {
-        if (!PostgreSQLDialect.class.equals(this.dbConfig.getDialect().getClass())) {
-            log.warn("PostgreSQL not available! (using {})", this.dbConfig.getDialect().getClass().getSimpleName());
-            Assume.assumeTrue(false);
-        }
+        Assume.assumeTrue(String.format("PostgreSQL not available! (using %s)", this.dbConfig.getDialect().getClass().getSimpleName()),
+                PostgreSQLDialect.class.equals(this.dbConfig.getDialect().getClass()));
+
+        Assume.assumeTrue("PostGIS not available!", checkPostGIS(dbConfig));
 
         store = new KiWiStore(dbConfig);
         store.setDropTablesOnShutdown(true);
@@ -91,12 +96,58 @@ public class GeoSPARQLFunctionsTest {
         RepositoryConnection conn = repository.getConnection();
         try {
             conn.begin();
-            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_provinces.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
-            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_towns.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
-            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_rivers.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
+            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_provinces.rdf"), "http://localhost/test/geosparql", RDFFormat.RDFXML);
+            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_towns.rdf"), "http://localhost/test/geosparql", RDFFormat.RDFXML);
+            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_rivers.rdf"), "http://localhost/test/geosparql", RDFFormat.RDFXML);
             conn.commit();
         } finally {
             conn.close();
+        }
+    }
+
+    /**
+     * Performs a basic test to see if PostGIS extension is
+     * actually available to use
+     *
+     * @return
+     */
+    private boolean checkPostGIS(KiWiConfiguration config) {
+        final KiWiPersistence persistence = new KiWiPersistence(config);
+        try {
+            persistence.initialise();
+
+            final Connection conn = persistence.getJDBCConnection();
+            if (conn != null) {
+                try {
+                    //try(PreparedStatement stmt = conn.prepareStatement("CREATE EXTENSION IF NOT EXISTS postgis;")) {
+                    //    stmt.executeQuery();
+                    //}
+
+                    try (PreparedStatement stmt = conn.prepareStatement("SELECT PostGIS_full_version();")) {
+                        ResultSet result = stmt.executeQuery();
+                        if (result.next()) {
+                            log.info("Using PostGIS {}...", result.getString("postgis_full_version"));
+                        }
+                    }
+
+                    //try(PreparedStatement stmt = conn.prepareStatement("DROP EXTENSION IF NOT EXISTS postgis;")) {
+                    //    stmt.executeQuery();
+                    //}
+
+                    return true;
+                } catch (SQLException e) {
+                    log.warn("Checking PostGIS extension has failed: {}", e.getMessage());
+                    return false;
+                }
+            } else {
+                log.warn("Impossible to get a JDBC connection");
+                return false;
+            }
+        } catch (Exception e) {
+            log.warn("Impossible to get a JDBC connection: {}", e.getMessage());
+            return false;
+        } finally {
+            persistence.shutdown();
         }
     }
 
@@ -108,15 +159,6 @@ public class GeoSPARQLFunctionsTest {
             repository.shutDown();
         }
     }
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void skipped(AssumptionViolatedException e, Description description) {
-            super.skipped(e, description);
-            log.warn("{} skipped because a precondition failed", description.getMethodName());
-        }
-    };
 
     @Test
     public void testSfContains() throws Exception {
@@ -319,7 +361,7 @@ public class GeoSPARQLFunctionsTest {
     }
 
     private void testQueryGeometry(String filename) throws Exception {
-        String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
 
         RepositoryConnection conn = repository.getConnection();
         try {
@@ -342,4 +384,5 @@ public class GeoSPARQLFunctionsTest {
             conn.close();
         }
     }
+
 }
