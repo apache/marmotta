@@ -48,13 +48,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Test suite for all the functions of GeoSPARQL implemented.
+ * Test suite for all GeoSPARQL implemented functions.
  *
  * There is 35 test cases for each function:
- *      Simple Features Topological Relations (8) 
- *      Egenhofer Topological Relations (8) 
- *      RCC8 Topological Relations (8) 
- *      Non-Topological Functions (11)
+ *     - Simple Features Topological Relations (8)
+ *     - Egenhofer Topological Relations (8)
+ *     - RCC8 Topological Relations (8)
+ *     - Non-Topological Functions (11)
  *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  * @author Sergio Fernández (wikier@apache.org)
@@ -81,7 +81,6 @@ public class GeoSPARQLFunctionsTest {
     public void initDatabase() throws RepositoryException, IOException, RDFParseException {
         Assume.assumeTrue(String.format("PostgreSQL not available! (using %s)", this.dbConfig.getDialect().getClass().getSimpleName()),
                 PostgreSQLDialect.class.equals(this.dbConfig.getDialect().getClass()));
-
         Assume.assumeTrue("PostGIS not available!", checkPostGIS(dbConfig));
 
         store = new KiWiStore(dbConfig);
@@ -157,6 +156,56 @@ public class GeoSPARQLFunctionsTest {
             log.info("cleaning up test setup...");
             store.getPersistence().dropDatabase();
             repository.shutDown();
+        }
+    }
+
+    private void testQueryBoolean(String filename, String function) throws Exception {
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
+
+        RepositoryConnection conn = repository.getConnection();
+        try {
+
+            conn.begin();
+
+            TupleQuery query1 = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result1 = query1.evaluate();
+
+            conn.commit();
+
+            Assert.assertTrue(result1.hasNext());
+
+            List<BindingSet> results = Iterations.asList(result1);
+
+            Assert.assertTrue(Boolean.parseBoolean(results.get(0).getValue(function).stringValue()));
+        } catch (RepositoryException ex) {
+            conn.rollback();
+        } finally {
+            conn.close();
+        }
+    }
+
+    private void testQueryGeometry(String filename) throws Exception {
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
+
+        RepositoryConnection conn = repository.getConnection();
+        try {
+
+            conn.begin();
+
+            TupleQuery query1 = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult result1 = query1.evaluate();
+
+            conn.commit();
+
+            Assert.assertTrue(result1.hasNext());
+
+            List<BindingSet> results = Iterations.asList(result1);
+
+            Assert.assertEquals(1, results.size());
+        } catch (RepositoryException ex) {
+            conn.rollback();
+        } finally {
+            conn.close();
         }
     }
 
@@ -333,56 +382,6 @@ public class GeoSPARQLFunctionsTest {
     @Test
     public void testRcc8ntppi() throws Exception {
         testQueryBoolean("rcc8ntppi.sparql", "rcc8ntppi");
-    }
-
-    private void testQueryBoolean(String filename, String function) throws Exception {
-        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
-
-        RepositoryConnection conn = repository.getConnection();
-        try {
-
-            conn.begin();
-
-            TupleQuery query1 = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-            TupleQueryResult result1 = query1.evaluate();
-
-            conn.commit();
-
-            Assert.assertTrue(result1.hasNext());
-
-            List<BindingSet> results = Iterations.asList(result1);
-
-            Assert.assertTrue(Boolean.parseBoolean(results.get(0).getValue(function).stringValue()));
-        } catch (RepositoryException ex) {
-            conn.rollback();
-        } finally {
-            conn.close();
-        }
-    }
-
-    private void testQueryGeometry(String filename) throws Exception {
-        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
-
-        RepositoryConnection conn = repository.getConnection();
-        try {
-
-            conn.begin();
-
-            TupleQuery query1 = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-            TupleQueryResult result1 = query1.evaluate();
-
-            conn.commit();
-
-            Assert.assertTrue(result1.hasNext());
-
-            List<BindingSet> results = Iterations.asList(result1);
-
-            Assert.assertEquals(1, results.size());
-        } catch (RepositoryException ex) {
-            conn.rollback();
-        } finally {
-            conn.close();
-        }
     }
 
 }
