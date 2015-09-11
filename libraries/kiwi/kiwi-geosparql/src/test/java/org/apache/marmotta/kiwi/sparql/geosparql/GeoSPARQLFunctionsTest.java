@@ -159,7 +159,7 @@ public class GeoSPARQLFunctionsTest {
         }
     }
 
-    private void testQueryBoolean(String filename, String function) throws Exception {
+    private void testQueryBoolean(String filename, String var) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
 
         RepositoryConnection conn = repository.getConnection();
@@ -176,7 +176,7 @@ public class GeoSPARQLFunctionsTest {
 
             List<BindingSet> results = Iterations.asList(result1);
 
-            Assert.assertTrue(Boolean.parseBoolean(results.get(0).getValue(function).stringValue()));
+            Assert.assertTrue(Boolean.parseBoolean(results.get(0).getValue(var).stringValue()));
         } catch (RepositoryException ex) {
             conn.rollback();
         } finally {
