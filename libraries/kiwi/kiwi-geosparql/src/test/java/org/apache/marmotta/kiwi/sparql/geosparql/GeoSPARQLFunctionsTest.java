@@ -46,6 +46,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Test suite for all GeoSPARQL implemented functions.
@@ -63,6 +65,8 @@ import java.util.List;
 public class GeoSPARQLFunctionsTest {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    final static public Pattern POSTGIS_FULL_VERSION = Pattern.compile("^POSTGIS\\=\"(\\d+(\\.\\d+)?(\\.\\d+)?(\\sr\\d+)?)\".*");
 
     private KiWiStore store;
     private KiWiSparqlSail sail;
@@ -125,7 +129,13 @@ public class GeoSPARQLFunctionsTest {
                     try (PreparedStatement stmt = conn.prepareStatement("SELECT PostGIS_full_version();")) {
                         ResultSet result = stmt.executeQuery();
                         if (result.next()) {
-                            log.info("Using PostGIS {}...", result.getString("postgis_full_version"));
+                            final String postgis_full_version = result.getString("postgis_full_version");
+                            final Matcher matcher = POSTGIS_FULL_VERSION.matcher(postgis_full_version);
+                            if (matcher.find()) {
+                                log.info("Using PostGIS {}...", matcher.group(1));
+                            } else {
+                                log.info("Using PostGIS {}...", postgis_full_version);
+                            }
                         }
                     }
 
