@@ -22,8 +22,10 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.junit.*;
+import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.junit.runner.RunWith;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -52,7 +54,10 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
  * @author Sergio Fernández (wikier@apache.org)
  */
+@RunWith(KiWiDatabaseRunner.class)
 public class GeoSPARQLFunctionsTest {
+
+    final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private KiWiStore store;
     private KiWiSparqlSail sail;
@@ -60,58 +65,56 @@ public class GeoSPARQLFunctionsTest {
 
     private final KiWiConfiguration dbConfig;
 
-    public GeoSPARQLFunctionsTest() {
-        logger.info("creating test setup...");
-        dbConfig = KiWiDatabaseRunner.createKiWiConfig("PostgreSQL", new PostgreSQLDialect());
-        DBConnectionChecker.checkDatabaseAvailability(dbConfig);
-
+    public GeoSPARQLFunctionsTest(KiWiConfiguration dbConfig) {
+        this.dbConfig = dbConfig;
         dbConfig.setFulltextEnabled(true);
-        dbConfig.setFulltextLanguages(new String[]{"en"});
+        dbConfig.setFulltextLanguages(new String[] {"en"});
+        DBConnectionChecker.checkDatabaseAvailability(dbConfig);
     }
 
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException {
+        if (!PostgreSQLDialect.class.equals(this.dbConfig.getDialect().getClass())) {
+            log.warn("PostgreSQL not available! (using {})", this.dbConfig.getDialect().getClass().getSimpleName());
+            Assume.assumeTrue(false);
+        }
+
         store = new KiWiStore(dbConfig);
         store.setDropTablesOnShutdown(true);
         sail = new KiWiSparqlSail(store);
         repository = new SailRepository(sail);
         repository.initialize();
 
-        logger.info("loading data to test...");
+        log.info("loading data to test...");
 
         // load demo data spain provinces
-        RepositoryConnection con = repository.getConnection();
+        RepositoryConnection conn = repository.getConnection();
         try {
-            con.begin();
-            con.add(this.getClass().getResourceAsStream("demo_data_spain_provinces.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
-            con.add(this.getClass().getResourceAsStream("demo_data_spain_towns.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
-            con.add(this.getClass().getResourceAsStream("demo_data_spain_rivers.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
-            con.commit();
+            conn.begin();
+            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_provinces.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
+            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_towns.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
+            conn.add(this.getClass().getResourceAsStream("/demo_data_spain_rivers.rdf"), "http://localhost/test/", RDFFormat.RDFXML);
+            conn.commit();
         } finally {
-            con.close();
+            conn.close();
         }
     }
 
     @After
     public void dropDatabase() throws RepositoryException, SQLException {
-        logger.info("cleaning up test setup...");
         if (store != null && store.isInitialized()) {
+            log.info("cleaning up test setup...");
             store.getPersistence().dropDatabase();
             repository.shutDown();
         }
     }
 
-    final Logger logger
-            = LoggerFactory.getLogger(this.getClass());
-
     @Rule
     public TestWatcher watchman = new TestWatcher() {
-        /**
-         * Invoked when a test is about to start
-         */
         @Override
-        protected void starting(Description description) {
-            logger.info("{} being run...", description.getMethodName());
+        protected void skipped(AssumptionViolatedException e, Description description) {
+            super.skipped(e, description);
+            log.warn("{} skipped because a precondition failed", description.getMethodName());
         }
     };
 
@@ -291,7 +294,7 @@ public class GeoSPARQLFunctionsTest {
     }
 
     private void testQueryBoolean(String filename, String function) throws Exception {
-        String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
+        String queryString = IOUtils.toString(this.getClass().getResourceAsStream("/" + filename), "UTF-8");
 
         RepositoryConnection conn = repository.getConnection();
         try {

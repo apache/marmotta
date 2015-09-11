@@ -38,7 +38,6 @@ import org.openrdf.repository.sail.SailRepository;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-
 /**
  * Run the Sesame SPARQL Update Test Suite.
  *

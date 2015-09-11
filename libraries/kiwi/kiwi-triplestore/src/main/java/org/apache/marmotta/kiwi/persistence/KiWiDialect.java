@@ -30,9 +30,10 @@ import java.util.Set;
 /**
  * A dialect provides the SQL statements necessary to access the different types of database systems. Each
  * method should return a PreparedStatement that can be executed on the respective JDBC connection
- * <p/>
- * Author: Sebastian Schaffert
- * Version 5 is implemented in MARMOTTA 584
+ *
+ * @author: Sebastian Schaffert
+ *
+ * Version 5 is implemented by MARMOTTA-584
  */
 public abstract class KiWiDialect {
 
@@ -41,7 +42,6 @@ public abstract class KiWiDialect {
     public final static int VERSION = 5;
 
     private Properties statements;
-
 
     protected KiWiDialect() throws DriverNotFoundException {
         statements = new Properties();
@@ -55,7 +55,6 @@ public abstract class KiWiDialect {
         } catch (Exception e) {
             log.error("could not load statement definitions (statement.properties)",e);
         }
-
     }
 
     public int getVersion() {
