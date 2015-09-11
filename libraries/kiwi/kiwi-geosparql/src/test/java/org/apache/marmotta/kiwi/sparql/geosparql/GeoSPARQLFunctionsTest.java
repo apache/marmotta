@@ -62,6 +62,7 @@ import java.util.regex.Pattern;
  * @author Sergio Fernández (wikier@apache.org)
  */
 @RunWith(KiWiDatabaseRunner.class)
+@KiWiDatabaseRunner.ForDialects(PostgreSQLDialect.class)
 public class GeoSPARQLFunctionsTest {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
