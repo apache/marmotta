@@ -127,6 +127,7 @@
         <module>kiwi-versioning</module>
         <module>kiwi-reasoner</module>
         <module>kiwi-sparql</module>
+        <module>kiwi-geosparql</module>
         <module>kiwi-loader</module>
     </modules>
 

@@ -1,43 +1,21 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 org.apache.marmotta.kiwi.sparql.function.custom.FulltextSearchFunction
 org.apache.marmotta.kiwi.sparql.function.custom.FulltextQueryFunction
 org.apache.marmotta.kiwi.sparql.function.custom.Stddev
 org.apache.marmotta.kiwi.sparql.function.custom.Variance
-
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfIntersectsFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfWithinFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfTouchesFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfContainsFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfCrossesFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfDisjointFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfEqualsFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SfOverlapsFunction
-
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8DCFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8ECFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8EQFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8NTPPFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8NTPPiFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8POFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8TPPFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.Rcc8TPPiFunction
-
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhContainsFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhCoveredByFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhDisjointFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhEqualsFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhInsideFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhMeetFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhOverlapFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EhCoversFunction
-
-org.apache.marmotta.kiwi.sparql.function.geosparql.BufferFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.ConvexHullFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.IntersectionFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.DistanceFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.DifferenceFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.SymDifferenceFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.EnvelopeFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.BoundaryFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.UnionFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.RelateFunction
-org.apache.marmotta.kiwi.sparql.function.geosparql.GetSRIDFunction

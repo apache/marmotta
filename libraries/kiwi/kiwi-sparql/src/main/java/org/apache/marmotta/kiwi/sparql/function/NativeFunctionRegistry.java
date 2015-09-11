@@ -55,4 +55,5 @@ public class NativeFunctionRegistry extends ServiceRegistry<String,NativeFunctio
     public NativeFunction get(URI uri) {
         return get(uri.stringValue());
     }
+
 }
