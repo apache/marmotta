@@ -19,7 +19,7 @@ CREATE TYPE nodetype AS ENUM ('uri','bnode','string','int','double','date','bool
 
 
 --necessary for use geometry queries
-CREATE EXTENSION postgis;
+CREATE EXTENSION IF NOT EXISTS postgis;
 
 
 -- requires super user privileges:
