@@ -378,7 +378,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             if (db_type.equals("h2")) {
                 config.setProperty("database.url", "jdbc:h2:" + getHome() + "/db/marmotta;MVCC=true;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=10");
                 config.setProperty("database.user", "sa");
-                config.setProperty("database.password", "sa");;
+                config.setProperty("database.password", "sa");
             }
             config.setProperty("kiwi.setup.database", true);
         }
