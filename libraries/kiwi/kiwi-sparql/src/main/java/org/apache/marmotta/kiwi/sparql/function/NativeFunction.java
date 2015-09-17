@@ -37,7 +37,7 @@ public interface NativeFunction extends Function {
      * @param dialect
      * @return
      */
-    public boolean isSupported(KiWiDialect dialect);
+    boolean isSupported(KiWiDialect dialect);
 
     /**
      * Return a string representing how this function is translated into SQL in the given dialect
@@ -45,13 +45,13 @@ public interface NativeFunction extends Function {
      * @param args
      * @return
      */
-    public String getNative(KiWiDialect dialect, String... args);
+    String getNative(KiWiDialect dialect, String... args);
 
     /**
      * Get the return type of the function. This is needed for SQL type casting inside KiWi.
      * @return
      */
-    public ValueType getReturnType();
+    ValueType getReturnType();
 
     /**
      * Get the argument type of the function for the arg'th argument (starting to count at 0).
@@ -60,18 +60,19 @@ public interface NativeFunction extends Function {
      * @param arg
      * @return
      */
-    public ValueType getArgumentType(int arg);
+    ValueType getArgumentType(int arg);
 
     /**
      * Return the minimum number of arguments this function requires.
      * @return
      */
-    public int getMinArgs();
+    int getMinArgs();
 
     /**
      * Return the maximum number of arguments this function can take
      *
      * @return
      */
-    public int getMaxArgs();
+    int getMaxArgs();
+
 }

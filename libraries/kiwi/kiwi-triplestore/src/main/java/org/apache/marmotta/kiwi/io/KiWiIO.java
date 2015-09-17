@@ -40,15 +40,17 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 /**
- * Add file description here!
+ * KiWi triplestore Input/Output low-level implementation
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
+ * @author Sergio Fernández (wikier@apache.org)
  */
 public class KiWiIO {
 
+    private static Logger log = LoggerFactory.getLogger(KiWiIO.class);
+
     public static final String NS_DBPEDIA = "http://dbpedia.org/resource/";
     public static final String NS_FREEBASE = "http://rdf.freebase.com/ns/";
-    private static Logger log = LoggerFactory.getLogger(KiWiIO.class);
 
     /**
      * Minimum length of content where we start using compression.
@@ -69,7 +71,6 @@ public class KiWiIO {
     private static final int PREFIX_DBPEDIA = 11;
     private static final int PREFIX_FREEBASE= 12;
 
-
     private static final int TYPE_URI       = 1;
     private static final int TYPE_BNODE     = 2;
     private static final int TYPE_BOOLEAN   = 3;
@@ -78,7 +79,6 @@ public class KiWiIO {
     private static final int TYPE_INT       = 6;
     private static final int TYPE_STRING    = 7;
     private static final int TYPE_GEOMETRY    = 8;
-
 
     public static final int MODE_DEFAULT    = 1; // no compression
     public static final int MODE_PREFIX     = 2; // prefix compression for some known URI prefixes
@@ -99,21 +99,19 @@ public class KiWiIO {
     private static final int LANG_IT = 12;
     private static final int LANG_PL = 13;
 
-
     public static final String HTTP_LOCALHOST = "http://localhost";
     public static final String NS_REDLINK = "http://data.redlink.io";
 
-
     private static Map<Class<? extends KiWiNode>, Integer> classTable = new HashMap<>();
     static {
-        classTable.put(KiWiUriResource.class,    TYPE_URI);
-        classTable.put(KiWiAnonResource.class,   TYPE_BNODE);
-        classTable.put(KiWiBooleanLiteral.class, TYPE_BOOLEAN);
-        classTable.put(KiWiDateLiteral.class,    TYPE_DATE);
-        classTable.put(KiWiDoubleLiteral.class,  TYPE_DOUBLE);
-        classTable.put(KiWiIntLiteral.class,     TYPE_INT);
-        classTable.put(KiWiStringLiteral.class,  TYPE_STRING);
-        classTable.put(KiWiGeometryLiteral.class,  TYPE_GEOMETRY);
+        classTable.put(KiWiUriResource.class,     TYPE_URI);
+        classTable.put(KiWiAnonResource.class,    TYPE_BNODE);
+        classTable.put(KiWiBooleanLiteral.class,  TYPE_BOOLEAN);
+        classTable.put(KiWiDateLiteral.class,     TYPE_DATE);
+        classTable.put(KiWiDoubleLiteral.class,   TYPE_DOUBLE);
+        classTable.put(KiWiIntLiteral.class,      TYPE_INT);
+        classTable.put(KiWiStringLiteral.class,   TYPE_STRING);
+        classTable.put(KiWiGeometryLiteral.class, TYPE_GEOMETRY);
     }
 
 
@@ -212,7 +210,6 @@ public class KiWiIO {
             default:
                 throw new IllegalArgumentException("unknown KiWiNode type: "+type);
         }
-
     }
 
     /**
@@ -599,8 +596,6 @@ public class KiWiIO {
         }
     }
 
-
-
     /**
      * Read a KiWiStringLiteral serialized with writeStringLiteral from a DataInput source
      *
@@ -675,9 +670,10 @@ public class KiWiIO {
         }
     }
 
-/**
+    /**
      * Efficiently serialize a KiWiGeometryLiteral to a DataOutput destination.
-     *add on MARMOTA 584 - GeoSPARQL Support
+     * Added by MARMOTA 584 (GeoSPARQL Support).
+     *
      * @param out the destination
      * @param literal the KiWiGeometryLiteral to serialize
      * @throws IOException
@@ -699,86 +695,27 @@ public class KiWiIO {
         }
     }
 
-    
-    
     /**
-     * Read a KiWiGeometyrLiteral serialized with writeGeometryLiteral from a DataInput source
+     * Read a KiWiGeometryLiteral serialized with writeGeometryLiteral from a DataInput source
      *
      * @param input the source
      * @return the de-serialized KiWiStringLiteral
      * @throws IOException
      */
     public static KiWiGeometryLiteral readGeometryLiteral(DataInput input) throws IOException {
-        long id = input.readLong();
-
+        final long id = input.readLong();
         if(id == -1) {
             return null;
         } else {
             String content = readContent(input);
-            byte   langB   = input.readByte();
-            String lang;
-
-            switch (langB) {
-                case LANG_EN:
-                    lang = "en";
-                    break;
-                case LANG_DE:
-                    lang = "de";
-                    break;
-                case LANG_FR:
-                    lang = "fr";
-                    break;
-                case LANG_ES:
-                    lang = "es";
-                    break;
-                case LANG_IT:
-                    lang = "it";
-                    break;
-                case LANG_PT:
-                    lang = "pt";
-                    break;
-                case LANG_NL:
-                    lang = "nl";
-                    break;
-                case LANG_SV:
-                    lang = "sv";
-                    break;
-                case LANG_NO:
-                    lang = "no";
-                    break;
-                case LANG_FI:
-                    lang = "fi";
-                    break;
-                case LANG_RU:
-                    lang = "ru";
-                    break;
-                case LANG_DK:
-                    lang = "dk";
-                    break;
-                case LANG_PL:
-                    lang = "pl";
-                    break;
-                default:
-                    lang = DataIO.readString(input);
-            }
-
-
-
             KiWiUriResource dtype = readURI(input);
-
             Date created = new Date(input.readLong());
-
-            KiWiGeometryLiteral r = new KiWiGeometryLiteral(content, dtype, created);
-            r.setId(id);
-
-            return r;
+            KiWiGeometryLiteral literal = new KiWiGeometryLiteral(content, dtype, created);
+            literal.setId(id);
+            return literal;
         }
     }
-    
-    
-    
-    
-    
+
     /**
      * Efficiently serialize a KiWiTriple to a DataOutput destination.
      *
@@ -829,7 +766,6 @@ public class KiWiIO {
             output.writeLong(0);
         }
     }
-
 
     /**
      * Read a KiWiTriple serialized with writeTriple from a DataInput source
@@ -882,9 +818,7 @@ public class KiWiIO {
             result.setDeletedAt(new Date(deletedAt));
         }
 
-
         return result;
-
     }
 
     /**
