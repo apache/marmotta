@@ -19,10 +19,10 @@ package org.apache.marmotta.kiwi.model.rdf;
 import java.util.Date;
 
 /**
- * A RDF geometry literal (of type geo:wktLiteral), possibly with language
- * information.
- * <p/>
+ * A RDF geometry literal (geo:wktLiteral)
+ *
  * @author Xavier Sumba (xavier.sumba93@ucuenca.ec)
+ * @author Sergio Fernández (wikier@apache.org)
  */
 public class KiWiGeometryLiteral extends KiWiLiteral {
 
@@ -77,7 +77,7 @@ public class KiWiGeometryLiteral extends KiWiLiteral {
     /**
      * Set the content of the literal to the content provided as parameter.
      *
-     * @param content
+     * @param srid
      */
     public void setSRID(int srid) {
         this.SRID_URI = srid;
@@ -100,4 +100,5 @@ public class KiWiGeometryLiteral extends KiWiLiteral {
     public void setContent(String content) {
         this.content = content;
     }
+
 }

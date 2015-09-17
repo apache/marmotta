@@ -32,8 +32,6 @@ import java.io.IOException;
  */
 public class BNodeSerializer implements StreamSerializer<KiWiAnonResource> {
 
-
-
     @Override
     public int getTypeId() {
         return ExternalizerIds.BNODE;
@@ -53,4 +51,5 @@ public class BNodeSerializer implements StreamSerializer<KiWiAnonResource> {
     public void destroy() {
 
     }
+
 }
