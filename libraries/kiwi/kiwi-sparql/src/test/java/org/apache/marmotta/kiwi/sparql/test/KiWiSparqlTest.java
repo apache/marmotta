@@ -36,9 +36,7 @@ import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.URIImpl;
 import org.openrdf.query.*;
 import org.openrdf.query.impl.DatasetImpl;
@@ -137,7 +135,7 @@ public class KiWiSparqlTest {
      * @throws Exception
      */
     @Test
-    public void testQuery37() throws Exception {
+    public void testMarmotta578() throws Exception {
         testQuery("MARMOTTA-578.sparql");
     }
 
@@ -250,6 +248,36 @@ public class KiWiSparqlTest {
             return key + " = " + value;
         }
 
+    }
+
+    @Test
+    public void testMarmotta617() throws Exception {
+        RepositoryConnection conn = repository.getConnection();
+        try {
+            conn.begin();
+
+            // 1) load demo data
+            conn.add(this.getClass().getResourceAsStream("MARMOTTA-617.ttl"), "http://localhost/test/MARMOTTA-617", RDFFormat.TURTLE);
+            conn.commit();
+
+            // 2) test the query behavior
+            String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-617.sparql"), "UTF-8");
+            TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult results = query.evaluate();
+            try {
+                while (results.hasNext()) {
+                    BindingSet bindingSet = results.next();
+                    Assert.assertTrue(bindingSet.getValue("children") instanceof Literal);
+                    Literal children = (Literal) bindingSet.getValue("children");
+                    Assert.assertEquals("http://www.w3.org/2001/XMLSchema#boolean", children.getDatatype().stringValue());
+                    Assert.assertTrue(Lists.newArrayList("true", "false").contains(children.stringValue()));
+                }
+            } finally {
+                results.close();
+            }
+        } finally {
+            conn.close();
+        }
     }
 
 }
