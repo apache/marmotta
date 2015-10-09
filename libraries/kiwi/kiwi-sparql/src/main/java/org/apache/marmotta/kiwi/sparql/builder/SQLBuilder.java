@@ -886,6 +886,8 @@ public class SQLBuilder {
             return ValueType.BOOL;
         } else if(expr instanceof If) {
             return getProjectionType(((If) expr).getResult());
+        } else if(expr instanceof Exists) {
+            return ValueType.BOOL;
         } else {
             return ValueType.STRING;
         }
