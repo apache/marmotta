@@ -30,7 +30,7 @@
 
     <name>Marmotta Sesame Tools: Common Vocabularies</name>
 
-    <description>Common RDF vocabularies fro Sesame</description>
+    <description>Common RDF vocabularies for Sesame</description>
 
     <build>
         <plugins>
