@@ -71,7 +71,7 @@ public class Justification  {
 
     public Justification() {
         supportingTriples = StatementCommons.newQuadrupleSet();
-        supportingRules   = new HashSet<Rule>();
+        supportingRules   = new HashSet<>();
     }
 
     public long getId() {
@@ -146,4 +146,5 @@ public class Justification  {
                 ", supportingRules=" + supportingRules +
                 '}';
     }
+
 }
