@@ -69,8 +69,6 @@ public class PGCopyUtilTest {
     final static KiWiUriResource TYPE_DATE = createURI(XSD.DateTime.stringValue());
     final static KiWiStringLiteral EMPTY = createLiteral("");
 
-
-
     private KiWiStore store;
 
     private SailRepository repository;
@@ -95,7 +93,7 @@ public class PGCopyUtilTest {
         log.info("cleaning up test setup...");
         if (store != null && store.isInitialized()) {
             try {
-            assertTrue(store.checkConsistency());
+                assertTrue(store.checkConsistency());
             } finally {
                 repository.shutDown();
             }
@@ -104,9 +102,11 @@ public class PGCopyUtilTest {
 
     @Test
     public void testWriteNodes() throws IOException, SQLException {
-        KiWiConnection con = store.getPersistence().getConnection();
+        final int version = getDbVersion();
 
-        PGCopyOutputStream out = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(con.getJDBCConnection()), "COPY nodes FROM STDIN (FORMAT csv)");
+        KiWiConnection conn = store.getPersistence().getConnection();
+
+        PGCopyOutputStream out = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(conn.getJDBCConnection()), "COPY nodes FROM STDIN (FORMAT csv)");
 
         long start = System.currentTimeMillis();
 
@@ -124,7 +124,7 @@ public class PGCopyUtilTest {
         }
 
         // flush out nodes
-        PGCopyUtil.flushNodes(nodes, out);
+        PGCopyUtil.flushNodes(nodes, out, version);
 
         out.close();
 
@@ -134,7 +134,7 @@ public class PGCopyUtilTest {
 
         // check if database contains the nodes (based on ID)
 
-        PreparedStatement stmt = con.getJDBCConnection().prepareStatement("SELECT * FROM nodes WHERE id = ?");
+        PreparedStatement stmt = conn.getJDBCConnection().prepareStatement("SELECT * FROM nodes WHERE id = ?");
         for(int i=0; i<nodes.size(); i++) {
             stmt.setLong(1, (long)i);
             ResultSet dbResult = stmt.executeQuery();
@@ -146,6 +146,19 @@ public class PGCopyUtilTest {
     }
 
     /**
+     * Return the schema version if necessary
+     *
+     * @return
+     * @throws SQLException
+     */
+    protected int getDbVersion() throws SQLException {
+        final KiWiConnection conn = store.getPersistence().getConnection();
+        final String version = conn.getMetadata("version");
+        conn.close();
+        return Integer.parseInt(version);
+    }
+
+    /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
      * @return
      */
@@ -154,7 +167,6 @@ public class PGCopyUtilTest {
         r.setId(id++);
         return r;
     }
-
 
     protected static KiWiUriResource createURI(String uri) {
         KiWiUriResource r = new KiWiUriResource(uri);
@@ -196,6 +208,5 @@ public class PGCopyUtilTest {
         r.setId(id++);
         return r;
     }
-
 
 }

@@ -41,18 +41,22 @@ public class KiWiPostgresHandler extends KiWiBatchHandler implements RDFHandler 
 
     private static Logger log = LoggerFactory.getLogger(KiWiPostgresHandler.class);
 
+    private String columns = "id,ntype,svalue,dvalue,ivalue,tvalue,tzoffset,bvalue,ltype,lang,createdAt";
 
-
-    public KiWiPostgresHandler(KiWiStore store, KiWiLoaderConfiguration config) {
+    public KiWiPostgresHandler(KiWiStore store, KiWiLoaderConfiguration config) throws SQLException {
         super("PostgreSQL", store, config);
-    }
 
+        final int version = getDbVersion();
+        if (version >= 5) {
+            columns += ",gvalue";
+        }
+    }
 
     @Override
     protected void flushBacklogInternal() throws SQLException {
         try {
             // flush out nodes
-            PGCopyOutputStream nodesOut = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(connection.getJDBCConnection()), "COPY nodes(id,ntype,svalue,dvalue,ivalue,tvalue,tzoffset,bvalue,ltype,lang,createdAt) FROM STDIN (FORMAT csv)");
+            PGCopyOutputStream nodesOut = new PGCopyOutputStream(PGCopyUtil.getWrappedConnection(connection.getJDBCConnection()), "COPY nodes(" + columns + ") FROM STDIN (FORMAT csv)");
             PGCopyUtil.flushNodes(nodeBacklog, nodesOut);
             nodesOut.close();
 
@@ -64,7 +68,6 @@ public class KiWiPostgresHandler extends KiWiBatchHandler implements RDFHandler 
             throw new SQLException("error while flushing out data",ex);
         }
     }
-
 
     @Override
     protected void dropIndexes() throws SQLException {

@@ -202,7 +202,6 @@ public class KiWiConnection implements AutoCloseable {
      */
     public Connection getJDBCConnection() throws SQLException {
         requireJDBCConnection();
-
         return connection;
     }
 

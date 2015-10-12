@@ -19,6 +19,7 @@ package org.apache.marmotta.kiwi.loader.pgsql;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.kiwi.loader.csv.*;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.joda.time.DateTime;
 import org.openrdf.model.URI;
 import org.postgresql.PGConnection;
@@ -43,7 +44,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Postgres copy utility
+ * PostgreSQL copy utility
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -64,7 +65,6 @@ public class PGCopyUtil {
             new Optional(new LanguageProcessor()),    // lang
             new SQLTimestampProcessor(),              // createdAt
     };
-
 
     final static CellProcessor[] tripleProcessors = new CellProcessor[] {
             new NotNull(),                            // triple ID
@@ -94,19 +94,19 @@ public class PGCopyUtil {
         }
     }).build();
 
-
     /**
-     * Return a PGConnection wrapped by the tomcat connection pool so we are able to access PostgreSQL specific functionality.
-     * @param con
+     * Return a PGConnection wrapped by the tomcat connection pool,
+     * so we are able to access PostgreSQL specific functionality.
+     *
+     * @param conn
      * @return
      */
-    public static PGConnection getWrappedConnection(Connection con) throws SQLException {
-        if(con instanceof PGConnection) {
-            return (PGConnection)con;
+    public static PGConnection getWrappedConnection(Connection conn) throws SQLException {
+        if(conn instanceof PGConnection) {
+            return (PGConnection)conn;
         } else {
-            return (PGConnection) ((javax.sql.PooledConnection)con).getConnection();
+            return (PGConnection) ((javax.sql.PooledConnection)conn).getConnection();
         }
-
     }
 
     public static void flushTriples(Iterable<KiWiTriple> tripleBacklog, OutputStream out) throws IOException {
@@ -134,10 +134,14 @@ public class PGCopyUtil {
     }
 
     public static void flushNodes(Iterable<KiWiNode> nodeBacklog, OutputStream out) throws IOException {
+        flushNodes(nodeBacklog, out, KiWiDialect.VERSION);
+    }
+
+    public static void flushNodes(Iterable<KiWiNode> nodeBacklog, OutputStream out, int version) throws IOException {
         CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), nodesPreference);
 
         // reuse the same array to avoid unnecessary object allocation
-        Object[] rowArray = new Object[12]; //FIXME: 11 in schema v4, 12 in v5
+        Object[] rowArray = new Object[version >= 5 ? 12 : 11]; //schema v5 adds a new 'geom' column
         List<Object> row = Arrays.asList(rowArray);
 
         for(KiWiNode n : nodeBacklog) {
@@ -179,7 +183,7 @@ public class PGCopyUtil {
                 log.warn("unknown node type, cannot flush to import stream: {}", n.getClass());
             }
 
-            writer.write(row, nodeProcessors);
+            writer.write(row, getNodeProcessors(version));
         }
         writer.close();
     }
@@ -196,7 +200,20 @@ public class PGCopyUtil {
         a[8] = dtype;
         a[9] = lang != null ? lang.getLanguage() : "";
         a[10] = created;
-        a[11] = geom; //FIXME: drop in v4 schema testing
+
+        if (a.length == 12) {
+            a[11] = geom; //schema v5
+        }
+    }
+
+    public static CellProcessor[] getNodeProcessors(int version) {
+        if (version >= 5) {
+            CellProcessor[] newNodeProcessors = Arrays.copyOf(nodeProcessors, nodeProcessors.length+1);
+            newNodeProcessors[nodeProcessors.length] = new Optional();
+            return newNodeProcessors;
+        } else {
+            return nodeProcessors;
+        }
     }
 
 }

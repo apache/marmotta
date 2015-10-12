@@ -21,6 +21,7 @@ import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiHandler;
 import org.apache.marmotta.kiwi.loader.mysql.KiWiMySQLHandler;
 import org.apache.marmotta.kiwi.loader.pgsql.KiWiPostgresHandler;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
@@ -53,6 +54,8 @@ import java.util.List;
 @RunWith(KiWiDatabaseRunner.class)
 public class KiWiHandlerTest {
 
+    final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private KiWiStore store;
     private Repository repository;
 
@@ -63,7 +66,6 @@ public class KiWiHandlerTest {
         dbConfig.setFulltextEnabled(true);
         dbConfig.setFulltextLanguages(new String[] {"en"});
     }
-
 
     @Before
     public void initDatabase() throws RepositoryException, IOException, RDFParseException, SailException {
@@ -77,9 +79,6 @@ public class KiWiHandlerTest {
     public void dropDatabase() throws RepositoryException, SQLException, SailException {
         repository.shutDown();
     }
-
-    final Logger logger =
-            LoggerFactory.getLogger(this.getClass());
 
     @Rule
     public TestWatcher watchman = new TestWatcher() {
@@ -131,8 +130,7 @@ public class KiWiHandlerTest {
 
     }
 
-
-    private void testImport(KiWiLoaderConfiguration c, String file, RDFFormat fmt) throws RDFParseException, IOException, RDFHandlerException {
+    private void testImport(KiWiLoaderConfiguration c, String file, RDFFormat fmt) throws RDFParseException, IOException, RDFHandlerException, SQLException {
         KiWiHandler handler;
         if(store.getPersistence().getDialect() instanceof PostgreSQLDialect) {
             handler = new KiWiPostgresHandler(store, c);
@@ -172,6 +170,19 @@ public class KiWiHandlerTest {
             handler.shutdown();
         }
 
+    }
+
+    /**
+     * Return the schema version if necessary
+     *
+     * @return
+     * @throws SQLException
+     */
+    protected int getDbVersion() throws SQLException {
+        final KiWiConnection conn = store.getPersistence().getConnection();
+        final String version = conn.getMetadata("version");
+        conn.close();
+        return Integer.parseInt(version);
     }
 
 }

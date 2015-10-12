@@ -59,9 +59,7 @@ public class KiWiStore extends NotifyingSailBase {
      */
     private String inferredContext;
 
-
     private boolean initialized = false;
-
 
     /**
      * Drop databases when shutdown is called. This option is mostly useful for testing.
@@ -72,8 +70,6 @@ public class KiWiStore extends NotifyingSailBase {
         this.persistence    = persistence;
         this.defaultContext = defaultContext;
         this.inferredContext = inferredContext;
-
-
     }
 
     @Deprecated
@@ -129,7 +125,6 @@ public class KiWiStore extends NotifyingSailBase {
     public KiWiPersistence getPersistence() {
         return persistence;
     }
-
 
     /**
      * Drop databases when shutdown is called. This option is mostly useful for testing.
@@ -231,4 +226,5 @@ public class KiWiStore extends NotifyingSailBase {
             throw new SailException("error calling consistency check",e);
         }
     }
+
 }

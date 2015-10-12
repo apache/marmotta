@@ -20,6 +20,7 @@ package org.apache.marmotta.kiwi.loader.generic;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.openrdf.model.Literal;
 import org.openrdf.rio.RDFHandler;
@@ -43,14 +44,12 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
 
     private static Logger log = LoggerFactory.getLogger(KiWiBatchHandler.class);
 
-
     protected List<KiWiNode> nodeBacklog;
     protected List<KiWiTriple> tripleBacklog;
 
     protected Map<String,KiWiLiteral> literalBacklogLookup;
     protected Map<String,KiWiUriResource> uriBacklogLookup;
     protected Map<String,KiWiAnonResource> bnodeBacklogLookup;
-
 
     protected String backend;
 
@@ -63,10 +62,8 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
      */
     public KiWiBatchHandler(String backend, KiWiStore store, KiWiLoaderConfiguration config) {
         super(store, config);
-
         this.backend = backend;
     }
-
 
     /**
      * Perform initialisation, e.g. dropping indexes or other preparations.
@@ -121,9 +118,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         this.bnodeBacklogLookup = new HashMap<>();
 
         super.startRDF();
-
     }
-
 
     /**
      * Signals the end of the RDF data. This method is called when all data has
@@ -140,10 +135,7 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         } catch (SQLException e) {
             throw new RDFHandlerException(e);
         }
-
-
         super.endRDF();
-
     }
 
 
@@ -220,13 +212,11 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         }
     }
 
-
     /**
      * Flush the backlog (nodeBacklog and tripleBacklog) to the database; needs to be implemented by subclasses.
      * @throws SQLException
      */
     protected abstract void flushBacklogInternal() throws SQLException;
-
 
     private synchronized void flushBacklog() throws SQLException {
         flushBacklogInternal();
@@ -237,7 +227,6 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
         uriBacklogLookup.clear();
         bnodeBacklogLookup.clear();
         literalBacklogLookup.clear();
-
     }
 
     /**
@@ -254,5 +243,18 @@ public abstract class KiWiBatchHandler extends KiWiHandler implements RDFHandler
      * @throws SQLException
      */
     protected abstract void createIndexes() throws SQLException;
+
+    /**
+     * Return the schema version if necessary
+     *
+     * @return
+     * @throws SQLException
+     */
+    protected int getDbVersion() throws SQLException {
+        final KiWiConnection conn = store.getPersistence().getConnection();
+        final String version = conn.getMetadata("version");
+        conn.close();
+        return Integer.parseInt(version);
+    }
 
 }
