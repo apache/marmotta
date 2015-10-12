@@ -813,6 +813,18 @@ public class SQLBuilder {
                     groupClause.append(", ");
                 }
             }
+
+            if (orderby.size() > 0) {
+                groupClause.append(", ");
+                for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
+                    OrderElem elem = it.next();
+                    groupClause.append(evaluateExpression(elem.getExpr(), ValueType.STRING));
+                    if (it.hasNext()) {
+                        groupClause.append(", ");
+                    }
+                }
+            }
+
             groupClause.append(" \n");
         }
 
