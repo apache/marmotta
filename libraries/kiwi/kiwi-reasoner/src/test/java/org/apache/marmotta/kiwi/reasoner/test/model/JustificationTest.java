@@ -39,7 +39,6 @@ public class JustificationTest {
 
     protected static Random rnd = new Random();
 
-
     private KiWiTriple t1, t2, t3, t4; // base
     private KiWiTriple i1, i2, i3, i4; // inferred
     private Rule r1, r2;
@@ -71,10 +70,7 @@ public class JustificationTest {
         i2 = new KiWiTriple(s1,p1,o2, ctx_inferred); i2.setInferred(true);
         i3 = new KiWiTriple(s3,p1,o3, ctx_inferred); i3.setInferred(true);
         i4 = new KiWiTriple(s1,p2,o1, ctx_inferred); i4.setInferred(true);
-
-
     }
-
 
     @Test
     public void testJustificationEquals() {
@@ -107,7 +103,6 @@ public class JustificationTest {
         Assert.assertNotEquals(j1, j4);
     }
 
-
     @Test
     public void testJustificationSet() {
         Set<Justification> set = new HashSet<>();
@@ -129,7 +124,6 @@ public class JustificationTest {
 
         Assert.assertEquals(1, set.size());
 
-
         // j3 differs in the inferred triple
         Justification j3 = new Justification();
         j3.setTriple(i2);
@@ -141,7 +135,6 @@ public class JustificationTest {
         set.add(j3);
 
         Assert.assertEquals(2, set.size());
-
 
         // j4 differs in the supporting triples
         Justification j4 = new Justification();
@@ -155,8 +148,6 @@ public class JustificationTest {
 
         Assert.assertEquals(3, set.size());
     }
-
-
 
     /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
