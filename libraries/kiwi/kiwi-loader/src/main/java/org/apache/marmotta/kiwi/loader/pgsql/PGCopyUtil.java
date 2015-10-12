@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Add file description here!
+ * Postgres copy utility
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -51,14 +51,13 @@ public class PGCopyUtil {
 
     private static Logger log = LoggerFactory.getLogger(PGCopyUtil.class);
 
-
     final static CellProcessor[] nodeProcessors = new CellProcessor[] {
-            new NotNull(),                             // node ID
+            new NotNull(),                            // node ID
             new NodeTypeProcessor(),                  // ntype
             new NotNull(),                            // svalue
             new Optional(),                           // dvalue
             new Optional(),                           // ivalue
-            new SQLDateTimeProcessor(),              // tvalue
+            new SQLDateTimeProcessor(),               // tvalue
             new Optional(),                           // tzoffset
             new Optional(new SQLBooleanProcessor()),  // bvalue
             new Optional(new NodeIDProcessor()),      // ltype
@@ -68,7 +67,7 @@ public class PGCopyUtil {
 
 
     final static CellProcessor[] tripleProcessors = new CellProcessor[] {
-            new NotNull(),                             // triple ID
+            new NotNull(),                            // triple ID
             new NodeIDProcessor(),                    // subject
             new NodeIDProcessor(),                    // predicate
             new NodeIDProcessor(),                    // object
@@ -79,7 +78,6 @@ public class PGCopyUtil {
             new SQLTimestampProcessor(),              // createdAt
             new SQLTimestampProcessor(),              // deletedAt
     };
-
 
     // PostgreSQL expects the empty string to be quoted to distinguish between null and empty
     final static CsvPreference nodesPreference = new CsvPreference.Builder('"', ',', "\r\n").useEncoder(new DefaultCsvEncoder() {
@@ -135,34 +133,32 @@ public class PGCopyUtil {
         writer.close();
     }
 
-
-
     public static void flushNodes(Iterable<KiWiNode> nodeBacklog, OutputStream out) throws IOException {
         CsvListWriter writer = new CsvListWriter(new OutputStreamWriter(out), nodesPreference);
 
         // reuse the same array to avoid unnecessary object allocation
-        Object[] rowArray = new Object[11];
+        Object[] rowArray = new Object[12]; //FIXME: 11 in schema v4, 12 in v5
         List<Object> row = Arrays.asList(rowArray);
 
         for(KiWiNode n : nodeBacklog) {
             if(n instanceof KiWiUriResource) {
                 KiWiUriResource u = (KiWiUriResource)n;
-                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, null, u.getCreated());
+                createNodeList(rowArray, u.getId(), u.getClass(), u.stringValue(), null, null, null, null, null, null, null, u.getCreated(), null);
             } else if(n instanceof KiWiAnonResource) {
                 KiWiAnonResource a = (KiWiAnonResource)n;
-                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, null, a.getCreated());
+                createNodeList(rowArray, a.getId(), a.getClass(), a.stringValue(), null, null, null, null, null, null, null, a.getCreated(), null);
             } else if(n instanceof KiWiIntLiteral) {
                 KiWiIntLiteral l = (KiWiIntLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), l.getIntContent(), null, null, null, l.getDatatype(), l.getLocale(), l.getCreated(), null);
             } else if(n instanceof KiWiDoubleLiteral) {
                 KiWiDoubleLiteral l = (KiWiDoubleLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), l.getDoubleContent(), null, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated(), null);
             } else if(n instanceof KiWiBooleanLiteral) {
                 KiWiBooleanLiteral l = (KiWiBooleanLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, null, null, l.booleanValue(), l.getDatatype(), l.getLocale(), l.getCreated(), null);
             } else if(n instanceof KiWiDateLiteral) {
                 KiWiDateLiteral l = (KiWiDateLiteral)n;
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), l.getDateContent().getZone().getOffset(l.getDateContent()) / 1000, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), null, null, l.getDateContent(), l.getDateContent().getZone().getOffset(l.getDateContent()) / 1000, null,  l.getDatatype(), l.getLocale(), l.getCreated(), null);
             } else if(n instanceof KiWiStringLiteral) {
                 KiWiStringLiteral l = (KiWiStringLiteral)n;
 
@@ -176,7 +172,9 @@ public class PGCopyUtil {
                         // ignore, keep NaN
                     }
                 }
-                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated());
+                createNodeList(rowArray, l.getId(), l.getClass(), l.getContent(), dbl_value, lng_value, null, null, null, l.getDatatype(), l.getLocale(), l.getCreated(), null);
+            } else if(n instanceof KiWiGeometryLiteral) {
+                log.warn("geometries are not yet supported on bulk imports");
             } else {
                 log.warn("unknown node type, cannot flush to import stream: {}", n.getClass());
             }
@@ -186,7 +184,7 @@ public class PGCopyUtil {
         writer.close();
     }
 
-    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created, String geom) {
         a[0] = id;
         a[1] = type;
         a[2] = content;
@@ -198,5 +196,7 @@ public class PGCopyUtil {
         a[8] = dtype;
         a[9] = lang != null ? lang.getLanguage() : "";
         a[10] = created;
+        a[11] = geom; //FIXME: drop in v4 schema testing
     }
+
 }

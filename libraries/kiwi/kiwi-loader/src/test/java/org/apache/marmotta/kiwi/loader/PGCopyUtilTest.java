@@ -102,9 +102,6 @@ public class PGCopyUtilTest {
         }
     }
 
-
-
-
     @Test
     public void testWriteNodes() throws IOException, SQLException {
         KiWiConnection con = store.getPersistence().getConnection();
@@ -147,8 +144,6 @@ public class PGCopyUtilTest {
 
         log.info("checked {} nodes in {} ms", nodes.size(), System.currentTimeMillis()-imported);
     }
-
-
 
     /**
      * Return a random URI, with a 10% chance of returning a URI that has already been used.
