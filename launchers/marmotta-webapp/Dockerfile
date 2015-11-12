@@ -38,6 +38,7 @@ RUN service postgresql start \
     && psql --command "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';" \
     && psql --command "CREATE DATABASE $DB_NAME WITH OWNER $DB_USER;"
 USER root
+RUN service postgresql stop
 RUN echo "host all  all    127.0.0.1/32  md5" >> /etc/postgresql/$PG_VERSION/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 
@@ -60,13 +61,14 @@ RUN echo "security.enabled = false" > $CONF_PATH
 RUN echo "database.type = postgres" >> $CONF_PATH
 RUN echo "database.url = jdbc:postgresql://localhost:5432/$DB_NAME?prepareThreshold=3" >> $CONF_PATH
 RUN echo "database.user = $DB_USER" >> $CONF_PATH
-RUN echo "database.password = $dbpas" >> $CONF_PATH
+RUN echo "database.password = $DB_PASS" >> $CONF_PATH
 RUN chown -R tomcat7:tomcat7 "$(dirname $CONF_PATH)"
 
 # cleanup
 #RUN mvn clean
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
-CMD service tomcat7 start; \
+CMD service postgresql start; \
+    service tomcat7 start; \
 	tail -f /var/log/tomcat7/catalina.out
 
