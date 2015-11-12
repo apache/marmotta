@@ -68,7 +68,5 @@ RUN chown -R tomcat7:tomcat7 "$(dirname $CONF_PATH)"
 #RUN mvn clean
 RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
-CMD service postgresql start; \
-    service tomcat7 start; \
-	tail -f /var/log/tomcat7/catalina.out
+ENTRYPOINT ["/marmotta-webapp/src/docker/entrypoint.sh"]
 
