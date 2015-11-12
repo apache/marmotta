@@ -128,8 +128,8 @@ public class MarmottaHttpUtils {
 
     public static ContentType parseContentType(String c) {
         if (StringUtils.isBlank(c)) return null;
-
-        String mt[] = c.split(";");
+        // be sure to trim leading and trailing spaces
+        String mt[] = c.trim().split(";");
 
         String[] tst = mt[0].split("/");
 

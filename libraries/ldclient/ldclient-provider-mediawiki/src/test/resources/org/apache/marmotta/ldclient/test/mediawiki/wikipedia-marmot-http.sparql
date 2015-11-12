@@ -20,8 +20,10 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX sioc: <http://rdfs.org/sioc/ns#>
 PREFIX sioc-types: <http://rdfs.org/sioc/types#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
 ASK {
-    <https://en.wikipedia.org/wiki/Marmot> dct:title "Marmot" ;
+    <http://en.wikipedia.org/wiki/Marmot> dct:title "Marmot" ;
+                                          owl:sameAs <https://en.wikipedia.org/wiki/Marmot> ;
                                           rdf:type sioc-types:WikiArticle ;
                                           sioc:topic <https://en.wikipedia.org/wiki/Category:Ground_squirrels> .
 }

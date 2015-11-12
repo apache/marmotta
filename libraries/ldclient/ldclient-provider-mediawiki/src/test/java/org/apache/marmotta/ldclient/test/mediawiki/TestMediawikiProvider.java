@@ -29,13 +29,17 @@ public class TestMediawikiProvider extends ProviderTestBase {
 
 
     /**
-     * This method tests accessing the Youtube Video service via the GData API.
+     * This method tests accessing the mediawiki resource.
      *
      * @throws Exception
      */
     @Test
     public void testArticle() throws Exception {
-        testResource("http://en.wikipedia.org/wiki/Marmot", "wikipedia-marmot.sparql");
+        testResource("https://en.wikipedia.org/wiki/Marmot", "wikipedia-marmot.sparql");
     }
 
+    @Test
+    public void testArticleHttp() throws Exception {
+        testResource("http://en.wikipedia.org/wiki/Marmot", "wikipedia-marmot-http.sparql");
+    }
 }

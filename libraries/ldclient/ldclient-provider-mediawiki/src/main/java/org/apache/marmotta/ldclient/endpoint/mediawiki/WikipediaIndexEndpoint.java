@@ -30,7 +30,7 @@ import org.apache.marmotta.ldclient.provider.mediawiki.MediawikiProvider;
 public class WikipediaIndexEndpoint extends Endpoint {
 
     public WikipediaIndexEndpoint() {
-        super("Wikipedia Provider (Index)", MediawikiProvider.PROVIDER_NAME, "^http://([^.]+)\\.wikipedia\\.org/w/index\\.php.*", "http://$1.wikipedia.org/w/api.php", 86400L);
+        super("Wikipedia Provider (Index)", MediawikiProvider.PROVIDER_NAME, "^https?://([^.]+)\\.wikipedia\\.org/w/index\\.php.*", "https://$1.wikipedia.org/w/api.php", 86400L);
         setPriority(PRIORITY_HIGH);
         addContentType(new ContentType("text", "xml"));
     }

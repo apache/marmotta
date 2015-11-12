@@ -19,6 +19,8 @@ package org.apache.marmotta.commons.http;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -37,4 +39,29 @@ public class MarmottaHttpUtilsTest {
         assertEquals(null, MarmottaHttpUtils.bestContentType(ImmutableList.of(new ContentType("text", "tutle")), ImmutableList.of(new ContentType("text", "plain"))));
     }
 
+    @Test
+    public void testParseAcceptHeader() throws Exception {
+    	List<ContentType> acceptedTypes = MarmottaHttpUtils.parseAcceptHeaders(	ImmutableList.of(
+    			  "application/n-triples;q=0.7,"
+    			+ " text/plain;q=0.7,"
+    			+ " application/rdf+xml;q=0.8,"
+    			+ " application/xml;q=0.8,"
+    			+ " text/turtle,"
+    			+ " application/x-turtle,"
+    			+ " application/trig;q=0.8,"
+    			+ " application/x-trig;q=0.8"));
+    	List<ContentType> offeredTypes = MarmottaHttpUtils.parseAcceptHeaders(ImmutableList.of(
+    			"application/ld+json; q=1.0",
+    			"application/x-turtle; q=1.0",
+    			"application/x-trig; q=1.0",
+    			"application/rdf+xml; q=1.0",
+    			"text/turtle; q=1.0",
+    			"text/rdf+n3; q=1.0", 
+    			"application/trix; q=1.0", 
+    			"application/rdf+json; q=1.0", 
+    			"text/n3; q=1.0",
+    			"text/x-nquads; q=1.0"));
+    	assertEquals(new ContentType("text", "turtle", 1.0), MarmottaHttpUtils.bestContentType(offeredTypes, acceptedTypes));
+
+    }
 }

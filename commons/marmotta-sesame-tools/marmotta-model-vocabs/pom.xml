@@ -30,7 +30,7 @@
 
     <name>Marmotta Sesame Tools: Common Vocabularies</name>
 
-    <description>Util-Methods to apply 'application/rdf-patch' changesets to Sesame</description>
+    <description>Common RDF vocabularies for Sesame</description>
 
     <build>
         <plugins>

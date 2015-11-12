@@ -15,13 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX dct: <http://purl.org/dc/terms/>
-PREFIX sioc: <http://rdfs.org/sioc/ns#>
-PREFIX sioc-types: <http://rdfs.org/sioc/types#>
-ASK {
-    <https://en.wikipedia.org/wiki/Marmot> dct:title "Marmot" ;
-                                          rdf:type sioc-types:WikiArticle ;
-                                          sioc:topic <https://en.wikipedia.org/wiki/Category:Ground_squirrels> .
+
+SELECT DISTINCT ?uri ?title ?children {
+  GRAPH <http://localhost/test/MARMOTTA-617> {
+    ?uri a <http://www.w3.org/2004/02/skos/core#ConceptScheme> .
+    OPTIONAL {
+      ?uri <http://www.w3.org/2000/01/rdf-schema#label> ?title .
+      FILTER (lang(?title) = 'en')
+    }
+    BIND ( EXISTS { ?uri <http://www.w3.org/2004/02/skos/core#hasTopConcept> ?_top } AS ?children )
+  }
 }

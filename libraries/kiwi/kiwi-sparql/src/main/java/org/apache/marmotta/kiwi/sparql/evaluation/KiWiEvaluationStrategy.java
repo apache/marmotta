@@ -136,7 +136,6 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
         }
     }
 
-
     @Override
     public CloseableIteration<BindingSet, QueryEvaluationException> evaluate(LeftJoin join, BindingSet bindings) throws QueryEvaluationException {
         if(isSupported(join)) {
