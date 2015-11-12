@@ -1,53 +1,72 @@
 # Dockerfile for Apache Marmotta
 
-FROM debian:sid
+FROM debian:jessie
 MAINTAINER Sergio Fernández <wikier@apache.org>
-WORKDIR /src
+
 EXPOSE 8080
-EXPOSE 5432
 
-# general configuration
+WORKDIR /marmotta-webapp
+ADD . /marmotta-webapp
+
+# configuration
 ENV DEBIAN_FRONTEND noninteractive
-ENV baseurl http://localhost:8080/marmotta
-ENV dbname marmotta
-ENV dbuser marmotta
-ENV dbpass s3cr3t
-ENV conf /var/lib/marmotta/system-config.properties
+ENV DB_NAME marmotta
+ENV DB_USER marmotta
+ENV DB_PASS s3cr3t
+ENV PG_VERSION 9.4
+ENV WAR_PATH target/marmotta.war
+ENV CONF_PATH /var/lib/marmotta/system-config.properties
 
-# install base system
-RUN sed -i.bak s/"exit 101"/"exit 0"/g /usr/sbin/policy-rc.d
-RUN apt-get update
-RUN apt-get install -y apt-utils
-RUN apt-get upgrade -y
-RUN apt-get install -y sudo
-RUN apt-get install -y locales
-RUN locale-gen en_US.UTF-8 en_us && dpkg-reconfigure locales && dpkg-reconfigure locales && locale-gen C.UTF-8 && /usr/sbin/update-locale LANG=C.UTF-8
-RUN apt-get install -y git ssmtp
-RUN apt-get install -y openjdk-7-jre-headless openjdk-7-jdk maven
-RUN apt-get install -y tomcat7
-RUN apt-get install -y postgresql postgresql-common postgresql-contrib
+# test build
+RUN test -e $WAR_PATH || exit
 
-# pre-setup
+# install and configure postgres from the PGDG repo
+RUN apt-get update && apt-get install -y locales apt-utils \
+	&& localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG en_US.utf8
+RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main' > /etc/apt/sources.list.d/pgdg.list
+RUN apt-get update \
+	&& apt-get install -y postgresql-common \
+	&& sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
+	&& apt-get install -y \
+		postgresql-$PG_VERSION \
+		postgresql-contrib-$PG_VERSION
+RUN pg_createcluster $PG_VERSION main --start
 USER postgres
-RUN psql -c "CREATE USER $dbuser WITH PASSWORD '$dbpass'"
-RUN psql -c "CREATE DATABASE $dbname WITH OWNER $dbuser"
+RUN service postgresql start \
+    && psql --command "CREATE USER $DB_USER WITH PASSWORD '$DB_PASS';" \
+    && psql --command "CREATE DATABASE $DB_NAME WITH OWNER $DB_USER;"
 USER root
-RUN mkdir -p "$(dirname $conf)"
-RUN echo "" > $conf
-RUN echo "security.enabled = false" >> $conf
-RUN echo "database.type = postgres" >> $conf
-RUN echo "database.url = jdbc:postgresql://localhost:5432/$dbname?prepareThreshold=3" >> $conf
-RUN echo "database.user = $dbuser" >> $conf
-RUN echo "database.password = $dbpas" >> $conf
-RUN chmod -R tomcat7:tomcat7 "$(dirname $conf)"
+RUN echo "host all  all    127.0.0.1/32  md5" >> /etc/postgresql/$PG_VERSION/main/pg_hba.conf
+RUN echo "listen_addresses='*'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
+
+# base requirements
+RUN apt-get update \
+	&& apt-get install -y \
+		openjdk-7-jre-headless \
+		tomcat7
+RUN service tomcat7 stop
 
 # package from source code and install the webapp
-RUN git clone -b develop https://git-wip-us.apache.org/repos/asf/marmotta.git
-RUN cd marmotta/launchers/marmotta-webapp/ && mvn clean package -Djdeb.signing=false
-RUN dpkg -i marmotta/launchers/marmotta-webapp/target/marmotta*.deb
+#RUN dpkg --debug=2000 --install target/marmotta_*_all.deb <-- we'd need to fix the postinst
+RUN mkdir -p /usr/share/marmotta
+RUN cp $WAR_PATH /usr/share/marmotta/
+RUN chown tomcat7:tomcat7 /usr/share/marmotta/marmotta.war
+RUN cp src/deb/tomcat/marmotta.xml /var/lib/tomcat7/conf/Catalina/localhost/
+RUN chown tomcat7:tomcat7 /var/lib/tomcat7/conf/Catalina/localhost/marmotta.xml
+RUN mkdir -p "$(dirname $CONF_PATH)"
+RUN echo "security.enabled = false" > $CONF_PATH
+RUN echo "database.type = postgres" >> $CONF_PATH
+RUN echo "database.url = jdbc:postgresql://localhost:5432/$DB_NAME?prepareThreshold=3" >> $CONF_PATH
+RUN echo "database.user = $DB_USER" >> $CONF_PATH
+RUN echo "database.password = $dbpas" >> $CONF_PATH
+RUN chown -R tomcat7:tomcat7 "$(dirname $CONF_PATH)"
 
 # cleanup
-#RUN cd marmotta/ && mvn clean
-RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y
-RUN mv /usr/sbin/policy-rc.d.bak /usr/sbin/policy-rc.d
+#RUN mvn clean
+RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+
+CMD service tomcat7 start; \
+	tail -f /var/log/tomcat7/catalina.out
 
