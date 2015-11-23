@@ -24,6 +24,7 @@ and you can find the `.deb` file under `target/`.
 
 It also comes with support for creating a Docker images that you can user for developing or testing:
 
+* Build the launcher: `mvn package`
 * Build image: `docker build -t marmotta .`
 * Run the container: `docker run -p 8080:8080 marmotta`
 * Access Marmotta at [localhost:8080/marmotta](http://localhost:8080/marmotta) (IP address may be different, 
