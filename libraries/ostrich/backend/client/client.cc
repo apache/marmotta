@@ -116,6 +116,9 @@ class MarmottaClient {
                       grpc::CreateChannel(server, grpc::InsecureChannelCredentials()))){}
 
     void importDataset(std::istream& in, parser::Format format) {
+        auto start = std::chrono::steady_clock::now();
+        int64_t count = 0;
+
         ClientContext nscontext, stmtcontext;
 
         google::protobuf::Int64Value nsstats;
@@ -127,8 +130,14 @@ class MarmottaClient {
                 stub_->AddStatements(&stmtcontext, &stmtstats));
 
         parser::Parser p("http://www.example.com", format);
-        p.setStatementHandler([&stmtwriter](const rdf::Statement& stmt) {
+        p.setStatementHandler([&stmtwriter, &start, &count](const rdf::Statement& stmt) {
             stmtwriter->Write(stmt.getMessage());
+            if (++count % 100000 == 0) {
+                double rate = 100000 * 1000 / std::chrono::duration <double, std::milli> (
+                        std::chrono::steady_clock::now() - start).count();
+                std::cout << "Imported " << count << " statements (" << rate << " statements/sec)" << std::endl;
+                start = std::chrono::steady_clock::now();
+            }
         });
         p.setNamespaceHandler([&nswriter](const rdf::Namespace& ns) {
             nswriter->Write(ns.getMessage());
