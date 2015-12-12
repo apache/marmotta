@@ -29,6 +29,10 @@ namespace rasqal {
 #define CPSTR(s) (const unsigned char*)strdup(s.c_str())
 
 rdf::Resource ConvertResource(rasqal_literal *node) {
+    if (node == nullptr) {
+        return rdf::Resource();
+    }
+
     switch (node->type) {
         case RASQAL_LITERAL_URI:
             return rdf::URI(std::string((const char*)raptor_uri_as_string(node->value.uri)));
@@ -42,6 +46,10 @@ rdf::Resource ConvertResource(rasqal_literal *node) {
 
 
 rdf::Value ConvertValue(rasqal_literal *node) {
+    if (node == nullptr) {
+        return rdf::Value();
+    }
+
     std::string label((const char*)node->string, node->string_len);
     rdf::Value r;
     char* s;
@@ -99,6 +107,10 @@ rdf::Value ConvertValue(rasqal_literal *node) {
 
 
 rdf::URI ConvertURI(rasqal_literal *node) {
+    if (node == nullptr) {
+        return rdf::URI();
+    }
+
     switch (node->type) {
         case RASQAL_LITERAL_URI:
             return rdf::URI((const char*)raptor_uri_as_string(node->value.uri));

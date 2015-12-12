@@ -197,18 +197,24 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
                                     switch(b.getValue().getResource().getResourcesCase()) {
                                         case URI:
                                             v = new ProtoURI(b.getValue().getResource().getUri());
+                                            break;
                                         case BNODE:
                                             v = new ProtoBNode(b.getValue().getResource().getBnode());
+                                            break;
                                     }
                                 case LITERAL:
                                     switch(b.getValue().getLiteral().getLiteralsCase()) {
                                         case STRINGLITERAL:
                                             v = new ProtoStringLiteral(b.getValue().getLiteral().getStringliteral());
+                                            break;
                                         case DATALITERAL:
                                             v = new ProtoDatatypeLiteral(b.getValue().getLiteral().getDataliteral());
+                                            break;
                                     }
                             }
-                            result.addBinding(b.getVariable(), v);
+                            if (v != null) {
+                                result.addBinding(b.getVariable(), v);
+                            }
                         }
                         return result;
                     }
@@ -305,8 +311,10 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void rollbackInternal() throws SailException {
-        updateRequestObserver.onError(new Exception("transaction rollback"));
-        updateRequestObserver = null;
+        if (updateRequestObserver != null) {
+            updateRequestObserver.onError(new Exception("transaction rollback"));
+            updateRequestObserver = null;
+        }
     }
 
     @Override

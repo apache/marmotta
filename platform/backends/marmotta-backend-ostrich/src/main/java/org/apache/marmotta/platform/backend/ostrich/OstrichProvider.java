@@ -68,6 +68,9 @@ public class OstrichProvider implements StoreProvider {
      */
     @Override
     public SailRepository createRepository(Sail sail) {
+        if (configurationService.getBooleanConfiguration("ostrich.sparql.native", true)) {
+            return new OstrichSailRepository(sail);
+        }
         return new SailRepository(sail);
     }
 
