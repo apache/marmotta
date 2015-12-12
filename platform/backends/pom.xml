@@ -80,6 +80,12 @@
             </modules>
         </profile>
         <profile>
+            <id>ostrich</id>
+            <modules>
+                <module>marmotta-backend-ostrich</module>
+            </modules>
+        </profile>
+        <profile>
             <id>experimental</id>
             <modules>
                 <module>marmotta-backend-http</module>
