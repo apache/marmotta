@@ -17,6 +17,14 @@
  */
 #include <fstream>
 
+#ifdef HAVE_IOSTREAMS
+// support b/gzipped files
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filter/bzip2.hpp>
+#endif
+
 #include <grpc/grpc.h>
 #include <grpc++/channel.h>
 #include <grpc++/client_context.h>
@@ -50,6 +58,10 @@ using google::protobuf::TextFormat;
 using namespace marmotta;
 namespace svc = marmotta::service::proto;
 namespace spq = marmotta::sparql::proto;
+
+#ifdef HAVE_IOSTREAMS
+using namespace boost::iostreams;
+#endif
 
 // A STL iterator wrapper around a client reader.
 template <class T, class Proto>
@@ -212,6 +224,11 @@ DEFINE_string(host, "localhost", "Address/name of server to access.");
 DEFINE_string(port, "10000", "Port of server to access.");
 DEFINE_string(output, "", "File to write result to.");
 
+#ifdef HAVE_IOSTREAMS
+DEFINE_bool(gzip, false, "Input files are gzip compressed.");
+DEFINE_bool(bzip2, false, "Input files are bzip2 compressed.");
+#endif
+
 int main(int argc, char** argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -220,7 +237,21 @@ int main(int argc, char** argv) {
     MarmottaClient client(FLAGS_host + ":" + FLAGS_port);
 
     if ("import" == std::string(argv[1])) {
+#ifdef HAVE_IOSTREAMS
+        std::ifstream file(argv[2]);
+        filtering_streambuf<input> cin;
+        if (FLAGS_bzip2) {
+            cin.push(bzip2_decompressor());
+        }
+        if (FLAGS_gzip) {
+            cin.push(gzip_decompressor());
+        }
+        cin.push(file);
+
+        std::istream in(&cin);
+#else
         std::ifstream in(argv[2]);
+#endif
         std::cout << "Importing " << argv[2] << " ... " << std::endl;
         client.importDataset(in, parser::FormatFromString(FLAGS_format));
         std::cout << "Finished!" << std::endl;
