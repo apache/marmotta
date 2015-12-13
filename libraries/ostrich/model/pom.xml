@@ -20,7 +20,7 @@
 
     <parent>
         <groupId>org.apache.marmotta</groupId>
-        <artifactId>cmarmotta-parent</artifactId>
+        <artifactId>ostrich-parent</artifactId>
         <version>3.4.0-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>

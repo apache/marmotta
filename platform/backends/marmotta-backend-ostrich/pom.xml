@@ -23,10 +23,11 @@
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
         <version>3.4.0-SNAPSHOT</version>
+        <relativePath>../../parent</relativePath>
     </parent>
 
-    <groupId>org.apache.marmotta</groupId>
     <artifactId>marmotta-backend-ostrich</artifactId>
+    <packaging>jar</packaging>
 
     <name>Apache Marmotta Platform: C++ LevelDB Backend</name>
     <description>
