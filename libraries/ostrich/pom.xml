@@ -42,6 +42,16 @@
         </plugins>
     </build>
 
+    <!-- MARMOTTA-621: to be removed as soon as gRPC 0.10.0 gets out -->
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
     <modules>
         <module>model</module>
         <module>client</module>
