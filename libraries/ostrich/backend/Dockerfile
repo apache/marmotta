@@ -42,7 +42,7 @@ RUN apt-get update -qq \
         libboost-all-dev \
         libtcmalloc-minimal4
 
-RUN git clone https://github.com/wikier/grpc.git \
+RUN git clone https://github.com/grpc/grpc.git \
     && cd grpc \
     && git submodule update --init --recursive \
     && make \
