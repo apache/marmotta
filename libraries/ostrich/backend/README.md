@@ -1,4 +1,4 @@
-# Apache Marmotta LevelDB/C++ Backend
+# Apache Marmotta Ostrich Backend
 
 This repository implements an experimental high-performance backend for Apache Marmotta
 using LevelDB as storage and gRPC as communication channel between the Java frontend
@@ -24,7 +24,7 @@ Debian:
 
     apt-get install libraptor2-dev librasqal3-dev libgoogle-glog-dev libgflags-dev libleveldb-dev
     
-The backend uses the new Proto 3 format and the gRPC SDK. These need to be installed separately,
+The backend uses the new Proto 3 format and the gRPC SDK. These need to be installed separately;
 please follow the instructions at [https://github.com/grpc/grpc](https://github.com/grpc/grpc/blob/master/INSTALL).
 
 
@@ -50,6 +50,18 @@ Start the backend from the cmake build directory as follows:
     ./service/marmotta_persistence -db /path/to/database -port 10000
     
 The binary accepts many different options. Please see `--help` for details.
+
+## Running Docker
+
+The C++ backend can be ran in the provided Docker image. Just build it:
+
+    docker build -t apachemarmotta/ostrich .
+
+Then you can run Ostrich as a container:
+
+    docker run -t -d -p 8080:8080 -p 10000:10000 apachemarmotta/ostrich
+
+connecting normally to `localhost:10000`.
 
 ## Running Sharding
 
