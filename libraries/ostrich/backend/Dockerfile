@@ -40,12 +40,16 @@ RUN apt-get update -qq \
         libgflags-dev \
         libgtest-dev \
         libboost-all-dev \
-        libtcmalloc-minimal4
+        libtcmalloc-minimal4 \
+        libgoogle-perftools-dev
 
-RUN git clone https://github.com/wikier/grpc.git \
+RUN git clone https://github.com/grpc/grpc.git \
     && cd grpc \
     && git submodule update --init --recursive \
     && make \
+    && cd third_party/protobuf \
+    && make install \
+    && cd ../.. \
     && make install \
     && cd ..
 
