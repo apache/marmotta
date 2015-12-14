@@ -19,10 +19,14 @@ find_package (Tcmalloc)
 
 add_definitions(-DNDEBUG)
 
-if(Boost_IOSTREAMS_FOUND)
+if (Boost_IOSTREAMS_FOUND)
     message(STATUS "Enabling gzip/bzip2 support (Boost iostreams found)")
     add_definitions(-DHAVE_IOSTREAMS)
-endif(Boost_IOSTREAMS_FOUND)
+endif (Boost_IOSTREAMS_FOUND)
+
+if (Tcmalloc_FOUND)
+    message(STATUS "Enabling profiling support (Tcmalloc found)")
+endif (Tcmalloc_FOUND)
 
 add_subdirectory(util)
 add_subdirectory(model)
@@ -34,4 +38,3 @@ add_subdirectory(persistence)
 add_subdirectory(sharding)
 add_subdirectory(client)
 add_subdirectory(test)
-
