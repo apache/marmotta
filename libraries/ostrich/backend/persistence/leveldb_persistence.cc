@@ -459,8 +459,10 @@ void LevelDBPersistence::GetStatements(
 
     bool cbsuccess = true;
     for(auto it = GetStatements(pattern); cbsuccess && it->hasNext(); ++(*it)) {
-        cbsuccess = callback(**it);
-        count++;
+        if (matches(**it, pattern)) {
+            cbsuccess = callback(**it);
+            count++;
+        }
     }
 
     DLOG(INFO) << "Get statements done (count=" << count << ", time="
