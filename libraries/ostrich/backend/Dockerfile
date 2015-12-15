@@ -69,5 +69,5 @@ RUN mkdir -p ${DB_PATH}
 
 EXPOSE 10000
 
-CMD ["/src/build/service/marmotta_persistence", "-db", "${DB_PATH}", "-port" "${DB_PORT}"]
+CMD ["/src/build/persistence/marmotta_persistence", "-db", "${DB_PATH}", "-port" "${DB_PORT}"]
 

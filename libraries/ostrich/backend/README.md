@@ -47,7 +47,7 @@ The frontend is compiled with Maven and depends on many Apache Marmotta modules 
 
 Start the backend from the cmake build directory as follows:
 
-    ./service/marmotta_persistence -db /path/to/database -port 10000
+    ./persistence/marmotta_persistence -db /path/to/database -port 10000
     
 The binary accepts many different options. Please see `--help` for details.
 
