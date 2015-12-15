@@ -124,6 +124,78 @@ class SingletonIterator : public CloseableIterator<T> {
 
 };
 
+
+template<typename T>
+class FilteringIterator : public CloseableIterator<T> {
+ public:
+    using PredicateFn = std::function<bool(const T&)>;
+
+    /**
+     * Create a filtering iterator using the given predicate as filter.
+     * The predicate function should return true for accepted values.
+     * Takes ownership of the iterator passed as argument.
+     */
+    FilteringIterator(CloseableIterator<T>* it,  PredicateFn pred)
+            : it(it), pred(pred), nextExists(false) {
+        // run findNext twice so both current and next are set
+        findNext();
+        findNext();
+    }
+
+    /**
+     * Increment iterator to next element.
+    */
+    CloseableIterator<T>& operator++() override {
+        findNext();
+        return *this;
+    };
+
+    /**
+     * Dereference iterator, returning a reference to the current element.
+     */
+    T& operator*() override {
+        return current;
+    };
+
+    /**
+     * Dereference iterator, returning a pointer to the current element.
+     */
+    T* operator->() override {
+        return &current;
+    };
+
+    /**
+     * Return true in case the iterator has more elements.
+     */
+    bool hasNext() override {
+        return nextExists;
+    };
+
+
+ private:
+    std::unique_ptr<CloseableIterator<T>> it;
+    PredicateFn pred;
+
+    T current;
+    T next;
+
+    bool nextExists;
+
+    void findNext() {
+        current = next;
+        nextExists = false;
+
+        while (it->hasNext()) {
+            if (pred(**it)) {
+                next = **it;
+                nextExists = true;
+                break;
+            }
+        }
+    }
+};
+
+
 }
 }
 

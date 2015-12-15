@@ -251,27 +251,6 @@ class StatementRangeIterator : public LevelDBIterator<Statement> {
     char *hiKey;
 };
 
-
-/**
- * Check if a statement matches with a partial pattern.
- */
-bool matches(const Statement& stmt, const Statement& pattern) {
-    // equality operators defined in rdf_model.h
-    if (pattern.has_context() && stmt.context() != pattern.context()) {
-        return false;
-    }
-    if (pattern.has_subject() && stmt.subject() != pattern.subject()) {
-        return false;
-    }
-    if (pattern.has_predicate() && stmt.predicate() != pattern.predicate()) {
-        return false;
-    }
-    if (pattern.has_object() && stmt.object() != pattern.object()) {
-        return false;
-    }
-    return true;
-}
-
 }  // namespace
 
 
@@ -468,8 +447,23 @@ std::unique_ptr<LevelDBPersistence::StatementIterator> LevelDBPersistence::GetSt
             break;
     };
 
-    return std::unique_ptr<StatementIterator>(new StatementRangeIterator(
-            db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()));
+    return std::unique_ptr<StatementIterator>(
+            new util::FilteringIterator<Statement>(
+                    new StatementRangeIterator(
+                            db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
+                    [&pattern](const Statement& stmt) -> bool {
+                        // equality operators defined in rdf_model.h
+                        if (pattern.has_context() && stmt.context() != pattern.context()) {
+                            return false;
+                        }
+                        if (pattern.has_subject() && stmt.subject() != pattern.subject()) {
+                            return false;
+                        }
+                        if (pattern.has_predicate() && stmt.predicate() != pattern.predicate()) {
+                            return false;
+                        }
+                        return !(pattern.has_object() && stmt.object() != pattern.object());
+                    }));
 }
 
 
@@ -480,10 +474,8 @@ void LevelDBPersistence::GetStatements(
 
     bool cbsuccess = true;
     for(auto it = GetStatements(pattern); cbsuccess && it->hasNext(); ++(*it)) {
-        if (matches(**it, pattern)) {
-            cbsuccess = callback(**it);
-            count++;
-        }
+        cbsuccess = callback(**it);
+        count++;
     }
 
     DLOG(INFO) << "Get statements done (count=" << count << ", time="
