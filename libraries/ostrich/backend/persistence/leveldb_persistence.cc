@@ -310,11 +310,32 @@ LevelDBPersistence::LevelDBPersistence(const std::string &path, int64_t cacheSiz
         : comparator(new KeyComparator())
         , cache(leveldb::NewLRUCache(cacheSize))
         , options(buildOptions(comparator.get(), cache.get()))
-        , db_spoc(buildDB(path, "spoc", *options)), db_cspo(buildDB(path, "cspo", *options))
-        , db_opsc(buildDB(path, "opsc", *options)), db_pcos(buildDB(path, "pcos", *options))
         , db_ns_prefix(buildDB(path, "ns_prefix", buildNsOptions()))
         , db_ns_url(buildDB(path, "ns_url", buildNsOptions()))
-        , db_meta(buildDB(path, "metadata", buildNsOptions())) { }
+        , db_meta(buildDB(path, "metadata", buildNsOptions())) {
+
+    // Open databases in separate threads as LevelDB does a lot of computation on open.
+    std::vector<std::thread> openers;
+    openers.push_back(std::thread([&]() {
+        db_spoc.reset(buildDB(path, "spoc", *options));
+    }));
+    openers.push_back(std::thread([&]() {
+        db_cspo.reset(buildDB(path, "cspo", *options));
+    }));
+    openers.push_back(std::thread([&]() {
+        db_opsc.reset(buildDB(path, "opsc", *options));
+    }));
+    openers.push_back(std::thread([&]() {
+        db_pcos.reset(buildDB(path, "pcos", *options));
+    }));
+
+
+    for (auto& t : openers) {
+        t.join();
+    }
+
+    LOG(INFO) << "LevelDB Database initialised.";
+}
 
 
 int64_t LevelDBPersistence::AddNamespaces(NamespaceIterator& it) {
