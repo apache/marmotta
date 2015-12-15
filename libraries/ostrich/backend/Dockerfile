@@ -39,7 +39,6 @@ RUN apt-get update -qq \
         libgflags-dev \
         libgtest-dev \
         libboost-all-dev \
-        libtcmalloc-minimal4 \
         libgoogle-perftools-dev
 
 RUN git clone https://github.com/grpc/grpc.git \
@@ -55,7 +54,7 @@ RUN git clone https://github.com/grpc/grpc.git \
 # build
 RUN mkdir build \
     && cd build \
-    && cmake .. \
+    && cmake -D CMAKE_BUILD_TYPE=Release .. \
     && make \
     && cd ..
 
