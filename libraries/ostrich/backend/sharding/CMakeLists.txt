@@ -7,4 +7,5 @@ target_link_libraries(marmotta_sharding
         marmotta_util marmotta_model marmotta_service
         ${LevelDB_LIBRARY} ${GFLAGS_LIBRARY} ${GLOG_LIBRARY}
         ${CMAKE_THREAD_LIBS_INIT} ${PROTOBUF_LIBRARIES} ${GRPC_LIBRARIES} ${Tcmalloc_LIBRARIES})
+install(TARGETS marmotta_sharding DESTINATION bin)
 
