@@ -39,7 +39,7 @@ class Serializer {
         impl->serialize(stmt, out);
     };
 
-    void serialize(StatementIterator it, std::ostream& out) {
+    void serialize(StatementIterator& it, std::ostream& out) {
         impl->serialize(it, out);
     };
 
