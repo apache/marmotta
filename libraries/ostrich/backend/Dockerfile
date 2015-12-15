@@ -1,6 +1,6 @@
 # Dockerfile for Apache Marmotta Ostrich Triplestore
 
-FROM debian:jessie
+FROM debian:stretch
 MAINTAINER Sergio Fernández <wikier@apache.org>
 
 ADD . /src
@@ -22,11 +22,10 @@ ENV LANG en_US.utf8
 
 RUN apt-get update -qq \
     && apt-get install -y \
-       build-essential \
+        build-essential \
         autoconf \
         libtool \
         cmake \
-        clang \
         libc++-dev \
         python-all-dev \
         python-virtualenv \
@@ -64,7 +63,8 @@ RUN mkdir build \
 RUN apt-get -y clean -qq \
     && apt-get -y autoclean -qq \
     && apt-get -y autoremove -qq \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /src/grpc
 
 RUN mkdir -p ${DB_PATH}
 
