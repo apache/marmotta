@@ -165,8 +165,10 @@ class MarmottaClient {
         std::unique_ptr<ClientReader<rdf::proto::Statement> > reader(
             stub_->GetStatements(&context, pattern.getMessage()));
 
+        StatementReader it(reader.get());
+
         serializer::Serializer serializer("http://www.example.com", format);
-        serializer.serialize(StatementReader(reader.get()), out);
+        serializer.serialize(it, out);
     }
 
     void patternDelete(const rdf::Statement &pattern) {

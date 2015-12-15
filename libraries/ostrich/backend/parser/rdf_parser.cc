@@ -43,6 +43,12 @@ Parser::Parser(const rdf::URI& baseUri, Format format)
         case RDFJSON:
             parser = raptor_new_parser(world, "json");
             break;
+        case TRIG:
+            parser = raptor_new_parser(world, "trig");
+            break;
+        case NQUADS:
+            parser = raptor_new_parser(world, "nquads");
+            break;
         case GUESS:
             parser = raptor_new_parser(world, "guess");
             break;
@@ -171,5 +177,26 @@ Format FormatFromString(const std::string &name) {
     return RDFXML;
 }
 
+std::string FormatToString(Format fmt) {
+    switch(fmt) {
+        case RDFXML:
+            return "rdf/xml";
+        case RDFA:
+            return "text/xhtml+xml";
+        case NTRIPLES:
+            return "text/n3";
+        case TURTLE:
+            return "text/turtle";
+        case RDFJSON:
+            return "application/rdf+json";
+        case GUESS:
+            return "auto";
+        case NQUADS:
+            return "text/nquads";
+        case TRIG:
+            return "text/trig";
+    }
+    return "";
+}
 }
 }

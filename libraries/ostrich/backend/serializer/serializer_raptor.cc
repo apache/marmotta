@@ -88,7 +88,7 @@ inline std::string raptorFormat(Format format) {
         case Format::SPARQL_JSON:
             return "json-triples";
         default:
-            return "rdfxml";
+            throw SerializationError("RDF Serializer: unsupported format");
     }
 }
 }  // namespace

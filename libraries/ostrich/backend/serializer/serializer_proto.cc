@@ -44,6 +44,8 @@ void ProtoSerializer::close() {
             google::protobuf::TextFormat::Print(
                     stmts_, dynamic_cast<google::protobuf::io::ZeroCopyOutputStream*>(out_));
             break;
+        default:
+            throw SerializationError("Proto Serializer: unsupported format");
     }
     stmts_.Clear();
     delete coded_output;

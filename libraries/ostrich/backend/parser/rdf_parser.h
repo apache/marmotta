@@ -36,6 +36,11 @@ enum Format {
  */
 Format FormatFromString(const std::string& name);
 
+/**
+ * Return a string representation of the format passed as argument.
+ */
+std::string FormatToString(Format fmt);
+
 class Parser {
  public:
 
