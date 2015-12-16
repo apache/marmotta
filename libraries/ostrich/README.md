@@ -54,9 +54,13 @@ The binary accepts many different options. Please see `--help` for details.
 
 ## Running Docker
 
-The C++ backend can be ran in the provided Docker image. Just build it:
+The C++ backend can be ran in the provided Docker image. You can build it:
 
     docker build -t apachemarmotta/ostrich .
+
+Or fetch it [from Docker Hub](https://hub.docker.com/r/apachemarmotta/ostrich/):
+
+    docker pull apachemarmotta/ostrich
 
 Then you can run Ostrich as a container:
 
