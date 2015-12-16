@@ -32,22 +32,23 @@ please follow the instructions at [https://github.com/grpc/grpc](https://github.
 
 The backend uses cmake to compile the modules. Create a new directory `build`, run cmake, and run make:
 
+    cd backend
     mkdir build && cd build
     cmake ..
     make
+    cd ..
 
 ## Compilation (Java)
 
 The frontend is compiled with Maven and depends on many Apache Marmotta modules to work. Build it with
 
-    cd java
     mvn clean install
     
 ## Running C++ Backend
 
 Start the backend from the cmake build directory as follows:
 
-    ./persistence/marmotta_persistence -db /path/to/database -port 10000
+    ./backend/build/persistence/marmotta_persistence -db /path/to/database -port 10000
     
 The binary accepts many different options. Please see `--help` for details.
 
@@ -59,7 +60,7 @@ The C++ backend can be ran in the provided Docker image. Just build it:
 
 Then you can run Ostrich as a container:
 
-    docker run -t -d -p 8080:8080 -p 10000:10000 apachemarmotta/ostrich
+    docker run -t -d -p 10000:10000 apachemarmotta/ostrich
 
 connecting normally to `localhost:10000`.
 
@@ -71,8 +72,8 @@ this is potentially much faster than running a single persistence backend. The s
 several persistence backends (shards) and a sharding proxy. To experiment, you can start these
 on the same machine as follows:
 
-    ./service/marmotta_persistence -db /path/to/shard1 -port 10001
-    ./service/marmotta_persistence -db /path/to/shard2 -port 10002
+    ./backend/build/persistence/marmotta_persistence -db /path/to/shard1 -port 10001
+    ./backend/build/persistence/marmotta_persistence -db /path/to/shard2 -port 10002
     ./sharding/marmotta_sharding --port 10000 --backends localhost:10001,localhost:10002
 
 You can then access the sharding server through Marmotta like the persistence server. Running all instances
@@ -82,12 +83,12 @@ data has been imported, because otherwise the hashing algorithm will do the wron
 
 ## Running Apache Marmotta 
 
-A preconfigured version of Apache Marmotta is available in `java/webapp`. It connects to 
-`localhost:10000` by default and can be started with:
+There is a `ostrich` Maven profile to run the webapp launcher:
 
-    mvn tomcat7:run
+    cd launchers/marmotta-webapp
+    mvn tomcat7:run -Postrich
     
-Afterwards, point your browser to `localhost:8080`.
+Afterwards, point your browser to [localhost:8080](http://localhost:8080/).
 
 ## Command Line Client
 
@@ -97,3 +98,4 @@ a large turtle file, run:
     ./client/marmotta_client --format=turtle import file.ttl
 
 The client connects by default to `localhost:10000` (change with `--host` and `--port` flags).
+

@@ -8,6 +8,7 @@ WORKDIR /src
 
 # configuration
 ENV DEBIAN_FRONTEND noninteractive
+ENV OSTRICH_PATH /opt/ostrich
 ENV DB_PATH /data/ostrich
 ENV DB_PORT 10000
 
@@ -49,25 +50,27 @@ RUN git clone https://github.com/grpc/grpc.git \
     && make install \
     && cd ../.. \
     && make install \
-    && cd ..
+    && cd
 
 # build
-RUN mkdir build \
+RUN cd backend \
+    && mkdir build \
     && cd build \
     && cmake -D CMAKE_BUILD_TYPE=Release .. \
     && make \
-    && cd ..
+    && cd
+RUN mkdir -p ${DB_PATH}
+RUN mkdir ${OSTRICH_PATH}
+RUN cp -r /src/backend/build/* ${OSTRICH_PATH}/
 
 # clean
 RUN apt-get -y clean -qq \
     && apt-get -y autoclean -qq \
     && apt-get -y autoremove -qq \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /src/grpc
-
-RUN mkdir -p ${DB_PATH}
+    && rm -rf /src
 
 EXPOSE 10000
 
-CMD ["/src/build/persistence/marmotta_persistence", "-db", "${DB_PATH}", "-port" "${DB_PORT}"]
+CMD ${OSTRICH_PATH}/persistence/marmotta_persistence -db ${DB_PATH} -port ${DB_PORT}
 
