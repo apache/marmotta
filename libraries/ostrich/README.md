@@ -78,7 +78,7 @@ on the same machine as follows:
 
     ./backend/build/persistence/marmotta_persistence -db /path/to/shard1 -port 10001
     ./backend/build/persistence/marmotta_persistence -db /path/to/shard2 -port 10002
-    ./sharding/marmotta_sharding --port 10000 --backends localhost:10001,localhost:10002
+    ./backend/build/sharding/marmotta_sharding --port 10000 --backends localhost:10001,localhost:10002
 
 You can then access the sharding server through Marmotta like the persistence server. Running all instances
 on the same host is only useful for testing. In production environments, you would of course run all three

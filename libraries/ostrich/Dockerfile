@@ -70,6 +70,7 @@ RUN apt-get -y clean -qq \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /src
 
+WORKDIR ${OSTRICH_PATH}
 EXPOSE 10000
 
 CMD ${OSTRICH_PATH}/persistence/marmotta_persistence -db ${DB_PATH} -port ${DB_PORT}
