@@ -89,7 +89,7 @@ class Namespace {
     /**
      * Set the prefix used to identify this namespace.
      */
-    void setPrefix(std::string &prefix) {
+    void setPrefix(const std::string &prefix) {
         internal_.set_prefix(prefix);
     }
 
@@ -103,7 +103,7 @@ class Namespace {
     /**
      * Set the URI identified by this namespace.
      */
-    void setUri(std::string &uri) {
+    void setUri(const std::string &uri) {
         internal_.set_uri(uri);
     }
 
@@ -183,7 +183,7 @@ class URI {
     /**
      * Set the string representation of the URI.
      */
-    void setUri(std::string &uri) {
+    void setUri(const std::string &uri) {
         internal_.set_uri(uri);
     }
 
@@ -279,7 +279,7 @@ class BNode {
     /**
      * Set the id of this blank node.
      */
-    void setId(std::string &id) {
+    void setId(const std::string &id) {
         internal_.set_id(id);
     }
 

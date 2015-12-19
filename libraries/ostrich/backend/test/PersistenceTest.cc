@@ -53,6 +53,42 @@ class PersistenceTest : public ::testing::Test {
     path testdir;
 };
 
+TEST_F(PersistenceTest, TestAddNamespaces) {
+    std::vector<rdf::proto::Namespace> ns = {
+            rdf::Namespace("ex", "http://www.example.com/").getMessage(),
+            rdf::Namespace("foo", "http://www.foo.com/").getMessage(),
+    };
+
+    util::CollectionIterator<rdf::proto::Namespace> it(ns);
+    db->AddNamespaces(it);
+
+    {
+        rdf::Namespace pattern;
+        pattern.setPrefix("foo");
+        auto it = db->GetNamespaces(pattern.getMessage());
+        EXPECT_TRUE(it->hasNext());
+        EXPECT_EQ(ns[1], it->next());
+        EXPECT_FALSE(it->hasNext());
+    }
+
+    {
+        rdf::Namespace pattern;
+        pattern.setPrefix("bar");
+        auto it = db->GetNamespaces(pattern.getMessage());
+        EXPECT_FALSE(it->hasNext());
+    }
+
+    {
+        rdf::Namespace pattern;
+        pattern.setUri("http://www.example.com/");
+        auto it = db->GetNamespaces(pattern.getMessage());
+        EXPECT_TRUE(it->hasNext());
+        EXPECT_EQ(ns[0], it->next());
+        EXPECT_FALSE(it->hasNext());
+    }
+}
+
+
 TEST_F(PersistenceTest, TestAddStatements) {
     std::vector<rdf::proto::Statement> stmts = {
             rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
@@ -160,6 +196,70 @@ TEST_F(PersistenceTest, TestGetStatementsFiltered) {
         EXPECT_THAT(stmts, Contains(it2->next()));
     }
     EXPECT_FALSE(it2->hasNext());
+}
+
+
+TEST_F(PersistenceTest, TestRemoveStatements) {
+    std::vector<rdf::proto::Statement> stmts = {
+            rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
+                           rdf::URI("http://example.com/o1")).getMessage(),
+            rdf::Statement(rdf::URI("http://example.com/s2"), rdf::URI("http://example.com/p2"),
+                           rdf::URI("http://example.com/o2")).getMessage()
+    };
+
+    util::CollectionIterator<rdf::proto::Statement> it(stmts);
+    db->AddStatements(it);
+    ASSERT_EQ(2, db->Size());
+
+    {
+        auto it1 = db->GetStatements(stmts[0]);
+        EXPECT_TRUE(it1->hasNext());
+    }
+
+    db->RemoveStatements(stmts[0]);
+    EXPECT_EQ(1, db->Size());
+
+    {
+        auto it2 = db->GetStatements(stmts[0]);
+        EXPECT_FALSE(it2->hasNext());
+    }
+
+}
+
+TEST_F(PersistenceTest, TestUpdates) {
+    std::vector<rdf::proto::Statement> stmts = {
+            rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
+                           rdf::URI("http://example.com/o1")).getMessage(),
+            rdf::Statement(rdf::URI("http://example.com/s2"), rdf::URI("http://example.com/p2"),
+                           rdf::URI("http://example.com/o2")).getMessage()
+    };
+
+    util::CollectionIterator<rdf::proto::Statement> it(stmts);
+    db->AddStatements(it);
+    ASSERT_EQ(2, db->Size());
+
+    service::proto::UpdateRequest removeReq;
+    *removeReq.mutable_stmt_removed() = stmts[0];
+    service::proto::UpdateRequest addReq;
+    *addReq.mutable_stmt_added() =
+            rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
+                           rdf::URI("http://example.com/o3")).getMessage();
+
+
+    util::CollectionIterator<service::proto::UpdateRequest> updates({ removeReq, addReq });
+    db->Update(updates);
+    ASSERT_EQ(2, db->Size());
+
+    {
+        auto it = db->GetStatements(stmts[0]);
+        EXPECT_FALSE(it->hasNext());
+    }
+
+    {
+        auto it = db->GetStatements(addReq.stmt_added());
+        EXPECT_TRUE(it->hasNext());
+    }
+
 }
 
 
