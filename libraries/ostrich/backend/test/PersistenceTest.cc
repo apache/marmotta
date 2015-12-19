@@ -112,8 +112,8 @@ TEST_F(PersistenceTest, TestGetStatements) {
     EXPECT_FALSE(it2->hasNext());
 
     rdf::Statement pattern3;
-    pattern2.setPredicate(rdf::URI("http://example.com/p1"));
-    auto it3 = db->GetStatements(pattern2.getMessage());
+    pattern3.setPredicate(rdf::URI("http://example.com/p1"));
+    auto it3 = db->GetStatements(pattern3.getMessage());
     for (int i=0; i<2; i++) {
         ASSERT_TRUE(it3->hasNext());
         EXPECT_THAT(stmts, Contains(it3->next()));
