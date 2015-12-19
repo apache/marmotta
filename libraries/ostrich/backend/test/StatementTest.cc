@@ -2,7 +2,7 @@
 // Created by wastl on 18.04.15.
 //
 
-#include "gtest.h"
+#include "gtest/gtest.h"
 #include "model/rdf_model.h"
 #include "model/rdf_operators.h"
 

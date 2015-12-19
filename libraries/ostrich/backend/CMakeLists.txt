@@ -14,10 +14,10 @@ find_package (Protobuf REQUIRED)
 find_package (GRPC REQUIRED)
 find_package (LevelDB REQUIRED)
 find_package (GLog REQUIRED)
-find_package (Boost 1.54.0 COMPONENTS iostreams)
+find_package (Boost 1.54.0 COMPONENTS iostreams filesystem system)
 find_package (Tcmalloc)
 
-add_definitions(-DNDEBUG)
+#add_definitions(-DNDEBUG)
 
 if (Boost_IOSTREAMS_FOUND)
     message(STATUS "Enabling gzip/bzip2 support (Boost iostreams found)")

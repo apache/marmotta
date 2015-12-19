@@ -65,8 +65,8 @@ class SerializerBase {
 
     void serialize(StatementIterator &it, std::ostream &out) {
         prepare(out);
-        for (; it.hasNext(); ++it) {
-            serialize(*it);
+        while (it.hasNext()) {
+            serialize(it.next());
         }
         close();
     };

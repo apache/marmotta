@@ -2,7 +2,7 @@
 // Created by wastl on 09.12.15.
 //
 #include <glog/logging.h>
-#include "gtest.h"
+#include "gtest/gtest.h"
 #include "sparql/rasqal_adapter.h"
 #include "model/rdf_operators.h"
 
@@ -10,33 +10,8 @@ namespace marmotta {
 namespace sparql {
 
 namespace {
-class MockStatementIterator : public StatementIterator {
- public:
-    MockStatementIterator(std::vector<rdf::Statement> statements)
-            : statements(statements), index(0) {
-    }
 
-    StatementIterator& operator++() override {
-        index++;
-        return *this;
-    };
-
-    rdf::Statement& operator*() override {
-        return statements[index];
-    };
-
-    rdf::Statement* operator->() override {
-        return &statements[index];
-    };
-
-    bool hasNext() override {
-        return index < statements.size();
-    };
-
- private:
-    std::vector<rdf::Statement> statements;
-    int index;
-};
+using MockStatementIterator = util::CollectionIterator<rdf::Statement>;
 
 class MockTripleSource : public TripleSource {
 

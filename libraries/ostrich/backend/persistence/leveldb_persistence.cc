@@ -187,7 +187,7 @@ class LevelDBIterator : public util::CloseableIterator<T> {
  public:
 
     LevelDBIterator(leveldb::Iterator *it)
-        : it(it), parsed(false) {
+        : it(it) {
         it->SeekToFirst();
     }
 
@@ -195,35 +195,24 @@ class LevelDBIterator : public util::CloseableIterator<T> {
         delete it;
     };
 
-    util::CloseableIterator<T> &operator++() override {
+    const T& next() override {
+        // Parse current position, then iterate to next position for next call.
+        proto.ParseFromString(it->value().ToString());
         it->Next();
-        parsed = false;
-        return *this;
-    };
-
-    T &operator*() override {
-        if (!parsed)
-            proto.ParseFromString(it->value().ToString());
         return proto;
     };
 
-    T *operator->() override {
-        if (!parsed)
-            proto.ParseFromString(it->value().ToString());
-        return &proto;
+    const T& current() const override {
+        return proto;
     };
 
     virtual bool hasNext() override {
         return it->Valid();
     }
 
-
-
  protected:
     leveldb::Iterator* it;
-
     T proto;
-    bool parsed;
 };
 
 
@@ -313,6 +302,11 @@ LevelDBPersistence::LevelDBPersistence(const std::string &path, int64_t cacheSiz
         t.join();
     }
 
+    CHECK_NOTNULL(db_spoc.get());
+    CHECK_NOTNULL(db_cspo.get());
+    CHECK_NOTNULL(db_opsc.get());
+    CHECK_NOTNULL(db_pcos.get());
+
     LOG(INFO) << "LevelDB Database initialised.";
 }
 
@@ -323,8 +317,8 @@ int64_t LevelDBPersistence::AddNamespaces(NamespaceIterator& it) {
 
     leveldb::WriteBatch batch_prefix, batch_url;
 
-    for (; it.hasNext(); ++it) {
-        AddNamespace(*it, batch_prefix, batch_url);
+    while (it.hasNext()) {
+        AddNamespace(it.next(), batch_prefix, batch_url);
         count++;
     }
     CHECK_STATUS(db_ns_prefix->Write(leveldb::WriteOptions(), &batch_prefix));
@@ -374,8 +368,8 @@ void LevelDBPersistence::GetNamespaces(
     int64_t count = 0;
 
     bool cbsuccess = true;
-    for(auto it = GetNamespaces(pattern); cbsuccess && it->hasNext(); ++(*it)) {
-        cbsuccess = callback(**it);
+    for(auto it = GetNamespaces(pattern); cbsuccess && it->hasNext();) {
+        cbsuccess = callback(it->next());
         count++;
     }
 
@@ -389,8 +383,8 @@ int64_t LevelDBPersistence::AddStatements(StatementIterator& it) {
     int64_t count = 0;
 
     leveldb::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
-    for (; it.hasNext(); ++it) {
-        AddStatement(*it, batch_spoc, batch_cspo, batch_opsc, batch_pcos);
+    while (it.hasNext()) {
+        AddStatement(it.next(), batch_spoc, batch_cspo, batch_opsc, batch_pcos);
         count++;
     }
 
@@ -473,8 +467,8 @@ void LevelDBPersistence::GetStatements(
     int64_t count = 0;
 
     bool cbsuccess = true;
-    for(auto it = GetStatements(pattern); cbsuccess && it->hasNext(); ++(*it)) {
-        cbsuccess = callback(**it);
+    for(auto it = GetStatements(pattern); cbsuccess && it->hasNext(); ) {
+        cbsuccess = callback(it->next());
         count++;
     }
 
@@ -528,18 +522,19 @@ UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &
     UpdateStatistics stats;
 
     WriteBatch b_spoc, b_cspo, b_opsc, b_pcos, b_prefix, b_url;
-    for (; it.hasNext(); ++it) {
-        if (it->has_stmt_added()) {
-            AddStatement(it->stmt_added(), b_spoc, b_cspo, b_opsc, b_pcos);
+    while (it.hasNext()) {
+        auto next = it.next();
+        if (next.has_stmt_added()) {
+            AddStatement(next.stmt_added(), b_spoc, b_cspo, b_opsc, b_pcos);
             stats.added_stmts++;
-        } else if (it->has_stmt_removed()) {
+        } else if (next.has_stmt_removed()) {
             stats.removed_stmts +=
-                    RemoveStatements(it->stmt_removed(), b_spoc, b_cspo, b_opsc, b_pcos);
-        } else if(it->has_ns_added()) {
-            AddNamespace(it->ns_added(), b_prefix, b_url);
+                    RemoveStatements(next.stmt_removed(), b_spoc, b_cspo, b_opsc, b_pcos);
+        } else if(next.has_ns_added()) {
+            AddNamespace(next.ns_added(), b_prefix, b_url);
             stats.added_ns++;
-        } else if(it->has_ns_removed()) {
-            RemoveNamespace(it->ns_removed(), b_prefix, b_url);
+        } else if(next.has_ns_removed()) {
+            RemoveNamespace(next.ns_removed(), b_prefix, b_url);
         }
     }
     std::vector<std::thread> writers;

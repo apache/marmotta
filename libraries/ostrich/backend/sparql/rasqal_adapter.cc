@@ -65,26 +65,27 @@ rasqal_triple_parts bind_match(
         struct rasqal_triples_match_s *rtm, void *user_data,
         rasqal_variable *bindings[4], rasqal_triple_parts parts) {
     StatementIterator *it = (StatementIterator *) rtm->user_data;
+    const rdf::Statement& s = it->next();
 
     int r = 0;
 
 #ifndef NDEBUG
-    DLOG(INFO) << "Binding variables " << formatVariables(bindings) << " for statement " << (*it)->as_turtle();
+    DLOG(INFO) << "Binding variables " << formatVariables(bindings) << " for statement " << s.as_turtle();
 #endif
     if ((parts & RASQAL_TRIPLE_SUBJECT) != 0) {
-        rasqal_variable_set_value(bindings[0], rasqal::AsLiteral(rtm->world, (*it)->getSubject()));
+        rasqal_variable_set_value(bindings[0], rasqal::AsLiteral(rtm->world, s.getSubject()));
         r |= RASQAL_TRIPLE_SUBJECT;
     }
     if ((parts & RASQAL_TRIPLE_PREDICATE) != 0) {
-        rasqal_variable_set_value(bindings[1], rasqal::AsLiteral(rtm->world, (*it)->getPredicate()));
+        rasqal_variable_set_value(bindings[1], rasqal::AsLiteral(rtm->world, s.getPredicate()));
         r |= RASQAL_TRIPLE_PREDICATE;
     }
     if ((parts & RASQAL_TRIPLE_OBJECT) != 0) {
-        rasqal_variable_set_value(bindings[2], rasqal::AsLiteral(rtm->world, (*it)->getObject()));
+        rasqal_variable_set_value(bindings[2], rasqal::AsLiteral(rtm->world, s.getObject()));
         r |= RASQAL_TRIPLE_OBJECT;
     }
     if ((parts & RASQAL_TRIPLE_ORIGIN) != 0) {
-        rasqal_variable_set_value(bindings[3], rasqal::AsLiteral(rtm->world, (*it)->getContext()));
+        rasqal_variable_set_value(bindings[3], rasqal::AsLiteral(rtm->world, s.getContext()));
         r |= RASQAL_TRIPLE_ORIGIN;
     }
 
@@ -94,8 +95,6 @@ rasqal_triple_parts bind_match(
 // Increment the iterator contained in the triple match user data.
 void next_match(struct rasqal_triples_match_s *rtm, void *user_data) {
     DLOG(INFO) << "Next result";
-    StatementIterator *it = (StatementIterator *) rtm->user_data;
-    ++(*it);
 }
 
 // Return true in case the iterator has no next element.

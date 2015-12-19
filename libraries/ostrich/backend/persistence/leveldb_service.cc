@@ -48,24 +48,21 @@ template <class Proto>
 class ReaderIterator : public util::CloseableIterator<Proto> {
  public:
 
-    ReaderIterator(grpc::ServerReader<Proto>* r) : reader(r), finished(false) {
+    ReaderIterator(grpc::ServerReader<Proto>* r) : reader(r) {
         // Immediately move to first element.
-        operator++();
+        finished = !reader->Read(&next_);
     }
 
-    util::CloseableIterator<Proto>& operator++() override {
+    const Proto& next() override {
+        current_.Swap(&next_);
         if (!finished) {
-            finished = !reader->Read(&buffer);
+            finished = !reader->Read(&next_);
         }
-        return *this;
+        return current_;
     }
 
-    Proto& operator*() override {
-        return buffer;
-    }
-
-    Proto* operator->() override {
-        return &buffer;
+    const Proto& current() const override {
+        return current_;
     }
 
     bool hasNext() override {
@@ -74,7 +71,8 @@ class ReaderIterator : public util::CloseableIterator<Proto> {
 
  private:
     grpc::ServerReader<Proto>* reader;
-    Proto buffer;
+    Proto current_;
+    Proto next_;
     bool finished;
 };
 

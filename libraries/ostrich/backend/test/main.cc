@@ -1,7 +1,7 @@
 // Copyright 2015 Google Inc. All Rights Reserved.
 // Author: Sebastian Schaffert <schaffert@google.com>
 #include <glog/logging.h>
-#include "gtest.h"
+#include "gtest/gtest.h"
 
 // run all tests in the current binary
 int main(int argc, char **argv) {

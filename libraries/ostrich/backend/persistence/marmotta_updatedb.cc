@@ -25,161 +25,66 @@
 #include <boost/iostreams/filter/bzip2.hpp>
 #endif
 
-#include <grpc/grpc.h>
-#include <grpc++/channel.h>
-#include <grpc++/client_context.h>
-#include <grpc++/create_channel.h>
-#include <grpc++/security/credentials.h>
-#include <grpc++/support/sync_stream.h>
-
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/empty.pb.h>
 #include <google/protobuf/wrappers.pb.h>
 
 #include <gflags/gflags.h>
+#include <thread>
+#include <glog/logging.h>
+#include <sys/stat.h>
 
 #include "model/rdf_model.h"
 #include "parser/rdf_parser.h"
 #include "serializer/serializer.h"
-#include "service/sail.pb.h"
-#include "service/sail.grpc.pb.h"
-#include "service/sparql.pb.h"
-#include "service/sparql.grpc.pb.h"
-
-
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::ClientReader;
-using grpc::ClientReaderWriter;
-using grpc::ClientWriter;
-using grpc::Status;
-using google::protobuf::TextFormat;
+#include "persistence/leveldb_persistence.h"
 
 using namespace marmotta;
-namespace svc = marmotta::service::proto;
-namespace spq = marmotta::sparql::proto;
+using google::protobuf::TextFormat;
 
 #ifdef HAVE_IOSTREAMS
 using namespace boost::iostreams;
 #endif
 
-// A STL iterator wrapper around a client reader.
-template <class T, class Proto>
-class ClientReaderIterator : public util::CloseableIterator<T> {
- public:
-    ClientReaderIterator() : finished(true) { }
-
-    ClientReaderIterator(ClientReader<Proto>* r) : reader(r) {
-        finished = !reader->Read(&buffer);
-    }
-
-    const T& next() override {
-        current_ = T(buffer);
-
-        if (!finished) {
-            finished = !reader->Read(&buffer);
-            if (finished) {
-                reader->Finish();
-            }
-        }
-        return current_;
-    }
-
-    const T& current() const override {
-        return current_;
-    }
-
-    bool hasNext() override {
-        return !finished;
-    }
-
- private:
-    ClientReader<Proto>* reader;
-    Proto buffer;
-    T current_;
-    bool finished;
-};
-
-typedef ClientReaderIterator<rdf::Statement, rdf::proto::Statement> StatementReader;
-typedef ClientReaderIterator<rdf::Namespace, rdf::proto::Namespace> NamespaceReader;
-
 class MarmottaClient {
  public:
-    MarmottaClient(const std::string& server)
-            : stub_(svc::SailService::NewStub(
-            grpc::CreateChannel(server, grpc::InsecureChannelCredentials()))),
-              sparql_(spq::SparqlService::NewStub(
-                      grpc::CreateChannel(server, grpc::InsecureChannelCredentials()))){}
+    MarmottaClient(marmotta::persistence::LevelDBPersistence* db)
+            : db(db){ }
 
     void importDataset(std::istream& in, parser::Format format) {
         auto start = std::chrono::steady_clock::now();
         int64_t count = 0;
 
-        ClientContext nscontext, stmtcontext;
-
-        google::protobuf::Int64Value nsstats;
-        google::protobuf::Int64Value stmtstats;
-
-        std::unique_ptr<ClientWriter<rdf::proto::Namespace> > nswriter(
-                stub_->AddNamespaces(&nscontext, &nsstats));
-        std::unique_ptr<ClientWriter<rdf::proto::Statement> > stmtwriter(
-                stub_->AddStatements(&stmtcontext, &stmtstats));
-
         parser::Parser p("http://www.example.com", format);
-        p.setStatementHandler([&stmtwriter, &start, &count](const rdf::Statement& stmt) {
-            stmtwriter->Write(stmt.getMessage());
-            if (++count % 100000 == 0) {
-                double rate = 100000 * 1000 / std::chrono::duration <double, std::milli> (
-                        std::chrono::steady_clock::now() - start).count();
-                std::cout << "Imported " << count << " statements (" << rate << " statements/sec)" << std::endl;
-                start = std::chrono::steady_clock::now();
-            }
+        util::ProducerConsumerIterator<rdf::proto::Statement> stmtit;
+        util::ProducerConsumerIterator<rdf::proto::Namespace> nsit;
+        p.setStatementHandler([&stmtit](const rdf::Statement& stmt) {
+            stmtit.add(stmt.getMessage());
         });
-        p.setNamespaceHandler([&nswriter](const rdf::Namespace& ns) {
-            nswriter->Write(ns.getMessage());
+        p.setNamespaceHandler([&nsit](const rdf::Namespace& ns) {
+            nsit.add(ns.getMessage());
         });
-        p.parse(in);
 
-        stmtwriter->WritesDone();
-        nswriter->WritesDone();
+        std::thread([&p, &in, &stmtit, &nsit]() {
+            p.parse(in);
+            stmtit.finish();
+            nsit.finish();
+        });
 
-        Status nsst = nswriter->Finish();
-        Status stmtst = stmtwriter->Finish();
-
-        if (nsst.ok() && stmtst.ok()) {
-            std::cout << "Added " << nsstats.value() << " namespaces and "
-                                  << stmtstats.value() << " statements" << std::endl;
-        } else {
-            std::cout << "Failed writing data to server: " << stmtst.error_message() << std::endl;
-        }
+        db->AddStatements(stmtit);
+        db->AddNamespaces(nsit);
     }
 
 
     void patternQuery(const rdf::Statement &pattern, std::ostream &out, serializer::Format format) {
-        ClientContext context;
-
-        std::unique_ptr<ClientReader<rdf::proto::Statement> > reader(
-            stub_->GetStatements(&context, pattern.getMessage()));
-
-        StatementReader it(reader.get());
-
-        serializer::Serializer serializer("http://www.example.com", format);
-        serializer.serialize(it, out);
     }
 
     void patternDelete(const rdf::Statement &pattern) {
-        ClientContext context;
-        google::protobuf::Int64Value result;
-
-        Status status = stub_->RemoveStatements(&context, pattern.getMessage(), &result);
-        if (status.ok()) {
-            std::cout << "Deleted " << result.value() << " statements." << std::endl;
-        } else {
-            std::cerr << "Failed deleting statements: " << status.error_message() << std::endl;
-        }
+        db->RemoveStatements(pattern.getMessage());
     }
 
     void tupleQuery(const std::string& query, std::ostream &out) {
+        /*
         ClientContext context;
         spq::SparqlRequest request;
         request.set_query(query);
@@ -193,9 +98,11 @@ class MarmottaClient {
             TextFormat::Print(result, dynamic_cast<google::protobuf::io::ZeroCopyOutputStream*>(out_));
         }
         delete out_;
+         */
     }
 
     void listNamespaces(std::ostream &out) {
+        /*
         ClientContext context;
 
         google::protobuf::Empty pattern;
@@ -204,13 +111,14 @@ class MarmottaClient {
                 stub_->GetNamespaces(&context, pattern));
 
         NamespaceReader it(reader.get());
-        while (it.hasNext()) {
-            const auto& ns = it.next();
-            out << ns.getPrefix() << " = " << ns.getUri() << std::endl;
+        for (; it.hasNext(); ++it) {
+            out << (*it).getPrefix() << " = " << (*it).getUri() << std::endl;
         }
+         */
     }
 
-    int64_t size(const svc::ContextRequest& r) {
+    int64_t size() {
+        /*
         ClientContext context;
         google::protobuf::Int64Value result;
 
@@ -220,17 +128,17 @@ class MarmottaClient {
         } else {
             return -1;
         }
+         */
     }
  private:
-    std::unique_ptr<svc::SailService::Stub> stub_;
-    std::unique_ptr<spq::SparqlService::Stub> sparql_;
+    marmotta::persistence::LevelDBPersistence* db;
 };
 
 
 DEFINE_string(format, "rdfxml", "RDF format to use for parsing/serializing.");
-DEFINE_string(host, "localhost", "Address/name of server to access.");
-DEFINE_string(port, "10000", "Port of server to access.");
 DEFINE_string(output, "", "File to write result to.");
+DEFINE_string(db, "/tmp/testdb", "Path to database. Will be created if non-existant.");
+DEFINE_int64(cache_size, 100 * 1048576, "Cache size used by the database (in bytes).");
 
 #ifdef HAVE_IOSTREAMS
 DEFINE_bool(gzip, false, "Input files are gzip compressed.");
@@ -240,9 +148,14 @@ DEFINE_bool(bzip2, false, "Input files are bzip2 compressed.");
 int main(int argc, char** argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+    // Initialize Google's logging library.
+    google::InitGoogleLogging(argv[0]);
     google::ParseCommandLineFlags(&argc, &argv, true);
 
-    MarmottaClient client(FLAGS_host + ":" + FLAGS_port);
+    mkdir(FLAGS_db.c_str(), 0700);
+    marmotta::persistence::LevelDBPersistence persistence(FLAGS_db, FLAGS_cache_size);
+
+    MarmottaClient client(&persistence);
 
     if ("import" == std::string(argv[1])) {
 #ifdef HAVE_IOSTREAMS
@@ -293,9 +206,7 @@ int main(int argc, char** argv) {
     }
 
     if ("size" == std::string(argv[1])) {
-        svc::ContextRequest query;
-        TextFormat::ParseFromString(argv[2], &query);
-        std::cout << "Size: " << client.size(query) << std::endl;
+        std::cout << "Size: " << client.size() << std::endl;
     }
 
 

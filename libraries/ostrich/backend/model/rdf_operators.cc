@@ -28,14 +28,18 @@ bool operator==(const Value &lhs, const Value &rhs) {
         } else if (lhs.resource().has_bnode() && rhs.resource().has_bnode()) {
             return lhs.resource().bnode() == rhs.resource().bnode();
         }
+        return (lhs.resource().has_uri() == rhs.resource().has_uri()) &&
+                (lhs.resource().has_bnode() == rhs.resource().has_bnode());
     } else if(lhs.has_literal() && rhs.has_literal()) {
         if (lhs.literal().has_stringliteral() && rhs.literal().has_stringliteral()) {
             return lhs.literal().stringliteral() == rhs.literal().stringliteral();
         } else if (lhs.literal().has_dataliteral() && rhs.literal().has_dataliteral()) {
             return lhs.literal().dataliteral() == rhs.literal().dataliteral();
         }
+        return (lhs.literal().has_stringliteral() == rhs.literal().has_stringliteral()) &&
+               (lhs.literal().has_dataliteral() == rhs.literal().has_dataliteral());
     }
-    return false;
+    return (lhs.has_resource() == rhs.has_resource()) && (lhs.has_literal() == rhs.has_literal());
 }
 
 bool operator==(const Resource &lhs, const Resource &rhs) {
@@ -44,7 +48,7 @@ bool operator==(const Resource &lhs, const Resource &rhs) {
     } else if (lhs.has_bnode() && rhs.has_bnode()) {
         return lhs.bnode() == rhs.bnode();
     }
-    return false;
+    return (lhs.has_uri() == rhs.has_uri()) && (lhs.has_bnode() == rhs.has_bnode());
 }
 
 bool operator==(const Statement &lhs, const Statement &rhs) {

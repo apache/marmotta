@@ -29,26 +29,13 @@ class WrapProtoStatementIterator : public StatementIterator {
     WrapProtoStatementIterator(std::unique_ptr<persistence::LevelDBPersistence::StatementIterator> it)
             : it(std::move(it)) { }
 
-    util::CloseableIterator<rdf::Statement> &operator++() override {
-        ++(*it);
-        parsed = false;
-        return *this;
+    const rdf::Statement& next() override {
+        current_ = std::move(it->next());
+        return current_;
     };
 
-    rdf::Statement &operator*() override {
-        if (!parsed) {
-            current = std::move(**it);
-            parsed = true;
-        }
-        return current;
-    };
-
-    rdf::Statement *operator->() override {
-        if (!parsed) {
-            current = std::move(**it);
-            parsed = true;
-        }
-        return &current;
+    const rdf::Statement& current() const override {
+        return current_;
     };
 
     bool hasNext() override {
@@ -57,7 +44,7 @@ class WrapProtoStatementIterator : public StatementIterator {
 
  private:
     std::unique_ptr<persistence::LevelDBPersistence::StatementIterator> it;
-    rdf::Statement current;
+    rdf::Statement current_;
     bool parsed;
 };
 
