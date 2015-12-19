@@ -208,6 +208,43 @@ class FilteringIterator : public CloseableIterator<T> {
 };
 
 /**
+ * An abstract iterator implementation supporting to convert values
+ * from one type to another. Subclasses must implement the convert() method.
+ */
+template<typename F, typename T>
+class ConvertingIterator : public CloseableIterator<T> {
+ public:
+    ConvertingIterator(CloseableIterator<F>* it) : it(it) { }
+
+    /**
+     * Increment iterator to next element.
+     */
+    const T& next() override {
+        current_ = std::move(convert(it->next()));
+        return current_;
+    };
+
+    const T& current() const override {
+        return current_;
+    };
+
+    /**
+     * Return true in case the iterator has more elements.
+     */
+    bool hasNext() override {
+        return it->hasNext();
+    };
+
+ protected:
+    virtual T convert(const F& from) = 0;
+
+ private:
+    std::unique_ptr<CloseableIterator<F>> it;
+    T current_;
+};
+
+
+/**
  * A multi-threaded iterator supporting iteration over the results
  * successively added by a producer. Blocks while the internal queue
  * is empty and the producer is not yet finished reporting. The

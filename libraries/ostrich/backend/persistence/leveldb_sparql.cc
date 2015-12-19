@@ -23,29 +23,14 @@ namespace sparql {
 
 using ::marmotta::sparql::StatementIterator;
 
-class WrapProtoStatementIterator : public StatementIterator {
-
+class WrapProtoStatementIterator : public util::ConvertingIterator<rdf::proto::Statement, rdf::Statement> {
  public:
-    WrapProtoStatementIterator(std::unique_ptr<persistence::LevelDBPersistence::StatementIterator> it)
-            : it(std::move(it)) { }
+    WrapProtoStatementIterator(util::CloseableIterator<rdf::proto::Statement> *it) : ConvertingIterator(it) { }
 
-    const rdf::Statement& next() override {
-        current_ = std::move(it->next());
-        return current_;
+ protected:
+    rdf::Statement convert(const rdf::proto::Statement &from) override {
+        return std::move(rdf::Statement(std::move(from)));
     };
-
-    const rdf::Statement& current() const override {
-        return current_;
-    };
-
-    bool hasNext() override {
-        return it->hasNext();
-    }
-
- private:
-    std::unique_ptr<persistence::LevelDBPersistence::StatementIterator> it;
-    rdf::Statement current_;
-    bool parsed;
 };
 
 
@@ -93,9 +78,8 @@ std::unique_ptr<sparql::StatementIterator> LevelDBTripleSource::GetStatements(
     }
 
     return std::unique_ptr<sparql::StatementIterator>(
-            new WrapProtoStatementIterator(persistence->GetStatements(pattern)));
+            new WrapProtoStatementIterator(persistence->GetStatements(pattern).release()));
 }
-
 }  // namespace sparql
 }  // namespace persistence
 }  // namespace marmotta
