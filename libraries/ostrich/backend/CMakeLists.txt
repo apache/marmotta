@@ -28,6 +28,8 @@ if (Tcmalloc_FOUND)
     message(STATUS "Enabling profiling support (Tcmalloc found)")
 endif (Tcmalloc_FOUND)
 
+enable_testing()
+
 add_subdirectory(util)
 add_subdirectory(model)
 add_subdirectory(sparql)

@@ -170,6 +170,7 @@ class PatternQuery {
         return *this;
     }
 
+    // Returns true in case this query pattern cannot be answered by the index alone.
     bool NeedsFilter() const {
         return needsFilter;
     }
@@ -260,7 +261,8 @@ class StatementRangeIterator : public LevelDBIterator<Statement> {
     char *hiKey;
 };
 
-
+// Return true if the statement matches the pattern. Wildcards (empty fields)
+// in the pattern are ignored.
 bool Matches(const Statement& pattern, const Statement& stmt) {
     // equality operators defined in rdf_model.h
     if (pattern.has_context() && stmt.context() != pattern.context()) {

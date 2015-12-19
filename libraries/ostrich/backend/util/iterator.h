@@ -194,7 +194,7 @@ class FilteringIterator : public CloseableIterator<T> {
     bool nextExists;
 
     void findNext() {
-        current_ = next_;
+        current_ = std::move(next_);
         nextExists = false;
 
         while (it->hasNext()) {

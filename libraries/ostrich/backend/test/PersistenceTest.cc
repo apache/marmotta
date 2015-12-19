@@ -73,8 +73,8 @@ TEST_F(PersistenceTest, TestAddStatements) {
     }
 }
 
-
-TEST_F(PersistenceTest, TestGetStatements) {
+// Test pattern queries that can be answered directly by the index.
+TEST_F(PersistenceTest, TestGetStatementsIndexed) {
     std::vector<rdf::proto::Statement> stmts = {
             rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
                            rdf::URI("http://example.com/o1")).getMessage(),
@@ -119,6 +119,47 @@ TEST_F(PersistenceTest, TestGetStatements) {
         EXPECT_THAT(stmts, Contains(it3->next()));
     }
     EXPECT_FALSE(it3->hasNext());
+}
+
+// Test pattern queries that trigger filtering because the index alone cannot answer these queries.
+TEST_F(PersistenceTest, TestGetStatementsFiltered) {
+    std::vector<rdf::proto::Statement> stmts = {
+            rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
+                           rdf::URI("http://example.com/o1")).getMessage(),
+            rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p2"),
+                           rdf::URI("http://example.com/o1")).getMessage(),
+            rdf::Statement(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p3"),
+                           rdf::URI("http://example.com/o1")).getMessage(),
+            rdf::Statement(rdf::URI("http://example.com/s2"), rdf::URI("http://example.com/p1"),
+                           rdf::URI("http://example.com/o2")).getMessage(),
+            rdf::Statement(rdf::URI("http://example.com/s2"), rdf::URI("http://example.com/p2"),
+                           rdf::URI("http://example.com/o2")).getMessage(),
+    };
+
+    util::CollectionIterator<rdf::proto::Statement> it(stmts);
+    db->AddStatements(it);
+
+    EXPECT_EQ(5, db->Size());
+
+    rdf::Statement pattern1;
+    pattern1.setSubject(rdf::URI("http://example.com/s1"));
+    pattern1.setObject(rdf::URI("http://example.com/o1"));
+    auto it1 = db->GetStatements(pattern1.getMessage());
+    for (int i=0; i<3; i++) {
+        ASSERT_TRUE(it1->hasNext());
+        EXPECT_THAT(stmts, Contains(it1->next()));
+    }
+    EXPECT_FALSE(it1->hasNext());
+
+    rdf::Statement pattern2;
+    pattern2.setSubject(rdf::URI("http://example.com/s2"));
+    pattern2.setObject(rdf::URI("http://example.com/o2"));
+    auto it2 = db->GetStatements(pattern2.getMessage());
+    for (int i=0; i<2; i++) {
+        ASSERT_TRUE(it2->hasNext());
+        EXPECT_THAT(stmts, Contains(it2->next()));
+    }
+    EXPECT_FALSE(it2->hasNext());
 }
 
 

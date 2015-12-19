@@ -1,4 +1,3 @@
-enable_testing()
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(..)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
