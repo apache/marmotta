@@ -84,7 +84,7 @@ class PatternQuery {
         SPOC, CSPO, OPSC, PCOS
     };
 
-    PatternQuery(const Statement& pattern) : pattern(pattern) {
+    PatternQuery(const Statement& pattern) : pattern(pattern), needsFilter(true) {
         if (pattern.has_subject()) {
             s.reset(new std::string());
             pattern.subject().SerializeToString(s.get());
@@ -110,17 +110,32 @@ class PatternQuery {
             } else {
                 type_ = SPOC;
             }
+
+            // Filter needed if there is no predicate but an object.
+            needsFilter = !(pattern.has_predicate()) && pattern.has_object();
         } else if (pattern.has_object()) {
             // Second-best option is object.
             type_ = OPSC;
+
+            // Filter needed if there is a context (subject already checked, predicate irrelevant).
+            needsFilter = pattern.has_context();
         } else if (pattern.has_predicate()) {
             // Predicate is usually least selective.
             type_ = PCOS;
+
+            // No filter needed, object and subject are not set.
+            needsFilter = false;
         } else if (pattern.has_context()) {
             type_ = CSPO;
+
+            // No filter needed, subject, predicate object are not set.
+            needsFilter = false;
         } else {
             // Fall back to SPOC.
             type_ = SPOC;
+
+            // No filter needed, we just scan from the beginning.
+            needsFilter = false;
         }
     }
 
@@ -155,6 +170,10 @@ class PatternQuery {
         return *this;
     }
 
+    bool NeedsFilter() const {
+        return needsFilter;
+    }
+
  private:
     const Statement& pattern;
     std::unique_ptr<std::string> s, p, o, c;
@@ -178,6 +197,7 @@ class PatternQuery {
     }
 
     IndexType type_;
+    bool needsFilter = true;
 };
 
 
@@ -239,6 +259,22 @@ class StatementRangeIterator : public LevelDBIterator<Statement> {
     char *loKey;
     char *hiKey;
 };
+
+
+bool Matches(const Statement& pattern, const Statement& stmt) {
+    // equality operators defined in rdf_model.h
+    if (pattern.has_context() && stmt.context() != pattern.context()) {
+        return false;
+    }
+    if (pattern.has_subject() && stmt.subject() != pattern.subject()) {
+        return false;
+    }
+    if (pattern.has_predicate() && stmt.predicate() != pattern.predicate()) {
+        return false;
+    }
+    return !(pattern.has_object() && stmt.object() != pattern.object());
+}
+
 
 }  // namespace
 
@@ -441,23 +477,17 @@ std::unique_ptr<LevelDBPersistence::StatementIterator> LevelDBPersistence::GetSt
             break;
     };
 
-    return std::unique_ptr<StatementIterator>(
-            new util::FilteringIterator<Statement>(
-                    new StatementRangeIterator(
-                            db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
-                    [&pattern](const Statement& stmt) -> bool {
-                        // equality operators defined in rdf_model.h
-                        if (pattern.has_context() && stmt.context() != pattern.context()) {
-                            return false;
-                        }
-                        if (pattern.has_subject() && stmt.subject() != pattern.subject()) {
-                            return false;
-                        }
-                        if (pattern.has_predicate() && stmt.predicate() != pattern.predicate()) {
-                            return false;
-                        }
-                        return !(pattern.has_object() && stmt.object() != pattern.object());
-                    }));
+    if (query.NeedsFilter()) {
+        return std::unique_ptr<StatementIterator>(
+                new util::FilteringIterator<Statement>(
+                        new StatementRangeIterator(
+                                db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
+                        [&pattern](const Statement& stmt) -> bool { return Matches(pattern, stmt); }));
+    } else {
+        return std::unique_ptr<StatementIterator>(
+                new StatementRangeIterator(
+                        db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()));
+    }
 }
 
 
