@@ -478,12 +478,14 @@ std::unique_ptr<LevelDBPersistence::StatementIterator> LevelDBPersistence::GetSt
     };
 
     if (query.NeedsFilter()) {
+        DLOG(INFO) << "Retrieving statements with filter.";
         return std::unique_ptr<StatementIterator>(
                 new util::FilteringIterator<Statement>(
                         new StatementRangeIterator(
                                 db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
                         [&pattern](const Statement& stmt) -> bool { return Matches(pattern, stmt); }));
     } else {
+        DLOG(INFO) << "Retrieving statements without filter.";
         return std::unique_ptr<StatementIterator>(
                 new StatementRangeIterator(
                         db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()));
