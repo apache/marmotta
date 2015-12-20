@@ -302,6 +302,9 @@ leveldb::Options* buildOptions(KeyComparator* cmp, leveldb::Cache* cache) {
     // Cache reads in memory.
     options->block_cache = cache;
 
+    // Write buffer size 16MB (fast bulk imports)
+    options->write_buffer_size = 16384 * 1024;
+
     // Set a bloom filter of 10 bits.
     options->filter_policy = leveldb::NewBloomFilterPolicy(10);
     return options;
@@ -549,7 +552,7 @@ int64_t LevelDBPersistence::RemoveStatements(const rdf::proto::Statement& patter
 
 UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &it) {
     auto start = std::chrono::steady_clock::now();
-    DLOG(INFO) << "Starting batch update operation.";
+    LOG(INFO) << "Starting batch update operation.";
     UpdateStatistics stats;
 
     WriteBatch b_spoc, b_cspo, b_opsc, b_pcos, b_prefix, b_url;
@@ -592,7 +595,7 @@ UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &
         t.join();
     }
 
-    DLOG(INFO) << "Batch update complete. (statements added: " << stats.added_stmts
+    LOG(INFO) << "Batch update complete. (statements added: " << stats.added_stmts
             << ", statements removed: " << stats.removed_stmts
             << ", namespaces added: " << stats.added_ns
             << ", namespaces removed: " << stats.removed_ns

@@ -45,7 +45,7 @@ public class OstrichLoaderBackend implements LoaderBackend {
         return new OstrichLoaderHandler(
                 configuration.getString("backend.ostrich.host", "localhost"),
                 configuration.getInt("backend.ostrich.port", 10000),
-                configuration.getLong("backend.ostrich.batchsize", 500000));
+                configuration.getLong("backend.ostrich.batchsize", 1000000));
     }
 
     /**
@@ -90,7 +90,7 @@ public class OstrichLoaderBackend implements LoaderBackend {
         Option batchSize =
                 OptionBuilder.withArgName("batchsize")
                         .hasArgs(1)
-                        .withDescription("maximum number of statements to commit in one batch")
+                        .withDescription("maximum number of statements to commit in one batch (default 1M)")
                         .withLongOpt("batchsize")
                         .create('B');
         options.add(batchSize);
