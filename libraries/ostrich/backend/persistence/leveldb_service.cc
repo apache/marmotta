@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include <model/rdf_operators.h>
 #include <util/iterator.h>
+#include <util/unique.h>
 
 using grpc::Status;
 using grpc::StatusCode;
@@ -230,9 +231,7 @@ grpc::Status LevelDBSparqlService::TupleQuery(
         grpc::ServerContext* context, const spq::SparqlRequest* query,
         grpc::ServerWriter<spq::SparqlResponse>* result) {
 
-    SparqlService svc(
-        std::unique_ptr<TripleSource>(
-                new LevelDBTripleSource(persistence)));
+    SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
 
     svc.TupleQuery(query->query(), [&result](const SparqlService::RowType& row) {
         spq::SparqlResponse response;

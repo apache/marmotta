@@ -28,6 +28,7 @@
 #include "leveldb_persistence.h"
 #include "model/rdf_operators.h"
 #include "util/murmur3.h"
+#include "util/unique.h"
 
 #define CHECK_STATUS(s) CHECK(s.ok()) << "Writing to database failed: " << s.ToString()
 
@@ -387,16 +388,14 @@ std::unique_ptr<LevelDBPersistence::NamespaceIterator> LevelDBPersistence::GetNa
         leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
         if (s.ok()) {
             ns.ParseFromString(value);
-            return std::unique_ptr<NamespaceIterator>(
-                    new util::SingletonIterator<Namespace>(ns));
+            return util::make_unique<util::SingletonIterator<Namespace>>(std::move(ns));
         } else {
-            return std::unique_ptr<NamespaceIterator>(
-                    new util::EmptyIterator<Namespace>());
+            return util::make_unique<util::EmptyIterator<Namespace>>();
         }
     } else {
         // Pattern was empty, iterate over all namespaces and report them.
-        return std::unique_ptr<NamespaceIterator>(
-            new LevelDBIterator<Namespace>(db_ns_prefix->NewIterator(leveldb::ReadOptions())));
+        return util::make_unique<LevelDBIterator<Namespace>>(
+                db_ns_prefix->NewIterator(leveldb::ReadOptions()));
     }
 }
 
@@ -481,16 +480,14 @@ std::unique_ptr<LevelDBPersistence::StatementIterator> LevelDBPersistence::GetSt
 
     if (query.NeedsFilter()) {
         DLOG(INFO) << "Retrieving statements with filter.";
-        return std::unique_ptr<StatementIterator>(
-                new util::FilteringIterator<Statement>(
-                        new StatementRangeIterator(
-                                db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
-                        [&pattern](const Statement& stmt) -> bool { return Matches(pattern, stmt); }));
+        return util::make_unique<util::FilteringIterator<Statement>>(
+                new StatementRangeIterator(
+                        db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
+                [&pattern](const Statement& stmt) -> bool { return Matches(pattern, stmt); });
     } else {
         DLOG(INFO) << "Retrieving statements without filter.";
-        return std::unique_ptr<StatementIterator>(
-                new StatementRangeIterator(
-                        db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()));
+        return util::make_unique<StatementRangeIterator>(
+                db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey());
     }
 }
 

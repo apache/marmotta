@@ -88,7 +88,7 @@ class EmptyIterator : public CloseableIterator<T> {
 template<typename T>
 class SingletonIterator : public CloseableIterator<T> {
  public:
-    SingletonIterator(T& value) : value(value), incremented(false) { }
+    SingletonIterator(T&& value) : value(value), incremented(false) { }
 
     const T &next() override {
         if (!incremented) {
