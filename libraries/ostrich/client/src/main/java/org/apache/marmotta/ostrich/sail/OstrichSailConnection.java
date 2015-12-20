@@ -107,7 +107,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        log.info("Adding statements.");
+        log.debug("Adding statements.");
         ensureTransaction();
 
         if (contexts.length > 0) {
@@ -319,7 +319,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        log.info("Removing statements.");
+        log.debug("Removing statements.");
         commitForQuery();
         ensureTransaction();
 
@@ -338,7 +338,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void clearInternal(Resource... contexts) throws SailException {
-        log.info("Clearing statements.");
+        log.debug("Clearing statements.");
         commitForQuery();
         ensureTransaction();
 
@@ -357,7 +357,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected CloseableIteration<? extends Namespace, SailException> getNamespacesInternal() throws SailException {
-        log.info("Getting namespaces.");
+        log.debug("Getting namespaces.");
         commitForQuery();
 
         Empty pattern = Empty.getDefaultInstance();
@@ -382,7 +382,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void setNamespaceInternal(String prefix, String name) throws SailException {
-        log.info("Setting namespace {} = {}.", prefix, name);
+        log.debug("Setting namespace {} = {}.", prefix, name);
         ensureTransaction();
 
         ProtoNamespace ns = new ProtoNamespace(prefix, name);
@@ -393,7 +393,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void removeNamespaceInternal(String prefix) throws SailException {
-        log.info("Removing namespace {}.", prefix);
+        log.debug("Removing namespace {}.", prefix);
         commitForQuery();
         ensureTransaction();
 
@@ -404,7 +404,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
     @Override
     protected void clearNamespacesInternal() throws SailException {
-        log.info("Clearing namespaces.");
+        log.debug("Clearing namespaces.");
         commitForQuery();
         ensureTransaction();
 
