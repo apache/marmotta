@@ -18,9 +18,9 @@
 package org.apache.marmotta.kiwi.reasoner.test.parser;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
-import org.apache.marmotta.kiwi.test.RepositoryTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -98,9 +98,14 @@ public class KWRLRuleParserTest {
 
         Assert.assertNotNull(r);
         Assert.assertEquals(1, r.getBody().size());
+        Assert.assertTrue(r.getBody().get(0).getSubject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getObject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getProperty().isVariableField());
         Assert.assertTrue(r.getHead().getSubject().isVariableField());
         Assert.assertTrue(r.getHead().getProperty().isVariableField());
         Assert.assertTrue(r.getHead().getObject().isLiteralField());
+        Assert.assertEquals("Hello", ((LiteralField) r.getHead().getObject()).getLiteral().getLabel());
+        Assert.assertEquals("en", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage());
     }
 
     @Test
@@ -110,9 +115,14 @@ public class KWRLRuleParserTest {
 
         Assert.assertNotNull(r);
         Assert.assertEquals(1, r.getBody().size());
+        Assert.assertTrue(r.getBody().get(0).getSubject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getObject().isVariableField());
+        Assert.assertTrue(r.getBody().get(0).getProperty().isVariableField());
         Assert.assertTrue(r.getHead().getSubject().isVariableField());
         Assert.assertTrue(r.getHead().getProperty().isVariableField());
         Assert.assertTrue(r.getHead().getObject().isLiteralField());
+        Assert.assertEquals("Bonjour", ((LiteralField)r.getHead().getObject()).getLiteral().getLabel());
+        Assert.assertEquals("fr", ((LiteralField) r.getHead().getObject()).getLiteral().getLanguage());
     }
 
 }
