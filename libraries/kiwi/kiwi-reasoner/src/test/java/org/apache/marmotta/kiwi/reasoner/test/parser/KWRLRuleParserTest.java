@@ -92,4 +92,28 @@ public class KWRLRuleParserTest {
         Assert.assertTrue(r.getHead().getObject().isVariableField());
     }
 
+    @Test
+    public void testRule3() throws Exception {
+        String rule = "($1 $2 $3) -> ($1 $2 \"Hello\"@en)";
+        Rule r = KWRLProgramParser.parseRule(rule, ImmutableMap.of("rdfs", "http://www.w3.org/2000/01/rdf-schema#"), repository.getValueFactory());
+
+        Assert.assertNotNull(r);
+        Assert.assertEquals(2, r.getBody().size());
+        Assert.assertTrue(r.getHead().getSubject().isVariableField());
+        Assert.assertTrue(r.getHead().getProperty().isResourceField());
+        Assert.assertTrue(r.getHead().getObject().isVariableField());
+    }
+
+    @Test
+    public void testRule4() throws Exception {
+        String rule = "($1 $2 $3) -> ($1 $2 \"Bonjour\"@fr)";
+        Rule r = KWRLProgramParser.parseRule(rule, ImmutableMap.of("rdfs", "http://www.w3.org/2000/01/rdf-schema#"), repository.getValueFactory());
+
+        Assert.assertNotNull(r);
+        Assert.assertEquals(2, r.getBody().size());
+        Assert.assertTrue(r.getHead().getSubject().isVariableField());
+        Assert.assertTrue(r.getHead().getProperty().isResourceField());
+        Assert.assertTrue(r.getHead().getObject().isVariableField());
+    }
+
 }
