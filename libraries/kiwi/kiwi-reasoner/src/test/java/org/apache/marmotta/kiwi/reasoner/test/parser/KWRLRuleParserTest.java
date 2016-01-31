@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test parsing of individual rules
- * <p/>
- * Author: Sebastian Schaffert (sschaffert@apache.org)
+ *
+ * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class KWRLRuleParserTest {
 
@@ -47,7 +47,6 @@ public class KWRLRuleParserTest {
         repository = new SailRepository(new MemoryStore());
         repository.initialize();
     }
-
 
     @After
     public void shutdown() throws Exception {
@@ -98,10 +97,10 @@ public class KWRLRuleParserTest {
         Rule r = KWRLProgramParser.parseRule(rule, ImmutableMap.of("rdfs", "http://www.w3.org/2000/01/rdf-schema#"), repository.getValueFactory());
 
         Assert.assertNotNull(r);
-        Assert.assertEquals(2, r.getBody().size());
+        Assert.assertEquals(1, r.getBody().size());
         Assert.assertTrue(r.getHead().getSubject().isVariableField());
-        Assert.assertTrue(r.getHead().getProperty().isResourceField());
-        Assert.assertTrue(r.getHead().getObject().isVariableField());
+        Assert.assertTrue(r.getHead().getProperty().isVariableField());
+        Assert.assertTrue(r.getHead().getObject().isLiteralField());
     }
 
     @Test
@@ -110,10 +109,10 @@ public class KWRLRuleParserTest {
         Rule r = KWRLProgramParser.parseRule(rule, ImmutableMap.of("rdfs", "http://www.w3.org/2000/01/rdf-schema#"), repository.getValueFactory());
 
         Assert.assertNotNull(r);
-        Assert.assertEquals(2, r.getBody().size());
+        Assert.assertEquals(1, r.getBody().size());
         Assert.assertTrue(r.getHead().getSubject().isVariableField());
-        Assert.assertTrue(r.getHead().getProperty().isResourceField());
-        Assert.assertTrue(r.getHead().getObject().isVariableField());
+        Assert.assertTrue(r.getHead().getProperty().isVariableField());
+        Assert.assertTrue(r.getHead().getObject().isLiteralField());
     }
 
 }

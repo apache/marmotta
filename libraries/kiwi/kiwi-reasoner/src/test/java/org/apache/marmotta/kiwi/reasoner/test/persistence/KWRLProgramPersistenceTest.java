@@ -63,12 +63,10 @@ public class KWRLProgramPersistenceTest {
     private Repository repository;
     private final KiWiConfiguration config;
 
-
     public KWRLProgramPersistenceTest(KiWiConfiguration config) {
         this.config = config;
         
     }
-
 
     @Before
     public void initDatabase() throws Exception {
