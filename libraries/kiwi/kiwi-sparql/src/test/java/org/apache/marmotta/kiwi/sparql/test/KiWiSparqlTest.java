@@ -23,6 +23,7 @@ import info.aduna.iteration.Iterations;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -54,6 +55,7 @@ import java.util.Set;
  * @author Sergio Fernámdez
  */
 @RunWith(KiWiDatabaseRunner.class)
+@KiWiDatabaseRunner.ForDialects(PostgreSQLDialect.class)
 public class KiWiSparqlTest {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -271,5 +273,54 @@ public class KiWiSparqlTest {
             conn.close();
         }
     }
+
+    private void testMarmotta627(String queryString, double expected) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+        RepositoryConnection conn = repository.getConnection();
+        try {
+            conn.begin();
+            final TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            final TupleQueryResult results = query.evaluate();
+            try {
+                Assert.assertTrue(results.hasNext());
+                final BindingSet bindingSet = results.next();
+                Assert.assertNotNull(bindingSet);
+                Assert.assertTrue(bindingSet.getValue("c") instanceof Literal);
+                final Literal c = (Literal) bindingSet.getValue("c");
+                Assert.assertEquals("http://www.w3.org/2001/XMLSchema#decimal", c.getDatatype().stringValue());
+                Assert.assertEquals(expected, c.doubleValue(), 0);
+                Assert.assertFalse(results.hasNext());
+            } finally {
+                results.close();
+            }
+        } finally {
+            conn.close();
+        }
+    }
+
+    @Test
+    public void testMarmotta627_1() throws Exception {
+        testMarmotta627("SELECT ( (4.5-4.4)*0.1 as ?c )  WHERE {}", 0.01);
+    }
+
+    @Test
+    public void testMarmotta627_2() throws Exception {
+        testMarmotta627("SELECT ( 0.1*0.1 as ?c )  WHERE {}", 0.01);
+    }
+
+    @Test
+    public void testMarmotta627_3() throws Exception {
+        testMarmotta627("SELECT ( 0.10*0.01 as ?c )  WHERE {}", 0.001);
+    }
+
+    @Test
+    public void testMarmotta627_4() throws Exception {
+        testMarmotta627("SELECT ( 1.00*3.10 as ?c )  WHERE {}", 3.10);
+    }
+
+    @Test
+    public void testMarmotta627_5() throws Exception {
+        testMarmotta627("SELECT ( 2.00*4.00 as ?c )  WHERE {}", 8.00);
+    }
+
 
 }
