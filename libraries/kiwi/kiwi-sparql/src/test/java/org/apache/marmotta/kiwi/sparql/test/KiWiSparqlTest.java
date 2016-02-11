@@ -23,7 +23,6 @@ import info.aduna.iteration.Iterations;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -31,7 +30,8 @@ import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.openrdf.model.*;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
 import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -55,7 +55,6 @@ import java.util.Set;
  * @author Sergio Fernámdez
  */
 @RunWith(KiWiDatabaseRunner.class)
-@KiWiDatabaseRunner.ForDialects(PostgreSQLDialect.class)
 public class KiWiSparqlTest {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
