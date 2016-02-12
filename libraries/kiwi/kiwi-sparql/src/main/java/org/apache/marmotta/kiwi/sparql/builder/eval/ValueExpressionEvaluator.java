@@ -733,7 +733,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             case PLUS: return " + ";
             case MINUS: return " - ";
             case DIVIDE: return " / ";
-            case MULTIPLY: return " / ";
+            case MULTIPLY: return " * ";
         }
         throw new IllegalArgumentException("unsupported operator type for math expression: "+op);
     }
