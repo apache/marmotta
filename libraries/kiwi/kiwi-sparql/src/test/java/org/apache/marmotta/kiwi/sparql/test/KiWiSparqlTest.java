@@ -296,32 +296,34 @@ public class KiWiSparqlTest {
         }
     }
 
-    
     @Test
-    public void testMarmotta627_1() throws Exception {
+    public void testMarmotta628_1() throws Exception {
         testMarmotta627("SELECT ( (4.5-4.4)*0.1 as ?c )  WHERE {}", 0.01);
     }
-    
 
     @Test
-    public void testMarmotta627_2() throws Exception {
+    public void testMarmotta628_2() throws Exception {
+        testMarmotta627("SELECT ( (4.5*4.4)*0.1 as ?c )  WHERE {}", 1.98);
+    }
+
+    @Test
+    public void testMarmotta627_1() throws Exception {
         testMarmotta627("SELECT ( 0.1*0.1 as ?c )  WHERE {}", 0.01);
     }
 
     @Test
-    public void testMarmotta627_3() throws Exception {
+    public void testMarmotta627_2() throws Exception {
         testMarmotta627("SELECT ( 0.10*0.01 as ?c )  WHERE {}", 0.001);
     }
 
     @Test
-    public void testMarmotta627_4() throws Exception {
+    public void testMarmotta627_3() throws Exception {
         testMarmotta627("SELECT ( 1.00*3.10 as ?c )  WHERE {}", 3.10);
     }
 
     @Test
-    public void testMarmotta627_5() throws Exception {
+    public void testMarmotta627_4() throws Exception {
         testMarmotta627("SELECT ( 2.00*4.00 as ?c )  WHERE {}", 8.00);
     }
-
 
 }
