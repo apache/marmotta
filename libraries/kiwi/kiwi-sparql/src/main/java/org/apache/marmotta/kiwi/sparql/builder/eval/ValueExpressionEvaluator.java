@@ -500,9 +500,13 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             }
 
             optypes.push(ot);
+	    builder.append("(");
             expr.getLeftArg().visit(this);
+	    builder.append(")");
             builder.append(getSQLOperator(expr.getOperator()));
+	    builder.append("(");
             expr.getRightArg().visit(this);
+	    builder.append(")");
             optypes.pop();
         }
     }
