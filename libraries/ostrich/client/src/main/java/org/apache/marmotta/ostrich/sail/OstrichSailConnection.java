@@ -24,6 +24,7 @@ import info.aduna.iteration.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.apache.marmotta.ostrich.client.proto.Sail;
 import org.apache.marmotta.ostrich.client.proto.SailServiceGrpc;
@@ -67,7 +68,8 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
     private static Logger log = LoggerFactory.getLogger(OstrichSailConnection.class);
 
     private final ManagedChannel channel;
-    private final SailServiceGrpc.SailServiceBlockingStub stub;
+    private final SailServiceGrpc.SailServiceBlockingStub blockingSailStub;
+    private final SparqlServiceGrpc.SparqlServiceBlockingStub blockingSparqlStub;
     private final SailServiceGrpc.SailServiceStub sailServiceStub;
     private final SparqlServiceGrpc.SparqlServiceStub sparqlServiceStub;
 
@@ -80,9 +82,10 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext(true)
                 .build();
-        stub = SailServiceGrpc.newBlockingStub(channel);
+        blockingSailStub = SailServiceGrpc.newBlockingStub(channel);
         sailServiceStub = SailServiceGrpc.newStub(channel);
         sparqlServiceStub = SparqlServiceGrpc.newStub(channel);
+        blockingSparqlStub = SparqlServiceGrpc.newBlockingStub(channel);
 
         updateResponseObserver = new StreamObserver<Sail.UpdateResponse>() {
             @Override
@@ -177,11 +180,21 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
      * @return
      * @throws SailException
      */
-    public CloseableIteration<? extends BindingSet, QueryEvaluationException> directTupleQuery(String query) throws SailException {
+    public CloseableIteration<? extends BindingSet, QueryEvaluationException> directTupleQuery(String query, String baseUri) throws SailException {
         log.info("Committing transaction before querying ...");
         commitForQuery();
 
-        Sparql.SparqlRequest request = Sparql.SparqlRequest.newBuilder().setQuery(query).build();
+        Sparql.SparqlRequest request;
+        if (baseUri != null) {
+            request = Sparql.SparqlRequest.newBuilder()
+                    .setQuery(query)
+                    .setBaseUri(new ProtoURI(baseUri).getMessage())
+                    .build();
+        } else {
+            request = Sparql.SparqlRequest.newBuilder()
+                    .setQuery(query)
+                    .build();
+        }
 
         return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(
                 new ConvertingIteration<Sparql.SparqlResponse, BindingSet, SailException>(
@@ -226,12 +239,80 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         };
     }
 
+    /**
+     * Send a SPARQL query to a backend supporting direct SPARQL evaluation.
+     *
+     * @param query
+     * @return
+     * @throws SailException
+     */
+    public CloseableIteration<? extends Statement, QueryEvaluationException> directGraphQuery(String query, String baseUri) throws SailException {
+        log.info("Committing transaction before querying ...");
+        commitForQuery();
+
+        Sparql.SparqlRequest request;
+        if (baseUri != null) {
+            request = Sparql.SparqlRequest.newBuilder()
+                    .setQuery(query)
+                    .setBaseUri(new ProtoURI(baseUri).getMessage())
+                    .build();
+        } else {
+            request = Sparql.SparqlRequest.newBuilder()
+                    .setQuery(query)
+                    .build();
+        }
+
+        return new ExceptionConvertingIteration<Statement, QueryEvaluationException>(
+                new ConvertingIteration<Model.Statement, Statement, SailException>(
+                        new ClosableResponseStream<>(sparqlServiceStub, SparqlServiceGrpc.METHOD_GRAPH_QUERY, request)) {
+                    @Override
+                    protected Statement convert(Model.Statement sourceObject) throws SailException {
+                        return new ProtoStatement(sourceObject);
+                    }
+                }) {
+            @Override
+            protected QueryEvaluationException convert(Exception e) {
+                return new QueryEvaluationException(e);
+            }
+        };
+    }
+
+    /**
+     * Send a SPARQL query to a backend supporting direct SPARQL evaluation.
+     *
+     * @param query
+     * @return
+     * @throws SailException
+     */
+    public boolean directBooleanQuery(String query, String baseUri) throws SailException {
+        log.info("Committing transaction before querying ...");
+        commitForQuery();
+
+        Sparql.SparqlRequest request;
+        if (baseUri != null) {
+            request = Sparql.SparqlRequest.newBuilder()
+                    .setQuery(query)
+                    .setBaseUri(new ProtoURI(baseUri).getMessage())
+                    .build();
+        } else {
+            request = Sparql.SparqlRequest.newBuilder()
+                    .setQuery(query)
+                    .build();
+        }
+
+        try {
+            return blockingSparqlStub.askQuery(request).getValue();
+        } catch (StatusRuntimeException ex) {
+            throw new SailException(ex.getMessage());
+        }
+    }
+
     @Override
     protected CloseableIteration<? extends Resource, SailException> getContextIDsInternal() throws SailException {
         log.info("Committing transaction before querying ...");
         commitForQuery();
 
-        return wrapResourceIterator(stub.getContexts(Empty.getDefaultInstance()));
+        return wrapResourceIterator(blockingSailStub.getContexts(Empty.getDefaultInstance()));
     }
 
     @Override
@@ -272,7 +353,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
             }
         }
 
-        Int64Value v = stub.size(builder.build());
+        Int64Value v = blockingSailStub.size(builder.build());
         return v.getValue();
     }
 
@@ -361,7 +442,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         commitForQuery();
 
         Empty pattern = Empty.getDefaultInstance();
-        return wrapNamespaceIterator(stub.getNamespaces(pattern));
+        return wrapNamespaceIterator(blockingSailStub.getNamespaces(pattern));
     }
 
     @Override
@@ -371,7 +452,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
 
         Model.Namespace pattern = Model.Namespace.newBuilder().setPrefix(prefix).build();
         try {
-            return stub.getNamespace(pattern).getUri();
+            return blockingSailStub.getNamespace(pattern).getUri();
         } catch (io.grpc.StatusRuntimeException ex) {
             if (ex.getStatus().getCode() == Status.Code.NOT_FOUND) {
                 return null;

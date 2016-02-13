@@ -19,16 +19,13 @@ package org.apache.marmotta.platform.backend.ostrich;
 
 import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.ostrich.sail.OstrichSailConnection;
+import org.openrdf.model.Statement;
 import org.openrdf.query.*;
+import org.openrdf.query.impl.GraphQueryResultImpl;
 import org.openrdf.query.impl.TupleQueryResultImpl;
-import org.openrdf.query.parser.ParsedQuery;
-import org.openrdf.query.parser.ParsedTupleQuery;
-import org.openrdf.query.parser.QueryParserUtil;
+import org.openrdf.query.parser.*;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailQuery;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sail.SailRepositoryConnection;
-import org.openrdf.repository.sail.SailTupleQuery;
+import org.openrdf.repository.sail.*;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
@@ -37,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A wrapper SailRepository for Ostrich allowing access to direct SPARQL support.
@@ -69,7 +67,7 @@ public class OstrichSailRepository extends SailRepository {
                                     // Let Sesame still parse the query for better error messages and for the binding names.
                                     ParsedTupleQuery parsedQuery = QueryParserUtil.parseTupleQuery(ql, queryString, baseURI);
                                     OstrichSailConnection sailCon = findConnection(getConnection().getSailConnection());
-                                    bindingsIter = sailCon.directTupleQuery(queryString);
+                                    bindingsIter = sailCon.directTupleQuery(queryString, baseURI);
                                     bindingsIter = enforceMaxQueryTime(bindingsIter);
 
                                     return new TupleQueryResultImpl(new ArrayList<String>(parsedQuery.getTupleExpr().getBindingNames()), bindingsIter);
@@ -86,11 +84,69 @@ public class OstrichSailRepository extends SailRepository {
                 }
 
                 @Override
+                public SailBooleanQuery prepareBooleanQuery(final QueryLanguage ql, final String queryString, final String baseURI) throws MalformedQueryException {
+                    if (ql == QueryLanguage.SPARQL) {
+                        return new SailBooleanQuery(null, this) {
+                            @Override
+                            public boolean evaluate() throws QueryEvaluationException {
+                                try {
+                                    log.info("Running native SPARQL query: {}", queryString);
+                                    CloseableIteration<? extends BindingSet, QueryEvaluationException> bindingsIter;
+
+                                    // Let Sesame still parse the query for better error messages and for the binding names.
+                                    ParsedBooleanQuery parsedQuery = QueryParserUtil.parseBooleanQuery(ql, queryString, baseURI);
+                                    OstrichSailConnection sailCon = findConnection(getConnection().getSailConnection());
+                                    return sailCon.directBooleanQuery(queryString, baseURI);
+                                } catch (SailException e) {
+                                    throw new QueryEvaluationException(e.getMessage(), e);
+                                } catch (MalformedQueryException e) {
+                                    throw new QueryEvaluationException(e.getMessage(), e);
+                                }
+                            }
+                        };
+                    } else {
+                        return super.prepareBooleanQuery(ql, queryString, baseURI);
+                    }
+                }
+
+                @Override
+                public SailGraphQuery prepareGraphQuery(final QueryLanguage ql, final String queryString, final String baseURI) throws MalformedQueryException {
+                    if (ql == QueryLanguage.SPARQL) {
+                        return new SailGraphQuery(null, this) {
+                            @Override
+                            public GraphQueryResult evaluate() throws QueryEvaluationException {
+                                try {
+                                    log.info("Running native SPARQL query: {}", queryString);
+                                    CloseableIteration<? extends Statement, ? extends QueryEvaluationException> bindingsIter;
+
+                                    // Let Sesame still parse the query for better error messages and for the binding names.
+                                    ParsedGraphQuery parsedQuery = QueryParserUtil.parseGraphQuery(ql, queryString, baseURI);
+                                    OstrichSailConnection sailCon = findConnection(getConnection().getSailConnection());
+                                    bindingsIter = sailCon.directGraphQuery(queryString, baseURI);
+
+                                    return new GraphQueryResultImpl(new HashMap<String, String>(), bindingsIter);
+                                } catch (SailException e) {
+                                    throw new QueryEvaluationException(e.getMessage(), e);
+                                } catch (MalformedQueryException e) {
+                                    throw new QueryEvaluationException(e.getMessage(), e);
+                                }
+                            }
+                        };
+                    } else {
+                        return super.prepareGraphQuery(ql, queryString, baseURI);
+                    }
+                }
+
+                @Override
                 public SailQuery prepareQuery(QueryLanguage ql, String queryString, String baseURI) throws MalformedQueryException {
                     ParsedQuery parsedQuery = QueryParserUtil.parseQuery(ql, queryString, baseURI);
 
                     if (parsedQuery instanceof ParsedTupleQuery) {
                         return prepareTupleQuery(ql, queryString, baseURI);
+                    } else if (parsedQuery instanceof ParsedBooleanQuery) {
+                        return prepareBooleanQuery(ql, queryString, baseURI);
+                    } else if (parsedQuery instanceof ParsedGraphQuery) {
+                        return prepareGraphQuery(ql, queryString, baseURI);
                     } else {
                         return super.prepareQuery(ql, queryString, baseURI);
                     }
