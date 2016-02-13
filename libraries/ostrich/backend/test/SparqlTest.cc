@@ -267,5 +267,25 @@ TEST(SPARQLTest, Graph) {
 }
 
 
+TEST(SPARQLTest, AskTrue) {
+    rdf::Statement stmt = rdf::Statement(rdf::URI("http://example.com/s1"),
+                                         rdf::URI("http://example.com/p1"),
+                                         rdf::URI("http://example.com/o1"));
+    SparqlService svc(std::unique_ptr<TripleSource>(new MockTripleSource({stmt})));
+
+    EXPECT_TRUE(svc.AskQuery("ASK {}", base_uri));
+}
+
+
+TEST(SPARQLTest, AskFalse) {
+    rdf::Statement stmt = rdf::Statement(rdf::URI("http://example.com/s1"),
+                                         rdf::URI("http://example.com/p1"),
+                                         rdf::URI("http://example.com/o1"));
+    SparqlService svc(std::unique_ptr<TripleSource>(new MockTripleSource({stmt})));
+
+    EXPECT_FALSE(svc.AskQuery("ASK { <http://example.com/s2> ?p ?o}", base_uri));
+}
+
+
 }  // namespace sparql
 }  // namespace marmotta

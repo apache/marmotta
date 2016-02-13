@@ -62,7 +62,7 @@ std::string formatBindings(const std::map<std::string, rdf::Value>& bindings) {
 #endif
 
 void log_handler(void *user_data, raptor_log_message *message) {
-    LOG(ERROR) << "SPARQL Error(" << message->code << "): " << message->text;
+    LOG_IF(ERROR, message->code >= 0) << "SPARQL Error(" << message->code << "): " << message->text;
 }
 
 // Bind the current statement to the variables configured in the triple match.
@@ -262,7 +262,7 @@ void SparqlService::TupleQuery(const std::string& query, const rdf::URI& base_ur
     if (rasqal_query_prepare(q, STR(query), base) != 0) {
         raptor_free_uri(base);
         rasqal_free_query(q);
-        throw SparqlException("Query preparation failed", query);
+        throw SparqlException("could not parse query", query);
     }
 
     bool next = true;
@@ -270,14 +270,14 @@ void SparqlService::TupleQuery(const std::string& query, const rdf::URI& base_ur
     if (r == nullptr) {
         raptor_free_uri(base);
         rasqal_free_query(q);
-        throw SparqlException("Query execution failed", query);
+        throw SparqlException("query execution failed", query);
     }
 
     if (!rasqal_query_results_is_bindings(r)) {
         rasqal_free_query_results(r);
         rasqal_free_query(q);
         raptor_free_uri(base);
-        throw SparqlException("Query is not a tuple query", query);
+        throw SparqlException("query is not a tuple query", query);
     }
 
     int rowcount = 0;
@@ -313,7 +313,7 @@ void SparqlService::GraphQuery(const std::string& query, const rdf::URI& base_ur
     if (rasqal_query_prepare(q, STR(query), base) != 0) {
         raptor_free_uri(base);
         rasqal_free_query(q);
-        throw SparqlException("Query preparation failed", query);
+        throw SparqlException("could not parse query", query);
     }
 
     bool next = true;
@@ -328,7 +328,7 @@ void SparqlService::GraphQuery(const std::string& query, const rdf::URI& base_ur
         rasqal_free_query_results(r);
         rasqal_free_query(q);
         raptor_free_uri(base);
-        throw SparqlException("Query is not a graph query", query);
+        throw SparqlException("query is not a graph query", query);
     }
 
     while (next) {
@@ -339,6 +339,41 @@ void SparqlService::GraphQuery(const std::string& query, const rdf::URI& base_ur
     rasqal_free_query_results(r);
     rasqal_free_query(q);
     raptor_free_uri(base);
+}
+
+bool SparqlService::AskQuery(const std::string& query, const rdf::URI& base_uri) {
+    util::TimeLogger timeLogger("SPARQL ask query");
+
+    auto q = rasqal_new_query(world, "sparql11-query", nullptr);
+    auto base = raptor_new_uri(rasqal_world_get_raptor(world),
+                               STR(base_uri.getUri()));
+    if (rasqal_query_prepare(q, STR(query), base) != 0) {
+        raptor_free_uri(base);
+        rasqal_free_query(q);
+        throw SparqlException("could not parse query", query);
+    }
+
+    auto r = rasqal_query_execute(q);
+    if (r == nullptr || rasqal_query_results_get_boolean(r) < 0) {
+        raptor_free_uri(base);
+        rasqal_free_query(q);
+        throw SparqlException("query execution failed", query);
+    }
+
+    if (!rasqal_query_results_is_boolean(r)) {
+        rasqal_free_query_results(r);
+        rasqal_free_query(q);
+        raptor_free_uri(base);
+        throw SparqlException("query is not a boolean query", query);
+    }
+
+    bool result = rasqal_query_results_get_boolean(r) > 0;
+
+    rasqal_free_query_results(r);
+    rasqal_free_query(q);
+    raptor_free_uri(base);
+
+    return result;
 }
 
 

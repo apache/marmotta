@@ -114,6 +114,10 @@ class LevelDBSparqlService : public spq::SparqlService::Service {
     grpc::Status GraphQuery(grpc::ServerContext* context,
                             const spq::SparqlRequest* pattern,
                             grpc::ServerWriter<rdf::proto::Statement>* result) override;
+
+    grpc::Status AskQuery(grpc::ServerContext* context,
+                          const spq::SparqlRequest* pattern,
+                          google::protobuf::BoolValue* result) override;
  private:
     persistence::LevelDBPersistence* persistence;
 };

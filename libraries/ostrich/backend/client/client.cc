@@ -70,19 +70,13 @@ class ClientReaderIterator : public util::CloseableIterator<T> {
  public:
     ClientReaderIterator() : finished(true) { }
 
-    ClientReaderIterator(ClientReader<Proto>* r) : reader(r) {
-        finished = !reader->Read(&buffer);
+    ClientReaderIterator(ClientReader<Proto>* r) : reader(r), finished(false) {
+        read();
     }
 
     const T& next() override {
         current_ = T(buffer);
-
-        if (!finished) {
-            finished = !reader->Read(&buffer);
-            if (finished) {
-                reader->Finish();
-            }
-        }
+        read();
         return current_;
     }
 
@@ -99,6 +93,16 @@ class ClientReaderIterator : public util::CloseableIterator<T> {
     Proto buffer;
     T current_;
     bool finished;
+
+    void read() {
+        if (!finished) {
+            finished = !reader->Read(&buffer);
+            if (finished) {
+                auto st = reader->Finish();
+                LOG_IF(FATAL, !st.ok()) << "Reading results failed: " << st.error_message();
+            }
+        }
+    }
 };
 
 typedef ClientReaderIterator<rdf::Statement, rdf::proto::Statement> StatementReader;
@@ -214,6 +218,25 @@ class MarmottaClient {
         }
     }
 
+    void askQuery(const std::string& query, std::ostream &out) {
+        ClientContext context;
+        spq::SparqlRequest request;
+        request.set_query(query);
+
+        google::protobuf::BoolValue result;
+
+        Status status = sparql_->AskQuery(&context, request, &result);
+        if (status.ok()) {
+            if (result.value()) {
+                out << "YES" << std::endl;
+            } else {
+                out << "NO" << std::endl;
+            }
+        } else {
+            LOG(FATAL) << "SPARQL query failed: " << status.error_message();
+        }
+    }
+
 
     void listNamespaces(std::ostream &out) {
         ClientContext context;
@@ -238,7 +261,7 @@ class MarmottaClient {
         if (status.ok()) {
             return result.value();
         } else {
-            return -1;
+            LOG(FATAL) << "Calculating size failed: " << status.error_message();
         }
     }
  private:
@@ -315,6 +338,16 @@ int main(int argc, char** argv) {
             client.graphQuery(query, out, serializer::FormatFromString(FLAGS_format));
         } else {
             client.graphQuery(query, std::cout, serializer::FormatFromString(FLAGS_format));
+        }
+    }
+
+    if ("ask" == std::string(argv[1])) {
+        std::string query = argv[2];
+        if (FLAGS_output != "") {
+            std::ofstream out(FLAGS_output);
+            client.askQuery(query, out);
+        } else {
+            client.askQuery(query, std::cout);
         }
     }
 

@@ -22,6 +22,7 @@ package marmotta.sparql.proto;
 option java_package = "org.apache.marmotta.ostrich.client.proto";
 
 import "model.proto";
+import "google/protobuf/wrappers.proto";
 
 // SPARQL request consisting of a single query string.
 message SparqlRequest {
@@ -46,4 +47,7 @@ service SparqlService {
 
     // Execute a SPARQL 1.1 graph query and stream back the triples.
     rpc GraphQuery(SparqlRequest) returns (stream marmotta.rdf.proto.Statement);
+
+    // Execute a SPARQL 1.1 ask query and return true or false.
+    rpc AskQuery(SparqlRequest) returns (google.protobuf.BoolValue);
 }

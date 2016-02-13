@@ -22,6 +22,7 @@
 #include <model/rdf_operators.h>
 #include <util/unique.h>
 #include <util/time_logger.h>
+#include <glog/logging.h>
 
 using grpc::Status;
 using grpc::StatusCode;
@@ -242,18 +243,23 @@ grpc::Status LevelDBSparqlService::TupleQuery(
 
     rdf::URI base_uri = query->base_uri();
 
-    svc.TupleQuery(query->query(), base_uri,
-                   [&result](const SparqlService::RowType& row) {
-        spq::SparqlResponse response;
-        for (auto it = row.cbegin(); it != row.cend(); it++) {
-            auto b = response.add_binding();
-            b->set_variable(it->first);
-            *b->mutable_value() = it->second.getMessage();
-        }
-        return result->Write(response);
-    });
+    try {
+        svc.TupleQuery(query->query(), base_uri,
+                       [&result](const SparqlService::RowType& row) {
+                           spq::SparqlResponse response;
+                           for (auto it = row.cbegin(); it != row.cend(); it++) {
+                               auto b = response.add_binding();
+                               b->set_variable(it->first);
+                               *b->mutable_value() = it->second.getMessage();
+                           }
+                           return result->Write(response);
+                       });
 
-    return Status::OK;
+        return Status::OK;
+    } catch (sparql::SparqlException e) {
+        LOG(ERROR) << "SPARQL execution failed: " << e.what();
+        return Status(StatusCode::INVALID_ARGUMENT, e.what());
+    }
 }
 
 
@@ -265,12 +271,35 @@ grpc::Status LevelDBSparqlService::GraphQuery(grpc::ServerContext* context,
 
     rdf::URI base_uri = query->base_uri();
 
-    svc.GraphQuery(query->query(), base_uri,
-                   [&result](const rdf::Statement& triple) {
-        return result->Write(triple.getMessage());
-    });
+    try {
+        svc.GraphQuery(query->query(), base_uri,
+                       [&result](const rdf::Statement& triple) {
+                           return result->Write(triple.getMessage());
+                       });
 
-    return Status::OK;
+        return Status::OK;
+    } catch (sparql::SparqlException e) {
+        LOG(ERROR) << "SPARQL execution failed: " << e.what();
+        return Status(StatusCode::INVALID_ARGUMENT, e.what());
+    }
+}
+
+grpc::Status LevelDBSparqlService::AskQuery(grpc::ServerContext* context,
+                                            const spq::SparqlRequest* query,
+                                            google::protobuf::BoolValue* result) {
+
+    SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
+
+    rdf::URI base_uri = query->base_uri();
+
+    try {
+        result->set_value(svc.AskQuery(query->query(), base_uri));
+
+        return Status::OK;
+    } catch (sparql::SparqlException e) {
+        LOG(ERROR) << "SPARQL execution failed: " << e.what();
+        return Status(StatusCode::INVALID_ARGUMENT, e.what());
+    }
 }
 
 

@@ -98,6 +98,12 @@ class SparqlService {
     void GraphQuery(const std::string& query, const rdf::URI& base_uri,
                     std::function<bool(const rdf::Statement&)> stmt_handler);
 
+
+    /**
+     * Execute a boolean (ASK) query, returning the boolean result.
+     */
+    bool AskQuery(const std::string& query, const rdf::URI& base_uri);
+
     /**
      * Return a reference to the triple source managed by this service.
      */
