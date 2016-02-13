@@ -15,8 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <raptor2/raptor2.h>
 #include "rdf_parser.h"
+#include <raptor2/raptor2.h>
+#include <util/raptor_util.h>
 
 namespace marmotta {
 namespace parser {
@@ -67,75 +68,7 @@ Parser::~Parser() {
 
 void Parser::raptor_stmt_handler(void *user_data, raptor_statement *statement) {
     Parser* p = static_cast<Parser*>(user_data);
-
-    rdf::Resource subject; rdf::URI predicate; rdf::Value object; rdf::Resource context;
-    switch (statement->subject->type) {
-        case RAPTOR_TERM_TYPE_URI:
-            subject = rdf::URI((const char*)raptor_uri_as_string(statement->subject->value.uri));
-            break;
-        case RAPTOR_TERM_TYPE_BLANK:
-            subject = rdf::BNode(std::string((const char*)statement->subject->value.blank.string, statement->subject->value.blank.string_len));
-            break;
-        default:
-            raptor_parser_parse_abort(p->parser);
-            throw ParseError("invalid subject term type");
-    }
-
-    switch (statement->predicate->type) {
-        case RAPTOR_TERM_TYPE_URI:
-            predicate = rdf::URI((const char*)raptor_uri_as_string(statement->predicate->value.uri));
-            break;
-        default:
-            raptor_parser_parse_abort(p->parser);
-            throw ParseError("invalid predicate term type");
-    }
-
-    switch (statement->object->type) {
-        case RAPTOR_TERM_TYPE_URI:
-            object = rdf::URI((const char*)raptor_uri_as_string(statement->object->value.uri));
-            break;
-        case RAPTOR_TERM_TYPE_BLANK:
-            object = rdf::BNode(std::string((const char*)statement->object->value.blank.string, statement->object->value.blank.string_len));
-            break;
-        case RAPTOR_TERM_TYPE_LITERAL:
-            if(statement->object->value.literal.language != NULL) {
-                object = rdf::StringLiteral(
-                        std::string((const char*)statement->object->value.literal.string, statement->object->value.literal.string_len),
-                        std::string((const char*)statement->object->value.literal.language, statement->object->value.literal.language_len)
-                );
-            } else if(statement->object->value.literal.datatype != NULL) {
-                object = rdf::DatatypeLiteral(
-                        std::string((const char*)statement->object->value.literal.string, statement->object->value.literal.string_len),
-                        rdf::URI((const char*)raptor_uri_as_string(statement->object->value.literal.datatype))
-                );
-            } else {
-                object = rdf::StringLiteral(
-                        std::string((const char*)statement->object->value.literal.string, statement->object->value.literal.string_len)
-                );
-            }
-            break;
-        default:
-            raptor_parser_parse_abort(p->parser);
-            throw ParseError("invalid object term type");
-    }
-
-    if (statement->graph != NULL) {
-        switch (statement->graph->type) {
-            case RAPTOR_TERM_TYPE_URI:
-                context = rdf::URI((const char*)raptor_uri_as_string(statement->graph->value.uri));
-                break;
-            case RAPTOR_TERM_TYPE_BLANK:
-                context = rdf::BNode(std::string((const char*)statement->graph->value.blank.string, statement->graph->value.blank.string_len));
-                break;
-            default:
-                raptor_parser_parse_abort(p->parser);
-                throw ParseError("invalid graph term type");
-        }
-    } else {
-        context = rdf::URI();
-    }
-
-    p->stmt_handler(rdf::Statement(subject, predicate, object, context));
+    p->stmt_handler(util::raptor::ConvertStatement(statement));
 }
 
 

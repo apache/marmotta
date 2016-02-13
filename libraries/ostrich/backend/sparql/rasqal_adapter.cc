@@ -24,6 +24,11 @@
 
 #include "sparql/rasqal_adapter.h"
 #include "sparql/rasqal_model.h"
+#include "util/raptor_util.h"
+#include "util/time_logger.h"
+
+// Rasqal notoriously uses unsigned strings, macro to convert C++ strings.
+#define STR(s) (const unsigned char*)s.c_str()
 
 namespace marmotta {
 namespace sparql {
@@ -247,13 +252,14 @@ SparqlService::~SparqlService() {
     rasqal_free_world(world);
 }
 
-void SparqlService::TupleQuery(const std::string& query, std::function<bool(const RowType&)> row_handler) {
-    auto start = std::chrono::steady_clock::now();
-    LOG(INFO) << "Starting SPARQL tuple query.";
+void SparqlService::TupleQuery(const std::string& query, const rdf::URI& base_uri,
+                               std::function<bool(const RowType&)> row_handler) {
+    util::TimeLogger timeLogger("SPARQL tuple query");
 
     auto q = rasqal_new_query(world, "sparql11-query", nullptr);
-    auto base = raptor_new_uri(rasqal_world_get_raptor(world), (const unsigned char*)"http://example.com");
-    if (rasqal_query_prepare(q, (const unsigned char*)query.c_str(), base) != 0) {
+    auto base = raptor_new_uri(rasqal_world_get_raptor(world),
+                               STR(base_uri.getUri()));
+    if (rasqal_query_prepare(q, STR(query), base) != 0) {
         raptor_free_uri(base);
         rasqal_free_query(q);
         throw SparqlException("Query preparation failed", query);
@@ -265,6 +271,13 @@ void SparqlService::TupleQuery(const std::string& query, std::function<bool(cons
         raptor_free_uri(base);
         rasqal_free_query(q);
         throw SparqlException("Query execution failed", query);
+    }
+
+    if (!rasqal_query_results_is_bindings(r)) {
+        rasqal_free_query_results(r);
+        rasqal_free_query(q);
+        raptor_free_uri(base);
+        throw SparqlException("Query is not a tuple query", query);
     }
 
     int rowcount = 0;
@@ -287,11 +300,47 @@ void SparqlService::TupleQuery(const std::string& query, std::function<bool(cons
     rasqal_free_query_results(r);
     rasqal_free_query(q);
     raptor_free_uri(base);
-
-    LOG(INFO) << "SPARQL query finished (time=" << std::chrono::duration <double, std::milli> (
-            std::chrono::steady_clock::now() - start).count() << "ms).";
-
 }
+
+
+void SparqlService::GraphQuery(const std::string& query, const rdf::URI& base_uri,
+                               std::function<bool(const rdf::Statement&)> stmt_handler) {
+    util::TimeLogger timeLogger("SPARQL graph query");
+
+    auto q = rasqal_new_query(world, "sparql11-query", nullptr);
+    auto base = raptor_new_uri(rasqal_world_get_raptor(world),
+                               STR(base_uri.getUri()));
+    if (rasqal_query_prepare(q, STR(query), base) != 0) {
+        raptor_free_uri(base);
+        rasqal_free_query(q);
+        throw SparqlException("Query preparation failed", query);
+    }
+
+    bool next = true;
+    auto r = rasqal_query_execute(q);
+    if (r == nullptr) {
+        raptor_free_uri(base);
+        rasqal_free_query(q);
+        throw SparqlException("Query execution failed", query);
+    }
+
+    if (!rasqal_query_results_is_graph(r)) {
+        rasqal_free_query_results(r);
+        rasqal_free_query(q);
+        raptor_free_uri(base);
+        throw SparqlException("Query is not a graph query", query);
+    }
+
+    while (next) {
+        next = stmt_handler(util::raptor::ConvertStatement(rasqal_query_results_get_triple(r)))
+            && rasqal_query_results_next_triple(r) == 0;
+    }
+
+    rasqal_free_query_results(r);
+    rasqal_free_query(q);
+    raptor_free_uri(base);
+}
+
 
 }  // namespace sparql
 }  // namespace marmotta

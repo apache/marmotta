@@ -35,7 +35,6 @@ using StatementIterator = util::CloseableIterator<rdf::Statement>;
  */
 class TripleSource {
  public:
-
     /**
      * Check for presence of a complete statement.
      *
@@ -85,7 +84,19 @@ class SparqlService {
      */
     ~SparqlService();
 
-    void TupleQuery(const std::string& query, std::function<bool(const RowType&)> row_handler);
+    /**
+     * Execute a tuple (SELECT) query, calling the row handler for each set of
+     * variable bindings.
+     */
+    void TupleQuery(const std::string& query, const rdf::URI& base_uri,
+                    std::function<bool(const RowType&)> row_handler);
+
+    /**
+     * Execute a graph (CONSTRUCT) query, calling the statement handler for
+     * each triple.
+     */
+    void GraphQuery(const std::string& query, const rdf::URI& base_uri,
+                    std::function<bool(const rdf::Statement&)> stmt_handler);
 
     /**
      * Return a reference to the triple source managed by this service.

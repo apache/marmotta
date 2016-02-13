@@ -110,6 +110,10 @@ class LevelDBSparqlService : public spq::SparqlService::Service {
     grpc::Status TupleQuery(grpc::ServerContext* context,
                             const spq::SparqlRequest* pattern,
                             grpc::ServerWriter<spq::SparqlResponse>* result) override;
+
+    grpc::Status GraphQuery(grpc::ServerContext* context,
+                            const spq::SparqlRequest* pattern,
+                            grpc::ServerWriter<rdf::proto::Statement>* result) override;
  private:
     persistence::LevelDBPersistence* persistence;
 };

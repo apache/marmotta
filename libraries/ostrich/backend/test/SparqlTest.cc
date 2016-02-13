@@ -11,14 +11,16 @@ namespace sparql {
 
 namespace {
 
+const rdf::URI base_uri("http://example.com/");
+
+
 using MockStatementIterator = util::CollectionIterator<rdf::Statement>;
 
 class MockTripleSource : public TripleSource {
 
  public:
-    MockTripleSource(std::vector<rdf::Statement> statements) : statements(statements) {
-
-    }
+    MockTripleSource(std::vector<rdf::Statement> statements)
+            : statements(statements) { }
 
     bool HasStatement(const rdf::Resource *s, const rdf::URI *p, const rdf::Value *o, const rdf::Resource *c) override {
         for (const auto& stmt : statements) {
@@ -68,6 +70,7 @@ class MockTripleSource : public TripleSource {
 
  private:
     std::vector<rdf::Statement> statements;
+
 };
 }  // namespace
 
@@ -81,7 +84,8 @@ TEST(SPARQLTest, Simple) {
 
     int count = 0;
     rdf::Value s, p, o;
-    svc.TupleQuery("SELECT * WHERE {?s ?p ?o}", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {?s ?p ?o}", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         s = row.at("s");
         p = row.at("p");
@@ -106,7 +110,8 @@ TEST(SPARQLTest, SubjectPattern) {
 
     int count = 0;
     rdf::Value p, o;
-    svc.TupleQuery("SELECT * WHERE {<http://example.com/s1> ?p ?o}", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {<http://example.com/s1> ?p ?o}", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         p = row.at("p");
         o = row.at("o");
@@ -129,7 +134,8 @@ TEST(SPARQLTest, PredicatePattern) {
 
     int count = 0;
     rdf::Value s, o;
-    svc.TupleQuery("SELECT * WHERE {?s <http://example.com/p1> ?o}", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {?s <http://example.com/p1> ?o}", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         s = row.at("s");
         o = row.at("o");
@@ -152,7 +158,8 @@ TEST(SPARQLTest, ObjectPattern) {
 
     int count = 0;
     rdf::Value s, p;
-    svc.TupleQuery("SELECT * WHERE {?s ?p <http://example.com/o1>}", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {?s ?p <http://example.com/o1>}", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         s = row.at("s");
         p = row.at("p");
@@ -175,7 +182,8 @@ TEST(SPARQLTest, BNode) {
 
     int count = 0;
     rdf::Value s, p;
-    svc.TupleQuery("SELECT * WHERE {?s ?p <http://example.com/o1>}", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {?s ?p <http://example.com/o1>}", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         s = row.at("s");
         p = row.at("p");
@@ -198,7 +206,8 @@ TEST(SPARQLTest, Filter) {
 
     int count = 0;
     rdf::Value s, p, o;
-    svc.TupleQuery("SELECT * WHERE {?s ?p ?o . FILTER(?o = <http://example.com/o1>)}", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {?s ?p ?o . FILTER(?o = <http://example.com/o1>)}", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         s = row.at("s");
         p = row.at("p");
@@ -223,7 +232,8 @@ TEST(SPARQLTest, Join) {
 
     int count = 0;
     rdf::Value s, o;
-    svc.TupleQuery("SELECT * WHERE {?s ?p1 ?o1 . ?o1 ?p2 ?o }", [&](const SparqlService::RowType& row) {
+    svc.TupleQuery("SELECT * WHERE {?s ?p1 ?o1 . ?o1 ?p2 ?o }", base_uri,
+                   [&](const SparqlService::RowType& row) {
         count++;
         s = row.at("s");
         o = row.at("o");
@@ -234,6 +244,26 @@ TEST(SPARQLTest, Join) {
     EXPECT_EQ(1, count);
     EXPECT_EQ("http://example.com/s1", s.stringValue());
     EXPECT_EQ("http://example.com/o2", o.stringValue());
+}
+
+TEST(SPARQLTest, Graph) {
+    rdf::Statement stmt = rdf::Statement(rdf::URI("http://example.com/s1"),
+                                         rdf::URI("http://example.com/p1"),
+                                         rdf::URI("http://example.com/o1"));
+    SparqlService svc(std::unique_ptr<TripleSource>(new MockTripleSource({stmt})));
+
+    int count = 0;
+    rdf::Value s, p, o;
+    svc.GraphQuery("CONSTRUCT { ?s ?p ?o . } WHERE {?s ?p ?o}", base_uri,
+                   [&](const rdf::Statement& row) {
+        count++;
+
+        EXPECT_EQ(stmt, row);
+
+        return true;
+    });
+
+    EXPECT_EQ(1, count);
 }
 
 

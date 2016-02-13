@@ -249,7 +249,7 @@ void RaptorSerializer::serialize(const rdf::Statement &stmt) {
         triple->graph = raptor_new_term_from_blank(
                 world, (unsigned char const *) stmt.getMessage().context().bnode().id().c_str());
     } else {
-        throw SerializationError("invalid context type");
+        triple->graph = nullptr;
     }
 
     raptor_serializer_serialize_statement(serializer, triple);

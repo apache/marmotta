@@ -26,6 +26,7 @@ import "model.proto";
 // SPARQL request consisting of a single query string.
 message SparqlRequest {
     string query = 1;
+    marmotta.rdf.proto.URI base_uri = 2;
 }
 
 // SPARQL response row, containing a set of bindings.
@@ -42,4 +43,7 @@ message SparqlResponse {
 service SparqlService {
     // Execute a SPARQL 1.1 tuple query and stream back the results.
     rpc TupleQuery(SparqlRequest) returns (stream SparqlResponse);
+
+    // Execute a SPARQL 1.1 graph query and stream back the triples.
+    rpc GraphQuery(SparqlRequest) returns (stream marmotta.rdf.proto.Statement);
 }

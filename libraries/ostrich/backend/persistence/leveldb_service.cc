@@ -20,8 +20,8 @@
 
 #include <unordered_set>
 #include <model/rdf_operators.h>
-#include <util/iterator.h>
 #include <util/unique.h>
+#include <util/time_logger.h>
 
 using grpc::Status;
 using grpc::StatusCode;
@@ -119,6 +119,7 @@ grpc::Status LevelDBService::GetNamespaces(
 
 Status LevelDBService::AddStatements(
         ServerContext* context, ServerReader<Statement>* reader, Int64Value* result) {
+    util::TimeLogger timeLogger("Adding statements");
 
     auto it = StatementIterator(reader);
     int64_t count = persistence->AddStatements(it);
@@ -130,6 +131,7 @@ Status LevelDBService::AddStatements(
 
 Status LevelDBService::GetStatements(
         ServerContext* context, const Statement* pattern, ServerWriter<Statement>* result) {
+    util::TimeLogger timeLogger("Retrieving statements");
 
     persistence->GetStatements(*pattern, [&result](const Statement& stmt) -> bool {
         return result->Write(stmt);
@@ -140,6 +142,7 @@ Status LevelDBService::GetStatements(
 
 Status LevelDBService::RemoveStatements(
         ServerContext* context, const Statement* pattern, Int64Value* result) {
+    util::TimeLogger timeLogger("Removing statements");
 
     int64_t count = persistence->RemoveStatements(*pattern);
     result->set_value(count);
@@ -149,7 +152,7 @@ Status LevelDBService::RemoveStatements(
 
 Status LevelDBService::Clear(
         ServerContext* context, const ContextRequest* contexts, Int64Value* result) {
-
+    util::TimeLogger timeLogger("Clearing contexts");
 
     int64_t count = 0;
 
@@ -169,6 +172,7 @@ Status LevelDBService::Clear(
 
 Status LevelDBService::Size(
         ServerContext* context, const ContextRequest* contexts, Int64Value* result) {
+    util::TimeLogger timeLogger("Computing context size");
 
     int64_t count = 0;
 
@@ -194,6 +198,8 @@ Status LevelDBService::Size(
 
 grpc::Status LevelDBService::GetContexts(
         ServerContext *context, const Empty *ignored, ServerWriter<Resource> *result) {
+    util::TimeLogger timeLogger("Retrieving contexts");
+
     // Currently we need to iterate over all statements and collect the results.
     Statement pattern;
     std::unordered_set<Resource> contexts;
@@ -214,6 +220,7 @@ grpc::Status LevelDBService::GetContexts(
 grpc::Status LevelDBService::Update(grpc::ServerContext *context,
                                     grpc::ServerReader<service::proto::UpdateRequest> *reader,
                                     service::proto::UpdateResponse *result) {
+    util::TimeLogger timeLogger("Updating database");
 
     auto it = UpdateIterator(reader);
     persistence::UpdateStatistics stats = persistence->Update(it);
@@ -233,19 +240,39 @@ grpc::Status LevelDBSparqlService::TupleQuery(
 
     SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
 
-    svc.TupleQuery(query->query(), [&result](const SparqlService::RowType& row) {
+    rdf::URI base_uri = query->base_uri();
+
+    svc.TupleQuery(query->query(), base_uri,
+                   [&result](const SparqlService::RowType& row) {
         spq::SparqlResponse response;
         for (auto it = row.cbegin(); it != row.cend(); it++) {
             auto b = response.add_binding();
             b->set_variable(it->first);
             *b->mutable_value() = it->second.getMessage();
         }
-        result->Write(response);
-        return true;
+        return result->Write(response);
     });
 
     return Status::OK;
 }
+
+
+grpc::Status LevelDBSparqlService::GraphQuery(grpc::ServerContext* context,
+                        const spq::SparqlRequest* query,
+                        grpc::ServerWriter<rdf::proto::Statement>* result) {
+
+    SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
+
+    rdf::URI base_uri = query->base_uri();
+
+    svc.GraphQuery(query->query(), base_uri,
+                   [&result](const rdf::Statement& triple) {
+        return result->Write(triple.getMessage());
+    });
+
+    return Status::OK;
+}
+
 
 }  // namespace service
 }  // namespace marmotta

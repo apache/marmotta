@@ -37,6 +37,7 @@
 #include <google/protobuf/wrappers.pb.h>
 
 #include <gflags/gflags.h>
+#include <glog/logging.h>
 
 #include "model/rdf_model.h"
 #include "parser/rdf_parser.h"
@@ -195,6 +196,25 @@ class MarmottaClient {
         delete out_;
     }
 
+    void graphQuery(const std::string& query, std::ostream &out, serializer::Format format) {
+        ClientContext context;
+        spq::SparqlRequest request;
+        request.set_query(query);
+
+        std::unique_ptr<ClientReader<rdf::proto::Statement>> reader(
+                sparql_->GraphQuery(&context, request));
+
+        StatementReader it(reader.get());
+
+        try {
+            serializer::Serializer serializer("http://www.example.com", format);
+            serializer.serialize(it, out);
+        } catch(serializer::SerializationError e) {
+            LOG(FATAL) << "Serialization error: " << e.getMessage();
+        }
+    }
+
+
     void listNamespaces(std::ostream &out) {
         ClientContext context;
 
@@ -240,6 +260,8 @@ DEFINE_bool(bzip2, false, "Input files are bzip2 compressed.");
 int main(int argc, char** argv) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+    // Initialize Google's logging library.
+    google::InitGoogleLogging(argv[0]);
     google::ParseCommandLineFlags(&argc, &argv, true);
 
     MarmottaClient client(FLAGS_host + ":" + FLAGS_port);
@@ -283,6 +305,16 @@ int main(int argc, char** argv) {
             client.tupleQuery(query, out);
         } else {
             client.tupleQuery(query, std::cout);
+        }
+    }
+
+    if ("construct" == std::string(argv[1])) {
+        std::string query = argv[2];
+        if (FLAGS_output != "") {
+            std::ofstream out(FLAGS_output);
+            client.graphQuery(query, out, serializer::FormatFromString(FLAGS_format));
+        } else {
+            client.graphQuery(query, std::cout, serializer::FormatFromString(FLAGS_format));
         }
     }
 
