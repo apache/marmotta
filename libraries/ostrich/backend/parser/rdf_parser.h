@@ -66,12 +66,14 @@ class Parser {
     raptor_parser* parser;
     raptor_world*  world;
     raptor_uri*    base;
+    std::string    error;
 
     std::function<void(const rdf::Statement&)> stmt_handler;
     std::function<void(const rdf::Namespace&)> ns_handler;
 
     static void raptor_stmt_handler(void* user_data, raptor_statement* statement);
     static void raptor_ns_handler(void* user_data, raptor_namespace *nspace);
+    static void raptor_error_handler(void *user_data, raptor_log_message* message);
 };
 
 class ParseError : std::exception {

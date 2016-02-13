@@ -109,6 +109,70 @@ rdf::Statement ConvertStatement(raptor_statement *triple) {
 
     }
 }
+
+namespace {
+raptor_term *AsStringLiteral(raptor_world* world, const rdf::Value &v) {
+    rdf::StringLiteral l(v.getMessage().literal().stringliteral());
+
+    return raptor_new_term_from_counted_literal(
+            world,
+            STR(l.getContent()), l.getContent().size(),
+            nullptr,
+            STR(l.getLanguage()), l.getLanguage().size());
+}
+
+raptor_term *AsDatatypeLiteral(raptor_world* world, const rdf::Value &v) {
+    rdf::DatatypeLiteral l(v.getMessage().literal().dataliteral());
+
+    return raptor_new_term_from_counted_literal(
+            world,
+            STR(l.getContent()), l.getContent().size(),
+            raptor_new_uri(world, STR(l.getDatatype().getUri())),
+            (unsigned char const *) "", 0);
+}
+}  // namespace
+
+
+/*
+ * Convert a Marmotta Resource into a raptor term.
+ */
+raptor_term* AsTerm(raptor_world* world, const rdf::Resource& r) {
+    switch (r.type) {
+        case rdf::Resource::URI:
+            return raptor_new_term_from_uri_string(world, STR(r.stringValue()));
+        case rdf::Resource::BNODE:
+            return raptor_new_term_from_blank(world, STR(r.stringValue()));
+        default:
+            return nullptr;
+    }
+}
+
+/*
+ * Convert a Marmotta Value into a raptor term.
+ */
+raptor_term* AsTerm(raptor_world* world, const rdf::Value& v) {
+    switch (v.type) {
+        case rdf::Value::URI:
+            return raptor_new_term_from_uri_string(world, STR(v.stringValue()));
+        case rdf::Value::BNODE:
+            return raptor_new_term_from_blank(world, STR(v.stringValue()));
+        case rdf::Value::STRING_LITERAL:
+            return AsStringLiteral(world, v);
+        case rdf::Value::DATATYPE_LITERAL:
+            return AsDatatypeLiteral(world, v);
+        default:
+            return nullptr;
+    }
+
+}
+
+/*
+ * Convert a Marmotta URI into a raptor term.
+ */
+raptor_term* AsTerm(raptor_world* world, const rdf::URI& u) {
+    return raptor_new_term_from_uri_string(world, STR(u.stringValue()));
+}
+
 }  // namespace raptor
 }  // namespace util
 }  // namespace marmotta

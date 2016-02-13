@@ -16,6 +16,11 @@
  * limitations under the License.
  */
 #include "serializer_raptor.h"
+#include <raptor2/raptor2.h>
+#include <util/raptor_util.h>
+
+#define STR(s) (const unsigned char*)s.c_str()
+#define CPSTR(s) (const unsigned char*)strdup(s.c_str())
 
 namespace marmotta {
 namespace serializer {
@@ -97,7 +102,7 @@ RaptorSerializer::RaptorSerializer(const rdf::URI& baseUri, Format format)
         : SerializerBase(baseUri, format) {
 
     world = raptor_new_world();
-    base  = raptor_new_uri(world, (unsigned char const *) baseUri.getUri().c_str());
+    base  = raptor_new_uri(world, STR(baseUri.getUri()));
     initRaptor();
 }
 
@@ -105,7 +110,7 @@ RaptorSerializer::RaptorSerializer(const rdf::URI& baseUri, Format format, std::
         : SerializerBase(baseUri, format, namespaces) {
 
     world = raptor_new_world();
-    base  = raptor_new_uri(world, (unsigned char const *) baseUri.getUri().c_str());
+    base  = raptor_new_uri(world, STR(baseUri.getUri()));
     initRaptor();
 }
 
@@ -113,77 +118,30 @@ RaptorSerializer::RaptorSerializer(const rdf::URI& baseUri, Format format, std::
         : SerializerBase(baseUri, format, namespaces) {
 
     world = raptor_new_world();
-    base  = raptor_new_uri(world, (unsigned char const *) baseUri.getUri().c_str());
+    base  = raptor_new_uri(world, STR(baseUri.getUri()));
     initRaptor();
 }
 
 
 RaptorSerializer::~RaptorSerializer() {
     // check for NULL in case a move operation has set the fields to a null pointer
-    if(serializer != NULL)
+    if(serializer != nullptr)
         raptor_free_serializer(serializer);
 
-    if(base != NULL)
+    if(base != nullptr)
         raptor_free_uri(base);
 
-    if(world != NULL)
+    if(world != nullptr)
         raptor_free_world(world);
 
 }
 
-/*
-RaptorSerializer::RaptorSerializer(const RaptorSerializer &other) {
-    format = other.format;
-    namespaces = other.namespaces;
-
-    world = raptor_new_world();
-    base  = raptor_new_uri(world, raptor_uri_as_string(other.base));
-    initRaptor();
-}
-
-RaptorSerializer::RaptorSerializer(RaptorSerializer &&other) {
-    format = other.format;
-    namespaces = other.namespaces;
-    base = other.base;
-    world = other.world;
-    serializer = other.serializer;
-
-    other.serializer = NULL;
-    other.base = NULL;
-    other.world = NULL;
-}
-
-RaptorSerializer &RaptorSerializer::operator=(const RaptorSerializer &other) {
-    format = other.format;
-    namespaces = other.namespaces;
-
-    world = raptor_new_world();
-    base  = raptor_new_uri(world, raptor_uri_as_string(other.base));
-    initRaptor();
-
-    return *this;
-}
-
-RaptorSerializer &RaptorSerializer::operator=(RaptorSerializer &&other) {
-    format = other.format;
-    namespaces = other.namespaces;
-    serializer = other.serializer;
-    base = other.base;
-    world = other.world;
-
-    other.serializer = NULL;
-    other.base = NULL;
-    other.world = NULL;
-
-    return *this;
-}
-*/
 
 void RaptorSerializer::initRaptor() {
     serializer = raptor_new_serializer(world, raptorFormat(format).c_str());
     for(const auto &e : namespaces) {
-        raptor_uri* uri = raptor_new_uri(world, (unsigned char const *) e.second.getUri().c_str());
-        raptor_serializer_set_namespace(serializer, uri, (unsigned char const *) e.first.c_str());
+        raptor_uri* uri = raptor_new_uri(world, STR(e.second.getUri()));
+        raptor_serializer_set_namespace(serializer, uri, CPSTR(e.first));
     }
     raptor_world_set_log_handler(world, this, [](void *user_data, raptor_log_message* message){
         std::cerr << message->level << ": " << message->text << std::endl;
@@ -198,59 +156,10 @@ void RaptorSerializer::prepare(std::ostream &out) {
 void RaptorSerializer::serialize(const rdf::Statement &stmt) {
     raptor_statement* triple = raptor_new_statement(world);
 
-    if (stmt.getMessage().subject().has_uri()) {
-        triple->subject = raptor_new_term_from_uri_string(
-                world, (unsigned char const *) stmt.getMessage().subject().uri().uri().c_str());
-    } else if (stmt.getMessage().subject().has_bnode()) {
-        triple->subject = raptor_new_term_from_blank(
-                world, (unsigned char const *) stmt.getMessage().subject().bnode().id().c_str());
-    } else {
-        throw SerializationError("invalid subject type");
-    }
-
-    triple->predicate = raptor_new_term_from_uri_string(
-            world,  (unsigned char const *) stmt.getMessage().predicate().uri().c_str());
-
-    if (stmt.getMessage().object().has_resource()) {
-        const marmotta::rdf::proto::Resource& r = stmt.getMessage().object().resource();
-        if (r.has_uri()) {
-            triple->object = raptor_new_term_from_uri_string(
-                    world, (unsigned char const *) r.uri().uri().c_str());
-        } else if(r.has_bnode()) {
-            triple->object = raptor_new_term_from_blank(
-                    world, (unsigned char const *) r.bnode().id().c_str());
-        } else {
-            throw SerializationError("invalid object resource type");
-        }
-    } else if (stmt.getMessage().object().has_literal()) {
-        const marmotta::rdf::proto::Literal& l = stmt.getMessage().object().literal();
-        if (l.has_stringliteral()) {
-            triple->object = raptor_new_term_from_counted_literal(
-                    world,
-                    (unsigned char const *) l.stringliteral().content().c_str(), l.stringliteral().content().size(), NULL,
-                    (unsigned char const *) l.stringliteral().language().c_str(), l.stringliteral().language().size());
-        } else if(l.has_dataliteral()) {
-            triple->object = raptor_new_term_from_counted_literal(
-                    world,
-                    (unsigned char const *) l.dataliteral().content().c_str(), l.dataliteral().content().size(),
-                    raptor_new_uri(world, (unsigned char const *) l.dataliteral().datatype().uri().c_str()),
-                    (unsigned char const *) "", 0);
-        } else {
-            throw SerializationError("invalid object literal type");
-        }
-    } else {
-        throw SerializationError("invalid object type");
-    }
-
-    if (stmt.getMessage().context().has_uri()) {
-        triple->graph = raptor_new_term_from_uri_string(
-                world,  (unsigned char const *) stmt.getMessage().context().uri().uri().c_str());
-    } else if (stmt.getMessage().context().has_bnode()) {
-        triple->graph = raptor_new_term_from_blank(
-                world, (unsigned char const *) stmt.getMessage().context().bnode().id().c_str());
-    } else {
-        triple->graph = nullptr;
-    }
+    triple->subject   = util::raptor::AsTerm(world, stmt.getSubject());
+    triple->predicate = util::raptor::AsTerm(world, stmt.getPredicate());
+    triple->object    = util::raptor::AsTerm(world, stmt.getObject());
+    triple->graph     = util::raptor::AsTerm(world, stmt.getContext());
 
     raptor_serializer_serialize_statement(serializer, triple);
 

@@ -54,17 +54,17 @@ rdf::Statement ConvertStatement(raptor_statement* triple);
 /*
  * Convert a Marmotta Resource into a raptor term.
  */
-raptor_term* AsLiteral(raptor_world* world, const rdf::Resource& r);
+raptor_term* AsTerm(raptor_world* world, const rdf::Resource& r);
 
 /*
  * Convert a Marmotta Value into a raptor term.
  */
-raptor_term* AsLiteral(raptor_world* world, const rdf::Value& v);
+raptor_term* AsTerm(raptor_world* world, const rdf::Value& v);
 
 /*
  * Convert a Marmotta URI into a raptor term.
  */
-raptor_term* AsLiteral(raptor_world* world, const rdf::URI& u);
+raptor_term* AsTerm(raptor_world* world, const rdf::URI& u);
 
 }  // namespace raptor
 }  // namespace util

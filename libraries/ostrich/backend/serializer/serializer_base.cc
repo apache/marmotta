@@ -21,6 +21,14 @@ namespace marmotta {
 namespace serializer {
 
 namespace {
+
+const std::map<std::string, rdf::URI> kDefaultNamespaces = {
+        {"skos", "http://www.w3.org/2004/02/skos/core#"},
+        {"rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"},
+        {"rdfs", "http://www.w3.org/2000/01/rdf-schema#"},
+        {"owl", "http://www.w3.org/2002/07/owl#"},
+};
+
 static std::map<std::string, rdf::URI> namespacesMap(std::vector<rdf::Namespace> list) {
     std::map<std::string, rdf::URI> result;
     for (auto it = list.cbegin(); it != list.cend(); it++) {
@@ -54,10 +62,14 @@ Format FormatFromString(const std::string &name) {
 }
 
 SerializerBase::SerializerBase(const rdf::URI& baseUri, Format format, std::vector<rdf::Namespace> namespaces)
-        : baseUri(baseUri), format(format), namespaces(namespacesMap(namespaces)) { }
+        : baseUri(baseUri), format(format), namespaces(namespacesMap(namespaces)) {
+    this->namespaces.insert(kDefaultNamespaces.cbegin(), kDefaultNamespaces.cend());
+}
 
 SerializerBase::SerializerBase(const rdf::URI& baseUri, Format format, std::map<std::string, rdf::URI> namespaces)
-        : baseUri(baseUri), format(format), namespaces(namespaces) { }
+        : baseUri(baseUri), format(format), namespaces(namespaces) {
+    this->namespaces.insert(kDefaultNamespaces.cbegin(), kDefaultNamespaces.cend());
+}
 
 
 }  // namespace serializer

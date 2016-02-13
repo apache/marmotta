@@ -118,17 +118,7 @@ class MarmottaClient {
     }
 
     int64_t size() {
-        /*
-        ClientContext context;
-        google::protobuf::Int64Value result;
-
-        Status status = stub_->Size(&context, r, &result);
-        if (status.ok()) {
-            return result.value();
-        } else {
-            return -1;
-        }
-         */
+        return db->Size();
     }
  private:
     marmotta::persistence::LevelDBPersistence* db;
