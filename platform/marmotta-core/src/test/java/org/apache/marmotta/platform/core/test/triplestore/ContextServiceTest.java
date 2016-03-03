@@ -49,7 +49,7 @@ public class ContextServiceTest {
     @Test
     public void testEmpty() {
         final List<URI> contexts = contextService.listContexts();
-        Assert.assertEquals(0, contexts.size());
+        Assert.assertEquals(1, contexts.size());
     }
 
     @Test
