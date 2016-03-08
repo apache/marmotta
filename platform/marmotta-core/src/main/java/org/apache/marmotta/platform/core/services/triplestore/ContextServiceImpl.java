@@ -17,6 +17,8 @@
  */
 package org.apache.marmotta.platform.core.services.triplestore;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
@@ -25,6 +27,7 @@ import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
+import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.qualifiers.kspace.ActiveKnowledgeSpaces;
 import org.apache.marmotta.platform.core.qualifiers.kspace.DefaultKnowledgeSpace;
@@ -32,9 +35,11 @@ import org.apache.marmotta.platform.core.qualifiers.kspace.InferredKnowledgeSpac
 import org.apache.marmotta.platform.core.qualifiers.kspace.SystemKnowledgeSpace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.util.Literals;
 import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.query.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -48,6 +53,7 @@ import javax.inject.Named;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -108,7 +114,30 @@ public class ContextServiceImpl implements ContextService {
 
     @Override
     public List<URI> listContexts(boolean filter) {
-        List<URI> contexts = new ArrayList<URI>();
+        //TODO: configuration
+        final Set<URI> contexts =  listContextsSesame();
+        //final Set<URI> contexts = listContextsSparql();
+
+        if (filter) {
+            Collections2.filter(contexts, new Predicate<URI>() {
+                @Override
+                public boolean apply(URI uri) {
+                    return uri.stringValue().startsWith(configurationService.getBaseContext());
+                }
+            });
+        }
+
+        return new ArrayList<>(contexts);
+
+    }
+
+    /**
+     * List context using the Sesame native API
+     *
+     * @return
+     */
+    private Set<URI> listContextsSesame() {
+        Set<URI> contexts = new HashSet<>();
         try {
             RepositoryConnection conn = sesameService.getConnection();
             try {
@@ -117,19 +146,54 @@ public class ContextServiceImpl implements ContextService {
                 while(result.hasNext()) {
                     Resource next = result.next();
                     if(next instanceof URI) {
-                        URI uri = (URI)next;
-                        if (filter) {
-                            if (uri.stringValue().startsWith(configurationService.getBaseContext())) {
-                                contexts.add(uri);
-                            }
-                        } else {
-                            contexts.add(uri);
-                        }
+                        contexts.add((URI)next);
                     }
                 }
                 result.close();
-            } finally {
                 conn.commit();
+            } finally {
+                conn.close();
+            }
+        } catch (RepositoryException e) {
+
+        }
+
+        //MARMOTTA-631: default context should be always there
+        try {
+            contexts.add(getDefaultContext());
+        } catch (URISyntaxException e) {}
+
+        return contexts;
+    }
+
+    /**
+     * Alternative implementation to list contexts using SPARQL
+     *
+     * @return
+     */
+    private Set<URI> listContextsSparql() {
+        Set<URI> contexts = new HashSet<>();
+        try {
+            RepositoryConnection conn = sesameService.getConnection();
+            try {
+                conn.begin();
+                final String query = "SELECT DISTINCT ?graph WHERE { GRAPH ?graph { ?s ?p ?o } }";
+                final TupleQuery sparqlQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, query, configurationService.getBaseUri());
+                final TupleQueryResult results = sparqlQuery.evaluate();
+                try {
+                    while (results.hasNext()) {
+                        final Value next = results.next().getValue("graph");
+                        if(next instanceof URI) {
+                            contexts.add((URI)next);
+                        }
+                    }
+                } finally {
+                    results.close();
+                }
+                conn.commit();
+            } catch (MalformedQueryException | QueryEvaluationException e) {
+                log.error("Error evaluating query: {}", e.getMessage());
+            } finally {
                 conn.close();
             }
         } catch (RepositoryException e) {

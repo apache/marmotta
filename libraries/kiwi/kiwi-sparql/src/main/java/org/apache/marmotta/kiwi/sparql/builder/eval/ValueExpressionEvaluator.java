@@ -500,9 +500,13 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             }
 
             optypes.push(ot);
+	    builder.append("(");
             expr.getLeftArg().visit(this);
+	    builder.append(")");
             builder.append(getSQLOperator(expr.getOperator()));
+	    builder.append("(");
             expr.getRightArg().visit(this);
+	    builder.append(")");
             optypes.pop();
         }
     }
@@ -733,7 +737,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
             case PLUS: return " + ";
             case MINUS: return " - ";
             case DIVIDE: return " / ";
-            case MULTIPLY: return " / ";
+            case MULTIPLY: return " * ";
         }
         throw new IllegalArgumentException("unsupported operator type for math expression: "+op);
     }

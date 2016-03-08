@@ -1,0 +1,102 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package marmotta.service.proto;
+
+option java_package = "org.apache.marmotta.ostrich.client.proto";
+
+
+import "model.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+message ContextRequest {
+    repeated marmotta.rdf.proto.Resource context = 1;
+}
+
+// Update requests either add a statement or remove a statement pattern. Used
+// by UpdateStatements() to allow batch update operations.
+message UpdateRequest {
+    oneof Update {
+        marmotta.rdf.proto.Statement stmt_added = 1;
+        marmotta.rdf.proto.Statement stmt_removed = 2;
+        marmotta.rdf.proto.Namespace ns_added = 3;
+        marmotta.rdf.proto.Namespace ns_removed = 4;
+    }
+}
+
+// Update responses contain statistics about the modified entities.
+message UpdateResponse {
+    int64 added_statements = 1;
+    int64 removed_statements = 2;
+    int64 added_namespaces = 3;
+    int64 removed_namespaces = 4;
+}
+
+service SailService {
+    // Add namespaces to the repository. Accepts a stream of namespaces.
+    // Returns the number of namespaces added.
+    rpc AddNamespaces(stream marmotta.rdf.proto.Namespace)
+        returns (google.protobuf.Int64Value);
+
+    // Return the namespace matching the given request. Either prefix or uri
+    // must be given.
+    rpc GetNamespace(marmotta.rdf.proto.Namespace)
+        returns (marmotta.rdf.proto.Namespace);
+
+    rpc GetNamespaces(google.protobuf.Empty)
+        returns (stream marmotta.rdf.proto.Namespace);
+
+    // Delete the namespace given as argument.
+    rpc RemoveNamespace(marmotta.rdf.proto.Namespace)
+        returns (google.protobuf.Int64Value);
+
+    // Add statements to the repository. Accepts a stream of statements.
+    // Returns the number of statements added.
+    rpc AddStatements(stream marmotta.rdf.proto.Statement)
+        returns (google.protobuf.Int64Value);
+
+    // List statements matching a statement pattern. Fields of Statement not
+    // set are considered to be wildcards. Returns a stream of statements.
+    rpc GetStatements(marmotta.rdf.proto.Statement)
+        returns (stream marmotta.rdf.proto.Statement);
+
+    // Delete statements matching a statement pattern.  Fields of Statement
+    // not set are considered to be wildcards. Returns the number of statements
+    // deleted.
+    rpc RemoveStatements(marmotta.rdf.proto.Statement)
+        returns (google.protobuf.Int64Value);
+
+    // Return the set of all unique context identifiers used to store
+    // statements.
+    rpc GetContexts(google.protobuf.Empty)
+        returns (stream marmotta.rdf.proto.Resource);
+
+    // Remove all statements in the contexts specified in the request. If no
+    // contexts are specified, clears the complete repository.
+    rpc Clear(ContextRequest) returns (google.protobuf.Int64Value);
+
+    // Count the number of statements in the contexts specified in the request.
+    // If no contexts are specified, counts all statements.
+    rpc Size(ContextRequest) returns (google.protobuf.Int64Value);
+
+    // Batch update operation to process a stream of update requests. Updates
+    // are applied in order.
+    rpc Update(stream UpdateRequest) returns (UpdateResponse);
+}

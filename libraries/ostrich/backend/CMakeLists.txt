@@ -1,0 +1,42 @@
+cmake_minimum_required(VERSION 3.0)
+project(Marmotta)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
+set(PROTOBUF_IMPORT_DIRS "${CMAKE_SOURCE_DIR}/model")
+set(USE_TCMALLOC TRUE)
+
+find_package (Threads REQUIRED)
+find_package (RAPTOR REQUIRED)
+find_package (Rasqal REQUIRED)
+find_package (GFlags REQUIRED)
+find_package (Protobuf REQUIRED)
+find_package (GRPC REQUIRED)
+find_package (LevelDB REQUIRED)
+find_package (GLog REQUIRED)
+find_package (Boost 1.54.0 COMPONENTS iostreams filesystem system)
+find_package (Tcmalloc)
+
+add_definitions(-DNDEBUG)
+
+if (Boost_IOSTREAMS_FOUND)
+    message(STATUS "Enabling gzip/bzip2 support (Boost iostreams found)")
+    add_definitions(-DHAVE_IOSTREAMS)
+endif (Boost_IOSTREAMS_FOUND)
+
+if (Tcmalloc_FOUND)
+    message(STATUS "Enabling profiling support (Tcmalloc found)")
+endif (Tcmalloc_FOUND)
+
+enable_testing()
+
+add_subdirectory(util)
+add_subdirectory(model)
+add_subdirectory(sparql)
+add_subdirectory(service)
+add_subdirectory(parser)
+add_subdirectory(serializer)
+add_subdirectory(persistence)
+add_subdirectory(sharding)
+add_subdirectory(client)
+add_subdirectory(test)
