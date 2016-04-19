@@ -20,41 +20,24 @@
 <html>
 <head>
     <!--###BEGIN_HEAD###-->
-    <title>Core Module</title>
+    <title>Storage Backend: KiWi</title>
     <!--###END_HEAD###-->
 </head>
 <body>
 <!--###BEGIN_CONTENT###-->
-<h1>Apache Marmotta</h1>
-<h2>
-    An Open Platform for Linked Data
-</h2>
-<p>The goal of Apache Marmotta is to provide an open implementation of a Linked Data Platform that can be used, extended, and deployed easily by organizations who want to publish Linked Data or build custom applications on Linked Data.</p>
-<p>You can find more information about the project and the supported features on <a href="http://marmotta.apache.org/">http://marmotta.apache.org</a>.</p>
-<h2>
-    Links to common features
-</h2>
-<p>You can find all installed features on the module list on the right side. To get a quick access to common functionalities, we listed some links:</p>
-<ul>
-    <li><a href="../../core/admin/import.html">Import your data:</a> RDF and non-RDF formats are supported.</li>
-    <li><a href="../../sparql/admin/squebi.html">SPARQL your data:</a> full SPARQL 1.1 support including querying and updates.</li>
-    <li><a href="configuration.html">Configure your database:</a> Marmotta comes with h2 embedded; configure your own database to handle bigger data.</li>
-    <li><a href="dataview.html">Control your data:</a> the dataview gives an overview on the current data in the system. (Attention: there might be problems with the visualisation if big data sets).</li>
-    <li><a href="../../user/admin/users.html">Manage your user accounts:</a> the user module allows creating and managing user accounts.</li>
-    <li><a href="tasks.html">Inspect your tasks:</a> check the status of the running tasks.</li>
-</ul>
+<h1>Storage Backend: KiWi</h1>
 
-<h2>Marmotta Modules</h2>
-<p>Apache Marmotta provides some modules:</p>
+<p>
+  This module allows to use the <a href="http://marmotta.apache.org/kiwi">KiWi Triplestore</a>
+  as storage backend for <a href="../../core/admin/about.html">Apache Marmotta</a>.
+</p>
+
+<h2>Options</h2>
+<p>The KiWi backend for Apache Marmotta provides the follwing options:</p>
 <dl>
-    <dt><a href="../../core/admin/about.html">Core</a></dt> <dd>provides the core RDF and Linked Data Platform capabilities.</dd>
-    <dt><a href="../../sparql/admin/about.html">SPARQL</a></dt> <dd>offers query capabilities for the triplestore.</dd>
-    <dt><a href="../../ldpath/admin/about.html">LDPath Querying</a></dt> <dd>provides support for LDPath within the platform.</dd>
-    <dt><a href="../../cache/admin/about.html">Linked Data Caching</a></dt> <dd>provides transparent mechanism to cache Web resources.</dd>
-    <dt><a href="../../reasoner/admin/about.html">Reasoner</a></dt> <dd>adds a rule-based reasoner to the triple store.</dd>
-    <dt><a href="../../security/admin/about.html">Security</a></dt> <dd>implements security mechanism.</dd>
-    <dt><a href="../../user/me.html">User</a></dt> <dd>provides the user management features.</dd>
-    <dt><a href="../../versioning/admin/about.html">Versioning</a></dt> <dd>offers versioning services on top of the triple store.</dd>
+    <dt><a href="configuration.html">Configuration</a></dt> <dd>configure the options offered</dd>
+    <dt><a href="database.html">Database</a></dt> <dd>configure the database</dd>
+    <dt><a href="console.html">Console</a></dt> <dd>manage Marmotta database</dd>
 </dl>
 <!--###END_CONTENT###-->
 </body>
