@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 /**
- * Add file description here!
+ * Base LDCache test
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
@@ -53,7 +53,6 @@ public abstract class BaseLDCacheTest {
 
     protected LDCache ldcache;
 
-
     protected ValueFactory valueFactory = ValueFactoryImpl.getInstance();
 
     /**
@@ -62,8 +61,6 @@ public abstract class BaseLDCacheTest {
      * @return
      */
     protected abstract LDCachingBackend createBackend();
-
-
 
     @Before
     public void setup() {
@@ -94,7 +91,7 @@ public abstract class BaseLDCacheTest {
     }
 
     @Test
-    @Ignore("test failing for the moment because the data returned by the service is wrong")
+    @Ignore("test failing for the moment because the issues on the service")
     public void testOHLOH() throws Exception {
         Assume.assumeTrue(existsClass("org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider"));
 
