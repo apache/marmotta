@@ -1,12 +1,12 @@
 # Dockerfile for Apache Marmotta
 
-FROM debian:jessie
+FROM debian:jessie-backports
 MAINTAINER Sergio Fernández <wikier@apache.org>
 
 EXPOSE 8080
 
-WORKDIR /marmotta-webapp
-ADD . /marmotta-webapp
+WORKDIR /src
+ADD . /src
 
 # configuration
 ENV DEBIAN_FRONTEND noninteractive
@@ -14,10 +14,20 @@ ENV DB_NAME marmotta
 ENV DB_USER marmotta
 ENV DB_PASS s3cr3t
 ENV PG_VERSION 9.4
-ENV WAR_PATH target/marmotta.war
+ENV WAR_PATH /src/launchers/marmotta-webapp/target/marmotta.war
 ENV CONF_PATH /var/lib/marmotta/system-config.properties
 
-# test build
+# prepare the environment
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y \
+		openjdk-8-jdk \
+		maven \
+        tomcat7 \
+    || apt-get install -y -f
+
+# build
+RUN mvn clean install -DskipTests -DskipITs
 RUN test -e $WAR_PATH || exit
 
 # install and configure postgres from the PGDG repo
@@ -42,19 +52,12 @@ RUN service postgresql stop
 RUN echo "host all  all    127.0.0.1/32  md5" >> /etc/postgresql/$PG_VERSION/main/pg_hba.conf
 RUN echo "listen_addresses='*'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
 
-# base requirements
-RUN apt-get update \
-	&& apt-get install -y \
-		openjdk-7-jre-headless \
-		tomcat7
-RUN service tomcat7 stop
-
-# package from source code and install the webapp
+# install the webapp
 #RUN dpkg --debug=2000 --install target/marmotta_*_all.deb <-- we'd need to fix the postinst
 RUN mkdir -p /usr/share/marmotta
 RUN cp $WAR_PATH /usr/share/marmotta/
 RUN chown tomcat7:tomcat7 /usr/share/marmotta/marmotta.war
-RUN cp src/deb/tomcat/marmotta.xml /var/lib/tomcat7/conf/Catalina/localhost/
+RUN cp /src/launchers/marmotta-webapp/src/deb/tomcat/marmotta.xml /var/lib/tomcat7/conf/Catalina/localhost/
 RUN chown tomcat7:tomcat7 /var/lib/tomcat7/conf/Catalina/localhost/marmotta.xml
 RUN mkdir -p "$(dirname $CONF_PATH)"
 RUN echo "security.enabled = false" > $CONF_PATH
@@ -65,8 +68,14 @@ RUN echo "database.password = $DB_PASS" >> $CONF_PATH
 RUN chown -R tomcat7:tomcat7 "$(dirname $CONF_PATH)"
 
 # cleanup
-#RUN mvn clean
-RUN apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+RUN mvn clean \
+    && rm -rf ~/.m2 \
+    && apt-get remove maven --purge \
+    && apt-get autoremove \
+    && apt-get clean -y \
+    && apt-get autoclean -y \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/marmotta-webapp/src/docker/entrypoint.sh"]
 
