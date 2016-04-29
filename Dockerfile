@@ -70,8 +70,8 @@ RUN chown -R tomcat7:tomcat7 "$(dirname $CONF_PATH)"
 # cleanup
 RUN mvn clean \
     && rm -rf ~/.m2 \
-    && apt-get remove maven --purge \
-    && apt-get autoremove \
+    && apt-get remove maven --purge -y \
+    && apt-get autoremove -y \
     && apt-get clean -y \
     && apt-get autoclean -y \
     && apt-get autoremove -y \
