@@ -24,11 +24,13 @@ and you can find the `.deb` file under `target/`.
 
 It also comes with support for creating a Docker images that you can user for developing or testing:
 
-* Build the launcher: `mvn package`
-* Build image: `docker build -t marmotta .`
-* Run the container: `docker run -p 8080:8080 marmotta`
-* Access Marmotta at [localhost:8080/marmotta](http://localhost:8080/marmotta) (IP address may be different, 
-  see point bellow).
+1. Locate at the root of the source repository
+2. Build image: `docker build -t marmotta .`
+3. Run the container: `docker run -p 8080:8080 marmotta`
+4. Access Marmotta at [localhost:8080/marmotta](http://localhost:8080/marmotta) (IP address may be different, see information bellow).
+
+An official images is [available from Docker Hub](https://hub.docker.com/r/apache/marmotta/) as an automated 
+build, so you just need to pull it from there to replace the second step above: `docker pull apache/marmotta`
 
 If you want to further work with the container, here some basic instructions:
 
@@ -45,6 +47,4 @@ If you want to further work with the container, here some basic instructions:
 * Remove all images: `docker rmi $(docker images -q)`
 
 For further instructions, please take a look to the [Docker User Guide](https://docs.docker.com/userguide/).
-
-@@TODO@@: push it to asf or docker hub
 
