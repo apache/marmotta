@@ -22,7 +22,7 @@ and you can find the `.deb` file under `target/`.
 
 ## Docker
 
-It also comes with support for creating a Docker images that you can user for developing or testing:
+It also comes with support for creating a Docker images that you can use for development or testing:
 
 1. Locate at the root of the source repository
 2. Build image: `docker build -t marmotta .`

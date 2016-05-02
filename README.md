@@ -82,6 +82,23 @@ The installer can then be tried out by running
     java -jar target/marmotta-installer-x.x.x.jar
 
 
+## Building a Docker image
+
+Marmotta also comes with support for creating a Docker images that you can use for development 
+or testing:
+
+1. Locate at the root of the source repository
+2. Build image: `docker build -t marmotta .`
+3. Run the container: `docker run -p 8080:8080 marmotta`
+4. Access Marmotta at [localhost:8080/marmotta](http://localhost:8080/marmotta) (IP address may 
+   be different, see information bellow).
+
+An official images is [available from Docker Hub](https://hub.docker.com/r/apache/marmotta/) as 
+an automated build, so you just need to pull it from there to replace the second step above: 
+
+    docker pull apache/marmotta
+
+
 ## Building with a Clean Repository
 
 Sometimes it is useful to check if the build runs properly on a clean local
@@ -92,6 +109,7 @@ runs the build. This can be achieved by running Maven as follows:
 
 The command changes the local repository location from ~/.m2 to the
 directory passed as argument
+
 
 ## Simulating a Release
 
