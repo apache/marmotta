@@ -38,6 +38,8 @@ import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
+
 /**
  * Add file description here!
  *
@@ -46,8 +48,6 @@ import org.slf4j.LoggerFactory;
 public class KiWiLoaderHandler implements LoaderHandler {
 
     private static Logger log = LoggerFactory.getLogger(KiWiLoaderHandler.class);
-
-    private KiWiConfiguration kiwi;
 
     protected KiWiStore store;
 
@@ -76,14 +76,12 @@ public class KiWiLoaderHandler implements LoaderHandler {
         log.info("Initializing KiWiLoader for {}; user: {}, password: {}", dbCon, dbUser, String.format("%"+dbPasswd.length()+"s", "*"));
 
         try {
-            KiWiConfiguration kiwi = new KiWiConfiguration("kiwiLoader", dbCon, dbUser, dbPasswd, getDialect(dbCon).newInstance());
+            final KiWiConfiguration kiwi = new KiWiConfiguration("kiwiLoader", dbCon, dbUser, dbPasswd, getDialect(dbCon).newInstance());
 
             store = new KiWiStore(kiwi);
 
             repository = new SailRepository(store);
             repository.initialize();
-
-
 
             KiWiLoaderConfiguration loaderConfiguration = new KiWiLoaderConfiguration();
             if(configuration.containsKey(LoaderOptions.CONTEXT)) {
@@ -95,7 +93,7 @@ public class KiWiLoaderHandler implements LoaderHandler {
             if(kiwi.getDialect() instanceof PostgreSQLDialect) {
                 log.info("- using PostgreSQL bulk loader ... ");
                 loaderConfiguration.setCommitBatchSize(100000);
-                handler = new KiWiPostgresHandler(store,loaderConfiguration);
+                handler = new KiWiPostgresHandler(store, loaderConfiguration);
             } else if(kiwi.getDialect() instanceof MySQLDialect) {
                 log.info("- using MySQL bulk loader ... ");
                 loaderConfiguration.setCommitBatchSize(100000);
@@ -108,9 +106,10 @@ public class KiWiLoaderHandler implements LoaderHandler {
         } catch (RepositoryException e) {
             throw new RDFHandlerException("error initialising KiWi repository",e);
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RDFHandlerException("could not instatiate KiWi dialect",e);
+            throw new RDFHandlerException("could not instantiate KiWi dialect",e);
+        } catch (SQLException e) {
+            throw new RDFHandlerException("error generating SQL handler query",e);
         }
-
     }
 
     /**
