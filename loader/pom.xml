@@ -92,4 +92,14 @@
         <module>marmotta-loader-berkeley</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>ostrich</id>
+            <modules>
+                <module>marmotta-loader-ostrich</module>
+            </modules>
+        </profile>
+    </profiles>
+
+
 </project>

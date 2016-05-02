@@ -69,4 +69,13 @@
         <module>ldclient</module>
         <module>ldpath</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>ostrich</id>
+            <modules>
+                <module>ostrich</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

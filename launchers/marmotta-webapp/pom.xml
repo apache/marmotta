@@ -415,6 +415,28 @@
             </dependencies>
         </profile>
 
+        <profile>
+            <id>ostrich</id>
+            <activation>
+                <property>
+                    <name>marmotta.backend</name>
+                    <value>ostrich</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-backend-ostrich</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.marmotta</groupId>
+                    <artifactId>marmotta-ldcache-file</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
 
         <!-- Caching Backends for KiWi -->
 

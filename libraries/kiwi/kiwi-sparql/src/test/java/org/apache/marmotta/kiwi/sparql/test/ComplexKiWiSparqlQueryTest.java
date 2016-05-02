@@ -56,4 +56,18 @@ public class ComplexKiWiSparqlQueryTest extends ComplexSPARQLQueryTest {
         super.testSES1898LeftJoinSemantics1();
     }
 
+    @Test
+    @Override
+    @Ignore("Ignored because of http://git-wip-us.apache.org/repos/asf/marmotta/commit/35b98edc")
+    public void testSES1991UUIDEvaluation() throws Exception {
+        super.testSES1991UUIDEvaluation();
+    }
+
+    @Test
+    @Override
+    @Ignore("Ignored because of http://git-wip-us.apache.org/repos/asf/marmotta/commit/35b98edc")
+    public void testSES1991STRUUIDEvaluation() throws Exception {
+        super.testSES1991STRUUIDEvaluation();
+    }
+
 }

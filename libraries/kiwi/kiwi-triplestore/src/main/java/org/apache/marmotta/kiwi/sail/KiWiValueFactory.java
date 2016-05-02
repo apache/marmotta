@@ -566,14 +566,16 @@ public class KiWiValueFactory implements ValueFactory {
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context, KiWiConnection connection) {
         try {
 
-            IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
+            final IntArray cacheKey = IntArray.createSPOCKey(subject, predicate, object, context);
 
-            KiWiResource ksubject = convert(subject);
-            KiWiUriResource kpredicate = convert(predicate);
-            KiWiNode kobject = convert(object);
-            KiWiResource kcontext = convert(context);
+            final KiWiResource ksubject = convert(subject);
+            final KiWiUriResource kpredicate = convert(predicate);
+            final KiWiNode kobject = convert(object);
+            final KiWiResource kcontext = convert(context);
 
-            KiWiTriple result = new KiWiTriple(ksubject, kpredicate, kobject, kcontext);
+            final KiWiTriple result = new KiWiTriple(ksubject, kpredicate, kobject, kcontext);
+
+            boolean needsDBLookup = false;
 
             synchronized (registry) {
                 long tripleId = registry.lookupKey(cacheKey);
@@ -585,13 +587,29 @@ public class KiWiValueFactory implements ValueFactory {
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
                 } else {
                     // not found in registry, try loading from database
-                    result.setId(connection.getTripleId(ksubject, kpredicate, kobject, kcontext));
+                    needsDBLookup = true;
                 }
+            }
 
-                // triple has no id from registry or database, so we create one and flag it for reasoning
-                if (result.getId() < 0) {
-                    result.setId(connection.getNextSequence());
-                    result.setNewTriple(true);
+            if (needsDBLookup) {
+                result.setId(connection.getTripleId(ksubject, kpredicate, kobject, kcontext));
+            }
+
+            // triple has no id from registry or database, so we create one and flag it for reasoning
+            if (result.getId() < 0) {
+                synchronized (registry) {
+                    // It's possible a concurrent thread might have created this
+                    // triple while we were blocked.  Check the registry again.
+                    long tripleId = registry.lookupKey(cacheKey);
+
+                    if(tripleId >= 0) {
+                        // A concurrent thread got in first.  Take the one it created.
+                        result.setId(tripleId);
+                    } else {
+                        // Create the new triple
+                        result.setId(connection.getNextSequence());
+                        result.setNewTriple(true);
+                    }
 
                     registry.registerKey(cacheKey, connection.getTransactionId(), result.getId());
                 }
@@ -653,6 +671,7 @@ public class KiWiValueFactory implements ValueFactory {
     }
 
     public void close() {
+
     }
 
     /**

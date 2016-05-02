@@ -148,6 +148,12 @@ TOKEN : /* OPERATORS */
   	< TYPE: "^^" > 
 }
 
+
+TOKEN : /* JIRA MARMOTTA-625 */
+{
+        < LANG: "@"["a"-"z"]["a"-"z"] >
+}
+
 TOKEN :
 {
   	< LEFTP: "(" > |
@@ -351,19 +357,21 @@ VariableField Variable() : {Token t;}
     }
 }
 
-//TODO language tags
-LiteralField Literal() : {Token literal = null; Token type = null;}
+
+// Modified for MARMOTTA-625
+LiteralField Literal() : {Token literal = null; Token type = null; Token language = null;}
 {
 (
-   literal = <STRLIT>  (<TYPE> type = <URI>)? | "\"\""
-){ //have to remove the leading " character first
+   literal = <STRLIT> (language = <LANG>)? (<TYPE> type = <URI>)? | "\"\""
+){ // have to remove the surrounding quotes ane leading @ characters
+        if (language != null) {
+            return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), 
+                                                   new Locale(language.image.substring(1)), null));
+        }
 	if (type != null) {
-	    return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), Locale.getDefault(), type.image));
+	    return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), null , type.image));
 	}
 	
-	return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), Locale.getDefault(), null));
+	return new LiteralField(resolveLiteral(literal.image.substring(1, literal.image.length()-1), null, null));
   }
-
 }
-
-
