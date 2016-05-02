@@ -52,7 +52,6 @@ import static org.hamcrest.Matchers.hasItems;
 @RunWith(KiWiDatabaseRunner.class)
 public class PersistenceTest {
 
-
     private KiWiPersistence persistence;
 
     private final KiWiConfiguration kiwiConfig;
@@ -60,7 +59,6 @@ public class PersistenceTest {
     public PersistenceTest(KiWiConfiguration kiwiConfig) {
         this.kiwiConfig = kiwiConfig;
     }
-
 
     @Before
     public void initDatabase() throws SQLException {
@@ -75,20 +73,18 @@ public class PersistenceTest {
         persistence.shutdown();
     }
 
-
     @Test
     public void testCreateDropDatabase() throws SQLException {
         // test if database exists and has a version
-        KiWiConnection connection = persistence.getConnection();
+        final KiWiConnection connection = persistence.getConnection();
         try {
-            Assert.assertThat(connection.getDatabaseTables(),hasItems("nodes","triples","namespaces"));
+            Assert.assertThat(connection.getDatabaseTables(), hasItems("nodes", "triples", "namespaces"));
             Assert.assertEquals(KiWiDialect.VERSION, connection.getDatabaseVersion());
 
             connection.commit();
         } finally {
             connection.close();
         }
-
     }
 
     /**
@@ -121,18 +117,15 @@ public class PersistenceTest {
             Assert.assertEquals(uri,testUri2);
             Assert.assertEquals(uri.getId(), testUri2.getId());
 
-
             KiWiNode testUri3 = connection.loadUriResource(uri.stringValue());
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(uri,testUri3);
             Assert.assertEquals(uri.getId(), testUri3.getId());
 
-
             connection.commit();
 
             Assert.assertEquals(1,Iterations.asList(connection.listResources()).size());
-
 
             // clear cache and test again
             persistence.clearCache();
@@ -167,7 +160,6 @@ public class PersistenceTest {
 
     }
 
-
     /**
      * Test storing and loading blank nodes.
      *
@@ -198,13 +190,11 @@ public class PersistenceTest {
             Assert.assertEquals(bnode,testBNode2);
             Assert.assertEquals(bnode.getId(), testBNode2.getId());
 
-
             KiWiNode testBNode3 = connection.loadAnonResource(bnode.stringValue());
 
             // needs to be equal, and should also be the identical object!
             Assert.assertEquals(bnode,testBNode3);
             Assert.assertEquals(bnode.getId(), testBNode3.getId());
-
 
             connection.commit();
 
@@ -240,7 +230,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
 
@@ -285,7 +274,6 @@ public class PersistenceTest {
 
             connection.commit();
 
-
             // clear cache and test again
             persistence.clearCache();
             KiWiNode testLiteral4 = connection.loadNodeById(literal.getId());
@@ -319,7 +307,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
 
@@ -364,7 +351,6 @@ public class PersistenceTest {
 
             connection.commit();
 
-
             // clear cache and test again
             persistence.clearCache();
             KiWiNode testLiteral4 = connection.loadNodeById(literal.getId());
@@ -398,7 +384,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
 
@@ -445,7 +430,6 @@ public class PersistenceTest {
 
             connection.commit();
 
-
             // clear cache and test again
             persistence.clearCache();
             KiWiNode testLiteral4 = connection.loadNodeById(literal.getId());
@@ -480,7 +464,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
 
@@ -527,7 +510,6 @@ public class PersistenceTest {
 
             connection.commit();
 
-
             // clear cache and test again
             persistence.clearCache();
             KiWiNode testLiteral4 = connection.loadNodeById(literal.getId());
@@ -562,7 +544,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
 
@@ -578,11 +559,10 @@ public class PersistenceTest {
         try {
             KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "integer");
 
-
             Random rnd = new Random();
             long value = rnd.nextLong();
 
-                    // add a new URI to the triple store and check if it exists afterwards, before and after commit
+            // add a new URI to the triple store and check if it exists afterwards, before and after commit
             KiWiIntLiteral literal = new KiWiIntLiteral(value, uri);
             connection.storeNode(literal);
 
@@ -612,7 +592,6 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
             //Assert.assertTrue(literal == testLiteral3);
 
-
             // load by integer value
             KiWiNode testLiteral6 = connection.loadLiteral(value);
 
@@ -621,9 +600,7 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral6).getType());
             //Assert.assertTrue(literal == testLiteral6);
 
-
             connection.commit();
-
 
             // clear cache and test again
             persistence.clearCache();
@@ -640,7 +617,6 @@ public class PersistenceTest {
             Assert.assertEquals(literal,testLiteral5);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
             //Assert.assertTrue(literal != testLiteral5);
-
 
             // load by integer value
             KiWiNode testLiteral7 = connection.loadLiteral(value);
@@ -669,7 +645,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
     /**
@@ -682,7 +657,6 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "double");
-
 
             Random rnd = new Random();
             double value = rnd.nextDouble();
@@ -717,7 +691,6 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
             //Assert.assertTrue(literal == testLiteral3);
 
-
             // load by integer value
             KiWiNode testLiteral6 = connection.loadLiteral(value);
 
@@ -726,9 +699,7 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral6).getType());
             //Assert.assertTrue(literal == testLiteral6);
 
-
             connection.commit();
-
 
             // clear cache and test again
             persistence.clearCache();
@@ -745,7 +716,6 @@ public class PersistenceTest {
             Assert.assertEquals(literal,testLiteral5);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
             //Assert.assertTrue(literal != testLiteral5);
-
 
             // load by integer value
             KiWiNode testLiteral7 = connection.loadLiteral(value);
@@ -774,7 +744,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
     /**
@@ -821,7 +790,6 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
             //Assert.assertTrue(literal == testLiteral3);
 
-
             // load by integer value
             KiWiNode testLiteral6 = connection.loadLiteral(value);
 
@@ -830,9 +798,7 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral6).getType());
             //Assert.assertTrue(literal == testLiteral6);
 
-
             connection.commit();
-
 
             // clear cache and test again
             persistence.clearCache();
@@ -849,7 +815,6 @@ public class PersistenceTest {
             Assert.assertEquals(literal,testLiteral5);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
             //Assert.assertTrue(literal != testLiteral5);
-
 
             // load by integer value
             KiWiNode testLiteral7 = connection.loadLiteral(value);
@@ -878,7 +843,6 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
 
     /**
@@ -891,7 +855,6 @@ public class PersistenceTest {
         KiWiConnection connection = persistence.getConnection();
         try {
             KiWiUriResource uri = new KiWiUriResource(Namespaces.NS_XSD + "dateTime");
-
 
             DateTime value = DateTime.now().withMillisOfSecond(0);
             // add a new URI to the triple store and check if it exists afterwards, before and after commit
@@ -924,7 +887,6 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral3).getType());
             //Assert.assertTrue(literal == testLiteral3);
 
-
             // load by integer value
             KiWiNode testLiteral6 = connection.loadLiteral(value);
 
@@ -933,9 +895,7 @@ public class PersistenceTest {
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral6).getType());
             //Assert.assertTrue(literal == testLiteral6);
 
-
             connection.commit();
-
 
             // clear cache and test again
             persistence.clearCache();
@@ -952,7 +912,6 @@ public class PersistenceTest {
             Assert.assertEquals(literal,testLiteral5);
             Assert.assertEquals(uri,((KiWiLiteral)testLiteral5).getType());
             //Assert.assertTrue(literal != testLiteral5);
-
 
             // load by integer value
             KiWiNode testLiteral7 = connection.loadLiteral(value);
@@ -981,10 +940,7 @@ public class PersistenceTest {
         } finally {
             connection.close();
         }
-
     }
-
-
 
     /**
      * Test storing, querying and deleting triples
@@ -1037,9 +993,8 @@ public class PersistenceTest {
                 // clear cache and test again
                 persistence.clearCache();
 
-                List<Statement> result3 = Iterations.asList(connection.listTriples(subject,null,null,null,false, true));
-                Assert.assertThat(result3,hasItems((Statement)triple1,(Statement)triple2));
-
+                List<Statement> result3 = Iterations.asList(connection.listTriples(subject, null, null, null, false, true));
+                Assert.assertThat(result3,hasItems((Statement)triple1, triple2));
 
                 Assert.assertEquals(2, connection.getSize());
                 Assert.assertEquals(2, connection.getSize(context));
@@ -1050,16 +1005,16 @@ public class PersistenceTest {
                 ResultSet dbResult1 = stmt.executeQuery();
 
                 Assert.assertTrue(dbResult1.next());
-                Assert.assertEquals((long) triple1.getId(), dbResult1.getLong("id"));
-                Assert.assertEquals((long) triple1.getSubject().getId(), dbResult1.getLong("subject"));
-                Assert.assertEquals((long) triple1.getPredicate().getId(), dbResult1.getLong("predicate"));
-                Assert.assertEquals((long)triple1.getObject().getId(),dbResult1.getLong("object"));
+                Assert.assertEquals(triple1.getId(), dbResult1.getLong("id"));
+                Assert.assertEquals( triple1.getSubject().getId(), dbResult1.getLong("subject"));
+                Assert.assertEquals(triple1.getPredicate().getId(), dbResult1.getLong("predicate"));
+                Assert.assertEquals(triple1.getObject().getId(),dbResult1.getLong("object"));
 
                 Assert.assertTrue(dbResult1.next());
-                Assert.assertEquals((long)triple2.getId(),dbResult1.getLong("id"));
-                Assert.assertEquals((long)triple2.getSubject().getId(),dbResult1.getLong("subject"));
-                Assert.assertEquals((long)triple2.getPredicate().getId(),dbResult1.getLong("predicate"));
-                Assert.assertEquals((long)triple2.getObject().getId(),dbResult1.getLong("object"));
+                Assert.assertEquals(triple2.getId(),dbResult1.getLong("id"));
+                Assert.assertEquals(triple2.getSubject().getId(),dbResult1.getLong("subject"));
+                Assert.assertEquals(triple2.getPredicate().getId(),dbResult1.getLong("predicate"));
+                Assert.assertEquals(triple2.getObject().getId(),dbResult1.getLong("object"));
 
                 dbResult1.close();
 
@@ -1067,7 +1022,6 @@ public class PersistenceTest {
             } finally {
                 connection.close();
             }
-
     }
 
     // TODO: test namespaces
@@ -1122,4 +1076,5 @@ public class PersistenceTest {
             connection.close();
         }
     }
+
 }
