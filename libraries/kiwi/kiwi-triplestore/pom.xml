@@ -84,8 +84,6 @@
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
 
-
-
         <!-- JDBC connection pooling -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
@@ -97,7 +95,6 @@
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
         </dependency>
-
 
         <!-- Sesame dependencies -->
         <dependency>
@@ -151,7 +148,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
 
         <!-- Testing -->
         <dependency>
@@ -221,7 +217,6 @@
             <artifactId>tempus-fugit</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
     

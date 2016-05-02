@@ -37,7 +37,6 @@
                 <version>1.0.4</version>
                 <configuration>
                     <noticeTemplate>NOTICE.template</noticeTemplate>
-
                     <licenseMapping>
                         <param>../../../license-mappings.xml</param>
                     </licenseMapping>
@@ -123,7 +122,6 @@
                                     </filesets>
                                 </configuration>
                             </execution>
-
                         </executions>
                     </plugin>
                     <plugin>
