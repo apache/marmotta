@@ -1,6 +1,9 @@
 # Apache Marmotta
 
-This code repository contains the source-code for [Apache Marmotta](http://marmotta.apache.org/)
+This repository contains the source code for [Apache Marmotta](https://marmotta.apache.org/)
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.marmotta/marmotta-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.marmotta/marmotta-core/)
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 
 ## Building the Source Distribution
