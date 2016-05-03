@@ -80,16 +80,11 @@
             </modules>
         </profile>
         <profile>
-            <id>ostrich</id>
-            <modules>
-                <module>marmotta-backend-ostrich</module>
-            </modules>
-        </profile>
-        <profile>
             <id>experimental</id>
             <modules>
                 <module>marmotta-backend-http</module>
                 <module>marmotta-backend-sparql</module>
+                <module>marmotta-backend-ostrich</module>
             </modules>
         </profile>
     </profiles>

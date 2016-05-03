@@ -162,7 +162,9 @@ public class OstrichSailRepository extends SailRepository {
             return (OstrichSailConnection)current;
         } else if (current instanceof SailConnectionWrapper) {
             return findConnection(((SailConnectionWrapper) current).getWrappedConnection());
+        } else {
+            return null;
         }
-        return null;
     }
+
 }
