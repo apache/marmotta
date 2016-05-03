@@ -162,12 +162,12 @@
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>ostrich-model</artifactId>
-            <version>3.4.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>
             <artifactId>ostrich-client</artifactId>
-            <version>3.4.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

@@ -72,7 +72,7 @@
 
     <profiles>
         <profile>
-            <id>ostrich</id>
+            <id>experimental</id>
             <modules>
                 <module>ostrich</module>
             </modules>

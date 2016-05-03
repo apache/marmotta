@@ -42,6 +42,7 @@ import java.util.HashMap;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class OstrichSailRepository extends SailRepository {
+
     private static Logger log = LoggerFactory.getLogger(OstrichSailRepository.class);
 
     public OstrichSailRepository(Sail sail) {
