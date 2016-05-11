@@ -1,0 +1,339 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* main */
+html,body {
+    margin:0;
+    padding:0;
+    height:100%;
+    font-size: 13px;
+    font-family: Arial,Helvetica,FreeSans,sans-serif;
+    background-color: #f0f0f0;
+}
+
+a, a:visited {
+    color: #d22027;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#wrapper {
+    margin: 0 auto;
+    padding: 0 1.25em;
+}
+#header {
+    height: 80px;
+    width: 100%;
+}
+
+a#logo {
+    float: left;
+    margin-top: 8px;
+    margin-left: 5px;
+}
+
+a#logo img {
+    width: 80%;
+}
+
+#header h1 {
+    margin: 9px 10px;
+    left: 20%;
+    top: 52px;
+    z-index: 2;
+    position: absolute;
+    font-size: 13px;
+}
+
+#left {
+    width:20%;
+    float: left;
+}
+#center {
+    float:right;
+    width: 80%;
+}
+#content {
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 10px;
+    background-color: white;
+    border-color: white;
+    box-shadow: 0px 0px 8px #555;
+}
+
+.contentWrap h1 {
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 3px;
+    background-color: #d22027;
+    border-color: #d22027;
+    color: white;
+}
+
+.contentWrap h2 {
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+    padding: 3px;
+    background-color: white;
+    border-color: #d22027;
+    color: #d22027;
+}
+
+.contentWrap h3 {
+    padding: 3px;
+    text-decoration: underline;
+}
+
+.contentWrap h4 {
+    padding: 3px;
+    text-decoration: underline;
+}
+
+.contentWrap p {
+    padding: 3px;
+}
+
+.contentWrap pre {
+    border-width: 1px;
+    border-style: dotted;
+    overflow: auto;
+    padding: 3px;
+    white-space: pre-wrap;
+    background-color: white;
+    border-color: black;
+}
+
+.contentWrap .tt {
+    font-family: monospace;
+}
+
+.contentWrap li {
+    line-height: 1.5;
+}
+
+#footer {
+    width:100%;
+}
+
+#footer_line {
+    border-top-width: 1px;
+    border-top-style: solid;
+    width:100%;
+    margin-top:15px;
+    text-align: center;
+    border-color: gray;
+}
+
+#footer_line span{
+    margin-top: 15px;
+    display: block;
+    padding-bottom: 10px;
+    color:#666;
+}
+
+.clear {
+    clear: both;
+}
+
+/* admin menu */
+ul#menu {
+    margin: 0 30px 0 0;
+    padding: 0;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-width: 1px;
+    border-style: solid;
+    overflow: hidden;
+    border-color: white;
+    background-color: white;
+    box-shadow: 0px 0px 8px #555;
+}
+
+ul#menu li.menu_item {
+    list-style: none;
+    display: list-item;
+}
+
+ul#menu div.menu_heading {
+    padding: 5px 4px 5px 10px;
+    background-color: #d22027;
+
+}
+
+ul#menu div.menu_heading a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+ul.submenu {
+    margin: 0;
+    padding: 2px 0 10px 0;
+}
+
+ul.submenu li {
+    list-style: none;
+    margin: 0;
+    line-height: 1.3;
+}
+
+ul.submenu li:hover {
+    background-color: #f0f0f0;
+}
+
+ul.submenu li.active {
+    background-color: #6d6e70;
+}
+
+ul.submenu li.active a {
+    color: white;
+}
+
+ul.submenu a {
+    text-decoration: none;
+    display: block;
+    padding: 0.2em 10px;
+    color: black;
+}
+
+/* tables */
+table.simple_table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.simple_table tr.title td,
+table.simple_table th {
+    border-width: 1px;
+    border-style: solid;
+    font-size: 15px;
+    padding: 2px 7px;
+    text-align: left;
+    background-color: #d22027;
+    color: #FFFFFF;
+    border-color:#333;
+}
+
+table.simple_table tr.subtitle td,
+table.simple_table tr.subtitle th,
+table.simple_table th.subtitle,
+table.simple_table tr.subheading td,
+table.simple_table tr.subheading th,
+table.simple_table th.subheading {
+    padding: 2px 5px;
+    background-color: #6d6e70;
+    color: white;
+}
+
+table.simple_table tr td{
+    font-size: 13px;
+    padding: 2px 5px;
+    text-align: left;
+    border-width: 1px;
+    border-style: solid;
+    color: black;
+    border-color: #333;
+}
+
+table.simple_table tr {
+    background-color: white;
+}
+
+table.simple_table tr.even {
+    background-color: #EFF9FF;
+}
+
+dl dt {
+    font-weight: bold;
+    position: relative;
+    top: 1em;
+    width: 12em;
+    text-align: right;
+    color: #d22027;
+}
+
+dd {
+    margin: 0 0 0 13em;
+    padding: 0 0 0 0.5em;
+}
+
+div.menu_heading {
+    color: white;
+    font-weight: bold;
+}
+ul.center_submenu {
+    margin:0;
+    padding:0;
+}
+ul.center_submenu li {
+    list-style: none;
+    display: list-item;
+    float: left;
+    padding: 5px;
+    margin-right: 4px;
+}
+ul.center_submenu li.active {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background-color: white;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+ul.center_submenu a {
+    text-decoration: underline;
+    font-weight: bold;
+    color: #d22027;
+}
+
+ul.center_submenu li.active a {
+    text-decoration: none;
+}
+.contentWrap {
+    border-top-left-radius: 0;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-left: 1px solid #ccc;
+}
+#login_logout {
+    float: right;
+    margin-right: 5px;
+    margin-top: -3px;
+    border: 1px solid #aaa;
+    padding: 4px 10px 2px;
+    background-color: white;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    box-shadow: 0px 0px 8px #555;
+}
+#login_logout a {
+    color: #d22027;
+    font-weight: bold;
+}
+
