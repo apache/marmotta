@@ -49,7 +49,7 @@ public interface TemplatingService {
     
     static final String DEFAULT_PROJECT = "marmotta";
     
-    static final String DEFAULT_STYLE = "blue";
+    static final String DEFAULT_STYLE = "red";
 
     final static String DEFAULT_WEBSERVICE_TITLE = "Webservice";
     

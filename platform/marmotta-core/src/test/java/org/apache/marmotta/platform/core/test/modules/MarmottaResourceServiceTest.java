@@ -53,7 +53,7 @@ public class MarmottaResourceServiceTest {
 
     @Test
     public void testMARMOTTA499() {
-        testResource("/core/public/style/blue/style.css", "text/css");
+        testResource("/core/public/style/red/style.css", "text/css");
     }
 
     @Test
