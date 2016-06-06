@@ -80,4 +80,3 @@ RUN mvn clean \
 # entrypoint
 RUN cp /src/launchers/marmotta-webapp/src/docker/entrypoint.sh /usr/local/bin/marmotta.sh
 ENTRYPOINT ["/usr/local/bin/marmotta.sh"]
-
