@@ -176,9 +176,6 @@ public class MarmottaLoader {
         }
     }
 
-
-
-
     /**
      * Load data from the reader given as first argument into the handler given as second argument.
      *
@@ -254,7 +251,6 @@ public class MarmottaLoader {
         load(in, handler, format);
     }
 
-
     /**
      * Load data from the reader given as first argument into the handler given as second argument.
      *
@@ -269,22 +265,23 @@ public class MarmottaLoader {
     public void loadDirectory(File directory, LoaderHandler handler, RDFFormat format, String compression) throws RDFParseException, IOException {
         log.info("loading files in directory {} ...", directory);
         if(directory.exists() && directory.isDirectory()) {
-            for(File f : directory.listFiles(new DirectoryFilter())) {
+            final List<File> files = Arrays.asList(directory.listFiles(new DirectoryFilter())); //TODO: follow subdirectories
+            Collections.sort(files); //TODO: somewhere there should be a helper to get them natively ordered from the fs
+            for(File f : files) {
                 try {
                     if(isArchive(f)) {
                         loadArchive(f, handler, format);
                     } else {
-                        loadFile(f, handler,format,compression);
+                        loadFile(f, handler, format, compression);
                     }
                 } catch (RDFParseException | IOException | ArchiveException e) {
                     log.warn("error importing file {}: {}", f, e.getMessage());
                 }
             }
         } else {
-            throw new RDFParseException("could not load files from directory "+directory+": it does not exist or is not a directory");
+            throw new RDFParseException("could not load files from directory " + directory + ": it does not exist or is not a directory");
         }
     }
-
 
     public void loadArchive(File archive, LoaderHandler handler, RDFFormat format) throws RDFParseException, IOException, ArchiveException {
         log.info("loading files in archive {} ...", archive);
