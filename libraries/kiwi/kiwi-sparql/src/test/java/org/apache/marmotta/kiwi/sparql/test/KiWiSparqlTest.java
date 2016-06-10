@@ -23,6 +23,7 @@ import info.aduna.iteration.Iterations;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
+import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -55,6 +56,7 @@ import java.util.Set;
  * @author Sergio Fernámdez
  */
 @RunWith(KiWiDatabaseRunner.class)
+@KiWiDatabaseRunner.ForDialects(PostgreSQLDialect.class)
 public class KiWiSparqlTest {
 
     final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -335,6 +337,20 @@ public class KiWiSparqlTest {
             TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
             TupleQueryResult results = query.evaluate();
             //TODO: if we get some sample data, we could improve the test
+            results.close();
+        } finally {
+            conn.close();
+        }
+    }
+
+    @Test
+    public void testMarmotta640Regresion() throws Exception {
+        RepositoryConnection conn = repository.getConnection();
+        try {
+            conn.begin();
+            String queryString = "SELECT * WHERE { { ?x ?y ?z } UNION { ?x ?y2 ?z2 } }";
+            TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult results = query.evaluate();
             results.close();
         } finally {
             conn.close();
