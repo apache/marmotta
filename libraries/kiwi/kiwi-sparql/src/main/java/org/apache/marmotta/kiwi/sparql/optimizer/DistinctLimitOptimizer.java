@@ -79,14 +79,12 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
             allowed = false;
         }
 
-
         @Override
         public void meet(Union node) throws RuntimeException {
             super.meet(node);
 
             allowed = false;
         }
-
 
         @Override
         public void meet(Filter node) throws RuntimeException {
@@ -101,6 +99,7 @@ public class DistinctLimitOptimizer implements QueryOptimizer {
         public boolean isAllowed() {
             return allowed;
         }
+
     }
 
     /**
