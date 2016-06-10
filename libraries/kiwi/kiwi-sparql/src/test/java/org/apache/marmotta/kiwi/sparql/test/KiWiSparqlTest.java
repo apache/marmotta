@@ -326,4 +326,19 @@ public class KiWiSparqlTest {
         testMarmotta627("SELECT ( 2.00*4.00 as ?c )  WHERE {}", 8.00);
     }
 
+    @Test
+    public void testMarmotta640() throws Exception {
+        RepositoryConnection conn = repository.getConnection();
+        try {
+            conn.begin();
+            String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640.sparql"), "UTF-8");
+            TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult results = query.evaluate();
+            //TODO: if we get some sample data, we could improve the test
+            results.close();
+        } finally {
+            conn.close();
+        }
+    }
+
 }
