@@ -614,8 +614,9 @@ public class SQLBuilder {
         Collections.sort(vars, SQLVariable.sparqlNameComparator);
 
         for(SQLVariable v : vars) {
+            final String projectedName = v.getName();
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
-                final String projectedName = v.getName();
+
 
                 if (v.getExpressions() != null && v.getExpressions().size() > 0) {
                     String fromName = v.getExpressions().get(0);
@@ -630,7 +631,7 @@ public class SQLBuilder {
                     projections.add(v.getLiteralLangExpression() + " AS " + projectedName + "_LANG");
                 }
             } else {
-                projections.add("NULL"); //fix for MARMOTTA-460
+                projections.add("NULL AS " + projectedName); //fix for MARMOTTA-460
             }
         }
 

@@ -23,7 +23,6 @@ import info.aduna.iteration.Iterations;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
-import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
@@ -342,13 +341,13 @@ public class KiWiSparqlTest {
     @Test
     public void testMarmotta640_1() throws Exception {
         final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640_1.sparql"), "UTF-8");
-        testQueryEvaluation(queryString);
+        testQueryEvaluation(queryString); //TODO: if we could get data, we could also test the result
     }
 
     @Test
     public void testMarmotta640_2() throws Exception {
         final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640_2.sparql"), "UTF-8");
-        testQueryEvaluation(queryString);
+        testQueryEvaluation(queryString); //TODO: if we could get data, we could also test the result
     }
 
     @Test
