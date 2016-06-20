@@ -615,7 +615,7 @@ public class SQLBuilder {
 
         for(SQLVariable v : vars) {
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
-                String projectedName = v.getName();
+                final String projectedName = v.getName();
 
                 if (v.getExpressions() != null && v.getExpressions().size() > 0) {
                     String fromName = v.getExpressions().get(0);
