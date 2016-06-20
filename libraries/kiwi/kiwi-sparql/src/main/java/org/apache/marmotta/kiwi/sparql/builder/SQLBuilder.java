@@ -350,7 +350,6 @@ public class SQLBuilder {
 
         }
 
-
         // calculate for each variable the SQL expressions representing them and any necessary JOIN conditions
         for (SQLFragment f : fragments) {
             for (SQLPattern p : f.getPatterns()) {
@@ -493,8 +492,6 @@ public class SQLBuilder {
         prepareConditions();
     }
 
-
-
     private void prepareConditions() throws UnsatisfiableQueryException {
         // build the where clause as follows:
         // 1. iterate over all patterns and for each resource and literal field in subject,
@@ -617,8 +614,9 @@ public class SQLBuilder {
         Collections.sort(vars, SQLVariable.sparqlNameComparator);
 
         for(SQLVariable v : vars) {
+            final String projectedName = v.getName();
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
-                String projectedName = v.getName();
+
 
                 if (v.getExpressions() != null && v.getExpressions().size() > 0) {
                     String fromName = v.getExpressions().get(0);
@@ -628,10 +626,12 @@ public class SQLBuilder {
                 if(v.getLiteralTypeExpression() != null) {
                     projections.add(v.getLiteralTypeExpression() + " AS " + projectedName + "_TYPE");
                 }
-                
+
                 if(v.getLiteralLangExpression() != null) {
                     projections.add(v.getLiteralLangExpression() + " AS " + projectedName + "_LANG");
                 }
+            } else {
+                projections.add("NULL AS " + projectedName); //fix for MARMOTTA-460
             }
         }
 
@@ -642,7 +642,6 @@ public class SQLBuilder {
                 projections.add(evaluateExpression(e.getExpr(), ValueType.STRING) + " AS _OB" + (++counter));
             }
         }
-
 
         StringBuilder selectClause = new StringBuilder();
 
@@ -828,7 +827,6 @@ public class SQLBuilder {
         return groupClause;
     }
 
-
     private StringBuilder buildLimitClause() {
         // construct limit and offset
         StringBuilder limitClause = new StringBuilder();
@@ -847,11 +845,9 @@ public class SQLBuilder {
         return limitClause;
     }
 
-
     private String evaluateExpression(ValueExpr expr, final ValueType optype) {
         return new ValueExpressionEvaluator(expr, this, optype).build();
     }
-
 
     protected ValueType getProjectionType(ValueExpr expr) {
         if(expr instanceof BNodeGenerator) {
@@ -905,7 +901,6 @@ public class SQLBuilder {
 
     }
 
-
     private String getLiteralLangExpression(ValueExpr expr) {
         Var langVar = new LiteralTypeExpressionFinder(expr).expr;
 
@@ -931,7 +926,6 @@ public class SQLBuilder {
         return null;
     }
 
-
     /**
      * Construct the SQL query for the given SPARQL query part.
      *
@@ -946,8 +940,7 @@ public class SQLBuilder {
         StringBuilder havingClause = buildHavingClause();
         StringBuilder limitClause  = buildLimitClause();
 
-
-        StringBuilder queryString = new StringBuilder();
+        final StringBuilder queryString = new StringBuilder();
         queryString.append("SELECT ");
 
         if(selectClause.length() > 0) {
@@ -977,7 +970,6 @@ public class SQLBuilder {
         }
 
         queryString.append(limitClause);
-
 
         log.debug("original SPARQL syntax tree:\n {}", query);
         log.debug("constructed SQL query string:\n {}",queryString);
