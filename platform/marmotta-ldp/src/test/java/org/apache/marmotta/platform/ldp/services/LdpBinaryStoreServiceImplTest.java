@@ -47,7 +47,7 @@ public class LdpBinaryStoreServiceImplTest {
         final LdpBinaryStoreServiceImpl store = marmotta.getService(LdpBinaryStoreServiceImpl.class);
 
         final String test1 = "http://localhost:8080/foo/bar/123";
-        Assert.assertThat(store.getFile(test1).toString(), CoreMatchers.endsWith("/localhost.8080/foo/bar/123"));
+        Assert.assertThat(store.getFile(test1).toString(), CoreMatchers.endsWith(Paths.get("/localhost.8080/foo/bar/123").toString()));
 
         // There might be more testing like this here...
     }
