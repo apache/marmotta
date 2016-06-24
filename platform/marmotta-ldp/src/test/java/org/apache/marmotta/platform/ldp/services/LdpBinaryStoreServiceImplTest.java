@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
+
 public class LdpBinaryStoreServiceImplTest {
 
     private static AbstractMarmotta marmotta;
@@ -51,4 +53,5 @@ public class LdpBinaryStoreServiceImplTest {
 
         // There might be more testing like this here...
     }
+    
 }
