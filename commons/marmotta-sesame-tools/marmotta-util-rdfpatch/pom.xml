@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.marmotta</groupId>
         <artifactId>marmotta-parent</artifactId>
-        <version>3.4.0-SNAPSHOT</version>
+        <version>3.3.0</version>
         <relativePath>../../../parent/</relativePath>
     </parent>
 
@@ -80,27 +80,30 @@
     </build>
 
     <dependencies>
-        <!-- data model -->
+        <!-- RDF4J data model -->
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-model</artifactId>
-        </dependency>
+		    <groupId>org.eclipse.rdf4j</groupId>
+		    <artifactId>rdf4j-model</artifactId>
+		    <version>2.0M2</version>
+		</dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-api</artifactId>
-        </dependency>
+		    <groupId>org.eclipse.rdf4j</groupId>
+		    <artifactId>rdf4j-repository-api</artifactId>
+		    <version>2.0M2</version>
+		</dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-rio-turtle</artifactId>
+		    <groupId>org.eclipse.rdf4j</groupId>
+		    <artifactId>rdf4j-rio-turtle</artifactId>
+		    <version>2.0M2</version>
             <!-- rdf-patch only uses a single Util-Class from the turtle module -->
             <exclusions>
                 <exclusion>
-                    <groupId>org.openrdf.sesame</groupId>
-                    <artifactId>sesame-rio-datatypes</artifactId>
+				    <groupId>org.eclipse.rdf4j</groupId>
+				    <artifactId>rdf4j-rio-datatypes</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.openrdf.sesame</groupId>
-                    <artifactId>sesame-rio-languages</artifactId>
+                    <groupId>org.eclipse.rdf4j</groupId>
+    				<artifactId>rdf4j-rio-languages</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -138,13 +141,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-sail-memory</artifactId>
+            <groupId>org.eclipse.rdf4j</groupId>
+    		<artifactId>rdf4j-sail-memory</artifactId>
+    		<version>2.0M2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.openrdf.sesame</groupId>
-            <artifactId>sesame-repository-sail</artifactId>
+            <groupId>org.eclipse.rdf4j</groupId>
+		    <artifactId>rdf4j-repository-sail</artifactId>
+		    <version>2.0M2</version>
             <scope>test</scope>
         </dependency>
 

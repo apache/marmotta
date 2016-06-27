@@ -22,7 +22,7 @@ import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openrdf.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 
 import java.io.StringReader;
 import java.util.Collections;

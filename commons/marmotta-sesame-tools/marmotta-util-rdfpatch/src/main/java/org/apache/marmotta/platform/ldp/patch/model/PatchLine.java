@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.platform.ldp.patch.model;
 
-import org.openrdf.model.Statement;
-import org.openrdf.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 
 /**
  * A single PatchLine, i.e. a operation of a Patch.

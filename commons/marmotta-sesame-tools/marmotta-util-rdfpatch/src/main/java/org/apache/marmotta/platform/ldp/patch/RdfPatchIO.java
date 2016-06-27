@@ -19,8 +19,8 @@ package org.apache.marmotta.platform.ldp.patch;
 
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
-import org.openrdf.model.*;
-import org.openrdf.rio.turtle.TurtleUtil;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.rio.turtle.TurtleUtil;
 
 import java.io.*;
 import java.util.Collections;
@@ -122,7 +122,7 @@ public class RdfPatchIO {
     private static String io(Value v, Map<String, String> inverseNamespaceMap) {
         if (v == null) {
             return "R";
-        } else if (v instanceof URI) {
+        } else if (v instanceof IRI) {
             final String uri = v.stringValue();
             String prefix = null;
 
@@ -148,8 +148,8 @@ public class RdfPatchIO {
             } else {
                 sb.append("\"").append(TurtleUtil.encodeString(label)).append("\"");
             }
-            if (l.getLanguage() != null) {
-                sb.append("@").append(l.getLanguage());
+            if (l.getLanguage() != null && l.getLanguage().isPresent()) {
+                sb.append("@").append(l.getLanguage().get());
             } else if (l.getDatatype() != null) {
                 sb.append("^^").append(io(l.getDatatype(), inverseNamespaceMap));
             }

@@ -31,9 +31,9 @@ package org.apache.marmotta.platform.ldp.patch.parser;
 
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
 import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.turtle.TurtleUtil;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.turtle.TurtleUtil;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ import java.util.List;
 public class RdfPatchParserImpl implements RdfPatchParser {
 
     private HashMap<String, String> namespaces = new HashMap<String, String>();
-    private ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+    private ValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     public RdfPatchParserImpl(ValueFactory vf, InputStream is) {
         this(is);
@@ -67,17 +67,17 @@ public class RdfPatchParserImpl implements RdfPatchParser {
     }
 
 
-    private URI createURI(String uri) {
-        return this.valueFactory.createURI(unwrapUri(uri));
+    private IRI createIRI(String uri) {
+        return this.valueFactory.createIRI(unwrapUri(uri));
     }
 
-    private URI createURI(String prefix, String local) {
-        return this.valueFactory.createURI(namespaces.get(prefix)+local);
+    private IRI createIRI(String prefix, String local) {
+        return this.valueFactory.createIRI(namespaces.get(prefix)+local);
     }
 
-    private URI createURIfromQname(String qname) {
+    private IRI createIRIfromQname(String qname) {
         final String[] split = qname.split(":", 2);
-        return createURI(split[0], split[1]);
+        return createIRI(split[0], split[1]);
     }
 
     private BNode createBNode(String id) {
@@ -216,6 +216,6 @@ private URI parseURI() : {
     Token u;
 }
 {
-    u = <URI> { return createURI(u.image); } |
-    u = <QNAME> { return createURIfromQname(u.image); }
+    u = <URI> { return createIRI(u.image); } |
+    u = <QNAME> { return createIRIfromQname(u.image); }
 }
