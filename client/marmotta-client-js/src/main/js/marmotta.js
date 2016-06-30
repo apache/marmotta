@@ -43,6 +43,9 @@ function MarmottaClient(url,opts) {
             resource : {
                 path : "/resource"
             },
+            context : {
+                path : "/context"
+            },
             'import' : {
                 path : "/import"
             },
@@ -197,6 +200,22 @@ function MarmottaClient(url,opts) {
             deleteResource : function(uri,onsuccess,onfailure) {
                 resourceClient.deleteResource(uri,onsuccess,onfailure);
             }
+        };
+
+        var contextClient = new ContextClient(options.context);
+        /**
+         * This client manages the operations on contexts (graphs)
+         */
+        this.contextClient = {
+            /**
+             * Delete context
+             * @param name/uri of the context ("default" is missing)
+             * @param onsuccess Function is executed on success. (OPTIONAL)
+             * @param onfailure Function is executed on failure. It takes a ServerError object.(OPTIONAL)
+             */
+            deleteContext : function(name,onsuccess,onfailure) {
+                contextClient.deleteContext((typeof name === 'undefined') ? 'default' : name,onsuccess,onfailure);              
+            }        
         };
 
         var importClient = new ImportClient(options['import']);
@@ -428,6 +447,21 @@ function MarmottaClient(url,opts) {
                 200:function(){if(onsuccess)onsuccess();console.debug("resource "+uri+" deleted")},
                 400:function(){if(onfailure)onfailure(new ServerError("resource "+uri+" invalid, cannot delete",400));else throw new Error("resource "+uri+" invalid, cannot delete")},
                 404:function(){if(onfailure)onfailure(new ServerError("resource "+uri+" does not exist, cannot delete",404));else throw new Error("resource "+uri+" does not exist, cannot delete")},
+                "default":function(){if(onfailure)onfailure(new ServerError("unknown error"));else throw new Error("unknown error")}
+            });
+        };
+    }
+
+    /**
+     * Internal Context Client implementation
+     * @param options
+     */
+    function ContextClient(options) {
+        this.deleteContext = function(name,onsuccess,onfailure) {
+            HTTP.delete(options.path+"/"+name,null,null,{
+                200:function(){if(onsuccess)onsuccess();console.debug("context "+name+" deleted")},
+                400:function(){if(onfailure)onfailure(new ServerError("context "+name+" invalid, cannot delete",400));else throw new Error("context "+name+" invalid, cannot delete")},
+                404:function(){if(onfailure)onfailure(new ServerError("context "+name+" does not exist, cannot delete",404));else throw new Error("context "+name+" does not exist, cannot delete")},
                 "default":function(){if(onfailure)onfailure(new ServerError("unknown error"));else throw new Error("unknown error")}
             });
         };
