@@ -84,7 +84,7 @@ public class KiWiGeometryLiteral extends KiWiLiteral {
     }
 
     /**
-     * Return the content of the literal, using the parametrized Java type
+     * Return the SRID of the literal, using the parametrized Java type
      *
      * @return
      */

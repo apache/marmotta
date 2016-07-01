@@ -1161,8 +1161,9 @@ public class KiWiConnection implements AutoCloseable {
             }
 
             PreparedStatement insertNode = getPreparedStatement("store.gliteral");
+
             insertNode.setLong(1, node.getId());
-            insertNode.setString(2, "Geometry Resource");
+            insertNode.setString(2, "Geometry Resource"); //FIXME
 
             insertNode.setObject(3, null);
 
@@ -1178,7 +1179,6 @@ public class KiWiConnection implements AutoCloseable {
             insertNode.setTimestamp(7, new Timestamp(geoLiteral.getCreated().getTime()), calendarUTC);
 
             insertNode.setString(8, gvalue);
-
             insertNode.setInt(9, geoLiteral.getSRID());
 
             insertNode.executeUpdate();

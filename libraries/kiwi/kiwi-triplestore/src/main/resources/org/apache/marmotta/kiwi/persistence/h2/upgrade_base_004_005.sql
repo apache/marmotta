@@ -15,4 +15,7 @@
 
 ALTER TABLE nodes ADD tzoffset int default 0 AFTER tvalue;
 
-UPDATE METADATA SET mvalue = '3' WHERE mkey = 'version';
+-- TODO: new two columns in nodes
+
+UPDATE METADATA SET mvalue = '5' WHERE mkey = 'version';
+INSERT INTO metadata(mkey,mvalue) VALUES ('updated',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );
