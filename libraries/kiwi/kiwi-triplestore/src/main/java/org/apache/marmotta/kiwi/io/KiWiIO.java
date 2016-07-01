@@ -234,7 +234,7 @@ public class KiWiIO {
                         }
                     }
 
-                    //should never arrive here, just to satisfy the static checks of the compiler
+                    //should never arrive here...
                     throw new IllegalArgumentException("unknown KiWiNode type: " + type);
                 } else {
                     throw new IllegalArgumentException("unknown KiWiNode type: " + type);
