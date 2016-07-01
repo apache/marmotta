@@ -26,6 +26,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
+
 public class LdpBinaryStoreServiceImplTest {
 
     private static AbstractMarmotta marmotta;
@@ -47,8 +49,9 @@ public class LdpBinaryStoreServiceImplTest {
         final LdpBinaryStoreServiceImpl store = marmotta.getService(LdpBinaryStoreServiceImpl.class);
 
         final String test1 = "http://localhost:8080/foo/bar/123";
-        Assert.assertThat(store.getFile(test1).toString(), CoreMatchers.endsWith("/localhost.8080/foo/bar/123"));
+        Assert.assertThat(store.getFile(test1).toString(), CoreMatchers.endsWith(Paths.get("/localhost.8080/foo/bar/123").toString()));
 
         // There might be more testing like this here...
     }
+    
 }

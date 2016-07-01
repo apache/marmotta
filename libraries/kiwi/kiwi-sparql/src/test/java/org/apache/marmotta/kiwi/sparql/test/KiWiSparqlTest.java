@@ -129,12 +129,12 @@ public class KiWiSparqlTest {
      */
     @Test
     public void testMarmotta578() throws Exception {
-        testQuery("MARMOTTA-578.sparql");
+        testQueryCompareResults("MARMOTTA-578.sparql");
     }
 
     //TODO: generalize this infrastructure code also used by KiWiSparqlJoinTest
 
-    private void testQuery(String filename) throws Exception {
+    private void testQueryCompareResults(String filename) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
 
         RepositoryConnection conn1 = repository.getConnection();
@@ -181,7 +181,6 @@ public class KiWiSparqlTest {
         for(Set<Pair> p : set2) {
             Assert.assertTrue("binding " + p + " from reference set not found in result set", set1.contains(p));
         }
-
 
         Assert.assertTrue(CollectionUtils.isEqualCollection(set1, set2));
     }
@@ -324,6 +323,37 @@ public class KiWiSparqlTest {
     @Test
     public void testMarmotta627_4() throws Exception {
         testMarmotta627("SELECT ( 2.00*4.00 as ?c )  WHERE {}", 8.00);
+    }
+
+    private void testQueryEvaluation(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+        RepositoryConnection conn = repository.getConnection();
+        try {
+            conn.begin();
+            TupleQuery query = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+            TupleQueryResult results = query.evaluate();
+            results.close();
+            conn.commit();
+        } finally {
+            conn.close();
+        }
+    }
+
+    @Test
+    public void testMarmotta640_1() throws Exception {
+        final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640_1.sparql"), "UTF-8");
+        testQueryEvaluation(queryString); //TODO: if we could get data, we could also test the result
+    }
+
+    @Test
+    public void testMarmotta640_2() throws Exception {
+        final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640_2.sparql"), "UTF-8");
+        testQueryEvaluation(queryString); //TODO: if we could get data, we could also test the result
+    }
+
+    @Test
+    public void testMarmotta640Regresion() throws Exception {
+        final String queryString = "SELECT * WHERE { { ?x ?y ?z } UNION { ?x ?y2 ?z2 } }";
+        testQueryEvaluation(queryString);
     }
 
 }

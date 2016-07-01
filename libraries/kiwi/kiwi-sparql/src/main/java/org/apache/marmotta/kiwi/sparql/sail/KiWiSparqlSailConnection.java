@@ -70,7 +70,7 @@ public class KiWiSparqlSailConnection extends NotifyingSailConnectionWrapper {
         }
 
         try {
-            KiWiTripleSource tripleSource = new KiWiTripleSource(this,valueFactory,includeInferred);
+            KiWiTripleSource tripleSource = new KiWiTripleSource(this, valueFactory, includeInferred);
             EvaluationStrategy strategy = new KiWiEvaluationStrategy(tripleSource, dataset, connection, valueFactory);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);

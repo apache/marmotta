@@ -191,8 +191,8 @@
                 <artifactId>apache-rat-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <!-- Simple placeholder -->
                         <exclude>src/deb/home/marmotta.txt</exclude>
+                        <exclude>README.md</exclude>
                     </excludes>
                 </configuration>
             </plugin>

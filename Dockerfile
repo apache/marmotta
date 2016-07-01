@@ -77,5 +77,6 @@ RUN mvn clean \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["/marmotta-webapp/src/docker/entrypoint.sh"]
-
+# entrypoint
+RUN cp /src/launchers/marmotta-webapp/src/docker/entrypoint.sh /usr/local/bin/marmotta.sh
+ENTRYPOINT ["/usr/local/bin/marmotta.sh"]

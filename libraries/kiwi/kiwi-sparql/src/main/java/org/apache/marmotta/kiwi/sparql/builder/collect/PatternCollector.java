@@ -42,7 +42,6 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
 
     int counter = 0;
 
-
     private BindingSet bindings;
     private Dataset dataset;
     private ValueConverter converter;
@@ -77,7 +76,6 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
             parts.getLast().getFilters().add(node.getCondition());
         }
         node.getRightArg().visit(this);
-
     }
 
 
@@ -96,18 +94,21 @@ public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
     public void meet(Union node) throws RuntimeException {
         // unions are treated as subqueries, don't continue collection, but add the Union to the last part
 
-        parts.getLast().getSubqueries().add(new SQLUnion(prefix + "U" + (++counter),node, bindings, dataset, converter, dialect));
+        final SQLUnion union = new SQLUnion(prefix + "U" + (++counter), node, bindings, dataset, converter, dialect);
+        parts.getLast().getSubqueries().add(union);
     }
 
     @Override
     public void meet(Projection node) throws RuntimeException {
         // subqueries are represented with a projection inside a JOIN; we don't continue collection
 
-        parts.getLast().getSubqueries().add(new SQLSubQuery(prefix + "S" + (++counter), node, bindings, dataset, converter, dialect, projectedVars));
+        parts.getLast().getSubqueries().add(new SQLSubQuery(prefix + "S" + (++counter),
+                                            node, bindings, dataset, converter, dialect, projectedVars));
     }
 
     @Override
     public void meet(Exists node) throws RuntimeException {
         // stop at exists, it is treated as a subquery in the condition part
     }
+
 }
