@@ -15,4 +15,4 @@
 
 ALTER TABLE nodes ADD tzoffset int default 0 AFTER tvalue;
 
-UPDATE METADATA SET mvalue = '3' WHERE mkey = 'version';
+UPDATE METADATA SET mvalue = '4' WHERE mkey = 'version';

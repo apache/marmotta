@@ -13,9 +13,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-ALTER TABLE nodes ADD tzoffset int default 0 AFTER tvalue;
-
--- TODO: new two columns in nodes
+ALTER TABLE nodes ADD gvalue varchar(2147483647) default NULL;
+ALTER TABLE nodes ADD srid INT default NULL;
 
 UPDATE METADATA SET mvalue = '5' WHERE mkey = 'version';
 INSERT INTO metadata(mkey,mvalue) VALUES ('updated',to_char(now(),'yyyy-MM-DD HH:mm:ss TZ') );

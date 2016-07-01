@@ -26,7 +26,7 @@ CREATE TABLE nodes (
   lang      varchar(5),
   createdAt timestamp  NOT NULL DEFAULT now(),
   gvalue    varchar(2147483647),
-  srid       INT,
+  srid      INT,
   PRIMARY KEY(id)
 );
 
