@@ -55,10 +55,6 @@
             <groupId>org.apache.marmotta</groupId>
             <artifactId>kiwi-triplestore</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.marmotta</groupId>
-            <artifactId>kiwi-geosparql</artifactId>
-        </dependency>
 
         <!-- Logging -->
         <dependency>
