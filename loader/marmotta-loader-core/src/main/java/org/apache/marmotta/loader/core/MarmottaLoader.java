@@ -509,6 +509,8 @@ public class MarmottaLoader {
             return RDFFormat.TURTLE;
         } else if(StringUtils.equalsIgnoreCase(spec,"n3")) {
             return RDFFormat.N3;
+        } else if(StringUtils.equalsIgnoreCase(spec,"nquads")) {
+            return RDFFormat.NQUADS;
         } else if(StringUtils.equalsIgnoreCase(spec,"rdf")) {
             return RDFFormat.RDFXML;
         } else if(StringUtils.equalsIgnoreCase(spec,"xml")) {
