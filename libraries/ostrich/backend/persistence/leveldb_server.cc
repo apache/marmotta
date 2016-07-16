@@ -58,6 +58,7 @@ int main(int argc, char** argv) {
     builder.AddListeningPort(FLAGS_host + ":" + FLAGS_port, grpc::InsecureServerCredentials());
     builder.RegisterService(&sailService);
     builder.RegisterService(&sparqlService);
+    builder.SetMaxMessageSize(INT_MAX);
 
     server = builder.BuildAndStart();
     std::cout << "Persistence Server listening on " << FLAGS_host << ":" << FLAGS_port << std::endl;

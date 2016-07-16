@@ -18,14 +18,17 @@
 #include "rdf_parser.h"
 #include <raptor2/raptor2.h>
 #include <util/raptor_util.h>
+#include <gflags/gflags.h>
 #include <glog/logging.h>
+
+DEFINE_int64(parse_buffer_size, 8192, "Size of parse buffer in bytes.");
 
 namespace marmotta {
 namespace parser {
 
 Parser::Parser(const rdf::URI& baseUri, Format format)
-        : stmt_handler([](const rdf::Statement& stmt) { })
-        , ns_handler([](const rdf::Namespace& ns) { })
+        : stmt_handler([](const rdf::Statement& stmt) { return true; })
+        , ns_handler([](const rdf::Namespace& ns) { return true; })
 {
     world = raptor_new_world();
     base  = raptor_new_uri(world, (unsigned char const *) baseUri.getUri().c_str());
@@ -71,15 +74,19 @@ Parser::~Parser() {
 
 void Parser::raptor_stmt_handler(void *user_data, raptor_statement *statement) {
     Parser* p = static_cast<Parser*>(user_data);
-    p->stmt_handler(util::raptor::ConvertStatement(statement));
+    if (!p->stmt_handler(util::raptor::ConvertStatement(statement))) {
+        throw ParseError(p->error);
+    };
 }
 
 
 void Parser::raptor_ns_handler(void *user_data, raptor_namespace *nspace) {
     Parser* p = static_cast<Parser*>(user_data);
-    p->ns_handler(rdf::Namespace(
+    if (!p->ns_handler(rdf::Namespace(
             (const char*)raptor_namespace_get_prefix(nspace),
-            (const char*)raptor_uri_as_string(raptor_namespace_get_uri(nspace))));
+            (const char*)raptor_uri_as_string(raptor_namespace_get_uri(nspace))))) {
+        throw ParseError(p->error);
+    };
 }
 
 void Parser::raptor_error_handler(void *user_data, raptor_log_message* message) {
@@ -99,14 +106,16 @@ void Parser::parse(std::istream &in) {
 
         int status = 0;
 
-        char buffer[8192];
-        while (in.read(buffer, 8192)) {
-            status = raptor_parser_parse_chunk(parser, (unsigned char const *) buffer, in.gcount(), 0);
+        std::unique_ptr<char[]> buffer(new char[FLAGS_parse_buffer_size]);
+        while (in.read(buffer.get(), FLAGS_parse_buffer_size)) {
+            status = raptor_parser_parse_chunk(
+                    parser, (unsigned char const *) buffer.get(), in.gcount(), 0);
             if (status != 0) {
                 throw ParseError(error);
             }
         }
-        status = raptor_parser_parse_chunk(parser, (unsigned char const *) buffer, in.gcount(), 1);
+        status = raptor_parser_parse_chunk(
+                parser, (unsigned char const *) buffer.get(), in.gcount(), 1);
         if (status != 0) {
             throw ParseError(error);
         }

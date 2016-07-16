@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 #include "raptor_util.h"
+#include <gflags/gflags.h>
 #include <glog/logging.h>
+
+DEFINE_bool(parse_check_utf8, false, "Validate UTF-8 in string literals.");
+
 
 namespace marmotta {
 namespace util {
@@ -56,6 +60,13 @@ rdf::Value ConvertValue(raptor_term *node) {
             return rdf::BNode(std::string((const char*)node->value.blank.string,
                                           node->value.blank.string_len));
         case RAPTOR_TERM_TYPE_LITERAL:
+            if (FLAGS_parse_check_utf8) {
+                if (!google::protobuf::internal::IsStructurallyValidUTF8(
+                        (const char *) node->value.literal.string, node->value.literal.string_len)) {
+                    LOG(WARNING) << "Invalid UTF8 in literal content, skipping";
+                    return rdf::Value();
+                }
+            }
             if(node->value.literal.language != nullptr) {
                 return rdf::StringLiteral(
                         std::string((const char*)node->value.literal.string, node->value.literal.string_len),
@@ -72,7 +83,7 @@ rdf::Value ConvertValue(raptor_term *node) {
                 );
             }
         default:
-            LOG(INFO) << "Error: unsupported node type " << node->type;
+            LOG(WARNING) << "Error: unsupported node type " << node->type;
             return rdf::Value();
     }
 }

@@ -111,10 +111,9 @@ typedef ClientReaderIterator<rdf::Namespace, rdf::proto::Namespace> NamespaceRea
 class MarmottaClient {
  public:
     MarmottaClient(const std::string& server)
-            : stub_(svc::SailService::NewStub(
-            grpc::CreateChannel(server, grpc::InsecureChannelCredentials()))),
-              sparql_(spq::SparqlService::NewStub(
-                      grpc::CreateChannel(server, grpc::InsecureChannelCredentials()))){}
+            : channel_(grpc::CreateChannel(server, grpc::InsecureChannelCredentials()))
+            , stub_(svc::SailService::NewStub(channel_))
+            , sparql_(spq::SparqlService::NewStub(channel_)) {}
 
     void importDataset(std::istream& in, parser::Format format) {
         auto start = std::chrono::steady_clock::now();
@@ -131,17 +130,20 @@ class MarmottaClient {
                 stub_->AddStatements(&stmtcontext, &stmtstats));
 
         parser::Parser p("http://www.example.com", format);
-        p.setStatementHandler([&stmtwriter, &start, &count](const rdf::Statement& stmt) {
-            stmtwriter->Write(stmt.getMessage());
+        p.setStatementHandler([&stmtwriter, &start, &count, this](const rdf::Statement& stmt) {
+            if (!stmtwriter->Write(stmt.getMessage())) {
+                return false;
+            }
             if (++count % 100000 == 0) {
                 double rate = 100000 * 1000 / std::chrono::duration <double, std::milli> (
                         std::chrono::steady_clock::now() - start).count();
                 std::cout << "Imported " << count << " statements (" << rate << " statements/sec)" << std::endl;
                 start = std::chrono::steady_clock::now();
             }
+            return true;
         });
         p.setNamespaceHandler([&nswriter](const rdf::Namespace& ns) {
-            nswriter->Write(ns.getMessage());
+            return nswriter->Write(ns.getMessage());
         });
         p.parse(in);
 
@@ -265,6 +267,7 @@ class MarmottaClient {
         }
     }
  private:
+    std::shared_ptr<grpc::Channel> channel_;
     std::unique_ptr<svc::SailService::Stub> stub_;
     std::unique_ptr<spq::SparqlService::Stub> sparql_;
 };
@@ -306,7 +309,11 @@ int main(int argc, char** argv) {
         std::ifstream in(argv[2]);
 #endif
         std::cout << "Importing " << argv[2] << " ... " << std::endl;
-        client.importDataset(in, parser::FormatFromString(FLAGS_format));
+        try {
+            client.importDataset(in, parser::FormatFromString(FLAGS_format));
+        } catch (const parser::ParseError& e) {
+            LOG(ERROR) << "Error importing data: " << e.getMessage();
+        }
         std::cout << "Finished!" << std::endl;
     }
 

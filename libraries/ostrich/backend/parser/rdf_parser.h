@@ -51,11 +51,11 @@ class Parser {
 
     ~Parser();
 
-    void setStatementHandler(std::function<void(const rdf::Statement&)> const &handler) {
+    void setStatementHandler(std::function<bool(const rdf::Statement&)> const &handler) {
         Parser::stmt_handler = handler;
     }
 
-    void setNamespaceHandler(std::function<void(const rdf::Namespace&)> const &handler) {
+    void setNamespaceHandler(std::function<bool(const rdf::Namespace&)> const &handler) {
         Parser::ns_handler = handler;
     }
 
@@ -68,8 +68,8 @@ class Parser {
     raptor_uri*    base;
     std::string    error;
 
-    std::function<void(const rdf::Statement&)> stmt_handler;
-    std::function<void(const rdf::Namespace&)> ns_handler;
+    std::function<bool(const rdf::Statement&)> stmt_handler;
+    std::function<bool(const rdf::Namespace&)> ns_handler;
 
     static void raptor_stmt_handler(void* user_data, raptor_statement* statement);
     static void raptor_ns_handler(void* user_data, raptor_namespace *nspace);

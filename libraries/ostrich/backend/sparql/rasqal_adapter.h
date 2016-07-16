@@ -18,6 +18,7 @@
 #ifndef MARMOTTA_RASQAL_ADAPTER_H
 #define MARMOTTA_RASQAL_ADAPTER_H
 
+#include <map>
 #include <memory>
 #include <rasqal/rasqal.h>
 

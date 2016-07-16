@@ -19,6 +19,7 @@
 
 #include <chrono>
 
+#include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <leveldb/filter_policy.h>
 #include <leveldb/write_batch.h>
@@ -32,6 +33,8 @@
 
 #define CHECK_STATUS(s) CHECK(s.ok()) << "Writing to database failed: " << s.ToString()
 
+DEFINE_int64(write_batch_size, 10000,
+             "Maximum number of statements to write in a single batch to the database");
 
 using leveldb::WriteBatch;
 using leveldb::Slice;
@@ -423,28 +426,40 @@ int64_t LevelDBPersistence::AddStatements(StatementIterator& it) {
     int64_t count = 0;
 
     leveldb::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
+    auto writeBatches = [&]{
+        std::vector<std::thread> writers;
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &batch_pcos));
+            batch_pcos.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &batch_opsc));
+            batch_opsc.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &batch_cspo));
+            batch_cspo.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &batch_spoc));
+            batch_spoc.Clear();
+        }));
+
+        for (auto& t : writers) {
+            t.join();
+        }
+    };
+
     while (it.hasNext()) {
         AddStatement(it.next(), batch_spoc, batch_cspo, batch_opsc, batch_pcos);
         count++;
+
+        if (count % FLAGS_write_batch_size == 0) {
+            writeBatches();
+        }
     }
 
-    std::vector<std::thread> writers;
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &batch_pcos));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &batch_opsc));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &batch_cspo));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &batch_spoc));
-    }));
-
-    for (auto& t : writers) {
-        t.join();
-    }
+    writeBatches();
 
     LOG(INFO) << "Imported " << count << " statements (time="
               << std::chrono::duration <double, std::milli> (
@@ -556,6 +571,39 @@ UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &
     UpdateStatistics stats;
 
     WriteBatch b_spoc, b_cspo, b_opsc, b_pcos, b_prefix, b_url;
+    auto writeBatches = [&]{
+        std::vector<std::thread> writers;
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &b_pcos));
+            b_pcos.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &b_opsc));
+            b_opsc.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &b_cspo));
+            b_cspo.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &b_spoc));
+            b_spoc.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_ns_prefix->Write(leveldb::WriteOptions(), &b_prefix));
+            b_prefix.Clear();
+        }));
+        writers.push_back(std::thread([&]() {
+            CHECK_STATUS(db_ns_url->Write(leveldb::WriteOptions(), &b_url));
+            b_url.Clear();
+        }));
+
+        for (auto& t : writers) {
+            t.join();
+        }
+    };
+
+    long count = 0;
     while (it.hasNext()) {
         auto next = it.next();
         if (next.has_stmt_added()) {
@@ -570,30 +618,14 @@ UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &
         } else if(next.has_ns_removed()) {
             RemoveNamespace(next.ns_removed(), b_prefix, b_url);
         }
-    }
-    std::vector<std::thread> writers;
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &b_pcos));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &b_opsc));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &b_cspo));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &b_spoc));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_ns_prefix->Write(leveldb::WriteOptions(), &b_prefix));
-    }));
-    writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_ns_url->Write(leveldb::WriteOptions(), &b_url));
-    }));
 
-    for (auto& t : writers) {
-        t.join();
+        count++;
+        if (count % FLAGS_write_batch_size == 0) {
+            writeBatches();
+        }
     }
+
+    writeBatches();
 
     LOG(INFO) << "Batch update complete. (statements added: " << stats.added_stmts
             << ", statements removed: " << stats.removed_stmts

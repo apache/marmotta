@@ -60,9 +60,11 @@ class MarmottaClient {
         util::ProducerConsumerIterator<rdf::proto::Namespace> nsit;
         p.setStatementHandler([&stmtit](const rdf::Statement& stmt) {
             stmtit.add(stmt.getMessage());
+            return true;
         });
         p.setNamespaceHandler([&nsit](const rdf::Namespace& ns) {
             nsit.add(ns.getMessage());
+            return true;
         });
 
         std::thread([&p, &in, &stmtit, &nsit]() {
