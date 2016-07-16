@@ -126,6 +126,9 @@ Format FormatFromString(const std::string &name) {
     if (name == "json" || name == "application/json" || name == "application/rdf+json") {
         return RDFJSON;
     }
+    if (name == "nquads" || name == "text/nquads") {
+        return NQUADS;
+    }
     if (name == "auto" || name == "guess") {
         return GUESS;
     }
