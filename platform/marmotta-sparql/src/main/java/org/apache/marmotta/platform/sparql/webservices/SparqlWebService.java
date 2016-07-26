@@ -20,6 +20,7 @@ package org.apache.marmotta.platform.sparql.webservices;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import org.apache.commons.collections.EnumerationUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
@@ -190,9 +191,17 @@ public class SparqlWebService {
     @POST
     @Consumes({"application/x-www-url-form-urlencoded", "application/x-www-form-urlencoded"})
     @Path(SELECT)
-    public Response selectPostForm(@FormParam("query") String query, @QueryParam("output") String resultType, @Context HttpServletRequest request) {
-        if(resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
-        return select(query, resultType, request);
+    public Response selectPostForm(@FormParam("query") String query,
+                                   @QueryParam("output") String resultType,
+                                   @Context HttpServletRequest request) {
+        if (StringUtils.isBlank(query)) {
+            // query might be in the body request... (MARMOTTA-651)
+            // jax-rs doesn't go to selectPost() method
+            return selectPost(resultType, request);
+        } else {
+            if (resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
+            return select(query, resultType, request);
+        }
     }    
     
     /**
@@ -208,16 +217,14 @@ public class SparqlWebService {
      * @return the query result in the format passed as argument
      */
     @POST
+    @Consumes("*/*")
     @Path(SELECT)
     public Response selectPost(@QueryParam("output") String resultType, @Context HttpServletRequest request) {
         try {
             if (resultType != null && outputMapper.containsKey(resultType)) resultType = outputMapper.get(resultType);
-            if (request.getCharacterEncoding() == null) {
-                request.setCharacterEncoding("utf-8");
-            }
-            String query = CharStreams.toString(request.getReader());
-            //String query = IOUtils.toString(request.getInputStream(),"utf-8");
-            log.debug("Query: {}", query);
+            if (request.getCharacterEncoding() == null) { request.setCharacterEncoding("utf-8"); }
+            final String query = CharStreams.toString(request.getReader());
+            log.debug("SPARQL Query: {}", query);
             return select(query, resultType, request);
         } catch (IOException e) {
             log.error("body not found", e);
