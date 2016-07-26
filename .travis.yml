@@ -1,0 +1,15 @@
+language: java
+
+sudo: false
+
+branches:
+  only:
+  - master
+  - develop
+
+jdk:
+- openjdk7
+- openjdk8
+
+script: mvn clean install
+
