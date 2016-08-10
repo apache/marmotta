@@ -78,9 +78,9 @@
                       protobuf-java directly, you will be transitively depending on the
                       protobuf-java version that grpc depends on.
                     -->
-                    <protocArtifact>com.google.protobuf:protoc:3.0.0-beta-1:exe:${os.detected.classifier}</protocArtifact>
+                    <protocArtifact>com.google.protobuf:protoc:3.0.0-beta-3:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:0.9.0:exe:${os.detected.classifier}</pluginArtifact>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:0.15.0:exe:${os.detected.classifier}</pluginArtifact>
                 </configuration>
                 <executions>
                     <execution>
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-all</artifactId>
-            <version>0.10.0-SNAPSHOT</version>
+            <version>0.15.0</version>
         </dependency>
 
         <!-- Sesame dependencies -->
