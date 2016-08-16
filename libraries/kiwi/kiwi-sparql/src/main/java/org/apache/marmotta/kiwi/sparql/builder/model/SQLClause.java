@@ -54,6 +54,15 @@ public abstract class SQLClause {
         return false;
     }
 
+
+    /**
+     * Add a SQL condition to the list of conditions.
+     * @param condition
+     */
+    public void addCondition(String condition) {
+        conditions.add(condition);
+    }
+
     /**
      * Build the condition clause for this statement to be used in the WHERE part or the ON part of a JOIN.
      * @return

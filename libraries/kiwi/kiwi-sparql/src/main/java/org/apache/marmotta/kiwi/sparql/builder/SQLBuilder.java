@@ -222,7 +222,7 @@ public class SQLBuilder {
 
         // find all variables that have been bound already, even if they do not appear in a pattern
         for(Var v : new VariableFinder(query).variables) {
-            if(v.hasValue() && !v.getName().startsWith("-const")) {
+            if (v.hasValue() && !isConst(v)) {
                 SQLVariable sv = variables.get(v.getName());
                 if(sv == null) {
                     sv = new SQLVariable("V" + (++variableCount), v.getName());
@@ -243,12 +243,12 @@ public class SQLBuilder {
         // field names in the database query; each variable will have one or several field names,
         // one for each pattern it occurs in; field names are constructed automatically by a counter
         // and the pattern name to ensure the name is a valid HQL identifier
-        for(SQLFragment f : fragments) {
+        for (SQLFragment f : fragments) {
             for (SQLPattern p : f.getPatterns()) {
                 // build pattern
                 Var[] fields = p.getFields();
                 for (int i = 0; i < fields.length; i++) {
-                    if (fields[i] != null && (!fields[i].hasValue() || !fields[i].getName().startsWith("-const"))) {
+                    if (fields[i] != null && (!fields[i].hasValue() || !isConst(fields[i]))) {
                         Var v = fields[i];
 
                         SQLVariable sv = variables.get(v.getName());
@@ -356,7 +356,7 @@ public class SQLBuilder {
                 // build pattern
                 Var[] fields = p.getFields();
                 for (int i = 0; i < fields.length; i++) {
-                    if (fields[i] != null && (!fields[i].hasValue() || !fields[i].getName().startsWith("-const"))) {
+                    if (fields[i] != null && (!fields[i].hasValue() || !isConst(fields[i]))) {
                         Var v = fields[i];
 
                         SQLVariable sv = variables.get(v.getName());
@@ -364,32 +364,32 @@ public class SQLBuilder {
                         String pName = p.getName();
 
                         // if the variable has been used before, add a join condition to the first occurrence
-                        if(sv.getExpressions().size() > 0) {
+                        if (!sv.getExpressions().isEmpty()) {
                             // case distinction: is this variable projected as node or as another value in an extension?
                             // if it is a value, we need to refer to the corresponding typed column of the node, otherwise
                             // to the node ID (field ID is sufficient)
                             switch (sv.getProjectionType()) {
                                 case INT:
-                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".ivalue");
+                                    p.addCondition(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".ivalue");
                                     break;
                                 case DECIMAL:
                                 case DOUBLE:
-                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".dvalue");
+                                    p.addCondition(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".dvalue");
                                     break;
                                 case DATE:
                                 case TZDATE:
-                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".tvalue");
+                                    p.addCondition(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".tvalue");
                                     break;
                                 case BOOL:
-                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".bvalue");
+                                    p.addCondition(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".bvalue");
                                     break;
                                 case URI:
                                 case STRING:
-                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".svalue");
+                                    p.addCondition(sv.getExpressions().get(0) + " = " + sv.getAlias() + ".svalue");
                                     break;
 
                                 default:
-                                    p.getConditions().add(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
+                                    p.addCondition(sv.getExpressions().get(0) + " = " + pName + "." + positions[i]);
                                     break;
                             }
                         }
@@ -408,7 +408,7 @@ public class SQLBuilder {
 
                     // if the variable has been used before, add a join condition to the first occurrence
                     if(sv.getExpressions().size() > 0) {
-                        sq.getConditions().add(sv.getExpressions().get(0) + " = " + sqName + "." + sq_v.getName());
+                        sq.addCondition(sv.getExpressions().get(0) + " = " + sqName + "." + sq_v.getName());
                     }
 
                     sv.getExpressions().add(sqName + "." + sq_v.getName());
@@ -504,7 +504,7 @@ public class SQLBuilder {
         // iterate over all fragments and add translate the filter conditions into SQL
         for(SQLFragment f : fragments) {
             for(ValueExpr e : f.getFilters()) {
-                f.getConditions().add(evaluateExpression(e, ValueType.NODE));
+                f.addCondition(evaluateExpression(e, ValueType.NODE));
             }
         }
 
@@ -530,7 +530,7 @@ public class SQLBuilder {
 
                         if (nodeId >= 0) {
                             String condition = pName + "." + positions[i] + " = " + nodeId;
-                            p.getConditions().add(condition);
+                            p.addCondition(condition);
                         }
                     }
                 }
@@ -565,7 +565,7 @@ public class SQLBuilder {
 
                     }
                     cCond.append(")");
-                    p.getConditions().add(cCond.toString());
+                    p.addCondition(cCond.toString());
                 }
             }
         }
@@ -979,4 +979,12 @@ public class SQLBuilder {
         return queryString;
     }
 
+    /**
+     * Return true if a variable is a Sesame constant.
+     * @param v
+     * @return
+     */
+    private static boolean isConst(Var v) {
+        return v.getName().startsWith("-const") || v.getName().startsWith("_const");
+    }
 }
