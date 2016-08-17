@@ -28,5 +28,8 @@ jdk:
 - oraclejdk7
 - oraclejdk8
 
+before_install:
+- echo "MAVEN_OPTS='-Xmx2g'" > ~/.mavenrc
+
 script: mvn clean install
 
