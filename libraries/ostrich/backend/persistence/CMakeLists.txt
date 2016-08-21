@@ -5,7 +5,7 @@ add_library(marmotta_leveldb
         leveldb_persistence.cc leveldb_persistence.h leveldb_sparql.cc leveldb_sparql.h)
 target_link_libraries(marmotta_leveldb
         marmotta_model marmotta_util marmotta_sparql marmotta_service
-        ${LevelDB_LIBRARY} ${GLOG_LIBRARY} ${PROTOBUF_LIBRARIES})
+        ${PERSISTENCE_LIBRARY} ${GLOG_LIBRARY} ${PROTOBUF_LIBRARIES})
 
 # Server binary
 add_executable(marmotta_persistence

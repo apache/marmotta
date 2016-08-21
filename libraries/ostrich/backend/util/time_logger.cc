@@ -6,8 +6,8 @@
 #include "time_logger.h"
 
 marmotta::util::TimeLogger::TimeLogger(const std::string &name)
-        : start_(std::chrono::steady_clock::now())
-        , name_(name) {
+        : name_(name)
+        , start_(std::chrono::steady_clock::now()) {
     LOG(INFO) << name << " started.";
 }
 

@@ -18,6 +18,8 @@
 #define KEY_LENGTH 16
 
 #include <chrono>
+#include <stdlib.h>
+#include <malloc.h>
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -33,11 +35,11 @@
 
 #define CHECK_STATUS(s) CHECK(s.ok()) << "Writing to database failed: " << s.ToString()
 
-DEFINE_int64(write_batch_size, 10000,
+DEFINE_int64(write_batch_size, 1000000,
              "Maximum number of statements to write in a single batch to the database");
 
-using leveldb::WriteBatch;
-using leveldb::Slice;
+using dbimpl::WriteBatch;
+using dbimpl::Slice;
 using marmotta::rdf::proto::Statement;
 using marmotta::rdf::proto::Namespace;
 using marmotta::rdf::proto::Resource;
@@ -211,7 +213,7 @@ template<typename T>
 class LevelDBIterator : public util::CloseableIterator<T> {
  public:
 
-    LevelDBIterator(leveldb::Iterator *it)
+    LevelDBIterator(dbimpl::Iterator *it)
         : it(it) {
         it->SeekToFirst();
     }
@@ -236,7 +238,7 @@ class LevelDBIterator : public util::CloseableIterator<T> {
     }
 
  protected:
-    leveldb::Iterator* it;
+    dbimpl::Iterator* it;
     T proto;
 };
 
@@ -246,9 +248,9 @@ class LevelDBIterator : public util::CloseableIterator<T> {
 class StatementRangeIterator : public LevelDBIterator<Statement> {
  public:
 
-    StatementRangeIterator(leveldb::Iterator *it, char *loKey, char *hiKey)
+    StatementRangeIterator(dbimpl::Iterator *it, char *loKey, char *hiKey)
             : LevelDBIterator(it), loKey(loKey), hiKey(hiKey) {
-        it->Seek(leveldb::Slice(loKey, 4 * KEY_LENGTH));
+        it->Seek(dbimpl::Slice(loKey, 4 * KEY_LENGTH));
     }
 
     ~StatementRangeIterator() override {
@@ -257,7 +259,7 @@ class StatementRangeIterator : public LevelDBIterator<Statement> {
     };
 
     bool hasNext() override {
-        return it->Valid() && it->key().compare(leveldb::Slice(hiKey, 4 * KEY_LENGTH)) <= 0;
+        return it->Valid() && it->key().compare(dbimpl::Slice(hiKey, 4 * KEY_LENGTH)) <= 0;
     }
 
  private:
@@ -288,17 +290,21 @@ bool Matches(const Statement& pattern, const Statement& stmt) {
 /**
  * Build database with default options.
  */
-leveldb::DB* buildDB(const std::string& path, const std::string& suffix, const leveldb::Options& options) {
-    leveldb::DB* db;
-    leveldb::Status status = leveldb::DB::Open(options, path + "/" + suffix + ".db", &db);
+dbimpl::DB* buildDB(const std::string& path, const std::string& suffix, const dbimpl::Options& options) {
+    dbimpl::DB* db;
+    dbimpl::Status status = dbimpl::DB::Open(options, path + "/" + suffix + ".db", &db);
     assert(status.ok());
     return db;
 }
 
-leveldb::Options* buildOptions(KeyComparator* cmp, leveldb::Cache* cache) {
-    leveldb::Options *options = new leveldb::Options();
+dbimpl::Options* buildOptions(KeyComparator* cmp, dbimpl::Cache* cache) {
+    dbimpl::Options *options = new dbimpl::Options();
     options->create_if_missing = true;
 
+#ifdef HAVE_ROCKSDB
+    options->IncreaseParallelism();
+    options->OptimizeLevelStyleCompaction();
+#else
     // Custom comparator for our keys.
     options->comparator = cmp;
 
@@ -309,19 +315,20 @@ leveldb::Options* buildOptions(KeyComparator* cmp, leveldb::Cache* cache) {
     options->write_buffer_size = 16384 * 1024;
 
     // Set a bloom filter of 10 bits.
-    options->filter_policy = leveldb::NewBloomFilterPolicy(10);
+    options->filter_policy = dbimpl::NewBloomFilterPolicy(10);
+#endif
     return options;
 }
 
-leveldb::Options buildNsOptions() {
-    leveldb::Options options;
+dbimpl::Options buildNsOptions() {
+    dbimpl::Options options;
     options.create_if_missing = true;
     return options;
 }
 
 LevelDBPersistence::LevelDBPersistence(const std::string &path, int64_t cacheSize)
         : comparator(new KeyComparator())
-        , cache(leveldb::NewLRUCache(cacheSize))
+        , cache(dbimpl::NewLRUCache(cacheSize))
         , options(buildOptions(comparator.get(), cache.get()))
         , db_ns_prefix(buildDB(path, "ns_prefix", buildNsOptions()))
         , db_ns_url(buildDB(path, "ns_url", buildNsOptions()))
@@ -360,14 +367,14 @@ int64_t LevelDBPersistence::AddNamespaces(NamespaceIterator& it) {
     DLOG(INFO) << "Starting batch namespace import operation.";
     int64_t count = 0;
 
-    leveldb::WriteBatch batch_prefix, batch_url;
+    dbimpl::WriteBatch batch_prefix, batch_url;
 
     while (it.hasNext()) {
         AddNamespace(it.next(), batch_prefix, batch_url);
         count++;
     }
-    CHECK_STATUS(db_ns_prefix->Write(leveldb::WriteOptions(), &batch_prefix));
-    CHECK_STATUS(db_ns_url->Write(leveldb::WriteOptions(), &batch_url));
+    CHECK_STATUS(db_ns_prefix->Write(dbimpl::WriteOptions(), &batch_prefix));
+    CHECK_STATUS(db_ns_url->Write(dbimpl::WriteOptions(), &batch_url));
 
     DLOG(INFO) << "Imported " << count << " namespaces";
 
@@ -380,7 +387,7 @@ std::unique_ptr<LevelDBPersistence::NamespaceIterator> LevelDBPersistence::GetNa
 
     Namespace ns;
 
-    leveldb::DB *db = nullptr;
+    dbimpl::DB *db = nullptr;
     std::string key, value;
     if (pattern.prefix() != "") {
         key = pattern.prefix();
@@ -391,7 +398,7 @@ std::unique_ptr<LevelDBPersistence::NamespaceIterator> LevelDBPersistence::GetNa
     }
     if (db != nullptr) {
         // Either prefix or uri given, report the correct namespace value.
-        leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+        dbimpl::Status s = db->Get(dbimpl::ReadOptions(), key, &value);
         if (s.ok()) {
             ns.ParseFromString(value);
             return util::make_unique<util::SingletonIterator<Namespace>>(std::move(ns));
@@ -401,7 +408,7 @@ std::unique_ptr<LevelDBPersistence::NamespaceIterator> LevelDBPersistence::GetNa
     } else {
         // Pattern was empty, iterate over all namespaces and report them.
         return util::make_unique<LevelDBIterator<Namespace>>(
-                db_ns_prefix->NewIterator(leveldb::ReadOptions()));
+                db_ns_prefix->NewIterator(dbimpl::ReadOptions()));
     }
 }
 
@@ -425,23 +432,23 @@ int64_t LevelDBPersistence::AddStatements(StatementIterator& it) {
     LOG(INFO) << "Starting batch statement import operation.";
     int64_t count = 0;
 
-    leveldb::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
+    dbimpl::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
     auto writeBatches = [&]{
         std::vector<std::thread> writers;
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &batch_pcos));
+            CHECK_STATUS(db_pcos->Write(dbimpl::WriteOptions(), &batch_pcos));
             batch_pcos.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &batch_opsc));
+            CHECK_STATUS(db_opsc->Write(dbimpl::WriteOptions(), &batch_opsc));
             batch_opsc.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &batch_cspo));
+            CHECK_STATUS(db_cspo->Write(dbimpl::WriteOptions(), &batch_cspo));
             batch_cspo.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &batch_spoc));
+            CHECK_STATUS(db_spoc->Write(dbimpl::WriteOptions(), &batch_spoc));
             batch_spoc.Clear();
         }));
 
@@ -476,7 +483,7 @@ std::unique_ptr<LevelDBPersistence::StatementIterator> LevelDBPersistence::GetSt
 
     PatternQuery query(pattern);
 
-    leveldb::DB* db;
+    dbimpl::DB* db;
     switch (query.Type()) {
         case PatternQuery::SPOC:
             db = db_spoc.get();
@@ -500,12 +507,12 @@ std::unique_ptr<LevelDBPersistence::StatementIterator> LevelDBPersistence::GetSt
         DLOG(INFO) << "Retrieving statements with filter.";
         return util::make_unique<util::FilteringIterator<Statement>>(
                 new StatementRangeIterator(
-                        db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey()),
+                        db->NewIterator(dbimpl::ReadOptions()), query.MinKey(), query.MaxKey()),
                 [&pattern](const Statement& stmt) -> bool { return Matches(pattern, stmt); });
     } else {
         DLOG(INFO) << "Retrieving statements without filter.";
         return util::make_unique<StatementRangeIterator>(
-                db->NewIterator(leveldb::ReadOptions()), query.MinKey(), query.MaxKey());
+                db->NewIterator(dbimpl::ReadOptions()), query.MinKey(), query.MaxKey());
     }
 }
 
@@ -535,22 +542,22 @@ int64_t LevelDBPersistence::RemoveStatements(const rdf::proto::Statement& patter
     int64_t count = 0;
 
     Statement stmt;
-    leveldb::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
+    dbimpl::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
 
     count = RemoveStatements(pattern, batch_spoc, batch_cspo, batch_opsc, batch_pcos);
 
     std::vector<std::thread> writers;
     writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &batch_pcos));
+        CHECK_STATUS(db_pcos->Write(dbimpl::WriteOptions(), &batch_pcos));
     }));
     writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &batch_opsc));
+        CHECK_STATUS(db_opsc->Write(dbimpl::WriteOptions(), &batch_opsc));
     }));
     writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &batch_cspo));
+        CHECK_STATUS(db_cspo->Write(dbimpl::WriteOptions(), &batch_cspo));
     }));
     writers.push_back(std::thread([&]() {
-        CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &batch_spoc));
+        CHECK_STATUS(db_spoc->Write(dbimpl::WriteOptions(), &batch_spoc));
     }));
 
     for (auto& t : writers) {
@@ -574,27 +581,27 @@ UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &
     auto writeBatches = [&]{
         std::vector<std::thread> writers;
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_pcos->Write(leveldb::WriteOptions(), &b_pcos));
+            CHECK_STATUS(db_pcos->Write(dbimpl::WriteOptions(), &b_pcos));
             b_pcos.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_opsc->Write(leveldb::WriteOptions(), &b_opsc));
+            CHECK_STATUS(db_opsc->Write(dbimpl::WriteOptions(), &b_opsc));
             b_opsc.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_cspo->Write(leveldb::WriteOptions(), &b_cspo));
+            CHECK_STATUS(db_cspo->Write(dbimpl::WriteOptions(), &b_cspo));
             b_cspo.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_spoc->Write(leveldb::WriteOptions(), &b_spoc));
+            CHECK_STATUS(db_spoc->Write(dbimpl::WriteOptions(), &b_spoc));
             b_spoc.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_ns_prefix->Write(leveldb::WriteOptions(), &b_prefix));
+            CHECK_STATUS(db_ns_prefix->Write(dbimpl::WriteOptions(), &b_prefix));
             b_prefix.Clear();
         }));
         writers.push_back(std::thread([&]() {
-            CHECK_STATUS(db_ns_url->Write(leveldb::WriteOptions(), &b_url));
+            CHECK_STATUS(db_ns_url->Write(dbimpl::WriteOptions(), &b_url));
             b_url.Clear();
         }));
 
@@ -675,19 +682,19 @@ void LevelDBPersistence::AddStatement(
 
     char *k_spoc = (char *) calloc(4 * KEY_LENGTH, sizeof(char));
     computeKey(&bufs, &bufp, &bufo, &bufc, k_spoc);
-    spoc.Put(leveldb::Slice(k_spoc, 4 * KEY_LENGTH), buffer);
+    spoc.Put(dbimpl::Slice(k_spoc, 4 * KEY_LENGTH), buffer);
 
     char *k_cspo = (char *) calloc(4 * KEY_LENGTH, sizeof(char));
     orderKey(k_cspo, k_spoc, C, S, P, O);
-    cspo.Put(leveldb::Slice(k_cspo, 4 * KEY_LENGTH), buffer);
+    cspo.Put(dbimpl::Slice(k_cspo, 4 * KEY_LENGTH), buffer);
 
     char *k_opsc = (char *) calloc(4 * KEY_LENGTH, sizeof(char));
     orderKey(k_opsc, k_spoc, O, P, S, C);
-    opsc.Put(leveldb::Slice(k_opsc, 4 * KEY_LENGTH), buffer);
+    opsc.Put(dbimpl::Slice(k_opsc, 4 * KEY_LENGTH), buffer);
 
     char *k_pcos = (char *) calloc(4 * KEY_LENGTH, sizeof(char));
     orderKey(k_pcos, k_spoc, P, C, O, S);
-    pcos.Put(leveldb::Slice(k_pcos, 4 * KEY_LENGTH), buffer);
+    pcos.Put(dbimpl::Slice(k_pcos, 4 * KEY_LENGTH), buffer);
 
     free(k_spoc);
     free(k_cspo);
@@ -712,19 +719,19 @@ int64_t LevelDBPersistence::RemoveStatements(
 
         char* k_spoc = (char*)calloc(4 * KEY_LENGTH, sizeof(char));
         computeKey(&bufs, &bufp, &bufo, &bufc, k_spoc);
-        spoc.Delete(leveldb::Slice(k_spoc, 4 * KEY_LENGTH));
+        spoc.Delete(dbimpl::Slice(k_spoc, 4 * KEY_LENGTH));
 
         char* k_cspo = (char*)calloc(4 * KEY_LENGTH, sizeof(char));
         orderKey(k_cspo, k_spoc, C, S, P, O);
-        cspo.Delete(leveldb::Slice(k_cspo, 4 * KEY_LENGTH));
+        cspo.Delete(dbimpl::Slice(k_cspo, 4 * KEY_LENGTH));
 
         char* k_opsc = (char*)calloc(4 * KEY_LENGTH, sizeof(char));
         orderKey(k_opsc, k_spoc, O, P, S, C);
-        opsc.Delete(leveldb::Slice(k_opsc, 4 * KEY_LENGTH));
+        opsc.Delete(dbimpl::Slice(k_opsc, 4 * KEY_LENGTH));
 
         char* k_pcos = (char*)calloc(4 * KEY_LENGTH, sizeof(char));
         orderKey(k_pcos, k_spoc, P, C, O, S);
-        pcos.Delete(leveldb::Slice(k_pcos, 4 * KEY_LENGTH));
+        pcos.Delete(dbimpl::Slice(k_pcos, 4 * KEY_LENGTH));
 
         free(k_spoc);
         free(k_cspo);
@@ -739,14 +746,14 @@ int64_t LevelDBPersistence::RemoveStatements(
     return count;
 }
 
-int KeyComparator::Compare(const leveldb::Slice& a, const leveldb::Slice& b) const {
+int KeyComparator::Compare(const dbimpl::Slice& a, const dbimpl::Slice& b) const {
     return memcmp(a.data(), b.data(), 4 * KEY_LENGTH);
 }
 
 
 int64_t LevelDBPersistence::Size() {
     int64_t count = 0;
-    leveldb::Iterator* it = db_cspo->NewIterator(leveldb::ReadOptions());
+    dbimpl::Iterator* it = db_cspo->NewIterator(dbimpl::ReadOptions());
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
         count++;
     }

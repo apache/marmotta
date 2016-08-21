@@ -22,9 +22,19 @@
 #include <string>
 #include <functional>
 
+#ifdef HAVE_ROCKSDB
+#include <rocksdb/db.h>
+#include <rocksdb/cache.h>
+#include <rocksdb/comparator.h>
+
+namespace dbimpl = rocksdb;
+#else
 #include <leveldb/db.h>
 #include <leveldb/cache.h>
 #include <leveldb/comparator.h>
+
+namespace dbimpl = leveldb;
+#endif
 
 #include "model/rdf_model.h"
 #include "service/sail.pb.h"
@@ -36,13 +46,13 @@ namespace persistence {
 /**
  * A custom comparator treating the bytes in the key as unsigned char.
  */
-class KeyComparator : public leveldb::Comparator {
+class KeyComparator : public dbimpl::Comparator {
  public:
-    int Compare(const leveldb::Slice& a, const leveldb::Slice& b) const;
+    int Compare(const dbimpl::Slice& a, const dbimpl::Slice& b) const override ;
 
-    const char* Name() const { return "KeyComparator"; }
-    void FindShortestSeparator(std::string*, const leveldb::Slice&) const { }
-    void FindShortSuccessor(std::string*) const { }
+    const char* Name() const override { return "KeyComparator"; }
+    void FindShortestSeparator(std::string*, const dbimpl::Slice&) const override { }
+    void FindShortSuccessor(std::string*) const override { }
 };
 
 
@@ -134,11 +144,11 @@ class LevelDBPersistence {
  private:
 
     std::unique_ptr<KeyComparator> comparator;
-    std::unique_ptr<leveldb::Cache> cache;
-    std::unique_ptr<leveldb::Options> options;
+    std::shared_ptr<dbimpl::Cache> cache;
+    std::unique_ptr<dbimpl::Options> options;
 
     // We currently support efficient lookups by subject, context and object.
-    std::unique_ptr<leveldb::DB>
+    std::unique_ptr<dbimpl::DB>
             // Statement databases, indexed for query performance
             db_spoc, db_cspo, db_opsc, db_pcos,
             // Namespace databases
@@ -150,20 +160,20 @@ class LevelDBPersistence {
      * Add the namespace to the given database batch operations.
      */
     void AddNamespace(const rdf::proto::Namespace& ns,
-                      leveldb::WriteBatch& ns_prefix, leveldb::WriteBatch& ns_url);
+                      dbimpl::WriteBatch& ns_prefix, dbimpl::WriteBatch& ns_url);
 
     /**
      * Add the namespace to the given database batch operations.
      */
     void RemoveNamespace(const rdf::proto::Namespace& ns,
-                         leveldb::WriteBatch& ns_prefix, leveldb::WriteBatch& ns_url);
+                         dbimpl::WriteBatch& ns_prefix, dbimpl::WriteBatch& ns_url);
 
     /**
      * Add the statement to the given database batch operations.
      */
     void AddStatement(const rdf::proto::Statement& stmt,
-                      leveldb::WriteBatch& spoc, leveldb::WriteBatch& cspo,
-                      leveldb::WriteBatch& opsc, leveldb::WriteBatch&pcos);
+                      dbimpl::WriteBatch& spoc, dbimpl::WriteBatch& cspo,
+                      dbimpl::WriteBatch& opsc, dbimpl::WriteBatch&pcos);
 
 
     /**
@@ -171,8 +181,8 @@ class LevelDBPersistence {
      * unset to indicate wildcards) from the given database batch operations.
      */
     int64_t RemoveStatements(const rdf::proto::Statement& pattern,
-                             leveldb::WriteBatch& spoc, leveldb::WriteBatch& cspo,
-                             leveldb::WriteBatch& opsc, leveldb::WriteBatch&pcos);
+                             dbimpl::WriteBatch& spoc, dbimpl::WriteBatch& cspo,
+                             dbimpl::WriteBatch& opsc, dbimpl::WriteBatch&pcos);
 
 
 };
