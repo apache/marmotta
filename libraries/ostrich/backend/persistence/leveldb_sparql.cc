@@ -35,19 +35,20 @@ class WrapProtoStatementIterator : public util::ConvertingIterator<rdf::proto::S
 
 
 bool LevelDBTripleSource::HasStatement(
-        const rdf::Resource *s, const rdf::URI *p, const rdf::Value *o, const rdf::Resource *c) {
+        const optional<rdf::Resource>& s, const optional<rdf::URI>& p,
+        const optional<rdf::Value>& o, const optional<rdf::Resource>& c)  {
     rdf::proto::Statement pattern;
 
-    if (s != nullptr) {
+    if (s) {
         *pattern.mutable_subject() = s->getMessage();
     }
-    if (p != nullptr) {
+    if (p) {
         *pattern.mutable_predicate() = p->getMessage();
     }
-    if (o != nullptr) {
+    if (o) {
         *pattern.mutable_object() = o->getMessage();
     }
-    if (c != nullptr) {
+    if (c) {
         *pattern.mutable_context() = c->getMessage();
     }
 
@@ -61,19 +62,20 @@ bool LevelDBTripleSource::HasStatement(
 }
 
 std::unique_ptr<sparql::StatementIterator> LevelDBTripleSource::GetStatements(
-        const rdf::Resource *s, const rdf::URI *p, const rdf::Value *o, const rdf::Resource *c) {
+        const optional<rdf::Resource>& s, const optional<rdf::URI>& p,
+        const optional<rdf::Value>& o, const optional<rdf::Resource>& c)  {
     rdf::proto::Statement pattern;
 
-    if (s != nullptr) {
+    if (s) {
         *pattern.mutable_subject() = s->getMessage();
     }
-    if (p != nullptr) {
+    if (p) {
         *pattern.mutable_predicate() = p->getMessage();
     }
-    if (o != nullptr) {
+    if (o) {
         *pattern.mutable_object() = o->getMessage();
     }
-    if (c != nullptr) {
+    if (c) {
         *pattern.mutable_context() = c->getMessage();
     }
 

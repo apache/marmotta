@@ -124,52 +124,52 @@ int init_triples_match(
 
     SparqlService *self = (SparqlService *) *(void**)user_data;
 
-    std::unique_ptr<rdf::Resource> s = nullptr;
-    std::unique_ptr<rdf::URI> p = nullptr;
-    std::unique_ptr<rdf::Value> o = nullptr;
-    std::unique_ptr<rdf::Resource> c = nullptr;
+    optional<rdf::Resource> s;
+    optional<rdf::URI> p;
+    optional<rdf::Value> o;
+    optional<rdf::Resource> c;
 
     rasqal_variable* var;
     if ((var=rasqal_literal_as_variable(t->subject))) {
         m->bindings[0] = var;
         if (var->value) {
-            s.reset(new rdf::Resource(rasqal::ConvertResource(var->value)));
+            s = rasqal::ConvertResource(var->value);
         }
     } else {
-        s.reset(new rdf::Resource(rasqal::ConvertResource(t->subject)));
+        s = rasqal::ConvertResource(t->subject);
     }
 
     if ((var=rasqal_literal_as_variable(t->predicate))) {
         m->bindings[1] = var;
         if (var->value) {
-            p.reset(new rdf::URI(rasqal::ConvertURI(var->value)));
+            p = rasqal::ConvertURI(var->value);
         }
     } else {
-        p.reset(new rdf::URI(rasqal::ConvertURI(t->predicate)));
+        p = rasqal::ConvertURI(t->predicate);
     }
 
     if ((var=rasqal_literal_as_variable(t->object))) {
         m->bindings[2] = var;
         if (var->value) {
-            o.reset(new rdf::Value(rasqal::ConvertValue(var->value)));
+            o = rasqal::ConvertValue(var->value);
         }
     } else {
-        o.reset(new rdf::Value(rasqal::ConvertValue(t->object)));
+        o = rasqal::ConvertValue(t->object);
     }
 
     if(t->origin) {
         if ((var=rasqal_literal_as_variable(t->origin))) {
             m->bindings[3] = var;
             if (var->value) {
-                c.reset(new rdf::Resource(rasqal::ConvertResource(var->value)));
+                c = rasqal::ConvertResource(var->value);
             }
         } else {
-            c.reset(new rdf::Resource(rasqal::ConvertResource(t->origin)));
+            c = rasqal::ConvertResource(t->origin);
         }
     }
 
     // Store C++ iterator in user_data and take ownership
-    auto it = self->Source().GetStatements(s.get(), p.get(), o.get(), c.get());
+    auto it = self->Source().GetStatements(s, p, o, c);
     rtm->user_data = it.release();
 
     rtm->bind_match = bind_match;
@@ -185,18 +185,16 @@ int triple_present(
         struct rasqal_triples_source_s *rts, void *user_data, rasqal_triple *t) {
     DLOG(INFO) << "Check triple";
 
-    auto s = rasqal::ConvertResource(t->subject);
-    auto p = rasqal::ConvertURI(t->predicate);
-    auto o = rasqal::ConvertValue(t->object);
+    optional<rdf::Resource> s = rasqal::ConvertResource(t->subject);
+    optional<rdf::URI> p = rasqal::ConvertURI(t->predicate);
+    optional<rdf::Value> o = rasqal::ConvertValue(t->object);
+    optional<rdf::Resource> c;
 
     SparqlService *self = (SparqlService *) *(void**)user_data;
     if ((t->flags & RASQAL_TRIPLE_ORIGIN) != 0) {
-        auto c = rasqal::ConvertResource(t->origin);
-
-        return self->Source().HasStatement(&s, &p, &o, &c);
-    } else {
-        return self->Source().HasStatement(&s, &p, &o, nullptr);
+        c = rasqal::ConvertResource(t->origin);
     }
+    return self->Source().HasStatement(s, p, o, c);
 }
 
 void free_triples_source(void *user_data) {

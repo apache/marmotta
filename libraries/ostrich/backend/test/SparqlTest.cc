@@ -13,7 +13,7 @@ namespace {
 
 const rdf::URI base_uri("http://example.com/");
 
-
+using std::experimental::optional;
 using MockStatementIterator = util::CollectionIterator<rdf::Statement>;
 
 class MockTripleSource : public TripleSource {
@@ -22,19 +22,20 @@ class MockTripleSource : public TripleSource {
     MockTripleSource(std::vector<rdf::Statement> statements)
             : statements(statements) { }
 
-    bool HasStatement(const rdf::Resource *s, const rdf::URI *p, const rdf::Value *o, const rdf::Resource *c) override {
+    bool HasStatement(const optional<rdf::Resource>& s, const optional<rdf::URI>& p,
+                      const optional<rdf::Value>& o, const optional<rdf::Resource>& c) override {
         for (const auto& stmt : statements) {
             bool match = true;
-            if (s != nullptr && *s != stmt.getSubject()) {
+            if (s && *s != stmt.getSubject()) {
                 match = false;
             }
-            if (p != nullptr && *p != stmt.getPredicate()) {
+            if (p && *p != stmt.getPredicate()) {
                 match = false;
             }
-            if (o != nullptr && *o != stmt.getObject()) {
+            if (o && *o != stmt.getObject()) {
                 match = false;
             }
-            if (c != nullptr && *c != stmt.getContext()) {
+            if (c && *c != stmt.getContext()) {
                 match = false;
             }
             if (!match) {
@@ -44,21 +45,22 @@ class MockTripleSource : public TripleSource {
         return false;
     }
 
-    std::unique_ptr<StatementIterator> GetStatements(const rdf::Resource *s, const rdf::URI *p,
-                                                             const rdf::Value *o, const rdf::Resource *c) override {
+    std::unique_ptr<StatementIterator> GetStatements(
+            const optional<rdf::Resource>& s, const optional<rdf::URI>& p,
+            const optional<rdf::Value>& o, const optional<rdf::Resource>& c) override {
         std::vector<rdf::Statement> results;
         for (const auto& stmt : statements) {
             bool match = true;
-            if (s != nullptr && *s != stmt.getSubject()) {
+            if (s && *s != stmt.getSubject()) {
                 match = false;
             }
-            if (p != nullptr && *p != stmt.getPredicate()) {
+            if (p && *p != stmt.getPredicate()) {
                 match = false;
             }
-            if (o != nullptr && *o != stmt.getObject()) {
+            if (o && *o != stmt.getObject()) {
                 match = false;
             }
-            if (c != nullptr && *c != stmt.getContext()) {
+            if (c && *c != stmt.getContext()) {
                 match = false;
             }
             if (match) {

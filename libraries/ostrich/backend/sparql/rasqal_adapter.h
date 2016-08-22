@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <experimental/optional>
 #include <rasqal/rasqal.h>
 
 #include "model/rdf_model.h"
@@ -29,6 +30,7 @@ namespace marmotta {
 namespace sparql {
 
 using StatementIterator = util::CloseableIterator<rdf::Statement>;
+using std::experimental::optional;
 
 /**
  * An abstract superclass for more easily interfacing from the C++ Marmotta model
@@ -42,8 +44,8 @@ class TripleSource {
      * Parameters with nullptr value are interpreted as wildcards.
      */
     virtual bool HasStatement(
-            const rdf::Resource* s, const rdf::URI* p, const rdf::Value* o,
-            const rdf::Resource* c) = 0;
+            const optional<rdf::Resource>& s, const optional<rdf::URI>& p,
+            const optional<rdf::Value>& o, const optional<rdf::Resource>& c) = 0;
 
     /**
      * Return an iterator over statements matching the given subject, predicate,
@@ -52,8 +54,8 @@ class TripleSource {
      * Parameters with nullptr value are interpreted as wildcards.
      */
     virtual std::unique_ptr<StatementIterator> GetStatements(
-            const rdf::Resource* s, const rdf::URI* p, const rdf::Value* o,
-            const rdf::Resource* c) = 0;
+            const optional<rdf::Resource>& s, const optional<rdf::URI>& p,
+            const optional<rdf::Value>& o, const optional<rdf::Resource>& c) = 0;
 };
 
 class SparqlException : public std::exception {

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(Marmotta)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -g")
 set(PROTOBUF_IMPORT_DIRS "${CMAKE_SOURCE_DIR}/model")
 set(USE_TCMALLOC TRUE)
 
