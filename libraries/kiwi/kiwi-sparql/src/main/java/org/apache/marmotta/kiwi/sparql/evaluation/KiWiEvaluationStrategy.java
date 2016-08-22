@@ -240,7 +240,8 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                         long[] nodeIds = new long[vars.size()];
                         for(int i=0; i<vars.size(); i++) {
                             SQLVariable sv = vars.get(i);
-                            if(sv.getProjectionType() == ValueType.NODE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
+                            if(sv.getProjectionType() == ValueType.NODE && (builder.getProjectedVars().isEmpty()
+                                    || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 nodeIds[i] = row.getLong(sv.getName());
                             }
                         }
@@ -251,14 +252,17 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                             if(nodes[i] != null) {
                                 // resolved node
                                 resultRow.addBinding(sv.getSparqlName(), nodes[i]);
-                            } else if(sv.getProjectionType() != ValueType.NONE && (builder.getProjectedVars().isEmpty() || builder.getProjectedVars().contains(sv.getSparqlName()))) {
+                            } else if(sv.getProjectionType() != ValueType.NONE && (builder.getProjectedVars().isEmpty()
+                                    || builder.getProjectedVars().contains(sv.getSparqlName()))) {
                                 // literal value
                                 String svalue;
                                 switch (sv.getProjectionType()) {
                                     case URI:
                                         svalue = row.getString(sv.getName());
                                         if(svalue != null)
-                                            resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
+                                            try {
+                                                resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
+                                            } catch (IllegalArgumentException ex) {} // illegal URI unbound
                                         break;
                                     case BNODE:
                                         svalue = row.getString(sv.getName());
@@ -373,7 +377,8 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                 });
 
 
-                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator())) {
+                return new ExceptionConvertingIteration<BindingSet, QueryEvaluationException>(
+                        new CloseableIteratorIteration<BindingSet, SQLException>(Iterations.asList(it).iterator())) {
                     @Override
                     protected QueryEvaluationException convert(Exception e) {
                         return new QueryEvaluationException(e);

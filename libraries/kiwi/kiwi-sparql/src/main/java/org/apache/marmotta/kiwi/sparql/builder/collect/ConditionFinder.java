@@ -35,10 +35,14 @@ public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
     int valueNeeded = 0;
 
     // set of variables that need a value to be resolved (used by ExtensionElem resolution)
-    public Set<String> neededVariables = new HashSet<>();
+    private Set<String> neededVariables = new HashSet<>();
 
-    public ConditionFinder(TupleExpr expr) {
+    private ConditionFinder(TupleExpr expr) {
         expr.visit(this);
+    }
+
+    public static Set<String> find(TupleExpr expr) {
+        return new ConditionFinder(expr).neededVariables;
     }
 
     @Override

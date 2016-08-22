@@ -82,7 +82,9 @@ public class PGCopyUtil {
 
 
     // PostgreSQL expects the empty string to be quoted to distinguish between null and empty
-    final static CsvPreference nodesPreference = new CsvPreference.Builder('"', ',', "\r\n").useEncoder(new DefaultCsvEncoder() {
+    final static CsvPreference nodesPreference = new CsvPreference
+            .Builder('"', ',', "\r\n")
+            .useEncoder(new DefaultCsvEncoder() {
         /**
          * {@inheritDoc}
          */

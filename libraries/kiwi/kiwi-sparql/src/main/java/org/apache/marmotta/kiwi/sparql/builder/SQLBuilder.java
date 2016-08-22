@@ -203,25 +203,24 @@ public class SQLBuilder {
         limit    = new LimitFinder(query).limit;
 
         // check if query is distinct
-        distinct = new DistinctFinder(query).distinct;
+        distinct = DistinctFinder.find(query);
 
         // find the ordering
-        orderby  = new OrderFinder(query).elements;
+        orderby = OrderFinder.find(query);
 
         // find the grouping
-        GroupFinder gf  = new GroupFinder(query);
-        groupLabels      = gf.bindings;
+        groupLabels = GroupFinder.find(query);
 
         // find extensions (BIND)
-        extensions = new ExtensionFinder(query).elements;
+        extensions = ExtensionFinder.find(query);
 
         // find variables that need to be resolved
-        resolveVariables = new ConditionFinder(query).neededVariables;
+        resolveVariables = ConditionFinder.find(query);
 
         int variableCount = 0;
 
         // find all variables that have been bound already, even if they do not appear in a pattern
-        for(Var v : new VariableFinder(query).variables) {
+        for(Var v : VariableFinder.find(query)) {
             if (v.hasValue() && !isConst(v)) {
                 SQLVariable sv = variables.get(v.getName());
                 if(sv == null) {
@@ -232,7 +231,7 @@ public class SQLBuilder {
                         sv.setProjectionType(ValueType.NODE);
                     }
 
-                    sv.getExpressions().add(""+ converter.convert(v.getValue()).getId());
+                    sv.addExpression(""+ converter.convert(v.getValue()).getId());
 
                     addVariable(sv);
                 }
@@ -340,7 +339,7 @@ public class SQLBuilder {
             }
 
             try {
-                sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
+                sv.addExpression(evaluateExpression(ext.getExpr(), ValueType.NODE));
                 if(sv.getProjectionType() == ValueType.NODE && getProjectionType(ext.getExpr()) != ValueType.NODE) {
                     sv.setProjectionType(getProjectionType(ext.getExpr()));
                 }
@@ -364,7 +363,7 @@ public class SQLBuilder {
                         String pName = p.getName();
 
                         // if the variable has been used before, add a join condition to the first occurrence
-                        if (!sv.getExpressions().isEmpty()) {
+                        if (sv.hasExpressions()) {
                             // case distinction: is this variable projected as node or as another value in an extension?
                             // if it is a value, we need to refer to the corresponding typed column of the node, otherwise
                             // to the node ID (field ID is sufficient)
@@ -394,7 +393,7 @@ public class SQLBuilder {
                             }
                         }
 
-                        sv.getExpressions().add(pName + "." + positions[i]);
+                        sv.addExpression(pName + "." + positions[i]);
                     }
                 }
             }
@@ -411,7 +410,7 @@ public class SQLBuilder {
                         sq.addCondition(sv.getExpressions().get(0) + " = " + sqName + "." + sq_v.getName());
                     }
 
-                    sv.getExpressions().add(sqName + "." + sq_v.getName());
+                    sv.addExpression(sqName + "." + sq_v.getName());
 
                 }
             }
@@ -421,7 +420,7 @@ public class SQLBuilder {
             Var v = new Var(ext.getName());
 
             SQLVariable sv = variables.get(v.getName());
-            sv.getExpressions().add(evaluateExpression(ext.getExpr(), ValueType.NODE));
+            sv.addExpression(evaluateExpression(ext.getExpr(), ValueType.NODE));
         }
 
         // find context restrictions of patterns and match them with potential restrictions given in the
@@ -529,8 +528,7 @@ public class SQLBuilder {
                         }
 
                         if (nodeId >= 0) {
-                            String condition = pName + "." + positions[i] + " = " + nodeId;
-                            p.addCondition(condition);
+                            p.addCondition(pName + "." + positions[i] + " = " + nodeId);
                         }
                     }
                 }
@@ -618,7 +616,7 @@ public class SQLBuilder {
             if(v.getProjectionType() != ValueType.NONE && (projectedVars.isEmpty() || projectedVars.contains(v.getSparqlName()))) {
 
 
-                if (v.getExpressions() != null && v.getExpressions().size() > 0) {
+                if (v.hasExpressions()) {
                     String fromName = v.getExpressions().get(0);
                     projections.add(fromName + " AS " + projectedName);
                 }
@@ -701,7 +699,7 @@ public class SQLBuilder {
             for(String v : bindings.getBindingNames()) {
                 SQLVariable sv = variables.get(v);
 
-                if(sv != null && !sv.getExpressions().isEmpty()) {
+                if(sv != null && sv.hasExpressions()) {
                     List<String> vNames = sv.getExpressions();
                     String vName = vNames.get(0);
                     Value binding = converter.convert(bindings.getValue(v));

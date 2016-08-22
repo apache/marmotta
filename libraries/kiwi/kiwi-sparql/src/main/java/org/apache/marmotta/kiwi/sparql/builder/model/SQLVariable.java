@@ -113,8 +113,16 @@ public class SQLVariable  implements Cloneable{
         return bindings;
     }
 
+    public void addExpression(String e) {
+        expressions.add(e);
+    }
+
     public List<String> getExpressions() {
         return expressions;
+    }
+
+    public boolean hasExpressions() {
+        return expressions != null && !expressions.isEmpty();
     }
 
     public ValueType getProjectionType() {

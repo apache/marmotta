@@ -30,10 +30,14 @@ import java.util.List;
 */
 public class OrderFinder extends QueryModelVisitorBase<RuntimeException> {
 
-    public List<OrderElem> elements = new ArrayList<>();
+    private List<OrderElem> elements = new ArrayList<>();
 
-    public OrderFinder(TupleExpr expr) {
+    private OrderFinder(TupleExpr expr) {
         expr.visit(this);
+    }
+
+    public static List<OrderElem> find(TupleExpr expr) {
+        return new OrderFinder(expr).elements;
     }
 
     @Override
