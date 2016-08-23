@@ -39,6 +39,7 @@ namespace dbimpl = leveldb;
 #include "model/rdf_model.h"
 #include "service/sail.pb.h"
 #include "util/iterator.h"
+#include "util/threadpool.h"
 
 namespace marmotta {
 namespace persistence {
@@ -142,6 +143,7 @@ class LevelDBPersistence {
      */
     int64_t Size();
  private:
+    ctpl::thread_pool workers;
 
     std::unique_ptr<KeyComparator> comparator;
     std::shared_ptr<dbimpl::Cache> cache;

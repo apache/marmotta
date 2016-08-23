@@ -293,7 +293,7 @@ bool Matches(const Statement& pattern, const Statement& stmt) {
 dbimpl::DB* buildDB(const std::string& path, const std::string& suffix, const dbimpl::Options& options) {
     dbimpl::DB* db;
     dbimpl::Status status = dbimpl::DB::Open(options, path + "/" + suffix + ".db", &db);
-    assert(status.ok());
+    CHECK_STATUS(status);
     return db;
 }
 
@@ -327,7 +327,7 @@ dbimpl::Options buildNsOptions() {
 }
 
 LevelDBPersistence::LevelDBPersistence(const std::string &path, int64_t cacheSize)
-        : comparator(new KeyComparator())
+        : workers(8), comparator(new KeyComparator())
         , cache(dbimpl::NewLRUCache(cacheSize))
         , options(buildOptions(comparator.get(), cache.get()))
         , db_ns_prefix(buildDB(path, "ns_prefix", buildNsOptions()))
@@ -335,23 +335,23 @@ LevelDBPersistence::LevelDBPersistence(const std::string &path, int64_t cacheSiz
         , db_meta(buildDB(path, "metadata", buildNsOptions())) {
 
     // Open databases in separate threads as LevelDB does a lot of computation on open.
-    std::vector<std::thread> openers;
-    openers.push_back(std::thread([&]() {
+    std::vector<std::future<void>> openers;
+    openers.push_back(workers.push([&](int id) {
         db_spoc.reset(buildDB(path, "spoc", *options));
     }));
-    openers.push_back(std::thread([&]() {
+    openers.push_back(workers.push([&](int id) {
         db_cspo.reset(buildDB(path, "cspo", *options));
     }));
-    openers.push_back(std::thread([&]() {
+    openers.push_back(workers.push([&](int id) {
         db_opsc.reset(buildDB(path, "opsc", *options));
     }));
-    openers.push_back(std::thread([&]() {
+    openers.push_back(workers.push([&](int id) {
         db_pcos.reset(buildDB(path, "pcos", *options));
     }));
 
 
     for (auto& t : openers) {
-        t.join();
+        t.wait();
     }
 
     CHECK_NOTNULL(db_spoc.get());
@@ -434,26 +434,26 @@ int64_t LevelDBPersistence::AddStatements(StatementIterator& it) {
 
     dbimpl::WriteBatch batch_spoc, batch_cspo, batch_opsc, batch_pcos;
     auto writeBatches = [&]{
-        std::vector<std::thread> writers;
-        writers.push_back(std::thread([&]() {
+        std::vector<std::future<void>> writers;
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_pcos->Write(dbimpl::WriteOptions(), &batch_pcos));
             batch_pcos.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_opsc->Write(dbimpl::WriteOptions(), &batch_opsc));
             batch_opsc.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_cspo->Write(dbimpl::WriteOptions(), &batch_cspo));
             batch_cspo.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_spoc->Write(dbimpl::WriteOptions(), &batch_spoc));
             batch_spoc.Clear();
         }));
 
         for (auto& t : writers) {
-            t.join();
+            t.wait();
         }
     };
 
@@ -546,22 +546,22 @@ int64_t LevelDBPersistence::RemoveStatements(const rdf::proto::Statement& patter
 
     count = RemoveStatements(pattern, batch_spoc, batch_cspo, batch_opsc, batch_pcos);
 
-    std::vector<std::thread> writers;
-    writers.push_back(std::thread([&]() {
+    std::vector<std::future<void>> writers;
+    writers.push_back(workers.push([&](int id) {
         CHECK_STATUS(db_pcos->Write(dbimpl::WriteOptions(), &batch_pcos));
     }));
-    writers.push_back(std::thread([&]() {
+    writers.push_back(workers.push([&](int id) {
         CHECK_STATUS(db_opsc->Write(dbimpl::WriteOptions(), &batch_opsc));
     }));
-    writers.push_back(std::thread([&]() {
+    writers.push_back(workers.push([&](int id) {
         CHECK_STATUS(db_cspo->Write(dbimpl::WriteOptions(), &batch_cspo));
     }));
-    writers.push_back(std::thread([&]() {
+    writers.push_back(workers.push([&](int id) {
         CHECK_STATUS(db_spoc->Write(dbimpl::WriteOptions(), &batch_spoc));
     }));
 
     for (auto& t : writers) {
-        t.join();
+        t.wait();
     }
 
     DLOG(INFO) << "Removed " << count << " statements (time=" <<
@@ -579,34 +579,34 @@ UpdateStatistics LevelDBPersistence::Update(LevelDBPersistence::UpdateIterator &
 
     WriteBatch b_spoc, b_cspo, b_opsc, b_pcos, b_prefix, b_url;
     auto writeBatches = [&]{
-        std::vector<std::thread> writers;
-        writers.push_back(std::thread([&]() {
+        std::vector<std::future<void>> writers;
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_pcos->Write(dbimpl::WriteOptions(), &b_pcos));
             b_pcos.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_opsc->Write(dbimpl::WriteOptions(), &b_opsc));
             b_opsc.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_cspo->Write(dbimpl::WriteOptions(), &b_cspo));
             b_cspo.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_spoc->Write(dbimpl::WriteOptions(), &b_spoc));
             b_spoc.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_ns_prefix->Write(dbimpl::WriteOptions(), &b_prefix));
             b_prefix.Clear();
         }));
-        writers.push_back(std::thread([&]() {
+        writers.push_back(workers.push([&](int id) {
             CHECK_STATUS(db_ns_url->Write(dbimpl::WriteOptions(), &b_url));
             b_url.Clear();
         }));
 
         for (auto& t : writers) {
-            t.join();
+            t.wait();
         }
     };
 
