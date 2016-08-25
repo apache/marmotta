@@ -36,6 +36,7 @@ RUN apt-get update -qq \
         libgoogle-glog-dev \
         libgflags-dev \
         libleveldb-dev \
+        librocksdb-dev \
         zlib1g-dev \
         libgflags-dev \
         libgtest-dev \
