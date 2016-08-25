@@ -19,7 +19,7 @@
 #define MARMOTTA_SPARQL_H
 
 #include "sparql/rasqal_adapter.h"
-#include "leveldb_persistence.h"
+#include "base_persistence.h"
 
 namespace marmotta {
 namespace persistence {
@@ -33,7 +33,7 @@ using std::experimental::optional;
 class LevelDBTripleSource : public ::marmotta::sparql::TripleSource {
  public:
 
-    LevelDBTripleSource(LevelDBPersistence *persistence) : persistence(persistence) { }
+    LevelDBTripleSource(Persistence *persistence) : persistence(persistence) { }
 
 
     bool HasStatement(
@@ -47,7 +47,7 @@ class LevelDBTripleSource : public ::marmotta::sparql::TripleSource {
 
  private:
     // A pointer to the persistence instance wrapped by this triple source.
-    LevelDBPersistence* persistence;
+    Persistence* persistence;
 };
 
 

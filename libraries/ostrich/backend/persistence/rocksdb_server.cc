@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 
-#include "leveldb_persistence.h"
+#include "rocksdb_persistence.h"
 #include "leveldb_service.h"
 
 using grpc::Status;
@@ -39,7 +39,7 @@ std::unique_ptr<Server> server;
 
 void stopServer(int signal) {
     if (server.get() != nullptr) {
-        LOG(INFO) << "Persistence Server shutting down";
+        LOG(INFO) << "RocksDB Persistence Server shutting down";
         server->Shutdown();
     }
 }
@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
     google::ParseCommandLineFlags(&argc, &argv, true);
 
     mkdir(FLAGS_db.c_str(), 0700);
-    marmotta::persistence::LevelDBPersistence persistence(FLAGS_db, FLAGS_cache_size);
+    marmotta::persistence::RocksDBPersistence persistence(FLAGS_db, FLAGS_cache_size);
 
     marmotta::service::LevelDBService sailService(&persistence);
     marmotta::service::LevelDBSparqlService sparqlService(&persistence);
@@ -62,9 +62,9 @@ int main(int argc, char** argv) {
     builder.SetMaxMessageSize(INT_MAX);
 
     server = builder.BuildAndStart();
-    std::cout << "Persistence Server listening on " << FLAGS_host << ":" << FLAGS_port << std::endl;
+    std::cout << "RocksDB Persistence Server listening on " << FLAGS_host << ":" << FLAGS_port << std::endl;
 
-    LOG(INFO) << "Persistence Server listening on " << FLAGS_host << ":" << FLAGS_port;
+    LOG(INFO) << "RocksDB Persistence Server listening on " << FLAGS_host << ":" << FLAGS_port;
 
     signal(SIGINT, stopServer);
     signal(SIGTERM, stopServer);

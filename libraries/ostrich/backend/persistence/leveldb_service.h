@@ -18,7 +18,7 @@
 #ifndef MARMOTTA_SERVICE_H
 #define MARMOTTA_SERVICE_H
 
-#include "leveldb_persistence.h"
+#include "base_persistence.h"
 
 #include <grpc/grpc.h>
 #include <grpc++/server.h>
@@ -49,7 +49,7 @@ class LevelDBService : public svc::SailService::Service {
      * Construct a new SailService wrapper around the LevelDB persistence passed
      * as argument. The service will not take ownership of the pointer.
      */
-    LevelDBService(persistence::LevelDBPersistence* persistance) : persistence(persistance) { };
+    LevelDBService(persistence::Persistence* persistance) : persistence(persistance) { };
 
     grpc::Status AddNamespaces(grpc::ServerContext* context,
                                grpc::ServerReader<rdf::proto::Namespace>* reader,
@@ -92,7 +92,7 @@ class LevelDBService : public svc::SailService::Service {
                       google::protobuf::Int64Value* result) override;
 
  private:
-    persistence::LevelDBPersistence* persistence;
+    persistence::Persistence* persistence;
 };
 
 
@@ -105,7 +105,7 @@ class LevelDBSparqlService : public spq::SparqlService::Service {
      * Construct a new SparqlService wrapper around the LevelDB persistence passed
      * as argument. The service will not take ownership of the pointer.
      */
-    LevelDBSparqlService(persistence::LevelDBPersistence* persistence) : persistence(persistence) { };
+    LevelDBSparqlService(persistence::Persistence* persistence) : persistence(persistence) { };
 
     grpc::Status TupleQuery(grpc::ServerContext* context,
                             const spq::SparqlRequest* pattern,
@@ -119,7 +119,7 @@ class LevelDBSparqlService : public spq::SparqlService::Service {
                           const spq::SparqlRequest* pattern,
                           google::protobuf::BoolValue* result) override;
  private:
-    persistence::LevelDBPersistence* persistence;
+    persistence::Persistence* persistence;
 };
 
 }

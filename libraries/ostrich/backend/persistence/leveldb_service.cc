@@ -38,6 +38,7 @@ using marmotta::rdf::proto::Statement;
 using marmotta::rdf::proto::Namespace;
 using marmotta::rdf::proto::Resource;
 using marmotta::service::proto::ContextRequest;
+using marmotta::service::proto::UpdateResponse;
 using marmotta::persistence::sparql::LevelDBTripleSource;
 using marmotta::sparql::SparqlService;
 using marmotta::sparql::TripleSource;
@@ -87,8 +88,8 @@ Status LevelDBService::AddNamespaces(
         ServerContext* context, ServerReader<Namespace>* reader, Int64Value* result) {
 
     auto it = NamespaceIterator(reader);
-    int64_t count = persistence->AddNamespaces(it);
-    result->set_value(count);
+    UpdateResponse stats = persistence->AddNamespaces(it);
+    result->set_value(stats.added_namespaces());
 
     return Status::OK;
 }
@@ -123,8 +124,8 @@ Status LevelDBService::AddStatements(
     util::TimeLogger timeLogger("Adding statements");
 
     auto it = StatementIterator(reader);
-    int64_t count = persistence->AddStatements(it);
-    result->set_value(count);
+    UpdateResponse stats = persistence->AddStatements(it);
+    result->set_value(stats.added_statements());
 
     return Status::OK;
 }
@@ -145,7 +146,7 @@ Status LevelDBService::RemoveStatements(
         ServerContext* context, const Statement* pattern, Int64Value* result) {
     util::TimeLogger timeLogger("Removing statements");
 
-    int64_t count = persistence->RemoveStatements(*pattern);
+    int64_t count = persistence->RemoveStatements(*pattern).removed_statements();
     result->set_value(count);
 
     return Status::OK;
@@ -161,10 +162,10 @@ Status LevelDBService::Clear(
     if (contexts->context_size() > 0) {
         for (const Resource &r : contexts->context()) {
             pattern.mutable_context()->CopyFrom(r);
-            count += persistence->RemoveStatements(pattern);
+            count += persistence->RemoveStatements(pattern).removed_statements();
         }
     } else {
-        count += persistence->RemoveStatements(pattern);
+        count += persistence->RemoveStatements(pattern).removed_statements();
     }
     result->set_value(count);
 
@@ -224,12 +225,7 @@ grpc::Status LevelDBService::Update(grpc::ServerContext *context,
     util::TimeLogger timeLogger("Updating database");
 
     auto it = UpdateIterator(reader);
-    persistence::UpdateStatistics stats = persistence->Update(it);
-
-    result->set_added_namespaces(stats.added_ns);
-    result->set_removed_namespaces(stats.removed_ns);
-    result->set_added_statements(stats.added_stmts);
-    result->set_removed_statements(stats.removed_stmts);
+    *result = persistence->Update(it);
 
     return Status::OK;
 }

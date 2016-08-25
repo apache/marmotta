@@ -22,14 +22,11 @@
 #include <string>
 #include <functional>
 
-#include <leveldb/db.h>
-#include <leveldb/cache.h>
-#include <leveldb/comparator.h>
+#include <rocksdb/db.h>
+#include <rocksdb/cache.h>
+#include <rocksdb/comparator.h>
 
-#include "model/rdf_model.h"
 #include "persistence/base_persistence.h"
-#include "service/sail.pb.h"
-#include "util/iterator.h"
 #include "util/threadpool.h"
 
 namespace marmotta {
@@ -38,34 +35,42 @@ namespace persistence {
 /**
  * A custom comparator treating the bytes in the key as unsigned char.
  */
-class KeyComparator : public leveldb::Comparator {
+class KeyComparator : public rocksdb::Comparator {
  public:
-    int Compare(const leveldb::Slice& a, const leveldb::Slice& b) const override ;
+    int Compare(const rocksdb::Slice& a, const rocksdb::Slice& b) const override ;
 
     const char* Name() const override { return "KeyComparator"; }
-    void FindShortestSeparator(std::string*, const leveldb::Slice&) const override { }
+    void FindShortestSeparator(std::string*, const rocksdb::Slice&) const override { }
     void FindShortSuccessor(std::string*) const override { }
 };
 
+
+// Symbolic handle indices,
+enum Handles {
+    ISPOC = 0, ICSPO = 1, IOPSC = 2, IPCOS = 3, NSPREFIX = 4, NSURI = 5, META = 6
+};
+
 /**
- * Persistence implementation based on the LevelDB high performance database.
+ * Persistence implementation based on the RocksDB high performance database.
  */
-class LevelDBPersistence : public Persistence {
+class RocksDBPersistence : public Persistence {
  public:
     /**
      * Initialise a new LevelDB database using the given path and cache size (bytes).
      */
-    LevelDBPersistence(const std::string& path, int64_t cacheSize);
+    RocksDBPersistence(const std::string& path, int64_t cacheSize);
+
+    ~RocksDBPersistence();
 
     /**
-      * Add the namespaces in the iterator to the database.
-      */
+     * Add the namespaces in the iterator to the database.
+     */
     service::proto::UpdateResponse AddNamespaces(NamespaceIterator& it) override;
 
     /**
      * Add the statements in the iterator to the database.
      */
-    service::proto::UpdateResponse AddStatements(StatementIterator& it) override;
+    service::proto::UpdateResponse  AddStatements(StatementIterator& it) override;
 
     /**
      * Get all statements matching the pattern (which may have some fields
@@ -81,7 +86,7 @@ class LevelDBPersistence : public Persistence {
      * result.
      */
     std::unique_ptr<StatementIterator>
-    GetStatements(const rdf::proto::Statement& pattern);
+            GetStatements(const rdf::proto::Statement& pattern);
 
     /**
      * Get all namespaces matching the pattern (which may have some of all
@@ -97,13 +102,13 @@ class LevelDBPersistence : public Persistence {
      * each result.
      */
     std::unique_ptr<NamespaceIterator>
-    GetNamespaces(const rdf::proto::Namespace &pattern);
+            GetNamespaces(const rdf::proto::Namespace &pattern);
 
     /**
      * Remove all statements matching the pattern (which may have some fields
      * unset to indicate wildcards).
      */
-    service::proto::UpdateResponse RemoveStatements(
+    service::proto::UpdateResponse  RemoveStatements(
             const rdf::proto::Statement& pattern) override;
 
     /**
@@ -119,49 +124,35 @@ class LevelDBPersistence : public Persistence {
      */
     int64_t Size() override;
  private:
-    ctpl::thread_pool workers;
+    ctpl::thread_pool workers_;
 
-    std::unique_ptr<KeyComparator> comparator;
-    std::shared_ptr<leveldb::Cache> cache;
-    std::unique_ptr<leveldb::Options> options;
+    KeyComparator comparator_;
+    std::unique_ptr<rocksdb::DB> database_;
 
-    // We currently support efficient lookups by subject, context and object.
-    std::unique_ptr<leveldb::DB>
-            // Statement databases, indexed for query performance
-            db_spoc, db_cspo, db_opsc, db_pcos,
-            // Namespace databases
-            db_ns_prefix, db_ns_url,
-            // Triple store metadata.
-            db_meta;
-    /**
-     * Add the namespace to the given database batch operations.
-     */
-    void AddNamespace(const rdf::proto::Namespace& ns,
-                      leveldb::WriteBatch& ns_prefix, leveldb::WriteBatch& ns_url);
+    // Column Families for the different index access types.
+    std::vector<rocksdb::ColumnFamilyHandle*> handles_;
 
     /**
      * Add the namespace to the given database batch operations.
      */
-    void RemoveNamespace(const rdf::proto::Namespace& ns,
-                         leveldb::WriteBatch& ns_prefix, leveldb::WriteBatch& ns_url);
+    void AddNamespace(const rdf::proto::Namespace& ns, rocksdb::WriteBatch& batch);
+
+    /**
+     * Add the namespace to the given database batch operations.
+     */
+    void RemoveNamespace(const rdf::proto::Namespace& ns, rocksdb::WriteBatch& batch);
 
     /**
      * Add the statement to the given database batch operations.
      */
-    void AddStatement(const rdf::proto::Statement& stmt,
-                      leveldb::WriteBatch& spoc, leveldb::WriteBatch& cspo,
-                      leveldb::WriteBatch& opsc, leveldb::WriteBatch&pcos);
+    void AddStatement(const rdf::proto::Statement& stmt, rocksdb::WriteBatch& batch);
 
 
     /**
      * Remove all statements matching the pattern (which may have some fields
      * unset to indicate wildcards) from the given database batch operations.
      */
-    int64_t RemoveStatements(const rdf::proto::Statement& pattern,
-                             leveldb::WriteBatch& spoc, leveldb::WriteBatch& cspo,
-                             leveldb::WriteBatch& opsc, leveldb::WriteBatch&pcos);
-
-
+    int64_t RemoveStatements(const rdf::proto::Statement& pattern, rocksdb::WriteBatch& batch);
 };
 
 
