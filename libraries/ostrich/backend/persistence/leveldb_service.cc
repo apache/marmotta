@@ -18,9 +18,10 @@
 #include "leveldb_service.h"
 #include "leveldb_sparql.h"
 
+#include <memory>
+
 #include <unordered_set>
 #include <model/rdf_operators.h>
-#include <util/unique.h>
 #include <util/time_logger.h>
 #include <glog/logging.h>
 
@@ -235,7 +236,7 @@ grpc::Status LevelDBSparqlService::TupleQuery(
         grpc::ServerContext* context, const spq::SparqlRequest* query,
         grpc::ServerWriter<spq::SparqlResponse>* result) {
 
-    SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
+    SparqlService svc(std::make_unique<LevelDBTripleSource>(persistence));
 
     rdf::URI base_uri = query->base_uri();
 
@@ -263,7 +264,7 @@ grpc::Status LevelDBSparqlService::GraphQuery(grpc::ServerContext* context,
                         const spq::SparqlRequest* query,
                         grpc::ServerWriter<rdf::proto::Statement>* result) {
 
-    SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
+    SparqlService svc(std::make_unique<LevelDBTripleSource>(persistence));
 
     rdf::URI base_uri = query->base_uri();
 
@@ -284,7 +285,7 @@ grpc::Status LevelDBSparqlService::AskQuery(grpc::ServerContext* context,
                                             const spq::SparqlRequest* query,
                                             google::protobuf::BoolValue* result) {
 
-    SparqlService svc(util::make_unique<LevelDBTripleSource>(persistence));
+    SparqlService svc(std::make_unique<LevelDBTripleSource>(persistence));
 
     rdf::URI base_uri = query->base_uri();
 

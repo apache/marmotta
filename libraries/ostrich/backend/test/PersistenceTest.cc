@@ -24,6 +24,7 @@ bool lessThan(const char* key1, const char* key2) {
     return memcmp(key1, key2, 4 * kKeyLength) < 0;
 }
 
+// Test that the keys generated for different statements are also different.
 TEST(KeyTest, StatementsDiffer) {
     rdf::Statement stmt1(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
                          rdf::URI("http://example.com/o1"));
@@ -42,6 +43,7 @@ TEST(KeyTest, StatementsDiffer) {
     }
 }
 
+// Test that the upper and lower bound of a range over context are different.
 TEST(KeyTest, BoundsDiffer) {
     rdf::Statement stmt(rdf::URI("http://example.com/s1"), rdf::URI("http://example.com/p1"),
                          rdf::URI("http://example.com/o1"));

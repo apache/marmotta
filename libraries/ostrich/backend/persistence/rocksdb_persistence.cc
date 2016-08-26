@@ -18,8 +18,7 @@
 #define KEY_LENGTH 16
 
 #include <chrono>
-#include <stdlib.h>
-#include <malloc.h>
+#include <memory>
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -31,8 +30,6 @@
 
 #include "rocksdb_persistence.h"
 #include "model/rdf_operators.h"
-#include "util/murmur3.h"
-#include "util/unique.h"
 
 #define CHECK_STATUS(s) CHECK(s.ok()) << "Writing to database failed: " << s.ToString()
 
@@ -90,33 +87,6 @@ class StatementRangeIterator : public RocksDBIterator<Statement> {
 
 }  // namespace
 
-
-/**
- * Build database with default options.
- */
-rocksdb::DB* buildDB(const std::string& path, const std::string& suffix, const rocksdb::Options& options) {
-    rocksdb::DB* db;
-    rocksdb::Status status = rocksdb::DB::Open(options, path + "/" + suffix + ".db", &db);
-    CHECK_STATUS(status);
-    return db;
-}
-
-rocksdb::Options* buildOptions(KeyComparator* cmp) {
-    rocksdb::Options *options = new rocksdb::Options();
-    options->create_if_missing = true;
-    options->create_missing_column_families = true;
-
-    options->IncreaseParallelism();
-    options->OptimizeLevelStyleCompaction();
-
-    // Custom comparator for our keys.
-    options->comparator = cmp;
-
-    // Write buffer size 16MB (fast bulk imports)
-    options->write_buffer_size = 16384 * 1024;
-
-    return options;
-}
 
 RocksDBPersistence::RocksDBPersistence(const std::string &path, int64_t cacheSize)
         : workers_(8) {
@@ -202,13 +172,13 @@ std::unique_ptr<RocksDBPersistence::NamespaceIterator> RocksDBPersistence::GetNa
         rocksdb::Status s = database_->Get(rocksdb::ReadOptions(), h, key, &value);
         if (s.ok()) {
             ns.ParseFromString(value);
-            return util::make_unique<util::SingletonIterator<Namespace>>(std::move(ns));
+            return std::make_unique<util::SingletonIterator<Namespace>>(std::move(ns));
         } else {
-            return util::make_unique<util::EmptyIterator<Namespace>>();
+            return std::make_unique<util::EmptyIterator<Namespace>>();
         }
     } else {
         // Pattern was empty, iterate over all namespaces and report them.
-        return util::make_unique<RocksDBIterator<Namespace>>(
+        return std::make_unique<RocksDBIterator<Namespace>>(
                 database_->NewIterator(rocksdb::ReadOptions(), handles_[Handles::NSPREFIX]));
     }
 }
@@ -285,13 +255,13 @@ std::unique_ptr<RocksDBPersistence::StatementIterator> RocksDBPersistence::GetSt
 
     if (query.NeedsFilter()) {
         DLOG(INFO) << "Retrieving statements with filter.";
-        return util::make_unique<util::FilteringIterator<Statement>>(
+        return std::make_unique<util::FilteringIterator<Statement>>(
                 new StatementRangeIterator(
                         database_->NewIterator(rocksdb::ReadOptions(), h), query.MinKey(), query.MaxKey()),
                 [&pattern](const Statement& stmt) -> bool { return Matches(pattern, stmt); });
     } else {
         DLOG(INFO) << "Retrieving statements without filter.";
-        return util::make_unique<StatementRangeIterator>(
+        return std::make_unique<StatementRangeIterator>(
                 database_->NewIterator(rocksdb::ReadOptions(), h), query.MinKey(), query.MaxKey());
     }
 }
