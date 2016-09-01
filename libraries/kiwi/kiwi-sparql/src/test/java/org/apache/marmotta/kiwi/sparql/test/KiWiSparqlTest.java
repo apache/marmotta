@@ -338,6 +338,19 @@ public class KiWiSparqlTest {
         }
     }
 
+	private void testConstructEvaluation(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+        RepositoryConnection conn = repository.getConnection();
+        try {
+            conn.begin();
+            GraphQuery query = conn.prepareGraphQuery(QueryLanguage.SPARQL, queryString);
+            GraphQueryResult results = query.evaluate();
+            results.close();
+            conn.commit();
+        } finally {
+            conn.close();
+        }
+    }
+	
     @Test
     public void testMarmotta640_1() throws Exception {
         final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-640_1.sparql"), "UTF-8");
@@ -350,6 +363,12 @@ public class KiWiSparqlTest {
         testQueryEvaluation(queryString); //TODO: if we could get data, we could also test the result
     }
 
+	@Test
+    public void testMarmotta651_1() throws Exception {
+        final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-651_1.sparql"), "UTF-8");
+        testConstructEvaluation(queryString); //TODO: if we could get data, we could also test the result
+    }
+	
     @Test
     public void testMarmotta640Regresion() throws Exception {
         final String queryString = "SELECT * WHERE { { ?x ?y ?z } UNION { ?x ?y2 ?z2 } }";
