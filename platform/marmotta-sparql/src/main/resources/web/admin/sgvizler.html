@@ -55,13 +55,13 @@
             }
 
             // preselect default query and chart
-            $("#sgQuery").val("SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE { ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class");
+            $("#sgQuery").val("SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE { ?instance a ?class }\nGROUP BY ?class\nORDER BY ?noOfInstances");
             select.val("google.visualization.PieChart");
 
             // use codemirror for the SPARQL editor
             var editor = CodeMirror.fromTextArea(document.getElementById("sgQuery"), {
                 mode: 'sparql',
-                value: "SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE { ?instance a ?class }\nGROUP BY ?class\nORDER BY ?class",
+                value: "SELECT ?class (count(?instance) AS ?noOfInstances)\nWHERE { ?instance a ?class }\nGROUP BY ?class\nORDER BY ?noOfInstances",
                 extraKeys: {"Ctrl-Space": "sparqlAutocomplete"},
                 matchBrackets : true,
                 lineNumbers: true,
