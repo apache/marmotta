@@ -23,11 +23,11 @@ import org.apache.marmotta.platform.ldp.patch.model.WildcardStatement;
 import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParser;
 import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
-import org.openrdf.model.*;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -18,10 +18,12 @@
 package org.apache.marmotta.platform.ldp.patch.model;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /**
  * The Statement in a RdfPatch.
@@ -46,8 +48,11 @@ public class WildcardStatement implements Statement {
     }
 
     @Override
-    public URI getPredicate() {
-        return predicate;
+    public IRI getPredicate() {
+    	if (predicate != null)
+    		return SimpleValueFactory.getInstance().createIRI(predicate.toString());
+    	else
+    		return null;
     }
 
     @Override

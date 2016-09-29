@@ -22,10 +22,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.FOAF;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,19 +38,21 @@ public class RdfPatchParserImplTest {
 
 
     private RdfPatchParserImpl parser;
-    private URI alice, bob, charlie;
+    private IRI alice, bob, charlie;
     private Literal lcBob, ucBob;
 
     @Before
     public void setUp() {
         parser = new RdfPatchParserImpl(this.getClass().getResourceAsStream("/illustrative.rdfp"));
+        
+        ValueFactory f = SimpleValueFactory.getInstance();
 
-        alice = new URIImpl("http://example/alice");
-        bob = new URIImpl("http://example/bob");
-        charlie = new URIImpl("http://example/charlie");
+        alice = f.createIRI("http://example/alice");
+        bob = f.createIRI("http://example/bob");
+        charlie = f.createIRI("http://example/charlie");
 
-        lcBob = new LiteralImpl("bob");
-        ucBob = new LiteralImpl("Bob");
+        lcBob = f.createLiteral("bob");
+        ucBob = f.createLiteral("Bob");
     }
 
     @After
@@ -79,7 +80,7 @@ public class RdfPatchParserImplTest {
         checkPatchLine(it.next(), PatchLine.Operator.DELETE, null, null, charlie);
     }
 
-    private void checkPatchLine(PatchLine line, PatchLine.Operator operator, Resource subejct, URI predicate, Value object) {
+    private void checkPatchLine(PatchLine line, PatchLine.Operator operator, Resource subejct, IRI predicate, Value object) {
         Assert.assertEquals("Wrong patch operation", operator, line.getOperator());
 
         Statement statement = line.getStatement();
