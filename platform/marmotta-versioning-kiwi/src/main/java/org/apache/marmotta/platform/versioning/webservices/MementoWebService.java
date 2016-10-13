@@ -106,11 +106,18 @@ public class MementoWebService {
         try {
             //check preconditions
             Preconditions.checkNotNull(resource_string,"Resource URI may not null");
-            Preconditions.checkNotNull(date_string, "Accept-Datetime Header may not be null");
 
             final RepositoryConnection conn = sesameService.getConnection();
             try {
-                Date date = DateUtils.parseDate(date_string);
+
+                //if date_string is not set, get NOW, else parse date_string
+                Date date = null;
+
+                if(date_string == null) {
+                    date = new Date();
+                } else {
+                    DateUtils.parseDate(date_string);
+                }
 
                 URI resource = conn.getValueFactory().createURI(resource_string);
 
