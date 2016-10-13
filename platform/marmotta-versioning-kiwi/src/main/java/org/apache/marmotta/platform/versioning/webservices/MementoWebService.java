@@ -179,7 +179,7 @@ public class MementoWebService {
             RepositoryConnection conn = sesameService.getConnection();
 
             try {
-                final Date date = MementoUtils.MEMENTO_DATE_FORMAT.parse(date_string);
+                final Date date = MementoUtils.MEMENTO_DATE_FORMAT_FOR_URIS.parse(date_string);
 
                 final URI resource = conn.getValueFactory().createURI(resource_string);
 

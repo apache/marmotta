@@ -36,8 +36,11 @@ public class MementoUtils {
 
     /**
      * is used for date format used in memento resource uris
+     * TODO should be HTTP Date format specified by RFC 1123 and in the GMT timezone like "Mon, 19 Sep 2016 23:47:12 GMT"
      */
     public static final DateFormat MEMENTO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+    public static final DateFormat MEMENTO_DATE_FORMAT_FOR_URIS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     /**
      * builds a memento permalink
@@ -50,7 +53,7 @@ public class MementoUtils {
                 baseURI +
                         MEMENTO_WEBSERVICE + "/" +
                         MEMENTO_RESOURCE + "/" +
-                        MEMENTO_DATE_FORMAT.format(date) + "/" +
+                        MEMENTO_DATE_FORMAT_FOR_URIS.format(date) + "/" +
                         resource);
     }
 
