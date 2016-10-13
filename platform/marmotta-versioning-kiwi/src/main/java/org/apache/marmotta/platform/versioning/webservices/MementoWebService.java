@@ -135,7 +135,6 @@ public class MementoWebService {
                         .status(302)
                         .location(MementoUtils.resourceURI(resource_string, versions.getCurrent().getCommitTime(), configurationService.getBaseUri()))
                         .header(VARY, "negotiate, accept-datetime, accept")
-                        .header("Memento-Datetime", versions.getCurrent().getCommitTime().toString())
                         .header(LINK, Joiner.on(", ").join(links))
                         .build();
 

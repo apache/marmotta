@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Date;
 
 import static com.jayway.restassured.RestAssured.expect;
 
@@ -29,6 +30,8 @@ public class MementoWebServiceTest {
 
     private static JettyMarmotta marmotta;
 
+    private static Date date1,date2,date3;
+
     @BeforeClass
     public static void setUp() throws MarmottaImportException, URISyntaxException {
         marmotta = new JettyMarmotta("/marmotta", MementoWebService.class);
@@ -37,15 +40,21 @@ public class MementoWebServiceTest {
         UserService userService = marmotta.getService(UserService.class);
         ContextService contextService = marmotta.getService(ContextService.class);
 
+        date1 = new Date();
+
         //import some data
         InputStream is_v1 = Thread.currentThread().getContextClassLoader().getResourceAsStream("data_v1.ttl");
         int n_v1 = importService.importData(is_v1, "text/turtle", userService.getAnonymousUser(), contextService.getDefaultContext());
         log.info("Imported RDF data_v1 with {} triples", n_v1);
 
+        date2 = new Date();
+
         //import some data including updates
         InputStream is_v2 = Thread.currentThread().getContextClassLoader().getResourceAsStream("data_v2.ttl");
         int n_v2 = importService.importData(is_v2, "text/turtle", userService.getAnonymousUser(), contextService.getDefaultContext());
         log.info("Imported RDF data_v2 with {} triples", n_v2);
+
+        date3 = new Date();
 
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
