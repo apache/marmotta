@@ -80,7 +80,7 @@ public class LinkVersionSerializer implements VersionSerializer {
 
             //write original resource
             w.append("<");
-            w.append(original.toString());
+            w.append(MementoUtils.originalURI(original.toString(), configurationService.getBaseUri()).toString());
             w.append(">;rel=\"original\",");
             w.newLine();
 
@@ -108,7 +108,7 @@ public class LinkVersionSerializer implements VersionSerializer {
 
                 //add datetime
                 w.append("\"; datetime=\"");
-                w.append(v.getCommitTime().toString());
+                w.append(MementoUtils.MEMENTO_DATE_FORMAT.format(v.getCommitTime()));
                 w.append("\",");
 
                 w.newLine();

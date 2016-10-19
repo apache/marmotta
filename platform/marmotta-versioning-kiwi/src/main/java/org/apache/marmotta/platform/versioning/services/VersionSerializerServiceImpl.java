@@ -42,15 +42,19 @@ public class VersionSerializerServiceImpl implements VersionSerializerService {
 
     /**
      * returns an adequate serializer for a mimetype
-     * @param type a list of mimetype (from Accept header)
+     * @param types a list of mimetype (from Accept header)
      * @return a serializer
      * @throws IOException if there is no serializer for mimetype
      */
     @Override
-    public VersionSerializer getSerializer(List<ContentType> type) throws IOException {
-        for(VersionSerializer serializer : serializers) {
-            if(MarmottaHttpUtils.bestContentType(serializer.getContentTypes(),type) != null) return serializer;
-        }
-        throw new IOException("Cannot find serializer for " + type);
+    public VersionSerializer getSerializer(List<ContentType> types) throws IOException {
+        for(ContentType type : types) {
+            for(VersionSerializer serializer : serializers) {
+                for(ContentType stype : serializer.getContentTypes()) {
+                    if(stype.matches(type)) return serializer;
+                }
+            }
+        } //TODO there is not fuzzy match e.g. text/*
+        throw new IOException("Cannot find serializer for " + types);
     }
 }

@@ -18,10 +18,13 @@
 package org.apache.marmotta.platform.versioning.model;
 
 import org.apache.marmotta.kiwi.versioning.model.Version;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.versioning.exception.MementoException;
 import org.apache.marmotta.platform.versioning.utils.MementoUtils;
 import org.openrdf.model.Resource;
 
+import javax.inject.Inject;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,7 +63,11 @@ public class MementoVersionSet {
         links.add(buildLink(prefix,original.toString(),current.getCommitTime(),"memento"));
 
         //add link to original
-        links.add("<"+original.toString()+">;rel=\"original\"");
+        try {
+            links.add("<"+MementoUtils.originalURI(original.toString(),baseURI).toString()+">;rel=\"original\"");
+        } catch (UnsupportedEncodingException e) {
+            throw new MementoException(e);
+        }
 
         //add next and previous if they exist
         if( next != null ) links.add(buildLink(prefix,original.toString(),next.getCommitTime(),"next memento"));

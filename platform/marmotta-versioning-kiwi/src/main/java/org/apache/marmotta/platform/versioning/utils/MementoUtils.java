@@ -17,10 +17,16 @@
  */
 package org.apache.marmotta.platform.versioning.utils;
 
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * ...
@@ -38,9 +44,27 @@ public class MementoUtils {
      * is used for date format used in memento resource uris
      * TODO should be HTTP Date format specified by RFC 1123 and in the GMT timezone like "Mon, 19 Sep 2016 23:47:12 GMT"
      */
-    public static final DateFormat MEMENTO_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    public static final DateFormat MEMENTO_DATE_FORMAT;
+
+    static {
+        MEMENTO_DATE_FORMAT = new SimpleDateFormat(
+                "EEE, dd MMM yyyy HH:mm:ss z", Locale.US); //TODO which locale should be used?
+        MEMENTO_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     public static final DateFormat MEMENTO_DATE_FORMAT_FOR_URIS = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+    public static URI originalURI(String resource, String baseURI) throws UnsupportedEncodingException {
+
+        if(resource.startsWith(baseURI)) {
+            return URI.create(resource);
+        } else {
+            return URI.create(
+                    baseURI +
+                            ConfigurationService.RESOURCE_PATH + "?uri=" +
+                            URLEncoder.encode(resource, "UTF-8"));
+        }
+    }
 
     /**
      * builds a memento permalink

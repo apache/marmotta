@@ -116,7 +116,7 @@ public class MementoWebService {
                 if(date_string == null) {
                     date = new Date();
                 } else {
-                    DateUtils.parseDate(date_string);
+                    date = DateUtils.parseDate(date_string);
                 }
 
                 URI resource = conn.getValueFactory().createURI(resource_string);
@@ -288,7 +288,7 @@ public class MementoWebService {
                 Set<String> links = new HashSet<String>();
                 links.add("<" + MementoUtils.timegateURI(resource_string, configurationService.getBaseUri()) + ">;rel=timegate");
 
-                links.add("<" + resource_string + ">;rel=original");
+                links.add("<" + MementoUtils.originalURI(resource_string, configurationService.getBaseUri()) + ">;rel=original");
 
                 //create response
                 return Response

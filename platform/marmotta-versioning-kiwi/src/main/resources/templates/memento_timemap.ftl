@@ -56,7 +56,7 @@
         var target = "#timeknots",
             v = [
 <#list versions as version>
-            {'name':"${MEMENTO_DATE_FORMAT.format(version.date)}", 'date':new Date("${version.tstamp}"), 'uri':"${version.uri}"},
+            {'name':"${version.formatedDate}", 'date':new Date("${version.tstamp}"), 'uri':"${version.uri}"},
 </#list>
             {'name':"now", 'date':new Date(),'lineWidth':1, 'uri':"${SERVER_URL}resource?uri=${original?url}"}
         ];
@@ -88,7 +88,7 @@
                 </tr>
                 <#list versions as version>
                 <tr>
-                    <td><a target="_blank" href="${version.uri}" class="ldcache">${MEMENTO_DATE_FORMAT.format(version.date)}</a></td>
+                    <td><a target="_blank" href="${version.uri}" class="ldcache">${version.formatedDate}</a></td>
                 </tr>
             </#list>
             </table>
