@@ -19,6 +19,7 @@
 
 #include <cstring>
 
+#include "model/rdf_namespaces.h"
 #include "model/rdf_operators.h"
 #include "util/murmur3.h"
 
@@ -186,6 +187,33 @@ bool Matches(const Statement& pattern, const Statement& stmt) {
         return false;
     }
     return !(pattern.has_object() && stmt.object() != pattern.object());
+}
+
+
+// Apply prefix substitution for well-known URIs to save disk space.
+// Modifies the string passed as argument.
+void EncodeWellknownURI(std::string* uri) {
+    for (auto& ns : rdf::NamespacesByPrefix()) {
+        if (uri->compare(0, ns.second.size(), ns.second) == 0) {
+            std::string tmp = ns.first;
+            tmp += uri->substr(ns.second.size());
+            uri->swap(tmp);
+            return;
+        }
+    }
+}
+
+// Unapply prefix substitution for well-known URIs.
+// Modifies the string passed as argument.
+void DecodeWellknownURI(std::string* uri) {
+    for (auto& ns : rdf::NamespacesByPrefix()) {
+        if (uri->compare(0, ns.first.size(), ns.first) == 0) {
+            std::string tmp = ns.second;
+            tmp += uri->substr(ns.first.size());
+            uri->swap(tmp);
+            return;
+        }
+    }
 }
 
 }  // namespace persistence

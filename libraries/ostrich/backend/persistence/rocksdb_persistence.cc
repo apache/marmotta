@@ -19,10 +19,12 @@
 
 #include <chrono>
 #include <memory>
+#include <queue>
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <rocksdb/filter_policy.h>
+#include <rocksdb/statistics.h>
 #include <rocksdb/write_batch.h>
 #include <google/protobuf/wrappers.pb.h>
 #include <thread>
@@ -33,8 +35,10 @@
 
 #define CHECK_STATUS(s) CHECK(s.ok()) << "Writing to database failed: " << s.ToString()
 
-DEFINE_int64(write_batch_size, 1000000,
+DEFINE_int64(write_batch_size, 100000,
              "Maximum number of statements to write in a single batch to the database");
+DEFINE_bool(enable_statistics, false,
+             "Enable statistics collection and output.");
 
 
 constexpr char kSPOC[] = "spoc";
@@ -88,8 +92,7 @@ class StatementRangeIterator : public RocksDBIterator<Statement> {
 }  // namespace
 
 
-RocksDBPersistence::RocksDBPersistence(const std::string &path, int64_t cacheSize)
-        : workers_(8) {
+RocksDBPersistence::RocksDBPersistence(const std::string &path, int64_t cacheSize) {
     rocksdb::Options options;
     options.create_if_missing = true;
     options.create_missing_column_families = true;
@@ -102,6 +105,11 @@ RocksDBPersistence::RocksDBPersistence(const std::string &path, int64_t cacheSiz
 
     // Write buffer size 16MB (fast bulk imports)
     options.write_buffer_size = 16384 * 1024;
+
+    if (FLAGS_enable_statistics) {
+        options.statistics = rocksdb::CreateDBStatistics();
+        options.stats_dump_period_sec = 300;
+    }
 
     ColumnFamilyOptions cfOptions;
     cfOptions.OptimizeLevelStyleCompaction();
@@ -215,6 +223,7 @@ service::proto::UpdateResponse RocksDBPersistence::AddStatements(StatementIterat
     }
 
     CHECK_STATUS(database_->Write(rocksdb::WriteOptions(), &batch));
+    batch.Clear();
 
     LOG(INFO) << "Imported " << count << " statements (time="
               << std::chrono::duration <double, std::milli> (
@@ -379,10 +388,12 @@ void RocksDBPersistence::AddStatement(
         const Statement &stmt, WriteBatch &batch) {
     DLOG(INFO) << "Adding statement " << stmt.DebugString();
 
-    Key key(stmt);
-
     std::string buffer;
-    stmt.SerializeToString(&buffer);
+    Statement encoded = stmt;
+    EncodeWellknownURI(&encoded);
+    encoded.SerializeToString(&buffer);
+
+    Key key(stmt);
 
     char *k_spoc = key.Create(IndexTypes::SPOC);
     batch.Put(handles_[Handles::ISPOC], rocksdb::Slice(k_spoc, 4 * KEY_LENGTH), buffer);

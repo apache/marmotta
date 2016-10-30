@@ -27,7 +27,6 @@
 #include <rocksdb/comparator.h>
 
 #include "persistence/base_persistence.h"
-#include "util/threadpool.h"
 
 namespace marmotta {
 namespace persistence {
@@ -124,8 +123,6 @@ class RocksDBPersistence : public Persistence {
      */
     int64_t Size() override;
  private:
-    ctpl::thread_pool workers_;
-
     KeyComparator comparator_;
     std::unique_ptr<rocksdb::DB> database_;
 

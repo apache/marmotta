@@ -60,6 +60,58 @@ TEST(KeyTest, BoundsDiffer) {
     }
 }
 
+TEST(URITest, EncodeURI) {
+    std::string uri1 = "http://www.w3.org/2002/07/owl#sameAs";
+    std::string uri2 = "http://marmotta.apache.org/test/uri1";
+
+    EncodeWellknownURI(&uri1);
+    EXPECT_EQ("owl:sameAs", uri1);
+
+    EncodeWellknownURI(&uri2);
+    EXPECT_EQ("http://marmotta.apache.org/test/uri1", uri2);
+}
+
+TEST(URITest, EncodeURIProto) {
+    rdf::URI uri1 = "http://www.w3.org/2002/07/owl#sameAs";
+    rdf::URI uri2 = "http://marmotta.apache.org/test/uri1";
+
+    rdf::proto::URI msg1 = uri1.getMessage();
+    rdf::proto::URI msg2 = uri2.getMessage();
+
+    EncodeWellknownURI(&msg1);
+    EXPECT_EQ("owl:sameAs", msg1.uri());
+
+    EncodeWellknownURI(&msg2);
+    EXPECT_EQ("http://marmotta.apache.org/test/uri1", msg2.uri());
+}
+
+
+TEST(URITest, DecodeURI) {
+    std::string uri1 = "owl:sameAs";
+    std::string uri2 = "http://marmotta.apache.org/test/uri1";
+
+    DecodeWellknownURI(&uri1);
+    EXPECT_EQ("http://www.w3.org/2002/07/owl#sameAs", uri1);
+
+    DecodeWellknownURI(&uri2);
+    EXPECT_EQ("http://marmotta.apache.org/test/uri1", uri2);
+}
+
+TEST(URITest, DecodeURIProto) {
+    rdf::URI uri1 = "owl:sameAs";
+    rdf::URI uri2 = "http://marmotta.apache.org/test/uri1";
+
+    rdf::proto::URI msg1 = uri1.getMessage();
+    rdf::proto::URI msg2 = uri2.getMessage();
+
+    DecodeWellknownURI(&msg1);
+    EXPECT_EQ("http://www.w3.org/2002/07/owl#sameAs", msg1.uri());
+
+    DecodeWellknownURI(&msg2);
+    EXPECT_EQ("http://marmotta.apache.org/test/uri1", msg2.uri());
+}
+
+
 }  // namespace test
 }  // namespace persistence
 }  // namespace marmotta

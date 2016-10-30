@@ -469,8 +469,10 @@ void LevelDBPersistence::AddStatement(
 
     Key key(stmt);
 
+    Statement encoded = stmt;
+    EncodeWellknownURI(&encoded);
     std::string buffer;
-    stmt.SerializeToString(&buffer);
+    encoded.SerializeToString(&buffer);
 
     char *k_spoc = key.Create(IndexTypes::SPOC);
     spoc.Put(leveldb::Slice(k_spoc, 4 * KEY_LENGTH), buffer);
