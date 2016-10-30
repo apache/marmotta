@@ -532,7 +532,7 @@ public class SparqlWebService {
         
         final ResponseBuilder responseBuilder = Response.ok().entity(entity).header(CONTENT_TYPE, format.getMime());
         final TupleQueryResultFormat fmt = QueryResultIO.getWriterFormatForMIMEType(format.getMime());
-        if (fmt != null) {
+        if (fmt != null && !"html".equals(fmt.getDefaultFileExtension())) {
             responseBuilder.header("Content-Disposition", String.format("attachment; filename=\"%s.%s\"", queryType.toString().toLowerCase(), fmt.getDefaultFileExtension()));
         }
         return responseBuilder.build();

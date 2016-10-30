@@ -3,6 +3,8 @@
 This repository contains the source code for [Apache Marmotta](https://marmotta.apache.org/)
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.marmotta/marmotta-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.marmotta/marmotta-core/)
+[![Docker Image](https://images.microbadger.com/badges/version/apache/marmotta.svg)](https://hub.docker.com/r/apache/marmotta/)
+[![Docker Image layers](https://images.microbadger.com/badges/image/apache/marmotta.svg)](https://microbadger.com/images/apache/marmotta)
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 
