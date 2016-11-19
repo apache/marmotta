@@ -57,7 +57,7 @@ public class ClosableResponseStream<Svc extends AbstractStub<Svc>, ReqT, T> impl
             call.sendMessage(req);
             call.halfClose();
         } catch (Throwable t) {
-            call.cancel();
+            call.cancel("Error", t);
             throw new SailException(t);
         }
     }
@@ -72,7 +72,7 @@ public class ClosableResponseStream<Svc extends AbstractStub<Svc>, ReqT, T> impl
      */
     @Override
     public void close() throws SailException {
-        call.cancel();
+        call.cancel("Closed by client", null);
     }
 
     /**
