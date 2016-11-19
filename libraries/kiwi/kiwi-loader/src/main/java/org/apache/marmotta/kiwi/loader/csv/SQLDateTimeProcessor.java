@@ -46,6 +46,10 @@ public class SQLDateTimeProcessor extends CellProcessorAdaptor implements DateCe
             throw new SuperCsvCellProcessorException(DateTime.class, value, context, this);
         }
 
-        return ISODateTimeFormat.dateTime().withZoneUTC().print((DateTime)value);
+        String r = ISODateTimeFormat.dateTime().withZoneUTC().print((DateTime)value);
+        if (r.startsWith("-")) {
+            return r.substring(1) + " BC";
+        }
+        return r;
     }
 }
