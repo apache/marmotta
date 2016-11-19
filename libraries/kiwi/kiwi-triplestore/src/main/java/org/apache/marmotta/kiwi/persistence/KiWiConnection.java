@@ -2457,7 +2457,7 @@ public class KiWiConnection implements AutoCloseable {
 
     protected interface RetryCommand<T> {
 
-        public T run() throws SQLException;
+        T run() throws SQLException;
     }
 
     /**

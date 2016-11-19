@@ -47,7 +47,7 @@ import java.util.*;
  */
 class FacadingInvocationHandler implements InvocationHandler {
 
-    public static enum OPERATOR {
+    public enum OPERATOR {
         GET(false, 0, "get"),
         SET(true, 1, "set"),
         ADD(true, 1, "add"),
@@ -59,9 +59,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         static {
             LinkedList<String> ops = new LinkedList<String>();
             for (OPERATOR op : OPERATOR.values()) {
-                for (String px : op.prefixes) {
-                    ops.add(px);
-                }
+                Collections.addAll(ops, op.prefixes);
             }
             PX = ops.toArray(new String[ops.size()]);
             SPX = ops.toArray(new String[ops.size()]);
@@ -77,7 +75,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         final int numArgs;
         final boolean writeOp;
 
-        private OPERATOR(boolean isWriteOp, int args, String... strings) {
+        OPERATOR(boolean isWriteOp, int args, String... strings) {
             this.writeOp = isWriteOp;
             this.numArgs = args;
             this.prefixes = strings;

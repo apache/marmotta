@@ -117,11 +117,8 @@ public class AndTest<Node> extends ComplexTest<Node> {
         if (left != null ? !left.equals(andTest.left) : andTest.left != null) {
             return false;
         }
-        if (right != null ? !right.equals(andTest.right) : andTest.right != null) {
-            return false;
-        }
+        return right != null ? right.equals(andTest.right) : andTest.right == null;
 
-        return true;
     }
 
     @Override

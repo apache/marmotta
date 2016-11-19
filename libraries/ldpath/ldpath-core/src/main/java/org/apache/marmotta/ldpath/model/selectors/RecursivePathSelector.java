@@ -18,12 +18,14 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.collect.ImmutableList;
-
-import java.util.*;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class RecursivePathSelector<Node> implements NodeSelector<Node> {
 
@@ -192,9 +194,8 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
 		RecursivePathSelector<Node> that = (RecursivePathSelector<Node>) o;
 
         if (delegate != null ? !delegate.equals(that.delegate) : that.delegate != null) return false;
-        if (minRecursions != that.minRecursions || maxRecursions != that.maxRecursions) return false;
+        return !(minRecursions != that.minRecursions || maxRecursions != that.maxRecursions);
 
-        return true;
     }
 
     @Override

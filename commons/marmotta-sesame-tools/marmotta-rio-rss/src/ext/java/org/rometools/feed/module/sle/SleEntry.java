@@ -18,7 +18,7 @@
 package org.rometools.feed.module.sle;
 
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.sle.io.*;
+import org.rometools.feed.module.sle.io.ModuleParser;
 import org.rometools.feed.module.sle.types.EntryValue;
 import org.rometools.feed.module.sle.types.Group;
 import org.rometools.feed.module.sle.types.Sort;
@@ -34,27 +34,27 @@ public interface SleEntry extends Module {
     /**
      * A bogus namespace used for temporarily storing values during parsing.
      */
-    public static final String URI = ModuleParser.TEMP.getURI();
+    String URI = ModuleParser.TEMP.getURI();
 
     /**
      * Returns an EntryValue for the given element name.
      * @param element element name to look for
      * @return Returns an EntryValue for the given element name.
      */
-    public EntryValue getGroupByElement(Group element);
+    EntryValue getGroupByElement(Group element);
 
     /**
      * An array of EntryValue objects that correspond to the grouping for the feed.
      * @return An array of EntryValue objects that correspond to the grouping for the feed.
      */
-    public EntryValue[] getGroupValues();
+    EntryValue[] getGroupValues();
 
     /**
      * Returns an EntryValue for the given element name.
      * @param element element name
      * @return Returns an EntryValue for the given element name.
      */
-    public EntryValue getSortByElement(Sort element);
+    EntryValue getSortByElement(Sort element);
 
     /**
      * Returns an array of EntryValues for the fields declared in the heading.
@@ -65,5 +65,5 @@ public interface SleEntry extends Module {
      * rely on these values data display to a user!
      * @return Array of EntryValue implementations from this entry.
      */
-    public EntryValue[] getSortValues();
+    EntryValue[] getSortValues();
 }

@@ -24,6 +24,6 @@ package org.apache.marmotta.platform.core.api.io;
  */
 public enum RDFWriterPriority {
 
-	VERY_LOW,LOW,MEDIUM,HIGH,VERY_HIGH;
+	VERY_LOW,LOW,MEDIUM,HIGH,VERY_HIGH
 
 }

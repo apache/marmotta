@@ -80,14 +80,13 @@ public class UriUtil {
         String last = uri.substring(uri.length() - 1);
         if ("#".equals(last) || "/".equals(last))
             return null;
-        else {
-            if (uri.contains("#")) // hash namespace
-                return uri.split("#")[0] + "#";
-            else { // slash namespace
-                int index = uri.lastIndexOf('/');
-                return uri.substring(0, index + 1);
-            }
-        }
+
+        if (uri.contains("#")) // hash namespace
+            return uri.split("#")[0] + "#";
+
+        // slash namespace
+        int index = uri.lastIndexOf('/');
+        return uri.substring(0, index + 1);
     }
 
     /**
@@ -101,14 +100,12 @@ public class UriUtil {
         String last = uri.substring(uri.length() - 1);
         if ("#".equals(last) || "/".equals(last))
             return null;
-        else {
-            if (uri.contains("#")) // hash namespace
-                return uri.split("#")[1];
-            else { // slash namespace
-                int index = uri.lastIndexOf('/');
-                return uri.substring(index + 1);
-            }
-        }
+
+        if (uri.contains("#")) // hash namespace
+            return uri.split("#")[1];
+            // slash namespace
+        int index = uri.lastIndexOf('/');
+        return uri.substring(index + 1);
     }
 
 }

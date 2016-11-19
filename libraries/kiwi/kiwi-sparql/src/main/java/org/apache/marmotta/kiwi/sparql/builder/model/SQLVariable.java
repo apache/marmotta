@@ -156,9 +156,8 @@ public class SQLVariable  implements Cloneable{
 
         SQLVariable that = (SQLVariable) o;
 
-        if (!sparqlName.equals(that.sparqlName)) return false;
+        return sparqlName.equals(that.sparqlName);
 
-        return true;
     }
 
     @Override

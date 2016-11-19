@@ -108,9 +108,8 @@ public class OrTest<Node> extends ComplexTest<Node> {
         OrTest orTest = (OrTest) o;
 
         if (left != null ? !left.equals(orTest.left) : orTest.left != null) { return false; }
-        if (right != null ? !right.equals(orTest.right) : orTest.right != null) { return false; }
+        return right != null ? right.equals(orTest.right) : orTest.right == null;
 
-        return true;
     }
 
     @Override

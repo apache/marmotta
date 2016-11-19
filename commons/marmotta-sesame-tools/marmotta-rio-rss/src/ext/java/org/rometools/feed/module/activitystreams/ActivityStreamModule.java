@@ -27,17 +27,17 @@ import org.rometools.feed.module.activitystreams.types.Verb;
  */
 public interface ActivityStreamModule {
 
-    public Verb getVerb();
-    public void setVerb(Verb verb);
+    Verb getVerb();
+    void setVerb(Verb verb);
 
-    public ActivityObject getObject();
-    public void setObject(ActivityObject object);
+    ActivityObject getObject();
+    void setObject(ActivityObject object);
 
-    public ActivityObject getTarget();
-    public void setTarget(ActivityObject object);
+    ActivityObject getTarget();
+    void setTarget(ActivityObject object);
 
-    public Mood getMood();
-    public void setMood(Mood mood);
+    Mood getMood();
+    void setMood(Mood mood);
 
 
 }

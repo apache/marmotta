@@ -48,14 +48,14 @@ public interface Importer {
 	 * 
 	 * @return a string uniquely identifying this importer
 	 */
-	public String getName();
+    String getName();
 
 	/**
 	 * Get a description of this importer for presentation to the user.
 	 * 
 	 * @return a string describing this importer for the user
 	 */
-	public String getDescription();
+    String getDescription();
 
 
 	/**
@@ -64,7 +64,7 @@ public interface Importer {
 	 * 
 	 * @return a set of strings representing the mime types accepted by this importer
 	 */
-	public Set<String> getAcceptTypes();
+    Set<String> getAcceptTypes();
 
 	/**
 	 * Import data from the input stream provided as argument into the KiWi database.
@@ -78,7 +78,7 @@ public interface Importer {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-	public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException;
 
 	/**
 	 * Import data from the input stream provided as argument into the KiWi database.
@@ -92,7 +92,7 @@ public interface Importer {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import cannot execute
 	 */
-	public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException;
 
 	/**
 	 * Import data from the reader provided as argument into the KiWi database.
@@ -106,6 +106,6 @@ public interface Importer {
      * @return the number of Content Items imported
 	 * @throws org.apache.marmotta.platform.core.exception.io.MarmottaImportException in case the import fails
 	 */
-	public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException;
+    int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException;
 
 }

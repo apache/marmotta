@@ -18,13 +18,12 @@
 package org.rometools.feed.module.sle.io;
 
 import com.sun.syndication.feed.module.Module;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.sle.SimpleListExtension;
 import org.rometools.feed.module.sle.SimpleListExtensionImpl;
 import org.rometools.feed.module.sle.types.Group;
 import org.rometools.feed.module.sle.types.Sort;
-
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +91,7 @@ public class ModuleParser implements com.sun.syndication.io.ModuleParser {
             String elementName = se.getAttributeValue("element");
             String label = se.getAttributeValue("label");
             String dataType = se.getAttributeValue("data-type");
-            boolean defaultOrder = (se.getAttributeValue("default") == null) ? false : new Boolean(se.getAttributeValue("default")).booleanValue();
+            boolean defaultOrder = se.getAttributeValue("default") != null && new Boolean(se.getAttributeValue("default")).booleanValue();
             values.add(new Sort(ns, elementName, dataType, label, defaultOrder));
         }
 
@@ -103,9 +102,7 @@ public class ModuleParser implements com.sun.syndication.io.ModuleParser {
     }
 
     protected void addNotNullAttribute(Element target, String name, Object value) {
-        if ((target == null) || (value == null)) {
-            return;
-        } else {
+        if (target != null && value != null) {
             target.setAttribute(name, value.toString());
         }
     }

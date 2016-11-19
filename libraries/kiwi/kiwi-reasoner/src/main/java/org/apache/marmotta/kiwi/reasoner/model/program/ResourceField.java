@@ -96,9 +96,8 @@ public class ResourceField implements Field {
 
         ResourceField that = (ResourceField) o;
 
-        if (resource != null ? !resource.equals(that.resource) : that.resource != null) return false;
+        return resource != null ? resource.equals(that.resource) : that.resource == null;
 
-        return true;
     }
 
     @Override

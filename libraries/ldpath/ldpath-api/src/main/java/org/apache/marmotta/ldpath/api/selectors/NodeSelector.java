@@ -18,13 +18,13 @@
 package org.apache.marmotta.ldpath.api.selectors;
 
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.api.LDPathConstruct;
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A node selector takes as argument a KiWiNode and returns a collection of selected
@@ -44,7 +44,7 @@ public interface NodeSelector<Node> extends LDPathConstruct<Node> {
      *                 if null, path tracking is disabled and the path argument is ignored
 	 * @return the collection of selected nodes
 	 */
-	public Collection<Node> select(RDFBackend<Node> backend, Node context, List<Node> path, Map<Node,List<Node>> resultPaths);
+    Collection<Node> select(RDFBackend<Node> backend, Node context, List<Node> path, Map<Node, List<Node>> resultPaths);
 
 
     /**
@@ -56,5 +56,5 @@ public interface NodeSelector<Node> extends LDPathConstruct<Node> {
      *
      * @throws UnsupportedOperationException in case returning a name is not reasonable
      */
-    public String getName(NodeBackend<Node> backend);
+    String getName(NodeBackend<Node> backend);
 }

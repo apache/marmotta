@@ -162,8 +162,7 @@ public class ResourceUtils {
      */
     public static boolean isUsed(RepositoryConnection conn, Resource rsc) {
         if (isSubject(conn, rsc) || isContext(conn, rsc) || isObject(conn, rsc)) return true;
-        if (rsc instanceof URI && isPredicate(conn, (URI) rsc)) return true;
-        return false;
+        return rsc instanceof URI && isPredicate(conn, (URI) rsc);
     }
 
     /**

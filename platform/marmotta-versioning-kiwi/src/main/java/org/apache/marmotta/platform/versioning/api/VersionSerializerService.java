@@ -35,6 +35,6 @@ public interface VersionSerializerService {
      * @param type a list of mimetype (from Accept header)
      * @return a serializer
      */
-    public VersionSerializer getSerializer(List<ContentType> type) throws IOException;
+    VersionSerializer getSerializer(List<ContentType> type) throws IOException;
 
 }

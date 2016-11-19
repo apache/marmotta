@@ -17,12 +17,12 @@
  */
 package org.apache.marmotta.platform.core.api.triplestore;
 
+import org.openrdf.model.URI;
+
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
-
-import org.openrdf.model.URI;
 
 /**
  * The context (named graphs in LMF, formerly "knowledge space" in KiWi) service offers convenience
@@ -47,7 +47,7 @@ import org.openrdf.model.URI;
  */
 public interface ContextService {
 
-    static final String DEFAULT_PREFIX = "context";
+    String DEFAULT_PREFIX = "context";
     
     //****************************************
     // get/create default, inferred

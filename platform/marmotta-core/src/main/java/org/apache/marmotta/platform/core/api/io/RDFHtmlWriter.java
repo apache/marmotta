@@ -26,6 +26,6 @@ import org.openrdf.rio.RDFWriter;
  */
 public interface RDFHtmlWriter extends RDFWriter {
 
-	  public RDFWriterPriority getPriority();
+	  RDFWriterPriority getPriority();
 
 }

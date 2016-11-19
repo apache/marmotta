@@ -39,9 +39,8 @@ class FacadingInvocationHelper {
 
         // Check # of arguments
         final Class<?>[] pTypes = method.getParameterTypes();
-        if (pTypes.length != argNum) { return false; }
+        return pTypes.length == argNum;
 
-        return true;
     }
 
     static boolean checkMethodSig(Method method, String name, Class<?>... args) {

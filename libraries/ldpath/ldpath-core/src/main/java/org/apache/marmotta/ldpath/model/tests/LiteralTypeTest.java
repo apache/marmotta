@@ -124,11 +124,8 @@ public class LiteralTypeTest<Node> extends NodeTest<Node> {
         @SuppressWarnings("rawtypes")
         LiteralTypeTest that = (LiteralTypeTest) o;
 
-        if (typeUri != null ? !typeUri.equals(that.typeUri) : that.typeUri != null) {
-            return false;
-        }
+        return typeUri != null ? typeUri.equals(that.typeUri) : that.typeUri == null;
 
-        return true;
     }
 
     @Override

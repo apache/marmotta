@@ -34,54 +34,54 @@ public interface StatisticsService {
      * Turn on collection of statistical information for all modules. May introduce additional
      * overhead.
      */
-    public void enableAll();
+    void enableAll();
 
     /**
      * Turn off collection of statistical information for all modules.
      */
-    public void disableAll();
+    void disableAll();
 
     /**
      * Return true if statistics gathering is enabled.
      * 
      * @return
      */
-    public boolean isEnabled();
+    boolean isEnabled();
 
     /**
      * Enable collection of statistical information for the specified module;
      * 
      * @param modName
      */
-    public void enableModule(String modName);
+    void enableModule(String modName);
 
     /**
      * Disable collection of statistical information for the specified module;
      * 
      * @param modName
      */
-    public void disableModule(String modName);
+    void disableModule(String modName);
 
     /**
      * Register the statistics module given as argument with the statistics service
      * 
      * @param mod
      */
-    public void registerModule(String modName, StatisticsModule mod);
+    void registerModule(String modName, StatisticsModule mod);
 
     /**
      * Unregister the statistics module given as argument.
      * 
      * @param mod
      */
-    public void unregisterModule(StatisticsModule mod);
+    void unregisterModule(StatisticsModule mod);
 
     /**
      * Unregister the statistics module with the moduleName given as argument.
      * 
      * @param modName
      */
-    public void unregisterModule(String modName);
+    void unregisterModule(String modName);
 
     /**
      * Return the statistics module identified by the name passed as parameter.
@@ -89,13 +89,13 @@ public interface StatisticsService {
      * @param modName
      * @return
      */
-    public StatisticsModule getModule(String modName);
+    StatisticsModule getModule(String modName);
 
     /**
      * Return all statistics modules associated with the statistics service.
      * 
      * @return
      */
-    public List<String> listModules();
+    List<String> listModules();
 
 }

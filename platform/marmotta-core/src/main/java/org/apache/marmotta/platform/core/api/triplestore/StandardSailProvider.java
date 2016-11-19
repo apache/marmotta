@@ -33,6 +33,6 @@ public interface StandardSailProvider extends SailProvider {
      * @param parent the parent sail to wrap by the provider
      * @return the wrapped sail
      */
-    public SailWrapper createSail(Sail parent);
+    SailWrapper createSail(Sail parent);
 
 }

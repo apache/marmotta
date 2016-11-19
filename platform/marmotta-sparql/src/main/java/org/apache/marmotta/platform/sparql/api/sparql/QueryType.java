@@ -29,6 +29,6 @@ public enum QueryType {
 	
 	GRAPH,
 	
-	BOOL;
+	BOOL
 
 }

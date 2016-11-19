@@ -30,7 +30,7 @@ public interface CopyFrom<T> {
      * <p>
      * @return the interface the copyFrom works on.
      */
-    public Class<? extends CopyFrom> getInterface();
+    Class<? extends CopyFrom> getInterface();
 
     /**
      * Copies all the properties of the given bean into this one.
@@ -43,6 +43,6 @@ public interface CopyFrom<T> {
      * @param obj the instance to copy properties from.
      *
      */
-    public void copyFrom(CopyFrom obj);
+    void copyFrom(CopyFrom obj);
 
 }

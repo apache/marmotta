@@ -16,13 +16,8 @@
  */
 package com.sun.syndication.io.impl;
 
-import com.sun.syndication.feed.module.DCModuleImpl;
-import com.sun.syndication.feed.module.DCSubjectImpl;
-import com.sun.syndication.feed.module.Module;
-import com.sun.syndication.feed.module.DCModule;
-import com.sun.syndication.feed.module.DCSubject;
+import com.sun.syndication.feed.module.*;
 import com.sun.syndication.io.ModuleParser;
-import com.sun.syndication.io.WireFeedParser;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
@@ -47,15 +42,15 @@ public class DCModuleParser implements ModuleParser {
         return DCModule.URI;
     }
 
-    private final Namespace getDCNamespace() {
+    private Namespace getDCNamespace() {
         return DC_NS;
     }
 
-    private final Namespace getRDFNamespace() {
+    private Namespace getRDFNamespace() {
         return RDF_NS;
     }
 
-    private final Namespace getTaxonomyNamespace() {
+    private Namespace getTaxonomyNamespace() {
         return TAXO_NS;
     }
 

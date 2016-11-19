@@ -17,13 +17,13 @@
  */
 package org.apache.marmotta.platform.user.webservices;
 
-import org.apache.marmotta.platform.user.api.AccountService;
-import org.apache.marmotta.platform.user.model.UserAccount;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.user.api.AccountService;
+import org.apache.marmotta.platform.user.model.UserAccount;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -35,15 +35,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -205,7 +197,7 @@ public class UserManagementWebService {
                 }
 
                 accountService.deleteAccount(account);
-                return Response.status(Status.OK).entity(String.format("login removed")).build();
+                return Response.status(Status.OK).entity("login removed").build();
             } finally {
                 conn.commit();
                 conn.close();

@@ -49,11 +49,11 @@ import org.rometools.feed.module.cc.types.License;
  */
 public interface CreativeCommons extends Module {
     
-    public static final String URI = "rome:CreativeCommons";
+    String URI = "rome:CreativeCommons";
     
-    public License[] getAllLicenses();
-    public void setAllLicenses(License[] licenses);
+    License[] getAllLicenses();
+    void setAllLicenses(License[] licenses);
     
-    public License[] getLicenses();
-    public void setLicenses(License[] license );
+    License[] getLicenses();
+    void setLicenses(License[] license);
 }

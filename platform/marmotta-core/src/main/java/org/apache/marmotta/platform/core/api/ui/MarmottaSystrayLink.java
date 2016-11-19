@@ -26,7 +26,7 @@ package org.apache.marmotta.platform.core.api.ui;
  */
 public interface MarmottaSystrayLink {
 
-    public enum Section {
+    enum Section {
         ADMIN, DEMO
     }
 
@@ -34,18 +34,18 @@ public interface MarmottaSystrayLink {
      * Get the label of the systray entry for displaying in the menu.
      * @return
      */
-    public String getLabel();
+    String getLabel();
 
 
     /**
      * Get the link to point the browser to when the user selects the menu entry.
      * @return
      */
-    public String getLink();
+    String getLink();
 
     /**
      * Get the section where to add the systray link in the menu (currently either ADMIN or DEMO).
      * @return
      */
-    public Section getSection();
+    Section getSection();
 }

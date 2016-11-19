@@ -150,11 +150,8 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
         if (function != null ? !function.equals(that.function) : that.function != null) {
             return false;
         }
-        if (selectors != null ? !selectors.equals(that.selectors) : that.selectors != null) {
-            return false;
-        }
+        return selectors != null ? selectors.equals(that.selectors) : that.selectors == null;
 
-        return true;
     }
 
     @Override

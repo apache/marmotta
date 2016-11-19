@@ -39,12 +39,7 @@
  */
 package org.rometools.feed.module.base;
 
-import org.rometools.feed.module.base.types.CurrencyEnumeration;
-import org.rometools.feed.module.base.types.DateTimeRange;
-import org.rometools.feed.module.base.types.FloatUnit;
-import org.rometools.feed.module.base.types.PaymentTypeEnumeration;
-import org.rometools.feed.module.base.types.PriceTypeEnumeration;
-import org.rometools.feed.module.base.types.ShippingType;
+import org.rometools.feed.module.base.types.*;
 
 
 /**
@@ -93,7 +88,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @param value Currency  of the price amount for an item.
      */
-    public void setCurrency(CurrencyEnumeration value);
+    void setCurrency(CurrencyEnumeration value);
 
     /**
      * Currency  of the price amount for an item.
@@ -134,7 +129,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @return Currency  of the price amount for an item.
      */
-    public CurrencyEnumeration getCurrency();
+    CurrencyEnumeration getCurrency();
 
     /**
      * Additional instructions to explain the item’s delivery process.
@@ -172,7 +167,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @param deliveryNotes Additional instructions to explain the item’s delivery process.
      */
-    public void setDeliveryNotes(String deliveryNotes);
+    void setDeliveryNotes(String deliveryNotes);
 
     /**
      * Additional instructions to explain the item’s delivery process.
@@ -210,7 +205,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @return Additional instructions to explain the item’s delivery process.
      */
-    public String getDeliveryNotes();
+    String getDeliveryNotes();
 
     /**
      * The maximum distance you will deliver an item in any direction.
@@ -249,7 +244,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @param deliveryRadius The maximum distance you will deliver an item in any direction.
      */
-    public void setDeliveryRadius(FloatUnit deliveryRadius);
+    void setDeliveryRadius(FloatUnit deliveryRadius);
 
     /**
      * The maximum distance you will deliver an item in any direction.
@@ -288,7 +283,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @return The maximum distance you will deliver an item in any direction.
      */
-    public FloatUnit getDeliveryRadius();
+    FloatUnit getDeliveryRadius();
 
     /**
      * The time during which this event takes place.
@@ -342,7 +337,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param eventDateRange The time during which this event takes place.
      */
-    public void setEventDateRange(DateTimeRange eventDateRange);
+    void setEventDateRange(DateTimeRange eventDateRange);
 
     /**
      * The time during which this event takes place.
@@ -396,7 +391,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return The time during which this event takes place.
      */
-    public DateTimeRange getEventDateRange();
+    DateTimeRange getEventDateRange();
 
     /**
      * Location where the event will be held.
@@ -446,7 +441,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @param location Location where the event will be held.
      */
-    public void setLocation(String location);
+    void setLocation(String location);
 
     /**
      * Location where the event will be held.
@@ -496,7 +491,7 @@ public interface Event extends GlobalInterface {
      *        </tbody></table>
      * @return Location where the event will be held.
      */
-    public String getLocation();
+    String getLocation();
 
     /**
      * Payment Methods acceptable for the event.
@@ -553,7 +548,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param paymentAccepted Payment Methods acceptable for the event.
      */
-    public void setPaymentAccepted(PaymentTypeEnumeration[] paymentAccepted);
+    void setPaymentAccepted(PaymentTypeEnumeration[] paymentAccepted);
 
     /**
      * Payment Methods acceptable for the event.
@@ -610,7 +605,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Payment Methods acceptable for the event.
      */
-    public PaymentTypeEnumeration[] getPaymentAccepted();
+    PaymentTypeEnumeration[] getPaymentAccepted();
 
     /**
      * Additional information about payment.
@@ -737,7 +732,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param paymentNotes Additional information about payment.
      */
-    public void setPaymentNotes(String paymentNotes);
+    void setPaymentNotes(String paymentNotes);
 
     /**
      * Additional information about payment.
@@ -784,7 +779,7 @@ public interface Event extends GlobalInterface {
      *
      * @return Additional information about payment.
      */
-    public String getPaymentNotes();
+    String getPaymentNotes();
 
     /**
      * Price of the event.
@@ -842,7 +837,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param price Price of the event.
      */
-    public void setPrice(FloatUnit price);
+    void setPrice(FloatUnit price);
 
     /**
      * Price of the event.
@@ -900,7 +895,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Price of the event.
      */
-    public FloatUnit getPrice();
+    FloatUnit getPrice();
 
     /**
      * Price qualifier for the even cost.
@@ -945,7 +940,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param priceType Price qualifier for the even cost.
      */
-    public void setPriceType(PriceTypeEnumeration priceType);
+    void setPriceType(PriceTypeEnumeration priceType);
 
     /**
      * Price qualifier for the even cost.
@@ -990,7 +985,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Price qualifier for the even cost.
      */
-    public PriceTypeEnumeration getPriceType();
+    PriceTypeEnumeration getPriceType();
 
     /**
      * Quantity available.
@@ -1044,7 +1039,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param quantity Quantity available.
      */
-    public void setQuantity(Integer quantity);
+    void setQuantity(Integer quantity);
 
     /**
      * Quantity available.
@@ -1098,7 +1093,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Quantity available.
      */
-    public Integer getQuantity();
+    Integer getQuantity();
 
     /**
      * Shipping information related to the event.
@@ -1156,7 +1151,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param shipping Shipping information related to the event.
      */
-    public void setShipping(ShippingType[] shipping);
+    void setShipping(ShippingType[] shipping);
 
     /**
      * Shipping information related to the event.
@@ -1214,7 +1209,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Shipping information related to the event.
      */
-    public ShippingType[] getShipping();
+    ShippingType[] getShipping();
 
     /**
      * Tax rate associated with the event.
@@ -1258,7 +1253,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param taxPercent Tax rate associated with the event.
      */
-    public void setTaxPercent(Float taxPercent);
+    void setTaxPercent(Float taxPercent);
 
     /**
      * Tax rate associated with the event.
@@ -1302,7 +1297,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Tax rate associated with the event.
      */
-    public Float getTaxPercent();
+    Float getTaxPercent();
 
     /**
      * Region where tax applies.
@@ -1349,7 +1344,7 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @param taxRegion Region where tax applies.
      */
-    public void setTaxRegion(String taxRegion);
+    void setTaxRegion(String taxRegion);
 
     /**
      * Region where tax applies.
@@ -1396,5 +1391,5 @@ public interface Event extends GlobalInterface {
      * </tbody></table>
      * @return Region where tax applies.
      */
-    public String getTaxRegion();
+    String getTaxRegion();
 }

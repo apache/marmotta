@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public class SecurityConstraint implements Comparable<SecurityConstraint> {
 
-    public enum Type { PERMISSION, RESTRICTION };
+    public enum Type { PERMISSION, RESTRICTION }
 
 
     private static Logger log = LoggerFactory.getLogger(SecurityConstraint.class);

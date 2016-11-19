@@ -26,16 +26,16 @@ import java.util.Map;
  */
 public interface Field {
 
-    public boolean isResourceField();
+    boolean isResourceField();
 
-    public boolean isLiteralField();
+    boolean isLiteralField();
 
-    public boolean isVariableField();
+    boolean isVariableField();
 
     /**
      * Create string representation taking into account the namespace definitions given as argument.
      * @param namespaces
      * @return
      */
-    public String toString(Map<String,String> namespaces);
+    String toString(Map<String, String> namespaces);
 }

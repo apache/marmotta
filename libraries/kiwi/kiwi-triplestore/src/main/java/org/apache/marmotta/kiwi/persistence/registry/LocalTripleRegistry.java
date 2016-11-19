@@ -33,16 +33,13 @@ public class LocalTripleRegistry implements KiWiTripleRegistry {
 
     private Map<Long,Long> cache;
 
-
     private Map<Long,List<Long>>  transactions;
-
 
     public LocalTripleRegistry() {
         cache        = new ConcurrentHashMap<>();
         transactions = new ConcurrentHashMap<>();
 
     }
-
 
     /**
      * Register a key/triple id pair in the triple registry for the given transaction ID.
@@ -74,9 +71,9 @@ public class LocalTripleRegistry implements KiWiTripleRegistry {
         Long value = cache.get(key.longHashCode());
         if(value != null) {
             return value;
-        } else {
-            return -1;
         }
+
+        return -1;
     }
 
     /**

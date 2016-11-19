@@ -34,7 +34,7 @@ public interface ContentService {
     /**
      * Initialise the content service, setting up all content readers and writers.
      */
-    public void initialise();
+    void initialise();
 
 
     /**
@@ -45,7 +45,7 @@ public interface ContentService {
      * @param mimeType  the mime type of the content
      * @param data a byte array containing the content of the resource
      */
-	public void setContentData(Resource resource, byte[] data, String mimeType) throws WritingNotSupportedException;
+    void setContentData(Resource resource, byte[] data, String mimeType) throws WritingNotSupportedException;
 
 
     /**
@@ -58,7 +58,7 @@ public interface ContentService {
      * @param mimeType  the mime type to retrieve of the content
      * @param in a InputStream containing the content of the resource
      */
-    public void setContentStream(Resource resource, InputStream in, String mimeType) throws WritingNotSupportedException;
+    void setContentStream(Resource resource, InputStream in, String mimeType) throws WritingNotSupportedException;
 
 
     /**
@@ -73,7 +73,7 @@ public interface ContentService {
      * @param mimeType  the mime type to retrieve of the content
      * @return a byte array containing the content of the resource, or null if no content exists
      */
-	public byte[] getContentData(Resource resource, String mimeType);
+    byte[] getContentData(Resource resource, String mimeType);
 
 
     /**
@@ -90,7 +90,7 @@ public interface ContentService {
      * @param mimetype  the mime type to retrieve of the content
      * @return a InputStream containing the content of the resource, or null if no content exists
      */
-    public InputStream getContentStream(Resource resource, String mimetype) throws IOException;
+    InputStream getContentStream(Resource resource, String mimetype) throws IOException;
 
 
     /**
@@ -101,9 +101,9 @@ public interface ContentService {
      * @param mimetype the mimetype to look for
      * @return true if content of this mimetype is associated with the resource, false otherwise
      */
-	public boolean hasContent(Resource resource, String mimetype);
+    boolean hasContent(Resource resource, String mimetype);
 
-	public String getContentType(Resource resource);
+	String getContentType(Resource resource);
 
     /**
       * Return the number of bytes the content of this resource contains.
@@ -112,12 +112,12 @@ public interface ContentService {
       * @return byte count for the resource content
       */
 
-     public long getContentLength(Resource resource, String mimetype);
+    long getContentLength(Resource resource, String mimetype);
     /**
      * Delete the content of the specified resource.
      *
      * @param resource the resource for which to delete the content
      */
-	public boolean deleteContent(Resource resource) throws MarmottaException;
+    boolean deleteContent(Resource resource) throws MarmottaException;
 
 }

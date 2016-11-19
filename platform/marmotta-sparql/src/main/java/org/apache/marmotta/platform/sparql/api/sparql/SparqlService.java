@@ -17,26 +17,22 @@
  */
 package org.apache.marmotta.platform.sparql.api.sparql;
 
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
 import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.sparql.services.sparqlio.rdf.SPARQLGraphResultWriter;
 import org.openrdf.model.Value;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.*;
 import org.openrdf.query.resultio.BooleanQueryResultWriter;
 import org.openrdf.query.resultio.QueryResultWriter;
 import org.openrdf.query.resultio.TupleQueryResultWriter;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
+
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Add file description here!
@@ -99,7 +95,7 @@ public interface SparqlService {
      * @param queryLanguage the query language to use
      * @param query         the SPARQL query to evaluate in SPARQL 1.1 syntax
      */
-    public List<Map<String,Value>> query(QueryLanguage queryLanguage, String query) throws MarmottaException;
+    List<Map<String,Value>> query(QueryLanguage queryLanguage, String query) throws MarmottaException;
 
     /**
      * Execute a SPARQL update on the KiWi TripleStore. Throws a KiWiException in case the update execution fails.

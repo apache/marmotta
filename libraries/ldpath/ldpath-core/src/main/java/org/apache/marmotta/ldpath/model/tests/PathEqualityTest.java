@@ -128,11 +128,8 @@ public class PathEqualityTest<Node> extends NodeTest<Node> {
         if (node != null ? !node.equals(that.node) : that.node != null) {
             return false;
         }
-        if (path != null ? !path.equals(that.path) : that.path != null) {
-            return false;
-        }
+        return path != null ? path.equals(that.path) : that.path == null;
 
-        return true;
     }
 
     @Override

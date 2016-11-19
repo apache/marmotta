@@ -37,7 +37,7 @@ public interface AuthenticationService {
      * @param password password of the user to authenticate
      * @return true on success, false if the user does not exist or the passwords do not match.
      */
-    public boolean authenticateUser(String login, String password);
+    boolean authenticateUser(String login, String password);
 
 
     /**
@@ -48,7 +48,7 @@ public interface AuthenticationService {
      * @param password
      * @return
      */
-    public void setUserPassword(String login, String password);
+    void setUserPassword(String login, String password);
 
 
     /**
@@ -57,7 +57,7 @@ public interface AuthenticationService {
      * @param login login name of the user for whom to return the roles
      * @return a list of strings with the role names currently assigned to the user
      */
-    public Set<String> listUserRoles(String login);
+    Set<String> listUserRoles(String login);
 
 
     /**
@@ -66,7 +66,7 @@ public interface AuthenticationService {
      * @param login the login name of the user with whom to associate roles
      * @param role  the role name to associate with the user
      */
-    public void addUserRole(String login, String role);
+    void addUserRole(String login, String role);
 
     /**
      * Remove the role with the given name from the user with the given login.
@@ -74,10 +74,10 @@ public interface AuthenticationService {
      * @param login the login name of the user from whom to remove the role
      * @param role  the role name to remove from the list of roles of the user
      */
-    public void removeUserRole(String login, String role);
+    void removeUserRole(String login, String role);
 
     /**
      * Returns a list of available {@link AuthenticationProvider} names.
      */
-    public Set<String> listAuthProviderNames();
+    Set<String> listAuthProviderNames();
 }

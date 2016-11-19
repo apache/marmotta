@@ -56,7 +56,7 @@ public class AtomicMapImpl<K, V> extends MapView<K, V> {
     @Override
     public synchronized void clear() {
         clear();
-        if (!updateInProgress()) {
+        if (noUpdateInProgress()) {
             immutable = cloneTarget();
         }
     }
@@ -101,48 +101,48 @@ public class AtomicMapImpl<K, V> extends MapView<K, V> {
     @Override
     public synchronized V put(K key, V value) {
         V v = target().put(key, value);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return v;
     }
 
     @Override
     public synchronized void putAll(Map<? extends K, ? extends V> m) {
         target().putAll(m);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
     }
 
     @Override
     public synchronized V putIfAbsent(K key, V value) {
         V v = target().putIfAbsent(key, value);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return v;
     }
 
     @Override
     public synchronized V remove(Object key) {
         V v = target().remove(key);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return v;
     }
 
     @Override
     public synchronized boolean remove(Object key, Object value) {
         boolean changed = target().remove(key, value);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
     @Override
     public synchronized V replace(K key, V value) {
         V v = target().replace(key, value);
-        if (!updateInProgress()) immutable = cloneTarget();
+        if (noUpdateInProgress()) immutable = cloneTarget();
         return v;
     }
 
     @Override
     public synchronized boolean replace(K key, V oldValue, V newValue) {
         boolean changed = target().replace(key, oldValue, newValue);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 
@@ -186,7 +186,7 @@ public class AtomicMapImpl<K, V> extends MapView<K, V> {
 
 
     /** Indicates if the current thread is doing an atomic update. */
-    protected final boolean updateInProgress() {
-        return updatingThread == Thread.currentThread();
+    protected final boolean noUpdateInProgress() {
+        return updatingThread != Thread.currentThread();
     }
 }

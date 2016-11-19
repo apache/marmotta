@@ -31,32 +31,32 @@ public interface SyndPerson extends Cloneable, Extendable
     /**
      * Returns  name of person
      */
-    public String getName();
+    String getName();
     
     /**
      * Sets name of person.
      */
-    public void setName(String name);
+    void setName(String name);
     
     /**
      * Returns URI of person.
      */
-    public String getUri();
+    String getUri();
     
     /** 
      * Sets URI of person.
      */
-    public void setUri(String uri);
+    void setUri(String uri);
     
     /** 
      * Returns email of person.
      */
-    public String getEmail();
+    String getEmail();
     
     /**
      * Sets email of person.
      */
-    public void setEmail(String email);
+    void setEmail(String email);
     
     
     /**
@@ -66,6 +66,6 @@ public interface SyndPerson extends Cloneable, Extendable
      * @throws CloneNotSupportedException thrown if an element of the object cannot be cloned.
      *
      */
-    public Object clone() throws CloneNotSupportedException;
+    Object clone() throws CloneNotSupportedException;
 
 }

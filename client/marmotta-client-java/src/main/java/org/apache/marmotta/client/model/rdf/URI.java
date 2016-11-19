@@ -46,9 +46,8 @@ public class URI extends RDFNode {
 
         URI uri1 = (URI) o;
 
-        if (!uri.equals(uri1.uri)) return false;
+        return uri.equals(uri1.uri);
 
-        return true;
     }
 
     @Override

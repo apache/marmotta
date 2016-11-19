@@ -894,14 +894,14 @@ public class HttpClientServiceImpl implements HttpClientService {
             if (existingEntry == null) {
                 putEntry(key, updatedEntry);
                 return;
-            } else {
-                // Attempt to do a CAS replace, if we fail then retry
-                // While this operation should work fine within this instance, multiple instances
-                //  could trample each others' data
-                final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                serializer.writeTo(updatedEntry, bos);
-                cache.replace(key, oldData, bos.toByteArray());
             }
+
+            // Attempt to do a CAS replace, if we fail then retry
+            // While this operation should work fine within this instance, multiple instances
+            //  could trample each others' data
+            final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            serializer.writeTo(updatedEntry, bos);
+            cache.replace(key, oldData, bos.toByteArray());
         }
     }
 }

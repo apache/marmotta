@@ -54,7 +54,7 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
             denyAdd = true;
         }
         return denyAdd;
-    };
+    }
 
     @Override
     public boolean remove(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {

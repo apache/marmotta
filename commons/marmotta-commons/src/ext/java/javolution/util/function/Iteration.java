@@ -21,8 +21,8 @@ import java.util.Iterator;
  */
 public interface Iteration<E>  {
 
-    public interface Mutable<E> extends Iteration<E> {}
-    public interface Sequential<E> extends Iteration<E> {}
+    interface Mutable<E> extends Iteration<E> {}
+    interface Sequential<E> extends Iteration<E> {}
        
      /** 
      * Runs the iteration using the specified iterator.

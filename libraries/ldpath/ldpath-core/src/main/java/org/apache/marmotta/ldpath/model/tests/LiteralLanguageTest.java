@@ -115,11 +115,8 @@ public class LiteralLanguageTest<Node> extends NodeTest<Node> {
         @SuppressWarnings("rawtypes")
         LiteralLanguageTest that = (LiteralLanguageTest) o;
 
-        if (lang != null ? !lang.equals(that.lang) : that.lang != null) {
-            return false;
-        }
+        return lang != null ? lang.equals(that.lang) : that.lang == null;
 
-        return true;
     }
 
     @Override

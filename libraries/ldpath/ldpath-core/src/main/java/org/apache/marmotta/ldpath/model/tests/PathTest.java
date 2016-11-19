@@ -107,9 +107,8 @@ public class PathTest<Node> extends NodeTest<Node> {
         @SuppressWarnings("rawtypes")
         PathTest pathTest = (PathTest) o;
 
-        if (path != null ? !path.equals(pathTest.path) : pathTest.path != null) { return false; }
+        return path != null ? path.equals(pathTest.path) : pathTest.path == null;
 
-        return true;
     }
 
     @Override

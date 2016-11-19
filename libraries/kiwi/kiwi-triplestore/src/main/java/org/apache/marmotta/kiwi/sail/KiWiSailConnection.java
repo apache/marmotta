@@ -294,7 +294,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         }
 
 
-        return new UnionIteration<Statement, SailException>(
+        return new UnionIteration<>(
                 Iterables.transform(iterations, new Function<DelayedIteration<Statement, RepositoryException>, Iteration<? extends Statement, SailException>>() {
                     @Override
                     public Iteration<? extends Statement, SailException> apply(DelayedIteration<Statement, RepositoryException> input) {
@@ -318,13 +318,13 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         try {
             if(contexts.length == 0) {
                 return databaseConnection.getSize();
-            } else {
-                long sum = 0;
-                for(Resource context : contexts) {
-                    sum += databaseConnection.getSize(valueFactory.convert(context));
-                }
-                return sum;
             }
+
+            long sum = 0;
+            for(Resource context : contexts) {
+                sum += databaseConnection.getSize(valueFactory.convert(context));
+            }
+            return sum;
         } catch(SQLException ex) {
             throw new SailException("database error while listing triples",ex);
         }
@@ -509,9 +509,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             KiWiNamespace result = databaseConnection.loadNamespaceByPrefix(prefix);
             if(result != null) {
                 return result.getUri();
-            } else {
-                return null;
             }
+            return null;
         } catch (SQLException e) {
             throw new SailException("database error while querying namespaces",e);
         }
@@ -561,9 +560,8 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             if(defaultContext != null) {
                 // null value for context means statements without context; in KiWi, this means "default context"
                 return (KiWiUriResource)valueFactory.createURI(defaultContext);
-            } else {
-                return null;
             }
+            return null;
         } else {
             return valueFactory.convert(input);
         }
@@ -611,25 +609,22 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
                         if (e instanceof ClosedByInterruptException) {
                             return new QueryInterruptedException(e);
                         }
-                        else if (e instanceof IOException) {
+                        if (e instanceof IOException) {
                             return new QueryEvaluationException(e);
                         }
-                        else if (e instanceof SailException) {
+                        if (e instanceof SailException) {
                             if(e.getCause() instanceof ResultInterruptedException) {
                                 return new QueryInterruptedException(e);
-                            } else {
-                                return new QueryEvaluationException(e);
                             }
+                            return new QueryEvaluationException(e);
                         }
-                        else if (e instanceof RuntimeException) {
+                        if (e instanceof RuntimeException) {
                             throw (RuntimeException)e;
                         }
-                        else if (e == null) {
+                        if (e == null) {
                             throw new IllegalArgumentException("e must not be null");
                         }
-                        else {
-                            throw new IllegalArgumentException("Unexpected exception type: " + e.getClass(),e);
-                        }
+                        throw new IllegalArgumentException("Unexpected exception type: " + e.getClass(),e);
                     }
                 };
             } catch (SailException ex) {

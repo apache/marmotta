@@ -35,7 +35,7 @@ public interface ContentReader {
      * Return the name of the content reader. Used to identify and display the content reader to admin users.
      * @return
      */
-    public String getName();
+    String getName();
 
     /**
      * Retrieve the content of the specified mime type for the specified resource. Returns a byte array containing
@@ -49,7 +49,7 @@ public interface ContentReader {
      * @param mimetype  the mime type to retrieve of the content
      * @return a byte array containing the content of the resource, or null if no content exists
      */
-    public byte[] getContentData(Resource resource, String mimetype) throws IOException;
+    byte[] getContentData(Resource resource, String mimetype) throws IOException;
 
 
     /**
@@ -66,7 +66,7 @@ public interface ContentReader {
      * @param mimetype  the mime type to retrieve of the content
      * @return a InputStream containing the content of the resource, or null if no content exists
      */
-    public InputStream getContentStream(Resource resource, String mimetype) throws IOException;
+    InputStream getContentStream(Resource resource, String mimetype) throws IOException;
 
 
     /**
@@ -77,7 +77,7 @@ public interface ContentReader {
      * @param mimetype the mimetype to look for
      * @return true if content of this mimetype is associated with the resource, false otherwise
      */
-    public boolean hasContent(Resource resource, String mimetype);
+    boolean hasContent(Resource resource, String mimetype);
 
 
     /**
@@ -86,7 +86,7 @@ public interface ContentReader {
      * @param resource resource for which to return the content type
      * @return the MIME content type of the resource
      */
-    public String getContentType(Resource resource);
+    String getContentType(Resource resource);
 
 
     /**
@@ -95,5 +95,5 @@ public interface ContentReader {
      * @param resource resource for which to return the content length
      * @return byte count for the resource content
      */
-    public long getContentLength(Resource resource, String mimetype);
+    long getContentLength(Resource resource, String mimetype);
 }

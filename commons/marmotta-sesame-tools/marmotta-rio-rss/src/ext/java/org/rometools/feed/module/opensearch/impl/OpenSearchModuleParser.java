@@ -15,22 +15,21 @@
 
 package org.rometools.feed.module.opensearch.impl;
 
+import com.sun.syndication.feed.atom.Link;
+import com.sun.syndication.feed.module.Module;
+import com.sun.syndication.io.ModuleParser;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.Parent;
+import org.rometools.feed.module.opensearch.OpenSearchModule;
+import org.rometools.feed.module.opensearch.entity.OSQuery;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.jdom2.Attribute;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
-import org.jdom2.Parent;
-
-import com.sun.syndication.feed.atom.Link;
-import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.opensearch.OpenSearchModule;
-import org.rometools.feed.module.opensearch.entity.OSQuery;
-import com.sun.syndication.io.ModuleParser;
 
 /**
  * @author Michael W. Nassif (enrouteinc@gmail.com)
@@ -183,12 +182,9 @@ public class OpenSearchModuleParser implements ModuleParser{
     }
 	
 	private static boolean isRelativeURI(String uri) {
-        if (  uri.startsWith("http://")
-           || uri.startsWith("https://")
-           || uri.startsWith("/")) {
-            return false;
-        }
-        return true;
+        return !(uri.startsWith("http://")
+                || uri.startsWith("https://")
+                || uri.startsWith("/"));
     }
 	
     /** Use xml:base attributes at feed and entry level to resolve relative links */

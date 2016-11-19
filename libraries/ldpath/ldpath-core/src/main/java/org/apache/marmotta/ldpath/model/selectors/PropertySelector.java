@@ -110,9 +110,8 @@ public class PropertySelector<Node> implements NodeSelector<Node> {
         @SuppressWarnings("rawtypes")
 		PropertySelector that = (PropertySelector) o;
 
-        if (property != null ? !property.equals(that.property) : that.property != null) return false;
+        return property != null ? property.equals(that.property) : that.property == null;
 
-        return true;
     }
 
     @Override

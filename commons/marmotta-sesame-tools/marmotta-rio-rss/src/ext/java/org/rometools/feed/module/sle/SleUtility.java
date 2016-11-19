@@ -18,15 +18,15 @@
 package org.rometools.feed.module.sle;
 
 import com.sun.syndication.feed.module.Extendable;
-import org.rometools.feed.module.sle.io.ModuleParser;
-import org.rometools.feed.module.sle.types.Group;
-import org.rometools.feed.module.sle.types.Sort;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.SyndFeedOutput;
 import com.sun.syndication.io.impl.ModuleGenerators;
 import org.jdom2.Document;
+import org.rometools.feed.module.sle.io.ModuleParser;
+import org.rometools.feed.module.sle.types.Group;
+import org.rometools.feed.module.sle.types.Sort;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,8 +117,8 @@ public class SleUtility {
     
     
     
-    private static interface ValueStrategy {
-        public Comparable getValue(Extendable o, Object valueName);
+    private interface ValueStrategy {
+        Comparable getValue(Extendable o, Object valueName);
     }
     
     private static class GroupStrategy implements ValueStrategy {
@@ -128,7 +128,7 @@ public class SleUtility {
             try {
                 oc = (Comparable) ((SleEntry) o.getModule(ModuleParser.TEMP.getURI())).getGroupByElement((Group)value).getValue();
             } catch (NullPointerException npe) {
-                ; // watch it go by
+                // watch it go by
             }
             
             return oc;
@@ -141,7 +141,7 @@ public class SleUtility {
             try {
                 oc = (Comparable) ((SleEntry) o.getModule(ModuleParser.TEMP.getURI())).getSortByElement((Sort)value).getValue();
             } catch (NullPointerException npe) {
-                ; // watch it go by
+                // watch it go by
             }
             
             return oc;

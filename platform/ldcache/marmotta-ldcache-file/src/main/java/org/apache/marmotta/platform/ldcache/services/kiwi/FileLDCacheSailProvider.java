@@ -82,8 +82,6 @@ public class FileLDCacheSailProvider extends LDCacheSailProvider {
 
         SesameFilter<Resource> cacheFilters = new OneOfFilter<Resource>(filters);
 
-        String cache_context = configurationService.getCacheContext();
-
         directory = new File(configurationService.getHome() + File.separator + "ldcache");
 
         try {

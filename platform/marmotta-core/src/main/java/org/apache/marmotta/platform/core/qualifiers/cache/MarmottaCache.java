@@ -39,5 +39,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({TYPE, METHOD, FIELD, PARAMETER})
 public @interface MarmottaCache {
-    @Nonbinding public String value();
+    @Nonbinding String value();
 }

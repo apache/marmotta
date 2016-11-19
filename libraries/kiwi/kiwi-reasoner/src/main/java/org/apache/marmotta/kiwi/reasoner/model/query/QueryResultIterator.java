@@ -35,5 +35,5 @@ public interface QueryResultIterator extends CloseableIteration<QueryResult, SQL
     /**
      * Close the underlying result set and database connection.
      */
-    public void close();
+    void close();
 }

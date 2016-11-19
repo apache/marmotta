@@ -33,6 +33,6 @@ public interface TransactionalSailProvider extends SailProvider {
      * @param parent the parent sail to wrap by the provider
      * @return the wrapped sail
      */
-    public TransactionalSailWrapper createSail(TransactionalSail parent);
+    TransactionalSailWrapper createSail(TransactionalSail parent);
 
 }

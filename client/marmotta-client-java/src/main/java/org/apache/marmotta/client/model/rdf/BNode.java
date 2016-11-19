@@ -45,9 +45,8 @@ public class BNode extends RDFNode {
 
         BNode bNode = (BNode) o;
 
-        if (anonId != null ? !anonId.equals(bNode.anonId) : bNode.anonId != null) return false;
+        return anonId != null ? anonId.equals(bNode.anonId) : bNode.anonId == null;
 
-        return true;
     }
 
     @Override

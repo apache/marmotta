@@ -17,26 +17,19 @@
  */
 package org.apache.marmotta.platform.ldpath.webservices;
 
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
-import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listResourcesByPrefix;
-import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
-
-import org.apache.marmotta.platform.ldpath.api.LDPathService;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
-import org.apache.marmotta.platform.core.api.prefix.PrefixService;
-import org.apache.marmotta.platform.core.api.triplestore.SesameService;
-import org.apache.marmotta.platform.core.services.prefix.PrefixCC;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.UriUtil;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.backend.sesame.SesameConnectionBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
+import org.apache.marmotta.platform.core.api.prefix.PrefixService;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.services.prefix.PrefixCC;
+import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.openrdf.model.*;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -46,11 +39,15 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listOutgoing;
+import static org.apache.marmotta.commons.sesame.repository.ResourceUtils.listResourcesByPrefix;
+import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
 
 @Path("/ldpath/util")
 public class LDPathUtilWebService {
@@ -253,12 +250,8 @@ public class LDPathUtilWebService {
 
         // Merge the contexts
         HashSet<String> context = new HashSet<String>();
-        for (String c : ctx) {
-            context.add(c);
-        }
-        for (String c : ctx2) {
-            context.add(c);
-        }
+        Collections.addAll(context, ctx);
+        Collections.addAll(context, ctx2);
 
         // Clean the path
         String path = partialPath.replaceAll("/.*", "").trim();

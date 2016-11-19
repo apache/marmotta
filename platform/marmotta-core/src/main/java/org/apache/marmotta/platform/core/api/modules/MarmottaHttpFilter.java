@@ -27,18 +27,18 @@ import javax.servlet.Filter;
 public interface MarmottaHttpFilter extends Filter {
 
     // authentication and access control have to come before everything else
-    public static int PRIO_AUTH = Integer.MIN_VALUE;
+    int PRIO_AUTH = Integer.MIN_VALUE;
 
-    public static int PRIO_ACL  = Integer.MIN_VALUE + 10;
+    int PRIO_ACL  = Integer.MIN_VALUE + 10;
 
     // first in filter chain
-    public static int PRIO_FIRST = 1;
+    int PRIO_FIRST = 1;
    
     // somewhere inbetween
-    public static int PRIO_MIDDLE = Integer.MAX_VALUE / 2;
+    int PRIO_MIDDLE = Integer.MAX_VALUE / 2;
     
     // last in filter chain
-    public static int PRIO_LAST  = Integer.MAX_VALUE;
+    int PRIO_LAST  = Integer.MAX_VALUE;
     
     /**
      * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
@@ -46,7 +46,7 @@ public interface MarmottaHttpFilter extends Filter {
      *
      * @return
      */
-    public String getPattern();
+    String getPattern();
 
 
     /**
@@ -55,5 +55,5 @@ public interface MarmottaHttpFilter extends Filter {
      * something inbetween (e.g. PRIO_MIDDLE).
      * @return
      */
-    public int getPriority();
+    int getPriority();
 }

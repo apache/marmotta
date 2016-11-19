@@ -99,9 +99,8 @@ public class PathSelector<Node> implements NodeSelector<Node> {
 		PathSelector that = (PathSelector) o;
 
         if (left != null ? !left.equals(that.left) : that.left != null) return false;
-        if (right != null ? !right.equals(that.right) : that.right != null) return false;
+        return right != null ? right.equals(that.right) : that.right == null;
 
-        return true;
     }
 
     /**

@@ -94,10 +94,7 @@ public class PhotoDate extends Date{
     }
     
     public boolean equals( Object o ){
-        if( o instanceof Date || ((Date)o).getTime()/1000 == this.getTime()/1000 )
-            return true;
-        else
-            return false;
+        return o instanceof Date || ((Date) o).getTime() / 1000 == this.getTime() / 1000;
     }
    
     

@@ -17,13 +17,13 @@
  */
 package org.apache.marmotta.platform.user.model;
 
+import org.apache.marmotta.commons.util.HashUtils;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.marmotta.commons.util.HashUtils;
 
 /**
  * User: Stephanie Stroka
@@ -40,7 +40,7 @@ public class UserAccount implements Serializable {
      * @author Jakob Frank <jakob.frank@salzburgresearch.at>
      *
      */
-    public static enum PasswordHash {
+    public enum PasswordHash {
         PLAIN {
             @Override
             protected String hash(String in) {

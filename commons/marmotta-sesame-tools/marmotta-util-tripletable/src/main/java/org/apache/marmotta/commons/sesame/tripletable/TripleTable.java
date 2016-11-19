@@ -463,9 +463,8 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
 		@SuppressWarnings("rawtypes")
 		TripleTable that = (TripleTable) o;
 
-        if (!data.equals(that.data)) return false;
+        return data.equals(that.data);
 
-        return true;
     }
 
     @Override

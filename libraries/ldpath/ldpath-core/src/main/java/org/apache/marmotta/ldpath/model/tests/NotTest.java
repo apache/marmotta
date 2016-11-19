@@ -85,11 +85,8 @@ public class NotTest<Node> extends NodeTest<Node> {
         @SuppressWarnings("rawtypes")
         NotTest notTest = (NotTest) o;
 
-        if (delegate != null ? !delegate.equals(notTest.delegate) : notTest.delegate != null) {
-            return false;
-        }
+        return delegate != null ? delegate.equals(notTest.delegate) : notTest.delegate == null;
 
-        return true;
     }
 
     @Override

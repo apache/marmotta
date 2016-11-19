@@ -33,21 +33,21 @@ public interface NodeBackend<Node> {
 	 * @param n the node to check
 	 * @return true if the node is a literal
 	 */
-	public boolean isLiteral(Node n);
+    boolean isLiteral(Node n);
 
 	/**
 	 * Test whether the node passed as argument is a URI
 	 * @param n the node to check
 	 * @return true if the node is a URI
 	 */
-	public boolean isURI(Node n);
+    boolean isURI(Node n);
 
 	/**
 	 * Test whether the node passed as argument is a blank node
 	 * @param n the node to check
 	 * @return true if the node is a blank node
 	 */
-	public boolean isBlank(Node n);
+    boolean isBlank(Node n);
 
 	/**
 	 * Return the language of the literal node passed as argument.
@@ -56,7 +56,7 @@ public interface NodeBackend<Node> {
 	 * @return a Locale representing the language of the literal, or null if the literal node has no language
 	 * @throws IllegalArgumentException in case the node is no literal
 	 */
-	public Locale getLiteralLanguage(Node n);
+    Locale getLiteralLanguage(Node n);
 
 	/**
 	 * Return the URI of the type of the literal node passed as argument.
@@ -65,28 +65,28 @@ public interface NodeBackend<Node> {
 	 * @return a URI representing the type of the literal content, or null if the literal is untyped
 	 * @throws IllegalArgumentException in case the node is no literal
 	 */
-	public URI getLiteralType(Node n);
+    URI getLiteralType(Node n);
 
 	/**
 	 * Create a literal node with the content passed as argument
 	 * @param content  string content to represent inside the literal
 	 * @return a literal node in using the model used by this backend
 	 */
-	public Node createLiteral(String content);
+    Node createLiteral(String content);
 
 	/**
 	 * Create a literal node with the content passed as argument
 	 * @param content  string content to represent inside the literal
 	 * @return a literal node in using the model used by this backend
 	 */
-	public Node createLiteral(String content, Locale language, URI type);
+    Node createLiteral(String content, Locale language, URI type);
 
 	/**
 	 * Create a URI mode with the URI passed as argument
 	 * @param uri  URI of the resource to create
 	 * @return a URI node using the model used by this backend
 	 */
-	public Node createURI(String uri);
+    Node createURI(String uri);
 
 	/**
 	 * Return the lexial representation of a node. For a literal, this will be the content, for a URI node it will be the
@@ -94,7 +94,7 @@ public interface NodeBackend<Node> {
 	 * @param node
 	 * @return
 	 */
-	public String stringValue(Node node);
+    String stringValue(Node node);
 
 	/**
 	 * Return the double value of a literal node. Depending on the backend implementing this method,
@@ -108,7 +108,7 @@ public interface NodeBackend<Node> {
 	 * @throws ArithmeticException in case the literal cannot be represented as double value
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Double doubleValue(Node node);
+    Double doubleValue(Node node);
 
 	/**
 	 * Return the long value of a literal node. Depending on the backend implementing this method,
@@ -122,7 +122,7 @@ public interface NodeBackend<Node> {
 	 * @throws ArithmeticException in case the literal cannot be represented as long value
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Long longValue(Node node);
+    Long longValue(Node node);
 
 	/**
 	 * Return the boolean value of a literal node. Depending on the backend implementing this method,
@@ -137,7 +137,7 @@ public interface NodeBackend<Node> {
 	 * @return long value of the literal node
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Boolean booleanValue(Node node);
+    Boolean booleanValue(Node node);
 
 	/**
 	 * TODO
@@ -145,7 +145,7 @@ public interface NodeBackend<Node> {
 	 * @return long value of the literal node
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Date dateTimeValue(Node node);
+    Date dateTimeValue(Node node);
 
 	/**
 	 * TODO
@@ -153,7 +153,7 @@ public interface NodeBackend<Node> {
 	 * @return long value of the literal node
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Date dateValue(Node node);
+    Date dateValue(Node node);
 
 	/**
 	 * TODO
@@ -161,7 +161,7 @@ public interface NodeBackend<Node> {
 	 * @return long value of the literal node
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Date timeValue(Node node);
+    Date timeValue(Node node);
 
 	/**
 	 * Return the float value of a literal node. Depending on the backend implementing this method,
@@ -175,7 +175,7 @@ public interface NodeBackend<Node> {
 	 * @throws ArithmeticException in case the literal cannot be represented as float value
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Float floatValue(Node node);
+    Float floatValue(Node node);
 
 	/**
 	 * Return the 32bit integer value of a literal node. Depending on the backend implementing this method,
@@ -193,7 +193,7 @@ public interface NodeBackend<Node> {
 	 * @throws ArithmeticException in case the literal cannot be represented as 32 bit integer value
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public Integer intValue(Node node);
+    Integer intValue(Node node);
 
 	/**
 	 * Return the arbitrary length integer value of a literal node. Depending on the backend implementing this method,
@@ -207,7 +207,7 @@ public interface NodeBackend<Node> {
 	 * @throws ArithmeticException in case the literal cannot be represented as long value
 	 * @throws IllegalArgumentException in case the node passed as argument is integer a literal
 	 */
-	public BigInteger integerValue(Node node);
+    BigInteger integerValue(Node node);
 
 	/**
 	 * Return the decimal number of a literal node. Depending on the backend implementing this method,
@@ -221,6 +221,6 @@ public interface NodeBackend<Node> {
 	 * @throws ArithmeticException in case the literal cannot be represented as decimal value
 	 * @throws IllegalArgumentException in case the node passed as argument is not a literal
 	 */
-	public BigDecimal decimalValue(Node node);
+    BigDecimal decimalValue(Node node);
 
 }

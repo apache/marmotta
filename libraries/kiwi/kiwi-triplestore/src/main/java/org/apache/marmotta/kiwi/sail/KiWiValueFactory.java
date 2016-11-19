@@ -223,9 +223,8 @@ public class KiWiValueFactory implements ValueFactory {
     public Literal createLiteral(Object object) {
         if(object instanceof XMLGregorianCalendar) {
             return createLiteral((XMLGregorianCalendar)object);
-        } else {
-            return createLiteral(object,null,LiteralCommons.getXSDType(object.getClass()));
         }
+        return createLiteral(object,null,LiteralCommons.getXSDType(object.getClass()));
     }
 
     /**
@@ -309,7 +308,9 @@ public class KiWiValueFactory implements ValueFactory {
                     if(result == null) {
                         result = new KiWiStringLiteral(value.toString(), locale, rtype);
                     }
-                } else if(value instanceof Date || value instanceof DateTime ||type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") || type.equals(Namespaces.NS_XSD+"time")) {
+                } else if(value instanceof Date || value instanceof DateTime ||
+                        type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") ||
+                        type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
                     final DateTime dvalue;
                     if(value instanceof DateTime) {
@@ -644,19 +645,22 @@ public class KiWiValueFactory implements ValueFactory {
     public KiWiNode convert(Value value) {
         if(value == null) {
             return null;
-        } else if(value instanceof KiWiNode) {
+        }
+        if(value instanceof KiWiNode) {
             return (KiWiNode)value;
-        } else if(value instanceof URI) {
+        }
+        if(value instanceof URI) {
             return (KiWiUriResource)createURI(value.stringValue());
-        } else if(value instanceof BNode) {
+        }
+        if(value instanceof BNode) {
             return (KiWiAnonResource)createBNode(value.stringValue());
-        } else if(value instanceof Literal) {
+        }
+        if(value instanceof Literal) {
             Literal l = (Literal)value;
             return createLiteral(l.getLabel(),l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue(): null);
-        } else {
-            throw new IllegalArgumentException("the value passed as argument does not have the correct type");
         }
 
+        throw new IllegalArgumentException("the value passed as argument does not have the correct type");
     }
 
 

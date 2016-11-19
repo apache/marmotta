@@ -31,6 +31,6 @@ public interface SesameFilter<T> {
      * @param object the object to check
      * @return true in case the object is accepted, false otherwise
      */
-    public boolean accept(T object);
+    boolean accept(T object);
 
 }

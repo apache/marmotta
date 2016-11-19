@@ -16,21 +16,15 @@
  */
 package com.sun.syndication.io.impl;
 
-import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.DCSubject;
+import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleGenerator;
 import org.jdom2.Attribute;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
+import java.util.*;
 
 
 /**
@@ -64,15 +58,15 @@ public class DCModuleGenerator implements ModuleGenerator {
         return DC_URI;
     }
     
-    private final Namespace getDCNamespace() {
+    private Namespace getDCNamespace() {
         return DC_NS;
     }
 
-    private final Namespace getRDFNamespace() {
+    private Namespace getRDFNamespace() {
         return RDF_NS;
     }
 
-    private final Namespace getTaxonomyNamespace() {
+    private Namespace getTaxonomyNamespace() {
         return TAXO_NS;
     }
 

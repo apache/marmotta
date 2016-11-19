@@ -17,13 +17,13 @@
  */
 package org.apache.marmotta.platform.core.api.templating;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Map;
-
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Map;
 
 /**
  * Templating Service
@@ -32,26 +32,26 @@ import freemarker.template.TemplateException;
  */
 public interface TemplatingService {
     
-    final static String PATH = "/templates/";
+    String PATH = "/templates/";
 
-    public final static String DEFAULT_REST_PATH = "/doc/rest/";
+    String DEFAULT_REST_PATH = "/doc/rest/";
 
-    public final static String DEFAULT_REST_FILE = "overview-index.html";
+    String DEFAULT_REST_FILE = "overview-index.html";
     
-    final static String ADMIN_TPL = "admin.ftl";
+    String ADMIN_TPL = "admin.ftl";
 
     @Deprecated
-    final static String ERROR_404_TPL = "404.ftl";
+    String ERROR_404_TPL = "404.ftl";
 
-    final static String ERROR_TPL = "error.ftl";
+    String ERROR_TPL = "error.ftl";
     
-    final static String RDF_HTML_TPL = "rdfhtml.ftl";
+    String RDF_HTML_TPL = "rdfhtml.ftl";
     
-    static final String DEFAULT_PROJECT = "marmotta";
+    String DEFAULT_PROJECT = "marmotta";
     
-    static final String DEFAULT_STYLE = "blue";
+    String DEFAULT_STYLE = "blue";
 
-    final static String DEFAULT_WEBSERVICE_TITLE = "Webservice";
+    String DEFAULT_WEBSERVICE_TITLE = "Webservice";
     
     void initDataModel();
     

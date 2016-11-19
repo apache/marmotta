@@ -36,7 +36,7 @@ public interface UserConfigurationService {
      * @param key
      * @return
      */
-    public boolean isUserConfigurationSet(UserAccount user, String key);
+    boolean isUserConfigurationSet(UserAccount user, String key);
 
     /**
      * Get the configuration for the given user and key. If there is no such configuration, a new one is
@@ -46,7 +46,7 @@ public interface UserConfigurationService {
      * @param key  unique configuration key for lookup
      * @return a configuration object with either the configured value or null as value
      */
-    public String getUserConfiguration(UserAccount user, String key);
+    String getUserConfiguration(UserAccount user, String key);
 
     /**
      * Get the configuration for the given user and key. If there is no such configuration, a new one is
@@ -57,7 +57,7 @@ public interface UserConfigurationService {
      * @param defaultValue default value if configuration not found
      * @return a configuration object with either the configured value or defaultValue
      */
-    public String getUserConfiguration(UserAccount user, String key, String defaultValue);
+    String getUserConfiguration(UserAccount user, String key, String defaultValue);
 
 
     /**
@@ -65,14 +65,14 @@ public interface UserConfigurationService {
      * @param key
      * @param value
      */
-    public void setUserConfiguration(UserAccount user, String key, String value);
+    void setUserConfiguration(UserAccount user, String key, String value);
 
     /**
      * Set the configuration "key" to the string value "value".
      * @param key
      * @param values
      */
-    public void setUserListConfiguration(UserAccount user, String key, List<String> values);
+    void setUserListConfiguration(UserAccount user, String key, List<String> values);
 
 
     /**
@@ -81,7 +81,7 @@ public interface UserConfigurationService {
      *
      * @param user
      */
-    public List<Object> getUserListConfiguration(UserAccount user, String key);
+    List<Object> getUserListConfiguration(UserAccount user, String key);
 
     /**
      * Return the list configuration value of the given key for the given user. Returns the
@@ -89,13 +89,13 @@ public interface UserConfigurationService {
      *
      * @param user
      */
-    public List<Object> getUserListConfiguration(UserAccount user, String key, List<Object> defaultValue);
+    List<Object> getUserListConfiguration(UserAccount user, String key, List<Object> defaultValue);
 
     /**
      * Remove the user configuration identified by "key" from the database.
      * @param key
      */
-    public void removeUserConfiguration(UserAccount user, String key);
+    void removeUserConfiguration(UserAccount user, String key);
 
 
 }

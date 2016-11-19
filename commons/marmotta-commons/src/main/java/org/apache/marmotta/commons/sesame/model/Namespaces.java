@@ -85,7 +85,8 @@ public class Namespaces {
      * Some language related namespaces from LoC (Library of Congress, USA)
      */
     public static final class NSS_LANGUAGE {
-        private NSS_LANGUAGE() {};
+        private NSS_LANGUAGE() {}
+
         /**
          * Use the two-letter identifier, such as "en", "de", "fr"
          */
@@ -106,7 +107,7 @@ public class Namespaces {
          * @see {@link http://id.loc.gov/vocabulary/languages.html}
          */
         public static final String NS_MARC     = "http://id.loc.gov/vocabulary/languages/";
-    };
+    }
 
     public static final String MIME_TYPE_ALL               = "*/*";
     public static final String MIME_TYPE_HTML              = "text/html";

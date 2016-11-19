@@ -18,13 +18,13 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A Group is a complex selector in brackets.
@@ -94,9 +94,8 @@ public class GroupedSelector<Node> implements NodeSelector<Node> {
         @SuppressWarnings("rawtypes")
 		GroupedSelector that = (GroupedSelector) o;
 
-        if (content!= null ? !content.equals(that.content) : that.content!= null) return false;
+        return content != null ? content.equals(that.content) : that.content == null;
 
-        return true;
     }
 
     @Override

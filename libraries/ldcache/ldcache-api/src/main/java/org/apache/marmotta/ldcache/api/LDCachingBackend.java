@@ -35,7 +35,7 @@ public interface LDCachingBackend {
      * @param resource the resource to retrieve the cache entry for
      * @return
      */
-    public CacheEntry getEntry(URI resource);
+    CacheEntry getEntry(URI resource);
 
 
     /**
@@ -44,7 +44,7 @@ public interface LDCachingBackend {
      * @param resource the resource to update
      * @param entry    the entry for the resource
      */
-    public void putEntry(URI resource, CacheEntry entry);
+    void putEntry(URI resource, CacheEntry entry);
 
 
     /**
@@ -52,24 +52,24 @@ public interface LDCachingBackend {
      *
      * @param resource the resource to remove the entry for
      */
-    public void removeEntry(URI resource);
+    void removeEntry(URI resource);
 
 
     /**
      * Clear all entries in the cache backend.
      */
-    public void clear();
+    void clear();
 
 
 
     /**
      * Carry out any initialization tasks that might be necessary
      */
-    public void initialize();
+    void initialize();
 
     /**
      * Shutdown the backend and free all runtime resources.
      */
-    public void shutdown();
+    void shutdown();
 
 }

@@ -39,12 +39,7 @@
  */
 package org.rometools.feed.module.base;
 
-import org.rometools.feed.module.base.types.CurrencyEnumeration;
-import org.rometools.feed.module.base.types.FloatUnit;
-import org.rometools.feed.module.base.types.PaymentTypeEnumeration;
-import org.rometools.feed.module.base.types.PriceTypeEnumeration;
-import org.rometools.feed.module.base.types.ShippingType;
-import org.rometools.feed.module.base.types.Size;
+import org.rometools.feed.module.base.types.*;
 
 
 /**
@@ -85,7 +80,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param actors Actor featured in the video.
      */
-    public void setActors(String[] actors);
+    void setActors(String[] actors);
 
     /**
      * Actor featured in the video.
@@ -118,7 +113,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return Actor featured in the video.
      */
-    public String[] getActors();
+    String[] getActors();
 
     /**
      * The type of apparel being offered.
@@ -153,7 +148,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param apparelType The type of apparel being offered.
      */
-    public void setApparelType(String apparelType);
+    void setApparelType(String apparelType);
 
     /**
      * The type of apparel being offered.
@@ -188,7 +183,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return  The type of apparel being offered.
      */
-    public String getApparelType();
+    String getApparelType();
 
     /**
      * Artist that created the work.
@@ -230,7 +225,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param artists Artist that created the work.
      */
-    public void setArtists(String[] artists);
+    void setArtists(String[] artists);
 
     /**
      * Artist that created the work.
@@ -272,7 +267,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Artist that created the work.
      */
-    public String[] getArtists();
+    String[] getArtists();
 
     /**
      * Author of the item.
@@ -313,7 +308,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param authors Author of the item.
      */
-    public void setAuthors(String[] authors);
+    void setAuthors(String[] authors);
 
     /**
      * Author of the item.
@@ -354,7 +349,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Author of the item.
      */
-    public String[] getAuthors();
+    String[] getAuthors();
 
     /**
      * The brand name of an item.
@@ -385,7 +380,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param brand The brand name of an item.
      */
-    public void setBrand(String brand);
+    void setBrand(String brand);
 
     /**
      * The brand name of an item.
@@ -416,7 +411,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return The brand name of an item.
      */
-    public String getBrand();
+    String getBrand();
 
     /**
      * Color of an item.
@@ -460,7 +455,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param color Color of an item.
      */
-    public void setColors(String[] color);
+    void setColors(String[] color);
 
     /**
      * Color of an item.
@@ -504,7 +499,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Color of an item.
      */
-    public String[] getColors();
+    String[] getColors();
 
     /**
      * Condition of the item. For example: new, used, or refurbished.
@@ -543,7 +538,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param condition Condition of the item. For example: new, used, or refurbished.
      */
-    public void setCondition(String condition);
+    void setCondition(String condition);
 
     /**
      * Condition of the item. For example: new, used, or refurbished.
@@ -582,7 +577,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return Condition of the item. For example: new, used, or refurbished.
      */
-    public String getCondition();
+    String getCondition();
 
     /**
      * Currency  of the price amount for an item.
@@ -623,7 +618,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param value Currency  of the price amount for an item.
      */
-    public void setCurrency(CurrencyEnumeration value);
+    void setCurrency(CurrencyEnumeration value);
 
     /**
      * Currency  of the price amount for an item.
@@ -664,7 +659,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return Currency  of the price amount for an item.
      */
-    public CurrencyEnumeration getCurrency();
+    CurrencyEnumeration getCurrency();
 
     /**
      * Additional instructions to explain the item’s delivery process.
@@ -702,7 +697,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param deliveryNotes Additional instructions to explain the item’s delivery process.
      */
-    public void setDeliveryNotes(String deliveryNotes);
+    void setDeliveryNotes(String deliveryNotes);
 
     /**
      * Additional instructions to explain the item;s delivery process.
@@ -739,7 +734,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return Additional instructions to explain the item�s delivery process.
      */
-    public String getDeliveryNotes();
+    String getDeliveryNotes();
 
     /**
      * The maximum distance you will deliver an item in any direction.
@@ -778,7 +773,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param deliveryRadius The maximum distance you will deliver an item in any direction.
      */
-    public void setDeliveryRadius(FloatUnit deliveryRadius);
+    void setDeliveryRadius(FloatUnit deliveryRadius);
 
     /**
      * The maximum distance you will deliver an item in any direction.
@@ -817,7 +812,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return The maximum distance you will deliver an item in any direction.
      */
-    public FloatUnit getDeliveryRadius();
+    FloatUnit getDeliveryRadius();
 
     /**
      * Format of the content.
@@ -851,7 +846,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param format Format of the content.
      */
-    public void setFormat(String[] format);
+    void setFormat(String[] format);
 
     /**
      * Format of the content.
@@ -885,7 +880,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return Format of the content.
      */
-    public String[] getFormat();
+    String[] getFormat();
 
     /**
      * A unique 10 or 13 digit number assigned to every printed book.
@@ -918,7 +913,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @param isbn A unique 10 or 13 digit number assigned to every printed book.
      */
-    public void setIsbn(String isbn);
+    void setIsbn(String isbn);
 
     /**
      * A unique 10 or 13 digit number assigned to every printed book.
@@ -951,7 +946,7 @@ public interface Product extends GlobalInterface {
      *        </tbody></table>
      * @return A unique 10 or 13 digit number assigned to every printed book.
      */
-    public String getIsbn();
+    String getIsbn();
 
     /**
      * Location of a property. Should include street, city, state, postal code, and country, in that order.
@@ -1001,7 +996,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param location Location of a property. Should include street, city, state, postal code, and country, in that order.
      */
-    public void setLocation(String location);
+    void setLocation(String location);
 
     /**
      * Location of a property. Should include street, city, state, postal code, and country, in that order.
@@ -1051,7 +1046,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Location of a property. Should include street, city, state, postal code, and country, in that order.
      */
-    public String getLocation();
+    String getLocation();
 
     /**
      * Company that manufactures the item.
@@ -1096,7 +1091,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param manufacturer Company that manufactures the item.
      */
-    public void setManufacturer(String manufacturer);
+    void setManufacturer(String manufacturer);
 
     /**
      * Company that manufactures the item.
@@ -1141,7 +1136,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Company that manufactures the item.
      */
-    public String getManufacturer();
+    String getManufacturer();
 
     /**
      * Unique product ID code assigned by its manufacturer.
@@ -1183,7 +1178,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param manufacturerId Unique product ID code assigned by its manufacturer.
      */
-    public void setManufacturerId(String manufacturerId);
+    void setManufacturerId(String manufacturerId);
 
     /**
      * Unique product ID code assigned by its manufacturer.
@@ -1225,7 +1220,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Unique product ID code assigned by its manufacturer.
      */
-    public String getManufacturerId();
+    String getManufacturerId();
 
     /**
      * Resolution of a digital imaging device.
@@ -1268,7 +1263,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param megapixels Resolution of a digital imaging device.
      */
-    public void setMegapixels(FloatUnit megapixels);
+    void setMegapixels(FloatUnit megapixels);
 
     /**
      * Resolution of a digital imaging device.
@@ -1311,7 +1306,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Resolution of a digital imaging device.
      */
-    public FloatUnit getMegapixels();
+    FloatUnit getMegapixels();
 
     /**
      * The amount of memory included in an item.
@@ -1354,7 +1349,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param memory The amount of memory included in an item.
      */
-    public void setMemory(FloatUnit memory);
+    void setMemory(FloatUnit memory);
 
     /**
      * The amount of memory included in an item.
@@ -1397,7 +1392,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return The amount of memory included in an item.
      */
-    public FloatUnit getMemory();
+    FloatUnit getMemory();
 
     /**
      * Model number of the product.
@@ -1439,7 +1434,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param modelNumber Model number of the product.
      */
-    public void setModelNumber(String modelNumber);
+    void setModelNumber(String modelNumber);
 
     /**
      * Model number of the product.
@@ -1481,7 +1476,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Model number of the product.
      */
-    public String getModelNumber();
+    String getModelNumber();
 
     /**
      * Acceptable payment methods for item purchases.
@@ -1537,7 +1532,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param paymentAccepted Acceptable payment methods for item purchases.
      */
-    public void setPaymentAccepted(PaymentTypeEnumeration[] paymentAccepted);
+    void setPaymentAccepted(PaymentTypeEnumeration[] paymentAccepted);
 
     /**
      * Acceptable payment methods for item purchases.
@@ -1593,7 +1588,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Acceptable payment methods for item purchases.
      */
-    public PaymentTypeEnumeration[] getPaymentAccepted();
+    PaymentTypeEnumeration[] getPaymentAccepted();
 
     /**
      * Additional instructions to explain a payment policy.
@@ -1639,7 +1634,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param paymentNotes Additional instructions to explain a payment policy.
      */
-    public void setPaymentNotes(String paymentNotes);
+    void setPaymentNotes(String paymentNotes);
 
     /**
      * Additional instructions to explain a payment policy.
@@ -1685,7 +1680,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Additional instructions to explain a payment policy.
      */
-    public String getPaymentNotes();
+    String getPaymentNotes();
 
     /**
      * Whether or not an item is available for pick up.
@@ -1735,7 +1730,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param pickup Whether or not an item is available for pick up.
      */
-    public void setPickup(Boolean pickup);
+    void setPickup(Boolean pickup);
 
     /**
      * Whether or not an item is available for pick up.
@@ -1785,7 +1780,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Whether or not an item is available for pick up.
      */
-    public Boolean getPickup();
+    Boolean getPickup();
 
     /**
      * Price of the item.
@@ -1838,7 +1833,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param price Price of the item.
      */
-    public void setPrice(FloatUnit price);
+    void setPrice(FloatUnit price);
 
     /**
      * Price of the item.
@@ -1891,7 +1886,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Price of the item.
      */
-    public FloatUnit getPrice();
+    FloatUnit getPrice();
 
     /**
      * The type of pricing for the item.
@@ -1936,7 +1931,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param priceType The type of pricing for the item.
      */
-    public void setPriceType(PriceTypeEnumeration priceType);
+    void setPriceType(PriceTypeEnumeration priceType);
 
     /**
      * The type of pricing for the item.
@@ -1981,7 +1976,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return The type of pricing for the item.
      */
-    public PriceTypeEnumeration getPriceType();
+    PriceTypeEnumeration getPriceType();
 
     /**
      * The processor speed for the product.
@@ -2025,7 +2020,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param processorSpeed The processor speed for the product.
      */
-    public void setProcessorSpeed(FloatUnit processorSpeed);
+    void setProcessorSpeed(FloatUnit processorSpeed);
 
     /**
      * The processor speed for the product.
@@ -2069,7 +2064,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return The processor speed for the product.
      */
-    public FloatUnit getProcessorSpeed();
+    FloatUnit getProcessorSpeed();
 
     /**
      * The type of product being offered.
@@ -2111,7 +2106,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param productTypes The type of product being offered.
      */
-    public void setProductTypes(String[] productTypes);
+    void setProductTypes(String[] productTypes);
 
     /**
      * The type of product being offered.
@@ -2153,7 +2148,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return The type of product being offered.
      */
-    public String[] getProductTypes();
+    String[] getProductTypes();
 
     /**
      * Quantity available.
@@ -2207,7 +2202,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param quantity Quantity available.
      */
-    public void setQuantity(Integer quantity);
+    void setQuantity(Integer quantity);
 
     /**
      * Quantity available.
@@ -2261,7 +2256,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Quantity available.
      */
-    public Integer getQuantity();
+    Integer getQuantity();
 
     /**
      * Shipping options available for an item.
@@ -2318,7 +2313,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param shipping Shipping options available for an item.
      */
-    public void setShipping(ShippingType[] shipping);
+    void setShipping(ShippingType[] shipping);
 
     /**
      * Shipping options available for an item.
@@ -2375,7 +2370,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Shipping options available for an item.
      */
-    public ShippingType[] getShipping();
+    ShippingType[] getShipping();
 
     /**
      * Dimensions of the item, expressed in either two or three dimensions.
@@ -2420,7 +2415,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param size Dimensions of the item, expressed in either two or three dimensions.
      */
-    public void setSize(Size size);
+    void setSize(Size size);
 
     /**
      * Dimensions of the item, expressed in either two or three dimensions.
@@ -2465,7 +2460,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Dimensions of the item, expressed in either two or three dimensions.
      */
-    public Size getSize();
+    Size getSize();
 
     /**
      * Tax rate associated with the event.
@@ -2509,7 +2504,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param taxPercent Tax rate associated with the event.
      */
-    public void setTaxPercent(Float taxPercent);
+    void setTaxPercent(Float taxPercent);
 
     /**
      * Tax rate associated with the event.
@@ -2553,7 +2548,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Tax rate associated with the event.
      */
-    public Float getTaxPercent();
+    Float getTaxPercent();
 
     /**
      * Region where tax applies.
@@ -2600,7 +2595,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param taxRegion Region where tax applies.
      */
-    public void setTaxRegion(String taxRegion);
+    void setTaxRegion(String taxRegion);
 
     /**
      * Region where tax applies.
@@ -2647,7 +2642,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Region where tax applies.
      */
-    public String getTaxRegion();
+    String getTaxRegion();
 
     /**
      * Product UPC code (Isn't that redundant?).
@@ -2693,7 +2688,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param upc Product UPC code (Isn't that redundant?).
      */
-    public void setUpc(String upc);
+    void setUpc(String upc);
 
     /**
      * Product UPC code (Isn't that redundant?).
@@ -2739,7 +2734,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Product UPC code (Isn't that redundant?).
      */
-    public String getUpc();
+    String getUpc();
 
     /**
      * Weight of the item.
@@ -2784,7 +2779,7 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @param weight Weight of the item.
      */
-    public void setWeight(FloatUnit weight);
+    void setWeight(FloatUnit weight);
 
     /**
      * Weight of the item.
@@ -2829,5 +2824,5 @@ public interface Product extends GlobalInterface {
      * </tbody></table>
      * @return Weight of the item.
      */
-    public FloatUnit getWeight();
+    FloatUnit getWeight();
 }

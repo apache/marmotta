@@ -24,7 +24,6 @@ import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.openrdf.model.Value;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,13 +40,13 @@ public interface LDPathService {
      * 
      * @param function {@link SelectorFunction} to register.
      */
-    public void registerFunction(SelectorFunction<Value> function);
+    void registerFunction(SelectorFunction<Value> function);
 
 
     /**
      * List all selector functions that are currently registered with LDPath.
      */
-    public Set<SelectorFunction<Value>> getFunctions();
+    Set<SelectorFunction<Value>> getFunctions();
 
     /**
      * Run a path query starting from the given context node and return the result as a collection of KiWiNodes. The
@@ -60,7 +59,7 @@ public interface LDPathService {
      * @return           a collection of KiWiNodes
      * @throws LDPathParseException when the path passed as argument could not be parsed
      */
-    public Collection<Value> pathQuery(Value context, String path, Map<String, String> namespaces) throws LDPathParseException;
+    Collection<Value> pathQuery(Value context, String path, Map<String, String> namespaces) throws LDPathParseException;
 
     /**
      * Run a path program starting from the given context node and return the result as a collection of KiWiNodes for
@@ -71,7 +70,7 @@ public interface LDPathService {
      * @return           a map mapping from field names to the resulting collection of KiWiNodes for the field
      * @throws org.apache.marmotta.ldpath.exception.LDPathParseException when the path passed as argument could not be parsed
      */
-    public Map<String, Collection<?>> programQuery(Value context, String program) throws LDPathParseException;
+    Map<String, Collection<?>> programQuery(Value context, String program) throws LDPathParseException;
 
 
     /**
@@ -83,7 +82,7 @@ public interface LDPathService {
      * @return
      * @throws LDPathParseException
      */
-    public Map<Value,Map<String,Collection<?>>> programQuery(String program) throws LDPathParseException;
+    Map<Value,Map<String,Collection<?>>> programQuery(String program) throws LDPathParseException;
 
     /**
      * Register a result transformer for a type URI. Use this method in your own projects
@@ -93,10 +92,10 @@ public interface LDPathService {
      *            in path programs
      * @param transformer instance of a node transformer
      */
-    public void registerTransformer(String typeUri, NodeTransformer<?, Value> transformer);
+    void registerTransformer(String typeUri, NodeTransformer<?, Value> transformer);
 
     /**
      * List all types that have a transformer registered.
      */
-    public Set<String> getTransformableTypes();
+    Set<String> getTransformableTypes();
 }

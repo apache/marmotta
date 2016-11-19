@@ -36,5 +36,5 @@ public interface Facade {
      *
      * @return
      */
-    public Resource getDelegate();
+    Resource getDelegate();
 }

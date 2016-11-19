@@ -33,13 +33,13 @@ public interface LoaderHandler extends RDFHandler {
      *
      * @throws RDFHandlerException
      */
-    public void initialise() throws RDFHandlerException;
+    void initialise() throws RDFHandlerException;
 
     /**
      * Peform cleanup on shutdown, e.g. re-creating indexes after import completed or freeing resources acquired by
      * the handler.
      */
-    public void shutdown() throws RDFHandlerException;
+    void shutdown() throws RDFHandlerException;
 
 
 }

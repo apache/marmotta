@@ -39,7 +39,7 @@ public interface ExportService {
      *
      * @return a set of strings representing the mime types accepted by this exporter
      */
-    public Set<String> getProducedTypes();
+    Set<String> getProducedTypes();
 
 
     /**
@@ -59,7 +59,7 @@ public interface ExportService {
      *
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      */
-    public String exportData(URI context, String mimeType) throws UnsupportedExporterException;
+    String exportData(URI context, String mimeType) throws UnsupportedExporterException;
 
     /**
      * Export the triple data contained in the named graph passed as argument "context" and write it
@@ -80,7 +80,7 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    public void exportData(Writer writer, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(Writer writer, URI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 
     /**
@@ -103,7 +103,7 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    public void exportData(OutputStream outputStream, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(OutputStream outputStream, URI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 
 
@@ -124,7 +124,7 @@ public interface ExportService {
      *
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      */
-    public String exportData(URI resource, URI context, String mimeType) throws UnsupportedExporterException;
+    String exportData(URI resource, URI context, String mimeType) throws UnsupportedExporterException;
 
     /**
      * Export the triple data for the given resource contained in the named graph passed as argument "context" and write it
@@ -145,7 +145,7 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    public void exportData(Writer writer, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(Writer writer, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 
     /**
@@ -168,6 +168,6 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    public void exportData(OutputStream outputStream, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(OutputStream outputStream, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 }

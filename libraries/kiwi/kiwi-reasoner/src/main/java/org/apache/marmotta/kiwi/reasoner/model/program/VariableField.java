@@ -80,9 +80,8 @@ public class VariableField implements Field {
 
         VariableField that = (VariableField) o;
 
-        if (!name.equals(that.name)) return false;
+        return name.equals(that.name);
 
-        return true;
     }
 
     @Override

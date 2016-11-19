@@ -84,9 +84,8 @@ public class LiteralField implements Field {
 
         LiteralField that = (LiteralField) o;
 
-        if (literal != null ? !literal.equals(that.literal) : that.literal != null) return false;
+        return literal != null ? literal.equals(that.literal) : that.literal == null;
 
-        return true;
     }
 
     @Override

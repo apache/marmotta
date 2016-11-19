@@ -33,7 +33,7 @@ public interface TransactionListener {
      *
      * @param data
      */
-    public void beforeCommit(TransactionData data);
+    void beforeCommit(TransactionData data);
 
     /**
      * Called after a transaction has committed. The transaction data will contain all changes done in the transaction since
@@ -43,10 +43,10 @@ public interface TransactionListener {
      *
      * @param data
      */
-    public void afterCommit(TransactionData data);
+    void afterCommit(TransactionData data);
 
     /**
      * Called when a transaction rolls back.
      */
-    public void rollback(TransactionData data);
+    void rollback(TransactionData data);
 }

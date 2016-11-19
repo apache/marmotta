@@ -37,7 +37,7 @@ public class SQLPattern extends SQLClause {
     /**
      * Describe the different columns of the triple table that we might need to join with
      */
-    public static enum TripleColumns {
+    public enum TripleColumns {
         SUBJECT  ("subject"),
         PREDICATE("predicate"),
         OBJECT   ("object"),
@@ -52,7 +52,7 @@ public class SQLPattern extends SQLClause {
         public String getFieldName() {
             return fieldName;
         }
-    };
+    }
 
     /**
      * This map contains mappings from column to variable names. If for a given column an entry is contained in the

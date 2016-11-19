@@ -123,11 +123,8 @@ public class TestingSelector<Node> implements NodeSelector<Node> {
         if (delegate != null ? !delegate.equals(that.delegate) : that.delegate != null) {
             return false;
         }
-        if (test != null ? !test.equals(that.test) : that.test != null) {
-            return false;
-        }
+        return test != null ? test.equals(that.test) : that.test == null;
 
-        return true;
     }
 
     @Override

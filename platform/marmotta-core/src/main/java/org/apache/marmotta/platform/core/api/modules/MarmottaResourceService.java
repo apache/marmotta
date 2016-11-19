@@ -38,7 +38,7 @@ public interface MarmottaResourceService {
      * @param relativeURL a URL relative to the web application root of this web application
      * @return the resource identified by the relative URL, or null if it does not exist
      */
-    public ResourceEntry getResource(String relativeURL);
+    ResourceEntry getResource(String relativeURL);
 
 
     /**
@@ -48,5 +48,5 @@ public interface MarmottaResourceService {
      * @param relativeURL a URL relative to the web application root of this web application
      * @return the file system URL of the resource, regardless whether it actually exists or not
      */
-    public URL resolveResource(String relativeURL);
+    URL resolveResource(String relativeURL);
 }

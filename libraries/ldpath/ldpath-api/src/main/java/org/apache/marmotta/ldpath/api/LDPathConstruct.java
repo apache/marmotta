@@ -31,6 +31,6 @@ public interface LDPathConstruct<Node> {
      * @return
      * @param backend
      */
-    public String getPathExpression(NodeBackend<Node> backend);
+    String getPathExpression(NodeBackend<Node> backend);
 
 }

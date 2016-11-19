@@ -18,15 +18,14 @@
 package org.apache.marmotta.ldpath.model.selectors;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.marmotta.ldpath.api.backend.NodeBackend;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
 
 /**
  * Perform a reverse navigation step over the property wrapped by this selector
@@ -104,9 +103,8 @@ public class ReversePropertySelector<Node> implements NodeSelector<Node> {
         @SuppressWarnings("rawtypes")
 		ReversePropertySelector that = (ReversePropertySelector) o;
 
-        if (property != null ? !property.equals(that.property) : that.property != null) return false;
+        return property != null ? property.equals(that.property) : that.property == null;
 
-        return true;
     }
 
     @Override

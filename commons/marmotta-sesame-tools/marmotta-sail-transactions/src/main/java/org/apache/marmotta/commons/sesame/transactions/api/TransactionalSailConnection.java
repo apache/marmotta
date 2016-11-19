@@ -33,13 +33,13 @@ public interface TransactionalSailConnection extends NotifyingSailConnection {
      *
      * @param listener the listener to add to the list
      */
-    public void addTransactionListener(TransactionListener listener);
+    void addTransactionListener(TransactionListener listener);
 
     /**
      * Remove a transaction listener from the list.
      *
      * @param listener the listener to remove
      */
-    public void removeTransactionListener(TransactionListener listener);
+    void removeTransactionListener(TransactionListener listener);
 
 }

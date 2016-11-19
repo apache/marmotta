@@ -17,10 +17,10 @@
 package org.apache.marmotta.commons.sesame.facading.api;
 
 
-import java.lang.reflect.Method;
-
 import org.apache.marmotta.commons.sesame.facading.impl.FacadingPredicate;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
+
+import java.lang.reflect.Method;
 
 /**
  * Dynamically create the RDF-property uri for facading.
@@ -32,6 +32,6 @@ import org.apache.marmotta.commons.sesame.facading.model.Facade;
  */
 public interface FacadingPredicateBuilder {
 
-    public FacadingPredicate getFacadingPredicate(String fieldName, Class<? extends Facade> facade, Method method);
+    FacadingPredicate getFacadingPredicate(String fieldName, Class<? extends Facade> facade, Method method);
 
 }

@@ -38,9 +38,9 @@ public class SQLFragment extends SQLClause {
      * This distinction is necessary when OPTIONAL constructs are used, i.e. the created SQL uses LEFT JOINs. We cannot
      * always place it in JOIN conditions, because the first pattern will not have a JOIN.
      */
-    public static enum ConditionPosition {
+    public enum ConditionPosition {
         JOIN, WHERE, HAVING
-    };
+    }
 
     private static Random singletonSetGenerator = new Random();
 

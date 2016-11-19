@@ -32,10 +32,10 @@ import org.apache.marmotta.commons.sesame.model.Namespaces;
 public interface OnlineAccount extends Facade {
 
     @RDF(Namespaces.NS_FOAF + "accountServiceHomepage")
-    public String getAccountServiceHomepage();
-    public void setAccountServiceHomepage(String accountServiceHomepage);
+    String getAccountServiceHomepage();
+    void setAccountServiceHomepage(String accountServiceHomepage);
 
     @RDF(Namespaces.NS_FOAF + "accountName")
-    public String getAccountName();
-    public void setAccountName(String accountName);
+    String getAccountName();
+    void setAccountName(String accountName);
 }

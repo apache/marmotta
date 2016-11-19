@@ -37,7 +37,7 @@ public interface LDCachingService {
      * @param resource  the resource to refresh
      * @param options   options for refreshing
      */
-    public void refresh(URI resource, RefreshOpts... options);
+    void refresh(URI resource, RefreshOpts... options);
 
 
     /**
@@ -49,7 +49,7 @@ public interface LDCachingService {
      * @param options   options for refreshing
      * @return a Sesame Model holding the triples representing the resource
      */
-    public Model get(URI resource, RefreshOpts... options);
+    Model get(URI resource, RefreshOpts... options);
 
 
     /**
@@ -58,7 +58,7 @@ public interface LDCachingService {
      *
      * @param resource the resource to expire.
      */
-    public void expire(URI resource);
+    void expire(URI resource);
 
 
     /**
@@ -67,22 +67,22 @@ public interface LDCachingService {
      * @param resource the resource to check
      * @return true in case the resource is contained in the cache
      */
-    public boolean contains(URI resource);
+    boolean contains(URI resource);
 
     /**
      * Manually expire all cached resources.
      */
-    public void clear();
+    void clear();
 
 
     /**
      * Shutdown the caching service and free all occupied runtime resources.
      */
-    public void shutdown();
+    void shutdown();
 
 
 
-    public enum RefreshOpts {
+    enum RefreshOpts {
 
         /**
          * Refresh the resource even if it is not yet expired

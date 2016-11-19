@@ -18,9 +18,6 @@ package org.apache.marmotta.platform.backend.accumulograph;
 
 import com.tinkerpop.blueprints.oupls.sail.GraphSail;
 import edu.jhuapl.tinkerpop.AccumuloGraph;
-import edu.jhuapl.tinkerpop.AccumuloGraphConfiguration.InstanceType;
-import edu.jhuapl.tinkerpop.AccumuloGraphConfiguration;
-import com.tinkerpop.blueprints.GraphFactory;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -54,8 +51,6 @@ public class AccumuloGraphProvider implements StoreProvider {
     @Inject
     private SesameService sesameService;
 
-    private NotifyingSail m_sail;
-
     /**
      * Create the store provided by this SailProvider
      *
@@ -65,8 +60,7 @@ public class AccumuloGraphProvider implements StoreProvider {
     public NotifyingSail createStore() {
         log.info("Initializing Backend: AccumuloGraph Store");
         final AccumuloGraph graph = createAccumuloGraph();
-        m_sail = new GraphSail(graph);
-        return m_sail;
+        return new GraphSail(graph);
     }
 
     /**

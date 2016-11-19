@@ -143,7 +143,7 @@ public class ContentItem implements Cloneable {
             //System.out.println("enc");
             return false;
         }
-        String thisCV = this.contentValue.replaceAll(" xmlns=\"http://www.w3.org/1999/xhtml\"", "").trim();;
+        String thisCV = this.contentValue.replaceAll(" xmlns=\"http://www.w3.org/1999/xhtml\"", "").trim();
         String thatCV = other.contentValue.replaceAll(" xmlns=\"http://www.w3.org/1999/xhtml\"", "").trim();
         if ((this.contentValue == null) ? (other.contentValue != null) : !thisCV.equals(thatCV)) {
 
@@ -165,11 +165,7 @@ public class ContentItem implements Cloneable {
             //System.out.println("ns");
             return false;
         }
-        if ((this.contentResource == null) ? (other.contentResource != null) : !this.contentResource.equals(other.contentResource)) {
-           //System.out.println("res");
-            return false;
-        }
-        return true;
+        return (this.contentResource == null) ? other.contentResource == null : this.contentResource.equals(other.contentResource);
     }
 
 

@@ -37,13 +37,13 @@ public interface VersionSerializer {
      * returns a list of supported content types
      * @return
      */
-    public List<ContentType> getContentTypes();
+    List<ContentType> getContentTypes();
 
     /**
      * return the content type that will be produced
      * @return
      */
-    public ContentType getContentType();
+    ContentType getContentType();
 
     /**
      * writes serialized version list to output stream
@@ -51,6 +51,6 @@ public interface VersionSerializer {
      * @param versions a list of versions in ascending order
      * @param out an output stream
      */
-    public void write(Resource original, RepositoryResult<Version> versions, OutputStream out) throws IOException;
+    void write(Resource original, RepositoryResult<Version> versions, OutputStream out) throws IOException;
 
 }

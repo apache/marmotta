@@ -34,6 +34,6 @@ public interface ResultTransformerFunction<E> {
      * @return an entity of type E constructed from the result row
      * @throws SQLException if a database error occurs when transforming the row
      */
-    public E apply(ResultSet row) throws SQLException;
+    E apply(ResultSet row) throws SQLException;
 
 }

@@ -95,9 +95,8 @@ public class StringConstantSelector<Node> implements NodeSelector<Node> {
         @SuppressWarnings("rawtypes")
 		StringConstantSelector that = (StringConstantSelector) o;
 
-        if (constant != null ? !constant.equals(that.constant) : that.constant != null) return false;
+        return constant != null ? constant.equals(that.constant) : that.constant == null;
 
-        return true;
     }
 
     @Override

@@ -34,5 +34,5 @@ public interface NotifyingSailProvider extends SailProvider {
      * @param parent the parent sail to wrap by the provider
      * @return the wrapped sail
      */
-    public NotifyingSailWrapper createSail(NotifyingSail parent);
+    NotifyingSailWrapper createSail(NotifyingSail parent);
 }

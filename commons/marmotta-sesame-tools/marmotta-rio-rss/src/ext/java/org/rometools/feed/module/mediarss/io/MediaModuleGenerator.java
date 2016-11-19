@@ -22,23 +22,12 @@
 package org.rometools.feed.module.mediarss.io;
 
 import com.sun.syndication.feed.module.Module;
-import org.rometools.feed.module.mediarss.MediaEntryModule;
-import org.rometools.feed.module.mediarss.MediaModule;
-import org.rometools.feed.module.mediarss.types.Category;
-import org.rometools.feed.module.mediarss.types.Credit;
-import org.rometools.feed.module.mediarss.types.MediaContent;
-import org.rometools.feed.module.mediarss.types.MediaGroup;
-import org.rometools.feed.module.mediarss.types.Metadata;
-import org.rometools.feed.module.mediarss.types.PlayerReference;
-import org.rometools.feed.module.mediarss.types.Rating;
-import org.rometools.feed.module.mediarss.types.Restriction;
-import org.rometools.feed.module.mediarss.types.Text;
-import org.rometools.feed.module.mediarss.types.Thumbnail;
-import org.rometools.feed.module.mediarss.types.UrlReference;
-import com.sun.syndication.io.*;
-
+import com.sun.syndication.io.ModuleGenerator;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.rometools.feed.module.mediarss.MediaEntryModule;
+import org.rometools.feed.module.mediarss.MediaModule;
+import org.rometools.feed.module.mediarss.types.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -233,9 +222,7 @@ public class MediaModuleGenerator implements ModuleGenerator {
     }
 
     protected void addNotNullAttribute(Element target, String name, Object value) {
-        if ((target == null) || (value == null)) {
-            return;
-        } else {
+        if (target != null && value != null) {
             target.setAttribute(name, value.toString());
         }
     }
@@ -244,12 +231,12 @@ public class MediaModuleGenerator implements ModuleGenerator {
         Object value) {
         if (value == null) {
             return null;
-        } else {
-            Element e = generateSimpleElement(name, value.toString());
-            target.addContent(e);
-
-            return e;
         }
+
+        Element e = generateSimpleElement(name, value.toString());
+        target.addContent(e);
+
+        return e;
     }
 
     protected Element generateSimpleElement(String name, String value) {

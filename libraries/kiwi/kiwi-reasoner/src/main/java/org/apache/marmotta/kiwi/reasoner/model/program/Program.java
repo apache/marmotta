@@ -129,9 +129,8 @@ public class Program {
         if (description != null ? !description.equals(program.description) : program.description != null) return false;
         if (!name.equals(program.name)) return false;
         if (!namespaces.equals(program.namespaces)) return false;
-        if (!rules.equals(program.rules)) return false;
+        return rules.equals(program.rules);
 
-        return true;
     }
 
     @Override

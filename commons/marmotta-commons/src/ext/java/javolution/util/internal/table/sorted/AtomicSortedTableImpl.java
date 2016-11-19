@@ -27,7 +27,7 @@ public class AtomicSortedTableImpl<E> extends AtomicTableImpl<E> implements
     @Override
     public synchronized boolean addIfAbsent(E element) {
         boolean changed = target().addIfAbsent(element);
-        if (changed && !updateInProgress()) immutable = cloneTarget();
+        if (changed && noUpdateInProgress()) immutable = cloneTarget();
         return changed;
     }
 

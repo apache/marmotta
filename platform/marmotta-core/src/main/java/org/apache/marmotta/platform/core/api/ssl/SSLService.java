@@ -31,6 +31,6 @@ public interface SSLService {
      *
      * @param e the event fired by the ConfigurationService
      */
-    public void configurationServiceInitialised(ConfigurationServiceInitEvent e);
+    void configurationServiceInitialised(ConfigurationServiceInitEvent e);
 
 }

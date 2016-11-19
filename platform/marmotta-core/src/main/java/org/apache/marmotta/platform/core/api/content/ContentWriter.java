@@ -34,7 +34,7 @@ public interface ContentWriter {
      * Return the name of the content reader. Used to identify and display the content reader to admin users.
      * @return
      */
-    public String getName();
+    String getName();
 
 
     /**
@@ -45,7 +45,7 @@ public interface ContentWriter {
      * @param mimetype  the mime type of the content
      * @param data a byte array containing the content of the resource
      */
-    public void setContentData(Resource resource, byte[] data, String mimetype) throws IOException;
+    void setContentData(Resource resource, byte[] data, String mimetype) throws IOException;
 
 
     /**
@@ -58,7 +58,7 @@ public interface ContentWriter {
      * @param mimetype  the mime type to retrieve of the content
      * @param in a InputStream containing the content of the resource
      */
-    public void setContentStream(Resource resource, InputStream in, String mimetype) throws IOException;
+    void setContentStream(Resource resource, InputStream in, String mimetype) throws IOException;
 
 
     /**
@@ -67,6 +67,6 @@ public interface ContentWriter {
      * @param resource the resource for which to delete the content
      * @param mimetype the mime type of the content to delete (optional)
      */
-    public void deleteContent(Resource resource, String mimetype) throws IOException;
+    void deleteContent(Resource resource, String mimetype) throws IOException;
 
 }

@@ -198,8 +198,6 @@ public class ReasoningEngine implements TransactionListener {
 
         } catch(Exception ex) {
             log.error("error while processing rule",ex);
-
-            return;
         } finally {
             endTask();
         }
@@ -275,7 +273,7 @@ public class ReasoningEngine implements TransactionListener {
                 } catch (InterruptedException e) {
                     log.error("interrupted while waiting for reasoning queue to become available ...");
                 }
-            };
+            }
 
 
         }
@@ -478,8 +476,6 @@ public class ReasoningEngine implements TransactionListener {
             //workers.invokeAll(tasks);
         } catch(Exception ex) {
             log.error("error while processing rules", ex);
-
-            return;
         }
 
     }
