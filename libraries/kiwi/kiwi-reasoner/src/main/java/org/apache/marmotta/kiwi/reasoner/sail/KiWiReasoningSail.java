@@ -19,7 +19,6 @@ package org.apache.marmotta.kiwi.reasoner.sail;
 
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
-
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
@@ -158,13 +157,10 @@ public class KiWiReasoningSail extends TransactionalSailWrapper {
     public void addProgram(Program program) throws SailException {
         // store program in the database
         try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiReasoningConnection connection = persistence.getConnection()) {
                 // should not throw an exception and the program should have a database ID afterwards
                 connection.storeProgram(program);
                 connection.commit();
-            } finally {
-                connection.close();
             }
         } catch (SQLException ex) {
             throw new SailException("cannot store program in database",ex);
@@ -206,21 +202,20 @@ public class KiWiReasoningSail extends TransactionalSailWrapper {
      * @throws SailException in case a database error occurs
      */
     public void updateProgram(Program program) throws SailException {
-        Set<Rule> added = new HashSet<Rule>();
-        Set<Rule> removed = new HashSet<Rule>();
+        Set<Rule> added = new HashSet<>();
+        Set<Rule> removed = new HashSet<>();
         try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiReasoningConnection connection = persistence.getConnection()) {
                 // load old version of program and calculate difference
                 Program old = connection.loadProgram(program.getName());
-                if(old != null) {
-                    for(Rule r : old.getRules()) {
-                        if(!program.getRules().contains(r)) {
+                if (old != null) {
+                    for (Rule r : old.getRules()) {
+                        if (!program.getRules().contains(r)) {
                             removed.add(r);
                         }
                     }
-                    for(Rule r : program.getRules()) {
-                        if(!old.getRules().contains(r)) {
+                    for (Rule r : program.getRules()) {
+                        if (!old.getRules().contains(r)) {
                             added.add(r);
                         }
                     }
@@ -230,8 +225,6 @@ public class KiWiReasoningSail extends TransactionalSailWrapper {
                 // store program in the database
                 connection.updateProgram(program);
                 connection.commit();
-            } finally {
-                connection.close();
             }
         } catch (SQLException ex) {
             throw new SailException("cannot store program in database",ex);
@@ -298,14 +291,11 @@ public class KiWiReasoningSail extends TransactionalSailWrapper {
      */
     public Program getProgram(String name) throws SailException {
         try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiReasoningConnection connection = persistence.getConnection()) {
                 // should not throw an exception and the program should have a database ID afterwards
                 Program p = connection.loadProgram(name);
                 connection.commit();
                 return p;
-            } finally {
-                connection.close();
             }
         } catch (SQLException ex) {
             throw new SailException("cannot load program from database",ex);
@@ -324,13 +314,10 @@ public class KiWiReasoningSail extends TransactionalSailWrapper {
      */
     public void deleteProgram(String name) throws SailException {
         try {
-            KiWiReasoningConnection connection = persistence.getConnection();
-            try {
+            try (KiWiReasoningConnection connection = persistence.getConnection()) {
                 Program p = connection.loadProgram(name);
                 connection.deleteProgram(p);
                 connection.commit();
-            } finally {
-                connection.close();
             }
         } catch (SQLException ex) {
             throw new SailException("cannot load program from database",ex);

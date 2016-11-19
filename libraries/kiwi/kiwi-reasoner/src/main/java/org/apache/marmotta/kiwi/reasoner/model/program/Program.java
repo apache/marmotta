@@ -41,8 +41,8 @@ public class Program {
 
 
     public Program() {
-        rules = new ArrayList<Rule>();
-        namespaces = new HashMap<String, String>();
+        rules = new ArrayList<>();
+        namespaces = new HashMap<>();
     }
 
     public long getId() {

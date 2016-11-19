@@ -374,9 +374,8 @@ public class KiWiGarbageCollector extends Thread {
             TableDependency that = (TableDependency) o;
 
             if (!column.equals(that.column)) return false;
-            if (!table.equals(that.table)) return false;
+            return table.equals(that.table);
 
-            return true;
         }
 
         @Override

@@ -146,9 +146,8 @@ public class KiWiNamespace implements Namespace, Serializable {
 
         if (deleted != that.deleted) return false;
         if (prefix != null ? !prefix.equals(that.prefix) : that.prefix != null) return false;
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
+        return uri != null ? uri.equals(that.uri) : that.uri == null;
 
-        return true;
     }
 
     @Override

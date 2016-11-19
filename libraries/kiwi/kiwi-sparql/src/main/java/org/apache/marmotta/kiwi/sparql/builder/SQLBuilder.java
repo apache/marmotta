@@ -521,11 +521,7 @@ public class SQLBuilder {
                     long nodeId = -1;
                     if (fields[i] != null && fields[i].hasValue()) {
                         Value v = converter.convert(fields[i].getValue());
-                        if (v instanceof KiWiNode) {
-                            nodeId = ((KiWiNode) v).getId();
-                        } else {
-                            throw new UnsatisfiableQueryException("the values in this query have not been created by the KiWi value factory");
-                        }
+                        nodeId = ((KiWiNode) v).getId();
 
                         if (nodeId >= 0) {
                             p.addCondition(pName + "." + positions[i] + " = " + nodeId);
@@ -549,16 +545,12 @@ public class SQLBuilder {
                     cCond.append("(");
                     for (Iterator<Resource> it = p.getVariableContexts().iterator(); it.hasNext(); ) {
                         Value v = converter.convert(it.next());
-                        if (v instanceof KiWiNode) {
-                            long nodeId = ((KiWiNode) v).getId();
+                        long nodeId = ((KiWiNode) v).getId();
 
-                            cCond.append(varName).append(".context = ").append(nodeId);
+                        cCond.append(varName).append(".context = ").append(nodeId);
 
-                            if (it.hasNext()) {
-                                cCond.append(" OR ");
-                            }
-                        } else {
-                            throw new UnsatisfiableQueryException("the values in this query have not been created by the KiWi value factory");
+                        if (it.hasNext()) {
+                            cCond.append(" OR ");
                         }
 
                     }
@@ -683,7 +675,7 @@ public class SQLBuilder {
         // 3. for each variable in the initialBindings, add a condition to the where clause
 
         // list of where conditions that will later be connected by AND
-        List<String> whereConditions = new LinkedList<String>();
+        List<String> whereConditions = new LinkedList<>();
 
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
 
@@ -703,12 +695,7 @@ public class SQLBuilder {
                     List<String> vNames = sv.getExpressions();
                     String vName = vNames.get(0);
                     Value binding = converter.convert(bindings.getValue(v));
-                    if(binding instanceof KiWiNode) {
-                        whereConditions.add(vName+" = "+((KiWiNode)binding).getId());
-                    } else {
-                        throw new IllegalStateException("the values in this binding have not been created by the KiWi value factory");
-                    }
-
+                    whereConditions.add(vName+" = "+((KiWiNode)binding).getId());
                 }
             }
         }
@@ -731,18 +718,18 @@ public class SQLBuilder {
     private StringBuilder buildHavingClause()  {
 
         // list of where conditions that will later be connected by AND
-        List<CharSequence> havingConditions = new LinkedList<CharSequence>();
+        List<CharSequence> havingConditions = new LinkedList<>();
 
         // 1. for the first pattern of the first fragment, we add the conditions to the WHERE clause
 
         for(SQLFragment fragment : fragments) {
             if(fragment.getConditionPosition() == SQLFragment.ConditionPosition.HAVING) {
                 StringBuilder conditionClause = new StringBuilder();
-                for(Iterator<String> cit = fragment.getConditions().iterator(); cit.hasNext(); ) {
-                    if(conditionClause.length() > 0) {
+                for (String s : fragment.getConditions()) {
+                    if (conditionClause.length() > 0) {
                         conditionClause.append("\n       AND ");
                     }
-                    conditionClause.append(cit.next());
+                    conditionClause.append(s);
                 }
 
                 havingConditions.add(conditionClause);

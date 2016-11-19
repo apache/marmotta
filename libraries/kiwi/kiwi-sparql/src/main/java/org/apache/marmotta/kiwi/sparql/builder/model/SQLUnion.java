@@ -164,9 +164,9 @@ public class SQLUnion extends SQLAbstractSubquery {
 
         for(VariableMapping var : getJoinFields()) {
             fromClause.append(" LEFT JOIN nodes AS "); // outer join because binding might be NULL
-            fromClause.append(alias + "_" + var.getParentName());
+            fromClause.append(alias).append("_").append(var.getParentName());
 
-            fromClause.append(" ON " + alias + "." + var.getSubqueryName() + " = " + alias + "_" + var.getParentName() + ".id ");
+            fromClause.append(" ON ").append(alias).append(".").append(var.getSubqueryName()).append(" = ").append(alias).append("_").append(var.getParentName()).append(".id ");
         }
 
         return fromClause.toString();

@@ -53,7 +53,7 @@ public abstract class KWRLProgramParserBase {
 
 
     protected KWRLProgramParserBase() {
-        namespaces = new HashMap<String, String>();
+        namespaces = new HashMap<>();
     }
 
     protected ValueFactory getValueFactory() {
@@ -169,8 +169,8 @@ public abstract class KWRLProgramParserBase {
     }
 
     protected  void startRule() {
-        variables = new HashMap<String,VariableField>();
-        resources = new HashMap<String,ResourceField>();
+        variables = new HashMap<>();
+        resources = new HashMap<>();
     }
 
     protected  void endRule() {

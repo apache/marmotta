@@ -653,7 +653,7 @@ public class KiWiVersioningConnection extends KiWiConnection {
     public long getSnapshotSize(KiWiResource context, Date snapshotDate) throws SQLException {
         if(context.getId() < 0) {
             return 0;
-        };
+        }
 
         requireJDBCConnection();
 

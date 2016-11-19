@@ -51,7 +51,7 @@ public class KiWiValueFactory implements ValueFactory {
 
     private KiWiStore store;
 
-    private KiWiTripleRegistry registry;
+    private final KiWiTripleRegistry registry;
 
     private String defaultContext;
 
@@ -303,10 +303,10 @@ public class KiWiValueFactory implements ValueFactory {
                 // differentiate between the different types of the value
                 if (type == null) {
                     // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                    result = connection.loadLiteral(value.toString(), lang, rtype);
+                    result = connection.loadLiteral(value.toString(), lang, null);
 
                     if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, rtype);
+                        result = new KiWiStringLiteral(value.toString(), locale, null);
                     }
                 } else if(value instanceof Date || value instanceof DateTime ||
                         type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") ||

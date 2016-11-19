@@ -86,7 +86,7 @@ public class KiWiDoubleLiteral extends KiWiStringLiteral {
      */
     @Override
     public double doubleValue() {
-        return getDoubleContent().doubleValue();
+        return getDoubleContent();
     }
 
 

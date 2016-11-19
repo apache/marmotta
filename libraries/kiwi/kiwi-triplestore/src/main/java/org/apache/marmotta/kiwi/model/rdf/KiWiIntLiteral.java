@@ -108,6 +108,6 @@ public class KiWiIntLiteral extends KiWiDoubleLiteral {
      */
     @Override
     public long longValue() {
-        return getIntContent().longValue();
+        return getIntContent();
     }
 }

@@ -311,7 +311,7 @@ public class KiWiConfiguration {
      * fulltext support, use the empty array.
      */
     public KiWiConfiguration setFulltextLanguages(List<String> fulltextLanguages) {
-        this.fulltextLanguages = new ArrayList<String>(fulltextLanguages).toArray(new String[fulltextLanguages.size()]);
+        this.fulltextLanguages = new ArrayList<>(fulltextLanguages).toArray(new String[fulltextLanguages.size()]);
         return this;
     }
 

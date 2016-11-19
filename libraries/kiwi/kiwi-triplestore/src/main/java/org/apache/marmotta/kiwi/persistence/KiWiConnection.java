@@ -654,13 +654,10 @@ public class KiWiConnection implements AutoCloseable {
                 query = getPreparedStatement("load.literal_by_vl");
                 query.setString(1,value);
                 query.setString(2, lang);
-            } else if(ltype != null) {
+            } else {
                 query = getPreparedStatement("load.literal_by_vt");
                 query.setString(1,value);
                 query.setLong(2,ltype.getId());
-            } else {
-                // This cannot happen...
-                throw new IllegalArgumentException("Impossible combination of lang/type in loadLiteral!");
             }
 
             // run the database query and if it yields a result, construct a new node; the method call will take care of
@@ -1935,8 +1932,8 @@ public class KiWiConnection implements AutoCloseable {
 
         KiWiNode[] nodes = loadNodesByIds(Longs.toArray(nodeIds));
         Map<Long,KiWiNode> nodeMap = new HashMap<>(nodes.length << 1);
-        for (int i=0; i<nodes.length; i++) {
-            nodeMap.put(nodes[i].getId(), nodes[i]);
+        for (KiWiNode node : nodes) {
+            nodeMap.put(node.getId(), node);
         }
 
         for (KiWiTriple t : result) {
@@ -2044,7 +2041,7 @@ public class KiWiConnection implements AutoCloseable {
      * @return a new sequence ID
      * @throws SQLException
      */
-    public long getNextSequence() throws SQLException {
+    public long getNextSequence() {
         return persistence.getIdGenerator().getId();
     }
 
@@ -2212,11 +2209,9 @@ public class KiWiConnection implements AutoCloseable {
      *
      * @return the current state of this <code>Connection</code> object's
      *         auto-commit mode
-     * @exception java.sql.SQLException if a database access error occurs
-     * or this method is called on a closed connection
      * @see #setAutoCommit
      */
-    public boolean getAutoCommit() throws SQLException {
+    public boolean getAutoCommit() {
         return autoCommit;
     }
 

@@ -184,8 +184,8 @@ public class Rule {
             if (name != null ? !name.equals(rule.name) : rule.name != null) return false;
 
             if(getBody() != null && rule.getBody() != null) {
-                HashSet<Pattern> s1 = new HashSet<Pattern>(getBody());
-                HashSet<Pattern> s2 = new HashSet<Pattern>(rule.getBody());
+                HashSet<Pattern> s1 = new HashSet<>(getBody());
+                HashSet<Pattern> s2 = new HashSet<>(rule.getBody());
 
                 return s1.equals(s2);
             } else {

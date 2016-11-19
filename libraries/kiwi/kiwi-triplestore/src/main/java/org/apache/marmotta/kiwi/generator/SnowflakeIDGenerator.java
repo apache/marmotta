@@ -102,10 +102,7 @@ public class SnowflakeIDGenerator implements IDGenerator {
         byte rndByte = (byte)(rnd.nextInt() & 0x000000FF);
 
         // take the last byte of the MAC address and a random byte as datacenter ID
-        long id = ((0x000000FF & (long)mac[mac.length-1]) | (0x0000FF00 & (((long)rndByte)<<8)))>>6;
-
-
-        return id;
+        return ((0x000000FF & (long)mac[mac.length-1]) | (0x0000FF00 & (((long)rndByte)<<8)))>>6;
     }
 
 

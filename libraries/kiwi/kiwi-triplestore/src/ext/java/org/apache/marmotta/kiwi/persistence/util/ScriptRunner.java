@@ -55,11 +55,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -128,9 +124,7 @@ public class ScriptRunner {
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
-        } catch (IOException e) {
-            throw e;
-        } catch (SQLException e) {
+        } catch (IOException | SQLException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error running script.  Cause: " + e, e);
@@ -230,9 +224,7 @@ public class ScriptRunner {
                         e.printStackTrace();
                     }
                     try {
-                        if (statement != null) {
-                            statement.close();
-                        }
+                        statement.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                         // Ignore to workaround a bug in Jakarta DBCP
@@ -256,12 +248,7 @@ public class ScriptRunner {
             if (!autoCommit) {
                 conn.commit();
             }
-        } catch (SQLException e) {
-            e.fillInStackTrace();
-            printlnError("Error executing: " + command);
-            printlnError(e);
-            throw e;
-        } catch (IOException e) {
+        } catch (SQLException | IOException e) {
             e.fillInStackTrace();
             printlnError("Error executing: " + command);
             printlnError(e);

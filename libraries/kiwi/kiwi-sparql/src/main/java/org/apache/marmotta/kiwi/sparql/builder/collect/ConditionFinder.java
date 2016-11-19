@@ -32,7 +32,7 @@ public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
 
     // indicate (if > 0) if the value of variables in recursive calls need to be retrieved because the
     // enclosing construct operates on values instead of nodes
-    int valueNeeded = 0;
+    private int valueNeeded = 0;
 
     // set of variables that need a value to be resolved (used by ExtensionElem resolution)
     private Set<String> neededVariables = new HashSet<>();

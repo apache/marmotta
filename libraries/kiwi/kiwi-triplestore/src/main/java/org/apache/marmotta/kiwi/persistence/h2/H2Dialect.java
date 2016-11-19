@@ -74,11 +74,8 @@ public class H2Dialect extends KiWiDialect {
         if(StringUtils.containsIgnoreCase(flags,"m")) {
             return false;
         }
-        if(StringUtils.containsIgnoreCase(flags,"x")) {
-            return false;
-        }
+        return !StringUtils.containsIgnoreCase(flags, "x");
 
-        return true;
     }
 
     @Override

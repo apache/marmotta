@@ -165,9 +165,8 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
             // getDatatype should never be null, this is only for legacy support
             if(this.getDatatype()==null && that.getDatatype()!=null) return false;
 
-            if(this.getDatatype() != null && !this.getDatatype().equals(that.getDatatype())) return false;
+            return !(this.getDatatype() != null && !this.getDatatype().equals(that.getDatatype()));
 
-            return true;
         }
 
         return false;
