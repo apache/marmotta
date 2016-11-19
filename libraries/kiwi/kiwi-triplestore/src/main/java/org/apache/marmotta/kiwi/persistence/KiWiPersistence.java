@@ -161,7 +161,7 @@ public class KiWiPersistence {
         */
 
         // interceptors
-        if(configuration.isQueryLoggingEnabled()) {
+        if (configuration.isQueryLoggingEnabled()) {
             poolConfig.setJdbcInterceptors(
                     "org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"   +
                             "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer;" +
@@ -174,7 +174,7 @@ public class KiWiPersistence {
             );
         }
 
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             poolConfig.setSuspectTimeout(30);
             poolConfig.setLogAbandoned(true);
         }
@@ -197,7 +197,7 @@ public class KiWiPersistence {
     }
 
     public void logPoolInfo() throws SQLException {
-        if(connectionPool != null) {
+        if (connectionPool != null) {
             log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
             log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
         } else {
@@ -223,7 +223,7 @@ public class KiWiPersistence {
         try {
             Set<String> tables = connection.getDatabaseTables();
 
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("database tables:");
                 for(String table : tables) {
                     log.debug("- found table: {}",table);
@@ -232,10 +232,10 @@ public class KiWiPersistence {
 
             // check existence of all tables; if the necessary tables are not there, they need to be created
             boolean createNeeded = false;
-            for(String tableName : checkTables) {
+            for (String tableName : checkTables) {
                 createNeeded = createNeeded || !tables.contains(tableName);
             }
-            if(createNeeded) {
+            if (createNeeded) {
                 log.info("creating new KiWi database ...");
 
                 ScriptRunner runner = new ScriptRunner(connection.getJDBCConnection(), false, false);
@@ -300,9 +300,9 @@ public class KiWiPersistence {
             try {
                 Set<String> tables = connection.getDatabaseTables();
 
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("BEFORE DROP: database tables");
-                    for(String table : tables) {
+                    for (String table : tables) {
                         log.debug("- found table: {}",table);
                     }
                 }
@@ -311,10 +311,10 @@ public class KiWiPersistence {
                 runner.runScript(new StringReader(configuration.getDialect().getDropScript(scriptName)));
 
 
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     tables = connection.getDatabaseTables();
                     log.debug("AFTER DROP: database tables");
-                    for(String table : tables) {
+                    for (String table : tables) {
                         log.debug("- found table: {}",table);
                     }
                 }
@@ -341,11 +341,11 @@ public class KiWiPersistence {
      * @throws SQLException in case a new connection could not be established
      */
     public KiWiConnection getConnection() throws SQLException {
-        if(!initialized) {
+        if (!initialized) {
             throw new SQLException("persistence backend not initialized; call initialise before acquiring a connection");
         }
 
-        if(connectionPool != null) {
+        if (connectionPool != null) {
             KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
             if(getDialect().isBatchSupported()) {
                 con.setBatchCommit(configuration.isTripleBatchCommit());
@@ -374,24 +374,24 @@ public class KiWiPersistence {
      */
     public Connection getJDBCConnection(boolean maintenance) throws SQLException {
         synchronized (this) {
-            if(this.maintenance) {
+            if (this.maintenance) {
                 try {
                     this.wait();
                 } catch (InterruptedException ignore) { }
             }
-            if(maintenance) {
+            if (maintenance) {
                 this.maintenance = true;
             }
         }
 
-        if(initialized && connectionPool != null) {
-            Connection conn = connectionPool.getConnection();
-            conn.setAutoCommit(false);
-
-            return conn;
-        } else {
+        if (!initialized || connectionPool == null) {
             throw new SQLException("connection pool is closed, database connections not available");
         }
+
+        Connection conn = connectionPool.getConnection();
+        conn.setAutoCommit(false);
+
+        return conn;
     }
 
 

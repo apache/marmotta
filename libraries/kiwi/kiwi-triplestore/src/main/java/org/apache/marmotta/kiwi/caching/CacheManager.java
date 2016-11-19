@@ -30,14 +30,14 @@ import java.util.Map;
 public interface CacheManager {
 
     // cache name constants
-    public static final String NODE_CACHE =      "node-cache";
-    public static final String TRIPLE_CACHE =    "triple-cache";
-    public static final String URI_CACHE =       "uri-cache";
-    public static final String BNODE_CACHE =     "bnode-cache";
-    public static final String LITERAL_CACHE =   "literal-cache";
-    public static final String NS_URI_CACHE =    "namespace-uri-cache";
-    public static final String NS_PREFIX_CACHE = "namespace-prefix-cache";
-    public static final String REGISTRY_CACHE =  "registry-cache";
+    String NODE_CACHE =      "node-cache";
+    String TRIPLE_CACHE =    "triple-cache";
+    String URI_CACHE =       "uri-cache";
+    String BNODE_CACHE =     "bnode-cache";
+    String LITERAL_CACHE =   "literal-cache";
+    String NS_URI_CACHE =    "namespace-uri-cache";
+    String NS_PREFIX_CACHE = "namespace-prefix-cache";
+    String REGISTRY_CACHE =  "registry-cache";
 
 
     /**
@@ -46,7 +46,7 @@ public interface CacheManager {
      *
      * @return an EHCache Cache instance containing the node id -> node mappings
      */
-    public Map<Long, KiWiNode> getNodeCache();
+    Map<Long, KiWiNode> getNodeCache();
 
 
     /**
@@ -55,7 +55,7 @@ public interface CacheManager {
      *
      * @return
      */
-    public Map<Long, KiWiTriple> getTripleCache();
+    Map<Long, KiWiTriple> getTripleCache();
 
 
     /**
@@ -64,7 +64,7 @@ public interface CacheManager {
      *
      * @return
      */
-    public Map<String, KiWiUriResource> getUriCache();
+    Map<String, KiWiUriResource> getUriCache();
 
 
     /**
@@ -73,7 +73,7 @@ public interface CacheManager {
      *
      * @return
      */
-    public Map<String, KiWiAnonResource> getBNodeCache();
+    Map<String, KiWiAnonResource> getBNodeCache();
 
 
 
@@ -84,21 +84,21 @@ public interface CacheManager {
      * @see org.apache.marmotta.commons.sesame.model.LiteralCommons#createCacheKey(String, java.util.Locale, String)
      * @return
      */
-    public Map<String, KiWiLiteral> getLiteralCache();
+    Map<String, KiWiLiteral> getLiteralCache();
 
 
     /**
      * Return the URI -> namespace cache from the cache manager. Used for looking up namespaces
      * @return
      */
-    public Map<String, KiWiNamespace> getNamespaceUriCache();
+    Map<String, KiWiNamespace> getNamespaceUriCache();
 
 
     /**
      * Return the prefix -> namespace cache from the cache manager. Used for looking up namespaces
      * @return
      */
-    public Map<String, KiWiNamespace> getNamespacePrefixCache();
+    Map<String, KiWiNamespace> getNamespacePrefixCache();
 
 
     /**
@@ -106,7 +106,7 @@ public interface CacheManager {
      * cache and should be used with care.
      * @return
      */
-    public Map<Long,Long> getRegistryCache();
+    Map<Long,Long> getRegistryCache();
 
 
 
@@ -117,18 +117,16 @@ public interface CacheManager {
      * @param name
      * @return
      */
-    public Map getCacheByName(String name);
+    Map getCacheByName(String name);
 
 
     /**
      * Clear all caches managed by this cache manager.
      */
-    public void clear();
+    void clear();
 
     /**
      * Shutdown this cache manager instance. Will shutdown the underlying EHCache cache manager.
      */
-    public void shutdown();
-
-
+    void shutdown();
 }

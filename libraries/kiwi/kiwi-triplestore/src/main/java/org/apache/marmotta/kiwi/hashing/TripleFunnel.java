@@ -41,7 +41,7 @@ public class TripleFunnel implements Funnel<KiWiTriple> {
 
 
     public synchronized static TripleFunnel getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new TripleFunnel();
         }
         return instance;

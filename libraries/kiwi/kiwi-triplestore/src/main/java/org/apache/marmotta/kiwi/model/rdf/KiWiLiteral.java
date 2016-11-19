@@ -233,9 +233,8 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
     public String getLanguage() {
         if(getLocale() != null) {
             return getLocale().getLanguage().toLowerCase();
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
