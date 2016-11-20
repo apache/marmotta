@@ -66,7 +66,7 @@ public class ModuleWebService {
     @GET
     @Produces("application/json")
     public Map<String,Object> getConfiguration(@QueryParam("name") String moduleName) {
-        Configuration cfg = null;
+        Configuration cfg;
         try {
             cfg = moduleService.getModuleConfiguration(URLDecoder.decode(moduleName, "UTF-8")).getConfiguration();
         } catch (UnsupportedEncodingException e) {

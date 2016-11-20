@@ -115,7 +115,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         URL url = null;
-        String prefix = null, path = null;
+        String prefix, path = null;
         if (request instanceof HttpServletRequest) {
             url    = new URL(((HttpServletRequest)request).getRequestURL().toString());
             prefix = ((HttpServletRequest)request).getContextPath();

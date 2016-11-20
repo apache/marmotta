@@ -230,10 +230,8 @@ public class TaskManagerServiceImpl implements TaskManagerService {
                     for (Thread t : dead) {
                         log.debug("Watchdog: cleaning up dead thread {}", t.getName());
                         tasks.remove(t);
-                        t = null;
                     }
                     dead.clear();
-                    dead = null;
                     task.updateMessage("sleeping");
                     synchronized (ThreadWatchdog.this) {
                         this.wait(millis);

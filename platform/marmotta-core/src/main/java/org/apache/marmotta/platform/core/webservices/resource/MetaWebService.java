@@ -239,7 +239,7 @@ public class MetaWebService {
             try {
                 conn.begin();
 
-                Resource r = null;
+                Resource r;
                 if (UriUtil.validate(resource)) {
                     r = ResourceUtils.getUriResource(conn, resource);
                 } else {

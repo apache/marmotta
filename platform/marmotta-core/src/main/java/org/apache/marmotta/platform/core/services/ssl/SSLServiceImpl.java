@@ -59,7 +59,7 @@ public class SSLServiceImpl implements SSLService {
     private void initSSLconfiguration() {
         log.info("SETUP: initialising SSL configuration ...");
         /* Nervige SSL configuration */
-        SSLContext ctx = null;
+        SSLContext ctx;
         try {
             ctx = SSLContext.getInstance("TLS");
             ctx.init(new KeyManager[0], new TrustManager[] { new DefaultTrustManager() }, new SecureRandom());

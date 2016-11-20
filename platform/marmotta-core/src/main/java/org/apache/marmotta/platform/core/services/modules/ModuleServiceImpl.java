@@ -75,7 +75,7 @@ public class ModuleServiceImpl implements ModuleService {
             while(modulePropertiesEnum.hasMoreElements()) {
                 URL moduleUrl = modulePropertiesEnum.nextElement();
 
-                Configuration moduleProperties = null;
+                Configuration moduleProperties;
                 try {
                     Set<Configuration> configurations = new HashSet<>();
 

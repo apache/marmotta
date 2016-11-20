@@ -18,7 +18,6 @@
 package org.apache.marmotta.platform.core.webservices.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
@@ -197,8 +196,6 @@ public class ConfigurationWebService {
             if(type!=null) configurationService.setType(key,type);
             if(comment!=null) configurationService.setComment(key,comment);
             return Response.status(200).build();
-        } catch (JsonMappingException e) {
-            log.error("cannot parse input into json",e);
         } catch (IOException e) {
             log.error("cannot parse input into json",e);
         }

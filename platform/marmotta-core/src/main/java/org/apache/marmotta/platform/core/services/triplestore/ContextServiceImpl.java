@@ -27,7 +27,6 @@ import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.api.user.UserService;
-import org.apache.marmotta.platform.core.exception.InvalidArgumentException;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.qualifiers.kspace.ActiveKnowledgeSpaces;
 import org.apache.marmotta.platform.core.qualifiers.kspace.DefaultKnowledgeSpace;
@@ -116,19 +115,17 @@ public class ContextServiceImpl implements ContextService {
     public List<URI> listContexts(boolean filter) {
         //TODO: configuration
         final Set<URI> contexts =  listContextsSesame();
-        //final Set<URI> contexts = listContextsSparql();
 
-        if (filter) {
-            Collections2.filter(contexts, new Predicate<URI>() {
-                @Override
-                public boolean apply(URI uri) {
-                    return uri.stringValue().startsWith(configurationService.getBaseContext());
-                }
-            });
+        if (!filter) {
+            return new ArrayList<>(contexts);
         }
 
-        return new ArrayList<>(contexts);
-
+        return new ArrayList<>(Collections2.filter(contexts, new Predicate<URI>() {
+            @Override
+            public boolean apply(URI uri) {
+                return uri.stringValue().startsWith(configurationService.getBaseContext());
+            }
+        }));
     }
 
     /**

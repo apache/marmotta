@@ -20,7 +20,6 @@ package org.apache.marmotta.platform.sparql.webservices;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import org.apache.commons.collections.EnumerationUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.MarmottaHttpUtils;
@@ -266,7 +265,7 @@ public class SparqlWebService {
                 } else if (QueryType.BOOL.equals(queryType)) {
                     offeredTypes = MarmottaHttpUtils.parseQueryResultFormatList(BooleanQueryResultWriterRegistry.getInstance().getKeys());
                 } else if (QueryType.GRAPH.equals(queryType)) {
-                    Set<String> producedTypes = new HashSet<String>(exportService.getProducedTypes());
+                    Set<String> producedTypes = new HashSet<>(exportService.getProducedTypes());
                     producedTypes.remove("application/xml");
                     producedTypes.remove("text/plain");
                     producedTypes.remove("text/html");
@@ -451,7 +450,7 @@ public class SparqlWebService {
      * @return parameters
      */
     private Map<String,String> parseEncodedQueryParameters(String body) {
-        Map<String,String> params = new HashMap<String,String>();
+        Map<String,String> params = new HashMap<>();
         for (String pair : body.split("&")) {
             int eq = pair.indexOf("=");
             try {
@@ -505,7 +504,7 @@ public class SparqlWebService {
                     final RDFWriter writer = Rio.createWriter(format, outputStream);
                     sparqlService.createServiceDescription(writer, request.getRequestURL().toString(), isUpdate);
                 } catch (RDFHandlerException e) {
-                    log.warn("Could not send SpaqlServiceDescription: {}", e);
+                    log.warn("Could not send SpaqlServiceDescription", e);
                     throw new NoLogWebApplicationException(e, Response.serverError().entity(e).build());
                 }
             }
@@ -520,10 +519,8 @@ public class SparqlWebService {
             public void write(OutputStream output) throws IOException, WebApplicationException {
                 try {
                 	sparqlService.query(QueryLanguage.SPARQL, query, output, format.getMime(), configurationService.getIntConfiguration("sparql.timeout", 60));
-                } catch (MarmottaException ex) {
+                } catch (MarmottaException | MalformedQueryException ex) {
                     throw new WebApplicationException(ex.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(ex)).build());
-                } catch (MalformedQueryException e) {
-                    throw new WebApplicationException(e.getCause(), Response.status(Response.Status.BAD_REQUEST).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 } catch (TimeoutException e) {
                     throw new WebApplicationException(e.getCause(), Response.status(Response.Status.GATEWAY_TIMEOUT).entity(WebServiceUtil.jsonErrorResponse(e)).build());
                 }

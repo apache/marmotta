@@ -176,10 +176,10 @@ public class SparqlServiceImpl implements SparqlService {
                         connection.close();
                     }
                 } catch(RepositoryException e) {
-                    log.error("error while getting repository connection: {}", e);
+                    log.error("error while getting repository connection", e);
                     throw new MarmottaException("error while getting repository connection", e);
                 } catch (QueryEvaluationException e) {
-                    log.error("error while evaluating query: {}", e.getMessage());
+                    log.error("error while evaluating query", e.getMessage());
                     throw new MarmottaException("error while writing query result in format ", e);
                 }
 
@@ -241,7 +241,7 @@ public class SparqlServiceImpl implements SparqlService {
                         connection.close();
                     }
                 } catch(RepositoryException e) {
-                    log.error("error while getting repository connection: {}", e);
+                    log.error("error while getting repository connection", e);
                     throw new MarmottaException("error while getting repository connection", e);
                 } catch (QueryEvaluationException e) {
                     log.error("error while evaluating query: {}", e.getMessage());
@@ -304,13 +304,13 @@ public class SparqlServiceImpl implements SparqlService {
                         connection.close();
                     }
                 } catch(RepositoryException e) {
-                    log.error("error while getting repository connection: {}", e);
+                    log.error("error while getting repository connection", e);
                     throw new MarmottaException("error while getting repository connection", e);
                 } catch (QueryEvaluationException e) {
-                    log.error("error while evaluating query: {}", e);
+                    log.error("error while evaluating query", e);
                     throw new MarmottaException("error while evaluating query ", e);
                 } catch (MalformedQueryException e) {
-                    log.error("error because malformed query: {}", e);
+                    log.error("error because malformed query", e);
                     throw new MarmottaException("error because malformed query", e);
                 }
 
@@ -370,13 +370,9 @@ public class SparqlServiceImpl implements SparqlService {
     private void query(GraphQuery query, OutputStream output, RDFFormat format) throws QueryEvaluationException {
         try {
             QueryResultIO.write(query.evaluate(), format, output);
-        } catch (IOException e) {
+        } catch (IOException | RDFHandlerException e) {
             throw new QueryEvaluationException("error while writing query graph result: ",e);
-        }
-        catch(RDFHandlerException e) {
-            throw new QueryEvaluationException("error while writing query graph result: ",e);
-        }
-        catch(UnsupportedRDFormatException e) {
+        } catch(UnsupportedRDFormatException e) {
             throw new QueryEvaluationException("Could not find requested output RDF format for results of query: ",e);
         }
     }
@@ -396,7 +392,7 @@ public class SparqlServiceImpl implements SparqlService {
 
         log.debug("executing {} query:\n{}", queryLanguage.getName(), query);
 
-        List<Map<String,Value>> result = new LinkedList<Map<String, Value>>();
+        List<Map<String,Value>> result = new LinkedList<>();
 
         try {
             RepositoryConnection connection = sesameService.getConnection();
@@ -407,7 +403,7 @@ public class SparqlServiceImpl implements SparqlService {
                 try {
                     while (r.hasNext()) {
                         BindingSet s = r.next();
-                        Map<String, Value> map = new HashMap<String, Value>();
+                        Map<String, Value> map = new HashMap<>();
                         for (Binding binding : s) {
                             map.put(binding.getName(), binding.getValue());
                         }

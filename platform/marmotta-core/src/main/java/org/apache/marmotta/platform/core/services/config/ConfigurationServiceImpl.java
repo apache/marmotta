@@ -192,24 +192,24 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             if (getHome() != null) {
                 File f1 = new File(getHome());
                 if (!f1.exists()) {
-                    f1.mkdirs();
+                    Preconditions.checkState(f1.mkdirs(), "could not create directory "+f1);
                 }
                 // ensure directory for user configuration files
                 File f2 = new File(getHome() + File.separator + DIR_CONFIG);
                 if(!f2.exists()) {
-                    f2.mkdirs();
+                    Preconditions.checkState(f2.mkdirs(), "could not create directory "+f2);
                 }
 
                 // ensure directory for logging messages
                 File f3 = new File(getHome() + File.separator + DIR_LOG);
                 if(!f3.exists()) {
-                    f3.mkdirs();
+                    Preconditions.checkState(f3.mkdirs(), "could not create directory "+f3);
                 }
 
                 // ensure directory for importing data
                 File f4 = new File(getHome() + File.separator + DIR_IMPORT);
                 if(!f4.exists()) {
-                    f4.mkdirs();
+                    Preconditions.checkState(f4.mkdirs(), "could not create directory "+f4);
                 }
 
             }
@@ -667,13 +667,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.readLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             String result = config.getString(key);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             return result;
         } finally {
             lock.readLock().unlock();
@@ -687,13 +683,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.readLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             String result = config.getString(key, defaultValue);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             return result;
         } finally {
             lock.readLock().unlock();
@@ -1048,13 +1040,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             lock.writeLock().lock();
             try {
-                if (config instanceof AbstractConfiguration) {
-                    ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-                }
+                config.setDelimiterParsingDisabled(true);
                 config.setProperty(key, value);
-                if (config instanceof AbstractConfiguration) {
-                    ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-                }
+                config.setDelimiterParsingDisabled(false);
                 save();
             } finally {
                 lock.writeLock().unlock();
@@ -1082,13 +1070,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.writeLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             config.setProperty(key, value);
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             save();
         } finally {
             lock.writeLock().unlock();
@@ -1104,15 +1088,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         lock.writeLock().lock();
         try {
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(true);
-            }
+            config.setDelimiterParsingDisabled(true);
             for (Map.Entry<String, ?> entry : values.entrySet()) {
                 config.setProperty(entry.getKey(), entry.getValue());
             }
-            if (config instanceof AbstractConfiguration) {
-                ((AbstractConfiguration) config).setDelimiterParsingDisabled(false);
-            }
+            config.setDelimiterParsingDisabled(false);
             save();
         } finally {
             lock.writeLock().unlock();

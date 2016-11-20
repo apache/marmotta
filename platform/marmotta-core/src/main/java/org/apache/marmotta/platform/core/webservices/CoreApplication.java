@@ -69,7 +69,7 @@ public class CoreApplication extends Application {
                 while(modulePropertiesEnum.hasMoreElements()) {
                     URL moduleUrl = modulePropertiesEnum.nextElement();
 
-                    Configuration moduleProperties = null;
+                    Configuration moduleProperties;
                     try {
                         moduleProperties = new PropertiesConfiguration(moduleUrl);
 

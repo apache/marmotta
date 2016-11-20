@@ -39,7 +39,7 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
 
     @Override
     public boolean add(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
-        boolean denyAdd = true;
+        boolean denyAdd;
         if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
             // if s is a URI and subject a KiWiUriResource, return
             // true if they are different
@@ -58,7 +58,7 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
 
     @Override
     public boolean remove(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
-        boolean denyRemove = true;
+        boolean denyRemove;
         if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
             // if s is a URI and subject a KiWiUriResource, return
             // true if they are different

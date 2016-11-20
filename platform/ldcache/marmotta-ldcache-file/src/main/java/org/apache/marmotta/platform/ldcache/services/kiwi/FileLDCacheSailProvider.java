@@ -27,7 +27,6 @@ import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
 import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryException;
 import org.openrdf.sail.NotifyingSail;
 import org.openrdf.sail.helpers.NotifyingSailWrapper;
 import org.slf4j.Logger;
@@ -84,14 +83,9 @@ public class FileLDCacheSailProvider extends LDCacheSailProvider {
 
         directory = new File(configurationService.getHome() + File.separator + "ldcache");
 
-        try {
-            backend = new LDCachingFileBackend(directory);
-            sail = new GenericLinkedDataSail(parent, backend, new NotFilter<Resource>(cacheFilters), ldclientConfig);
-            return sail;
-        } catch (RepositoryException e) {
-            log.error("could not initialize LDCache file backend",e);
-            return null;
-        }
+        backend = new LDCachingFileBackend(directory);
+        sail = new GenericLinkedDataSail(parent, backend, new NotFilter<Resource>(cacheFilters), ldclientConfig);
+        return sail;
     }
 
 

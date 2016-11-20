@@ -103,7 +103,7 @@ public class ContentServiceImpl implements ContentService {
                 log.debug("Initializing content provider {}", configName);
                 ContentReader reader = null;
                 ContentWriter writer = null;
-                Pattern pattern = null;
+                Pattern pattern;
                 if(readerClass != null) {
                     for(ContentReader r : readers) {
                         if(r.getClass().getCanonicalName().startsWith(readerClass)) {

@@ -110,7 +110,7 @@ public class MarmottaResourceFilter implements Filter {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        URL url = null;
+        URL url;
         String prefix, path = null;
         if (request instanceof HttpServletRequest) {
             url = new URL(((HttpServletRequest)request).getRequestURL().toString());
