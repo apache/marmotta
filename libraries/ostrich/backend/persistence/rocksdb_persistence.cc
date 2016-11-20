@@ -389,9 +389,7 @@ void RocksDBPersistence::AddStatement(
     DLOG(INFO) << "Adding statement " << stmt.DebugString();
 
     std::string buffer;
-    Statement encoded = stmt;
-    EncodeWellknownURI(&encoded);
-    encoded.SerializeToString(&buffer);
+    stmt.SerializeToString(&buffer);
 
     Key key(stmt);
 
