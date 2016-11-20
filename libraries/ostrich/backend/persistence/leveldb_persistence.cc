@@ -29,6 +29,7 @@
 
 #include "leveldb_persistence.h"
 #include "model/rdf_operators.h"
+#include "model/rdf_namespaces.h"
 
 #define CHECK_STATUS(s) CHECK(s.ok()) << "Writing to database failed: " << s.ToString()
 
@@ -469,8 +470,10 @@ void LevelDBPersistence::AddStatement(
 
     Key key(stmt);
 
+    Statement encoded = stmt;
+    rdf::EncodeWellknownURI(&encoded);
     std::string buffer;
-    stmt.SerializeToString(&buffer);
+    encoded.SerializeToString(&buffer);
 
     char *k_spoc = key.Create(IndexTypes::SPOC);
     spoc.Put(leveldb::Slice(k_spoc, 4 * KEY_LENGTH), buffer);

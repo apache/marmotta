@@ -388,8 +388,10 @@ void RocksDBPersistence::AddStatement(
         const Statement &stmt, WriteBatch &batch) {
     DLOG(INFO) << "Adding statement " << stmt.DebugString();
 
+    Statement encoded = stmt;
+    rdf::EncodeWellknownURI(&encoded);
     std::string buffer;
-    stmt.SerializeToString(&buffer);
+    encoded.SerializeToString(&buffer);
 
     Key key(stmt);
 

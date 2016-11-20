@@ -21,6 +21,7 @@
 #include <string>
 
 #include "model/rdf_model.h"
+#include <model/rdf_namespaces.h>
 #include "service/sail.pb.h"
 #include "util/iterator.h"
 
@@ -190,6 +191,7 @@ class DBIterator : public util::CloseableIterator<T> {
     const T& next() override {
         // Parse current position, then iterate to next position for next call.
         proto.ParseFromString(it->value().ToString());
+        rdf::DecodeWellknownURI(&proto);
         it->Next();
         return proto;
     };
