@@ -51,8 +51,8 @@ public class IntUnit implements CloneableType {
     private String units;
     private int value;
     private boolean inCharArray( char find, char[] array ){
-        for( int i=0; i < array.length; i++ ){
-            if( find == array[i])
+        for (char anArray : array) {
+            if (find == anArray)
                 return true;
         }
         return false;

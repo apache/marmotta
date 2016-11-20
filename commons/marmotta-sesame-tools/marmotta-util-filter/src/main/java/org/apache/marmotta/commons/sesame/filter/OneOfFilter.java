@@ -32,8 +32,9 @@ public class OneOfFilter<T> implements SesameFilter<T> {
     private Set<SesameFilter<T>> children;
 
 
+    @SafeVarargs
     public OneOfFilter(SesameFilter<T>... children) {
-        this(new HashSet<SesameFilter<T>>(Arrays.asList(children)));
+        this(new HashSet<>(Arrays.asList(children)));
     }
 
     public OneOfFilter(Set<SesameFilter<T>> children) {

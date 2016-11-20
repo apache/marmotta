@@ -57,7 +57,7 @@ class FacadingInvocationHandler implements InvocationHandler {
 
         private static final String[] PX, SPX;
         static {
-            LinkedList<String> ops = new LinkedList<String>();
+            LinkedList<String> ops = new LinkedList<>();
             for (OPERATOR op : OPERATOR.values()) {
                 Collections.addAll(ops, op.prefixes);
             }
@@ -171,7 +171,7 @@ class FacadingInvocationHandler implements InvocationHandler {
             this.context = null;
         }
 
-        fieldCache = new HashMap<String, Object>();
+        fieldCache = new HashMap<>();
 
         // disable cache, it does not work well with deleted triples ...
         useCache = false;
@@ -534,9 +534,8 @@ class FacadingInvocationHandler implements InvocationHandler {
 
             try {
                 // transformation to appropriate primitive type
-                final C result = FacadeUtils.transformToBaseType(value, returnType);
 
-                return result;
+                return FacadeUtils.transformToBaseType(value, returnType);
             } catch (final IllegalArgumentException ex) {
                 return null;
             }
@@ -702,7 +701,7 @@ class FacadingInvocationHandler implements InvocationHandler {
     private <C> Set<C> queryOutgoingAll(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
         final URI property = connection.getValueFactory().createURI(rdf_property);
 
-        final Set<C> dupSet = new LinkedHashSet<C>();
+        final Set<C> dupSet = new LinkedHashSet<>();
         final RepositoryResult<Statement> triples = connection.getStatements(entity, property, null, false);
         try {
             while (triples.hasNext()) {
@@ -728,7 +727,7 @@ class FacadingInvocationHandler implements InvocationHandler {
     private <C> Set<C> queryIncomingAll(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
         final URI property = connection.getValueFactory().createURI(rdf_property);
 
-        final Set<C> dupSet = new LinkedHashSet<C>();
+        final Set<C> dupSet = new LinkedHashSet<>();
         final RepositoryResult<Statement> triples = connection.getStatements(null, property, entity, false);
         try {
             while (triples.hasNext()) {
@@ -769,7 +768,7 @@ class FacadingInvocationHandler implements InvocationHandler {
     private Set<String> getProperties(Resource entity, URI property, Locale loc, URI context) throws RepositoryException {
         final String lang = loc == null ? null : loc.getLanguage().toLowerCase();
 
-        final Set<String> values = new HashSet<String>();
+        final Set<String> values = new HashSet<>();
         final RepositoryResult<Statement> candidates = connection.getStatements(entity, property, null, false, context);
         try {
             while (candidates.hasNext()) {

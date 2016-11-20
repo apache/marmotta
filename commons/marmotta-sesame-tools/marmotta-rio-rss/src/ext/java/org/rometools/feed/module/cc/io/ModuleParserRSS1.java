@@ -42,14 +42,14 @@ package org.rometools.feed.module.cc.io;
 
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleParser;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.rometools.feed.module.cc.CreativeCommonsImpl;
 import org.rometools.feed.module.cc.types.License;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
 
 /**
@@ -75,45 +75,43 @@ public class ModuleParserRSS1 implements ModuleParser {
 		root = root.getParentElement();
 	    List licenseList = root.getChildren( "License", NS );
 	    ArrayList licenses = new ArrayList();
-	    Iterator it = licenseList.iterator();
-	    while( it.hasNext() ){
-		Element licenseTag = (Element) it.next();
-		String licenseURI = licenseTag.getAttributeValue("about", RDF);
-		if( licenseURI == null )
-		    continue;
-		License license = License.findByValue( licenseURI );
-		{
-		    ArrayList permitsValues = new ArrayList();
-		    ArrayList requiresValues = new ArrayList();
-		    List permitsTags = licenseTag.getChildren("permits", NS );
-		    Iterator sit = permitsTags.iterator();
-		    while(sit.hasNext() ){
-			Element permitTag = (Element) sit.next();
-			permitsValues.add( License.Behaviour.findByValue( permitTag.getAttributeValue( "resource", RDF) ));			
-		    }
-		    List requiresTags = licenseTag.getChildren( "requires", NS);
-		    sit = requiresTags.iterator();
-		    while(sit.hasNext()){
-			Element requireTag = (Element) sit.next();
-			requiresValues.add( License.Behaviour.findByValue(requireTag.getAttributeValue("resource", RDF)));
-		    }
-		    license = new License( licenseURI, 
-			    (License.Behaviour[]) requiresValues.toArray( new License.Behaviour[requiresValues.size()]), 
-			    (License.Behaviour[]) permitsValues.toArray( new License.Behaviour[permitsValues.size()]) );
-		    
-		}
-		
-		licenses.add( license );
-	    }
+        for (Object aLicenseList : licenseList) {
+            Element licenseTag = (Element) aLicenseList;
+            String licenseURI = licenseTag.getAttributeValue("about", RDF);
+            if (licenseURI == null)
+                continue;
+            License license = License.findByValue(licenseURI);
+            {
+                ArrayList permitsValues = new ArrayList();
+                ArrayList requiresValues = new ArrayList();
+                List permitsTags = licenseTag.getChildren("permits", NS);
+                Iterator sit = permitsTags.iterator();
+                while (sit.hasNext()) {
+                    Element permitTag = (Element) sit.next();
+                    permitsValues.add(License.Behaviour.findByValue(permitTag.getAttributeValue("resource", RDF)));
+                }
+                List requiresTags = licenseTag.getChildren("requires", NS);
+                sit = requiresTags.iterator();
+                while (sit.hasNext()) {
+                    Element requireTag = (Element) sit.next();
+                    requiresValues.add(License.Behaviour.findByValue(requireTag.getAttributeValue("resource", RDF)));
+                }
+                license = new License(licenseURI,
+                        (License.Behaviour[]) requiresValues.toArray(new License.Behaviour[requiresValues.size()]),
+                        (License.Behaviour[]) permitsValues.toArray(new License.Behaviour[permitsValues.size()]));
+
+            }
+
+            licenses.add(license);
+        }
 	    module.setAllLicenses( (License[]) licenses.toArray( new License[0] ) );
 	}
 	ArrayList licenses = new ArrayList();
 	List licenseTags = element.getChildren( "license", NS );
-	Iterator lit = licenseTags.iterator();
-	while( lit.hasNext() ){
-	    Element licenseTag = (Element) lit.next();
-	    licenses.add( License.findByValue( licenseTag.getAttributeValue( "resource", RDF)));
-	}
+        for (Object licenseTag1 : licenseTags) {
+            Element licenseTag = (Element) licenseTag1;
+            licenses.add(License.findByValue(licenseTag.getAttributeValue("resource", RDF)));
+        }
 	
 	if( licenses.size() > 0 ){
 	    module.setLicenses( (License[]) licenses.toArray( new License[licenses.size()]));

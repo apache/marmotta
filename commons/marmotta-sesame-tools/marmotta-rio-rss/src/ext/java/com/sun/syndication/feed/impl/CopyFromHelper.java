@@ -17,7 +17,6 @@
 package com.sun.syndication.feed.impl;
 
 import com.sun.syndication.feed.CopyFrom;
-import com.sun.syndication.feed.impl.BeanIntrospector;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
@@ -44,19 +43,19 @@ public class CopyFromHelper {
         try {
             PropertyDescriptor[] pds = BeanIntrospector.getPropertyDescriptors(_beanInterfaceClass);
             if (pds!=null) {
-                for (int i=0;i<pds.length;i++) {
-                    String propertyName = pds[i].getName();
-                    Method pReadMethod = pds[i].getReadMethod();
-                    Method pWriteMethod = pds[i].getWriteMethod();
-                    if (pReadMethod!=null && pWriteMethod!=null &&       // ensure it has getter and setter methods
-                        pReadMethod.getDeclaringClass()!=Object.class && // filter Object.class getter methods
-                        pReadMethod.getParameterTypes().length==0 &&     // filter getter methods that take parameters
-                        _baseInterfaceMap.containsKey(propertyName)) {   // only copies properties defined as copyFrom-able
-                        Object value = pReadMethod.invoke(source,NO_PARAMS);
-                        if (value!=null) {
+                for (PropertyDescriptor pd : pds) {
+                    String propertyName = pd.getName();
+                    Method pReadMethod = pd.getReadMethod();
+                    Method pWriteMethod = pd.getWriteMethod();
+                    if (pReadMethod != null && pWriteMethod != null &&       // ensure it has getter and setter methods
+                            pReadMethod.getDeclaringClass() != Object.class && // filter Object.class getter methods
+                            pReadMethod.getParameterTypes().length == 0 &&     // filter getter methods that take parameters
+                            _baseInterfaceMap.containsKey(propertyName)) {   // only copies properties defined as copyFrom-able
+                        Object value = pReadMethod.invoke(source, NO_PARAMS);
+                        if (value != null) {
                             Class baseInterface = (Class) _baseInterfaceMap.get(propertyName);
-                            value = doCopy(value,baseInterface);
-                            pWriteMethod.invoke(target,new Object[]{value});
+                            value = doCopy(value, baseInterface);
+                            pWriteMethod.invoke(target, new Object[]{value});
                         }
                     }
                 }
@@ -127,9 +126,8 @@ public class CopyFromHelper {
     private Object doCopyCollection(Collection collection,Class baseInterface) throws Exception {
         // expecting SETs or LISTs only, going default implementation of them
         Collection newColl = (collection instanceof Set) ? (Collection)new HashSet() : (Collection)new ArrayList();
-        Iterator i = collection.iterator();
-        while (i.hasNext()) {
-            Object element = doCopy(i.next(),baseInterface);
+        for (Object aCollection : collection) {
+            Object element = doCopy(aCollection, baseInterface);
             newColl.add(element);
         }
         return newColl;
@@ -137,12 +135,11 @@ public class CopyFromHelper {
 
     private Object doCopyMap(Map map,Class baseInterface) throws Exception {
         Map newMap = new HashMap();
-        Iterator entries = map.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry entry = (Map.Entry) entries.next();
+        for (Object o : map.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
             Object key = entry.getKey(); // we are assuming string KEYS
-            Object element = doCopy(entry.getValue(),baseInterface);
-            newMap.put(key,element);
+            Object element = doCopy(entry.getValue(), baseInterface);
+            newMap.put(key, element);
         }
         return newMap;
     }

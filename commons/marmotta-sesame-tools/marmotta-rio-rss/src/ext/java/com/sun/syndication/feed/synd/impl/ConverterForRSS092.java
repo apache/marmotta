@@ -16,19 +16,15 @@
  */
 package com.sun.syndication.feed.synd.impl;
 
+import com.sun.syndication.feed.rss.Category;
+import com.sun.syndication.feed.rss.Enclosure;
+import com.sun.syndication.feed.rss.Item;
+import com.sun.syndication.feed.synd.*;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.sun.syndication.feed.rss.Category;
-import com.sun.syndication.feed.rss.Enclosure;
-import com.sun.syndication.feed.rss.Item;
-import com.sun.syndication.feed.synd.SyndCategory;
-import com.sun.syndication.feed.synd.SyndCategoryImpl;
-import com.sun.syndication.feed.synd.SyndEnclosure;
-import com.sun.syndication.feed.synd.SyndEnclosureImpl;
-import com.sun.syndication.feed.synd.SyndEntry;
 
 /**
  */
@@ -61,8 +57,8 @@ public class ConverterForRSS092 extends ConverterForRSS091Userland {
 
     protected List createSyndCategories(List rssCats) {
         List syndCats = new ArrayList();
-        for (int i=0;i<rssCats.size();i++) {
-            Category rssCat = (Category) rssCats.get(i);
+        for (Object rssCat1 : rssCats) {
+            Category rssCat = (Category) rssCat1;
             SyndCategory sCat = new SyndCategoryImpl();
             sCat.setTaxonomyUri(rssCat.getDomain());
             sCat.setName(rssCat.getValue());
@@ -73,8 +69,8 @@ public class ConverterForRSS092 extends ConverterForRSS091Userland {
 
     protected List createSyndEnclosures(List enclosures) {
         List sEnclosures = new ArrayList();
-        for (int i=0;i<enclosures.size();i++) {
-            Enclosure enc = (Enclosure) enclosures.get(i);
+        for (Object enclosure : enclosures) {
+            Enclosure enc = (Enclosure) enclosure;
             SyndEnclosure sEnc = new SyndEnclosureImpl();
             sEnc.setUrl(enc.getUrl());
             sEnc.setType(enc.getType());
@@ -101,8 +97,8 @@ public class ConverterForRSS092 extends ConverterForRSS091Userland {
 
     protected List createRSSCategories(List sCats) {
         List cats = new ArrayList();
-        for (int i=0;i<sCats.size();i++) {
-            SyndCategory sCat = (SyndCategory) sCats.get(i);
+        for (Object sCat1 : sCats) {
+            SyndCategory sCat = (SyndCategory) sCat1;
             Category cat = new Category();
             cat.setDomain(sCat.getTaxonomyUri());
             cat.setValue(sCat.getName());
@@ -113,8 +109,8 @@ public class ConverterForRSS092 extends ConverterForRSS091Userland {
 
     protected List createEnclosures(List sEnclosures) {
         List enclosures = new ArrayList();
-        for (int i=0;i<sEnclosures.size();i++) {
-            SyndEnclosure sEnc = (SyndEnclosure) sEnclosures.get(i);
+        for (Object sEnclosure : sEnclosures) {
+            SyndEnclosure sEnc = (SyndEnclosure) sEnclosure;
             Enclosure enc = new Enclosure();
             enc.setUrl(sEnc.getUrl());
             enc.setType(sEnc.getType());

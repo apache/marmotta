@@ -59,7 +59,7 @@ public class ContextAwareSailConnection extends SailConnectionWrapper {
 
     @Override
     public CloseableIteration<? extends Resource, SailException> getContextIDs() throws SailException {
-        return new SingletonIteration<Resource, SailException>(context);
+        return new SingletonIteration<>(context);
     }
 
     @Override

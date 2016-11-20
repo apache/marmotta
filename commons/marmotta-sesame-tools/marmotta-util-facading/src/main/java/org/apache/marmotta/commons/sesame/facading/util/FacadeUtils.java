@@ -127,9 +127,8 @@ public class FacadeUtils {
         }
 
         final Class<?> clazz = in.getClass();
-        final boolean result = isFacade(clazz);
 
-        return result;
+        return isFacade(clazz);
     }
 
     /**
@@ -215,8 +214,7 @@ public class FacadeUtils {
         }
 
         // even if the char is a primitive is not a number
-        final boolean isCharacter = Character.class.equals(clazz);
-        return isCharacter;
+        return Character.class.equals(clazz);
 
     }
 
@@ -254,8 +252,7 @@ public class FacadeUtils {
         }
 
         final Class<? super C> superClass = clazz.getSuperclass();
-        final boolean isNumber = Number.class.equals(superClass);
-        return isNumber;
+        return Number.class.equals(superClass);
 
     }
 

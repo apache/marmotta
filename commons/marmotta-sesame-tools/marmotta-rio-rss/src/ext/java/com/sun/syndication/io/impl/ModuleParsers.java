@@ -43,8 +43,8 @@ public class ModuleParsers extends PluginManager {
     public List parseModules(Element root) {
         List parsers = getPlugins();
         List modules = null;
-        for (int i=0;i<parsers.size();i++) {
-            ModuleParser parser = (ModuleParser) parsers.get(i);
+        for (Object parser1 : parsers) {
+            ModuleParser parser = (ModuleParser) parser1;
             String namespaceUri = parser.getNamespaceUri();
             Namespace namespace = Namespace.getNamespace(namespaceUri);
             if (hasElementsFrom(root, namespace)) {

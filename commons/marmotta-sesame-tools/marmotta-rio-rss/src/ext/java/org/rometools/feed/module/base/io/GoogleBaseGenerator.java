@@ -41,28 +41,14 @@ package org.rometools.feed.module.base.io;
 
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.io.ModuleGenerator;
-
-import org.rometools.feed.module.base.GoogleBase;
-import org.rometools.feed.module.base.GoogleBaseImpl;
-import org.rometools.feed.module.base.types.CurrencyEnumeration;
-import org.rometools.feed.module.base.types.DateTimeRange;
-import org.rometools.feed.module.base.types.FloatUnit;
-import org.rometools.feed.module.base.types.GenderEnumeration;
-import org.rometools.feed.module.base.types.IntUnit;
-import org.rometools.feed.module.base.types.PaymentTypeEnumeration;
-import org.rometools.feed.module.base.types.PriceTypeEnumeration;
-import org.rometools.feed.module.base.types.ShippingType;
-import org.rometools.feed.module.base.types.ShortDate;
-import org.rometools.feed.module.base.types.Size;
-import org.rometools.feed.module.base.types.YearType;
-
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.rometools.feed.module.base.GoogleBase;
+import org.rometools.feed.module.base.GoogleBaseImpl;
+import org.rometools.feed.module.base.types.*;
 
 import java.beans.PropertyDescriptor;
-
 import java.net.URL;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,34 +83,34 @@ public class GoogleBaseGenerator implements ModuleGenerator {
 	GoogleBaseImpl mod = (GoogleBaseImpl)module;
 	HashMap props2tags = new HashMap(GoogleBaseParser.PROPS2TAGS);
 	PropertyDescriptor[] pds = GoogleBaseParser.pds;
-	
-	for(int i = 0; i < pds.length; i++) {
-	    String tagName = (String)props2tags.get(pds[i].getName());
-	    
-	    if(tagName == null) {
-		continue;
-	    }
-	    
-	    Object[] values = null;
-	    
-	    try {
-		if(pds[i].getPropertyType().isArray()) {
-		    values = (Object[])pds[i].getReadMethod().invoke(mod,(Object[])null);
-		} else {
-		    values = new Object[] {
-			pds[i].getReadMethod().invoke(mod,(Object[])null)
-		    };
-		}
-		
-		for(int j = 0; (values != null)&&(j < values.length); j++) {
-		    if(values[j] != null) {
-			element.addContent(this.generateTag(values[j],tagName));
-		    }
-		}
-	    } catch(Exception e) {
-		e.printStackTrace();
-	    }
-	}
+
+        for (PropertyDescriptor pd : pds) {
+            String tagName = (String) props2tags.get(pd.getName());
+
+            if (tagName == null) {
+                continue;
+            }
+
+            Object[] values = null;
+
+            try {
+                if (pd.getPropertyType().isArray()) {
+                    values = (Object[]) pd.getReadMethod().invoke(mod, (Object[]) null);
+                } else {
+                    values = new Object[]{
+                            pd.getReadMethod().invoke(mod, (Object[]) null)
+                    };
+                }
+
+                for (int j = 0; (values != null) && (j < values.length); j++) {
+                    if (values[j] != null) {
+                        element.addContent(this.generateTag(values[j], tagName));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     public Element generateTag(Object o,String tagName) {

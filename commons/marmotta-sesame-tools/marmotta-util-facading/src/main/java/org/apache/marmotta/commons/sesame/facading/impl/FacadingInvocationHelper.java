@@ -103,9 +103,8 @@ class FacadingInvocationHelper {
 
     static boolean isMultiValue(Method method) {
         final FacadingInvocationHandler.OPERATOR oper = FacadingInvocationHandler.OPERATOR.getOperator(method);
-        final boolean isMultiValue = oper.writeOp && method.getParameterTypes().length == 0 ||
+        return oper.writeOp && method.getParameterTypes().length == 0 ||
                 FacadeUtils.isCollection(oper.writeOp && oper.numArgs > 0 ? method.getParameterTypes()[0] : method.getReturnType());
-        return isMultiValue;
     }
 
     static boolean checkLocale(final Locale loc, final Value object) {
@@ -128,9 +127,9 @@ class FacadingInvocationHelper {
         if (Modifier.isAbstract(collectionType.getModifiers())) {
             // FIXME: Maybe we should add some more implementations here?
             if (collectionType.isAssignableFrom(HashSet.class)) {
-                result = new HashSet<E>();
+                result = new HashSet<>();
             } else if (collectionType.isAssignableFrom(LinkedList.class)) {
-                result = new LinkedList<E>();
+                result = new LinkedList<>();
             } else {
                 throw new InstantiationException("Could not find an implementation of " + collectionType.getName());
             }

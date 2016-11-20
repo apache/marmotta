@@ -41,19 +41,11 @@
  */
 package org.rometools.feed.module.content.io;
 
+import org.jdom2.*;
 import org.rometools.feed.module.content.ContentItem;
 import org.rometools.feed.module.content.ContentModule;
-import org.jdom2.Attribute;
-import org.jdom2.CDATA;
-import org.jdom2.Content;
-import org.jdom2.Element;
-import org.jdom2.Namespace;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @version $Revision: 1.2 $
@@ -95,8 +87,8 @@ public class ContentModuleGenerator implements com.sun.syndication.io.ModuleGene
         //
         if (encodeds != null) {
             System.out.println(cm.getEncodeds().size());
-            for (int i = 0; i < encodeds.size(); i++) {
-                element.addContent(generateCDATAElement("encoded", encodeds.get(i).toString()));
+            for (Object encoded : encodeds) {
+                element.addContent(generateCDATAElement("encoded", encoded.toString()));
             }
         }
 
@@ -107,8 +99,8 @@ public class ContentModuleGenerator implements com.sun.syndication.io.ModuleGene
             Element bag = new Element("Bag", RDF_NS);
             items.addContent(bag);
 
-            for (int i = 0; i < contentItems.size(); i++) {
-                ContentItem contentItem = (ContentItem) contentItems.get(i);
+            for (Object contentItem1 : contentItems) {
+                ContentItem contentItem = (ContentItem) contentItem1;
                 Element li = new Element("li", RDF_NS);
                 Element item = new Element("item", CONTENT_NS);
 
@@ -145,15 +137,15 @@ public class ContentModuleGenerator implements com.sun.syndication.io.ModuleGene
                     if (contentItem.getContentValueNamespaces() != null) {
                         List namespaces = contentItem.getContentValueNamespaces();
 
-                        for (int ni = 0; ni < namespaces.size(); ni++) {
-                            value.addNamespaceDeclaration((Namespace) namespaces.get(ni));
+                        for (Object namespace : namespaces) {
+                            value.addNamespaceDeclaration((Namespace) namespace);
                         }
                     }
 
                     List detached = new ArrayList();
 
                     for (int c = 0;
-                            c < contentItem.getContentValueDOM().size(); c++) {
+                         c < contentItem.getContentValueDOM().size(); c++) {
                         detached.add(((Content) ((Content) contentItem.getContentValueDOM().get(c)).clone()).detach());
                     }
 

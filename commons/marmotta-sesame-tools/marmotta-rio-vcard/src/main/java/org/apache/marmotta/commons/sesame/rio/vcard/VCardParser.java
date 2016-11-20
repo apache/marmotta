@@ -59,7 +59,7 @@ public class VCardParser extends RDFParserBase {
     public static final String NS_RDF    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String NS_VCARD  = "http://www.w3.org/2006/vcard/ns#";
 
-    private static Map<Property.Id, String> propertyMappings = new HashMap<Property.Id, String>();
+    private static Map<Property.Id, String> propertyMappings = new HashMap<>();
     static {
         propertyMappings.put(Property.Id.ADR,      "http://www.w3.org/2006/vcard/ns#adr");
         propertyMappings.put(Property.Id.AGENT,    "http://www.w3.org/2006/vcard/ns#agent");

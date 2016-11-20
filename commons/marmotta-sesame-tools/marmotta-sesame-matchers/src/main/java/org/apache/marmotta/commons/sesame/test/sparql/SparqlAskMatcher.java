@@ -55,7 +55,7 @@ public class SparqlAskMatcher<T extends RepositoryConnection> extends SparqlMatc
      * @see org.openrdf.query.BooleanQuery#evaluate()
      */
     public static <T extends RepositoryConnection> Matcher<T> sparqlAsk(String baseUri, String askQuery) {
-        return new SparqlAskMatcher<T>(baseUri, askQuery);
+        return new SparqlAskMatcher<>(baseUri, askQuery);
     }
 
     /**

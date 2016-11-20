@@ -202,7 +202,7 @@ public abstract class AbstractITunesObject implements ITunes, java.lang.Cloneabl
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("[");
+        StringBuilder sb = new StringBuilder("[");
         sb.append(" Author: ");
         sb.append(this.getAuthor());
         sb.append(" Block: ");
@@ -213,7 +213,7 @@ public abstract class AbstractITunesObject implements ITunes, java.lang.Cloneabl
 
         if (this.getKeywords() != null) {
             for (int i = 0; i < keywords.length; i++) {
-                sb.append("'" + this.getKeywords()[i] + "'");
+                sb.append("'").append(this.getKeywords()[i]).append("'");
             }
         }
 

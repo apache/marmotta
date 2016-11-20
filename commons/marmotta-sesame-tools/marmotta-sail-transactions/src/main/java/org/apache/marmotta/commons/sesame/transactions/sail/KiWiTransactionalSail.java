@@ -47,7 +47,7 @@ public class KiWiTransactionalSail extends NotifyingSailWrapper implements Trans
     public KiWiTransactionalSail(NotifyingSail base) {
         super(base);
 
-        this.listeners           = new ArrayList<TransactionListener>();
+        this.listeners           = new ArrayList<>();
         this.transactionsEnabled = true;
     }
 

@@ -201,7 +201,7 @@ public class MediaModuleParser implements ModuleParser {
             
             for (int j = 0; j < g.getContents().length; j++) {
                 if (g.getContents()[j].isDefaultContent()) {
-                    g.setDefaultContentIndex(new Integer(j));
+                    g.setDefaultContentIndex(j);
                     
                     break;
                 }
@@ -384,25 +384,25 @@ public class MediaModuleParser implements ModuleParser {
         {
             List restrictions = e.getChildren("restriction", getNS());
             ArrayList values = new ArrayList();
-            
-            for (int i = 0; i < restrictions.size(); i++) {
-                Element r = (Element) restrictions.get(i);
+
+            for (Object restriction : restrictions) {
+                Element r = (Element) restriction;
                 Restriction.Type type = null;
-                
+
                 if (r.getAttributeValue("type").equalsIgnoreCase("uri")) {
                     type = Restriction.Type.URI;
                 } else if (r.getAttributeValue("type").equalsIgnoreCase("country")) {
                     type = Restriction.Type.COUNTRY;
                 }
-                
+
                 Restriction.Relationship relationship = null;
-                
+
                 if (r.getAttributeValue("relationship").equalsIgnoreCase("allow")) {
                     relationship = Restriction.Relationship.ALLOW;
                 } else if (r.getAttributeValue("relationship").equalsIgnoreCase("deny")) {
                     relationship = Restriction.Relationship.DENY;
                 }
-                
+
                 Restriction value = new Restriction(relationship, type,
                         r.getTextTrim());
                 values.add(value);

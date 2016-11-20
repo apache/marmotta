@@ -18,13 +18,13 @@
 package com.sun.syndication.feed.synd;
 
 import com.sun.syndication.feed.impl.ObjectBean;
-import com.sun.syndication.feed.module.DCSubjectImpl;
 import com.sun.syndication.feed.module.DCSubject;
+import com.sun.syndication.feed.module.DCSubjectImpl;
 
-import java.util.AbstractList;
-import java.util.List;
-import java.util.ArrayList;
 import java.io.Serializable;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Bean for categories of SyndFeedImpl feeds and entries.
@@ -272,10 +272,10 @@ class SyndCategoryListFacade extends AbstractList<SyndCategory> {
         List<DCSubject> sList = null;
         if (cList!=null) {
             sList = new ArrayList();
-            for (int i=0;i<cList.size();i++) {
-                SyndCategoryImpl sCat = (SyndCategoryImpl) cList.get(i);
+            for (SyndCategory aCList : cList) {
+                SyndCategoryImpl sCat = (SyndCategoryImpl) aCList;
                 DCSubject subject = null;
-                if (sCat!=null) {
+                if (sCat != null) {
                     subject = sCat.getSubject();
                 }
                 sList.add(subject);

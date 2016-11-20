@@ -101,8 +101,8 @@ public class DCModuleGenerator implements ModuleGenerator {
             element.addContent(generateSimpleElementList("creator", dcModule.getCreators()));
         }
         List subjects = dcModule.getSubjects();
-        for (int i = 0; i < subjects.size(); i++) {
-            element.addContent(generateSubjectElement((DCSubject) subjects.get(i)));
+        for (Object subject : subjects) {
+            element.addContent(generateSubjectElement((DCSubject) subject));
         }
         if (dcModule.getDescription() != null) {
             element.addContent(generateSimpleElementList("description", dcModule.getDescriptions()));
@@ -114,9 +114,9 @@ public class DCModuleGenerator implements ModuleGenerator {
             element.addContent(generateSimpleElementList("contributor", dcModule.getContributors()));
         }
         if (dcModule.getDate() != null) {
-            for (Iterator i = dcModule.getDates().iterator(); i.hasNext();) {
+            for (Date date : dcModule.getDates()) {
                 element.addContent(generateSimpleElement("date",
-                        DateParser.formatW3CDateTime((Date) i.next())));
+                        DateParser.formatW3CDateTime(date)));
             }
         }
         if (dcModule.getType() != null) {
@@ -197,8 +197,8 @@ public class DCModuleGenerator implements ModuleGenerator {
      */
     protected final List generateSimpleElementList(String name, List value) {
         List elements = new ArrayList();
-        for (Iterator i = value.iterator(); i.hasNext();) {
-            elements.add(generateSimpleElement(name, (String) i.next()));
+        for (Object aValue : value) {
+            elements.add(generateSimpleElement(name, (String) aValue));
         }
 
         return elements;

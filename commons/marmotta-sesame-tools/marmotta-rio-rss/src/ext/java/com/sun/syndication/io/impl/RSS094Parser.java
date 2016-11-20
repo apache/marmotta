@@ -57,7 +57,7 @@ public class RSS094Parser extends RSS093Parser {
                 //let it go by
             }
             if (ttlValue != null) {
-                channel.setTtl(ttlValue.intValue());
+                channel.setTtl(ttlValue);
             }
         }
 

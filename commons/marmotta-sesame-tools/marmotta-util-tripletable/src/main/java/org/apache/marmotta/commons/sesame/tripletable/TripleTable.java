@@ -56,15 +56,15 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
 
     public TripleTable() {
         data = StatementCommons.newQuadrupleSet();
-        indexSPOC = new TreeMap<IntArray, Triple>();
-        indexCSPO = new TreeMap<IntArray, Triple>();
+        indexSPOC = new TreeMap<>();
+        indexCSPO = new TreeMap<>();
     }
 
 
     public TripleTable(Collection<Triple> triples) {
         data = StatementCommons.newQuadrupleSet();
-        indexSPOC = new TreeMap<IntArray, Triple>();
-        indexCSPO = new TreeMap<IntArray, Triple>();
+        indexSPOC = new TreeMap<>();
+        indexCSPO = new TreeMap<>();
         addAll(triples);
     }
 

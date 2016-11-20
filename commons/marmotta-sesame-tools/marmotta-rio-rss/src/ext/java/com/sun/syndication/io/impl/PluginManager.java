@@ -85,9 +85,9 @@ public abstract class PluginManager {
         String className = null;
         try {
             Class[] classes = getClasses();
-            for (int i=0;i<classes.length;i++) {
-                className = classes[i].getName();
-                Object plugin  = classes[i].newInstance();
+            for (Class aClass : classes) {
+                className = aClass.getName();
+                Object plugin = aClass.newInstance();
                 if (plugin instanceof DelegatingModuleParser) {
                     ((DelegatingModuleParser) plugin).setFeedParser(_parentParser);
                 }
@@ -111,10 +111,8 @@ public abstract class PluginManager {
                 }
             }
         }
-        catch (Exception ex) {
+        catch (Exception | ExceptionInInitializerError ex) {
             throw new RuntimeException("could not instantiate plugin "+className,ex);
-        }catch (ExceptionInInitializerError er) {
-            throw new RuntimeException("could not instantiate plugin "+className,er);
         }
     }
 
@@ -131,9 +129,9 @@ public abstract class PluginManager {
     private Class[] getClasses() throws ClassNotFoundException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         List classes = new ArrayList();
-        boolean useLoadClass = Boolean.valueOf(System.getProperty("rome.pluginmanager.useloadclass", "false")).booleanValue();
-        for (int i = 0; i <_propertyValues.length; i++) {
-        	Class mClass = (useLoadClass ?  classLoader.loadClass(_propertyValues[i]) : Class.forName(_propertyValues[i], true, classLoader));
+        boolean useLoadClass = Boolean.valueOf(System.getProperty("rome.pluginmanager.useloadclass", "false"));
+        for (String _propertyValue : _propertyValues) {
+            Class mClass = (useLoadClass ? classLoader.loadClass(_propertyValue) : Class.forName(_propertyValue, true, classLoader));
             classes.add(mClass);
         }
         Class[] array = new Class[classes.size()];

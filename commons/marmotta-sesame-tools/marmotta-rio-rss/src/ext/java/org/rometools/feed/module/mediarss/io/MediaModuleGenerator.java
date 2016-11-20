@@ -62,14 +62,14 @@ public class MediaModuleGenerator implements ModuleGenerator {
             MediaEntryModule m = (MediaEntryModule) module;
             MediaGroup[] g = m.getMediaGroups();
 
-            for (int i = 0; i < g.length; i++) {
-                this.generateGroup(g[i], element);
+            for (MediaGroup aG : g) {
+                this.generateGroup(aG, element);
             }
 
             MediaContent[] c = m.getMediaContents();
 
-            for (int i = 0; i < c.length; i++) {
-                this.generateContent(c[i], element);
+            for (MediaContent aC : c) {
+                this.generateContent(aC, element);
             }
         }
     }
@@ -108,8 +108,8 @@ public class MediaModuleGenerator implements ModuleGenerator {
         Element t = new Element("group", NS);
         MediaContent[] c = g.getContents();
 
-        for (int i = 0; i < c.length; i++) {
-            this.generateContent(c[i], t);
+        for (MediaContent aC : c) {
+            this.generateContent(aC, t);
         }
 
         this.generateMetadata(g.getMetadata(), t);
@@ -123,10 +123,10 @@ public class MediaModuleGenerator implements ModuleGenerator {
 
         Category[] cats = m.getCategories();
 
-        for (int i = 0; i < cats.length; i++) {
-            Element c = generateSimpleElement("category", cats[i].getValue());
-            this.addNotNullAttribute(c, "scheme", cats[i].getScheme());
-            this.addNotNullAttribute(c, "label", cats[i].getLabel());
+        for (Category cat : cats) {
+            Element c = generateSimpleElement("category", cat.getValue());
+            this.addNotNullAttribute(c, "scheme", cat.getScheme());
+            this.addNotNullAttribute(c, "label", cat.getLabel());
             e.addContent(c);
         }
 
@@ -135,10 +135,10 @@ public class MediaModuleGenerator implements ModuleGenerator {
 
         Credit[] creds = m.getCredits();
 
-        for (int i = 0; i < creds.length; i++) {
-            Element c = generateSimpleElement("credit", creds[i].getName());
-            this.addNotNullAttribute(c, "role", creds[i].getRole());
-            this.addNotNullAttribute(c, "scheme", creds[i].getScheme());
+        for (Credit cred : creds) {
+            Element c = generateSimpleElement("credit", cred.getName());
+            this.addNotNullAttribute(c, "role", cred.getRole());
+            this.addNotNullAttribute(c, "scheme", cred.getScheme());
             e.addContent(c);
         }
 
@@ -165,34 +165,34 @@ public class MediaModuleGenerator implements ModuleGenerator {
 
         Rating[] rats = m.getRatings();
 
-        for (int i = 0; i < rats.length; i++) {
-            Element rat = this.addNotNullElement(e, "rating", rats[i].getValue());
-            this.addNotNullAttribute(rat, "scheme", rats[i].getScheme());
+        for (Rating rat1 : rats) {
+            Element rat = this.addNotNullElement(e, "rating", rat1.getValue());
+            this.addNotNullAttribute(rat, "scheme", rat1.getScheme());
 
-            if (rats[i].equals(Rating.ADULT)) {
+            if (rat1.equals(Rating.ADULT)) {
                 this.addNotNullElement(e, "adult", "true");
-            } else if (rats[i].equals(Rating.NONADULT)) {
+            } else if (rat1.equals(Rating.NONADULT)) {
                 this.addNotNullElement(e, "adult", "false");
             }
         }
 
         Text[] text = m.getText();
 
-        for (int i = 0; i < text.length; i++) {
-            Element t = this.addNotNullElement(e, "text", text[i].getValue());
-            this.addNotNullAttribute(t, "type", text[i].getType());
-            this.addNotNullAttribute(t, "start", text[i].getStart());
-            this.addNotNullAttribute(t, "end", text[i].getEnd());
+        for (Text aText : text) {
+            Element t = this.addNotNullElement(e, "text", aText.getValue());
+            this.addNotNullAttribute(t, "type", aText.getType());
+            this.addNotNullAttribute(t, "start", aText.getStart());
+            this.addNotNullAttribute(t, "end", aText.getEnd());
         }
 
         Thumbnail[] thumbs = m.getThumbnail();
 
-        for (int i = 0; i < thumbs.length; i++) {
+        for (Thumbnail thumb : thumbs) {
             Element t = new Element("thumbnail", NS);
-            this.addNotNullAttribute(t, "url", thumbs[i].getUrl());
-            this.addNotNullAttribute(t, "width", thumbs[i].getWidth());
-            this.addNotNullAttribute(t, "height", thumbs[i].getHeight());
-            this.addNotNullAttribute(t, "time", thumbs[i].getTime());
+            this.addNotNullAttribute(t, "url", thumb.getUrl());
+            this.addNotNullAttribute(t, "width", thumb.getWidth());
+            this.addNotNullAttribute(t, "height", thumb.getHeight());
+            this.addNotNullAttribute(t, "time", thumb.getTime());
             e.addContent(t);
         }
 
@@ -201,11 +201,11 @@ public class MediaModuleGenerator implements ModuleGenerator {
 
         Restriction[] r = m.getRestrictions();
 
-        for (int i = 0; i < r.length; i++) {
+        for (Restriction aR : r) {
             Element res = this.addNotNullElement(e, "restriction",
-                    r[i].getValue());
-            this.addNotNullAttribute(res, "type", r[i].getType());
-            this.addNotNullAttribute(res, "relationship", r[i].getRelationship());
+                    aR.getValue());
+            this.addNotNullAttribute(res, "type", aR.getType());
+            this.addNotNullAttribute(res, "relationship", aR.getRelationship());
         }
     }
 

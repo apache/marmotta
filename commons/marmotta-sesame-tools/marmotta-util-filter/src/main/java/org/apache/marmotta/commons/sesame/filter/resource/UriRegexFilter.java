@@ -36,7 +36,7 @@ public class UriRegexFilter implements ResourceFilter {
 
 
     public UriRegexFilter(Collection<String> regexps) {
-        patterns = new HashSet<Pattern>();
+        patterns = new HashSet<>();
 
         for(String s : regexps) {
             Pattern p = Pattern.compile(s);

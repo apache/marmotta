@@ -30,7 +30,7 @@ public class GeoRSSUtils {
     
     
     static String trimWhitespace(String in) {
-        StringBuffer strbuf = new StringBuffer();
+        StringBuilder strbuf = new StringBuilder();
         int i = 0;
         for (; i<in.length() && Character.isWhitespace(in.charAt(i)); ++i);
         

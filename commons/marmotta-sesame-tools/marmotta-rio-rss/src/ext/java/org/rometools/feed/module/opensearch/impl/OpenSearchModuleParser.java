@@ -27,7 +27,6 @@ import org.rometools.feed.module.opensearch.entity.OSQuery;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -88,11 +87,11 @@ public class OpenSearchModuleParser implements ModuleParser{
         	
         	// Create the OSQuery list 
         	List osqList = new LinkedList();
-        	
-        	for (Iterator iter = queries.iterator(); iter.hasNext();) {
-				e = (Element) iter.next();
-				osqList.add(parseQuery(e));
-			}
+
+            for (Object query : queries) {
+                e = (Element) query;
+                osqList.add(parseQuery(e));
+            }
         
             osm.setQueries(osqList);
         }
@@ -214,12 +213,12 @@ public class OpenSearchModuleParser implements ModuleParser{
         URL baseURI = null;
         List linksList = root.getChildren("link", OS_NS);
         if (linksList != null) {
-            for (Iterator links = linksList.iterator(); links.hasNext(); ) {
-                Element link = (Element)links.next();
+            for (Object aLinksList : linksList) {
+                Element link = (Element) aLinksList;
                 if (!root.equals(link.getParent())) break;
                 String href = link.getAttribute("href").getValue();
-                if (   link.getAttribute("rel", OS_NS) == null
-                    || link.getAttribute("rel", OS_NS).getValue().equals("alternate")) {
+                if (link.getAttribute("rel", OS_NS) == null
+                        || link.getAttribute("rel", OS_NS).getValue().equals("alternate")) {
                     href = resolveURI(null, link, href);
                     try {
                         baseURI = new URL(href);

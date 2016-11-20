@@ -33,8 +33,9 @@ public class AllOfFilter<T> implements SesameFilter<T> {
     private Set<SesameFilter<T>> children;
 
 
+    @SafeVarargs
     public AllOfFilter(SesameFilter<T>... children) {
-        this(new HashSet<SesameFilter<T>>(Arrays.asList(children)));
+        this(new HashSet<>(Arrays.asList(children)));
     }
 
     public AllOfFilter(Set<SesameFilter<T>> children) {
