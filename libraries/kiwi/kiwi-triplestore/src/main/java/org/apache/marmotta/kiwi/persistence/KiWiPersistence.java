@@ -134,7 +134,8 @@ public class KiWiPersistence {
             Class factory = Class.forName(configuration.getCachingBackend().getFactoryClass());
             cacheManager = ((CacheManagerFactory)factory.newInstance()).createCacheManager(configuration);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!", configuration.getCachingBackend(), e.getMessage());
+            log.warn("cache manager factory {} not found on classpath (error: {}); falling back to Guava in-memory cache backend!",
+                    configuration.getCachingBackend(), e.getMessage());
 
             CacheManagerFactory factory = new GuavaCacheManagerFactory();
             cacheManager = factory.createCacheManager(configuration);
@@ -197,13 +198,14 @@ public class KiWiPersistence {
     }
 
     public void logPoolInfo() throws SQLException {
-        if (connectionPool != null) {
-            log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
-            log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
-        } else {
-            log.debug("connection pool not initialized");
+        if (log.isDebugEnabled()) {
+            if (connectionPool != null) {
+                log.debug("num_busy_connections:    {}", connectionPool.getNumActive());
+                log.debug("num_idle_connections:    {}", connectionPool.getNumIdle());
+            } else {
+                log.debug("connection pool not initialized");
+            }
         }
-
     }
 
 
@@ -345,16 +347,16 @@ public class KiWiPersistence {
             throw new SQLException("persistence backend not initialized; call initialise before acquiring a connection");
         }
 
-        if (connectionPool != null) {
-            KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
-            if(getDialect().isBatchSupported()) {
-                con.setBatchCommit(configuration.isTripleBatchCommit());
-                con.setBatchSize(configuration.getTripleBatchSize());
-            }
-            return con;
-        } else {
+        if (connectionPool == null) {
             throw new SQLException("connection pool is closed, database connections not available");
         }
+
+        KiWiConnection con = new KiWiConnection(this,configuration.getDialect(),cacheManager);
+        if(getDialect().isBatchSupported()) {
+            con.setBatchCommit(configuration.isTripleBatchCommit());
+            con.setBatchSize(configuration.getTripleBatchSize());
+        }
+        return con;
     }
 
     /**

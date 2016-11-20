@@ -113,28 +113,24 @@ public class KiWiConnection implements AutoCloseable {
     private static Calendar calendarUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
 
-    private Map<String,PreparedStatement> statementCache;
+    private Map<String,PreparedStatement> statementCache = new HashMap<>();
 
     private boolean autoCommit = false;
-
     private boolean batchCommit = true;
 
     private boolean closed = false;
 
     private int batchSize = 1000;
 
-    private ReentrantLock commitLock;
-
-    private ReentrantLock literalLock;
-    private ReentrantLock uriLock;
-    private ReentrantLock bnodeLock;
+    private ReentrantLock commitLock  = new ReentrantLock();
+    private ReentrantLock literalLock = new ReentrantLock();
+    private ReentrantLock uriLock     = new ReentrantLock();
+    private ReentrantLock bnodeLock   = new ReentrantLock();
 
     // this set keeps track of all statements that have been deleted in the active transaction of this connection
     // this is needed to be able to determine if adding the triple again will merely undo a deletion or is a
     // completely new addition to the triple store
     private BloomFilter<Long> deletedStatementsLog;
-
-    private static long numberOfCommits = 0;
 
     private long transactionId;
 
@@ -144,16 +140,11 @@ public class KiWiConnection implements AutoCloseable {
         this.cacheManager = cacheManager;
         this.dialect      = dialect;
         this.persistence  = persistence;
-        this.commitLock   = new ReentrantLock();
-        this.literalLock   = new ReentrantLock();
-        this.uriLock   = new ReentrantLock();
-        this.bnodeLock   = new ReentrantLock();
         this.batchCommit  = dialect.isBatchSupported();
         this.deletedStatementsLog = BloomFilter.create(Funnels.longFunnel(), 100000);
         this.transactionId = getNextSequence();
 
         initCachePool();
-        initStatementCache();
     }
 
     private void initCachePool() {
@@ -165,20 +156,6 @@ public class KiWiConnection implements AutoCloseable {
 
         namespacePrefixCache = cacheManager.getNamespacePrefixCache();
         namespaceUriCache    = cacheManager.getNamespaceUriCache();
-    }
-
-    /**
-     * Load all prepared statements of the dialect into the statement cache
-     * @throws SQLException
-     */
-    private void initStatementCache() throws SQLException {
-        statementCache = new HashMap<>();
-
-        /*
-        for(String key : dialect.getStatementIdentifiers()) {
-            statementCache.put(key,connection.prepareStatement(dialect.getStatement(key)));
-        }
-        */
     }
 
     /**
@@ -250,8 +227,8 @@ public class KiWiConnection implements AutoCloseable {
             if (result.next()) {
                 return constructNamespaceFromDatabase(result);
             }
-            return null;
         }
+        return null;
     }
 
     /**
@@ -282,8 +259,8 @@ public class KiWiConnection implements AutoCloseable {
             if (result.next()) {
                 return constructNamespaceFromDatabase(result);
             }
-            return null;
         }
+        return null;
     }
 
     /**
@@ -350,8 +327,8 @@ public class KiWiConnection implements AutoCloseable {
             if (result.next()) {
                 return result.getLong(1) + (tripleBatch != null ? tripleBatch.size() : 0);
             }
-            return tripleBatch != null ? tripleBatch.size() : 0;
         }
+        return tripleBatch != null ? tripleBatch.size() : 0;
     }
 
     /**
@@ -374,8 +351,8 @@ public class KiWiConnection implements AutoCloseable {
             if (result.next()) {
                 return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0);
             }
-            return tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0;
         }
+        return tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0;
     }
 
     /**
@@ -426,10 +403,9 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return constructNodeFromDatabase(result);
                 }
-                return null;
             }
         }
-
+        return null;
     }
 
     /**
@@ -524,9 +500,8 @@ public class KiWiConnection implements AutoCloseable {
             if (result.next()) {
                 return constructTripleFromDatabase(result);
             }
-            return null;
         }
-
+        return null;
     }
 
     /**
@@ -564,11 +539,11 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return (KiWiUriResource) constructNodeFromDatabase(result);
                 }
-                return null;
             }
         } finally {
             uriLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -606,11 +581,11 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return (KiWiAnonResource) constructNodeFromDatabase(result);
                 }
-                return null;
             }
         } finally {
             bnodeLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -666,11 +641,11 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return (KiWiLiteral) constructNodeFromDatabase(result);
                 }
-                return null;
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -768,11 +743,11 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return (KiWiIntLiteral) constructNodeFromDatabase(result);
                 }
-                return null;
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -818,7 +793,6 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return (KiWiDoubleLiteral) constructNodeFromDatabase(result);
                 }
-                return null;
             } catch (RuntimeException e) {
                 log.error("Unable to create KiWiDoubleLiteral for node value '{}': {}", value, e.getMessage(), e);
                 throw e;
@@ -826,6 +800,7 @@ public class KiWiConnection implements AutoCloseable {
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -858,7 +833,6 @@ public class KiWiConnection implements AutoCloseable {
         }
 
         literalLock.lock();
-
         try {
 
             // otherwise prepare a query, depending on the parameters given
@@ -872,11 +846,11 @@ public class KiWiConnection implements AutoCloseable {
                 if (result.next()) {
                     return (KiWiBooleanLiteral) constructNodeFromDatabase(result);
                 }
-                return null;
             }
         } finally {
             literalLock.unlock();
         }
+        return null;
     }
 
     /**
@@ -1145,11 +1119,9 @@ public class KiWiConnection implements AutoCloseable {
         try (ResultSet result = loadTripleId.executeQuery()) {
             if (result.next()) {
                 return result.getLong(1);
-            } else {
-                return -1L;
             }
-
         }
+        return -1L;
     }
 
     /**
@@ -2107,8 +2079,8 @@ public class KiWiConnection implements AutoCloseable {
             if (result.next()) {
                 return result.getString(1);
             }
-            return null;
         }
+        return null;
     }
 
 
@@ -2270,8 +2242,6 @@ public class KiWiConnection implements AutoCloseable {
      * @see #setAutoCommit
      */
     public synchronized void commit() throws SQLException {
-        numberOfCommits++;
-
         RetryExecution execution = new RetryExecution("COMMIT");
         execution.execute(connection, new RetryCommand<Void>() {
             @Override
@@ -2343,9 +2313,9 @@ public class KiWiConnection implements AutoCloseable {
     public boolean isClosed() throws SQLException {
         if (connection != null) {
             return connection.isClosed();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
 
