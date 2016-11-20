@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
      * Each thread gets its own User. By using {@link InheritableThreadLocal}, the user is inherited
      * by from the parent thread unless it is explicitly set.
      */
-    private static InheritableThreadLocal<URI> currentUser = new InheritableThreadLocal<URI>();
+    private static InheritableThreadLocal<URI> currentUser = new InheritableThreadLocal<>();
 
     // marker to ensure that no other thread interferes while setting up default users ...
     private boolean users_created = false;

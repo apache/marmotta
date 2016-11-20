@@ -145,6 +145,6 @@ public class ModelExternalizer implements AdvancedExternalizer<TreeModel> {
             }
         }
 
-        return null;
+        return model;
     }
 }

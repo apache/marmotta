@@ -154,7 +154,7 @@ public class InspectionWebService {
     }
 
     private List<TriplePoJo> buildResultList(RepositoryConnection conn, URI s, URI p, URI o, URI c, long start, int limit) throws RepositoryException {
-        List<TriplePoJo> result = new ArrayList<InspectionWebService.TriplePoJo>();
+        List<TriplePoJo> result = new ArrayList<>();
         RepositoryResult<Statement> triples = c != null ? conn.getStatements(s,p,o,true,c) : conn.getStatements(s,p,o,true);
         // skip until start
         for(int i = 0; i<start && triples.hasNext(); i++) {
@@ -332,7 +332,7 @@ public class InspectionWebService {
             ts.next();
         }
         if (ts.hasNext()) {
-            Set<Statement> triples = new HashSet<Statement>();
+            Set<Statement> triples = new HashSet<>();
             for(int j = 0; j<limit && ts.hasNext(); j++) {
                 triples.add(ts.next());
             }
@@ -363,7 +363,7 @@ public class InspectionWebService {
             ts.next();
         }
         if (ts.hasNext()) {
-            Set<Statement> triples = new HashSet<Statement>();
+            Set<Statement> triples = new HashSet<>();
             for(int j = 0; j<limit && ts.hasNext(); j++) {
                 triples.add(ts.next());
             }
@@ -394,7 +394,7 @@ public class InspectionWebService {
             ts.next();
         }
         if (ts.hasNext()) {
-            Set<Statement> triples = new HashSet<Statement>();
+            Set<Statement> triples = new HashSet<>();
             for(int j = 0; j<limit && ts.hasNext(); j++) {
                 triples.add(ts.next());
             }
@@ -426,7 +426,7 @@ public class InspectionWebService {
             ts.next();
         }
         if (ts.hasNext()) {
-            Set<Statement> triples = new HashSet<Statement>();
+            Set<Statement> triples = new HashSet<>();
             for(int j = 0; j<limit && ts.hasNext(); j++) {
                 triples.add(ts.next());
             }

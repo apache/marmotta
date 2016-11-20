@@ -18,28 +18,28 @@
 package org.apache.marmotta.ldpath.model.functions.math;
 
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.model.Constants;
 import org.apache.marmotta.ldpath.model.transformers.DoubleTransformer;
 
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class RoundFunction<Node> extends MathFunction<Node> {
 
-    protected final DoubleTransformer<Node> doubleTransformer = new DoubleTransformer<Node>();
+    protected final DoubleTransformer<Node> doubleTransformer = new DoubleTransformer<>();
     protected final URI intType = URI.create(Constants.NS_XSD + "integer");
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context,
-            Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context,
+                                        Collection<Node>... args) throws IllegalArgumentException {
         if (args.length != 1) {
             throw new IllegalArgumentException("round takes only one argument");
         }
 
-        ArrayList<Node> result = new ArrayList<Node>();
+        ArrayList<Node> result = new ArrayList<>();
         for (Node node : args[0]) {
             Node res = calc(backend, node);
             if (res != null) {

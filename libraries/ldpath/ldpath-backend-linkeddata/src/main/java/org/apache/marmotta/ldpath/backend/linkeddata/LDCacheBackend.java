@@ -274,7 +274,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
 
     @Override
     public Literal createLiteral(String content, Locale language, URI type) {
-        log.debug("creating literal with content \"{}\", language {}, datatype {}",new Object[]{content,language,type});
+        log.debug("creating literal with content \"{}\", language {}, datatype {}",content,language,type);
         if(language == null && type == null) {
             return createLiteral(content);
         } else if(type == null) {

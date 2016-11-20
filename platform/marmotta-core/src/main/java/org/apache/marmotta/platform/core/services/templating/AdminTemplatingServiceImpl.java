@@ -17,17 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.templating;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.apache.marmotta.platform.core.api.templating.AdminInterfaceService;
@@ -35,6 +24,16 @@ import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.exception.TemplatingException;
 import org.apache.marmotta.platform.core.model.template.MenuItem;
 import org.apache.marmotta.platform.core.model.template.MenuItemType;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: Thomas Kurz
@@ -46,7 +45,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
 
     private ServletContext context;
 
-    private static enum Properties { HEAD, CONTENT }
+    private enum Properties { HEAD, CONTENT }
 
     @Inject
     private ModuleService moduleService;
@@ -91,7 +90,7 @@ public class AdminTemplatingServiceImpl implements AdminInterfaceService {
         menu.setActive(path);
 
         //fill data model
-        Map<String, Object> datamodel = new HashMap<String,Object>();
+        Map<String, Object> datamodel = new HashMap<>();
         for(Properties p : Properties.values()) {
             datamodel.put(p.name(),"<!-- "+p.name()+" not defined -->");
         }

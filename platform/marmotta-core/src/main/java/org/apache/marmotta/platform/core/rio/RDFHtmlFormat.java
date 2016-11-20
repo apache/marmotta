@@ -21,6 +21,7 @@ import org.openrdf.rio.RDFFormat;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Add file description here!
@@ -33,7 +34,7 @@ public class RDFHtmlFormat {
             "HTML",
             Arrays.asList("text/html", "application/xhtml+xml"),
             Charset.forName("UTF-8"),
-            Arrays.asList("html"),
+            Collections.singletonList("html"),
             true,
             false
     );

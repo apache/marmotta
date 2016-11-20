@@ -76,7 +76,7 @@ public class SystemStatisticsModule implements StatisticsModule {
 	 */
 	@Override
 	public List<String> getPropertyNames() {
-		List<String> result = new LinkedList<String>();
+		List<String> result = new LinkedList<>();
 		
 		result.add("java version");
 		result.add("java vendor");
@@ -97,7 +97,7 @@ public class SystemStatisticsModule implements StatisticsModule {
 
 		
 		
-		LinkedHashMap<String,String> result = new LinkedHashMap<String, String>();
+		LinkedHashMap<String,String> result = new LinkedHashMap<>();
 
 		result.put("java version", System.getProperty("java.version"));
 		result.put("java vendor", System.getProperty("java.vendor"));

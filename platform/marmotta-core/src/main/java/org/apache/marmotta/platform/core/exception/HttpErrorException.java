@@ -102,7 +102,7 @@ public class HttpErrorException extends Exception {
         this.status = status;
         this.reason = reason;
         this.uri = uri;
-        this.headers = new HashMap<String,String>(headers);
+        this.headers = new HashMap<>(headers);
     }
 
     public int getStatus() {

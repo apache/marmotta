@@ -21,11 +21,7 @@ package org.apache.marmotta.ldpath.model.functions.xml;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
-import org.jdom2.Content;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.Text;
+import org.jdom2.*;
 import org.jdom2.filter.Filters;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.input.sax.XMLReaders;
@@ -37,14 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Execute XPath functions over the content of the selected value.
@@ -55,7 +44,7 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
 
     private static final Logger log = LoggerFactory.getLogger(XPathFunction.class);
 
-    private final StringTransformer<Node> transformer = new StringTransformer<Node>();
+    private final StringTransformer<Node> transformer = new StringTransformer<>();
 
 
     /**
@@ -66,10 +55,11 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
      * @param args a nested list of KiWiNodes
      * @return
      */
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         if (args.length < 1) { throw new IllegalArgumentException("XPath expression is required as first argument."); }
-        Set<String> xpaths = new HashSet<String>();
+        Set<String> xpaths = new HashSet<>();
         for (Node xpath : args[0]) {
             try {
                 xpaths.add(transformer.transform(rdfBackend,xpath, null));
@@ -85,7 +75,7 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
             log.debug("execute xpaths {} on parsed parameters",xpaths);
             it = org.apache.marmotta.ldpath.util.Collections.iterator(1,args);
         }
-        List<Node> result = new ArrayList<Node>();
+        List<Node> result = new ArrayList<>();
         while (it.hasNext()) {
             Node n = it.next();
             try {
@@ -101,7 +91,7 @@ public class XPathFunction<Node> extends SelectorFunction<Node> {
     }
 
     private LinkedList<String> doFilter(String in, Set<String> xpaths) throws IOException {
-        LinkedList<String> result = new LinkedList<String>();
+        LinkedList<String> result = new LinkedList<>();
         try {
             Document doc = new SAXBuilder(XMLReaders.NONVALIDATING).build(new StringReader(in));
             XMLOutputter out = new XMLOutputter();

@@ -18,20 +18,17 @@
 package org.apache.marmotta.ldpath.model.functions.coll;
 
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+
+import java.util.*;
 
 
 public class FlattenFunction<Node> extends AbstractCollFunction<Node> {
 
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         if (args.length > 1) {
             throw new IllegalArgumentException(getLocalName() + " must not have more than one parameter");
         }
@@ -42,7 +39,7 @@ public class FlattenFunction<Node> extends AbstractCollFunction<Node> {
             nodes = Collections.singleton(context);
         }
 
-        final List<Node> result = new LinkedList<Node>();
+        final List<Node> result = new LinkedList<>();
         for (Node node : nodes) {
             if (hasType(backend, node, RDF + "Bag")) {
                 flattenContainer(backend, node, result);

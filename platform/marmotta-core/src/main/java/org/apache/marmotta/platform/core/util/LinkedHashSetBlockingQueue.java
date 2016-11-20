@@ -55,11 +55,11 @@ public class LinkedHashSetBlockingQueue<E> extends AbstractQueue<E> implements B
     private final LinkedHashSet<E> delegate;
 
     public LinkedHashSetBlockingQueue() {
-        delegate = new LinkedHashSet<E>();
+        delegate = new LinkedHashSet<>();
     }
 
     public LinkedHashSetBlockingQueue(int capacity) {
-        this.delegate = new LinkedHashSet<E>(capacity);
+        this.delegate = new LinkedHashSet<>(capacity);
         this.capacity = capacity;
     }
 

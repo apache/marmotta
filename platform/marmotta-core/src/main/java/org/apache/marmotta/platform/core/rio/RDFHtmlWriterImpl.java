@@ -59,9 +59,9 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
     
     protected WriterConfig config;
 
-    protected Map<Resource, SortedSet<Statement>> tripleMap = new HashMap<Resource, SortedSet<Statement>>();
+    protected Map<Resource, SortedSet<Statement>> tripleMap = new HashMap<>();
 
-    protected Map<String, String> namespaceMap = new HashMap<String, String>();
+    protected Map<String, String> namespaceMap = new HashMap<>();
 
     public RDFHtmlWriterImpl(OutputStream out) {
         this(new OutputStreamWriter(out));
@@ -112,10 +112,10 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
     @Override
     public void endRDF() throws RDFHandlerException {
 
-        List<Map<String, Object>> resources = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> resources = new ArrayList<>();
         for (Map.Entry<Resource, SortedSet<Statement>> entry : tripleMap.entrySet()) {
             SortedSet<Statement> ts = entry.getValue();
-            Map<String, Object> resource = new HashMap<String, Object>();
+            Map<String, Object> resource = new HashMap<>();
             String subject = ts.first().getSubject().stringValue();
             if (UriUtil.validate(subject)) {
             	resource.put("uri", subject);
@@ -135,12 +135,12 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
 	            }
             }
 
-            List<Map<String, Object>> triples = new ArrayList<Map<String, Object>>();
+            List<Map<String, Object>> triples = new ArrayList<>();
             for (Statement t : ts) {
-                Map<String, Object> triple = new HashMap<String, Object>();
+                Map<String, Object> triple = new HashMap<>();
 
                 //predicate
-                Map<String, String> predicate = new HashMap<String, String>();
+                Map<String, String> predicate = new HashMap<>();
                 String predicateUri = t.getPredicate().stringValue();
                 predicate.put("uri", predicateUri);
                 String predicateCurie = prefixService.getCurie(predicateUri);
@@ -148,7 +148,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 triple.put("predicate", predicate);
 
                 //object
-                Map<String, String> object = new HashMap<String, String>();
+                Map<String, String> object = new HashMap<>();
                 Value value = t.getObject();
                 String objectValue = value.stringValue();
                 if (value instanceof URI) { //http uri
@@ -189,7 +189,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
                 triple.put("object", object);
 
                 if(t.getContext() != null) {
-                    Map<String, String> context = new HashMap<String, String>();
+                    Map<String, String> context = new HashMap<>();
                     String contextUri = t.getContext().stringValue();
                     context.put("uri", contextUri);
                     String contextCurie = prefixService.getCurie(contextUri);
@@ -213,7 +213,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
         }
 
         try {
-            Map<String, Object> data = new HashMap<String, Object>();
+            Map<String, Object> data = new HashMap<>();
             data.put("baseUri", configurationService.getServerUri());
             data.put("resources", resources);
             data.put("prefixMappings", prefixService.serializePrefixMapping());
@@ -265,7 +265,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
             SortedSet<Statement> ts = tripleMap.get(st.getSubject());
             ts.add(st);
         } else {
-            SortedSet<Statement> ts = new TreeSet<Statement>(
+            SortedSet<Statement> ts = new TreeSet<>(
                     new Comparator<Statement>() {
                         @Override
                         public int compare(Statement o1, Statement o2) {
@@ -327,7 +327,7 @@ public class RDFHtmlWriterImpl implements RDFHtmlWriter {
      */
     @Override
     public Collection<RioSetting<?>> getSupportedSettings() {
-		return new ArrayList<RioSetting<?>>();
+		return new ArrayList<>();
 	}
 
     /**

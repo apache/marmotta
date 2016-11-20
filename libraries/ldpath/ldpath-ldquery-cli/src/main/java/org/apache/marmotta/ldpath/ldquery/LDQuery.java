@@ -90,7 +90,7 @@ public class LDQuery {
             }
 
             if(backend != null && context != null) {
-                LDPath<Value> ldpath = new LDPath<Value>(backend);
+                LDPath<Value> ldpath = new LDPath<>(backend);
 
                 if(cmd.hasOption("path")) {
                     String path = cmd.getOptionValue("path");

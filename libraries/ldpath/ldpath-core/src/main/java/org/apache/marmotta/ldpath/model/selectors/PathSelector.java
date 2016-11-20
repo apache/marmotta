@@ -59,7 +59,7 @@ public class PathSelector<Node> implements NodeSelector<Node> {
         }
         
         Collection<Node> nodesLeft = left.select(rdfBackend,context,path,myResultPaths);
-        final Set<Node> result = new HashSet<Node>();
+        final Set<Node> result = new HashSet<>();
 
         
         

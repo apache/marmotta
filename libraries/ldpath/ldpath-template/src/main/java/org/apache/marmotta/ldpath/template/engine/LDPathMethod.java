@@ -21,14 +21,7 @@ import freemarker.core.Environment;
 import freemarker.template.TemplateDateModel;
 import freemarker.template.TemplateMethodModel;
 import freemarker.template.TemplateModelException;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.LDPath;
-import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.apache.marmotta.ldpath.model.Constants;
@@ -36,6 +29,11 @@ import org.apache.marmotta.ldpath.template.model.freemarker.TemplateNodeModel;
 import org.apache.marmotta.ldpath.template.model.freemarker.TemplateStackModel;
 import org.apache.marmotta.ldpath.template.model.freemarker.TemplateWrapperModel;
 import org.apache.marmotta.ldpath.template.model.transformers.*;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Add file description here!
@@ -46,11 +44,9 @@ public class LDPathMethod<Node> implements TemplateMethodModel {
 
 
     private LDPath<Node> ldpath;
-    private NodeBackend<Node> backend;
 
     public LDPathMethod(RDFBackend<Node> backend) {
-        this.ldpath  = new LDPath<Node>(backend);
-        this.backend = backend;
+        this.ldpath  = new LDPath<>(backend);
 
         // register custom freemarker transformers for the parser so we get the results immediately in the freemarker model
         ldpath.registerTransformer(Constants.NS_XSD + "string", new TemplateScalarTransformer<Node>());
@@ -110,7 +106,7 @@ public class LDPathMethod<Node> implements TemplateMethodModel {
 
         Map<String,String> namespaces;
         if(namespacesWrapped == null) {
-            namespaces = new HashMap<String, String>();
+            namespaces = new HashMap<>();
             namespacesWrapped = new TemplateWrapperModel<Map<String, String>>(new HashMap<String, String>());
             env.setGlobalVariable("namespaces",namespacesWrapped);
         } else {

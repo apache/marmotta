@@ -18,17 +18,13 @@
 package org.apache.marmotta.ldpath.model.functions;
 
 
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.model.transformers.DateTimeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
+
+import java.text.Collator;
+import java.util.*;
 
 /**
  * Allow sorting of the selection passed as first argument. Usage:
@@ -52,8 +48,8 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
 
 
     public SortFunction() {
-        transformer = new StringTransformer<Node>();
-        dateTransformer = new DateTimeTransformer<Node>();
+        transformer = new StringTransformer<>();
+        dateTransformer = new DateTimeTransformer<>();
     }
 
     /**
@@ -120,7 +116,7 @@ public class SortFunction<Node> extends SelectorFunction<Node> {
             };
         }
 
-        List<Node> result = new ArrayList<Node>(args[0]);
+        List<Node> result = new ArrayList<>(args[0]);
         if(comparator != null) {
             java.util.Collections.sort(result,comparator);
         }

@@ -160,5 +160,4 @@ public class KiWiDateLiteral extends KiWiStringLiteral {
         return false;
     }
 
-
 }

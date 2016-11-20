@@ -22,7 +22,6 @@ import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -41,9 +40,9 @@ public class MenuItem {
     private MenuItemType type;
 
     public MenuItem(String label, MenuItemType type) {
-        this.properties = new HashMap<String, Object>();
+        this.properties = new HashMap<>();
         this.type = type;
-        this.items = new ArrayList<MenuItem>();
+        this.items = new ArrayList<>();
 
         properties.put("items",items);
         properties.put("label",label);
@@ -53,7 +52,7 @@ public class MenuItem {
 
     public HashMap<String,Object> getProperties() {
         if(properties.get("items") != null) {
-            List<Object> os = new ArrayList<Object>();
+            List<Object> os = new ArrayList<>();
             for(MenuItem item : items) {
                 os.add(item.getProperties());
             }

@@ -42,7 +42,7 @@ public class ClosableResponseStream<Svc extends AbstractStub<Svc>, ReqT, T> impl
     private static Logger log = LoggerFactory.getLogger(ClosableResponseStream.class);
 
     // Due to flow control, only needs to hold up to 2 items: 1 for value, 1 for close.
-    private final BlockingQueue<Object> buffer = new ArrayBlockingQueue<Object>(2);
+    private final BlockingQueue<Object> buffer = new ArrayBlockingQueue<>(2);
     private final ClientCall.Listener<T> listener = new QueuingListener();
     private final ClientCall<ReqT, T> call;
     // Only accessed when iterating.

@@ -18,16 +18,17 @@
 package org.apache.marmotta.ldpath.model.functions.text;
 
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 public class SubstringFunction<Node> extends SelectorFunction<Node> {
 
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         try {
             if (args.length < 2 || args.length > 3) { throw new IllegalArgumentException("LdPath function " + getLocalName() + " requires 2 or 3 arguments"); }
             if (args[1].size() != 1) { throw new IllegalArgumentException("start argument must be a single literal for function " + getLocalName()); }
@@ -46,17 +47,15 @@ public class SubstringFunction<Node> extends SelectorFunction<Node> {
                 throw new IllegalArgumentException(getLocalName() + " does not allow end beeing smaller than start (end:" + end + " < start:" + start + ")");
             }
 
-            final Collection<Node> result = new LinkedList<Node>();
+            final Collection<Node> result = new LinkedList<>();
             for (Node node : nodes) {
                 final String str = backend.stringValue(node);
                 result.add(backend.createLiteral(str.substring(Math.min(start, str.length()), Math.min(end, str.length()))));
             }
 
             return result;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | ArithmeticException nfe) {
             throw new IllegalArgumentException(nfe);
-        } catch (ArithmeticException ae) {
-            throw new IllegalArgumentException(ae);
         }
     }
 

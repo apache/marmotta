@@ -17,31 +17,25 @@
  */
 package org.apache.marmotta.platform.core.services.templating;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import org.apache.commons.io.FileUtils;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
+import org.apache.marmotta.platform.core.api.templating.TemplatingService;
+import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
+import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-
-
-import com.google.common.base.Preconditions;
-
-import org.apache.commons.io.FileUtils;
-
-import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.templating.TemplatingService;
-import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
-
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-
-import org.apache.marmotta.platform.core.startup.MarmottaStartupService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Template Service Implementation
@@ -59,13 +53,13 @@ public class TemplatingServiceImpl implements TemplatingService {
     @Inject
     private MarmottaStartupService startupService;
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
+    private static Logger log = LoggerFactory.getLogger(TemplatingServiceImpl.class);
 
     private File templateDir;
 
     public TemplatingServiceImpl() {
         super();
-        common = new HashMap<String, String>();
+        common = new HashMap<>();
     }
 
     @PostConstruct

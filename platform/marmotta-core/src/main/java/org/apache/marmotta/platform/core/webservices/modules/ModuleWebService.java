@@ -17,9 +17,9 @@
  */
 package org.apache.marmotta.platform.core.webservices.modules;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.marmotta.platform.core.api.modules.ModuleService;
 import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.apache.commons.configuration.Configuration;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -28,12 +28,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Give information about modules registered in the system.
@@ -78,7 +73,7 @@ public class ModuleWebService {
             return null;
         }
         if(cfg != null) {
-            Map<String,Object> result = new HashMap<String, Object>();
+            Map<String,Object> result = new HashMap<>();
             for(Iterator<String> it = cfg.getKeys() ; it.hasNext(); ) {
                 String key = it.next();
                 result.put(key,cfg.getProperty(key));
@@ -100,14 +95,14 @@ public class ModuleWebService {
     @GET
     @Produces("application/json")
     public Map<String, Map<String, String>> getBuildInfo() {
-        HashMap<String, Map<String, String>> mods = new HashMap<String, Map<String, String>>();
+        HashMap<String, Map<String, String>> mods = new HashMap<>();
 
         for (String moduleName : moduleService.listModules()) {
             Configuration cfg = moduleService.getModuleConfiguration(moduleName).getConfiguration();
             if (cfg != null) {
                 ModuleConfiguration mCfg = new ModuleConfiguration(cfg);
                 if (mCfg.hasBuildInfo()) {
-                    Map<String, String> result = new LinkedHashMap<String, String>();
+                    Map<String, String> result = new LinkedHashMap<>();
 
                     result.put("id", mCfg.getModuleId());
                     result.put("version", mCfg.getModuleVersion());

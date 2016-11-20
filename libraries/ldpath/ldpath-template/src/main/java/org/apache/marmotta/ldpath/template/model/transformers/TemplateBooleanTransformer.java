@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldpath.template.model.transformers;
 
+import freemarker.template.TemplateBooleanModel;
+import freemarker.template.TemplateModelException;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.BooleanTransformer;
-
-import freemarker.template.TemplateBooleanModel;
-import freemarker.template.TemplateModelException;
 
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class TemplateBooleanTransformer<Node> implements NodeTransformer<Templat
     private BooleanTransformer<Node> delegate;
 
     public TemplateBooleanTransformer() {
-        delegate = new BooleanTransformer<Node>();
+        delegate = new BooleanTransformer<>();
     }
 
     /**

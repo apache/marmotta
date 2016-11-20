@@ -60,7 +60,7 @@ public class ResourceWebServiceHelper {
 
     public static String buildContentLink(Resource resource, String mime, ConfigurationService configurationService) {
         //TODO: test if there is content
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         if (mime != null) {
             b.append("<");
             // b.append(configurationService.getBaseUri() + "content/" + mime +

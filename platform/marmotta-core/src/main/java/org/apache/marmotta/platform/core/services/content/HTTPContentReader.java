@@ -281,7 +281,7 @@ public class HTTPContentReader implements ContentReader {
                                 if (response.getStatusLine().getStatusCode() == 200)
                                     return Long.parseLong(response.getFirstHeader("Content-Length").getValue());
                                 else
-                                    return 0l;
+                                    return 0L;
                             }
                         });
                     } else

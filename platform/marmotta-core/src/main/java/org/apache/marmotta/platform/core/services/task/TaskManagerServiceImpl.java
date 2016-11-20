@@ -17,29 +17,20 @@
  */
 package org.apache.marmotta.platform.core.services.task;
 
-import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import com.google.common.collect.MapMaker;
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskInfo;
 import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.slf4j.Logger;
 
-import com.google.common.collect.MapMaker;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 
 @ApplicationScoped
 public class TaskManagerServiceImpl implements TaskManagerService {
@@ -97,7 +88,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
      */
     @Override
     public List<TaskInfo> getTasks() {
-        LinkedList<TaskInfo> ts = new LinkedList<TaskInfo>();
+        LinkedList<TaskInfo> ts = new LinkedList<>();
         for (Stack<TaskImpl> stack : tasks.values()) {
             ts.addAll(stack);
         }
@@ -168,7 +159,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
         final Thread key = Thread.currentThread();
         Stack<TaskImpl> stack = tasks.get(key);
         if (stack == null) {
-            stack = new Stack<TaskImpl>();
+            stack = new Stack<>();
             tasks.put(key, stack);
         }
         return stack;
@@ -179,13 +170,13 @@ public class TaskManagerServiceImpl implements TaskManagerService {
      */
     @Override
     public Map<String, List<TaskInfo>> getTasksByGroup() {
-        Map<String, List<TaskInfo>> result = new LinkedHashMap<String, List<TaskInfo>>();
+        Map<String, List<TaskInfo>> result = new LinkedHashMap<>();
 
         for (TaskInfo task : getTasks()) {
             final String group = task.getGroup();
             List<TaskInfo> list = result.get(group);
             if (list == null) {
-                list = new LinkedList<TaskInfo>();
+                list = new LinkedList<>();
                 result.put(group, list);
             }
             list.add(task);
@@ -199,12 +190,12 @@ public class TaskManagerServiceImpl implements TaskManagerService {
      */
     @Override
     public Map<WeakReference<Thread>, Stack<TaskInfo>> getTasksByThread() {
-        Map<WeakReference<Thread>, Stack<TaskInfo>> result = new LinkedHashMap<WeakReference<Thread>, Stack<TaskInfo>>();
+        Map<WeakReference<Thread>, Stack<TaskInfo>> result = new LinkedHashMap<>();
 
         for (Map.Entry<Thread, Stack<TaskImpl>> e : tasks.entrySet()) {
-            Stack<TaskInfo> list = new Stack<TaskInfo>();
+            Stack<TaskInfo> list = new Stack<>();
             list.addAll(e.getValue());
-            result.put(new WeakReference<Thread>(e.getKey()), list);
+            result.put(new WeakReference<>(e.getKey()), list);
         }
 
         return result;
@@ -230,14 +221,14 @@ public class TaskManagerServiceImpl implements TaskManagerService {
                 task.updateMessage("cleaning up");
                 task.updateProgress(++count);
                 try {
-                    HashSet<Thread> dead = new HashSet<Thread>();
+                    HashSet<Thread> dead = new HashSet<>();
                     for (Thread t : tasks.keySet()) {
                         if (!t.isAlive()) {
                             dead.add(t);
                         }
                     }
                     for (Thread t : dead) {
-                        log.debug("Watchdog: cleaning up dead thread " + t.getName());
+                        log.debug("Watchdog: cleaning up dead thread {}", t.getName());
                         tasks.remove(t);
                         t = null;
                     }

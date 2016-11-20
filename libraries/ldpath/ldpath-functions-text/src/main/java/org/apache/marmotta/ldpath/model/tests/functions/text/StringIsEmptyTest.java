@@ -17,9 +17,9 @@
  */
 package org.apache.marmotta.ldpath.model.tests.functions.text;
 
-import java.util.Collection;
-
 import com.google.common.collect.Collections2;
+
+import java.util.Collection;
 
 /**
  * LDPath test function to check if the string representation of an node is empty.
@@ -34,8 +34,9 @@ public class StringIsEmptyTest<Node> extends AbstractStringTest<Node> {
         return "Check if the string representation of the node is empty";
     }
 
+    @SafeVarargs
     @Override
-    protected boolean test(AbstractStringTest<Node>.ToStringFunction toStringFunction, Collection<Node>... args) {
+    protected final boolean test(AbstractStringTest<Node>.ToStringFunction toStringFunction, Collection<Node>... args) {
         try {
             for (String str: Collections2.transform(args[0], toStringFunction)) {
                 if (!str.isEmpty()) return false;

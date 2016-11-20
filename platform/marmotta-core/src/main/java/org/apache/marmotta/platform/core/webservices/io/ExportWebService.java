@@ -71,7 +71,7 @@ public class ExportWebService {
     @Path("/types")
     @Produces("application/json")
     public List<String> getTypes() {
-        ArrayList<String> result = new ArrayList<String>(exportService.getProducedTypes());
+        ArrayList<String> result = new ArrayList<>(exportService.getProducedTypes());
         Collections.sort(result);
 
         return result;

@@ -184,7 +184,7 @@ public class ValueExternalizer implements AdvancedExternalizer<Value> {
 
 
     private static <C extends Value> int getType(Class<C> clazz) {
-        int t = 0;
+        int t;
         if(URI.class.isAssignableFrom(clazz)) {
             t = TYPE_URI;
         } else if(BNode.class.isAssignableFrom(clazz)) {

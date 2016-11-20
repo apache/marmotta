@@ -30,7 +30,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +72,7 @@ public class TaskManagerWebService {
     @Path("/byThread")
     @Produces("application/json")
     public Map<String, List<TaskInfo>> listByThread() {
-        HashMap<String, List<TaskInfo>> result = new HashMap<String, List<TaskInfo>>();
+        HashMap<String, List<TaskInfo>> result = new HashMap<>();
         final Map<WeakReference<Thread>, Stack<TaskInfo>> tasksByThread = taskManagerService.getTasksByThread();
         for (Map.Entry<WeakReference<Thread>, Stack<TaskInfo>> e : tasksByThread.entrySet()) {
             Thread t = e.getKey().get();
@@ -99,7 +98,7 @@ public class TaskManagerWebService {
     public Map<String, List<TaskInfo>> list(@PathParam("group") String group) {
         log.debug("Listing all tasks of group '{}'", group);
 
-        Map<String, List<TaskInfo>> result = new HashMap<String, List<TaskInfo>>();
+        Map<String, List<TaskInfo>> result = new HashMap<>();
 
         Map<String, List<TaskInfo>> allTasks = taskManagerService.getTasksByGroup();
         if (allTasks.containsKey(group)) {

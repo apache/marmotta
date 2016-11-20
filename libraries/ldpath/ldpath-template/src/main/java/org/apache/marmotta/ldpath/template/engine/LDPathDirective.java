@@ -19,12 +19,6 @@ package org.apache.marmotta.ldpath.template.engine;
 
 import freemarker.core.Environment;
 import freemarker.template.*;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
@@ -35,6 +29,11 @@ import org.apache.marmotta.ldpath.template.model.freemarker.TemplateStackModel;
 import org.apache.marmotta.ldpath.template.model.freemarker.TemplateWrapperModel;
 import org.apache.marmotta.ldpath.template.model.transformers.*;
 import org.apache.marmotta.ldpath.template.util.FormatUtil;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A directive for inserting values retrieved with LDPath. It can be used in several forms:
@@ -72,7 +71,7 @@ public class LDPathDirective<Node> implements TemplateDirectiveModel {
     private NodeBackend<Node> backend;
 
     public LDPathDirective(RDFBackend<Node> backend) {
-        this.ldpath  = new LDPath<Node>(backend);
+        this.ldpath  = new LDPath<>(backend);
         this.backend = backend;
 
         // register custom freemarker transformers for the parser so we get the results immediately in the freemarker model
@@ -135,7 +134,7 @@ public class LDPathDirective<Node> implements TemplateDirectiveModel {
 
         Map<String,String> namespaces;
         if(namespacesWrapped == null) {
-            namespaces = new HashMap<String, String>();
+            namespaces = new HashMap<>();
             namespacesWrapped = new TemplateWrapperModel<Map<String, String>>(new HashMap<String, String>());
             env.setGlobalVariable("namespaces",namespacesWrapped);
         } else {
@@ -185,10 +184,10 @@ public class LDPathDirective<Node> implements TemplateDirectiveModel {
         } else {
             try {
                 for(Node node : ldpath.pathQuery(context.getNode(),path,namespaces)) {
-                    contextStack.push(new TemplateNodeModel<Node>(node, backend));
+                    contextStack.push(new TemplateNodeModel<>(node, backend));
 
                     if(loopVars.length > 0) {
-                        loopVars[0] = new TemplateNodeModel<Node>(node,backend);
+                        loopVars[0] = new TemplateNodeModel<>(node, backend);
                     }
 
                     body.render(env.getOut());

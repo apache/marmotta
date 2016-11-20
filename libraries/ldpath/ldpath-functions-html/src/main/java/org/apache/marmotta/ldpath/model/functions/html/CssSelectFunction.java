@@ -28,21 +28,13 @@ import org.jsoup.select.Selector.SelectorParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CssSelectFunction<KiWiNode> extends SelectorFunction<KiWiNode> {
 
     private Logger log = LoggerFactory.getLogger(CssSelectFunction.class);
 
-    private final StringTransformer<KiWiNode> transformer = new StringTransformer<KiWiNode>();
+    private final StringTransformer<KiWiNode> transformer = new StringTransformer<>();
 
     /**
      * Apply the function to the list of nodes passed as arguments and return the result as type T.
@@ -53,13 +45,14 @@ public class CssSelectFunction<KiWiNode> extends SelectorFunction<KiWiNode> {
      * @param args a nested list of KiWiNodes
      * @return
      */
+    @SafeVarargs
     @Override
-    public Collection<KiWiNode> apply(RDFBackend<KiWiNode> rdfBackend, KiWiNode context, Collection<KiWiNode>... args)
+    public final Collection<KiWiNode> apply(RDFBackend<KiWiNode> rdfBackend, KiWiNode context, Collection<KiWiNode>... args)
             throws IllegalArgumentException {
         if (args.length < 1) {
             throw new IllegalArgumentException("CSS-Selector is required as first argument.");
         }
-        Set<String> jsoupSelectors = new HashSet<String>();
+        Set<String> jsoupSelectors = new HashSet<>();
         for (KiWiNode xpath : args[0]) {
             try {
                 jsoupSelectors.add(transformer.transform(rdfBackend, xpath, null));
@@ -75,28 +68,24 @@ public class CssSelectFunction<KiWiNode> extends SelectorFunction<KiWiNode> {
             log.debug("apply css-selector {} on parsed parameters", jsoupSelectors);
             it = org.apache.marmotta.ldpath.util.Collections.iterator(1, args);
         }
-        List<KiWiNode> result = new ArrayList<KiWiNode>();
+        List<KiWiNode> result = new ArrayList<>();
         while (it.hasNext()) {
             KiWiNode n = it.next();
-            try {
-                final String string = transformer.transform(rdfBackend, n, null);
-                final Document jsoup = Jsoup.parse(string);
-                if (rdfBackend.isURI(context)) {
-                    jsoup.setBaseUri(rdfBackend.stringValue(context));
-                }
-                for (String r : doFilter(jsoup, jsoupSelectors)) {
-                    result.add(rdfBackend.createLiteral(r));
-                }
-            } catch (IOException e) {
-                // This should never happen, since validation is turned off.
+            final String string = transformer.transform(rdfBackend, n, null);
+            final Document jsoup = Jsoup.parse(string);
+            if (rdfBackend.isURI(context)) {
+                jsoup.setBaseUri(rdfBackend.stringValue(context));
+            }
+            for (String r : doFilter(jsoup, jsoupSelectors)) {
+                result.add(rdfBackend.createLiteral(r));
             }
         }
 
         return result;
     }
 
-    private LinkedList<String> doFilter(Document jsoup, Set<String> jsoupSelectors) throws IOException {
-        LinkedList<String> result = new LinkedList<String>();
+    private LinkedList<String> doFilter(Document jsoup, Set<String> jsoupSelectors) {
+        LinkedList<String> result = new LinkedList<>();
         for (String jsoupSel : jsoupSelectors) {
             try {
                 for (Element e : jsoup.select(jsoupSel)) {

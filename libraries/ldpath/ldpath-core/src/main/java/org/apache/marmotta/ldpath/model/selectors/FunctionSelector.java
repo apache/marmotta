@@ -56,12 +56,12 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public Collection<Node> select(RDFBackend<Node> nodeRDFBackend, Node context, List<Node> path, Map<Node, List<Node>> resultPaths) {
-        ArrayList<Collection<Node>> args = new ArrayList<Collection<Node>>();
+        ArrayList<Collection<Node>> args = new ArrayList<>();
 
         // for a function, we include in the result path all paths to all arguments, so we create a new map to collect the paths
         Map<Node, List<Node>> myResultPaths = null;
         if(resultPaths != null && path != null) {
-            myResultPaths = new HashMap<Node, List<Node>>();
+            myResultPaths = new HashMap<>();
         }
 
         for(NodeSelector<Node> selector : selectors) {
@@ -72,7 +72,7 @@ public class FunctionSelector<Node> implements NodeSelector<Node> {
         Collection<Node> result = function.apply(nodeRDFBackend, context, args.toArray(new Collection[selectors.size()]));
         if(myResultPaths != null && path != null) {
             // for a function, we include in the result path all paths to all arguments ...
-            List<Node> functionPath = new ArrayList<Node>();
+            List<Node> functionPath = new ArrayList<>();
             for(List<Node> subpath : myResultPaths.values()) {
                 for(Node n : subpath) {
                     if(!functionPath.contains(n)) {

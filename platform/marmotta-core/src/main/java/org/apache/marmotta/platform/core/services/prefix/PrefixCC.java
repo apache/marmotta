@@ -81,12 +81,12 @@ public class PrefixCC implements PrefixProvider {
                             it.close();
                         }
                     }
-                    log.error("Error: prefix '" + prefix + "' not found at prefix.cc");
+                    log.error("Error: prefix '{}' not found at prefix.cc", prefix);
                     return null;
                 }
             });
         } catch (Exception e) {
-            log.error("Error retrieving prefix '" + prefix + "' from prefix.cc: " + e.getMessage());
+            log.error("Error retrieving prefix '{}' from prefix.cc: {}", prefix, e.getMessage());
             return null;
         }
     }
@@ -117,12 +117,12 @@ public class PrefixCC implements PrefixProvider {
                             it.close();
                         }
                     }
-                    log.error("Error: reverse namespace lookup for '" + namespace + "' not found at prefix.cc");
+                    log.error("Error: reverse namespace lookup for '{}' not found at prefix.cc", namespace);
                     return null;
                 }
             });
         } catch (Exception e) {
-            log.error("Error trying to retrieve prefic.cc reverse lookup for namespace '" + namespace + "': " + e.getMessage());
+            log.error("Error trying to retrieve prefic.cc reverse lookup for namespace '{}': {}", namespace, e.getMessage());
             return null;
         }
     }

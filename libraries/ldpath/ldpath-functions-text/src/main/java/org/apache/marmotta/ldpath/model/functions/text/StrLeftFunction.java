@@ -18,15 +18,16 @@
 package org.apache.marmotta.ldpath.model.functions.text;
 
 
-import java.util.Collection;
-import java.util.LinkedList;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 public class StrLeftFunction<Node> extends SelectorFunction<Node> {
+    @SafeVarargs
     @Override
-    public Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> backend, Node context, Collection<Node>... args) throws IllegalArgumentException {
         try {
             if (args.length != 2) { throw new IllegalArgumentException("LdPath function " + getLocalName() + " requires 2 arguments"); }
             if (args[1].size() != 1) { throw new IllegalArgumentException("len argument must be a single literal for function " + getLocalName()); }
@@ -34,17 +35,15 @@ public class StrLeftFunction<Node> extends SelectorFunction<Node> {
             final Collection<Node> nodes = args[0];
             final int length = Math.max(backend.intValue(args[1].iterator().next()), 0);
 
-            final Collection<Node> result = new LinkedList<Node>();
+            final Collection<Node> result = new LinkedList<>();
             for (Node node : nodes) {
                 final String str = backend.stringValue(node);
                 result.add(backend.createLiteral(str.substring(0, Math.min(length, str.length()))));
             }
 
             return result;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | ArithmeticException nfe) {
             throw new IllegalArgumentException(nfe);
-        } catch (ArithmeticException ae) {
-            throw new IllegalArgumentException(ae);
         }
     }
 

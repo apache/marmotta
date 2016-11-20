@@ -55,7 +55,7 @@ public class UnionSelector<Node> implements NodeSelector<Node> {
      */
     @Override
     public Collection<Node> select(final RDFBackend<Node> rdfBackend, final Node context, final List<Node> path, final Map<Node, List<Node>> resultPaths) {
-        final Set<Node> result = new HashSet<Node>();
+        final Set<Node> result = new HashSet<>();
 
         result.addAll(left.select(rdfBackend,context,path,resultPaths));
         result.addAll(right.select(rdfBackend,context,path,resultPaths));

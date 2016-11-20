@@ -17,15 +17,9 @@
  */
 package org.apache.marmotta.ldpath;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.functions.SelectorFunction;
 import org.apache.marmotta.ldpath.api.selectors.NodeSelector;
@@ -35,12 +29,12 @@ import org.apache.marmotta.ldpath.model.fields.FieldMapping;
 import org.apache.marmotta.ldpath.model.programs.Program;
 import org.apache.marmotta.ldpath.parser.Configuration;
 import org.apache.marmotta.ldpath.parser.DefaultConfiguration;
-import org.apache.marmotta.ldpath.parser.ParseException;
 import org.apache.marmotta.ldpath.parser.LdPathParser;
+import org.apache.marmotta.ldpath.parser.ParseException;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
 
 /**
  * Main class providing query functionality for the different RDF backends.
@@ -76,8 +70,8 @@ public class LDPath<Node> {
      */
     public LDPath(RDFBackend<Node> backend, Configuration<Node> config) {
         this.backend      = backend;
-        this.functions    = new HashSet<SelectorFunction<Node>>();
-        this.transformers = new HashMap<String, NodeTransformer<?, Node>>();
+        this.functions    = new HashSet<>();
+        this.transformers = new HashMap<>();
         this.config       = config;
     }
 
@@ -104,7 +98,7 @@ public class LDPath<Node> {
      * @throws LDPathParseException when the path passed as argument is not valid
      */
     public Collection<Node> pathQuery(Node context, String path, Map<String, String> namespaces) throws LDPathParseException {
-        LdPathParser<Node> parser = new LdPathParser<Node>(backend,config,new StringReader(path));
+        LdPathParser<Node> parser = new LdPathParser<>(backend, config, new StringReader(path));
         for(SelectorFunction<Node> function : functions) {
             parser.registerFunction(function);
         }
@@ -150,7 +144,7 @@ public class LDPath<Node> {
      * @throws LDPathParseException when the path passed as argument is not valid
      */
     public Collection<Node> pathQuery(Node context, String path, Map<String, String> namespaces, Map<Node,List<Node>> paths) throws LDPathParseException {
-        LdPathParser<Node> parser = new LdPathParser<Node>(backend,config,new StringReader(path));
+        LdPathParser<Node> parser = new LdPathParser<>(backend, config, new StringReader(path));
         for(SelectorFunction<Node> function : functions) {
             parser.registerFunction(function);
         }
@@ -194,7 +188,7 @@ public class LDPath<Node> {
      * @throws LDPathParseException when the path passed as argument is not valid
      */
     public <T> Collection<T> pathTransform(Node context, String path, Map<String, String> namespaces) throws LDPathParseException {
-        LdPathParser<Node> parser = new LdPathParser<Node>(backend,config,new StringReader(path));
+        LdPathParser<Node> parser = new LdPathParser<>(backend, config, new StringReader(path));
         for(SelectorFunction<Node> function : functions) {
             parser.registerFunction(function);
         }
@@ -223,7 +217,7 @@ public class LDPath<Node> {
      * @throws LDPathParseException
      */
     public Map<String,Collection<?>> programQuery(Node context, Reader program) throws LDPathParseException {
-        LdPathParser<Node> parser = new LdPathParser<Node>(backend,config,program);
+        LdPathParser<Node> parser = new LdPathParser<>(backend, config, program);
         for(SelectorFunction<Node> function : functions) {
             parser.registerFunction(function);
         }
@@ -234,7 +228,7 @@ public class LDPath<Node> {
         try {
             Program<Node> p = parser.parseProgram();
 
-            Map<String,Collection<?>> result = new HashMap<String, Collection<?>>();
+            Map<String,Collection<?>> result = new HashMap<>();
 
             for(FieldMapping<?,Node> mapping : p.getFields()) {
                 result.put(mapping.getFieldName(),mapping.getValues(backend,context));
@@ -255,7 +249,7 @@ public class LDPath<Node> {
      * @throws LDPathParseException
      */
     public Program<Node> parseProgram(Reader program) throws LDPathParseException {
-        LdPathParser<Node> parser = new LdPathParser<Node>(backend,config,program);
+        LdPathParser<Node> parser = new LdPathParser<>(backend, config, program);
         for(SelectorFunction<Node> function : functions) {
             parser.registerFunction(function);
         }

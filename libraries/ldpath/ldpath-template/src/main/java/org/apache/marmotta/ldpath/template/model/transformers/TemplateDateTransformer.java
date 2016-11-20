@@ -19,13 +19,12 @@ package org.apache.marmotta.ldpath.template.model.transformers;
 
 import freemarker.template.TemplateDateModel;
 import freemarker.template.TemplateModelException;
-
-import java.util.Date;
-import java.util.Map;
-
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.DateTimeTransformer;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * Transform a node into the freemarker date type ({@link freemarker.template.TemplateDateModel}).
@@ -39,7 +38,7 @@ public class TemplateDateTransformer<Node> implements NodeTransformer<TemplateDa
     private int type = TemplateDateModel.UNKNOWN;
 
     public TemplateDateTransformer() {
-        delegate = new DateTimeTransformer<Node>();
+        delegate = new DateTimeTransformer<>();
     }
 
     public TemplateDateTransformer(int type) {

@@ -31,7 +31,7 @@ public class TemplateStackModel implements TemplateModel {
     private Stack<TemplateModel> stack;
 
     public TemplateStackModel() {
-        stack = new Stack<TemplateModel>();
+        stack = new Stack<>();
     }
 
 

@@ -22,7 +22,6 @@ import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
 import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TemporaryFolder;
-import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +49,10 @@ public class LDCacheFileTest extends BaseLDCacheTest {
     protected LDCachingBackend createBackend() {
         try {
             final File storageDir = temporaryFolder.newFolder();
-            LDCachingBackend backend = null;
-            backend = new LDCachingFileBackend(storageDir);
+            LDCachingBackend backend = new LDCachingFileBackend(storageDir);
             backend.initialize();
 
             return backend;
-        } catch (RepositoryException e) {
-            throw new AssumptionViolatedException("could not initialise backend",e);
         } catch (IOException e) {
             throw new AssumptionViolatedException("could not create storage-dir for file backend", e);
         }

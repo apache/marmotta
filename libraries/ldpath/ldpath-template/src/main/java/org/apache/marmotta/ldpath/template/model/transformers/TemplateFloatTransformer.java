@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldpath.template.model.transformers;
 
+import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateNumberModel;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.api.transformers.NodeTransformer;
 import org.apache.marmotta.ldpath.model.transformers.FloatTransformer;
-
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateNumberModel;
 
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class TemplateFloatTransformer<Node> implements NodeTransformer<TemplateN
     private FloatTransformer<Node> delegate;
 
     public TemplateFloatTransformer() {
-        delegate = new FloatTransformer<Node>();
+        delegate = new FloatTransformer<>();
     }
 
     /**

@@ -17,19 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.content;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentReader;
 import org.apache.marmotta.platform.core.api.content.ContentService;
@@ -40,6 +27,18 @@ import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.openrdf.model.Resource;
 import org.slf4j.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Service that provides access to the content associated with a resource. It makes use of the ContentReader and
@@ -78,13 +77,13 @@ public class ContentServiceImpl implements ContentService {
     }
 
     private void initialiseReadersWriters() {
-        readerMap = new HashMap<Pattern, ContentReader>();
-        writerMap = new HashMap<Pattern, ContentWriter>();
+        readerMap = new HashMap<>();
+        writerMap = new HashMap<>();
 
         // first read from the config file all content.* keys and store the name of the reader/writer in this set
         // will e.g. store "triplestore" and "filesystem" if it finds keys of the form "content.triplestore.reader"
         // and "content.filesystem.writer"
-        Set<String> configNames = new HashSet<String>();
+        Set<String> configNames = new HashSet<>();
         for(String key : configurationService.listConfigurationKeys("content")) {
             String[] components = key.split("\\.");
             if(components.length > 1) {

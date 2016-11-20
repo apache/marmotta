@@ -36,7 +36,7 @@ public class Collections {
      */
     @SafeVarargs
     public static <T> List<T> concat(final Collection<T>... lists) {
-        List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<>();
         for(Collection<T> list : lists) {
             result.addAll(list);
         }

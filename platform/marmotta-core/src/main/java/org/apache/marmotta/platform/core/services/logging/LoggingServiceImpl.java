@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
  */
 @ApplicationScoped
 public class LoggingServiceImpl implements LoggingService {
-    private static Logger log = LoggerFactory.getLogger(LoggingService.class);
+    private static Logger log = LoggerFactory.getLogger(LoggingServiceImpl.class);
 
     @Inject
     private ConfigurationService configurationService;

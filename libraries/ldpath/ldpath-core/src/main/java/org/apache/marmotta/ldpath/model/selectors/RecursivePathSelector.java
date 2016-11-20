@@ -145,7 +145,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param delegate the delegate
      */
     public static <N> RecursivePathSelector<N> getPathSelectorStared(NodeSelector<N> delegate) {
-    	return new RecursivePathSelector<N>(delegate, 0, Integer.MAX_VALUE);
+    	return new RecursivePathSelector<>(delegate, 0, Integer.MAX_VALUE);
     }
 
     /**
@@ -153,7 +153,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param delegate the delegate
      */
     public static <N> RecursivePathSelector<N> getPathSelectorPlused(NodeSelector<N> delegate) {
-    	return new RecursivePathSelector<N>(delegate, 1, Integer.MAX_VALUE);
+    	return new RecursivePathSelector<>(delegate, 1, Integer.MAX_VALUE);
     }
     
     /**
@@ -162,7 +162,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param minBound <code>m</code>
      */
     public static <N> RecursivePathSelector<N> getPathSelectorMinBound(NodeSelector<N> delegate, int minBound) {
-    	return new RecursivePathSelector<N>(delegate, minBound, Integer.MAX_VALUE);
+    	return new RecursivePathSelector<>(delegate, minBound, Integer.MAX_VALUE);
     }
 
     /**
@@ -171,7 +171,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param maxBound <code>n</code>
      */
     public static <N> RecursivePathSelector<N> getPathSelectorMaxBound(NodeSelector<N> delegate, int maxBound) {
-    	return new RecursivePathSelector<N>(delegate, 0, maxBound);
+    	return new RecursivePathSelector<>(delegate, 0, maxBound);
     }
 
     /**
@@ -181,7 +181,7 @@ public class RecursivePathSelector<Node> implements NodeSelector<Node> {
      * @param maxBound <code>n</code>
      */
     public static <N> RecursivePathSelector<N> getPathSelectorMinMaxBound(NodeSelector<N> delegate, int minBound, int maxBound) {
-    	return new RecursivePathSelector<N>(delegate, minBound, maxBound);
+    	return new RecursivePathSelector<>(delegate, minBound, maxBound);
     }
 
 

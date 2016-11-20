@@ -134,7 +134,7 @@ public class OstrichSailConnection extends NotifyingSailConnectionBase {
         try {
             channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            new SailException("Shutdown interrupted", e);
+            throw new SailException("Shutdown interrupted", e);
         }
     }
 

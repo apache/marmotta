@@ -46,7 +46,6 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.UnsatisfiedResolutionException;
 import javax.inject.Inject;
-import java.util.Iterator;
 
 /**
  * Offers access to the Sesame repository underlying this Apache Marmotta instance. The activation/deactivation methods
@@ -149,13 +148,10 @@ public class SesameServiceImpl implements SesameService {
                 log.warn("more than one storage backend in classpath, trying to select the most appropriate ...");
                 StoreProvider candidate = null;
 
-                Iterator<StoreProvider> it = storeProviders.iterator();
-                while (it.hasNext()) {
-                    StoreProvider next = it.next();
-
+                for (StoreProvider next : storeProviders) {
                     log.warn("- candidate: {} (annotations: {})", next.getName(), next.getClass().getAnnotations());
 
-                    if(candidate == null || !next.getClass().isAnnotationPresent(Fallback.class)) {
+                    if (candidate == null || !next.getClass().isAnnotationPresent(Fallback.class)) {
                         candidate = next;
                     }
                 }

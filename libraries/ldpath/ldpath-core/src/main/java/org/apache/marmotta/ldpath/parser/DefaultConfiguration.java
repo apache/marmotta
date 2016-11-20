@@ -29,14 +29,7 @@ import org.apache.marmotta.ldpath.model.transformers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Add file description here!
@@ -115,10 +108,9 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     }
 
     private void addDefaultFunctions() {
-        Iterator<SelectorFunction> functions = functionLoader.iterator();
-        while (functions.hasNext()) {
+        for (SelectorFunction aFunctionLoader : functionLoader) {
             try {
-                SelectorFunction<Node> f = functions.next();
+                SelectorFunction<Node> f = aFunctionLoader;
                 log.debug("registering LDPath function: {}", f.getSignature());
                 addFunction(f);
             } catch (ServiceConfigurationError e) {
@@ -133,18 +125,17 @@ public class DefaultConfiguration<Node> extends Configuration<Node> {
     }
 
     private void addDefaultTestFunctions() {
-    	Iterator<TestFunction> testFunctions = testLoader.iterator();
-    	while(testFunctions.hasNext()){
+        for (TestFunction aTestLoader : testLoader) {
             try {
-        		TestFunction testFunction = testFunctions.next();
-                log.debug("registering LDPath test function: {}", 
+                TestFunction testFunction = aTestLoader;
+                log.debug("registering LDPath test function: {}",
                         testFunction.getSignature());
                 addTestFunction(testFunction);
             } catch (ServiceConfigurationError e) {
                 log.warn("Unable to load function because of an "
                         + e.getClass().getSimpleName(), e);
             }
-    	}
+        }
     }
 
     private void addTestFunction(TestFunction<Node> test) {

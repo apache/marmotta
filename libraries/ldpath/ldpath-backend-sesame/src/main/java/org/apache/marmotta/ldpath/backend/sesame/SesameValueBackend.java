@@ -17,16 +17,6 @@
 
 package org.apache.marmotta.ldpath.backend.sesame;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
@@ -35,6 +25,15 @@ import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class SesameValueBackend implements NodeBackend<Value>{
 
@@ -256,7 +255,7 @@ public class SesameValueBackend implements NodeBackend<Value>{
 
     @Override
     public Literal createLiteral(String content, Locale language, URI type) {
-        log.debug("creating literal with content \"{}\", language {}, datatype {}",new Object[]{content,language,type});
+        log.debug("creating literal with content \"{}\", language {}, datatype {}",content,language,type);
         if(language == null && type == null) {
             return createLiteral(content);
         } else if(type == null) {

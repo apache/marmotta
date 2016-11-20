@@ -81,9 +81,9 @@ public class ImportWebService {
     @Produces("application/json")
     public List<String> getTypes(@QueryParam("filename") String filename) {
         if(filename == null)
-            return new ArrayList<String>(importService.getAcceptTypes());
+            return new ArrayList<>(importService.getAcceptTypes());
         else {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             RDFFormat format = Rio.getParserFormatForFileName(filename);
             if(format != null) {
                 result.addAll(format.getMIMETypes());

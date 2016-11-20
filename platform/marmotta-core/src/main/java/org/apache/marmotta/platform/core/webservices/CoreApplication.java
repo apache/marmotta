@@ -61,7 +61,7 @@ public class CoreApplication extends Application {
 
 
         if(classes == null) {
-            classes = new HashSet<Class<?>>();
+            classes = new HashSet<>();
 
             try {
                 Enumeration<URL> modulePropertiesEnum = this.getClass().getClassLoader().getResources("kiwi-module.properties");

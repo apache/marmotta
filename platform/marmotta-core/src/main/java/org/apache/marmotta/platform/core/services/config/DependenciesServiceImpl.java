@@ -42,7 +42,7 @@ public class DependenciesServiceImpl implements DependenciesService {
     private List<Map<String, String>> dependencies;
 
     public DependenciesServiceImpl() {
-        this.dependencies = new ArrayList<Map<String, String>>();
+        this.dependencies = new ArrayList<>();
     }
 
     @PostConstruct
@@ -72,24 +72,22 @@ public class DependenciesServiceImpl implements DependenciesService {
                 while ((line = br.readLine()) != null) {
                     line = StringUtils.stripToNull(line);
                     if (line != null) {
-                        Map<String, String> dep = new HashMap<String, String>();
+                        Map<String, String> dep = new HashMap<>();
                         String[] split = StringUtils.split(line, ":");
                         if (split.length >= 4) {
                             dep.put(DependenciesService.GROUP, split[0]);
                             dep.put(DependenciesService.ARTIFACT, split[1]);
                             dep.put(DependenciesService.VERSION, split[3]);
                             this.dependencies.add(dep);
-                            log.debug("Recovered dependency " + split[0] + ":" + split[2] + ":" + split[2]);
+                            log.debug("Recovered dependency {}:{}:{}", split[0], split[2], split[2]);
                         }
                     }
                 }
 
                 br.close();
 
-            } catch (IOException e) {
-                log.error("Error reading dependencies: " + e.getMessage());
-            } catch (NullPointerException e) {
-                log.error("Error reading dependencies: " + e.getMessage());
+            } catch (IOException | NullPointerException e) {
+                log.error("Error reading dependencies: {}", e.getMessage());
             }
         }
     }
@@ -101,7 +99,7 @@ public class DependenciesServiceImpl implements DependenciesService {
 
     @Override
     public List<Map<String, String>> getArtifacts(String groupId) {
-        List<Map<String, String>> deps = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> deps = new ArrayList<>();
         for (Map<String, String> dep : this.dependencies) {
             if (groupId.equals(dep.get(DependenciesService.GROUP))) {
                 deps.add(Collections.unmodifiableMap(dep));

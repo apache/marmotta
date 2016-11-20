@@ -73,7 +73,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private String home;
 
-    private static Logger log = LoggerFactory.getLogger(ConfigurationService.class);
+    private static Logger log = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
     private String configFileName, metaFileName;
 
@@ -144,7 +144,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
     public ConfigurationServiceImpl() {
-        runtimeFlags = new HashMap<String, Boolean>();
+        runtimeFlags = new HashMap<>();
         lock = new ReentrantReadWriteLock();
 
         eventTimer = new Timer("Configuration Event Timer", true);
@@ -460,7 +460,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<String> listConfigurationKeys() {
         lock.readLock().lock();
         try {
-            List<String> keys = new LinkedList<String>();
+            List<String> keys = new LinkedList<>();
             for (Iterator<String> it = config.getKeys(); it.hasNext();) {
                 keys.add(it.next());
             }
@@ -480,7 +480,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<String> listConfigurationKeys(String prefix) {
         lock.readLock().lock();
         try {
-            List<String> keys = new LinkedList<String>();
+            List<String> keys = new LinkedList<>();
             for (Iterator<String> it = config.getKeys(prefix); it.hasNext();) {
                 keys.add(it.next());
             }
@@ -501,7 +501,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public List<Matcher> listConfigurationKeys(Pattern pattern) {
         lock.readLock().lock();
         try {
-            List<Matcher> keys = new LinkedList<Matcher>();
+            List<Matcher> keys = new LinkedList<>();
             for (Iterator<String> it = config.getKeys(); it.hasNext();) {
                 Matcher m = pattern.matcher(it.next());
                 if(m.matches()) {
