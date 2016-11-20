@@ -498,7 +498,6 @@ int64_t LevelDBPersistence::RemoveStatements(
 
     int64_t count = 0;
 
-    std::string bufs, bufp, bufo, bufc;
     GetStatements(pattern, [&](const Statement stmt) -> bool {
         Key key(stmt);
 

@@ -27,123 +27,6 @@
 namespace marmotta {
 namespace persistence {
 
-// Apply prefix substitution for well-known URIs to save disk space.
-// Modifies the string passed as argument.
-void EncodeWellknownURI(std::string* uri);
-
-// Apply prefix substitution for well-known URIs to save disk space.
-// Replaces the uri string of the URI with the encoded one
-inline void EncodeWellknownURI(rdf::proto::URI* value){
-    EncodeWellknownURI(value->mutable_uri());
-}
-
-// Apply prefix substitution for well-known URIs to save disk space.
-// Replaces the uri string of the type URI with the encoded one
-inline void EncodeWellknownURI(rdf::proto::DatatypeLiteral* value) {
-    EncodeWellknownURI(value->mutable_datatype());
-}
-
-// Apply prefix substitution for well-known URIs to save disk space.
-// Cases:
-// - value is a URI: replace the uri string with the encoded one
-// - otherwise: do nothing
-inline void EncodeWellknownURI(rdf::proto::Resource* value) {
-    if (value->has_uri()) {
-        EncodeWellknownURI(value->mutable_uri());
-    }
-}
-
-// Apply prefix substitution for well-known URIs to save disk space.
-// Cases:
-// - value is a URI: replace the uri string with the encoded one
-// - value is a DatatypeLiteral: replace type URI with encoded one
-// - otherwise: do nothing
-inline void EncodeWellknownURI(rdf::proto::Value* value) {
-    if (value->has_resource()) {
-        EncodeWellknownURI(value->mutable_resource());
-    } else if (value->has_literal() && value->mutable_literal()->has_dataliteral()) {
-        EncodeWellknownURI(value->mutable_literal()->mutable_dataliteral());
-    }
-}
-
-// Apply prefix substitution for well-known URIs to save disk space.
-// Performs prefix substitution for subject, predicate, object and context.
-inline void EncodeWellknownURI(rdf::proto::Statement* stmt) {
-    if (stmt->has_subject()) {
-        EncodeWellknownURI(stmt->mutable_subject());
-    }
-    if (stmt->has_predicate()) {
-        EncodeWellknownURI(stmt->mutable_predicate());
-    }
-    if (stmt->has_object()) {
-        EncodeWellknownURI(stmt->mutable_object());
-    }
-    if (stmt->has_context()) {
-        EncodeWellknownURI(stmt->mutable_context());
-    }
-}
-
-// Compatibility placeholder, does nothing for namespaces.
-inline void EncodeWellknownURI(rdf::proto::Namespace* ns) {}
-
-// Unapply prefix substitution for well-known URIs.
-// Modifies the string passed as argument.
-void DecodeWellknownURI(std::string* uri);
-
-// Unapply prefix substitution for well-known URIs.
-// Replaces the uri string of the URI with the decoded one
-inline void DecodeWellknownURI(rdf::proto::URI* value){
-    DecodeWellknownURI(value->mutable_uri());
-}
-
-// Unapply prefix substitution for well-known URIs.
-// Replaces the uri string of the type URI with the decoded one
-inline void DecodeWellknownURI(rdf::proto::DatatypeLiteral* value) {
-    DecodeWellknownURI(value->mutable_datatype());
-}
-
-// Unapply prefix substitution for well-known URIs.
-// Cases:
-// - value is a URI: replace the uri string with the decoded one
-// - otherwise: do nothing
-inline void DecodeWellknownURI(rdf::proto::Resource* value) {
-    if (value->has_uri()) {
-        DecodeWellknownURI(value->mutable_uri());
-    }
-}
-
-// Unapply prefix substitution for well-known URIs.
-// Cases:
-// - value is a URI: replace the uri string with the decoded one
-// - value is a DatatypeLiteral: replace type URI with decoded one
-// - otherwise: do nothing
-inline void DecodeWellknownURI(rdf::proto::Value* value) {
-    if (value->has_resource()) {
-        DecodeWellknownURI(value->mutable_resource());
-    } else if (value->has_literal() && value->mutable_literal()->has_dataliteral()) {
-        DecodeWellknownURI(value->mutable_literal()->mutable_dataliteral());
-    }
-}
-
-// Apply prefix substitution for well-known URIs to save disk space.
-// Performs prefix substitution for subject, predicate, object and context.
-inline void DecodeWellknownURI(rdf::proto::Statement* stmt) {
-    if (stmt->has_subject()) {
-        DecodeWellknownURI(stmt->mutable_subject());
-    }
-    if (stmt->has_predicate()) {
-        DecodeWellknownURI(stmt->mutable_predicate());
-    }
-    if (stmt->has_object()) {
-        DecodeWellknownURI(stmt->mutable_object());
-    }
-    if (stmt->has_context()) {
-        DecodeWellknownURI(stmt->mutable_context());
-    }
-}
-
-// Compatibility placeholder, does nothing for namespaces.
-inline void DecodeWellknownURI(rdf::proto::Namespace* ns) {}
 
 // Length of key in bytes per field S, P, O and C.
 constexpr int kKeyLength = 16;
@@ -307,7 +190,6 @@ class DBIterator : public util::CloseableIterator<T> {
     const T& next() override {
         // Parse current position, then iterate to next position for next call.
         proto.ParseFromString(it->value().ToString());
-        DecodeWellknownURI(&proto);
         it->Next();
         return proto;
     };
