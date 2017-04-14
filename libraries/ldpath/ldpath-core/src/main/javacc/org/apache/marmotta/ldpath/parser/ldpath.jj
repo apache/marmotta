@@ -654,6 +654,9 @@ NodeSelector CompoundSelector() :
 {
     (
         /* Union Selector */
+        result = NullCoalescingSelector() |
+
+        /* Union Selector */
         result = UnionSelector() |
 
         /* Intersection Selector */
@@ -818,6 +821,20 @@ UnionSelector UnionSelector() :
     left = AtomicOrTestingOrPathSelector() <OR> right = Selector()
     {
         result = new UnionSelector(left,right);
+        return result;
+    }
+}
+
+NullCoalescingSelector NullCoalescingSelector() :
+{
+    NullCoalescingSelector result = null;
+    NodeSelector left   = null;
+    NodeSelector right  = null;
+}
+{
+    left = AtomicOrTestingOrPathSelector() <OR><OR> right = Selector()
+    {
+        result = new NullCoalescingSelector(left,right);
         return result;
     }
 }
