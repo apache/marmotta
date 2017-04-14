@@ -19,10 +19,31 @@ package org.apache.marmotta.kiwi.sparql.builder;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sail.KiWiValueFactory;
-import org.apache.marmotta.kiwi.sparql.builder.collect.*;
+import org.apache.marmotta.kiwi.sparql.builder.collect.ConditionFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.DistinctFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.ExtensionFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.GroupFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.LimitFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.LiteralTypeExpressionFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.OPTypeFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.OrderFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.PatternCollector;
+import org.apache.marmotta.kiwi.sparql.builder.collect.SQLProjectionFinder;
+import org.apache.marmotta.kiwi.sparql.builder.collect.VariableFinder;
 import org.apache.marmotta.kiwi.sparql.builder.eval.ValueExpressionEvaluator;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLAbstractSubquery;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
@@ -36,11 +57,37 @@ import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.SESAME;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
+import org.openrdf.query.algebra.Avg;
+import org.openrdf.query.algebra.BNodeGenerator;
+import org.openrdf.query.algebra.Compare;
+import org.openrdf.query.algebra.Count;
+import org.openrdf.query.algebra.Distinct;
+import org.openrdf.query.algebra.Exists;
+import org.openrdf.query.algebra.Extension;
+import org.openrdf.query.algebra.ExtensionElem;
+import org.openrdf.query.algebra.Filter;
+import org.openrdf.query.algebra.FunctionCall;
+import org.openrdf.query.algebra.Group;
+import org.openrdf.query.algebra.IRIFunction;
+import org.openrdf.query.algebra.If;
+import org.openrdf.query.algebra.Join;
+import org.openrdf.query.algebra.LeftJoin;
+import org.openrdf.query.algebra.MathExpr;
+import org.openrdf.query.algebra.NAryValueOperator;
+import org.openrdf.query.algebra.Order;
+import org.openrdf.query.algebra.OrderElem;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.Reduced;
+import org.openrdf.query.algebra.Slice;
+import org.openrdf.query.algebra.StatementPattern;
+import org.openrdf.query.algebra.Sum;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Union;
+import org.openrdf.query.algebra.ValueConstant;
+import org.openrdf.query.algebra.ValueExpr;
+import org.openrdf.query.algebra.Var;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * A builder for translating SPARQL queries into SQL.
@@ -52,6 +99,11 @@ public class SQLBuilder {
 
     private static Logger log = LoggerFactory.getLogger(SQLBuilder.class);
 
+    /**
+     * Aggregates defined in version 1.1 of SPARQL. List used to avoid MARMOTTA-657 because GROUP BY don't allow aggregate functions.
+     */
+    private static final String[] aggregateFuncs = {"COUNT", "SUM", "MIN", "MAX", "AVG", "GROUP_CONCAT","SAMPLE"};
+    
     /**
      * Simplify access to different node ids
      */
@@ -796,13 +848,13 @@ public class SQLBuilder {
             }
 
             if (orderby.size() > 0) {
-                groupClause.append(", ");
                 for(Iterator<OrderElem> it = orderby.iterator(); it.hasNext(); ) {
                     OrderElem elem = it.next();
-                    groupClause.append(evaluateExpression(elem.getExpr(), ValueType.STRING));
-                    if (it.hasNext()) {
-                        groupClause.append(", ");
+                    String expr = evaluateExpression(elem.getExpr(), ValueType.STRING);
+                    if (StringUtils.indexOfAny(expr, aggregateFuncs) != -1) {
+                        continue;
                     }
+                    groupClause.append(", ").append(expr);
                 }
             }
 
