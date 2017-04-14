@@ -68,7 +68,7 @@ public class JsonPathFunctionTest extends AbstractTestBase {
 
         final LdPathParser<Value> parser = createParserFromString("fn:jsonpath(\"" + path + "\", <http://www.w3.org/2011/content#chars>) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
-        final Collection<Object> values = rule.getValues(backend, ctx);
+        final Collection<?> values = rule.getValues(backend, ctx);
 
         Assert.assertEquals(1, values.size());
         Assert.assertEquals(answer, values.iterator().next());

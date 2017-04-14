@@ -1086,7 +1086,8 @@ public class PersistenceTest {
             Assert.assertEquals(ns1, connection.loadNamespaceByUri("http://localhost/ns1/"));
             Assert.assertEquals(ns2, connection.loadNamespaceByPrefix("ns2"));
             Assert.assertEquals(ns2, connection.loadNamespaceByUri("http://localhost/ns2/"));
-            Assert.assertThat(Iterations.asList(connection.listNamespaces()),hasItems(ns1,ns2));
+            List<KiWiNamespace> namespaces = Iterations.asList(connection.listNamespaces());
+            Assert.assertThat(namespaces, hasItems(ns1,ns2));
 
             connection.commit();
 
@@ -1095,7 +1096,8 @@ public class PersistenceTest {
             Assert.assertEquals(ns1, connection.loadNamespaceByUri("http://localhost/ns1/"));
             Assert.assertEquals(ns2, connection.loadNamespaceByPrefix("ns2"));
             Assert.assertEquals(ns2, connection.loadNamespaceByUri("http://localhost/ns2/"));
-            Assert.assertThat(Iterations.asList(connection.listNamespaces()),hasItems(ns1,ns2));
+            namespaces = Iterations.asList(connection.listNamespaces());
+            Assert.assertThat(namespaces, hasItems(ns1,ns2));
 
             // clear cache and check again
             persistence.clearCache();
@@ -1104,7 +1106,8 @@ public class PersistenceTest {
             Assert.assertEquals(ns1, connection.loadNamespaceByUri("http://localhost/ns1/"));
             Assert.assertEquals(ns2, connection.loadNamespaceByPrefix("ns2"));
             Assert.assertEquals(ns2, connection.loadNamespaceByUri("http://localhost/ns2/"));
-            Assert.assertThat(Iterations.asList(connection.listNamespaces()),hasItems(ns1,ns2));
+            namespaces = Iterations.asList(connection.listNamespaces());
+            Assert.assertThat(namespaces, hasItems(ns1,ns2));
 
 
             PreparedStatement stmt = connection.getJDBCConnection().prepareStatement("SELECT * FROM namespaces");
