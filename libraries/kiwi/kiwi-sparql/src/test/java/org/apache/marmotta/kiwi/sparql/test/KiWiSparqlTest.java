@@ -20,19 +20,37 @@ package org.apache.marmotta.kiwi.sparql.test;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import info.aduna.iteration.Iterations;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
-import org.openrdf.query.*;
+import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.GraphQuery;
+import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -42,12 +60,6 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Test the KiWi SPARQL
@@ -132,6 +144,15 @@ public class KiWiSparqlTest {
         testQueryCompareResults("MARMOTTA-578.sparql");
     }
 
+    /**
+     * Tests if evaluation of query executes. Solves MARMOTTA-657.
+     * @throws Exception 
+     */
+    @Test
+    public void testMarmotta657() throws Exception{
+        final String queryString = IOUtils.toString(this.getClass().getResourceAsStream("MARMOTTA-657.sparql"), "UTF-8");
+        testQueryEvaluation(queryString);
+    }
     //TODO: generalize this infrastructure code also used by KiWiSparqlJoinTest
 
     private void testQueryCompareResults(String filename) throws Exception {
