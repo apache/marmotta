@@ -14,3 +14,5 @@ target/
 .idea/
 .metadata/
 maven-eclipse.xml
+.DS_Store
+nb-configuration.xml
