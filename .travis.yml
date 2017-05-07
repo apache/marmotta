@@ -17,10 +17,9 @@
 
 language: java
 
-sudo: false
-
 branches:
   only:
+  - MARMOTTA-660
   - master
   - develop
 
