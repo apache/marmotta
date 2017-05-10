@@ -233,8 +233,8 @@ public class UserWebService {
      * @HTTP 400 if no valid resource uri could be built with the login
      * @HTTP 500 on other exceptions
      */
-    @GET
-    @Path("/{login:[^#?]+}")
+    //@GET
+    //@Path("/{login:[^#?]+}")
     public Response getUser(@PathParam("login") String login, @HeaderParam("Accept") String types) {
         if(login.equals("me")) {
             return get();
@@ -301,7 +301,7 @@ public class UserWebService {
      *
      */
     static class AccountPoJo {
-        private String              login, uri, roles[];
+        private String login, uri, roles[];
         private Map<String, String> foaf;
 
         public AccountPoJo(String login, String uri) {
@@ -346,5 +346,7 @@ public class UserWebService {
         public Map<String, String> getFoaf() {
             return foaf;
         }
+
     }
+
 }
