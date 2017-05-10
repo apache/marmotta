@@ -263,8 +263,8 @@ public class UserWebService {
     }
 
     /**
-     * Throws a {@link AccessDeniedException} if currently no user is logged in (aka: current user
-     * is anonymous).
+     * Throws a {@link AccessDeniedException} if currently no user is logged in
+     * (aka: current user is anonymous).
      *
      * @param ref the referer to redirect to
      * @param logout set to true to log out (does currently nothing)
