@@ -1,8 +1,10 @@
 package org.apache.marmotta.platform.user.webservices;
 
 import com.jayway.restassured.RestAssured;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
+import org.apache.marmotta.platform.user.api.AccountService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -24,7 +26,7 @@ public class UserWebServiceTest {
 
     @BeforeClass
     public static void setUp() throws MarmottaImportException, URISyntaxException {
-        marmotta = new JettyMarmotta("/marmotta", UserWebService.class);
+        marmotta = new JettyMarmotta("/marmotta", ConfigurationService.class, UserWebService.class);
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
         RestAssured.basePath = marmotta.getContext();
@@ -38,11 +40,14 @@ public class UserWebServiceTest {
     @Test
     @Ignore("internal jboss issue")
     public void testLogin() throws IOException, InterruptedException {
+        final ConfigurationService configurationService = marmotta.getService(ConfigurationService.class);
+        final String passwd = configurationService.getStringConfiguration("user.admin.password");
+
         expect().
             log().ifError().
             statusCode(200).
         given().
-            auth(). preemptive().basic("admin", "pass123").
+            auth(). preemptive().basic("admin", passwd).
         when().
             get("/user/login");
     }

@@ -1,6 +1,7 @@
 package org.apache.marmotta.platform.user.services;
 
 import com.jayway.restassured.RestAssured;
+import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.apache.marmotta.platform.user.api.AccountService;
@@ -31,7 +32,7 @@ public class AccountServiceTest {
 
     @BeforeClass
     public static void setUp() throws MarmottaImportException, URISyntaxException {
-        marmotta = new JettyMarmotta("/marmotta", AccountService.class);
+        marmotta = new JettyMarmotta("/marmotta", ConfigurationService.class, AccountService.class);
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = marmotta.getPort();
         RestAssured.basePath = marmotta.getContext();
@@ -55,12 +56,14 @@ public class AccountServiceTest {
     @Test
     public void testAdminDefaults() {
         final AccountService accountService = marmotta.getService(AccountService.class);
+        final ConfigurationService configurationService = marmotta.getService(ConfigurationService.class);
+        final String passwd = configurationService.getStringConfiguration("user.admin.password");
 
         final UserAccount admin = accountService.getAccount("admin");
         final Set<String> roles = admin.getRoles();
         Assert.assertEquals(3, roles.size());
         Assert.assertThat(roles, hasItems("user", "editor", "manager"));
-        Assert.assertTrue(admin.checkPasswd("pass123"));
+        Assert.assertTrue(admin.checkPasswd(passwd));
     }
 
 }
