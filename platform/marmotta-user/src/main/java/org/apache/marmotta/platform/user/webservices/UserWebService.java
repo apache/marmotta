@@ -31,6 +31,7 @@ import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -60,18 +61,21 @@ public class UserWebService {
     private static final Pattern PROFILE_URI_PATTERN = Pattern.compile("^<([^>]+)>$");
 
     @Inject
+    private Logger log;
+
+    @Inject
     private ConfigurationService configurationService;
 
     @Inject
-    private UserService          userService;
+    private UserService userService;
 
     @Inject
-    private AccountService       accountService;
+    private AccountService accountService;
 
     @Inject
-    private SesameService        sesameService;
+    private SesameService sesameService;
 
-    private List<String>         acceptedFoafProperties;
+    private List<String> acceptedFoafProperties;
 
     @PostConstruct
     public void initialize() {
@@ -233,6 +237,7 @@ public class UserWebService {
      * @HTTP 400 if no valid resource uri could be built with the login
      * @HTTP 500 on other exceptions
      */
+    //TODO: MARMOTTA-663
     //@GET
     //@Path("/{login:[^#?]+}")
     public Response getUser(@PathParam("login") String login, @HeaderParam("Accept") String types) {
@@ -287,6 +292,30 @@ public class UserWebService {
 
         // Check whether this is the right (desired) user
         if (login != null && !userService.getCurrentUser().equals(userService.getUser(login))) throw new AccessDeniedException();
+
+        if (ref == null || "".equals(ref)) {
+            ref = configurationService.getServerUri() + configurationService.getStringConfiguration("kiwi.pages.startup");
+        }
+        return Response.seeOther(java.net.URI.create(ref)).build();
+    }
+
+    /**
+     * Throws a {@link AccessDeniedException} if currently no user is logged in
+     * (aka: current user is anonymous).
+     *
+     * @param ref the referer to redirect to
+     * @param logout set to true to log out (does currently nothing)
+     * @return a redirect to the referer url
+     * @throws AccessDeniedException if currently no user is logged in.
+     * @HTTP 303 if the user is already logged in (or <code>logout == true</code>)
+     */
+    @GET
+    @Path("/logout")
+    public Response logout(@HeaderParam(REFERER) String ref) {
+        log.debug("Current user before logout was: {}", userService.getCurrentUser().getLocalName());
+        userService.setCurrentUser(userService.getAnonymousUser());
+        userService.clearCurrentUser();
+        log.debug("Current user after logout is now: {}", userService.getCurrentUser().getLocalName());
 
         if (ref == null || "".equals(ref)) {
             ref = configurationService.getServerUri() + configurationService.getStringConfiguration("kiwi.pages.startup");
