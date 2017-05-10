@@ -5,9 +5,8 @@ import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
 import org.apache.marmotta.platform.core.test.base.JettyMarmotta;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,8 +19,6 @@ import static com.jayway.restassured.RestAssured.expect;
  * @author Sergio Fernández
  */
 public class UserWebServiceTest {
-
-    private static Logger log = LoggerFactory.getLogger(UserWebServiceTest.class);
 
     private static JettyMarmotta marmotta;
 
@@ -39,6 +36,7 @@ public class UserWebServiceTest {
     }
 
     @Test
+    @Ignore("internal jboss issue")
     public void testLogin() throws IOException, InterruptedException {
         expect().
             log().ifError().
