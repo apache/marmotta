@@ -120,14 +120,16 @@ public class MarmottaAuthenticationFilter implements MarmottaHttpFilter {
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(configurationService.getBooleanConfiguration("security.enabled",true)) {
+        if(configurationService.getBooleanConfiguration("security.enabled", true)) {
 
             HttpServletRequest httpRequest = (HttpServletRequest)request;
 
             // check whether authentication information has been sent with the request
 
             try {
-                String authorization = httpRequest.getHeader("Authorization");
+                final String authorization = httpRequest.getHeader("Authorization");
+                log.trace("Authorization: {}", authorization);
+
                 if (authorization != null) {
                     boolean authSuccess = false;
                     String login = Namespaces.ANONYMOUS_LOGIN;

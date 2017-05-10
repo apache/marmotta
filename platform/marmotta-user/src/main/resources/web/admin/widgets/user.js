@@ -24,6 +24,7 @@
  */
 
 var LoginLogout = {
+    
     draw : function(basic_url,container) {
 
         function getUser(url) {
@@ -35,12 +36,14 @@ var LoginLogout = {
         var user = eval('('+getUser(basic_url+"user/me")+')');
 
         function call(url) {
+            console.log("calling '" + url + "'...");
             var xhr = new XMLHttpRequest();
             xhr.open("GET", url, false, "anonymous", "");
             xhr.send("");
             document.location.reload(true);
         }
 
+        console.log("current login: " + user.login);
         if(user.login=="anonymous") {
             var login_link = document.createElement("a");
             login_link.innerHTML = "login";
@@ -60,5 +63,7 @@ var LoginLogout = {
                 "<span><a href='"+basic_url+"user/me.html'>"+user.login+"</a></span>&nbsp;|&nbsp;";
             document.getElementById(container).appendChild(logout_link);
         }
+
     }
+
 }
