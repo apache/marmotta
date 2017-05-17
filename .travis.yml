@@ -19,16 +19,37 @@ language: java
 
 branches:
   only:
-  - MARMOTTA-660
+  - MARMOTTA-660 # Add just for migration testing purposes
   - master
   - develop
+
+services:
+  - mysql
+  - postgresql
+
+addons:
+  postgresql: "9.4"
 
 jdk:
 - oraclejdk7
 - oraclejdk8
 
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
 before_install:
 - echo "MAVEN_OPTS='-Xmx2g'" > ~/.mavenrc
 
-script: mvn clean install
+- mysql -u root -e 'CREATE DATABASE kiwitest;'
+- mysql -u root -e "CREATE USER 'kiwi'@'localhost' IDENTIFIED BY 'kiwi';"
+- mysql -u root -e "GRANT ALL ON kiwitest.* TO 'kiwi'@'localhost';"
 
+- psql -c 'create database kiwitest;' -U postgres
+- psql -c "CREATE USER kiwi WITH PASSWORD 'kiwi';" -U postgres
+- psql -c 'GRANT ALL PRIVILEGES ON DATABASE kiwitest to kiwi;' -U postgres
+
+install: true
+
+script: mvn clean install
