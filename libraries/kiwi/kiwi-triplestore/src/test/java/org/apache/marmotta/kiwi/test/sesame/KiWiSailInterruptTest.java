@@ -38,9 +38,7 @@ public class KiWiSailInterruptTest extends SailInterruptTest {
     private final KiWiConfiguration kiwiConfig;
 
     public KiWiSailInterruptTest(KiWiConfiguration kiwiConfig) {
-        super(String.format("%s (%S)", KiWiSailInterruptTest.class.getSimpleName(), kiwiConfig.getName()));
         this.kiwiConfig = kiwiConfig;
-        
     }
     
     

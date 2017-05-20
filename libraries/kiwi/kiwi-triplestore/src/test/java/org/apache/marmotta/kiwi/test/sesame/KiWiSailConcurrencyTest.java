@@ -37,7 +37,6 @@ public class KiWiSailConcurrencyTest extends SailConcurrencyTest {
     private final KiWiConfiguration kiwiConfig;
 
     public KiWiSailConcurrencyTest(KiWiConfiguration kiwiConfig) {
-        super(String.format("%s (%S)", KiWiSailConcurrencyTest.class.getSimpleName(), kiwiConfig.getName()));
         this.kiwiConfig = kiwiConfig;
     }
     
