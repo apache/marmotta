@@ -24,6 +24,7 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openrdf.IsolationLevels;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnectionTest;
 import org.openrdf.repository.sail.SailRepository;
@@ -39,6 +40,7 @@ public class EHCacheRepositoryConnectionTest extends RepositoryConnectionTest {
     private final KiWiConfiguration config;
 
     public EHCacheRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
         config.setClustered(false);
         config.setCachingBackend(CachingBackends.EHCACHE);
@@ -60,16 +62,4 @@ public class EHCacheRepositoryConnectionTest extends RepositoryConnectionTest {
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement1() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement2() throws Exception {
-    }
-
 }

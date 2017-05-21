@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openrdf.IsolationLevels;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnectionTest;
 import org.openrdf.repository.sail.SailRepository;
@@ -43,6 +44,7 @@ public class HotRodRepositoryConnectionTest extends RepositoryConnectionTest {
     private final KiWiConfiguration config;
 
     public HotRodRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
         config.setClusterAddress("127.0.0.1");
         config.setClustered(true);
@@ -70,17 +72,4 @@ public class HotRodRepositoryConnectionTest extends RepositoryConnectionTest {
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement1() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement2() throws Exception {
-    }
-
 }

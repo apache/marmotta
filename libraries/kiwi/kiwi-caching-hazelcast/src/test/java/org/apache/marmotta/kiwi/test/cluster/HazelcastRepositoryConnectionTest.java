@@ -25,6 +25,7 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openrdf.IsolationLevels;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnectionTest;
 import org.openrdf.repository.sail.SailRepository;
@@ -40,6 +41,7 @@ public class HazelcastRepositoryConnectionTest extends RepositoryConnectionTest 
     private final KiWiConfiguration config;
 
     public HazelcastRepositoryConnectionTest(KiWiConfiguration config) {
+        super(IsolationLevels.SNAPSHOT_READ);
         this.config = config;
         config.setClustered(false);
         config.setClusterPort(61222);
@@ -63,16 +65,4 @@ public class HazelcastRepositoryConnectionTest extends RepositoryConnectionTest 
     @Override
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement1() throws Exception {
-    }
-
-    @Ignore("KiWi supports transaction isolation")
-    @Test
-    @Override
-    public void testReadOfAddedStatement2() throws Exception {
-    }
-
 }
