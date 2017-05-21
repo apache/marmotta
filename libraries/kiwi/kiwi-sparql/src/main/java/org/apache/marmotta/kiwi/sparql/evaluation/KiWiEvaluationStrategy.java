@@ -17,7 +17,24 @@
 
 package org.apache.marmotta.kiwi.sparql.evaluation;
 
-import info.aduna.iteration.*;
+import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.CloseableIteratorIteration;
+import info.aduna.iteration.EmptyIteration;
+import info.aduna.iteration.ExceptionConvertingIteration;
+import info.aduna.iteration.Iterations;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.apache.marmotta.commons.vocabulary.XSD;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -33,22 +50,29 @@ import org.openrdf.model.URI;
 import org.openrdf.model.impl.BNodeImpl;
 import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.model.impl.URIImpl;
-import org.openrdf.query.*;
-import org.openrdf.query.algebra.*;
+import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.Dataset;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryInterruptedException;
+import org.openrdf.query.algebra.Distinct;
+import org.openrdf.query.algebra.Extension;
+import org.openrdf.query.algebra.Filter;
+import org.openrdf.query.algebra.Join;
+import org.openrdf.query.algebra.LeftJoin;
+import org.openrdf.query.algebra.Order;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.ProjectionElem;
+import org.openrdf.query.algebra.Reduced;
+import org.openrdf.query.algebra.Slice;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Union;
 import org.openrdf.query.algebra.evaluation.TripleSource;
+import org.openrdf.query.algebra.evaluation.federation.FederatedServiceResolverImpl;
 import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.*;
 
 /**
  * An implementation of the SPARQL query evaluation strategy with specific extensions and optimizations. The KiWi
@@ -79,7 +103,7 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
     private Set<String> projectedVars = new HashSet<>();
 
     public KiWiEvaluationStrategy(TripleSource tripleSource, KiWiConnection connection, KiWiValueFactory valueFactory) {
-        super(tripleSource);
+        super(tripleSource, new FederatedServiceResolverImpl());
         this.connection = connection;
         this.valueFactory = valueFactory;
 
@@ -88,7 +112,7 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
     }
 
     public KiWiEvaluationStrategy(TripleSource tripleSource, Dataset dataset, KiWiConnection connection, KiWiValueFactory valueFactory) {
-        super(tripleSource, dataset);
+        super(tripleSource, dataset, new FederatedServiceResolverImpl());
         this.connection = connection;
         this.valueFactory = valueFactory;
 
