@@ -17,13 +17,13 @@
  */
 package org.apache.marmotta.client.util;
 
-import static org.openrdf.rio.rdfjson.RDFJSONUtility.BNODE;
-import static org.openrdf.rio.rdfjson.RDFJSONUtility.DATATYPE;
-import static org.openrdf.rio.rdfjson.RDFJSONUtility.LANG;
-import static org.openrdf.rio.rdfjson.RDFJSONUtility.TYPE;
-import static org.openrdf.rio.rdfjson.RDFJSONUtility.URI;
-import static org.openrdf.rio.rdfjson.RDFJSONUtility.VALUE;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.marmotta.client.exception.ParseException;
 import org.apache.marmotta.client.model.meta.Metadata;
 import org.apache.marmotta.client.model.rdf.BNode;
@@ -42,14 +42,6 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.UnsupportedRDFormatException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Parse RDF/JSON into a map-based representation.
  * <p/>
@@ -57,130 +49,150 @@ import java.util.Set;
  */
 public class RDFJSONParser {
 
+    public static final String NULL = "null";
+
+    public static final String GRAPHS = "graphs";
+
+    public static final String URI = "uri";
+
+    public static final String BNODE = "bnode";
+
+    public static final String DATATYPE = "datatype";
+
+    public static final String LITERAL = "literal";
+
+    public static final String LANG = "lang";
+
+    public static final String TYPE = "type";
+
+    public static final String VALUE = "value";
+
     private RDFJSONParser() {
-		// static only
-	}
-    
-    public static Map<String,Metadata> parseRDFJSON(InputStream data) throws ParseException {
+        // static only
+    }
+
+    public static Map<String, Metadata> parseRDFJSON(InputStream data) throws ParseException {
         try {
             Model model = Rio.parse(data, "", RDFFormat.RDFJSON);
-            
+
             // convert Sesame Model into a map to Metadata objects
-            Map<String,Metadata> result = new HashMap<String, Metadata>();
-            
-            for(Resource subject : model.subjects()) {
+            Map<String, Metadata> result = new HashMap<String, Metadata>();
+
+            for (Resource subject : model.subjects()) {
                 Metadata m = new Metadata(subject.stringValue());
-                for(org.openrdf.model.URI property : model.filter(subject, null, null).predicates()) {
+                for (org.openrdf.model.URI property : model.filter(subject, null, null).predicates()) {
                     Set<RDFNode> propValue = new HashSet<RDFNode>();
-                    for(Value value : model.filter(subject, property, null).objects()) {
+                    for (Value value : model.filter(subject, property, null).objects()) {
                         propValue.add(parseRDFJSONNode(value));
                     }
-                    m.put(property.stringValue(),propValue);
+                    m.put(property.stringValue(), propValue);
                 }
-                result.put(subject.stringValue(),m);
+                result.put(subject.stringValue(), m);
             }
             return result;
         } catch (IOException e) {
-            throw new ParseException("could not parse JSON data",e);
-        } catch(RDFParseException e) {
-            throw new ParseException("could not parse JSON data",e);
-        } catch(UnsupportedRDFormatException e) {
-            throw new ParseException("could not parse JSON data",e);
+            throw new ParseException("could not parse JSON data", e);
+        } catch (RDFParseException e) {
+            throw new ParseException("could not parse JSON data", e);
+        } catch (UnsupportedRDFormatException e) {
+            throw new ParseException("could not parse JSON data", e);
         }
 
     }
 
     /**
      * Parse the representation of a node in RDF/JSON into an RDFNode object
+     *
      * @param nodeDef
      * @return
      */
     public static RDFNode parseRDFJSONNode(Map<String, String> nodeDef) {
         RDFNode object;
 
-        if( nodeDef.get(TYPE).equals(URI) ) {
+        if (nodeDef.get(TYPE).equals(URI)) {
             object = new URI(nodeDef.get(VALUE));
-        } else if( nodeDef.get(TYPE).equals(BNODE) ) {
+        } else if (nodeDef.get(TYPE).equals(BNODE)) {
             object = new BNode(nodeDef.get(VALUE));
         } else {
-            if( nodeDef.get(LANG) != null ) {
-                object = new Literal(nodeDef.get(VALUE),nodeDef.get(LANG));
-            } else if( nodeDef.get(DATATYPE) != null) {
-                object = new Literal(nodeDef.get(VALUE),new URI(nodeDef.get(DATATYPE)));
+            if (nodeDef.get(LANG) != null) {
+                object = new Literal(nodeDef.get(VALUE), nodeDef.get(LANG));
+            } else if (nodeDef.get(DATATYPE) != null) {
+                object = new Literal(nodeDef.get(VALUE), new URI(nodeDef.get(DATATYPE)));
             } else {
                 object = new Literal(nodeDef.get(VALUE));
             }
         }
         return object;
     }
-    
+
     /**
      * Parse the representation of a node in RDF/JSON into an RDFNode object
+     *
      * @param nodeDef
      * @return
      */
     public static RDFNode parseRDFJSONNode(Value value) {
         RDFNode object;
 
-        if( value instanceof org.openrdf.model.URI ) {
+        if (value instanceof org.openrdf.model.URI) {
             object = new URI(value.stringValue());
-        } else if( value instanceof BNode ) {
+        } else if (value instanceof BNode) {
             object = new BNode(value.stringValue());
         } else {
-            org.openrdf.model.Literal literal = (org.openrdf.model.Literal)value;
-            if( literal.getLanguage() != null ) {
+            org.openrdf.model.Literal literal = (org.openrdf.model.Literal) value;
+            if (literal.getLanguage() != null) {
                 object = new Literal(literal.getLabel(), literal.getLanguage());
-            } else if( literal.getDatatype() != null) {
-                object = new Literal(literal.getLabel(),new URI(literal.getDatatype().stringValue()));
+            } else if (literal.getDatatype() != null) {
+                object = new Literal(literal.getLabel(), new URI(literal.getDatatype().stringValue()));
             } else {
                 object = new Literal(literal.getLabel());
             }
         }
         return object;
     }
-    
-   
-    public static void serializeRDFJSON(Map<String,Metadata> data, OutputStream out) throws IOException {
+
+    public static void serializeRDFJSON(Map<String, Metadata> data, OutputStream out) throws IOException {
         ValueFactory vf = ValueFactoryImpl.getInstance();
         Model results = new LinkedHashModel();
-        
-        for(Map.Entry<String,Metadata> subject : data.entrySet()) {
+
+        for (Map.Entry<String, Metadata> subject : data.entrySet()) {
             Resource subjectResource = stringToResource(subject.getKey(), vf);
-            for(Map.Entry<String,Set<RDFNode>> predicate : subject.getValue().entrySet()) {
+            for (Map.Entry<String, Set<RDFNode>> predicate : subject.getValue().entrySet()) {
                 org.openrdf.model.URI predicateURI = vf.createURI(predicate.getKey());
-                for(RDFNode objectNode : predicate.getValue()) {
+                for (RDFNode objectNode : predicate.getValue()) {
                     org.openrdf.model.Value objectValue;
-                    if( objectNode instanceof Literal) {
-                        if(((Literal) objectNode).getLanguage() != null )
-                            objectValue = vf.createLiteral(((Literal)objectNode).getContent(), 
-                                                ((Literal)objectNode).getLanguage());
-                        else if(((Literal) objectNode).getType() != null)
-                            objectValue = vf.createLiteral(((Literal)objectNode).getContent(), 
-                                                vf.createURI(((Literal)objectNode).getType().getUri()));
-                        else
-                            objectValue = vf.createLiteral(((Literal)objectNode).getContent());
-                    } else {
-                        if( objectNode instanceof URI ) {
-                            objectValue = vf.createURI(((URI)objectNode).getUri());
+                    if (objectNode instanceof Literal) {
+                        if (((Literal) objectNode).getLanguage() != null) {
+                            objectValue = vf.createLiteral(((Literal) objectNode).getContent(),
+                                    ((Literal) objectNode).getLanguage());
+                        } else if (((Literal) objectNode).getType() != null) {
+                            objectValue = vf.createLiteral(((Literal) objectNode).getContent(),
+                                    vf.createURI(((Literal) objectNode).getType().getUri()));
                         } else {
-                            objectValue = vf.createBNode(((BNode)objectNode).getAnonId());
+                            objectValue = vf.createLiteral(((Literal) objectNode).getContent());
+                        }
+                    } else {
+                        if (objectNode instanceof URI) {
+                            objectValue = vf.createURI(((URI) objectNode).getUri());
+                        } else {
+                            objectValue = vf.createBNode(((BNode) objectNode).getAnonId());
                         }
                     }
                     results.add(subjectResource, predicateURI, objectValue);
                 }
             }
-                
+
         }
-        
+
         try {
             Rio.write(results, out, RDFFormat.RDFJSON);
-        } catch(RDFHandlerException e) {
+        } catch (RDFHandlerException e) {
             throw new IOException(e);
         }
     }
-    
+
     private static org.openrdf.model.Resource stringToResource(String resource, ValueFactory vf) {
-        if(resource.startsWith("_:")) {
+        if (resource.startsWith("_:")) {
             return vf.createBNode(resource.substring(2));
         } else {
             return vf.createURI(resource);
