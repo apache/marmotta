@@ -17,17 +17,16 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.Locale;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * KiWiLiterals store literal information from the knowledge base. They directly
@@ -174,15 +173,20 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
     @Override
     public int hashCode() {
-        // not compatible with Sesame:
-        /*
-        int result =  this.getClass().hashCode();
-        result = 31 * result + (locale != null ? locale.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + this.getLabel().hashCode();
-        return result;
-        */
-        return getLabel().hashCode();
+        //In sesame 2.8 the hashCode of literals includes language and datatype, compatibility is back!!!
+         //New hashCode implementation:
+         //https://bitbucket.org/openrdf/sesame/src/11f1f0e681cea47e167bd79929873370e199a19f/core/model/src/main/java/org/openrdf/model/impl/LiteralImpl.java?at=2.7.x&fileviewer=file-view-default
+         //https://bitbucket.org/openrdf/sesame/src/aa292b3bee427c1a549b89a099a58d7edbe22d5a/core/model/src/main/java/org/openrdf/model/impl/LiteralImpl.java?at=2.8.x&fileviewer=file-view-default
+         
+        int hashCode = getLabel().hashCode();
+         if (getLanguage() != null) {
+             hashCode = 31 * hashCode + getLanguage().hashCode();
+         }
+         if (getDatatype() != null) {
+             hashCode = 31 * hashCode + getDatatype().hashCode();
+ 
+        }
+         return hashCode;
     }
 
 

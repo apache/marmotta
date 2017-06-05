@@ -17,10 +17,27 @@
  */
 package org.apache.marmotta.kiwi.sail;
 
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.IllformedLocaleException;
+import java.util.Locale;
+import java.util.Random;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.sesame.tripletable.IntArray;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.apache.marmotta.kiwi.persistence.registry.CacheTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.DBTripleRegistry;
@@ -28,14 +45,17 @@ import org.apache.marmotta.kiwi.persistence.registry.KiWiTripleRegistry;
 import org.apache.marmotta.kiwi.persistence.registry.LocalTripleRegistry;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.openrdf.model.*;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ContextStatementImpl;
+import org.openrdf.model.impl.StatementImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Add file description here!
@@ -292,23 +312,22 @@ public class KiWiValueFactory implements ValueFactory {
             locale = null;
         }
 
+        //Since Sesame 2.8 all literals are datatyped so when a null type is received it must be replaced with default values (xsd:string or rdf:langString)
+        //More details: https://web.archive.org/web/20160412201829/http://rdf4j.org:80/sesame/2.8/docs/articles/upgrade-notes.docbook?view
+        if (type == null) {
+            type = lang != null ? LiteralCommons.getRDFLangStringType() : LiteralCommons.getXSDType(String.class);
+        }
+        
         KiWiLiteral result;
 
-        final KiWiUriResource rtype = type==null ? null: (KiWiUriResource)createURI(type);
+        final KiWiUriResource rtype = (KiWiUriResource)createURI(type);
 
         final KiWiConnection connection = aqcuireConnection();
         try {
 
             try {
                 // differentiate between the different types of the value
-                if (type == null) {
-                    // FIXME: MARMOTTA-39 (this is to avoid a NullPointerException in the following if-clauses)
-                    result = connection.loadLiteral(value.toString(), lang, null);
-
-                    if(result == null) {
-                        result = new KiWiStringLiteral(value.toString(), locale, null);
-                    }
-                } else if(value instanceof Date || value instanceof DateTime ||
+                if(value instanceof Date || value instanceof DateTime ||
                         type.equals(Namespaces.NS_XSD+"dateTime") || type.equals(Namespaces.NS_XSD+"date") ||
                         type.equals(Namespaces.NS_XSD+"time")) {
                     // parse if necessary
@@ -521,11 +540,7 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Statement createStatement(Resource subject, URI predicate, Value object) {
-        if(defaultContext != null) {
-            return createStatement(subject, predicate, object, createURI(defaultContext));
-        } else {
-            return createStatement(subject, predicate, object, null);
-        }
+        return new StatementImpl(subject, predicate, object);
     }
 
     /**
@@ -540,7 +555,10 @@ public class KiWiValueFactory implements ValueFactory {
      */
     @Override
     public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
-        return new ContextStatementImpl(subject,predicate,object,context);
+        if (context == null) {
+            return createStatement(subject, predicate, object);
+        }
+        return new ContextStatementImpl(subject, predicate, object, context);
     }
 
     /**
