@@ -21,8 +21,22 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.*;
+import org.openrdf.model.BNode;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -31,10 +45,6 @@ import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.helpers.SailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
 
 /**
  * Utility methods for simplifying certain common tasks. All methods are static and take as first argument a
@@ -621,7 +631,10 @@ public class ResourceUtils {
             String prop_uri = resolvePropLabel(con, propLabel);
 
             // then set the new property value
-            Literal value = con.getValueFactory().createLiteral(propValue, loc != null ? loc.getLanguage().toLowerCase() : null);
+            // Since sesame 2.8, MemValueFactory does not allow null language tags in the method createLiteral(String label,String language)
+            // If the language tag is null the method createLiteral(String label) should be used instead.
+            Literal value = loc == null ? con.getValueFactory().createLiteral(propValue):
+                     con.getValueFactory().createLiteral(propValue, loc.getLanguage().toLowerCase());
             URI     prop  = con.getValueFactory().createURI(prop_uri);
             con.add(r, prop, value, contexts);
 

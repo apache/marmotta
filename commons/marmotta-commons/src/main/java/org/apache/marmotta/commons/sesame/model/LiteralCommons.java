@@ -19,17 +19,16 @@ package org.apache.marmotta.commons.sesame.model;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import org.joda.time.DateTime;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.joda.time.DateTime;
+import org.openrdf.model.Literal;
+import org.openrdf.model.URI;
 
 /**
  * Utility methods for working with literals.
@@ -114,10 +113,16 @@ public class LiteralCommons {
         hasher.putString(content, Charset.defaultCharset());
         if(type != null) {
             hasher.putString(type, Charset.defaultCharset());
+        } else {
+            // Since Sesame 2.8 all literals are datatyped, so when a null type is received, it must be replaced with default values (xsd:string or rdf:langString).
+            // Details: https://web.archive.org/web/20160412201829/http://rdf4j.org:80/sesame/2.8/docs/articles/upgrade-notes.docbook?view
+            if (language==null) type=getXSDType(String.class);
+            else type=getRDFLangStringType();
+            hasher.putString(type, Charset.defaultCharset());
         }
         if(language != null) {
             hasher.putString(language.toLowerCase(), Charset.defaultCharset());
-        }
+        } 
         return hasher.hash().toString();
     }
 
