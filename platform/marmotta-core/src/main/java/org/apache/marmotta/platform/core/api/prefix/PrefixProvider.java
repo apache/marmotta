@@ -26,6 +26,13 @@ package org.apache.marmotta.platform.core.api.prefix;
 public interface PrefixProvider {
 
     /**
+     * Ccheck the connectivity with the prefix provider
+     *
+     * @return connectivity state
+     */
+    boolean ping();
+
+    /**
      * Get namespace identified by this prefix
      * 
      * @param prefix prefix

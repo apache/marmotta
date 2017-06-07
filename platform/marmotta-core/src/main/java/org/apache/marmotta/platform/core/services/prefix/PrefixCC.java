@@ -17,6 +17,7 @@
  */
 package org.apache.marmotta.platform.core.services.prefix;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.http.HttpEntity;
@@ -54,7 +55,25 @@ public class PrefixCC implements PrefixProvider {
     private Logger log;
 
     @Inject
-    private HttpClientService   httpClientService;
+    private HttpClientService httpClientService;
+
+    @Override
+    public boolean ping() {
+        HttpGet head = new HttpGet(URI);
+        HttpRequestUtil.setUserAgentString(head, USER_AGENT);
+        try {
+            return httpClientService.execute(head, new ResponseHandler<Boolean>() {
+
+                @Override
+                public Boolean handleResponse(HttpResponse response) {
+                    return (200 == response.getStatusLine().getStatusCode());
+                }
+            });
+        } catch (IOException e) {
+            log.error("Error pinging {}: {}", URI, e.getMessage());
+            return false;
+        }
+    }
 
     @Override
     public String getNamespace(final String prefix) {
