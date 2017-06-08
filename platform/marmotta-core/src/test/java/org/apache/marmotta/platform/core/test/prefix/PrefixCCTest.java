@@ -21,10 +21,7 @@ import java.util.Random;
 
 import org.apache.marmotta.platform.core.services.prefix.PrefixCC;
 import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * Test the functionality of our prefix.cc implementation
@@ -46,13 +43,18 @@ public class PrefixCCTest {
         prefixcc = marmotta.getService(PrefixCC.class);
         random = new Random();
     }
-    
+
     @AfterClass
     public static void tearDown() {
         marmotta.shutdown();
         marmotta = null;
         prefixcc = null;
         random = null;
+    }
+
+    @Before
+    public void checks() {
+        Assume.assumeTrue(prefixcc.ping());
     }
 
     @Test

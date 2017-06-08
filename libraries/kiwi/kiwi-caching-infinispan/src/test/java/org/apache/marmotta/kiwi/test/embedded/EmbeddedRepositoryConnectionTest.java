@@ -67,4 +67,10 @@ public class EmbeddedRepositoryConnectionTest extends RepositoryConnectionTest {
     public void testOrderByQueriesAreInterruptable() throws Exception {
     }
 
+    @Ignore("KiWi supports transaction isolation")
+    @Test
+    @Override
+    public void testDefaultContext() throws Exception {
+    }
+
 }
