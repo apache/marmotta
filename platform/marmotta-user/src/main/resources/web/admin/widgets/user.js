@@ -24,7 +24,8 @@
  */
 
 var LoginLogout = {
-    draw : function(basic_url,container) {
+    
+    draw : function(basic_url, container) {
 
         function getUser(url) {
             var xmlHttp = new XMLHttpRequest();
@@ -34,31 +35,19 @@ var LoginLogout = {
         }
         var user = eval('('+getUser(basic_url+"user/me")+')');
 
-        function call(url) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", url, false, "anonymous", "");
-            xhr.send("");
-            document.location.reload(true);
-        }
-
+        console.log("current login: " + user.login);
+        var link = document.createElement("a");
         if(user.login=="anonymous") {
-            var login_link = document.createElement("a");
-            login_link.innerHTML = "login";
-            login_link.onclick = function() {
-                call(basic_url+"user/login");
-            };
-            document.getElementById(container).appendChild(login_link);
+            link.innerHTML = "login";
+            link.setAttribute("href", basic_url+"user/login");
         } else {
-            //logout button
-            var logout_link = document.createElement("a");
-            logout_link.innerHTML = "change user";
-            logout_link.onclick = function() {
-                call(basic_url+"user/login?logout=true");
-            };
-
+            link.innerHTML = "logout";
+            link.setAttribute("href", basic_url+"user/logout");
             document.getElementById(container).innerHTML =
                 "<span><a href='"+basic_url+"user/me.html'>"+user.login+"</a></span>&nbsp;|&nbsp;";
-            document.getElementById(container).appendChild(logout_link);
         }
+        document.getElementById(container).appendChild(link);
+
     }
+
 }

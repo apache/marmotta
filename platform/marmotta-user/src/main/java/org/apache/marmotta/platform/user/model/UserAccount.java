@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
  */
 
 public class UserAccount implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -137,6 +138,9 @@ public class UserAccount implements Serializable {
         return PasswordHash.checkPasswd(getPasswdHash(), password);
     }
 
+    public void setPasswd(String passwd) {
+        this.setPasswd(PasswordHash.SHA1, passwd);
+    }
 
     public void setPasswd(PasswordHash alg, String passwd) {
         this.passwdHash = alg.encrypt(passwd);
@@ -182,4 +186,5 @@ public class UserAccount implements Serializable {
         result = 31 * result + (webId != null ? webId.hashCode() : 0);
         return result;
     }
+
 }
