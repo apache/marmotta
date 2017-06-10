@@ -21,7 +21,38 @@ import com.google.common.base.Preconditions;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import com.google.common.primitives.Longs;
-import info.aduna.iteration.*;
+import info.aduna.iteration.CloseableIteration;
+import info.aduna.iteration.ConvertingIteration;
+import info.aduna.iteration.DelayedIteration;
+import info.aduna.iteration.DistinctIteration;
+import info.aduna.iteration.EmptyIteration;
+import info.aduna.iteration.ExceptionConvertingIteration;
+import info.aduna.iteration.Iteration;
+import info.aduna.iteration.IteratorIteration;
+import info.aduna.iteration.UnionIteration;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IllformedLocaleException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.commons.sesame.model.LiteralCommons;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
@@ -29,7 +60,18 @@ import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.exception.ResultInterruptedException;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNamespace;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.joda.time.DateTime;
@@ -41,11 +83,6 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A KiWiConnection offers methods for storing and retrieving KiWiTriples, KiWiNodes, and KiWiNamespaces in the
@@ -318,17 +355,21 @@ public class KiWiConnection implements AutoCloseable {
      * Count all non-deleted triples in the triple store
      * @return number of non-deleted triples in the triple store
      * @throws SQLException
-     */
+     */         
     public long getSize() throws SQLException {
         requireJDBCConnection();
+        
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
 
         PreparedStatement querySize = getPreparedStatement("query.size");
         try (ResultSet result = querySize.executeQuery()) {
             if (result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.size() : 0);
+                return result.getLong(1);
             }
         }
-        return tripleBatch != null ? tripleBatch.size() : 0;
+        return 0;
     }
 
     /**
@@ -344,15 +385,19 @@ public class KiWiConnection implements AutoCloseable {
 
         requireJDBCConnection();
 
+        if(tripleBatch != null && tripleBatch.size() > 0) {
+            flushBatch();
+        }
+
         PreparedStatement querySize = getPreparedStatement("query.size_ctx");
         querySize.setLong(1,context.getId());
 
         try (ResultSet result = querySize.executeQuery()) {
             if (result.next()) {
-                return result.getLong(1) + (tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0);
+                return result.getLong(1);
             }
         }
-        return tripleBatch != null ? tripleBatch.listTriples(null, null, null, context, false).size() : 0;
+        return 0;
     }
 
     /**
