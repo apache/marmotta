@@ -30,7 +30,7 @@ import javax.inject.Named;
 @ApplicationScoped
 @Named(AuthenticationServiceImpl.DEFAULT_AUTH_PROVIDER_NAMED)
 @Default
-public class LMFAuthProviderImpl implements AuthenticationProvider {
+public class MarmottaAuthProviderImpl implements AuthenticationProvider {
 
     @Inject
     private AccountService accountService;
