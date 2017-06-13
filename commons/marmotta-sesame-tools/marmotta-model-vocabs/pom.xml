@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>marmotta-model-vocabs</artifactId>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <name>Marmotta Sesame Tools: Common Vocabularies</name>
 
@@ -40,6 +40,18 @@
                 <configuration>
                     <relativePath>../../../</relativePath>
                 </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <extensions>true</extensions>
+              <configuration>
+                <instructions>
+                  <Export-Package>
+                    org.apache.marmotta.commons.vocabulary;version=${project.version}
+                  </Export-Package>
+                </instructions>
+              </configuration>
             </plugin>
         </plugins>
     </build>

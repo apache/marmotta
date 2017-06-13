@@ -27,6 +27,7 @@
 
     <artifactId>ldcache-core</artifactId>
     <name>LDCache: Core Library</name>
+    <packaging>bundle</packaging>
 
     <build>
         <pluginManagement>
@@ -72,6 +73,18 @@
                         <exclude>src/test/resources/META-INF/services/*</exclude>
                         <exclude>src/test/resources/META-INF/services/*</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldcache.services;version=${project.version}
+                        </Export-Package>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
