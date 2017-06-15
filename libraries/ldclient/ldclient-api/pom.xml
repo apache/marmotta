@@ -41,9 +41,9 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            org.apache.marmotta.ldlient.api.*;version=${project.version},
-                            org.apache.marmotta.ldcache.exception;version=${project.version},
-                            org.apache.marmotta.ldcache.model;version=${project.version}
+                            org.apache.marmotta.ldclient.api.*;version=${project.version},
+                            org.apache.marmotta.ldclient.exception;version=${project.version},
+                            org.apache.marmotta.ldclient.model;version=${project.version}
                         </Export-Package>
                     </instructions>
                 </configuration>
