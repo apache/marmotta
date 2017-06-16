@@ -32,6 +32,26 @@
         This package enables the Linked Data Client to access the metadata of YouTube Videos as if they were published
         as Linked Data (RDF) by mapping the YouTube API to the Ontology for Media Resources.
     </description>
+    <packaging>bundle</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldclient.endpoint.youtube;version=${project.version},
+                            org.apache.marmotta.ldclient.provider.youtube.*;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 
     <dependencies>
         <dependency>

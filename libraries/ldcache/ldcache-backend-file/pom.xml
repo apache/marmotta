@@ -31,7 +31,7 @@
     <description>
         Linked Data Caching Backend based on the plain data file storage.
     </description>
-
+    <packaging>bundle</packaging>
 
     <build>
         <pluginManagement>
@@ -55,6 +55,21 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>
+                            org.apache.marmotta.ldcache.backend.file.*;version=${project.version}
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 
