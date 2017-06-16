@@ -175,9 +175,10 @@ public class RepositoryTest {
 
         Assert.assertEquals("http://localhost/ns1/", connection.getNamespace("ns1"));
         Assert.assertEquals("http://localhost/ns2/", connection.getNamespace("ns2"));
-        Assert.assertEquals(2, Iterations.asList(connection.getNamespaces()).size());
+        List<Namespace> namespaces = Iterations.asList(connection.getNamespaces());
+		Assert.assertEquals(2, namespaces.size());
         Assert.assertThat(
-                Iterations.asList(connection.getNamespaces()),
+                namespaces,
                 CoreMatchers.<Namespace>hasItems(
                         hasProperty("name", is("http://localhost/ns1/")),
                         hasProperty("name", is("http://localhost/ns2/"))
@@ -190,8 +191,9 @@ public class RepositoryTest {
         connection.commit();
 
         Assert.assertEquals("http://localhost/ns3/", connection.getNamespace("ns1"));
+        namespaces = Iterations.asList(connection.getNamespaces());
         Assert.assertThat(
-                Iterations.asList(connection.getNamespaces()),
+                namespaces,
                 CoreMatchers.<Namespace>hasItems(
                         hasProperty("name", is("http://localhost/ns3/")),
                         hasProperty("name", is("http://localhost/ns2/"))
@@ -205,7 +207,8 @@ public class RepositoryTest {
         connection.commit();
 
         connection.begin();
-        Assert.assertEquals(1, Iterations.asList(connection.getNamespaces()).size());
+        namespaces = Iterations.asList(connection.getNamespaces());
+        Assert.assertEquals(1, namespaces.size());
 
 
         connection.commit();

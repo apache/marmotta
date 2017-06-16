@@ -20,9 +20,6 @@ package org.apache.marmotta.kiwi.test.embedded;
 import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.test.cluster.BaseClusterTest;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.openrdf.repository.RepositoryException;
 
 /**
  * Embedded cluster tests
