@@ -18,6 +18,9 @@ package org.apache.marmotta.ldcache.sail.test;
 
 import com.google.common.io.Files;
 import info.aduna.iteration.Iterations;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
@@ -26,6 +29,9 @@ import org.apache.marmotta.ldcache.sail.GenericLinkedDataSail;
 import org.apache.marmotta.ldcache.services.test.dummy.DummyEndpoint;
 import org.apache.marmotta.ldclient.model.ClientConfiguration;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasToString;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,14 +42,6 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasToString;
 
 
 /**
@@ -108,8 +106,8 @@ public class GenericLinkedDataSailOfflineTest {
 
             Assert.assertEquals(3,list1.size());
             Assert.assertThat(list1, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 1\""))),
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value X\"")))
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 1\"^^<http://www.w3.org/2001/XMLSchema#string>"))),
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value X\"^^<http://www.w3.org/2001/XMLSchema#string>")))
             ));
 
 
@@ -121,7 +119,7 @@ public class GenericLinkedDataSailOfflineTest {
 
             Assert.assertEquals(2, list2.size());
             Assert.assertThat(list2, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 2\"")))
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 2\"^^<http://www.w3.org/2001/XMLSchema#string>")))
             ));
 
 
@@ -133,8 +131,8 @@ public class GenericLinkedDataSailOfflineTest {
 
             Assert.assertEquals(2, list3.size());
             Assert.assertThat(list3, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 3\""))),
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 4\"")))
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 3\"^^<http://www.w3.org/2001/XMLSchema#string>"))),
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", hasToString("\"Value 4\"^^<http://www.w3.org/2001/XMLSchema#string>")))
             ));
 
 
