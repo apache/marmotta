@@ -183,7 +183,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      */
     @Override
     public void flush() throws SailException {
-        throw new SailReadOnlyException("snapshot sails are read-only");
+        // Do nothing.
     }
 
     @Override
@@ -407,7 +407,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      */
     @Override
     public void prepare() throws SailException {
-        throw new SailReadOnlyException("snapshot sails are read-only");
+        // Do nothing!
     }
 
     /**
