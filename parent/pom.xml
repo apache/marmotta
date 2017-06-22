@@ -55,6 +55,7 @@
         <titan.version>0.4.2</titan.version>
         <accumulograph.version>0.2.1</accumulograph.version>
         <jax.doclets.version>0.10.1</jax.doclets.version>
+        <infinispan.version>6.0.2.Final</infinispan.version>
     </properties>
 
     <prerequisites>
@@ -104,8 +105,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.5.1</version>
                     <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.8</source>
+                        <target>1.8</target>
                         <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>
@@ -1058,27 +1059,27 @@
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-core</artifactId>
-                <version>6.0.1.Final</version>
+                <version>${infinispan.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-client-hotrod</artifactId>
-                <version>6.0.1.Final</version>
+                <version>${infinispan.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-server-hotrod</artifactId>
-                <version>6.0.1.Final</version>
+                <version>${infinispan.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-cdi</artifactId>
-                <version>6.0.1.Final</version>
+                <version>${infinispan.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.infinispan</groupId>
                 <artifactId>infinispan-tree</artifactId>
-                <version>6.0.1.Final</version>
+                <version>${infinispan.version}</version>
             </dependency>
 
 

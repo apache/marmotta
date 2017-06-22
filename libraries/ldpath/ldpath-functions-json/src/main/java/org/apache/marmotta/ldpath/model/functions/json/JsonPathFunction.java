@@ -23,6 +23,8 @@ import org.apache.marmotta.ldpath.model.transformers.StringTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.*;
 
 public class JsonPathFunction<Node> extends SelectorFunction<Node> {
@@ -37,7 +39,7 @@ public class JsonPathFunction<Node> extends SelectorFunction<Node> {
 
     @SafeVarargs
     @Override
-    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, @SuppressWarnings("unchecked") Collection<Node>... args) throws IllegalArgumentException {
+    public final Collection<Node> apply(RDFBackend<Node> rdfBackend, Node context, Collection<Node>... args) throws IllegalArgumentException {
 
         Set<String> jsonpaths = new HashSet<>();
         for (Node jsonpath : args[0]) {
@@ -68,14 +70,8 @@ public class JsonPathFunction<Node> extends SelectorFunction<Node> {
         return result;
     }
 
-    private List<String> doFilter(String in, Set<String> jsonpaths) {
-        List<String> result = new ArrayList<>();
-
-        for (String jsonpath : jsonpaths) {
-            result.add(String.valueOf(JsonPath.read(in, jsonpath)));
-        }
-
-        return result;
+    private List<String> doFilter(final String in, Set<String> jsonpaths) {
+        return jsonpaths.stream().map(path -> JsonPath.read(in, path)).map(String::valueOf).collect(toList());
     }
 
     @Override
