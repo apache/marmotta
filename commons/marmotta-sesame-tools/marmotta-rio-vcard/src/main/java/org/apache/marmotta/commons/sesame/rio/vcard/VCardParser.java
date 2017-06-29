@@ -99,7 +99,7 @@ public class VCardParser extends AbstractRDFParser {
     }
 
     /**
-     * Creates a new RDFParserBase that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
+     * Creates a new AbstractRDFParser that will use a {@link org.openrdf.model.impl.ValueFactoryImpl} to
      * create RDF model objects.
      */
     public VCardParser() {
@@ -107,7 +107,7 @@ public class VCardParser extends AbstractRDFParser {
     }
 
     /**
-     * Creates a new RDFParserBase that will use the supplied ValueFactory to
+     * Creates a new AbstractRDFParser that will use the supplied ValueFactory to
      * create RDF model objects.
      *
      * @param valueFactory A ValueFactory.

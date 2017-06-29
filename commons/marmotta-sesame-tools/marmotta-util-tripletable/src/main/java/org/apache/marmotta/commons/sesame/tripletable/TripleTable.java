@@ -19,14 +19,20 @@ package org.apache.marmotta.commons.sesame.tripletable;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
-
-import java.io.Serializable;
-import java.util.*;
 
 /**
  * A triple table that allows efficient in-memory operations over large collections of triples. This can be used as
@@ -396,7 +402,7 @@ public class TripleTable<Triple extends Statement> implements Set<Triple>, Seria
      * @param wildcardContext
      * @return
      */
-    public synchronized Collection<Triple> listTriples(final Resource subject, final URI property, final Value object, final Resource context, boolean wildcardContext) {
+    public synchronized Collection<Triple> listTriples(final Resource subject, final IRI property, final Value object, final Resource context, boolean wildcardContext) {
         // in special cases we can make use of the index
         if(subject != null && property != null && object != null && context != null) {
             IntArray key = IntArray.createSPOCKey(subject, property, object, context);

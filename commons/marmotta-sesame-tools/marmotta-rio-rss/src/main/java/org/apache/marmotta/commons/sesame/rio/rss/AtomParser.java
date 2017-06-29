@@ -19,18 +19,26 @@ package org.apache.marmotta.commons.sesame.rio.rss;
 
 import com.google.common.base.Preconditions;
 import com.sun.syndication.feed.WireFeed;
-import com.sun.syndication.feed.atom.*;
+import com.sun.syndication.feed.atom.Category;
+import com.sun.syndication.feed.atom.Content;
+import com.sun.syndication.feed.atom.Entry;
+import com.sun.syndication.feed.atom.Feed;
+import com.sun.syndication.feed.atom.Link;
+import com.sun.syndication.feed.atom.Person;
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.Module;
 import com.sun.syndication.feed.module.SyModule;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedInput;
-
-import org.apache.marmotta.commons.sesame.rio.rss.AtomFormat;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
@@ -40,12 +48,6 @@ import org.rometools.feed.module.mediarss.MediaEntryModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 /**
  * Parse Atom feed into RDF. Uses the following vocabularies:
@@ -70,7 +72,7 @@ public class AtomParser extends FeedParserBase {
      * create RDF model objects.
      */
     public AtomParser() {
-        this(new ValueFactoryImpl());
+        this(SimpleValueFactory.getInstance());
     }
 
     /**
@@ -165,8 +167,8 @@ public class AtomParser extends FeedParserBase {
 
         final String entryURI = entry.getId();
 
-        URI r_entry = createURI(entryURI);
-        URI rdf_type = createURI(NS_RDF + "type");
+        IRI r_entry = createURI(entryURI);
+        IRI rdf_type = createURI(NS_RDF + "type");
 
 
         // add type sioc:Post
@@ -275,8 +277,8 @@ public class AtomParser extends FeedParserBase {
         setNamespace(NS_RSS_CONTENT,"content");
         setNamespace(NS_SIOC,"sioc");
 
-        URI r_feed = createURI(feedUri);
-        URI rdf_type = createURI(NS_RDF + "type");
+        IRI r_feed = createURI(feedUri);
+        IRI rdf_type = createURI(NS_RDF + "type");
 
         // add type sioc:Forum
         rdfHandler.handleStatement(createStatement(r_feed, rdf_type, createURI(NS_SIOC + "Forum")));
