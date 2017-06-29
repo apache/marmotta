@@ -16,9 +16,9 @@
  */
 package org.apache.marmotta.commons.vocabulary;
 
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Namespace GEO
@@ -32,29 +32,29 @@ public class GEO {
     /**
      * A point, typically described using a coordinate system relative to Earth, such as WGS84.
      */
-    public static final URI Point;
+    public static final IRI Point;
 
     /**
      * Anything with spatial extent, i.e. size, shape, or position.
      e.g. people, places, bowling balls, as well as abstract areas like cubes.
      */
-    public static final URI SpatialThing;
+    public static final IRI SpatialThing;
 
     /**
      * The WGS84 altitude of a SpatialThing (decimal meters
      above the local reference ellipsoid).
      */
-    public static final URI alt;
+    public static final IRI alt;
 
     /**
      * The WGS84 latitude of a SpatialThing (decimal degrees).
      */
-    public static final URI lat;
+    public static final IRI lat;
 
     /**
      * A comma-separated representation of a latitude, longitude coordinate.
      */
-    public static final URI lat_long;
+    public static final IRI lat_long;
 
     /**
      * The relation between something and the point,
@@ -65,22 +65,22 @@ public class GEO {
      Clearly in practice there will be limit to the accuracy of any such statement, but one would expect
      an accuracy appropriate for the size of the object and uses such as mapping .
      */
-    public static final URI location;
+    public static final IRI location;
 
     /**
      * The WGS84 longitude of a SpatialThing (decimal degrees).
      */
-    public static final URI long_;
+    public static final IRI long_;
 
 
     static{
-        ValueFactory factory = ValueFactoryImpl.getInstance();
-        Point = factory.createURI(GEO.NAMESPACE, "Point");
-        SpatialThing = factory.createURI(GEO.NAMESPACE, "SpatialThing");
-        alt = factory.createURI(GEO.NAMESPACE, "alt");
-        lat = factory.createURI(GEO.NAMESPACE, "lat");
-        lat_long = factory.createURI(GEO.NAMESPACE, "lat_long");
-        location = factory.createURI(GEO.NAMESPACE, "location");
-        long_ = factory.createURI(GEO.NAMESPACE, "long");
+        ValueFactory factory = SimpleValueFactory.getInstance();
+        Point = factory.createIRI(GEO.NAMESPACE, "Point");
+        SpatialThing = factory.createIRI(GEO.NAMESPACE, "SpatialThing");
+        alt = factory.createIRI(GEO.NAMESPACE, "alt");
+        lat = factory.createIRI(GEO.NAMESPACE, "lat");
+        lat_long = factory.createIRI(GEO.NAMESPACE, "lat_long");
+        location = factory.createIRI(GEO.NAMESPACE, "location");
+        long_ = factory.createIRI(GEO.NAMESPACE, "long");
     }
 }
