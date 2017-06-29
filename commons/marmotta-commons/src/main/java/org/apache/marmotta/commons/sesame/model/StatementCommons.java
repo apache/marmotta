@@ -25,11 +25,11 @@ import javolution.util.FastSet;
 import javolution.util.function.Equality;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 
 import java.util.Map;
 import java.util.Set;
+import org.openrdf.model.IRI;
 
 /**
  * Provide some utility functions for managing statements (e.g. different forms of equivalence)
@@ -202,8 +202,7 @@ public class StatementCommons {
                     return input.getSubject();
                 }
 
-                @Override
-                public URI getPredicate() {
+                public IRI getPredicate() {
                     return input.getPredicate();
                 }
 

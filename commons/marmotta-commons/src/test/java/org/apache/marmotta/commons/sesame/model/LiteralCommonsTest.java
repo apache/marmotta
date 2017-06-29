@@ -17,22 +17,21 @@
  */
 package org.apache.marmotta.commons.sesame.model;
 
+import java.util.Date;
+import java.util.Locale;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.memory.MemoryStore;
-
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Test the functions of the literal commons
@@ -50,7 +49,7 @@ public class LiteralCommonsTest {
     @Test
     public void testCreateCacheKey() throws Exception {
         Assert.assertNotEquals(LiteralCommons.createCacheKey("abc",(String)null,(String)null), LiteralCommons.createCacheKey("ABC",(String)null,(String)null));
-        Assert.assertNotEquals(LiteralCommons.createCacheKey("abc",null,(URI)null), LiteralCommons.createCacheKey("ABC",null,(URI)null));
+        Assert.assertNotEquals(LiteralCommons.createCacheKey("abc",null,(IRI)null), LiteralCommons.createCacheKey("ABC",null,(IRI)null));
 
         Repository repository = new SailRepository(new MemoryStore());
         repository.initialize();
@@ -63,7 +62,7 @@ public class LiteralCommonsTest {
         Literal literal1 = vf.createLiteral(value1);
 
         Assert.assertEquals(LiteralCommons.createCacheKey(value1,(String)null,(String)null),LiteralCommons.createCacheKey(literal1));
-        Assert.assertEquals(LiteralCommons.createCacheKey(value1,null,(URI)null),LiteralCommons.createCacheKey(literal1));
+        Assert.assertEquals(LiteralCommons.createCacheKey(value1,null,(IRI)null),LiteralCommons.createCacheKey(literal1));
 
         // create a string literal with language and without datatype and test if the hash key is correct between
         // the different methods
@@ -72,13 +71,13 @@ public class LiteralCommonsTest {
         Literal literal2 = vf.createLiteral(value2,locale2.getLanguage().toLowerCase());
 
         Assert.assertEquals(LiteralCommons.createCacheKey(value2,locale2,(String)null),LiteralCommons.createCacheKey(literal2));
-        Assert.assertEquals(LiteralCommons.createCacheKey(value2,locale2,(URI)null),LiteralCommons.createCacheKey(literal2));
+        Assert.assertEquals(LiteralCommons.createCacheKey(value2,locale2,(IRI)null),LiteralCommons.createCacheKey(literal2));
 
         // create a string literal with datatype and without language and test if the hash key is correct between
         // the different methods
         String value3 = RandomStringUtils.randomNumeric(3);
         String datatype3 = Namespaces.NS_XSD + "integer";
-        Literal literal3 = vf.createLiteral(value3, vf.createURI(datatype3));
+        Literal literal3 = vf.createLiteral(value3, vf.createIRI(datatype3));
 
         Assert.assertEquals(LiteralCommons.createCacheKey(value3,(String)null,datatype3),LiteralCommons.createCacheKey(literal3));
 

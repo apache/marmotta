@@ -17,16 +17,15 @@
  */
 package org.apache.marmotta.commons.util;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
 
 /**
  * Utility methods for transforming Sesame objects into in-memory RDF/JSON format using maps and sets.
@@ -36,7 +35,7 @@ public class JSONUtils {
     private static final String VALUE = "value";
     private static final String TYPE = "type";
     private static final String BNODE = "bnode";
-    private static final String URI = "uri";
+    private static final String IRI = "uri";
     private static final String LITERAL = "literal";
     private static final String LANG = "lang";
     private static final String DATATYPE = "datatype";
@@ -58,10 +57,10 @@ public class JSONUtils {
                 nodeRep.put(DATATYPE,literal.getDatatype().stringValue());
             }
             if(literal.getLanguage() != null) {
-                nodeRep.put(LANG,literal.getLanguage());
+                nodeRep.put(LANG,literal.getLanguage().get());
             }
-        } else if(node instanceof URI) {
-            nodeRep.put(TYPE,URI);
+        } else if(node instanceof IRI) {
+            nodeRep.put(TYPE,IRI);
             nodeRep.put(VALUE,node.stringValue());
         } else if(node instanceof BNode) {
             nodeRep.put(TYPE,BNODE);

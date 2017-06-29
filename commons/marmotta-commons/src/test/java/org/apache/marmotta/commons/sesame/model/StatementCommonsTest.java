@@ -18,14 +18,19 @@
 package org.apache.marmotta.commons.sesame.model;
 
 import com.google.common.base.Equivalence;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.*;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
-
-import java.util.*;
 
 /**
  * Add file description here!
@@ -45,12 +50,12 @@ public class StatementCommonsTest {
     public void setup() {
         valueFactory = new ValueFactoryImpl();
 
-        Resource s1 = randomURI();
-        URI p1 = randomURI();
-        URI p2 = randomURI();
+        Resource s1 = randomIRI();
+        IRI p1 = randomIRI();
+        IRI p2 = randomIRI();
         Value o1 = randomObject();
-        Resource c1 = randomURI();
-        Resource c2 = randomURI();
+        Resource c1 = randomIRI();
+        Resource c2 = randomIRI();
 
 
         stmt1 = valueFactory.createStatement(s1,p1,o1,c1);
@@ -187,11 +192,11 @@ public class StatementCommonsTest {
 
 
     /**
-     * Return a random URI, with a 10% chance of returning a URI that has already been used.
+     * Return a random IRI, with a 10% chance of returning a IRI that has already been used.
      * @return
      */
-    protected URI randomURI() {
-        URI resource = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+    protected IRI randomIRI() {
+        IRI resource = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         return resource;
     }
 
@@ -202,7 +207,7 @@ public class StatementCommonsTest {
     protected Value randomObject() {
         Value object;
         switch(rnd.nextInt(6)) {
-            case 0: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            case 0: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
             case 1: object = valueFactory.createBNode();
                 break;
@@ -214,7 +219,7 @@ public class StatementCommonsTest {
                 break;
             case 5: object = valueFactory.createLiteral(rnd.nextBoolean());
                 break;
-            default: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            default: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
 
         }

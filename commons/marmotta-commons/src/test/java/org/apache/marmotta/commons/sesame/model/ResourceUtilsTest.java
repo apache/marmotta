@@ -17,6 +17,15 @@
  */
 package org.apache.marmotta.commons.sesame.model;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
+import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
+import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -25,23 +34,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assume.assumeThat;
-
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
+import static org.junit.Assume.assumeThat;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -51,11 +52,6 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.memory.MemoryStore;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Test the ResourceUtils (issue 108).
@@ -141,7 +137,7 @@ public class ResourceUtilsTest {
     public void testListResourcesByType() throws RepositoryException {
         RepositoryConnection connection = repository.getConnection();
 
-        URI persons = connection.getValueFactory().createURI(Namespaces.NS_FOAF + "Person");
+        IRI persons = connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "Person");
 
         List<String> resources = ImmutableList.copyOf(
                 Iterables.transform(
@@ -266,9 +262,9 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI sepp = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/sepp_huber");
-            URI anna = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/anna_schmidt");
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI sepp = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/sepp_huber");
+            IRI anna = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/anna_schmidt");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
 
             // test if getProperty returns the correct names
             Assert.assertEquals("Hans Meier", ResourceUtils.getProperty(connection,hans,"foaf:name"));
@@ -290,9 +286,9 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI sepp = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/sepp_huber");
-            URI anna = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/anna_schmidt");
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI sepp = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/sepp_huber");
+            IRI anna = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/anna_schmidt");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
 
             List<String> sepp_names = ImmutableList.copyOf(ResourceUtils.getProperties(connection,sepp,"foaf:name"));
             List<String> anna_names = ImmutableList.copyOf(ResourceUtils.getProperties(connection,anna,"foaf:name"));
@@ -322,8 +318,8 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI toni = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/toni_schneider");
-            URI name = connection.getValueFactory().createURI(Namespaces.NS_FOAF + "name");
+            IRI toni = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/toni_schneider");
+            IRI name = connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "name");
 
             ResourceUtils.setProperty(connection,toni,"foaf:name","Anton Schneider");
 
@@ -349,7 +345,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
 
             // test if getProperty returns the correct names
             Assert.assertEquals("Hans Meier", ResourceUtils.getProperty(connection,hans,"foaf:name"));
@@ -370,7 +366,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
 
             List<Statement> result = ImmutableList.copyOf(
                     ResourceUtils.listOutgoing(connection,hans)
@@ -381,7 +377,7 @@ public class ResourceUtilsTest {
 
             Assert.assertThat(result, allOf(
                     CoreMatchers.<Statement>hasItem(hasProperty("object", is(connection.getValueFactory().createLiteral("Hans Meier")))),
-                    CoreMatchers.<Statement>hasItem(hasProperty("object", is(connection.getValueFactory().createURI(Namespaces.NS_FOAF + "Person"))))
+                    CoreMatchers.<Statement>hasItem(hasProperty("object", is(connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "Person"))))
                     ));
 
         } finally {
@@ -397,7 +393,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
 
             List<Value> result = ImmutableList.copyOf(
                     ResourceUtils.listOutgoingNodes(connection, hans, "foaf:name")
@@ -424,8 +420,8 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI toni = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/toni_schneider");
-            URI name = connection.getValueFactory().createURI(Namespaces.NS_FOAF + "name");
+            IRI toni = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/toni_schneider");
+            IRI name = connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "name");
             String property = "foaf:name";
             Literal value    = connection.getValueFactory().createLiteral("Anton Schneider");
 
@@ -454,8 +450,8 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI toni = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/toni_schneider");
-            URI name = connection.getValueFactory().createURI(Namespaces.NS_FOAF + "name");
+            IRI toni = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/toni_schneider");
+            IRI name = connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "name");
             Literal value    = connection.getValueFactory().createLiteral("Anton Schneider");
 
             ResourceUtils.addOutgoingNode(connection,toni,name,value,null);
@@ -483,7 +479,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
 
             List<Value> result1 = ImmutableList.copyOf(
                     ResourceUtils.listOutgoingNodes(connection, hans, "foaf:name")
@@ -519,7 +515,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/sepp_huber");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/sepp_huber");
 
             List<Statement> result = ImmutableList.copyOf(
                     ResourceUtils.listIncoming(connection, hans)
@@ -529,8 +525,8 @@ public class ResourceUtilsTest {
             Assert.assertEquals(2,result.size());
 
             Assert.assertThat(result, allOf(
-                    CoreMatchers.<Statement>hasItem(hasProperty("subject", is(connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier")))),
-                    CoreMatchers.<Statement>hasItem(hasProperty("subject", is(connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/anna_schmidt"))))
+                    CoreMatchers.<Statement>hasItem(hasProperty("subject", is(connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier")))),
+                    CoreMatchers.<Statement>hasItem(hasProperty("subject", is(connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/anna_schmidt"))))
                     ));
 
         } finally {
@@ -546,7 +542,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/sepp_huber");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/sepp_huber");
 
             List<Resource> result = ImmutableList.copyOf(
                     ResourceUtils.listIncomingNodes(connection, hans, "foaf:knows")
@@ -556,8 +552,8 @@ public class ResourceUtilsTest {
             Assert.assertEquals(2,result.size());
 
             Assert.assertThat(result, hasItems(
-                    (Resource) connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier"),
-                    (Resource) connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/anna_schmidt")
+                    (Resource) connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier"),
+                    (Resource) connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/anna_schmidt")
                     ));
 
         } finally {
@@ -574,14 +570,14 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI r1 = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/r1");
-            URI r2 = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/r2");
-            URI r3 = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/r3");
-            URI c1 = connection.getValueFactory().createURI("http://localhost:8080/LMF/context/c1");
+            IRI r1 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/r1");
+            IRI r2 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/r2");
+            IRI r3 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/r3");
+            IRI c1 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/context/c1");
 
-            URI rdfs_label = connection.getValueFactory().createURI(Namespaces.NS_RDFS + "label");
-            URI dct_title  = connection.getValueFactory().createURI(Namespaces.NS_DC_TERMS + "title");
-            URI skos_label = connection.getValueFactory().createURI(Namespaces.NS_SKOS + "prefLabel");
+            IRI rdfs_label = connection.getValueFactory().createIRI(Namespaces.NS_RDFS + "label");
+            IRI dct_title  = connection.getValueFactory().createIRI(Namespaces.NS_DC_TERMS + "title");
+            IRI skos_label = connection.getValueFactory().createIRI(Namespaces.NS_SKOS + "prefLabel");
 
             connection.add(r1,rdfs_label,connection.getValueFactory().createLiteral("R1"));
             connection.add(r2,dct_title,connection.getValueFactory().createLiteral("R2","en"));
@@ -613,10 +609,10 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI r1 = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/r1");
-            URI r2 = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/r2");
-            URI r3 = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/r3");
-            URI c1 = connection.getValueFactory().createURI("http://localhost:8080/LMF/context/c1");
+            IRI r1 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/r1");
+            IRI r2 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/r2");
+            IRI r3 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/r3");
+            IRI c1 = connection.getValueFactory().createIRI("http://localhost:8080/LMF/context/c1");
 
 
             ResourceUtils.setLabel(connection,r1,"R1");
@@ -649,7 +645,7 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/sepp_huber");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/sepp_huber");
 
             List<Resource> result = ImmutableList.copyOf(
                     ResourceUtils.getTypes(connection, hans)
@@ -658,7 +654,7 @@ public class ResourceUtilsTest {
             // check that the number of results is correct
             Assert.assertEquals(1,result.size());
 
-            Assert.assertThat(result, hasItem(connection.getValueFactory().createURI(Namespaces.NS_FOAF + "Person")));
+            Assert.assertThat(result, hasItem(connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "Person")));
 
         } finally {
             connection.close();
@@ -673,10 +669,10 @@ public class ResourceUtilsTest {
         RepositoryConnection connection = repository.getConnection();
 
         try {
-            URI hans = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/sepp_huber");
+            IRI hans = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/sepp_huber");
 
-            Assert.assertTrue(ResourceUtils.hasType(connection,hans,connection.getValueFactory().createURI(Namespaces.NS_FOAF + "Person")));
-            Assert.assertFalse(ResourceUtils.hasType(connection,hans,connection.getValueFactory().createURI(Namespaces.NS_FOAF + "XYZ")));
+            Assert.assertTrue(ResourceUtils.hasType(connection,hans,connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "Person")));
+            Assert.assertFalse(ResourceUtils.hasType(connection,hans,connection.getValueFactory().createIRI(Namespaces.NS_FOAF + "XYZ")));
         } finally {
             connection.close();
         }

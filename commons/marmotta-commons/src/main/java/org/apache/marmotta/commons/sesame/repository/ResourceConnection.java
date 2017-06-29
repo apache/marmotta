@@ -18,8 +18,8 @@
 package org.apache.marmotta.commons.sesame.repository;
 
 import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.SailConnection;
@@ -42,15 +42,15 @@ public interface ResourceConnection extends SailConnection {
      * Return an iterator over the resources contained in this repository matching the given prefix.
      * @return
      */
-    RepositoryResult<URI> getResources(String prefix) throws RepositoryException;
+    RepositoryResult<IRI> getResources(String prefix) throws RepositoryException;
 
     /**
-     * Return the Sesame URI with the given uri identifier if it exists, or null if it does not exist.
+     * Return the Sesame IRI with the given uri identifier if it exists, or null if it does not exist.
      *
      * @param uri
      * @return
      */
-    URI getURI(String uri);
+    IRI getIRI(String uri);
 
     /**
      * Return the Sesame BNode with the given anonymous ID if it exists, or null if it does not exist.

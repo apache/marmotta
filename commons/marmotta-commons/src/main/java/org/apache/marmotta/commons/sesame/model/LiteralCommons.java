@@ -27,8 +27,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.joda.time.DateTime;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
 
 /**
  * Utility methods for working with literals.
@@ -53,10 +53,10 @@ public class LiteralCommons {
 	 *
 	 * @param content  string content representing the literal (can be an MD5 sum for binary types)
 	 * @param language language of the literal (optional)
-	 * @param type     datatype URI of the literal (optional)
+	 * @param type     datatype IRI of the literal (optional)
 	 * @return a 64bit hash key for the literal
 	 */
-    public static String createCacheKey(String content, Locale language, URI type) {
+    public static String createCacheKey(String content, Locale language, IRI type) {
 		return createCacheKey(content, language != null ? language.getLanguage() : null, type != null ? type.stringValue() : null);
 	}
 
@@ -65,7 +65,7 @@ public class LiteralCommons {
      *
      * @param content  string content representing the literal (can be an MD5 sum for binary types)
      * @param language language of the literal (optional)
-     * @param type     datatype URI of the literal (optional)
+     * @param type     datatype IRI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(String content, Locale language, String type) {
@@ -77,7 +77,7 @@ public class LiteralCommons {
      * to a XMLGregorianCalendar with UTC timezone and then calls the method above.
      *
      * @param date date object of the date literal
-     * @param type datatype URI of the literal
+     * @param type datatype IRI of the literal
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(DateTime date, String type) {
@@ -90,13 +90,13 @@ public class LiteralCommons {
 
     /**
      * Create a cache key for the literal passed as argument. Takes content, language
-     * and datatype URI as parameter to create a 64bit hash.
+     * and datatype IRI as parameter to create a 64bit hash.
      *
      * @param l the literal to create the hash for
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(Literal l) {
-        return createCacheKey(l.getLabel(), l.getLanguage(), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
+        return createCacheKey(l.getLabel(), l.getLanguage().orElse(null), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
     }
 
 
@@ -105,7 +105,7 @@ public class LiteralCommons {
      *
      * @param content  string content representing the literal (can be an MD5 sum for binary types)
      * @param language language of the literal (optional)
-     * @param type     datatype URI of the literal (optional)
+     * @param type     datatype IRI of the literal (optional)
      * @return a 64bit hash key for the literal
      */
     public static String createCacheKey(String content, String language, String type) {
