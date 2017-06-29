@@ -18,22 +18,38 @@
 package org.apache.marmotta.kiwi.test;
 
 import com.google.common.base.Preconditions;
-import org.apache.marmotta.commons.sesame.model.LiteralCommons;
-import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.joda.time.DateTime;
-import org.openrdf.model.*;
-
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Date;
 import java.util.Locale;
+import javax.xml.datatype.XMLGregorianCalendar;
+import org.apache.marmotta.commons.sesame.model.LiteralCommons;
+import org.apache.marmotta.kiwi.generator.SnowflakeIDGenerator;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.joda.time.DateTime;
+import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.AbstractValueFactory;
 
 /**
  * A value factory creating KiWi values without requiring a real repository
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class TestValueFactory implements ValueFactory {
+//public class TestValueFactory implements ValueFactory {
+public class TestValueFactory extends AbstractValueFactory {
 
     private SnowflakeIDGenerator idGenerator;
 
@@ -42,15 +58,15 @@ public class TestValueFactory implements ValueFactory {
     }
 
     /**
-     * Creates a new URI from the supplied string-representation.
+     * Creates a new IRI from the supplied string-representation.
      *
-     * @param uri A string-representation of a URI.
-     * @return An object representing the URI.
-     * @throws IllegalArgumentException If the supplied string does not resolve to a legal (absolute) URI.
+     * @param iri A string-representation of a IRI.
+     * @return An object representing the IRI.
+     * @throws IllegalArgumentException If the supplied string does not resolve to a legal (absolute) IRI.
      */
     @Override
-    public URI createURI(String uri) {
-        KiWiUriResource r = new KiWiUriResource(uri, new Date());
+    public IRI createIRI(String iri) {
+        KiWiUriResource r = new KiWiUriResource(iri, new Date());
         r.setId(idGenerator.getId());
 
         return r;
@@ -65,14 +81,14 @@ public class TestValueFactory implements ValueFactory {
      * {@link org.openrdf.model.URI#getLocalName()} are not necessarily the same as the values that
      * are supplied to this method.
      *
-     * @param namespace The URI's namespace.
-     * @param localName The URI's local name.
+     * @param namespace The IRI's namespace.
+     * @param localName The IRI's local name.
      * @throws IllegalArgumentException If the supplied namespace and localname do not resolve to a legal
-     *                                  (absolute) URI.
+     *                                  (absolute) IRI.
      */
     @Override
-    public URI createURI(String namespace, String localName) {
-        return createURI(namespace+localName);
+    public IRI createIRI(String namespace, String localName) {
+        return createIRI(namespace+localName);
     }
 
     /**
@@ -133,7 +149,7 @@ public class TestValueFactory implements ValueFactory {
      * @param datatype The literal's datatype, or <tt>null</tt> if the literal doesn't
      */
     @Override
-    public Literal createLiteral(String label, URI datatype) {
+    public Literal createLiteral(String label, IRI datatype) {
         KiWiUriResource t;
         if(datatype instanceof KiWiUriResource) {
             t = (KiWiUriResource) datatype;
@@ -291,7 +307,7 @@ public class TestValueFactory implements ValueFactory {
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object) {
         return createStatement(subject, predicate, object, null);
     }
 
@@ -306,7 +322,7 @@ public class TestValueFactory implements ValueFactory {
      * @return The created statement.
      */
     @Override
-    public Statement createStatement(Resource subject, URI predicate, Value object, Resource context) {
+    public Statement createStatement(Resource subject, IRI predicate, Value object, Resource context) {
         Preconditions.checkArgument(subject instanceof KiWiNode);
         Preconditions.checkArgument(predicate instanceof KiWiNode);
         Preconditions.checkArgument(object instanceof KiWiNode);
