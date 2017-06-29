@@ -21,11 +21,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
 import org.openrdf.model.datatypes.XMLDatatypeUtil;
 
 /**
@@ -233,11 +234,11 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      *         doesn't have one.
      */
     @Override
-    public String getLanguage() {
+    public Optional<String> getLanguage() {
         if(getLocale() != null) {
-            return getLocale().getLanguage().toLowerCase();
+            return Optional.ofNullable(getLocale().getLanguage().toLowerCase());
         }
-        return null;
+        return Optional.ofNullable(null);
     }
 
     /**
@@ -247,7 +248,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
      *         have one.
      */
     @Override
-    public URI getDatatype() {
+    public IRI getDatatype() {
         return type;
     }
 

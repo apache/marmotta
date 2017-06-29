@@ -42,10 +42,10 @@ import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
 import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
 import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
@@ -66,13 +66,13 @@ import org.openrdf.query.algebra.evaluation.impl.ConjunctiveConstraintSplitter;
 import org.openrdf.query.algebra.evaluation.impl.ConstantOptimizer;
 import org.openrdf.query.algebra.evaluation.impl.DisjunctiveConstraintOptimizer;
 import org.openrdf.query.algebra.evaluation.impl.EvaluationStatistics;
-import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
 import org.openrdf.query.algebra.evaluation.impl.FilterOptimizer;
 import org.openrdf.query.algebra.evaluation.impl.IterativeEvaluationOptimizer;
 import org.openrdf.query.algebra.evaluation.impl.OrderLimitOptimizer;
 import org.openrdf.query.algebra.evaluation.impl.QueryJoinOptimizer;
 import org.openrdf.query.algebra.evaluation.impl.QueryModelNormalizer;
 import org.openrdf.query.algebra.evaluation.impl.SameTermFilterOptimizer;
+import org.openrdf.query.algebra.evaluation.impl.SimpleEvaluationStrategy;
 import org.openrdf.query.impl.EmptyBindingSet;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -128,7 +128,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     }
 
     @Override
-    protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    protected void addStatementInternal(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         addStatementInternal(subj,pred,obj,false,contexts);
     }
 
@@ -145,20 +145,20 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      * @throws IllegalStateException          If the connection has been closed.
      */
     @Override
-    public boolean addInferredStatement(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
-        return addStatementInternal(subj,pred,obj,true,valueFactory.createURI(inferredContext)).size() > 0;
+    public boolean addInferredStatement(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
+        return addStatementInternal(subj,pred,obj,true,valueFactory.createIRI(inferredContext)).size() > 0;
     }
 
     /**
      * Used by the KiWi reasoner, returns the created inferred statement directly.
      * @throws SailException
      */
-    public KiWiTriple addInferredStatement(Resource subj, URI pred, Value obj) throws SailException {
-        return addStatementInternal(subj,pred,obj,true,valueFactory.createURI(inferredContext)).iterator().next();
+    public KiWiTriple addInferredStatement(Resource subj, IRI pred, Value obj) throws SailException {
+        return addStatementInternal(subj,pred,obj,true,valueFactory.createIRI(inferredContext)).iterator().next();
     }
 
 
-    public Set<KiWiTriple> addStatementInternal(Resource subj, URI pred, Value obj, boolean inferred, Resource... contexts) throws SailException {
+    public Set<KiWiTriple> addStatementInternal(Resource subj, IRI pred, Value obj, boolean inferred, Resource... contexts) throws SailException {
         try {
             Set<Resource> contextSet = new HashSet<>();
             for(Resource ctx : contexts) {
@@ -168,13 +168,13 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
             }
             if(contextSet.size() == 0) {
                 if(defaultContext != null) {
-                    contextSet.add(valueFactory.createURI(defaultContext));
+                    contextSet.add(valueFactory.createIRI(defaultContext));
                 } else {
                     contextSet.add(null);
                 }
             }
             if(inferred && inferredContext != null) {
-                contextSet.add(valueFactory.createURI(inferredContext));
+                contextSet.add(valueFactory.createIRI(inferredContext));
             }
 
             Set<KiWiTriple> added = new HashSet<>();
@@ -237,7 +237,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         try {
             KiWiTripleSource tripleSource = new KiWiTripleSource(this,includeInferred);
             FederatedServiceResolver service = new FederatedServiceResolverImpl();
-            EvaluationStrategy strategy = new EvaluationStrategyImpl(tripleSource, dataset,service);
+            EvaluationStrategy strategy = new SimpleEvaluationStrategy(tripleSource, dataset,service);
 
             new BindingAssigner().optimize(tupleExpr, dataset, bindings);
             new ConstantOptimizer(strategy).optimize(tupleExpr, dataset, bindings);
@@ -279,7 +279,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     }
 
     @Override
-    protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, URI pred, Value obj, final boolean includeInferred, Resource... contexts) throws SailException {
+    protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, IRI pred, Value obj, final boolean includeInferred, Resource... contexts) throws SailException {
         final KiWiResource rsubj    = valueFactory.convert(subj);
         final KiWiUriResource rpred = valueFactory.convert(pred);
         final KiWiNode robj         = valueFactory.convert(obj);
@@ -407,7 +407,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     }
 
     @Override
-    protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    protected void removeStatementsInternal(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         try {
             CloseableIteration<? extends Statement, SailException> triples = getStatementsInternal(subj,pred,obj,true,contexts);
             while(triples.hasNext()) {
@@ -438,9 +438,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      * @throws IllegalStateException          If the connection has been closed.
      */
     @Override
-    public boolean removeInferredStatement(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public boolean removeInferredStatement(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         try {
-            CloseableIteration<? extends Statement, SailException> triples = getStatementsInternal(subj,pred,obj,true,valueFactory.createURI(inferredContext));
+            CloseableIteration<? extends Statement, SailException> triples = getStatementsInternal(subj,pred,obj,true,valueFactory.createIRI(inferredContext));
             while(triples.hasNext()) {
                 KiWiTriple triple = (KiWiTriple)triples.next();
                 if(triple.getId() >= 0 && triple.isInferred()) {
@@ -507,7 +507,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      */
     @Override
     public void clearInferred(Resource... contexts) throws SailException {
-        removeInferredStatement(null, null, null, valueFactory.createURI(inferredContext));
+        removeInferredStatement(null, null, null, valueFactory.createIRI(inferredContext));
     }
 
     public void flushUpdates() {
@@ -589,7 +589,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         if(input == null) {
             if(defaultContext != null) {
                 // null value for context means statements without context; in KiWi, this means "default context"
-                return (KiWiUriResource)valueFactory.createURI(defaultContext);
+                return (KiWiUriResource)valueFactory.createIRI(defaultContext);
             }
             return null;
         } else {
@@ -619,7 +619,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
          *
          * @param subj     A Resource specifying the subject, or <tt>null</tt> for a
          *                 wildcard.
-         * @param pred     A URI specifying the predicate, or <tt>null</tt> for a wildcard.
+         * @param pred     A IRI specifying the predicate, or <tt>null</tt> for a wildcard.
          * @param obj      A Value specifying the object, or <tt>null</tt> for a wildcard.
          * @param contexts The context(s) to get the statements from. Note that this parameter
          *                 is a vararg and as such is optional. If no contexts are supplied
@@ -629,7 +629,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
          *          If the triple source failed to get the statements.
          */
         @Override
-        public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
+        public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
             try {
                 return new ExceptionConvertingIteration<Statement, QueryEvaluationException>(
                         connection.getStatements(subj, pred, obj, inferred, contexts)
@@ -663,7 +663,7 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
         }
 
         /**
-         * Gets a ValueFactory object that can be used to create URI-, blank node-
+         * Gets a ValueFactory object that can be used to create IRI-, blank node-
          * and literal objects.
          *
          * @return a ValueFactory object for this TripleSource.
@@ -699,9 +699,9 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
      * @return
      */
     @Override
-    public RepositoryResult<URI> getResources(String prefix) throws RepositoryException {
+    public RepositoryResult<IRI> getResources(String prefix) throws RepositoryException {
         try {
-            return new RepositoryResult<>(new ExceptionConvertingIteration<URI, RepositoryException>(databaseConnection.listResources(prefix)) {
+            return new RepositoryResult<>(new ExceptionConvertingIteration<IRI, RepositoryException>(databaseConnection.listResources(prefix)) {
                 @Override
                 protected RepositoryException convert(Exception e) {
                     return new RepositoryException(e);
@@ -713,15 +713,15 @@ public class KiWiSailConnection extends NotifyingSailConnectionBase implements I
     }
 
     /**
-     * Return the Sesame URI with the given uri identifier if it exists, or null if it does not exist.
+     * Return the Sesame IRI with the given iri identifier if it exists, or null if it does not exist.
      *
-     * @param uri
+     * @param iri
      * @return
      */
     @Override
-    public URI getURI(String uri) {
+    public IRI getIRI(String iri) {
         try {
-            return databaseConnection.loadUriResource(uri);
+            return databaseConnection.loadUriResource(iri);
         } catch (SQLException e) {
             return null;
         }

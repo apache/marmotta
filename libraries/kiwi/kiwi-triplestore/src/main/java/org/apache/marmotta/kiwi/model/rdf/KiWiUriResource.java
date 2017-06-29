@@ -18,21 +18,20 @@
 package org.apache.marmotta.kiwi.model.rdf;
 
 import com.google.common.base.Preconditions;
-import org.apache.marmotta.commons.sesame.model.URICommons;
-import org.openrdf.model.URI;
-
 import java.util.Date;
+import org.apache.marmotta.commons.sesame.model.IRICommons;
+import org.openrdf.model.IRI;
 
 /**
  * Add file description here!
  * <p/>
  * User: sschaffe
  */
-public class KiWiUriResource extends KiWiResource implements URI {
+public class KiWiUriResource extends KiWiResource implements IRI {
 
 	private static final long serialVersionUID = -6399293877969640084L;
 
-    private String uri;
+    private String iri;
 
 
     //@Transient
@@ -46,16 +45,16 @@ public class KiWiUriResource extends KiWiResource implements URI {
         super();
     }
 
-    public KiWiUriResource(String uri) {
+    public KiWiUriResource(String iri) {
         super();
-        Preconditions.checkArgument(uri.indexOf(':') >= 0, "Not a valid (absolute) URI: " + uri);
-        this.uri = uri;
+        Preconditions.checkArgument(iri.indexOf(':') >= 0, "Not a valid (absolute) IRI: " + iri);
+        this.iri = iri;
     }
 
-    public KiWiUriResource(String uri, Date created) {
+    public KiWiUriResource(String iri, Date created) {
         super(created);
-        Preconditions.checkArgument(uri.indexOf(':') >= 0, "Not a valid (absolute) URI: " + uri);
-        this.uri = uri;
+        Preconditions.checkArgument(iri.indexOf(':') >= 0, "Not a valid (absolute) IRI: " + iri);
+        this.iri = iri;
     }
 
 
@@ -64,20 +63,20 @@ public class KiWiUriResource extends KiWiResource implements URI {
      */
     @Deprecated
     public String getUri() {
-        return uri;
+        return iri;
     }
 
     @Deprecated
     public void setUri(String uri) {
         Preconditions.checkArgument(uri.indexOf(':') >= 0, "Not a valid (absolute) URI: " + uri);
-        this.uri = uri;
+        this.iri = uri;
     }
 
     /**
-     * Gets the local name of this URI. The local name is defined as per the
+     * Gets the local name of this IRI. The local name is defined as per the
      * algorithm described in the class documentation.
      *
-     * @return The URI's local name.
+     * @return The IRI's local name.
      */
     @Override
     public String getLocalName() {
@@ -87,10 +86,10 @@ public class KiWiUriResource extends KiWiResource implements URI {
     }
 
     /**
-     * Gets the namespace of this URI. The namespace is defined as per the
+     * Gets the namespace of this IRI. The namespace is defined as per the
      * algorithm described in the class documentation.
      *
-     * @return The URI's namespace.
+     * @return The IRI's namespace.
      */
     @Override
     public String getNamespace() {
@@ -101,11 +100,11 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     /**
      * Returns the String-value of a <tt>Value</tt> object. This returns either
-     * a {@link org.openrdf.model.Literal}'s label, a {@link org.openrdf.model.URI}'s URI or a {@link org.openrdf.model.BNode}'s ID.
+     * a {@link org.openrdf.model.Literal}'s label, a {@link org.openrdf.model.IRI}'s IRI or a {@link org.openrdf.model.BNode}'s ID.
      */
     @Override
     public String stringValue() {
-        return uri;
+        return iri;
     }
 
     @Override
@@ -121,7 +120,7 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     @Override
     public String toString() {
-        return uri;
+        return iri;
     }
 
 
@@ -129,8 +128,8 @@ public class KiWiUriResource extends KiWiResource implements URI {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if(o instanceof URI) {
-            return this.stringValue().equals(((URI)o).stringValue());
+        if(o instanceof IRI) {
+            return this.stringValue().equals(((IRI)o).stringValue());
         }
         return false;
     }
@@ -143,7 +142,7 @@ public class KiWiUriResource extends KiWiResource implements URI {
 
     private void initNamespace() {
         if(namespace == null || localName == null) {
-            String[] components = URICommons.splitNamespace(uri);
+            String[] components = IRICommons.splitNamespace(iri);
             namespace = components[0];
             localName = components[1];
         }

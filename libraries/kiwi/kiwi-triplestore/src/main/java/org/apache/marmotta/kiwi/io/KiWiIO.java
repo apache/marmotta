@@ -17,17 +17,6 @@
 
 package org.apache.marmotta.kiwi.io;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.io.DataIO;
-import org.apache.marmotta.commons.vocabulary.SCHEMA;
-import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.model.rdf.*;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.openrdf.model.vocabulary.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -38,6 +27,30 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.io.DataIO;
+import org.apache.marmotta.commons.vocabulary.SCHEMA;
+import org.apache.marmotta.commons.vocabulary.XSD;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiBooleanLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDateLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiDoubleLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.openrdf.model.vocabulary.DC;
+import org.openrdf.model.vocabulary.DCTERMS;
+import org.openrdf.model.vocabulary.OWL;
+import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.RDFS;
+import org.openrdf.model.vocabulary.SKOS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -585,7 +598,7 @@ public class KiWiIO {
                 out.writeByte(langTable.get(literal.getLanguage()));
             } else {
                 out.writeByte(LANG_UNKNOWN);
-                DataIO.writeString(out, literal.getLanguage());
+                DataIO.writeString(out, literal.getLanguage().get());
             }
             writeURI(out, literal.getType());
             out.writeLong(literal.getCreated().getTime());
