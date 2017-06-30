@@ -638,10 +638,6 @@ public class RepositoryTest {
         } finally {
             connectionRDF.close();
         }
-
-        for (Statement asList : Iterations.asList(repository.getConnection().getStatements(null, null, null))) {
-            System.out.println(asList);
-        }
         
         String update = "DELETE { ?s ?p ?o } INSERT { <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/name> \"Hans Meier\" . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/based_near> <http://dbpedia.org/resource/Traunstein> . <http://localhost:8080/LMF/resource/hans_meier> <http://xmlns.com/foaf/0.1/interest> <http://rdf.freebase.com/ns/en.linux> } WHERE { ?s ?p ?o . FILTER ( ?s = <http://localhost:8080/LMF/resource/hans_meier> ) }";
 

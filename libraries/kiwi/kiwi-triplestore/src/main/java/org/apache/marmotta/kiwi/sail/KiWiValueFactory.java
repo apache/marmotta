@@ -674,7 +674,7 @@ public class KiWiValueFactory extends AbstractValueFactory {
         }
         if (value instanceof Literal) {
             Literal l = (Literal) value;
-            return createLiteral(l.getLabel(), l.getLanguage().get(), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
+            return createLiteral(l.getLabel(), l.getLanguage().orElse(null), l.getDatatype() != null ? l.getDatatype().stringValue() : null);
         }
 
         throw new IllegalArgumentException("the value passed as argument does not have the correct type");
