@@ -19,6 +19,18 @@ package org.apache.marmotta.kiwi.sparql.builder.eval;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
@@ -33,22 +45,50 @@ import org.openrdf.model.Literal;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.openrdf.query.algebra.And;
+import org.openrdf.query.algebra.Avg;
+import org.openrdf.query.algebra.BNodeGenerator;
+import org.openrdf.query.algebra.Bound;
+import org.openrdf.query.algebra.Coalesce;
+import org.openrdf.query.algebra.Compare;
+import org.openrdf.query.algebra.Count;
+import org.openrdf.query.algebra.Exists;
+import org.openrdf.query.algebra.FunctionCall;
+import org.openrdf.query.algebra.GroupConcat;
+import org.openrdf.query.algebra.IRIFunction;
+import org.openrdf.query.algebra.If;
+import org.openrdf.query.algebra.IsBNode;
+import org.openrdf.query.algebra.IsLiteral;
+import org.openrdf.query.algebra.IsNumeric;
+import org.openrdf.query.algebra.IsResource;
+import org.openrdf.query.algebra.IsURI;
+import org.openrdf.query.algebra.Label;
+import org.openrdf.query.algebra.Lang;
+import org.openrdf.query.algebra.LangMatches;
+import org.openrdf.query.algebra.Like;
+import org.openrdf.query.algebra.LocalName;
+import org.openrdf.query.algebra.MathExpr;
+import org.openrdf.query.algebra.Max;
+import org.openrdf.query.algebra.Min;
+import org.openrdf.query.algebra.Not;
+import org.openrdf.query.algebra.Or;
+import org.openrdf.query.algebra.Regex;
+import org.openrdf.query.algebra.SameTerm;
+import org.openrdf.query.algebra.Str;
+import org.openrdf.query.algebra.Sum;
+import org.openrdf.query.algebra.ValueConstant;
+import org.openrdf.query.algebra.ValueExpr;
+import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Evaluate a SPARQL ValueExpr by translating it into a SQL expression.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeException> {
+public class ValueExpressionEvaluator extends AbstractQueryModelVisitor<RuntimeException> {
 
     private static Logger log = LoggerFactory.getLogger(ValueExpressionEvaluator.class);
 
@@ -160,7 +200,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
             String[] args = new String[fc.getArgs().size()];
 
-            NativeFunction nf = functionRegistry.get(fnUri);
+            NativeFunction nf = functionRegistry.get(fnUri).get();
 
             if (nf != null && nf.isSupported(parent.getDialect())) {
 
@@ -408,7 +448,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
             builder
                     .append("CASE WHEN position(':' IN ").append(ex).append(") > 0 THEN ").append(ex)
-                    .append(" ELSE ").append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(), "'" + fun.getBaseURI() + "'", ex))
+                    .append(" ELSE ").append(functionRegistry.get(FN.CONCAT.stringValue()).get().getNative(parent.getDialect(), "'" + fun.getBaseURI() + "'", ex))
                     .append(" END ");
         } else {
             // get value of argument and express it as string
@@ -486,7 +526,7 @@ public class ValueExpressionEvaluator extends QueryModelVisitorBase<RuntimeExcep
 
         if(ot == ValueType.STRING) {
             if(expr.getOperator() == MathExpr.MathOp.PLUS) {
-                builder.append(functionRegistry.get(FN.CONCAT.stringValue()).getNative(parent.getDialect(),new ValueExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ValueExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
+                builder.append(functionRegistry.get(FN.CONCAT.stringValue()).get().getNative(parent.getDialect(),new ValueExpressionEvaluator(expr.getLeftArg(), parent, ot).build(), new ValueExpressionEvaluator(expr.getRightArg(), parent, ot).build()));
             } else {
                 throw new IllegalArgumentException("operation "+expr.getOperator()+" is not supported on strings");
             }

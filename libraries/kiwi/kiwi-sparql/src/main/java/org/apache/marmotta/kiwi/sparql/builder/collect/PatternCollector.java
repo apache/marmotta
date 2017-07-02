@@ -17,6 +17,8 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
+import java.util.LinkedList;
+import java.util.Set;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueConverter;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLFragment;
@@ -25,18 +27,22 @@ import org.apache.marmotta.kiwi.sparql.builder.model.SQLSubQuery;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLUnion;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-
-import java.util.LinkedList;
-import java.util.Set;
+import org.openrdf.query.algebra.Exists;
+import org.openrdf.query.algebra.Filter;
+import org.openrdf.query.algebra.Group;
+import org.openrdf.query.algebra.LeftJoin;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.StatementPattern;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Union;
+import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
 * Collect all statement patterns in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class PatternCollector extends QueryModelVisitorBase<RuntimeException> {
+public class PatternCollector extends AbstractQueryModelVisitor<RuntimeException> {
 
     public LinkedList<SQLFragment> parts   = new LinkedList<>();
 

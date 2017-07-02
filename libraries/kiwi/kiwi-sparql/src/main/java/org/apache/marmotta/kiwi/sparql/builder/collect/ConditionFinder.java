@@ -18,17 +18,17 @@
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
  * Check if a variable is used as a condition somewhere and therefore needs to be resolved.
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class ConditionFinder extends QueryModelVisitorBase<RuntimeException> {
+public class ConditionFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     // indicate (if > 0) if the value of variables in recursive calls need to be retrieved because the
     // enclosing construct operates on values instead of nodes

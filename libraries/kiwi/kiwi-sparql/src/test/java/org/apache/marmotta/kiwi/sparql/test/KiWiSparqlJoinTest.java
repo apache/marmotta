@@ -21,6 +21,11 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import info.aduna.iteration.Iterations;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
@@ -32,16 +37,28 @@ import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSail;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.hamcrest.Matchers;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.query.*;
-import org.openrdf.query.impl.DatasetImpl;
+import org.openrdf.model.impl.SimpleValueFactory;
+import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.Update;
+import org.openrdf.query.impl.SimpleDataset;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -51,12 +68,6 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Test the KiWi SPARQL Join optimization.
@@ -443,7 +454,7 @@ public class KiWiSparqlJoinTest {
         }
     }
 
-    private void testUpdate(String filename, URI... properties) throws Exception {
+    private void testUpdate(String filename, IRI... properties) throws Exception {
         String queryString = IOUtils.toString(this.getClass().getResourceAsStream(filename), "UTF-8");
 
         RepositoryConnection con1 = repository.getConnection();
@@ -461,8 +472,8 @@ public class KiWiSparqlJoinTest {
             Update query1 = con1.prepareUpdate(QueryLanguage.SPARQL, queryString);
             // workaround for a Sesame bug: we explicitly set the context for the query in the dataset
 
-            URI context = new URIImpl("http://localhost/mycontext");
-            DatasetImpl ds = new DatasetImpl();
+            IRI context = SimpleValueFactory.getInstance().createIRI("http://localhost/mycontext");
+            SimpleDataset ds = new SimpleDataset();
             //ds.addDefaultGraph(context);
             //ds.addNamedGraph(context);
             //ds.addDefaultRemoveGraph(context);
@@ -476,14 +487,14 @@ public class KiWiSparqlJoinTest {
 
             con1.begin();
             Set<Statement> set1 = new HashSet<>();
-            for(URI u : properties) {
+            for(IRI u : properties) {
                 set1.addAll(Collections2.transform(Iterations.asSet(con1.getStatements(null, u, null, true)), new StatementCommons.TripleEquality()));
             }
             con1.commit();
 
             con2.begin();
             Set<Statement> set2 = new HashSet<>();
-            for(URI u : properties) {
+            for(IRI u : properties) {
                 set2.addAll(Collections2.transform(Iterations.asSet(con2.getStatements(null,u,null,true)), new StatementCommons.TripleEquality()));
             }
             con2.commit();

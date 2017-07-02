@@ -17,20 +17,19 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.openrdf.query.algebra.Projection;
 import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.Var;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-
-import java.util.HashSet;
-import java.util.Set;
+import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
 * Find distinct/reduced in a tuple expression.
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class VariableFinder extends QueryModelVisitorBase<RuntimeException> {
+public class VariableFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     private Set<Var> variables = new HashSet<>();
 

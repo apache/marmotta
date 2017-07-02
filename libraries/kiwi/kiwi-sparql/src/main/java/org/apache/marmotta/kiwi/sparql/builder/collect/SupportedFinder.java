@@ -19,8 +19,28 @@ package org.apache.marmotta.kiwi.sparql.builder.collect;
 
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
+import org.openrdf.query.algebra.ArbitraryLengthPath;
+import org.openrdf.query.algebra.BindingSetAssignment;
+import org.openrdf.query.algebra.CompareAll;
+import org.openrdf.query.algebra.CompareAny;
+import org.openrdf.query.algebra.Count;
+import org.openrdf.query.algebra.Datatype;
+import org.openrdf.query.algebra.DescribeOperator;
+import org.openrdf.query.algebra.Difference;
+import org.openrdf.query.algebra.EmptySet;
+import org.openrdf.query.algebra.FunctionCall;
+import org.openrdf.query.algebra.Intersection;
+import org.openrdf.query.algebra.ListMemberOperator;
+import org.openrdf.query.algebra.MultiProjection;
+import org.openrdf.query.algebra.Sample;
+import org.openrdf.query.algebra.Service;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.UpdateExpr;
+import org.openrdf.query.algebra.ValueConstant;
+import org.openrdf.query.algebra.ValueExpr;
+import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.ZeroLengthPath;
+import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
  * Check if all constructs in the query are supported natively. Whenever you add a new construct to SQLBuilder
@@ -28,7 +48,7 @@ import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class SupportedFinder extends QueryModelVisitorBase<RuntimeException> {
+public class SupportedFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     private boolean supported = true;
     private KiWiDialect dialect;
@@ -154,7 +174,7 @@ public class SupportedFinder extends QueryModelVisitorBase<RuntimeException> {
     }
 
     private boolean isFunctionSupported(FunctionCall fc) {
-        return NativeFunctionRegistry.getInstance().get(fc.getURI()) != null && NativeFunctionRegistry.getInstance().get(fc.getURI()).isSupported(dialect);
+        return NativeFunctionRegistry.getInstance().get(fc.getURI()) != null && NativeFunctionRegistry.getInstance().get(fc.getURI()).get().isSupported(dialect);
     }
 
 

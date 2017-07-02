@@ -51,8 +51,8 @@ import org.apache.marmotta.kiwi.sparql.builder.model.SQLPattern;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.vocabulary.SESAME;
 import org.openrdf.query.BindingSet;
@@ -482,7 +482,7 @@ public class SQLBuilder {
                 Resource[] contexts;
                 Value contextValue = p.getSparqlPattern().getContextVar() != null ? p.getSparqlPattern().getContextVar().getValue() : null;
 
-                Set<URI> graphs = null;
+                Set<IRI> graphs = null;
                 boolean emptyGraph = false;
 
                 if (dataset != null) {
@@ -523,8 +523,8 @@ public class SQLBuilder {
                 } else {
                     contexts = new Resource[graphs.size()];
                     int i = 0;
-                    for (URI graph : graphs) {
-                        URI context = null;
+                    for (IRI graph : graphs) {
+                        IRI context = null;
                         if (!SESAME.NIL.equals(graph)) {
                             context = graph;
                         }
@@ -892,7 +892,7 @@ public class SQLBuilder {
         } else if(expr instanceof IRIFunction) {
             return ValueType.URI;
         } else if(expr instanceof FunctionCall) {
-            return functionRegistry.get(((FunctionCall) expr).getURI()).getReturnType();
+            return functionRegistry.get(((FunctionCall) expr).getURI()).get().getReturnType();
         } else if(expr instanceof NAryValueOperator) {
             return getProjectionType(((NAryValueOperator) expr).getArguments().get(0));
         } else if(expr instanceof ValueConstant) {

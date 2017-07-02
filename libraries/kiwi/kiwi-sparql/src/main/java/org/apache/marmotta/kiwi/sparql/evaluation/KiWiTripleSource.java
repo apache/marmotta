@@ -19,15 +19,18 @@ package org.apache.marmotta.kiwi.sparql.evaluation;
 
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.ExceptionConvertingIteration;
+import java.io.IOException;
+import java.nio.channels.ClosedByInterruptException;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSailConnection;
-import org.openrdf.model.*;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryInterruptedException;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.sail.SailException;
-
-import java.io.IOException;
-import java.nio.channels.ClosedByInterruptException;
 
 /**
  * TripleSource implementation based on a KiWi triple store.
@@ -63,7 +66,7 @@ public class KiWiTripleSource implements TripleSource {
      *          If the triple source failed to get the statements.
      */
     @Override
-    public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
+    public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
         try {
             return new ExceptionConvertingIteration<Statement, QueryEvaluationException>(
                     connection.getStatements(subj, pred, obj, inferred, contexts)

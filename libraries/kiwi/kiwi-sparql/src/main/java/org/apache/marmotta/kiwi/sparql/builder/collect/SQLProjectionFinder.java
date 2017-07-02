@@ -17,20 +17,25 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.QueryModelVisitorBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.openrdf.query.algebra.ExtensionElem;
+import org.openrdf.query.algebra.Group;
+import org.openrdf.query.algebra.Projection;
+import org.openrdf.query.algebra.ProjectionElem;
+import org.openrdf.query.algebra.TupleExpr;
+import org.openrdf.query.algebra.Union;
+import org.openrdf.query.algebra.Var;
+import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
 * Find the offset and limit values in a tuple expression
 *
 * @author Sebastian Schaffert (sschaffert@apache.org)
 */
-public class SQLProjectionFinder extends QueryModelVisitorBase<RuntimeException> {
+public class SQLProjectionFinder extends AbstractQueryModelVisitor<RuntimeException> {
 
     private static Logger log = LoggerFactory.getLogger(SQLProjectionFinder.class);
 

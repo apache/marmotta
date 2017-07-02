@@ -46,10 +46,7 @@ import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.builder.collect.SupportedFinder;
 import org.apache.marmotta.kiwi.sparql.builder.model.SQLVariable;
 import org.apache.marmotta.kiwi.sparql.exception.UnsatisfiableQueryException;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.BNodeImpl;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.IRI;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.Dataset;
@@ -69,7 +66,7 @@ import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.query.algebra.Union;
 import org.openrdf.query.algebra.evaluation.TripleSource;
 import org.openrdf.query.algebra.evaluation.federation.FederatedServiceResolverImpl;
-import org.openrdf.query.algebra.evaluation.impl.EvaluationStrategyImpl;
+import org.openrdf.query.algebra.evaluation.impl.SimpleEvaluationStrategy;
 import org.openrdf.query.impl.MapBindingSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +85,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
+public class KiWiEvaluationStrategy extends SimpleEvaluationStrategy{
 
     private static Logger log = LoggerFactory.getLogger(KiWiEvaluationStrategy.class);
 
@@ -285,61 +282,61 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                                         svalue = row.getString(sv.getName());
                                         if (svalue != null)
                                             try {
-                                                resultRow.addBinding(sv.getSparqlName(), new URIImpl(svalue));
+                                                resultRow.addBinding(sv.getSparqlName(), valueFactory.createIRI(svalue));
                                             } catch (IllegalArgumentException ex) {
                                             } // illegal URI unbound
                                         break;
                                     case BNODE:
                                         svalue = row.getString(sv.getName());
                                         if (svalue != null)
-                                            resultRow.addBinding(sv.getSparqlName(), new BNodeImpl(svalue));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createBNode(svalue));
                                         break;
                                     case INT:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = Integer.toString(row.getInt(sv.getName()));
-                                            URI type = XSD.Integer;
+                                            IRI type = XSD.Integer;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                         }
                                         break;
                                     case DOUBLE:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = Double.toString(row.getDouble(sv.getName()));
-                                            URI type = XSD.Double;
+                                            IRI type = XSD.Double;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                         }
                                         break;
                                     case DECIMAL:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = row.getBigDecimal(sv.getName()).toString();
-                                            URI type = XSD.Decimal;
+                                            IRI type = XSD.Decimal;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                         }
                                         break;
                                     case BOOL:
                                         if (row.getObject(sv.getName()) != null) {
                                             svalue = Boolean.toString(row.getBoolean(sv.getName()));
-                                            resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue.toLowerCase(), XSD.Boolean));
+                                            resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue.toLowerCase(), XSD.Boolean));
                                         }
                                         break;
                                     case STRING:
@@ -356,33 +353,33 @@ public class KiWiEvaluationStrategy extends EvaluationStrategyImpl{
                                             } catch (SQLException ex) {
                                             }
 
-                                            URI type = null;
+                                            IRI type = null;
                                             try {
                                                 long typeId = row.getLong(sv.getName() + "_TYPE");
                                                 if (typeId > 0)
-                                                    type = (URI) connection.loadNodeById(typeId);
+                                                    type = (IRI) connection.loadNodeById(typeId);
                                             } catch (SQLException ex) {
                                             }
 
                                             if (lang != null) {
                                                 if (svalue.length() > 0) {
-                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, lang));
+                                                    resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, lang));
                                                 } else {
                                                     // string functions that return empty literal should yield no type or language
-                                                    resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                                    resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(""));
                                                 }
                                             } else if (type != null) {
                                                 if (type.stringValue().equals(XSD.String.stringValue())) {
                                                     // string functions on other datatypes than string should yield no binding
                                                     if (svalue.length() > 0) {
-                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue, type));
+                                                        resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue, type));
                                                     } else {
                                                         // string functions that return empty literal should yield no type or language
-                                                        resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(""));
+                                                        resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(""));
                                                     }
                                                 }
                                             } else {
-                                                resultRow.addBinding(sv.getSparqlName(), new LiteralImpl(svalue));
+                                                resultRow.addBinding(sv.getSparqlName(), valueFactory.createLiteral(svalue));
                                             }
 
                                         }
