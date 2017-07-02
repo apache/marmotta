@@ -178,16 +178,18 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
          //New hashCode implementation:
          //https://bitbucket.org/openrdf/sesame/src/11f1f0e681cea47e167bd79929873370e199a19f/core/model/src/main/java/org/openrdf/model/impl/LiteralImpl.java?at=2.7.x&fileviewer=file-view-default
          //https://bitbucket.org/openrdf/sesame/src/aa292b3bee427c1a549b89a099a58d7edbe22d5a/core/model/src/main/java/org/openrdf/model/impl/LiteralImpl.java?at=2.8.x&fileviewer=file-view-default
-         
-        int hashCode = getLabel().hashCode();
-         if (getLanguage() != null) {
-             hashCode = 31 * hashCode + getLanguage().hashCode();
-         }
-         if (getDatatype() != null) {
-             hashCode = 31 * hashCode + getDatatype().hashCode();
- 
-        }
-         return hashCode;
+        
+        // This is changed again in Sesame 4 
+//            int hashCode = getLabel().hashCode();
+//             if (getLanguage() != null) {
+//                 hashCode = 31 * hashCode + getLanguage().hashCode();
+//             }
+//             if (getDatatype() != null) {
+//                 hashCode = 31 * hashCode + getDatatype().hashCode();
+//     
+//            }
+//             return hashCode;
+        return getLabel().hashCode();
     }
 
 
