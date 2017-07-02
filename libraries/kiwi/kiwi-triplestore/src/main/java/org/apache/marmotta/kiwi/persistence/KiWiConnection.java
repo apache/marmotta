@@ -1157,8 +1157,10 @@ public class KiWiConnection implements AutoCloseable {
         loadTripleId.setLong(3, object.getId());
         if (context != null) {
             loadTripleId.setLong(4, context.getId());
+            loadTripleId.setLong(5, context.getId());
         } else {
             loadTripleId.setNull(4, Types.BIGINT);
+            loadTripleId.setNull(5, Types.BIGINT);
         }
 
         try (ResultSet result = loadTripleId.executeQuery()) {
