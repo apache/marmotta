@@ -18,10 +18,10 @@
 package org.apache.marmotta.kiwi.model.rdf;
 
 import com.google.common.base.Preconditions;
-import org.openrdf.model.Statement;
-
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+import org.openrdf.model.Statement;
 
 /**
  * KiWiTriples are one of the core concepts of the KiWi system. They
@@ -271,16 +271,19 @@ public class KiWiTriple  implements Statement, Serializable {
 
         Statement triple = (Statement) o;
 //        changed according to https://openrdf.atlassian.net/browse/SES-1924
-//        if (!getContext().equals(triple.getContext())) return false;
-        if (!getObject().equals(triple.getObject())) return false;
-        if (!getPredicate().equals(triple.getPredicate())) return false;
-        return getSubject().equals(triple.getSubject());
+        return getObject().equals(triple.getObject())
+                && getSubject().equals(triple.getSubject())
+                && getPredicate().equals(triple.getPredicate())
+                && Objects.equals(getContext(), triple.getContext());
 
     }
 
     @Override
     public int hashCode() {
-        return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode();
+        if (getContext() == null) {
+            return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode();
+        }
+        return 961 * getSubject().hashCode() + 31 * getPredicate().hashCode() + getObject().hashCode() + getContext().hashCode();
     }
 
 
