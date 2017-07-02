@@ -38,10 +38,10 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
     }
 
     @Override
-    public boolean add(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
+    public boolean add(RepositoryConnection conn, Resource s, org.openrdf.model.IRI p, Value o, Resource... contexts) {
         boolean denyAdd;
-        if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
-            // if s is a URI and subject a KiWiUriResource, return
+        if (s instanceof org.openrdf.model.IRI && subject instanceof org.openrdf.model.IRI ) {
+            // if s is a IRI and subject a KiWiUriResource, return
             // true if they are different
             denyAdd = !s.stringValue().equals(subject.stringValue());
         } else if (s instanceof BNode && subject instanceof BNode) {
@@ -57,10 +57,10 @@ public class ResourceSubjectMetadata extends RepositoryConnectionInterceptorAdap
     }
 
     @Override
-    public boolean remove(RepositoryConnection conn, Resource s, org.openrdf.model.URI p, Value o, Resource... contexts) {
+    public boolean remove(RepositoryConnection conn, Resource s, org.openrdf.model.IRI p, Value o, Resource... contexts) {
         boolean denyRemove;
-        if (s instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI ) {
-            // if s is a URI and subject a KiWiUriResource, return
+        if (s instanceof org.openrdf.model.IRI && subject instanceof org.openrdf.model.IRI ) {
+            // if s is a IRI and subject a KiWiUriResource, return
             // true if they are different
             denyRemove = !s.stringValue().equals(subject.stringValue());
         } else if (s instanceof BNode && subject instanceof BNode) {

@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.platform.core.model.user;
 
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFType;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.URI;
-
-import java.util.Set;
+import org.openrdf.model.IRI;
 
 
 /**
@@ -57,8 +56,8 @@ public interface MarmottaUser extends Facade {
     void setMbox(String mbox);
 
     @RDF(Namespaces.NS_FOAF + "depiction")
-    URI getDepiciton();
-    void setDepiction(URI depiction);
+    IRI getDepiciton();
+    void setDepiction(IRI depiction);
 
     @RDF(Namespaces.NS_FOAF + "account")
     Set<OnlineAccount> getOnlineAccounts();

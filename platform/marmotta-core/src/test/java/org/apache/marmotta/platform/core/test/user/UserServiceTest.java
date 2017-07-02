@@ -17,15 +17,15 @@
  */
 package org.apache.marmotta.platform.core.test.user;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
 import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 /**
  * Add file description here!
@@ -75,7 +75,7 @@ public class UserServiceTest {
         String login = RandomStringUtils.randomAlphabetic(8);
 
         try {
-            URI user = userService.createUser(login);
+            IRI user = userService.createUser(login);
             Assert.assertNotNull(user);
             Assert.assertFalse(userService.isAnonymous(user));
             Assert.assertTrue(user.stringValue().endsWith(login));

@@ -17,16 +17,15 @@
  */
 package org.apache.marmotta.platform.core.model.filter;
 
+import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.util.CDIContext;
-
-import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
 import org.openrdf.model.BNode;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 
 /**
- * Accept only resources that are considered "local", i.e. either have the same URI prefix as the system,
+ * Accept only resources that are considered "local", i.e. either have the same IRI prefix as the system,
  * start with file:, start with urn:, or are blank nodes.
  * <p/>
  * Author: Sebastian Schaffert
@@ -63,13 +62,13 @@ public class MarmottaLocalFilter implements ResourceFilter {
             return true;
         }
 
-        URI uri = (URI)resource;
+        IRI iri = (IRI)resource;
 
-        if(uri.stringValue().startsWith("file:") || uri.stringValue().startsWith("urn:")) {
+        if(iri.stringValue().startsWith("file:") || iri.stringValue().startsWith("urn:")) {
             return true;
         }
 
-        return uri.stringValue().startsWith(configurationService.getBaseUri());
+        return iri.stringValue().startsWith(configurationService.getBaseIri());
 
 
     }

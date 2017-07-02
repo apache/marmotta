@@ -19,6 +19,36 @@ package org.apache.marmotta.platform.core.webservices.resource;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.CONTENT_DISPOSITION;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.ETAG;
+import static com.google.common.net.HttpHeaders.LINK;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.LinkedList;
+import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import static javax.ws.rs.core.Response.ok;
+import static javax.ws.rs.core.Response.status;
+import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ETagGenerator;
 import org.apache.marmotta.commons.http.UriUtil;
@@ -30,36 +60,18 @@ import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
 import org.apache.marmotta.platform.core.services.sesame.ResourceSubjectMetadata;
+import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebService.CHARSET;
+import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
 import org.openrdf.model.Resource;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.event.InterceptingRepositoryConnection;
 import org.openrdf.repository.event.base.InterceptingRepositoryConnectionWrapper;
-import org.openrdf.rio.*;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.LinkedList;
-import java.util.List;
-
-import static com.google.common.net.HttpHeaders.*;
-import static javax.ws.rs.core.Response.ok;
-import static javax.ws.rs.core.Response.status;
-import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebService.CHARSET;
-import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.Rio;
 
 /**
  * Meta Web Services
@@ -134,7 +146,7 @@ public class MetaWebService {
     @GET
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
     public Response getMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype) throws UnsupportedEncodingException, HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return getMeta(uri, mimetype);
     }
 
@@ -156,7 +168,7 @@ public class MetaWebService {
     @PUT
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
     public Response putMetaLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request) throws HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return putMeta(uri, mimetype, request);
     }
 
@@ -197,7 +209,7 @@ public class MetaWebService {
         try {
             InterceptingRepositoryConnection connection = new InterceptingRepositoryConnectionWrapper(sesameService.getRepository(), sesameService.getConnection());
             connection.begin();
-            final Resource subject = connection.getValueFactory().createURI(uri);
+            final Resource subject = connection.getValueFactory().createIRI(uri);
 
             try {
                 connection.addRepositoryConnectionInterceptor(new ResourceSubjectMetadata(subject));
@@ -228,7 +240,7 @@ public class MetaWebService {
     @DELETE
     @Path(ResourceWebService.UUID_PATTERN)
     public Response deleteMetaLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException, HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return deleteMetaRemote(uri);
     }
 
@@ -349,7 +361,7 @@ public class MetaWebService {
             //RepositoryConnection connection = sesameService.getConnection();
             try {
                 connection.begin();
-                final Resource subject = connection.getValueFactory().createURI(uri);
+                final Resource subject = connection.getValueFactory().createIRI(uri);
 
                 connection.addRepositoryConnectionInterceptor(new ResourceSubjectMetadata(subject));
 
@@ -357,7 +369,7 @@ public class MetaWebService {
                 connection.remove(subject, null, null, (Resource) null);
 
                 // add RDF data from input to the suject
-                connection.add(request.getReader(), configurationService.getBaseUri(), parser, contextService.getDefaultContext());
+                connection.add(request.getReader(), configurationService.getBaseIri(), parser, contextService.getDefaultContext());
             } finally {
                 connection.commit();
                 connection.close();

@@ -19,7 +19,18 @@ package org.apache.marmotta.platform.core.services.content;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.UUID;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
+import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentWriter;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
@@ -30,15 +41,6 @@ import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 import sun.net.www.MimeEntry;
 import sun.net.www.MimeTable;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.*;
-import java.net.URI;
-import java.util.UUID;
-
-import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 
 /**
  * A content writer that writes the content of a resource to the file system.
@@ -165,7 +167,7 @@ public class FileSystemContentWriter implements ContentWriter {
                 String path = mci.getContentPath();
 
                 if(path == null) {
-                    if(resource instanceof org.openrdf.model.URI && resource.stringValue().startsWith("file:")) {
+                    if(resource instanceof org.openrdf.model.IRI && resource.stringValue().startsWith("file:")) {
                         try {
                             URI uri = new URI(resource.stringValue());
                             path = uri.getPath();

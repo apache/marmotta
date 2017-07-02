@@ -41,7 +41,7 @@ public interface MarmottaHttpFilter extends Filter {
     int PRIO_LAST  = Integer.MAX_VALUE;
     
     /**
-     * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
+     * Return the pattern (regular expression) that a request IRI (relative to the LMF base IRI) has to match
      * before triggering this filter.
      *
      * @return

@@ -18,11 +18,18 @@
 package org.apache.marmotta.platform.core.services.exporter;
 
 import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.apache.marmotta.platform.core.api.exporter.ExportService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -30,14 +37,6 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Set;
 
 /**
  * Methods for writing triple data into different targets using different exporters.
@@ -89,7 +88,7 @@ public class ExporterServiceImpl implements ExportService {
      *                             in case there is no matching exporter for the given mime type
      */
     @Override
-    public String exportData(URI context, String mimeType) throws UnsupportedExporterException {
+    public String exportData(IRI context, String mimeType) throws UnsupportedExporterException {
         RDFFormat serializer = ioService.getSerializer(mimeType);
         if(serializer == null) {
             log.warn("could not find serializer for MIME type {}",mimeType);
@@ -125,7 +124,7 @@ public class ExporterServiceImpl implements ExportService {
      * @throws java.io.IOException in case there is an error writing to the output
      */
     @Override
-    public void exportData(Writer writer, URI context, String mimeType) throws UnsupportedExporterException, IOException {
+    public void exportData(Writer writer, IRI context, String mimeType) throws UnsupportedExporterException, IOException {
         RDFFormat serializer = ioService.getSerializer(mimeType);
         if(serializer == null) {
             log.warn("could not find serializer for MIME type {}",mimeType);
@@ -175,7 +174,7 @@ public class ExporterServiceImpl implements ExportService {
      * @throws java.io.IOException in case there is an error writing to the output
      */
     @Override
-    public void exportData(OutputStream outputStream, URI context, String mimeType) throws UnsupportedExporterException, IOException {
+    public void exportData(OutputStream outputStream, IRI context, String mimeType) throws UnsupportedExporterException, IOException {
         RDFFormat serializer = ioService.getSerializer(mimeType);
         if(serializer == null) {
             log.warn("could not find serializer for MIME type {}",mimeType);
@@ -220,7 +219,7 @@ public class ExporterServiceImpl implements ExportService {
      *          in case there is no matching exporter for the given mime type
      */
     @Override
-    public String exportData(URI resource, URI context, String mimeType) throws UnsupportedExporterException {
+    public String exportData(IRI resource, IRI context, String mimeType) throws UnsupportedExporterException {
         RDFFormat serializer = ioService.getSerializer(mimeType);
         if(serializer == null) {
             log.warn("could not find serializer for MIME type {}",mimeType);
@@ -256,7 +255,7 @@ public class ExporterServiceImpl implements ExportService {
      * @throws java.io.IOException in case there is an error writing to the output
      */
     @Override
-    public void exportData(Writer writer, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException {
+    public void exportData(Writer writer, IRI resource, IRI context, String mimeType) throws UnsupportedExporterException, IOException {
         RDFFormat serializer = ioService.getSerializer(mimeType);
         if(serializer == null) {
             log.warn("could not find serializer for MIME type {}",mimeType);
@@ -304,7 +303,7 @@ public class ExporterServiceImpl implements ExportService {
      * @throws java.io.IOException in case there is an error writing to the output
      */
     @Override
-    public void exportData(OutputStream outputStream, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException {
+    public void exportData(OutputStream outputStream, IRI resource, IRI context, String mimeType) throws UnsupportedExporterException, IOException {
         RDFFormat serializer = ioService.getSerializer(mimeType);
         if(serializer == null) {
             log.warn("could not find serializer for MIME type {}",mimeType);

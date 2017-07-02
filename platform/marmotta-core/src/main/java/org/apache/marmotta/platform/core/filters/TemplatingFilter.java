@@ -17,6 +17,17 @@
  */
 package org.apache.marmotta.platform.core.filters;
 
+import java.io.IOException;
+import java.net.URL;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.modules.MarmottaHttpFilter;
 import org.apache.marmotta.platform.core.api.modules.MarmottaResourceService;
@@ -24,14 +35,6 @@ import org.apache.marmotta.platform.core.api.modules.ResourceEntry;
 import org.apache.marmotta.platform.core.api.templating.AdminInterfaceService;
 import org.apache.marmotta.platform.core.exception.TemplatingException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URL;
 
 /**
  * Add file description here!
@@ -54,7 +57,7 @@ public class TemplatingFilter implements MarmottaHttpFilter {
     private AdminInterfaceService adminInterfaceService;
 
     /**
-     * Return the pattern (regular expression) that a request URI (relative to the LMF base URI) has to match
+     * Return the pattern (regular expression) that a request IRI (relative to the LMF base IRI) has to match
      * before triggering this filter.
      *
      * @return

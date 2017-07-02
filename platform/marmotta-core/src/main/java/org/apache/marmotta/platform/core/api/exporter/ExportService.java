@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.platform.core.api.exporter;
 
-import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
-import org.openrdf.model.URI;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
+import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
+import org.openrdf.model.IRI;
 
 /**
  * Methods for writing triple data into different targets using different exporters.
@@ -59,7 +58,7 @@ public interface ExportService {
      *
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      */
-    String exportData(URI context, String mimeType) throws UnsupportedExporterException;
+    String exportData(IRI context, String mimeType) throws UnsupportedExporterException;
 
     /**
      * Export the triple data contained in the named graph passed as argument "context" and write it
@@ -80,7 +79,7 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    void exportData(Writer writer, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(Writer writer, IRI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 
     /**
@@ -103,7 +102,7 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    void exportData(OutputStream outputStream, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(OutputStream outputStream, IRI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 
 
@@ -124,7 +123,7 @@ public interface ExportService {
      *
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      */
-    String exportData(URI resource, URI context, String mimeType) throws UnsupportedExporterException;
+    String exportData(IRI resource, IRI context, String mimeType) throws UnsupportedExporterException;
 
     /**
      * Export the triple data for the given resource contained in the named graph passed as argument "context" and write it
@@ -145,7 +144,7 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    void exportData(Writer writer, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(Writer writer, IRI resource, IRI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 
     /**
@@ -168,6 +167,6 @@ public interface ExportService {
      * @throws UnsupportedExporterException in case there is no matching exporter for the given mime type
      * @throws IOException in case there is an error writing to the output
      */
-    void exportData(OutputStream outputStream, URI resource, URI context, String mimeType) throws UnsupportedExporterException, IOException;
+    void exportData(OutputStream outputStream, IRI resource, IRI context, String mimeType) throws UnsupportedExporterException, IOException;
 
 }

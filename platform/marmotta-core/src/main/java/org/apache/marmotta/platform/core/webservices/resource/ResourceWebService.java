@@ -18,6 +18,40 @@
 package org.apache.marmotta.platform.core.webservices.resource;
 
 import com.google.common.collect.ImmutableMap;
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS;
+import static com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS;
+import static com.google.common.net.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN;
+import static com.google.common.net.HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS;
+import static com.google.common.net.HttpHeaders.ALLOW;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.ETAG;
+import static com.google.common.net.HttpHeaders.LAST_MODIFIED;
+import static com.google.common.net.HttpHeaders.LOCATION;
+import static com.google.common.net.HttpHeaders.VARY;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import static javax.ws.rs.core.Response.status;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.commons.http.ETagGenerator;
@@ -30,31 +64,16 @@ import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.exception.HttpErrorException;
+import static org.apache.marmotta.platform.core.model.config.CoreOptions.HTTP_ALLOW_ORIGIN;
+import static org.apache.marmotta.platform.core.model.config.CoreOptions.LINKEDDATA_MIME_REL_DEFAULT;
+import static org.apache.marmotta.platform.core.model.config.CoreOptions.LINKEDDATA_REDIRECT_PUT;
+import static org.apache.marmotta.platform.core.model.config.CoreOptions.LINKEDDATA_REDIRECT_STATUS;
+import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.Response.Status;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
-import static com.google.common.net.HttpHeaders.*;
-import static javax.ws.rs.core.Response.status;
-import static org.apache.marmotta.platform.core.model.config.CoreOptions.*;
-import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
 
 /**
  * Resource Web Services
@@ -97,7 +116,7 @@ public class ResourceWebService {
     private MetaWebService metaWebService;
 
     /**
-     * Return the options that are available for a resource with the given URI.
+     * Return the options that are available for a resource with the given IRI.
      *
      * @param uri , the fully-qualified URI of the resource to create in the
      *            triple store
@@ -121,7 +140,7 @@ public class ResourceWebService {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
                     conn.begin();
-                    URI resource = ResourceUtils.getUriResource(conn, uri);
+                    IRI resource = ResourceUtils.getUriResource(conn, uri);
                     conn.commit();
 
                     methods = resource != null ? "PUT, GET, DELETE" : "POST";
@@ -143,7 +162,7 @@ public class ResourceWebService {
     }
 
     /**
-     * Return the options that are available for a resource with the given URI.
+     * Return the options that are available for a resource with the given IRI.
      *
      * @param uuid , a unique identifier (must not contain url specific
      *             characters like /,# etc.)
@@ -154,7 +173,7 @@ public class ResourceWebService {
     @OPTIONS
     @Path(UUID_PATTERN)
     public Response optionsResourceLocal(@PathParam("uuid") String uuid, @HeaderParam(ACCESS_CONTROL_REQUEST_HEADERS) String reqHeaders) {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
 
         if (reqHeaders == null) {
             reqHeaders = "Accept, Content-Type";
@@ -168,7 +187,7 @@ public class ResourceWebService {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
                     conn.begin();
-                    URI resource = ResourceUtils.getUriResource(conn, uri);
+                    IRI resource = ResourceUtils.getUriResource(conn, uri);
                     conn.commit();
 
                     String methods = resource != null ? "PUT, GET, DELETE" : "POST";
@@ -196,10 +215,10 @@ public class ResourceWebService {
     // **************** POST (New or Remote)
 
     /**
-     * Creates new resource with given uri. If no uri is defined it creates a
-     * local uri with random uuid
+     * Creates new resource with given iri. If no iri is defined it creates a
+     * local iri with random uuid
      *
-     * @param uri , the fully-qualified URI of the resource to create in the
+     * @param iri , the fully-qualified IRI of the resource to create in the
      *            triple store
      * @return HTTP response (body is a String message)
      * @HTTP 201 new resource created
@@ -208,11 +227,11 @@ public class ResourceWebService {
      * @ResponseHeader Location the url of the new/found resource
      */
     @POST
-    public Response postNewOrRemote(@QueryParam("uri") String uri) throws UnsupportedEncodingException {
-        if (uri == null)
-            return post(configurationService.getBaseUri() + "resource/" + UUID.randomUUID().toString(), false);
+    public Response postNewOrRemote(@QueryParam("uri") String iri) throws UnsupportedEncodingException {
+        if (iri == null)
+            return post(configurationService.getBaseIri() + "resource/" + UUID.randomUUID().toString(), false);
         else
-            return post(uri, true);
+            return post(iri, true);
     }
 
     // **************** POST (Locale)
@@ -230,7 +249,7 @@ public class ResourceWebService {
     @POST
     @Path(UUID_PATTERN)
     public Response postLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException {
-        return post(configurationService.getBaseUri() + "resource/" + uuid, false);
+        return post(configurationService.getBaseIri() + "resource/" + uuid, false);
     }
 
     // **************** POST (Generic)
@@ -239,7 +258,7 @@ public class ResourceWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                String location = remote ? configurationService.getServerUri() + ConfigurationService.RESOURCE_PATH + "?uri=" + uri : uri;
+                String location = remote ? configurationService.getServerIri() + ConfigurationService.RESOURCE_PATH + "?uri=" + uri : uri;
                 Response.Status status;
                 if (ResourceUtils.getUriResource(conn, uri) != null) {
                     status = Status.OK;
@@ -282,7 +301,7 @@ public class ResourceWebService {
     @GET
     @Path(UUID_PATTERN)
     public Response getLocal(@PathParam("uuid") String uuid, @HeaderParam(javax.ws.rs.core.HttpHeaders.ACCEPT) String types) throws UnsupportedEncodingException, HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         try {
             return get(uri, types);
         } catch (URISyntaxException e) {
@@ -293,13 +312,13 @@ public class ResourceWebService {
     // **************** GET REMOTE (eq. generic) ***********************
 
     /**
-     * Returns a link to a remote resource (data or content) with the given uri
+     * Returns a link to a remote resource (data or content) with the given iri
      * and an accepted return type
      *
-     * @param uri    the fully-qualified URI of the resource to create in the triple store
+     * @param iri    the fully-qualified IRI of the resource to create in the triple store
      * @param format forces representation format (optional, normal content negotiation performed if empty)
      * @HTTP 303 resource can be found in the requested format under Location
-     * @HTTP 400 bad request (maybe uri is not defined)
+     * @HTTP 400 bad request (maybe iri is not defined)
      * @HTTP 404 resource cannot be found
      * @HTTP 406 resource cannot be found in the given format
      * @HTTP 500 Internal Error
@@ -310,15 +329,15 @@ public class ResourceWebService {
      * (content and meta)
      */
     @GET
-    public Response getRemote(@QueryParam("uri") String uri, @QueryParam("genid") String genid, @QueryParam("format") String format, @HeaderParam("Accept") String types)
+    public Response getRemote(@QueryParam("uri") String iri, @QueryParam("genid") String genid, @QueryParam("format") String format, @HeaderParam("Accept") String types)
             throws UnsupportedEncodingException, HttpErrorException {
         try {
-            if (StringUtils.isNotBlank(uri)) {
+            if (StringUtils.isNotBlank(iri)) {
                 if (format != null && StringUtils.isNotBlank(format)) {
                     types = format;
                 }
                 //TODO: add 'If-None-Match' support, sending a '304 Not Modified' when the ETag matches
-                return get(uri, types);
+                return get(iri, types);
             } else if (StringUtils.isNotBlank(genid)) {
                 if (format != null && StringUtils.isNotBlank(format)) {
                     types = format;
@@ -441,7 +460,7 @@ public class ResourceWebService {
     @PUT
     @Path(UUID_PATTERN)
     public Response putLocal(@PathParam("uuid") String uuid, @HeaderParam(CONTENT_TYPE) String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         try {
             return put(uri, type, uuid, request);
         } catch (URISyntaxException e) {
@@ -455,7 +474,7 @@ public class ResourceWebService {
      * Returns a Link where the given data (metadata or content) can be put to
      * the remote resource
      *
-     * @param uri , the fully-qualified URI of the resource to create in the
+     * @param iri , the fully-qualified IRI of the resource to create in the
      *            triple store
      * @return a link where the data can be put (depends on Content-Type)
      * @HTTP 303 resource in given format can be put under Location
@@ -468,9 +487,9 @@ public class ResourceWebService {
      * @ResponseHeader Location (for HTTP 303) the url where data can be put
      */
     @PUT
-    public Response putRemote(@QueryParam("uri") String uri, @HeaderParam(CONTENT_TYPE) String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
+    public Response putRemote(@QueryParam("uri") String iri, @HeaderParam(CONTENT_TYPE) String type, @Context HttpServletRequest request) throws UnsupportedEncodingException, HttpErrorException {
         try {
-            if (uri != null) return put(URLDecoder.decode(uri, "utf-8"), type, null, request);
+            if (iri != null) return put(URLDecoder.decode(iri, "utf-8"), type, null, request);
             else
                 return Response.status(400).entity("uri may not be null").build();
         } catch (URISyntaxException e) {
@@ -512,11 +531,11 @@ public class ResourceWebService {
                     final RepositoryConnection con = sesameService.getConnection();
                     try {
                         con.begin();
-                        URI resource = ResourceUtils.getUriResource(con, uri);
+                        IRI resource = ResourceUtils.getUriResource(con, uri);
                         con.commit();
                         return Response
                                 .status(configurationService.getIntConfiguration(LINKEDDATA_REDIRECT_STATUS, 303))
-                                        // .location(new URI(configurationService.getBaseUri() +
+                                        // .location(new URI(configurationService.getBaseIri() +
                                         // bestType.getParameter("rel") + "/" + bestType.getMime() + appendix))
                                 .location(new java.net.URI(ResourceWebServiceHelper.buildResourceLink(resource, bestType, configurationService)))
                                 .build();
@@ -546,9 +565,9 @@ public class ResourceWebService {
     // **************** DELETE RESOURCE ***********************
 
     /**
-     * Delete remote resource with given uri
+     * Delete remote resource with given iri
      *
-     * @param uri , the fully-qualified URI of the resource to create in the
+     * @param iri , the fully-qualified URI of the resource to create in the
      *            triple store
      * @return HTTP response (success or error)
      * @HTTP 200 resource deleted
@@ -556,14 +575,14 @@ public class ResourceWebService {
      * @HTTP 404 resource not found
      */
     @DELETE
-    public Response deleteResourceRemote(@QueryParam("uri") String uri) throws UnsupportedEncodingException {
+    public Response deleteResourceRemote(@QueryParam("uri") String iri) throws UnsupportedEncodingException {
 
-        if (uri != null) {
+        if (iri != null) {
             try {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
                     conn.begin();
-                    Resource resource = ResourceUtils.getUriResource(conn, URLDecoder.decode(uri, "utf-8"));
+                    Resource resource = ResourceUtils.getUriResource(conn, URLDecoder.decode(iri, "utf-8"));
                     if (resource != null) {
                         ResourceUtils.removeResource(conn, resource);
                         return Response.ok().build();
@@ -592,7 +611,7 @@ public class ResourceWebService {
     @DELETE
     @Path(UUID_PATTERN)
     public Response deleteResourceLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return deleteResourceRemote(uri);
     }
 
@@ -604,7 +623,7 @@ public class ResourceWebService {
                             LINKEDDATA_REDIRECT_STATUS, 303))
                     .header("Vary", ACCEPT)
                     .header(CONTENT_TYPE, type.toString())
-                            // .location(new URI(configurationService.getBaseUri() +
+                            // .location(new URI(configurationService.getBaseIri() +
                             // type.getParameter("rel") + "/" + type.getType() + "/"
                             // +type.getSubtype() +
                             // appendix))

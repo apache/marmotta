@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.platform.core.api.triplestore;
 
-import org.openrdf.model.URI;
-
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
+import org.openrdf.model.IRI;
 
 /**
  * The context (named graphs in LMF, formerly "knowledge space" in KiWi) service offers convenience
@@ -54,7 +53,7 @@ public interface ContextService {
     //****************************************
 
     /**
-     * Get the base context URI
+     * Get the base context IRI
      * 
      * @return base context
      */
@@ -64,47 +63,47 @@ public interface ContextService {
      * Return the set of contexts that is currently active for reading. The set of active contexts
      * is either selected explicitly in web service calls or it consists of all contexts.
      *
-     * @return a set of URIs indicating the active contexts
+     * @return a set of IRIs indicating the active contexts
      */
-    Set<URI> getActiveContext();
+    Set<IRI> getActiveContext();
 
     /**
      * Return the context used for storing system information.
      *
-     * @return a URI representing the system context
+     * @return a IRI representing the system context
      * @throws URISyntaxException 
      */
-    URI getSystemContext() throws URISyntaxException;
+    IRI getSystemContext() throws URISyntaxException;
 
     /**
-     * Get the uri of the inferred context
+     * Get the iri of the inferred context
      *
-     * @return uri of this inferred context
+     * @return iri of this inferred context
      * @throws URISyntaxException 
      */
-    URI getInferredContext() throws URISyntaxException;
+    IRI getInferredContext() throws URISyntaxException;
 
     /**
-     * Get the uri of the default context
+     * Get the iri of the default context
      *
      * @return
      * @throws URISyntaxException 
      */
-    URI getDefaultContext() throws URISyntaxException;
+    IRI getDefaultContext() throws URISyntaxException;
 
     /**
-     * Get the uri of the context used for caching linked data
+     * Get the iri of the context used for caching linked data
      * @return
      * @throws URISyntaxException 
      */
-    URI getCacheContext() throws URISyntaxException;
+    IRI getCacheContext() throws URISyntaxException;
 
     /**
      * List all contexts currently available
      * 
      * @return
      */
-    List<URI> listContexts();
+    List<IRI> listContexts();
     
     /**
      * List all accepted formats to ingest content
@@ -116,54 +115,54 @@ public interface ContextService {
     /**
      * List all contexts currently available
      * 
-     * @param filter filter only the contexts using the normative base uri
+     * @param filter filter only the contexts using the normative base iri
      * @return
      */
-    List<URI> listContexts(boolean filter);
+    List<IRI> listContexts(boolean filter);
 
     /**
-     * Create a new context with the given URI or return the already existing context. Essentially
+     * Create a new context with the given IRI or return the already existing context. Essentially
      * just calls resourceService.createUriResource, but sets some resource parameters correctly.
      *
      *
-     * @param uri the uri of the context to create
-     * @return a URI representing the created context
+     * @param iri the iri of the context to create
+     * @return a IRI representing the created context
      * @throws URISyntaxException 
      */
-    URI createContext(String uri) throws URISyntaxException;
+    IRI createContext(String iri) throws URISyntaxException;
 
     /**
-     * Create a new context with the given URI or return the already existing context. Essentially
+     * Create a new context with the given IRI or return the already existing context. Essentially
      * just calls resourceService.createUriResource, but sets some resource parameters correctly.
      * 
-     * @param uri
+     * @param iri
      * @param label
      * @return
      * @throws URISyntaxException 
      */
-    URI createContext(String uri, String label) throws URISyntaxException;
+    IRI createContext(String iri, String label) throws URISyntaxException;
 
     /**
-     * Return the context with the given URI if it exists.
+     * Return the context with the given IRI if it exists.
      *
-     * @param context_uri
+     * @param context_iri
      * @return
      */
-    URI getContext(String context_uri);
+    IRI getContext(String context_iri);
 
     /**
-     * Return a human-readable label for the context, either the rdfs:label or the last part of the URI.
+     * Return a human-readable label for the context, either the rdfs:label or the last part of the IRI.
      *
      * @param context
      * @return
      */
-    String getContextLabel(URI context);
+    String getContextLabel(IRI context);
 
     /**
      * Return the number of triples for the context.
      * @param context
      */
-    long getContextSize(org.openrdf.model.URI context);
+    long getContextSize(org.openrdf.model.IRI context);
     
     /**
      * Import content into the context
@@ -176,9 +175,9 @@ public interface ContextService {
     boolean importContent(String context, InputStream is, String format);
 
     /**
-     * Remove (clean whole content) the context represented by this URI
+     * Remove (clean whole content) the context represented by this IRI
      * 
-     * @param context uri
+     * @param context iri
      * @return operation result, false if context does not exist
      */
     boolean removeContext(String context);
@@ -190,7 +189,7 @@ public interface ContextService {
      * @param context resource
      * @return operation result, false if context does not exist
      */
-    boolean removeContext(URI context);
+    boolean removeContext(IRI context);
 
 
 }

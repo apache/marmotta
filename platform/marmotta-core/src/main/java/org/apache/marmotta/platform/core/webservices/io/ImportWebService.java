@@ -17,6 +17,30 @@
  */
 package org.apache.marmotta.platform.core.webservices.io;
 
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.task.Task;
 import org.apache.marmotta.platform.core.api.task.TaskInfo;
@@ -24,26 +48,10 @@ import org.apache.marmotta.platform.core.api.task.TaskManagerService;
 import org.apache.marmotta.platform.core.api.triplestore.ContextService;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
 
 /**
  * A webservice offering functionality to import data from the KiWi knowledge base.
@@ -84,7 +92,7 @@ public class ImportWebService {
             return new ArrayList<>(importService.getAcceptTypes());
         else {
             List<String> result = new ArrayList<>();
-            RDFFormat format = Rio.getParserFormatForFileName(filename);
+            RDFFormat format = Rio.getParserFormatForFileName(filename).orElse(null);
             if(format != null) {
                 result.addAll(format.getMIMETypes());
             }
@@ -118,7 +126,7 @@ public class ImportWebService {
         t.updateDetailMessage("type", finalType);
         try {
             //create context
-            URI context = getContext(context_string);
+            IRI context = getContext(context_string);
             if (context != null) {
                 t.updateDetailMessage("context", context.toString());
             }
@@ -159,7 +167,7 @@ public class ImportWebService {
             }
             if(type==null || !importService.getAcceptTypes().contains(type)) return Response.status(412).entity("define a valid content-type (types: "+importService.getAcceptTypes()+")").build();
             final URL finalUrl = new URL(url);
-            final URI ctx = getContext(context);
+            final IRI ctx = getContext(context);
 
             try {
                 URLConnection conn = finalUrl.openConnection();
@@ -264,7 +272,7 @@ public class ImportWebService {
         // return running;
     }
 
-    private URI getContext(String context_string) throws URISyntaxException {
+    private IRI getContext(String context_string) throws URISyntaxException {
         if(context_string != null) {
             return contextService.createContext(context_string);
         } else {

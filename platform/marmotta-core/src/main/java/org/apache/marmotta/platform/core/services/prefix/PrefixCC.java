@@ -17,7 +17,6 @@
  */
 package org.apache.marmotta.platform.core.services.prefix;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.http.HttpEntity;

@@ -17,24 +17,23 @@
  */
 package org.apache.marmotta.platform.core.services.importer;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.platform.core.api.importer.ImportService;
-import org.apache.marmotta.platform.core.api.importer.Importer;
-import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.slf4j.Logger;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.platform.core.api.importer.ImportService;
+import org.apache.marmotta.platform.core.api.importer.Importer;
+import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Resource;
+import org.slf4j.Logger;
 
 /**
  * User: Thomas Kurz
@@ -71,7 +70,7 @@ public class ImportServiceImpl implements ImportService{
 	}
 
 	@Override
-	public int importData(URL url, String format, Resource user, URI context) throws MarmottaImportException {
+	public int importData(URL url, String format, Resource user, IRI context) throws MarmottaImportException {
         long start = System.currentTimeMillis();
 		int result = getImporterInstance(format).importData(url,format,user,context);
         long end = System.currentTimeMillis();
@@ -80,7 +79,7 @@ public class ImportServiceImpl implements ImportService{
 	}
 
 	@Override
-	public int importData(InputStream is, String format, Resource user, URI context) throws MarmottaImportException {
+	public int importData(InputStream is, String format, Resource user, IRI context) throws MarmottaImportException {
         long start = System.currentTimeMillis();
         int result = getImporterInstance(format).importData(is,format,user,context);
         long end = System.currentTimeMillis();
@@ -89,7 +88,7 @@ public class ImportServiceImpl implements ImportService{
 	}
 
 	@Override
-	public int importData(Reader reader, String format, Resource user, URI context) throws MarmottaImportException {
+	public int importData(Reader reader, String format, Resource user, IRI context) throws MarmottaImportException {
         long start = System.currentTimeMillis();
         int result = getImporterInstance(format).importData(reader,format,user,context);
         long end = System.currentTimeMillis();

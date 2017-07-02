@@ -32,7 +32,7 @@ import org.openrdf.sail.SailException;
  * <pre>
  *     RespositoryConnection con = sesameService.getConnection();
  *
- *     URI subject = con.getValueFactory().createURI(...);
+ *     IRI subject = con.getValueFactory().createIRI(...);
  *     ...
  *     RepositoryResult&lt;Statement> result = con.getStatemenrs(subject,predicate,object,inferred,context);
  *     while(result.hasNext()) {

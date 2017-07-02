@@ -26,7 +26,7 @@ import org.apache.marmotta.platform.core.exception.HttpErrorException;
  */
 public class ErrorMessage {
 
-    public String uri;
+    public String iri;
 
     public int status;
 
@@ -34,14 +34,14 @@ public class ErrorMessage {
 
     public String message;
 
-    public ErrorMessage(String uri, int status, String reason, String message) {
+    public ErrorMessage(String iri, int status, String reason, String message) {
         this.status = status;
         this.reason = reason;
         this.message = message;
     }
 
     public ErrorMessage(HttpErrorException exception) {
-        this.uri = exception.getUri();
+        this.iri = exception.getUri();
         this.status = exception.getStatus();
         this.reason = exception.getReason();
         this.message = exception.getMessage();

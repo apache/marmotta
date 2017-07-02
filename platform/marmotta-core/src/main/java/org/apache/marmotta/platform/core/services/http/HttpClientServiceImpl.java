@@ -278,7 +278,7 @@ public class HttpClientServiceImpl implements HttpClientService {
             httpParams = new BasicHttpParams();
             String userAgentString =
                     "Apache Marmotta/" + configurationService.getStringConfiguration("kiwi.version") +
-                    " (running at " + configurationService.getServerUri() + ")" +
+                    " (running at " + configurationService.getServerIri() + ")" +
                     " lmf-core/" + configurationService.getStringConfiguration("kiwi.version");
             userAgentString = configurationService.getStringConfiguration("core.http.user_agent", userAgentString);
 

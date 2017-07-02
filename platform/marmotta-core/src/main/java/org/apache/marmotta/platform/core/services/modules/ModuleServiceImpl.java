@@ -18,22 +18,34 @@
 package org.apache.marmotta.platform.core.services.modules;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.configuration.*;
-import org.apache.marmotta.platform.core.api.modules.ModuleService;
-import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.InjectionPoint;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.marmotta.platform.core.api.modules.ModuleService;
+import org.apache.marmotta.platform.core.model.module.ModuleConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!
@@ -154,6 +166,8 @@ public class ModuleServiceImpl implements ModuleService {
     /**
      * Provide the current module configuration to the service injecting it
      *
+     * @param injectionPoint
+     * @return 
      */
     @Override
     @Produces

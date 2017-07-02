@@ -17,6 +17,13 @@
  */
 package org.apache.marmotta.platform.core.services.io;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParserRegistry;
@@ -24,10 +31,6 @@ import org.openrdf.rio.RDFWriterRegistry;
 import org.openrdf.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import java.util.*;
 
 /**
  * User: Thomas Kurz
@@ -86,7 +89,7 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public RDFFormat getSerializer(String mimetype) {
-		return Rio.getWriterFormatForMIMEType(mimetype);
+		return Rio.getWriterFormatForMIMEType(mimetype).orElse(null);
 	}
 
 	/**
@@ -96,7 +99,7 @@ public class MarmottaIOServiceImpl implements MarmottaIOService {
 	 */
 	@Override
 	public RDFFormat getParser(String mimetype) {
-		return Rio.getParserFormatForMIMEType(mimetype);
+		return Rio.getParserFormatForMIMEType(mimetype).orElse(null);
 	}
 	
 }

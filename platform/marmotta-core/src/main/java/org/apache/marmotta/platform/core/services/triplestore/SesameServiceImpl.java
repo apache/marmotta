@@ -18,12 +18,24 @@
 package org.apache.marmotta.platform.core.services.triplestore;
 
 import edu.emory.mathcs.backport.java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.UnsatisfiedResolutionException;
+import javax.inject.Inject;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
 import org.apache.marmotta.commons.sesame.transactions.sail.KiWiTransactionalSail;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.apache.marmotta.platform.core.api.triplestore.*;
+import org.apache.marmotta.platform.core.api.triplestore.GarbageCollectionProvider;
+import org.apache.marmotta.platform.core.api.triplestore.NotifyingSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.SesameService;
+import org.apache.marmotta.platform.core.api.triplestore.StandardSailProvider;
+import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
+import org.apache.marmotta.platform.core.api.triplestore.TransactionalSailProvider;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterCommit;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.AfterRollback;
 import org.apache.marmotta.platform.core.qualifiers.event.transaction.BeforeCommit;
@@ -39,14 +51,6 @@ import org.openrdf.sail.Sail;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.UnsatisfiedResolutionException;
-import javax.inject.Inject;
-
 /**
  * Offers access to the Sesame repository underlying this Apache Marmotta instance. The activation/deactivation methods
  * of this service make sure the repository is properly initialised and shut down.
@@ -56,7 +60,7 @@ import javax.inject.Inject;
  * <pre>
  *     RespositoryConnection con = sesameService.getConnection();
  *
- *     URI subject = con.getValueFactory().createURI(...);
+ *     IRI subject = con.getValueFactory().createIRI(...);
  *     ...
  *     RepositoryResult&lt;Statement> result = con.getStatemenrs(subject,predicate,object,inferred,context);
  *     while(result.hasNext()) {

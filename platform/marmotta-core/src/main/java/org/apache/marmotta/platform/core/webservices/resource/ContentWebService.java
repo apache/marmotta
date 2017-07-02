@@ -18,6 +18,35 @@
 package org.apache.marmotta.platform.core.webservices.resource;
 
 import com.google.common.collect.ImmutableMap;
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import static com.google.common.net.HttpHeaders.ACCEPT_RANGES;
+import static com.google.common.net.HttpHeaders.CONTENT_LENGTH;
+import static com.google.common.net.HttpHeaders.CONTENT_RANGE;
+import static com.google.common.net.HttpHeaders.CONTENT_TYPE;
+import static com.google.common.net.HttpHeaders.LINK;
+import static com.google.common.net.HttpHeaders.VARY;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
@@ -29,30 +58,11 @@ import org.apache.marmotta.platform.core.exception.MarmottaException;
 import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
+import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendContentTypes;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.google.common.net.HttpHeaders.*;
-import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendContentTypes;
 
 /**
  * Content Web Services
@@ -103,7 +113,7 @@ public class ContentWebService {
     @GET
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
     public Response getContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @HeaderParam("Range") String range) throws UnsupportedEncodingException, HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return getContent(uri, mimetype, range);
     }
 
@@ -148,7 +158,7 @@ public class ContentWebService {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI resource = conn.getValueFactory().createURI(uri);
+                IRI resource = conn.getValueFactory().createIRI(uri);
                 conn.commit();
                 final String mimeType = contentService.getContentType(resource);
                 if (mimeType != null) {
@@ -187,7 +197,7 @@ public class ContentWebService {
     @GET
     @Path(ResourceWebService.UUID_PATTERN)
     public Response getContentLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException {
-        String uri = configurationService.getBaseUri() + ConfigurationService.RESOURCE_PATH + "/" + uuid;
+        String uri = configurationService.getBaseIri() + ConfigurationService.RESOURCE_PATH + "/" + uuid;
         return getContentRemote(uri);
     }
 
@@ -210,7 +220,7 @@ public class ContentWebService {
     @PUT
     @Path(ResourceWebService.MIME_PATTERN + ResourceWebService.UUID_PATTERN)
     public Response putContentLocal(@PathParam("uuid") String uuid, @PathParam("mimetype") String mimetype, @Context HttpServletRequest request) throws HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return putContent(uri, mimetype, request);
     }
 
@@ -254,7 +264,7 @@ public class ContentWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                Resource resource = conn.getValueFactory().createURI(uri);
+                Resource resource = conn.getValueFactory().createIRI(uri);
                 if (resource != null) {
                     if (contentService.deleteContent(resource)) {
                         return Response.ok().build();
@@ -285,7 +295,7 @@ public class ContentWebService {
     @DELETE
     @Path(ResourceWebService.UUID_PATTERN)
     public Response deleteContentLocal(@PathParam("uuid") String uuid) throws UnsupportedEncodingException, HttpErrorException {
-        String uri = configurationService.getBaseUri() + "resource/" + uuid;
+        String uri = configurationService.getBaseIri() + "resource/" + uuid;
         return deleteContentRemote(uri);
     }
 
@@ -296,7 +306,7 @@ public class ContentWebService {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI resource = conn.getValueFactory().createURI(uri);
+                IRI resource = conn.getValueFactory().createIRI(uri);
                 conn.commit();
                 if (mimetype == null) {
                     mimetype = contentService.getContentType(resource);
@@ -366,7 +376,7 @@ public class ContentWebService {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                URI resource = conn.getValueFactory().createURI(uri);
+                IRI resource = conn.getValueFactory().createIRI(uri);
                 conn.commit();
                 return putContent(resource, mimetype, request);
             } finally {
@@ -377,7 +387,7 @@ public class ContentWebService {
         }
     }
 
-    public Response putContent(URI resource, String mimetype, HttpServletRequest request) throws HttpErrorException {
+    public Response putContent(IRI resource, String mimetype, HttpServletRequest request) throws HttpErrorException {
         try {
             if (request.getContentLength() == 0) {
                 throw new HttpErrorException(Status.BAD_REQUEST, resource.stringValue(), "content may not be empty for writing");

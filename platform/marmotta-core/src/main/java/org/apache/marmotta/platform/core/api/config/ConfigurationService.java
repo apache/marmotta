@@ -17,14 +17,13 @@
  */
 package org.apache.marmotta.platform.core.api.config;
 
-import org.apache.commons.configuration.Configuration;
-
-import javax.servlet.ServletContext;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.servlet.ServletContext;
+import org.apache.commons.configuration.Configuration;
 
 /**
  * Manage the system configuration.
@@ -72,16 +71,16 @@ public interface ConfigurationService {
     String LOGGING_PATH = "logging";
 
     /**
-     * Get the base URI of the system.
-     * The base URI is used by the LMF to create local resource URIs. In this way, all Apache Marmotta resources
+     * Get the base IRI of the system.
+     * The base IRI is used by the LMF to create local resource IRIs. In this way, all Apache Marmotta resources
      * are "Linked Open Data" compatible.
      * 
-     * The base URI is calculated based on the request URI given by the user.
-     * In most cases it is the same as {@link #getServerUri()}, but this is not guaranteed.
+     * The base IRI is calculated based on the request IRI given by the user.
+     * In most cases it is the same as {@link #getServerIri()}, but this is not guaranteed.
      * 
-     * @return the base URI
+     * @return the base IRI
      */
-    String getBaseUri();
+    String getBaseIri();
 
     /**
      * Get the base path of the system, which is the relative path from the server host.
@@ -91,18 +90,18 @@ public interface ConfigurationService {
     String getPath();
 
     /**
-     * Get the server URI of the system.
-     * The server URI is used to accesses the
+     * Get the server IRI of the system.
+     * The server IRI is used to accesses the
      * server that runs the KiWi (and SOLR) applications.
      * 
      * Can be used to compute the paths of the web services or
      * other applications relative to the current application.
      * 
-     * Computed like the base URI.
+     * Computed like the base IRI.
      * 
-     * @return the server URI
+     * @return the server IRI
      */
-    String getServerUri();
+    String getServerIri();
 
     /**
      * List all configuration keys defined for the system configuration of KiWi.
@@ -418,7 +417,7 @@ public interface ConfigurationService {
     String getHome();
 
     /**
-     * Get the base URI for contexts
+     * Get the base IRI for contexts
      * @return
      */
     String getBaseContext();
@@ -426,32 +425,32 @@ public interface ConfigurationService {
     /**
      * Return the context used for storing system information.
      *
-     * @return a URI representing the system context
+     * @return a IRI representing the system context
      */
     String getSystemContext();
 
     /**
-     * Get the uri of the inferred context
+     * Get the iri of the inferred context
      *
-     * @return uri of this inferred context
+     * @return iri of this inferred context
      */
     String getInferredContext();
 
     /**
-     * Get the uri of the default context
+     * Get the iri of the default context
      *
      * @return
      */
     String getDefaultContext();
 
     /**
-     * Get the uri of the context used for caching linked data
+     * Get the iri of the context used for caching linked data
      * @return
      */
     String getCacheContext();
 
     /**
-     * Get the uri of the context used for enhancements.
+     * Get the iri of the context used for enhancements.
      * 
      * @return
      */
