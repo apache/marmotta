@@ -18,19 +18,17 @@
 package org.apache.marmotta.commons.sesame.facading.locale;
 
 import java.util.Locale;
-
+import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
+import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
+import org.apache.marmotta.commons.sesame.facading.api.Facading;
+import org.apache.marmotta.commons.sesame.facading.locale.model.LocaleFacade;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-
-import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
-import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
-import org.apache.marmotta.commons.sesame.facading.api.Facading;
-import org.apache.marmotta.commons.sesame.facading.locale.model.LocaleFacade;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
@@ -51,8 +49,8 @@ public class LocaleFacadingTest extends AbstractFacadingTest {
             connection.begin();
             final Facading facading = FacadingFactory.createFacading(connection);
 
-            final URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/locale");
-            final LocaleFacade f = facading.createFacade(uri, LocaleFacade.class);
+            final IRI iri = connection.getValueFactory().createIRI("http://www.example.com/rdf/test/locale");
+            final LocaleFacade f = facading.createFacade(iri, LocaleFacade.class);
 
             f.setLabel(lbl);
             assertEquals(lbl, f.getLabel());

@@ -17,6 +17,22 @@
 package org.apache.marmotta.commons.sesame.facading.impl;
 
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFInverse;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFPropertyBuilder;
@@ -26,15 +42,16 @@ import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
 import org.apache.marmotta.commons.util.DateUtils;
 import org.joda.time.DateTime;
-import org.openrdf.model.*;
+import org.openrdf.model.IRI;
+import org.openrdf.model.Literal;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.*;
-import java.util.*;
 
 /**
  * This class implements an invocation handler to be used for proxy classes that delegate to a
@@ -117,7 +134,7 @@ class FacadingInvocationHandler implements InvocationHandler {
 
     private final Resource delegate;
 
-    private final URI context;
+    private final IRI context;
 
     private final HashMap<String, Object> fieldCache;
 
@@ -128,7 +145,7 @@ class FacadingInvocationHandler implements InvocationHandler {
      */
     private boolean useCache;
 
-    public FacadingInvocationHandler(Resource item, URI context, Class<? extends Facade> facade, Facading facadingService, RepositoryConnection connection) {
+    public FacadingInvocationHandler(Resource item, IRI context, Class<? extends Facade> facade, Facading facadingService, RepositoryConnection connection) {
         this.log = LoggerFactory.getLogger(facade.getName() + "!" + this.getClass().getSimpleName() + "@" + item.stringValue());
         this.delegate = item;
         this.facadingService = facadingService;
@@ -298,7 +315,7 @@ class FacadingInvocationHandler implements InvocationHandler {
             if (loc != null) { throw new IllegalArgumentException("@RDFInverse not supported for language tagged properties"); }
             else {
                 for (String p : predicate.getProperties()) {
-                    final URI prop = connection.getValueFactory().createURI(p);
+                    final IRI prop = connection.getValueFactory().createIRI(p);
                     final RepositoryResult<Statement> result = connection.getStatements(null, prop, delegate, true, context);
                     try {
                         if (result.hasNext()) { return true; }
@@ -309,7 +326,7 @@ class FacadingInvocationHandler implements InvocationHandler {
             }
         } else {
             for (String p : predicate.getProperties()) {
-                final URI prop = connection.getValueFactory().createURI(p);
+                final IRI prop = connection.getValueFactory().createIRI(p);
                 final RepositoryResult<Statement> result = connection.getStatements(delegate, prop, null, true, context);
                 try {
                     if (loc == null) {
@@ -390,30 +407,30 @@ class FacadingInvocationHandler implements InvocationHandler {
             // nop;
         } else if (FacadeUtils.isBaseType(paramType) && !inverse) {
             for (String v : rdf_property) {
-                final URI prop = connection.getValueFactory().createURI(v);
+                final IRI prop = connection.getValueFactory().createIRI(v);
                 connection.add(delegate, prop, createLiteral(args[0], loc), context);
             }
         } else if (FacadeUtils.isValue(paramType) && !inverse) {
             for (String v : rdf_property) {
-                final URI prop = connection.getValueFactory().createURI(v);
+                final IRI prop = connection.getValueFactory().createIRI(v);
                 // create a new triple for this property, subject, and object
                 connection.add(delegate, prop, (Value) args[0], context);
             }
         } else if (FacadeUtils.isResource(paramType) && inverse) {
             for (String v : rdf_property) {
-                final URI prop = connection.getValueFactory().createURI(v);
+                final IRI prop = connection.getValueFactory().createIRI(v);
                 // create a new triple for this property, subject, and object
                 connection.add((Resource) args[0], prop, delegate, context);
             }
         } else if (FacadeUtils.isFacade(paramType) && !inverse) {
             for (String v : rdf_property) {
-                final URI prop = connection.getValueFactory().createURI(v);
+                final IRI prop = connection.getValueFactory().createIRI(v);
                 // create a new triple for this property, subject, and object
                 connection.add(delegate, prop, ((Facade) args[0]).getDelegate(), context);
             }
         } else if (FacadeUtils.isFacade(paramType) && inverse) {
             for (String v : rdf_property) {
-                final URI prop = connection.getValueFactory().createURI(v);
+                final IRI prop = connection.getValueFactory().createIRI(v);
                 // create a new triple for this property, subject, and object
                 connection.add(((Facade) args[0]).getDelegate(), prop, delegate, context);
             }
@@ -421,7 +438,7 @@ class FacadingInvocationHandler implements InvocationHandler {
             for (String v : rdf_property) {
                 final Collection<?> c = (Collection<?>) args[0];
 
-                final URI prop = connection.getValueFactory().createURI(v);
+                final IRI prop = connection.getValueFactory().createIRI(v);
 
                 // add each of the elements in the collection as new triple with prop
                 for (final Object o : c) {
@@ -454,7 +471,7 @@ class FacadingInvocationHandler implements InvocationHandler {
 
     private void delProperties(final FacadingPredicate predicate, final Locale loc) throws RepositoryException {
         for (String v : predicate.getProperties()) {
-            final URI prop = connection.getValueFactory().createURI(v);
+            final IRI prop = connection.getValueFactory().createIRI(v);
 
             if (!predicate.isInverse() && loc == null) {
                 // remove all properties prop that have this subject;
@@ -529,7 +546,7 @@ class FacadingInvocationHandler implements InvocationHandler {
              * if the return type is string or primitive, get the literal value of the property and
              * transform it appropriately
              */
-            final URI property = connection.getValueFactory().createURI(rdf_property);
+            final IRI property = connection.getValueFactory().createIRI(rdf_property);
             final String value = getProperty(entity, property, loc, context);
 
             try {
@@ -548,7 +565,7 @@ class FacadingInvocationHandler implements InvocationHandler {
             /*
              * for KiWi entities, we retrieve the resource that is targeted by this property (by
              * using getObject) and create a query on the triple store using createQuery() and the
-             * resource's uri that returns the result in the appropriate type (can e.g. be again a
+             * resource's iri that returns the result in the appropriate type (can e.g. be again a
              * proxy using this invocation handler!)
              */
             Resource object = queryOutgoingSingle(entity, rdf_property, Resource.class);
@@ -562,7 +579,7 @@ class FacadingInvocationHandler implements InvocationHandler {
             /*
              * for KiWi entities, we retrieve the resource that is targeted by this property (by
              * using getObject) and create a query on the triple store using createQuery() and the
-             * resource's uri that returns the result in the appropriate type (can e.g. be again a
+             * resource's iri that returns the result in the appropriate type (can e.g. be again a
              * proxy using this invocation handler!)
              */
             Resource subject = queryIncomingSingle(entity, rdf_property, Resource.class);
@@ -606,7 +623,7 @@ class FacadingInvocationHandler implements InvocationHandler {
                     throw new IllegalArgumentException("@RDFInverse not supported for mappings of type " + rdf_property);
                 } else if (FacadeUtils.isBaseType(tCls)) {
                     final Collection<Object> result = FacadingInvocationHelper.createCollection(collectionType, Collections.<Object> emptyList());
-                    final URI property = connection.getValueFactory().createURI(rdf_property);
+                    final IRI property = connection.getValueFactory().createIRI(rdf_property);
 
                     for (final String s : getProperties(entity, property, loc, context)) {
                         result.add(FacadeUtils.transformToBaseType(s, tCls));
@@ -636,7 +653,7 @@ class FacadingInvocationHandler implements InvocationHandler {
      * 
      */
     private <C> C queryOutgoingSingle(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
-        URI property = connection.getValueFactory().createURI(rdf_property);
+        IRI property = connection.getValueFactory().createIRI(rdf_property);
 
         RepositoryResult<Statement> triples = connection.getStatements(entity, property, null, false);
         try {
@@ -668,7 +685,7 @@ class FacadingInvocationHandler implements InvocationHandler {
      * 
      */
     private <C> C queryIncomingSingle(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
-        URI property = connection.getValueFactory().createURI(rdf_property);
+        IRI property = connection.getValueFactory().createIRI(rdf_property);
 
         RepositoryResult<Statement> triples = connection.getStatements(null, property, entity, false);
         try {
@@ -699,7 +716,7 @@ class FacadingInvocationHandler implements InvocationHandler {
      * 
      */
     private <C> Set<C> queryOutgoingAll(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
-        final URI property = connection.getValueFactory().createURI(rdf_property);
+        final IRI property = connection.getValueFactory().createIRI(rdf_property);
 
         final Set<C> dupSet = new LinkedHashSet<>();
         final RepositoryResult<Statement> triples = connection.getStatements(entity, property, null, false);
@@ -725,7 +742,7 @@ class FacadingInvocationHandler implements InvocationHandler {
      * 
      */
     private <C> Set<C> queryIncomingAll(Resource entity, String rdf_property, Class<C> returnType) throws RepositoryException {
-        final URI property = connection.getValueFactory().createURI(rdf_property);
+        final IRI property = connection.getValueFactory().createIRI(rdf_property);
 
         final Set<C> dupSet = new LinkedHashSet<>();
         final RepositoryResult<Statement> triples = connection.getStatements(null, property, entity, false);
@@ -765,7 +782,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         }
     }
 
-    private Set<String> getProperties(Resource entity, URI property, Locale loc, URI context) throws RepositoryException {
+    private Set<String> getProperties(Resource entity, IRI property, Locale loc, IRI context) throws RepositoryException {
         final String lang = loc == null ? null : loc.getLanguage().toLowerCase();
 
         final Set<String> values = new HashSet<>();
@@ -777,7 +794,7 @@ class FacadingInvocationHandler implements InvocationHandler {
                 if (triple.getObject() instanceof Literal) {
                     Literal l = (Literal) triple.getObject();
 
-                    if (lang == null || lang.equals(l.getLanguage())) {
+                    if (lang == null || lang.equals(l.getLanguage().orElse(null))) {
                         values.add(l.stringValue());
                     }
                 }
@@ -789,7 +806,7 @@ class FacadingInvocationHandler implements InvocationHandler {
         return values;
     }
 
-    private String getProperty(Resource entity, URI property, Locale loc, URI context) throws RepositoryException {
+    private String getProperty(Resource entity, IRI property, Locale loc, IRI context) throws RepositoryException {
         Set<String> values = getProperties(entity, property, loc, context);
 
         if (values.size() > 0) {

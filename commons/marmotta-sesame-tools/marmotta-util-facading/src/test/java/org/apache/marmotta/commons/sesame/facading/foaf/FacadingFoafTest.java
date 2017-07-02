@@ -17,15 +17,11 @@
 
 package org.apache.marmotta.commons.sesame.facading.foaf;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assume.assumeThat;
-
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
@@ -33,13 +29,20 @@ import org.apache.marmotta.commons.sesame.facading.foaf.model.OnlineAccount;
 import org.apache.marmotta.commons.sesame.facading.foaf.model.Person;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.hasProperty;
 import org.junit.Assert;
 import org.junit.Assume;
+import static org.junit.Assume.assumeThat;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -47,12 +50,6 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Test if facading works for the FOAF examples
@@ -100,8 +97,8 @@ public class FacadingFoafTest extends AbstractFacadingTest {
             Facading facading = FacadingFactory.createFacading(connectionRDF);
 
             // test individual resource
-            URI u_hans_meier = connectionRDF.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
-            URI u_anna_schmidt = connectionRDF.getValueFactory().createURI("http://localhost:8080/LMF/resource/anna_schmidt");
+            IRI u_hans_meier = connectionRDF.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI u_anna_schmidt = connectionRDF.getValueFactory().createIRI("http://localhost:8080/LMF/resource/anna_schmidt");
             Person hans_meier = facading.createFacade(u_hans_meier,Person.class);
 
             Assert.assertEquals("Hans Meier",hans_meier.getName());
@@ -150,7 +147,7 @@ public class FacadingFoafTest extends AbstractFacadingTest {
             Facading facading = FacadingFactory.createFacading(connectionRDF);
 
             // test individual resource
-            URI u_hans_meier = connectionRDF.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI u_hans_meier = connectionRDF.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
             Person hans_meier = facading.createFacade(u_hans_meier,Person.class);
 
             Assert.assertNull(hans_meier.getNick());
@@ -161,21 +158,21 @@ public class FacadingFoafTest extends AbstractFacadingTest {
             Assert.assertEquals("hansi",hans_meier.getNick());
 
             // check in triple store if the triple is there
-            URI p_foaf_nick = connectionRDF.getValueFactory().createURI(Namespaces.NS_FOAF + "nick");
+            IRI p_foaf_nick = connectionRDF.getValueFactory().createIRI(Namespaces.NS_FOAF + "nick");
             RepositoryResult<Statement> nicknames = connectionRDF.getStatements(u_hans_meier,p_foaf_nick,null,true);
             Assert.assertTrue(nicknames.hasNext());
             Assert.assertEquals("hansi",nicknames.next().getObject().stringValue());
             nicknames.close();
 
             // test creating a completely new resource
-            URI u_fritz_fischer = connectionRDF.getValueFactory().createURI("http://localhost:8080/LMF/resource/fritz_fischer");
+            IRI u_fritz_fischer = connectionRDF.getValueFactory().createIRI("http://localhost:8080/LMF/resource/fritz_fischer");
             Person fritz_fischer = facading.createFacade(u_fritz_fischer,Person.class);
             fritz_fischer.setName("Fritz Fischer");
 
             Assert.assertEquals("Fritz Fischer", fritz_fischer.getName());
 
             // test if it is now there
-            URI p_foaf_name = connectionRDF.getValueFactory().createURI(Namespaces.NS_FOAF + "name");
+            IRI p_foaf_name = connectionRDF.getValueFactory().createIRI(Namespaces.NS_FOAF + "name");
             RepositoryResult<Statement> names = connectionRDF.getStatements(u_fritz_fischer,p_foaf_name,null,true);
             Assert.assertTrue(names.hasNext());
             Assert.assertEquals("Fritz Fischer",names.next().getObject().stringValue());
@@ -208,7 +205,7 @@ public class FacadingFoafTest extends AbstractFacadingTest {
         try {
             final Facading facading = FacadingFactory.createFacading(connection);
 
-            URI u_hans_meier = connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier");
+            IRI u_hans_meier = connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier");
             Person hans_meier = facading.createFacade(u_hans_meier, Person.class);
             Assume.assumeThat("Could not load test-person", hans_meier, notNullValue(Person.class));
 
@@ -234,10 +231,10 @@ public class FacadingFoafTest extends AbstractFacadingTest {
         try {
             final Facading facading = FacadingFactory.createFacading(connection);
 
-            URI p = connection.getValueFactory().createURI("http://localhost/person");
+            IRI p = connection.getValueFactory().createIRI("http://localhost/person");
             Person person = facading.createFacade(p, Person.class);
 
-            URI a = connection.getValueFactory().createURI("http://localhost/account");
+            IRI a = connection.getValueFactory().createIRI("http://localhost/account");
             OnlineAccount account = facading.createFacade(a, OnlineAccount.class);
 
             account.setHolder(person);
@@ -257,7 +254,7 @@ public class FacadingFoafTest extends AbstractFacadingTest {
         try {
             final Facading facading = FacadingFactory.createFacading(connection);
 
-            URI a = connection.getValueFactory().createURI("http://localhost/account");
+            IRI a = connection.getValueFactory().createIRI("http://localhost/account");
             OnlineAccount account = facading.createFacade(a, OnlineAccount.class);
 
             account.addChatId("foo");

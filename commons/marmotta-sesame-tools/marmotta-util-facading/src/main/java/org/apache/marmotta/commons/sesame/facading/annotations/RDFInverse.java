@@ -50,10 +50,10 @@ import java.lang.annotation.Target;
 public @interface RDFInverse {
 
 	/**
-	 * Return the URI of the RDF predicate to use for the field
+	 * Return the IRI of the RDF predicate to use for the field
 	 * or method.
 	 *
-	 * @returns URI of the RDF predicate to use for the field or
+	 * @returns IRI of the RDF predicate to use for the field or
 	 *          method.
 	 */
 	String[] value();

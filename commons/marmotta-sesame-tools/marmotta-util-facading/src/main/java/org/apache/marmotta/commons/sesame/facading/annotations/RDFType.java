@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 @Target( { ElementType.TYPE } )
 public @interface RDFType {
 	/**
-	 * The URI of the RDF type to use for the class
+	 * The IRI of the RDF type to use for the class
 	 * @return
 	 */
 	String[] value();

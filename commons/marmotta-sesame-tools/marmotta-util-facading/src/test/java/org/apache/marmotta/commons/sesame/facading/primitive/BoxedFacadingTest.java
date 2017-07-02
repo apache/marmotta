@@ -17,6 +17,10 @@
 
 package org.apache.marmotta.commons.sesame.facading.primitive;
 
+import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
@@ -25,14 +29,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
-import java.util.UUID;
 
 public class BoxedFacadingTest extends AbstractFacadingTest {
 
@@ -42,7 +41,7 @@ public class BoxedFacadingTest extends AbstractFacadingTest {
 
     @Before
     public void before() throws Exception {
-        final URI subject = repositoryRDF.getValueFactory().createURI("urn:", UUID.randomUUID().toString());
+        final IRI subject = repositoryRDF.getValueFactory().createIRI("urn:", UUID.randomUUID().toString());
         random = new Random();
 
         facadingConnection = repositoryRDF.getConnection();

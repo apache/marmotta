@@ -19,14 +19,13 @@ package org.apache.marmotta.commons.sesame.facading.foaf.model;
 
 
 
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFFilter;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFType;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.URI;
-
-import java.util.Set;
+import org.openrdf.model.IRI;
 
 /**
  * Sample facade to describe a foaf:Person
@@ -54,8 +53,8 @@ public interface Person extends Facade {
     public void setMbox(String mbox);
 
     @RDF(Namespaces.NS_FOAF + "depiction")
-    public URI getDepiciton();
-    public void setDepiction(URI depiction);
+    public IRI getDepiciton();
+    public void setDepiction(IRI depiction);
 
     @RDF(Namespaces.NS_FOAF + "account")
     public Set<OnlineAccount> getOnlineAccounts();

@@ -17,24 +17,21 @@
 
 package org.apache.marmotta.commons.sesame.facading.collections;
 
-import static org.hamcrest.CoreMatchers.hasItems;
-
-
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.collections.model.CollectionFacade;
 import org.hamcrest.CoreMatchers;
+import static org.hamcrest.CoreMatchers.hasItems;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
-import java.util.UUID;
 
 public class CollectionFacadingTest extends AbstractFacadingTest {
 
@@ -58,7 +55,7 @@ public class CollectionFacadingTest extends AbstractFacadingTest {
             connection.begin();
             final Facading facading = FacadingFactory.createFacading(connection);
 
-            URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/collections");
+            IRI uri = connection.getValueFactory().createIRI("http://www.example.com/rdf/test/collections");
             CollectionFacade facade = facading.createFacade(uri, CollectionFacade.class);
 
             facade.setDates(Arrays.asList(a, b, c));
@@ -90,7 +87,7 @@ public class CollectionFacadingTest extends AbstractFacadingTest {
             final Facading facading = FacadingFactory.createFacading(connection);
             connection.begin();
 
-            URI uri = connection.getValueFactory().createURI("http://www.example.com/rdf/test/document");
+            IRI uri = connection.getValueFactory().createIRI("http://www.example.com/rdf/test/document");
             CollectionFacade facade = facading.createFacade(uri, CollectionFacade.class);
 
             facade.setAutors(Arrays.asList(a1, a2));
