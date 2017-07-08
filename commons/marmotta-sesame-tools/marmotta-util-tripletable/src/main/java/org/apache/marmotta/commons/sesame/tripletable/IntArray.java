@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 import org.openrdf.model.IRI;
+import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 
@@ -75,7 +76,7 @@ public final class IntArray implements Comparable<IntArray>, Serializable {
 
         int s = subject != null ? subject.hashCode() : Integer.MIN_VALUE;
         int p = property != null ? property.hashCode() : Integer.MIN_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MIN_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MIN_VALUE;
         int c = context != null ? context.hashCode() : Integer.MIN_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -95,7 +96,7 @@ public final class IntArray implements Comparable<IntArray>, Serializable {
 
         int s = subject != null ? subject.hashCode() : Integer.MAX_VALUE;
         int p = property != null ? property.hashCode() : Integer.MAX_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MAX_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MAX_VALUE;
         int c = context != null ? context.hashCode() : Integer.MAX_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -115,7 +116,7 @@ public final class IntArray implements Comparable<IntArray>, Serializable {
 
         int s = subject != null ? subject.hashCode() : Integer.MIN_VALUE;
         int p = property != null ? property.hashCode() : Integer.MIN_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MIN_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MIN_VALUE;
         int c = context != null ? context.hashCode() : Integer.MIN_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -135,7 +136,7 @@ public final class IntArray implements Comparable<IntArray>, Serializable {
 
         int s = subject != null ? subject.hashCode() : Integer.MAX_VALUE;
         int p = property != null ? property.hashCode() : Integer.MAX_VALUE;
-        int o = object != null ? object.hashCode() : Integer.MAX_VALUE;
+        int o = object != null ? calcObjectHash(object) : Integer.MAX_VALUE;
         int c = context != null ? context.hashCode() : Integer.MAX_VALUE;
 
         IntBuffer bb = IntBuffer.allocate(4);
@@ -146,6 +147,25 @@ public final class IntArray implements Comparable<IntArray>, Serializable {
 
         return new IntArray(bb.array());
 
+    }
+    
+        private static int calcObjectHash(Value value) {
+        if(value instanceof Literal) {
+            int i = value.stringValue().hashCode();
+            if(((Literal) value).getLanguage() != null) {
+                i = i*31 + ((Literal) value).getLanguage().hashCode();
+            } else {
+                i = i*31;
+            }
+            if(((Literal) value).getDatatype() != null) {
+                i = i*31 + ((Literal) value).getDatatype().hashCode();
+            } else {
+                i = i*31;
+            }
+            return i;
+        } else {
+            return value.hashCode();
+        }
     }
 
     @Override
