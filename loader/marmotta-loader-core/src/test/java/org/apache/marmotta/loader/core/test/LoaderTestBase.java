@@ -28,8 +28,7 @@ import org.apache.marmotta.loader.core.test.dummy.DummyLoaderHandler;
 import org.apache.marmotta.loader.wrapper.LoaderHandlerWrapper;
 import org.junit.*;
 import org.openrdf.model.Model;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.IRI;
 import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Add file description here!
@@ -109,19 +109,19 @@ public abstract class LoaderTestBase {
         MarmottaLoader loader = new MarmottaLoader(cfg);
         DummyLoaderHandler handler = getBase(loader.load());
 
-        testData(handler.getModel(), new URIImpl("http://localhost/contexts/mycontext"));
+        testData(handler.getModel(), SimpleValueFactory.getInstance().createIRI("http://localhost/contexts/mycontext"));
     }
 
-    private void testData(Model model, URI... contexts) {
+    private void testData(Model model, IRI... contexts) {
         Assert.assertTrue(model.size() > 0);
 
-        URI s = new URIImpl("http://localhost:8080/LMF/resource/hans_meier");
-        URI p = new URIImpl("http://xmlns.com/foaf/0.1/interest");
-        URI o = new URIImpl("http://rdf.freebase.com/ns/en.software_engineering");
+        IRI s = SimpleValueFactory.getInstance().createIRI("http://localhost:8080/LMF/resource/hans_meier");
+        IRI p = SimpleValueFactory.getInstance().createIRI("http://xmlns.com/foaf/0.1/interest");
+        IRI o = SimpleValueFactory.getInstance().createIRI("http://rdf.freebase.com/ns/en.software_engineering");
 
         Assert.assertTrue(model.contains(s,p,o));
 
-        for(URI c : contexts) {
+        for(IRI c : contexts) {
             Assert.assertTrue(model.contains(s,p,o,c));
         }
     }

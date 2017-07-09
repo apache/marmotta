@@ -66,10 +66,10 @@ public class FlattenFunction<Node> extends AbstractCollFunction<Node> {
         }
 
         // Add the (all) firsts
-        result.addAll(backend.listObjects(node, backend.createURI(RDF + "first")));
+        result.addAll(backend.listObjects(node, backend.createIRI(RDF + "first")));
 
         // Recursively add the rest
-        final Collection<Node> rest = backend.listObjects(node, backend.createURI(RDF + "rest"));
+        final Collection<Node> rest = backend.listObjects(node, backend.createIRI(RDF + "rest"));
         for (Node r : rest) {
             flattenCollection(backend, r, result, backtrace);
         }
@@ -77,7 +77,7 @@ public class FlattenFunction<Node> extends AbstractCollFunction<Node> {
 
     private void flattenContainer(RDFBackend<Node> backend, Node node, Collection<Node> result) {
         for (int i = 1; /* exit via break */; i++) {
-            final Collection<Node> objects = backend.listObjects(node, backend.createURI(RDF + "_" + i));
+            final Collection<Node> objects = backend.listObjects(node, backend.createIRI(RDF + "_" + i));
             if (objects.size() > 0) {
                 result.addAll(objects);
             } else {

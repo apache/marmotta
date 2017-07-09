@@ -25,7 +25,7 @@ import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
 import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public class LDCachingKiWiPersistenceConnection implements Closeable {
         entry.setLastRetrieved(new Date(row.getTimestamp("retrieved_at").getTime()));
         entry.setExpiryDate(new Date(row.getTimestamp("expires_at").getTime()));
         entry.setUpdateCount(row.getInt("update_count"));
-        entry.setResource((URI) connection.loadNodeById(row.getLong("resource_id")));
+        entry.setResource((IRI) connection.loadNodeById(row.getLong("resource_id")));
         entry.setTripleCount(row.getInt("triple_count"));
 
         entryIdCache.put(id,entry);

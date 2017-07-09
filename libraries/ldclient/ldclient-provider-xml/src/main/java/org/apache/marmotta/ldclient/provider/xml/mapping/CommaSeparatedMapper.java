@@ -64,7 +64,7 @@ public class CommaSeparatedMapper extends XPathLiteralMapper {
         List<Value> result = new ArrayList<Value>(values.length);
         for(String value : values) {
             if(datatype != null) {
-                result.add(factory.createLiteral(value.trim(), factory.createURI(Namespaces.NS_XSD + datatype)));
+                result.add(factory.createLiteral(value.trim(), factory.createIRI(Namespaces.NS_XSD + datatype)));
             } else {
                 result.add(factory.createLiteral(value.trim()));
             }

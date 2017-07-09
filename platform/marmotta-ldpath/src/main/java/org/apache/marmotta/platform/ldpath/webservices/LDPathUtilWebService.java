@@ -222,7 +222,7 @@ public class LDPathUtilWebService {
             try {
                 RepositoryConnection con = sesameService.getConnection();
                 try {
-                    for (URI r : listResourcesByPrefix(con,uri, 0, limit)) {
+                    for (IRI r : listResourcesByPrefix(con,uri, 0, limit)) {
                         result.add(r.stringValue());
                     }
                 } finally {
@@ -259,7 +259,7 @@ public class LDPathUtilWebService {
             path = ".";
         }
         try {
-            HashSet<URI> pathCandidates = new HashSet<URI>();
+            HashSet<IRI> pathCandidates = new HashSet<IRI>();
             try {
                 RepositoryConnection con = sesameService.getConnection();
                 try {
@@ -269,10 +269,10 @@ public class LDPathUtilWebService {
                             continue;
                         }
 
-                        URI rsc = con.getValueFactory().createURI(rsc_uri);
+                        IRI rsc = con.getValueFactory().createIRI(rsc_uri);
                         Collection<Value> cPos = ldPathService.pathQuery(rsc, path, prefixService.getMappings());
                         for (Value cP : cPos) {
-                            if (cP instanceof URI || cP instanceof BNode) {
+                            if (cP instanceof IRI || cP instanceof BNode) {
                                 for (Statement t : listOutgoing(con, (Resource) cP)) {
                                     pathCandidates.add(t.getPredicate());
                                 }
@@ -287,7 +287,7 @@ public class LDPathUtilWebService {
                 handleRepositoryException(e,LDPathUtilWebService.class);
             }
             List<String> suggest = new ArrayList<String>();
-            for (URI r : pathCandidates) {
+            for (IRI r : pathCandidates) {
                 suggest.add(r.stringValue());
             }
             return suggest;

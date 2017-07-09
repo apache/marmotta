@@ -30,7 +30,7 @@ import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeCategoryMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeLatitudeMapper;
 import org.apache.marmotta.ldclient.provider.youtube.mapping.YoutubeLongitudeMapper;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +151,7 @@ public class YoutubeVideoProvider extends AbstractXMLDataProvider implements Dat
      * @param resource
      */
     @Override
-    protected List<String> getTypes(URI resource) {
+    protected List<String> getTypes(IRI resource) {
         return ImmutableList.of(NS_MEDIA + "MediaResource",NS_MEDIA + "VideoTrack", Namespaces.NS_LMF_TYPES + "YoutubeVideo");
     }
 

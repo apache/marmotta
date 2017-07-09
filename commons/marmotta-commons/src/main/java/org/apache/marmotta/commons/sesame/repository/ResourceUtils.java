@@ -500,7 +500,7 @@ public class ResourceUtils {
             if(node instanceof Literal) {
                 if(loc == null && ((Literal)node).getLanguage().orElse(null) == null) {
                     return (Literal)node;
-                } else if(loc != null && ((Literal)node).getLanguage().orElse(null) != null && ((Literal)node).getLanguage().get().equals(loc.getLanguage().toLowerCase()) ) {
+                } else if(loc != null && ((Literal)node).getLanguage().orElse(null) != null && ((Literal)node).getLanguage().orElse(null).equals(loc.getLanguage().toLowerCase()) ) {
                     return (Literal)node;
                 }
             }
@@ -554,7 +554,7 @@ public class ResourceUtils {
                     @Override
                     public boolean apply(Literal input) {
                         return input.getLanguage().orElse(null) == null && loc == null ||
-                                input.getLanguage().orElse(null) != null && input.getLanguage().get().equals(loc.getLanguage().toLowerCase());
+                                input.getLanguage().orElse(null) != null && input.getLanguage().orElse(null).equals(loc.getLanguage().toLowerCase());
                     }
                 }
         );

@@ -33,7 +33,6 @@ import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openrdf.model.*;
-import org.openrdf.model.impl.URIImpl;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.slf4j.Logger;
@@ -44,6 +43,7 @@ import java.util.Date;
 import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * A fast-lane RDF import handler that allows bulk-importing triples into a KiWi triplestore. It directly accesses
@@ -204,7 +204,7 @@ public class KiWiHandler implements RDFHandler {
 
         if(config.getContext() != null) {
             try {
-                this.overrideContext = (KiWiResource)convertNode(new URIImpl(config.getContext()));
+                this.overrideContext = (KiWiResource)convertNode(SimpleValueFactory.getInstance().createIRI(config.getContext()));
             } catch (ExecutionException e) {
                 log.error("could not create/load resource",e);
             }
@@ -310,7 +310,7 @@ public class KiWiHandler implements RDFHandler {
             return null;
         } else if(value instanceof KiWiNode) {
             return (KiWiNode)value;
-        } else if(value instanceof URI) {
+        } else if(value instanceof IRI) {
             return createURI(value.stringValue());
         } else if(value instanceof BNode) {
             return createBNode(value.stringValue());
@@ -323,8 +323,8 @@ public class KiWiHandler implements RDFHandler {
 
     protected KiWiLiteral createLiteral(Literal l) throws ExecutionException {
         String value = l.getLabel();
-        String lang  = l.getLanguage() != null ? l.getLanguage().intern() : null;
-        URI    type  = l.getDatatype();
+        String lang  = l.getLanguage().orElse(null) != null ? l.getLanguage().orElse(null).intern() : null;
+        IRI    type  = l.getDatatype();
 
 
         Locale locale;

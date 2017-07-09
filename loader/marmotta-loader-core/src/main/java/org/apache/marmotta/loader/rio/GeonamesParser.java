@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import org.openrdf.rio.helpers.AbstractRDFParser;
 
 /**
  * A specialised RDF parser for Geonames data. Geonames dumps are usually a big text file with a complete
@@ -37,7 +38,7 @@ import java.io.StringReader;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class GeonamesParser extends RDFParserBase implements ParseErrorListener {
+public class GeonamesParser extends AbstractRDFParser implements ParseErrorListener {
 
     private static Logger log = LoggerFactory.getLogger(GeonamesParser.class);
 
@@ -83,31 +84,34 @@ public class GeonamesParser extends RDFParserBase implements ParseErrorListener 
     }
 
     @Override
-    public void setRDFHandler(RDFHandler handler) {
+    public RDFParser setRDFHandler(RDFHandler handler) {
         super.setRDFHandler(handler);
 
         lineParser.setRDFHandler(handler);
+        return this;
     }
 
 
     @Override
-    public void setParserConfig(ParserConfig config) {
+    public RDFParser setParserConfig(ParserConfig config) {
         super.setParserConfig(config);
 
         if(lineParser != null) {
             // called by super.init when lineParser is still null
             lineParser.setParserConfig(config);
         }
+        return this;
     }
 
     @Override
-    public void setValueFactory(ValueFactory valueFactory) {
+    public RDFParser setValueFactory(ValueFactory valueFactory) {
         super.setValueFactory(valueFactory);
 
         if(lineParser != null) {
             // called by super.init when lineParser is still null
             lineParser.setValueFactory(valueFactory);
         }
+        return this;
     }
 
 
@@ -185,7 +189,7 @@ public class GeonamesParser extends RDFParserBase implements ParseErrorListener 
      * @param colNo  A column number related to the warning, or -1 if not
      */
     @Override
-    public void warning(String msg, int lineNo, int colNo) {
+    public void warning(String msg, long lineNo, long colNo) {
         if(getParseErrorListener() != null) {
             getParseErrorListener().warning(msg, lineNumber, colNo);
         } else {
@@ -208,8 +212,8 @@ public class GeonamesParser extends RDFParserBase implements ParseErrorListener 
      * @see org.openrdf.rio.RDFParser#setStopAtFirstError
      */
     @Override
-    public void error(String msg, int lineNo, int colNo) {
-        if(getParseErrorListener() != null) {
+    public void error(String msg, long lineNo, long colNo) {
+         if(getParseErrorListener() != null) {
             getParseErrorListener().error(msg, lineNumber, colNo);
         } else {
             log.error("{} [line {}, column {}]", msg, lineNumber, colNo);
@@ -228,7 +232,7 @@ public class GeonamesParser extends RDFParserBase implements ParseErrorListener 
      * @param colNo  A column number related to the error, or -1 if not
      */
     @Override
-    public void fatalError(String msg, int lineNo, int colNo) {
+    public void fatalError(String msg, long lineNo, long colNo) {
         if(getParseErrorListener() != null) {
             getParseErrorListener().fatalError(msg, lineNumber, colNo);
         } else {

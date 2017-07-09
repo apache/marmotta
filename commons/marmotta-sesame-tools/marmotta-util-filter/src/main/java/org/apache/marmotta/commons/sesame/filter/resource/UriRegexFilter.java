@@ -18,7 +18,7 @@
 package org.apache.marmotta.commons.sesame.filter.resource;
 
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -54,11 +54,11 @@ public class UriRegexFilter implements ResourceFilter {
      */
     @Override
     public boolean accept(Resource resource) {
-        if(! (resource instanceof URI)) {
+        if(! (resource instanceof IRI)) {
             return false;
         }
 
-        URI uri = (URI) resource;
+        IRI uri = (IRI) resource;
 
         for(Pattern p : patterns) {
             if(p.matcher(uri.stringValue()).matches()) {

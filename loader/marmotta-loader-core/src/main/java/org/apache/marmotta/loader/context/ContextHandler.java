@@ -20,7 +20,7 @@ package org.apache.marmotta.loader.context;
 import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.loader.wrapper.LoaderHandlerWrapper;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.rio.RDFHandlerException;
 
@@ -31,9 +31,9 @@ import org.openrdf.rio.RDFHandlerException;
  */
 public class ContextHandler extends LoaderHandlerWrapper {
 
-    private URI context;
+    private IRI context;
 
-    public ContextHandler(LoaderHandler handler, URI context) {
+    public ContextHandler(LoaderHandler handler, IRI context) {
         super(handler);
         this.context = context;
     }

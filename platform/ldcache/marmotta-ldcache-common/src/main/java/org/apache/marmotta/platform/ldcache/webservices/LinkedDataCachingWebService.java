@@ -27,7 +27,7 @@ import org.apache.marmotta.ldclient.provider.rdf.LinkedDataProvider;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public class LinkedDataCachingWebService {
     @Path("/cached")
     public Response retrieveCached(@QueryParam("uri") String uri) {
         if(cacheSailProvider.isEnabled()) {
-            URI resource = sesameService.getValueFactory().createURI(uri);
+            IRI resource = sesameService.getValueFactory().createIRI(uri);
 
 
             try {
@@ -112,7 +112,7 @@ public class LinkedDataCachingWebService {
     public Response refreshCached(@QueryParam("uri") String uri) {
 
         if(cacheSailProvider.isEnabled()) {
-            URI resource = sesameService.getValueFactory().createURI(uri);
+            IRI resource = sesameService.getValueFactory().createIRI(uri);
 
 
             try {
@@ -135,7 +135,7 @@ public class LinkedDataCachingWebService {
 
         if(cacheSailProvider.isEnabled()) {
             if (uri != null) {
-                URI resource = sesameService.getValueFactory().createURI(uri);
+                IRI resource = sesameService.getValueFactory().createIRI(uri);
                 cacheSailProvider.getLDCache().expire(resource);
             } else {
                 cacheSailProvider.getLDCache().clear();

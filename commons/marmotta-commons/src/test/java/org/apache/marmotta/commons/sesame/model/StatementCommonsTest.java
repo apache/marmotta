@@ -30,6 +30,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
@@ -48,7 +49,7 @@ public class StatementCommonsTest {
 
     @Before
     public void setup() {
-        valueFactory = new ValueFactoryImpl();
+        valueFactory = SimpleValueFactory.getInstance();
 
         Resource s1 = randomIRI();
         IRI p1 = randomIRI();

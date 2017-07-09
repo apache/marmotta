@@ -25,7 +25,7 @@ import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
 import org.apache.marmotta.platform.core.exception.security.AccessDeniedException;
 import org.jboss.resteasy.spi.UnhandledException;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -145,7 +145,7 @@ public class MarmottaAuthenticationFilter implements MarmottaHttpFilter {
                                 authSuccess = true;
                                 httpRequest.setAttribute("user.name", login);
                                 httpRequest.setAttribute("user.roles", authenticationService.listUserRoles(login));
-                                URI user = userService.getUser(login);
+                                IRI user = userService.getUser(login);
                                 if (user == null) {
                                     try {
                                         user = userService.createUser(login);

@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
@@ -43,8 +43,8 @@ public class MathFunctionTest extends AbstractTestBase {
     private long[] lData;
     private float[] fData;
     private double[] dData;
-    private URI subject;
-    private URI iProp, lProp, fProp, dProp;
+    private IRI subject;
+    private IRI iProp, lProp, fProp, dProp;
 
     @Before
     public void createData() throws RepositoryException {
@@ -64,11 +64,11 @@ public class MathFunctionTest extends AbstractTestBase {
             dData[i] = rnd.nextInt() * 10e-8f;
         }
 
-        subject = repository.getValueFactory().createURI(NSS.get("ex") + rnd.nextInt());
-        iProp = repository.getValueFactory().createURI(NSS.get("foo") + "integer");
-        lProp = repository.getValueFactory().createURI(NSS.get("foo") + "long");
-        fProp = repository.getValueFactory().createURI(NSS.get("foo") + "float");
-        dProp = repository.getValueFactory().createURI(NSS.get("foo") + "double");
+        subject = repository.getValueFactory().createIRI(NSS.get("ex") + rnd.nextInt());
+        iProp = repository.getValueFactory().createIRI(NSS.get("foo") + "integer");
+        lProp = repository.getValueFactory().createIRI(NSS.get("foo") + "long");
+        fProp = repository.getValueFactory().createIRI(NSS.get("foo") + "float");
+        dProp = repository.getValueFactory().createIRI(NSS.get("foo") + "double");
 
         final SailRepositoryConnection con = repository.getConnection();
         try {

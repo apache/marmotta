@@ -34,7 +34,7 @@ import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepositoryConnection;
@@ -44,12 +44,12 @@ import org.openrdf.rio.RDFParseException;
 
 public class HtmlFunctionsTest extends AbstractTestBase {
 
-    private URI resource, prop2;
+    private IRI resource, prop2;
 
     @Before
     public void loadData() throws RepositoryException, RDFParseException, IOException {
         super.loadData("data.n3", RDFFormat.N3);
-        resource = repository.getValueFactory().createURI(NSS.get("ex") + "Simple");
+        resource = repository.getValueFactory().createIRI(NSS.get("ex") + "Simple");
         prop2 = createURI("foo", "simple");
         final SailRepositoryConnection con = repository.getConnection();
         con.begin();

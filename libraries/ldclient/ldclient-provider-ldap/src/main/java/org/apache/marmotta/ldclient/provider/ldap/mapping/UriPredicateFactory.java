@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.ldclient.provider.ldap.mapping;
 
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 
@@ -26,13 +26,13 @@ import java.util.Set;
 
 public class UriPredicateFactory extends PredicateObjectFactory {
 
-    public UriPredicateFactory(URI predicateURI) {
+    public UriPredicateFactory(IRI predicateURI) {
         super(predicateURI);
     }
 
     @Override
     public Set<Value> createObjects(String value, ValueFactory valueFactory) {
-        return Collections.singleton((Value) valueFactory.createURI(value));
+        return Collections.singleton((Value) valueFactory.createIRI(value));
     }
 
 }

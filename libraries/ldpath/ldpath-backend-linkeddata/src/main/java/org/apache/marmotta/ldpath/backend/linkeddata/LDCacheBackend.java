@@ -26,7 +26,6 @@ import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +36,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * A Linked Data backend with persistent caching of the retrieved data. All data is read and stored in the directory
@@ -81,7 +81,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
      */
     @Override
     public boolean isURI(Value n) {
-        return n instanceof org.openrdf.model.URI;
+        return n instanceof org.openrdf.model.IRI;
     }
 
     /**
@@ -105,8 +105,8 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Locale getLiteralLanguage(Value n) {
         try {
-            if(((Literal)n).getLanguage() != null) {
-                return new Locale( ((Literal)n).getLanguage() );
+            if(((Literal)n).getLanguage().orElse(null) != null) {
+                return new Locale( ((Literal)n).getLanguage().orElse(null) );
             } else {
                 return null;
             }
@@ -269,7 +269,7 @@ public class LDCacheBackend implements RDFBackend<Value> {
 
     @Override
     public Literal createLiteral(String content) {
-        return new LiteralImpl(content);
+        return SimpleValueFactory.getInstance().createLiteral(content);
     }
 
     @Override
@@ -278,15 +278,15 @@ public class LDCacheBackend implements RDFBackend<Value> {
         if(language == null && type == null) {
             return createLiteral(content);
         } else if(type == null) {
-            return new LiteralImpl(content,language.getLanguage());
+            return SimpleValueFactory.getInstance().createLiteral(content,language.getLanguage());
         } else  {
-            return new LiteralImpl(content, createURI(type.toString()));
+            return SimpleValueFactory.getInstance().createLiteral(content, createIRI(type.toString()));
         }
     }
 
     @Override
-    public org.openrdf.model.URI createURI(String uri) {
-        return new URIImpl(uri);
+    public org.openrdf.model.IRI createIRI(String uri) {
+        return SimpleValueFactory.getInstance().createIRI(uri);
     }
 
 
@@ -317,9 +317,9 @@ public class LDCacheBackend implements RDFBackend<Value> {
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         log.info("retrieving resource {}", subject);
-        if(subject instanceof org.openrdf.model.URI && subject instanceof org.openrdf.model.URI) {
-            org.openrdf.model.URI s = (org.openrdf.model.URI) subject;
-            org.openrdf.model.URI p = (org.openrdf.model.URI) property;
+        if(subject instanceof org.openrdf.model.IRI && subject instanceof org.openrdf.model.IRI) {
+            org.openrdf.model.IRI s = (org.openrdf.model.IRI) subject;
+            org.openrdf.model.IRI p = (org.openrdf.model.IRI) property;
             return ldcache.get(s).filter(s, p, null).objects();
         } else {
             return Collections.emptyList();

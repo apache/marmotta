@@ -35,6 +35,7 @@ import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -80,7 +81,7 @@ public class RDFJSONParser {
 
             for (Resource subject : model.subjects()) {
                 Metadata m = new Metadata(subject.stringValue());
-                for (org.openrdf.model.URI property : model.filter(subject, null, null).predicates()) {
+                for (org.openrdf.model.IRI property : model.filter(subject, null, null).predicates()) {
                     Set<RDFNode> propValue = new HashSet<RDFNode>();
                     for (Value value : model.filter(subject, property, null).objects()) {
                         propValue.add(parseRDFJSONNode(value));
@@ -134,14 +135,14 @@ public class RDFJSONParser {
     public static RDFNode parseRDFJSONNode(Value value) {
         RDFNode object;
 
-        if (value instanceof org.openrdf.model.URI) {
+        if (value instanceof org.openrdf.model.IRI) {
             object = new URI(value.stringValue());
         } else if (value instanceof BNode) {
             object = new BNode(value.stringValue());
         } else {
             org.openrdf.model.Literal literal = (org.openrdf.model.Literal) value;
-            if (literal.getLanguage() != null) {
-                object = new Literal(literal.getLabel(), literal.getLanguage());
+            if (literal.getLanguage().orElse(null) != null) {
+                object = new Literal(literal.getLabel(), literal.getLanguage().orElse(null));
             } else if (literal.getDatatype() != null) {
                 object = new Literal(literal.getLabel(), new URI(literal.getDatatype().stringValue()));
             } else {
@@ -152,13 +153,13 @@ public class RDFJSONParser {
     }
 
     public static void serializeRDFJSON(Map<String, Metadata> data, OutputStream out) throws IOException {
-        ValueFactory vf = ValueFactoryImpl.getInstance();
+        ValueFactory vf = SimpleValueFactory.getInstance();
         Model results = new LinkedHashModel();
 
         for (Map.Entry<String, Metadata> subject : data.entrySet()) {
             Resource subjectResource = stringToResource(subject.getKey(), vf);
             for (Map.Entry<String, Set<RDFNode>> predicate : subject.getValue().entrySet()) {
-                org.openrdf.model.URI predicateURI = vf.createURI(predicate.getKey());
+                org.openrdf.model.IRI predicateURI = vf.createIRI(predicate.getKey());
                 for (RDFNode objectNode : predicate.getValue()) {
                     org.openrdf.model.Value objectValue;
                     if (objectNode instanceof Literal) {
@@ -167,13 +168,13 @@ public class RDFJSONParser {
                                     ((Literal) objectNode).getLanguage());
                         } else if (((Literal) objectNode).getType() != null) {
                             objectValue = vf.createLiteral(((Literal) objectNode).getContent(),
-                                    vf.createURI(((Literal) objectNode).getType().getUri()));
+                                    vf.createIRI(((Literal) objectNode).getType().getUri()));
                         } else {
                             objectValue = vf.createLiteral(((Literal) objectNode).getContent());
                         }
                     } else {
                         if (objectNode instanceof URI) {
-                            objectValue = vf.createURI(((URI) objectNode).getUri());
+                            objectValue = vf.createIRI(((URI) objectNode).getUri());
                         } else {
                             objectValue = vf.createBNode(((BNode) objectNode).getAnonId());
                         }

@@ -94,7 +94,7 @@ public class LinkVersionSerializer implements VersionSerializer {
 
                 //append memento resource uri for versions v
                 w.append("<");
-                w.append(MementoUtils.resourceURI(original.toString(),v.getCommitTime(),configurationService.getBaseUri()).toString());
+                w.append(MementoUtils.resourceURI(original.toString(),v.getCommitTime(),configurationService.getBaseIri()).toString());
                 w.append(">; rel=\"");
 
                 //write first, last, memento

@@ -68,7 +68,7 @@ public abstract class AbstractRDFProvider extends AbstractHttpProvider {
      */
     @Override
     public List<String> parseResponse(final String resourceUri, String requestUrl, Model triples, InputStream in, String contentType) throws DataRetrievalException {
-        RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForMIMEType(contentType, RDFFormat.RDFXML);
+        RDFFormat format = RDFParserRegistry.getInstance().getFileFormatForMIMEType(contentType).orElse(RDFFormat.RDFXML);
 
         try {
             ModelCommons.add(triples, in, resourceUri, format, new Predicate<Statement>() {

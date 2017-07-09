@@ -46,7 +46,7 @@ public class CssUriAttrMapper extends CssSelectorMapper {
     public List<Value> map(String resourceUri, Element elem, ValueFactory factory) {
         final String uri = rewriteUrl(elem.absUrl(attr));
         try {
-            return Collections.singletonList((Value) factory.createURI(uri));
+            return Collections.singletonList((Value) factory.createIRI(uri));
         } catch (IllegalArgumentException e) {
             return Collections.emptyList();
         }

@@ -79,9 +79,9 @@ public class SubListFunction<Node> extends AbstractCollFunction<Node> {
 
         if (end > 0) {
             if (start <= 0) {
-                result.addAll(backend.listObjects(node, backend.createURI(RDF + "first")));
+                result.addAll(backend.listObjects(node, backend.createIRI(RDF + "first")));
             }
-            for (Node n : backend.listObjects(node, backend.createURI(RDF + "rest"))) {
+            for (Node n : backend.listObjects(node, backend.createIRI(RDF + "rest"))) {
                 subListFromCollection(backend, n, start - 1, end - 1, result);
             }
         }
@@ -91,7 +91,7 @@ public class SubListFunction<Node> extends AbstractCollFunction<Node> {
     private Collection<? extends Node> subListFromContainer(RDFBackend<Node> backend, Node node, int start, int end) {
         List<Node> result = new LinkedList<>();
         for (int i = start; i < end; i++) {
-            final Collection<Node> objects = backend.listObjects(node, backend.createURI(RDF + "_" + (i + 1)));
+            final Collection<Node> objects = backend.listObjects(node, backend.createIRI(RDF + "_" + (i + 1)));
             if (objects.size() > 0) {
                 result.addAll(objects);
             } else {

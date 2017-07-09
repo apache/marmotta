@@ -28,8 +28,7 @@ import org.apache.marmotta.platform.ldp.webservices.PreferHeader;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.RDFS;
@@ -43,6 +42,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Various Util-Methods for the {@link org.apache.marmotta.platform.ldp.api.LdpService}.
@@ -115,7 +115,7 @@ public class LdpUtils {
      * @throws RDFHandlerException
      * @throws RepositoryException
      */
-    public static void exportIteration(RDFWriter writer, URI subject, CloseableIteration<Statement, RepositoryException> iteration) throws RDFHandlerException, RepositoryException {
+    public static void exportIteration(RDFWriter writer, IRI subject, CloseableIteration<Statement, RepositoryException> iteration) throws RDFHandlerException, RepositoryException {
         writer.startRDF();
 
         writer.handleNamespace(LDP.PREFIX, LDP.NAMESPACE);
@@ -202,8 +202,8 @@ public class LdpUtils {
         return resource.substring(0, resource.lastIndexOf('/', resource.length() - 1));
     }
 
-    public static URI getContainer(URI resource) throws MalformedURLException, URISyntaxException {
-        return new URIImpl(getContainer(resource.stringValue()));
+    public static IRI getContainer(IRI resource) throws MalformedURLException, URISyntaxException {
+        return SimpleValueFactory.getInstance().createIRI(getContainer(resource.stringValue()));
     }
 
     /**

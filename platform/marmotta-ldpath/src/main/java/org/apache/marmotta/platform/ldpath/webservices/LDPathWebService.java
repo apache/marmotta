@@ -27,9 +27,8 @@ import org.apache.marmotta.ldpath.exception.LDPathParseException;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.ldpath.api.LDPathService;
 import org.openrdf.model.Namespace;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.LiteralImpl;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
@@ -48,6 +47,7 @@ import java.util.*;
 
 import static org.apache.marmotta.commons.sesame.repository.ExceptionUtils.handleRepositoryException;
 import static org.apache.marmotta.commons.sesame.repository.ResultUtils.iterable;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Execute LDPath queries against the LMF backend. Depending on the LMF configuration, this might trigger retrieval
@@ -97,7 +97,7 @@ public class LDPathWebService {
             try {
                 con.begin();
                 if (ResourceUtils.isSubject(con, resourceUri)) {
-                    URI resource = con.getValueFactory().createURI(resourceUri);
+                    IRI resource = con.getValueFactory().createIRI(resourceUri);
                     // get list of configured namespaces; we make them available for the path language
                     Map<String,String> namespaces = new HashMap<String, String>();
                     for(Namespace ns : iterable(con.getNamespaces())) {
@@ -161,7 +161,7 @@ public class LDPathWebService {
             try {
                 con.begin();
                 if (ResourceUtils.isSubject(con, resourceUri)) {
-                    URI resource = con.getValueFactory().createURI(resourceUri);
+                    IRI resource = con.getValueFactory().createIRI(resourceUri);
 
                     Map<String,List<Map<String,String>>> result = new HashMap<String, List<Map<String, String>>>();
 
@@ -173,7 +173,7 @@ public class LDPathWebService {
                                     rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
                                 } else {
                                     // we convert always to a literal
-                                    rowList.add(JSONUtils.serializeNodeAsJson(new LiteralImpl(o.toString())));
+                                    rowList.add(JSONUtils.serializeNodeAsJson(SimpleValueFactory.getInstance().createLiteral(o.toString())));
                                 }
                             }
                             result.put(row.getKey(),rowList);
@@ -350,7 +350,7 @@ public class LDPathWebService {
                 HashMap<String, Object> combined = new HashMap<String, Object>();
                 for(String context : cs) {
                     if (ResourceUtils.isSubject(con, context)) {
-                        URI resource = con.getValueFactory().createURI(context);
+                        IRI resource = con.getValueFactory().createIRI(context);
 
                         Map<String,List<Map<String,String>>> result = new HashMap<String, List<Map<String, String>>>();
 
@@ -362,7 +362,7 @@ public class LDPathWebService {
                                         rowList.add(JSONUtils.serializeNodeAsJson((Value) o));
                                     } else {
                                         // we convert always to a literal
-                                        rowList.add(JSONUtils.serializeNodeAsJson(new LiteralImpl(o.toString())));
+                                        rowList.add(JSONUtils.serializeNodeAsJson(SimpleValueFactory.getInstance().createLiteral(o.toString())));
                                     }
                                 }
                                 result.put(row.getKey(),rowList);

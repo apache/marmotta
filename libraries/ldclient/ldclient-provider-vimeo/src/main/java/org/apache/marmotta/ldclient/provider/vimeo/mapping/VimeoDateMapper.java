@@ -51,6 +51,6 @@ public class VimeoDateMapper extends XPathValueMapper {
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
         Date date = DateUtils.parseDate(selectedValue);
-        return Collections.singletonList((Value) factory.createLiteral(DateUtils.ISO8601FORMAT.format(date), factory.createURI(Namespaces.NS_XSD + "dateTime")));
+        return Collections.singletonList((Value) factory.createLiteral(DateUtils.ISO8601FORMAT.format(date), factory.createIRI(Namespaces.NS_XSD + "dateTime")));
     }
 }

@@ -68,10 +68,10 @@ public class KiWiLocaleTest  {
     public void createBCP47LiteralsTests() {
     	Literal enLiteral = vf.createLiteral("Hungary", "en");
     	Assert.assertEquals("Hungary", enLiteral.getLabel());
-    	Assert.assertEquals("en", enLiteral.getLanguage().get());
+    	Assert.assertEquals("en", enLiteral.getLanguage().orElse(null));
     	Literal warLiteral = vf.createLiteral("Hungary", "war");
     	Assert.assertEquals("Hungary", warLiteral.getLabel());
-    	Assert.assertEquals("war", warLiteral.getLanguage().get());
+    	Assert.assertEquals("war", warLiteral.getLanguage().orElse(null));
     }
 
     /** 

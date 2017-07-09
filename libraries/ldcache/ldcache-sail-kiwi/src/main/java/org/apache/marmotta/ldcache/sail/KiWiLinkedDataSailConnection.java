@@ -52,9 +52,9 @@ public class KiWiLinkedDataSailConnection extends NotifyingSailConnectionWrapper
      * 3, if the subject of the query is null, refresh all non-local resources in the triple store
      */
     @Override
-    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
         if(subj != null && isAcceptable(subj)) {
-            ldcache.refresh((URI) subj);
+            ldcache.refresh((IRI) subj);
         }
 
         // the refreshed resources will anyways be stored in the same triple store, so we can simply delegate the query

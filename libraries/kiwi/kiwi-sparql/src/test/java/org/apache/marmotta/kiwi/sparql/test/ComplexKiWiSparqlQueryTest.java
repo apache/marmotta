@@ -81,5 +81,5 @@ public class ComplexKiWiSparqlQueryTest extends ComplexSPARQLQueryTest {
     @Override
     public void testSES2373SubselectOptional() throws Exception {
     }
-    
+     
 }

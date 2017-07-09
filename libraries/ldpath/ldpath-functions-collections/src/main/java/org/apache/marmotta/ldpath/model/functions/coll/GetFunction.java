@@ -63,10 +63,10 @@ public class GetFunction<Node> extends AbstractCollFunction<Node> {
         if (index < 0 || isNil(backend, node)) {
             return Collections.emptySet();
         } else if (index == 0) {
-            return backend.listObjects(node, backend.createURI(RDF + "first"));
+            return backend.listObjects(node, backend.createIRI(RDF + "first"));
         } else {
             HashSet<Node> result = new HashSet<>();
-            for (Node n : backend.listObjects(node, backend.createURI(RDF + "rest"))) {
+            for (Node n : backend.listObjects(node, backend.createIRI(RDF + "rest"))) {
                 result.addAll(getFromCollection(backend, n, index - 1));
             }
             return result;
@@ -74,7 +74,7 @@ public class GetFunction<Node> extends AbstractCollFunction<Node> {
     }
 
     private Collection<Node> getFromContainer(RDFBackend<Node> backend, Node node, int index) {
-        return backend.listObjects(node, backend.createURI(RDF + "_" + (index + 1)));
+        return backend.listObjects(node, backend.createIRI(RDF + "_" + (index + 1)));
     }
 
     @Override

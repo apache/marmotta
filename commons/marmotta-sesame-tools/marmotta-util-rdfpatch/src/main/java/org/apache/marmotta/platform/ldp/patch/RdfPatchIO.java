@@ -122,7 +122,7 @@ public class RdfPatchIO {
     private static String io(Value v, Map<String, String> inverseNamespaceMap) {
         if (v == null) {
             return "R";
-        } else if (v instanceof URI) {
+        } else if (v instanceof IRI) {
             final String uri = v.stringValue();
             String prefix = null;
 
@@ -148,8 +148,8 @@ public class RdfPatchIO {
             } else {
                 sb.append("\"").append(TurtleUtil.encodeString(label)).append("\"");
             }
-            if (l.getLanguage() != null) {
-                sb.append("@").append(l.getLanguage());
+            if (l.getLanguage().orElse(null) != null) {
+                sb.append("@").append(l.getLanguage().orElse(null));
             } else if (l.getDatatype() != null) {
                 sb.append("^^").append(io(l.getDatatype(), inverseNamespaceMap));
             }

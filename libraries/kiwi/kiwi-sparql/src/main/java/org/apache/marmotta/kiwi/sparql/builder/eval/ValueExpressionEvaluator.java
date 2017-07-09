@@ -42,7 +42,7 @@ import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.FN;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.query.algebra.And;
@@ -410,7 +410,7 @@ public class ValueExpressionEvaluator extends AbstractQueryModelVisitor<RuntimeE
 
         // operator must be a variable or a constant
         if(arg instanceof ValueConstant) {
-            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof URI || ((ValueConstant) arg).getValue() instanceof BNode));
+            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof IRI || ((ValueConstant) arg).getValue() instanceof BNode));
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 
@@ -430,7 +430,7 @@ public class ValueExpressionEvaluator extends AbstractQueryModelVisitor<RuntimeE
 
         // operator must be a variable or a constant
         if(arg instanceof ValueConstant) {
-            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof URI));
+            builder.append(Boolean.toString(((ValueConstant) arg).getValue() instanceof IRI));
         } else if(arg instanceof Var) {
             String var = getVariableAlias((Var) arg);
 

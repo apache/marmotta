@@ -20,7 +20,7 @@ package org.apache.marmotta.platform.ldp.patch.model;
 import org.apache.commons.lang3.ObjectUtils;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 
 /**
@@ -31,10 +31,10 @@ public class WildcardStatement implements Statement {
 
 
     private final Value object;
-    private final URI predicate;
+    private final IRI predicate;
     private final Resource subject;
 
-    public WildcardStatement(Resource subject, URI predicate, Value object) {
+    public WildcardStatement(Resource subject, IRI predicate, Value object) {
         this.object = object;
         this.predicate = predicate;
         this.subject = subject;
@@ -46,7 +46,7 @@ public class WildcardStatement implements Statement {
     }
 
     @Override
-    public URI getPredicate() {
+    public IRI getPredicate() {
         return predicate;
     }
 

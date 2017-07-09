@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.FOAF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -47,7 +47,7 @@ public class RdfPatchUtilTest {
     public static final String BASE_URI = "http://example/";
 
     private Repository repository;
-    private URI alice, bob, charlie;
+    private IRI alice, bob, charlie;
     private Literal lcBob, ucBob;
 
     @Before
@@ -55,9 +55,9 @@ public class RdfPatchUtilTest {
         repository = new SailRepository(new MemoryStore());
         repository.initialize();
 
-        alice = repository.getValueFactory().createURI("http://example/alice");
-        bob = repository.getValueFactory().createURI("http://example/bob");
-        charlie = repository.getValueFactory().createURI("http://example/charlie");
+        alice = repository.getValueFactory().createIRI("http://example/alice");
+        bob = repository.getValueFactory().createIRI("http://example/bob");
+        charlie = repository.getValueFactory().createIRI("http://example/charlie");
 
         lcBob = repository.getValueFactory().createLiteral("bob");
         ucBob = repository.getValueFactory().createLiteral("Bob");
@@ -123,7 +123,7 @@ public class RdfPatchUtilTest {
     @Test
     public void testDiff() throws Exception {
         final RepositoryConnection con1 = repository.getConnection();
-        final URI mbox = con1.getValueFactory().createURI("mailto:charlie@example.com");
+        final IRI mbox = con1.getValueFactory().createIRI("mailto:charlie@example.com");
         try {
             con1.begin();
             con1.remove(bob, FOAF.KNOWS, charlie);

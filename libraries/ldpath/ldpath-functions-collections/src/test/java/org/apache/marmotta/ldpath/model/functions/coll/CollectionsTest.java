@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -55,7 +55,7 @@ public class CollectionsTest extends AbstractTestBase {
     @Parameter
     public String testContextUri;
 
-    private URI uri;
+    private IRI uri;
 
     @Before
     public void loadData() throws RepositoryException, RDFParseException, IOException {

@@ -189,7 +189,7 @@ public class GenericJenaBackend implements RDFBackend<RDFNode> {
      * @return a URI node using the model used by this backend
      */
     @Override
-    public RDFNode createURI(String uri) {
+    public RDFNode createIRI(String uri) {
         return model.createProperty(uri);
     }
 

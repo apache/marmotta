@@ -27,7 +27,7 @@ import org.apache.marmotta.ldclient.exception.DataRetrievalException;
 import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.apache.marmotta.ldclient.services.ldclient.LDClient;
 import org.openrdf.model.Model;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.impl.TreeModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +99,7 @@ public class LDCache implements LDCachingService {
      * @param options  options for refreshing
      */
     @Override
-    public void refresh(URI resource, RefreshOpts... options) {
+    public void refresh(IRI resource, RefreshOpts... options) {
         Set<RefreshOpts> optionSet = new HashSet<>(Arrays.asList(options));
 
         resourceLocks.lock(resource.stringValue());
@@ -173,7 +173,7 @@ public class LDCache implements LDCachingService {
      * @return a Sesame Model holding the triples representing the resource
      */
     @Override
-    public Model get(URI resource, RefreshOpts... options) {
+    public Model get(IRI resource, RefreshOpts... options) {
         refresh(resource, options);
 
         CacheEntry entry =  backend.getEntry(resource);
@@ -192,7 +192,7 @@ public class LDCache implements LDCachingService {
      * @param resource the resource to expire.
      */
     @Override
-    public void expire(URI resource) {
+    public void expire(IRI resource) {
         backend.removeEntry(resource);
     }
 
@@ -203,7 +203,7 @@ public class LDCache implements LDCachingService {
      * @return true in case the resource is contained in the cache
      */
     @Override
-    public boolean contains(URI resource) {
+    public boolean contains(IRI resource) {
         return backend.getEntry(resource) != null;
     }
 

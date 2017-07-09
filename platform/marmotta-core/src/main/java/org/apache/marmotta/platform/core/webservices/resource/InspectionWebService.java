@@ -479,8 +479,8 @@ public class InspectionWebService {
             }
             StringBuilder sb = new StringBuilder("\"" + lit.getLabel().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
                     + "\"");
-            if (lit.getLanguage() != null) {
-                sb.append("@").append(lit.getLanguage());
+            if (lit.getLanguage().orElse(null) != null) {
+                sb.append("@").append(lit.getLanguage().orElse(null));
             } else if (lit.getDatatype() != null) {
                 sb.append("^^").append(
                         String.format("<a href='%s?uri=%s%s'>%s</a>", configurationService.getServerIri() + "inspect",

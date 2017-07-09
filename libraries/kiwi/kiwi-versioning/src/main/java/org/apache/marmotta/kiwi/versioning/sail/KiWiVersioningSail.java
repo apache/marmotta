@@ -31,7 +31,7 @@ import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.sail.SailConnection;
@@ -390,7 +390,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         try {
             final KiWiVersioningConnection connection = persistence.getConnection();
 
-            KiWiResource kr = (KiWiResource) ((r instanceof URI) ? getValueFactory().createURI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
+            KiWiResource kr = (KiWiResource) ((r instanceof IRI) ? getValueFactory().createIRI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
 
             try {
                 return connection.getLatestVersion(kr,date);
@@ -415,7 +415,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         try {
             final KiWiVersioningConnection connection = persistence.getConnection();
 
-            KiWiResource kr = (KiWiResource) ((r instanceof URI) ? getValueFactory().createURI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
+            KiWiResource kr = (KiWiResource) ((r instanceof IRI) ? getValueFactory().createIRI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
 
             return new RepositoryResult<Version>(connection.listVersions(kr)) {
                 @Override
@@ -445,7 +445,7 @@ public class KiWiVersioningSail extends TransactionalSailWrapper implements Tran
         try {
             final KiWiVersioningConnection connection = persistence.getConnection();
 
-            KiWiResource kr = (KiWiResource) ((r instanceof URI) ? getValueFactory().createURI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
+            KiWiResource kr = (KiWiResource) ((r instanceof IRI) ? getValueFactory().createIRI(r.stringValue()) : getValueFactory().createBNode(r.stringValue()));
 
             return new RepositoryResult<Version>(connection.listVersions(kr,from,to)) {
                 @Override

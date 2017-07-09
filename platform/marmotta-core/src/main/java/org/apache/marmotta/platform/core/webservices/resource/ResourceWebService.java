@@ -263,7 +263,7 @@ public class ResourceWebService {
                 if (ResourceUtils.getUriResource(conn, uri) != null) {
                     status = Status.OK;
                 } else {
-                    conn.getValueFactory().createURI(uri);
+                    conn.getValueFactory().createIRI(uri);
                     status = Status.CREATED;
                 }
                 return status(status)

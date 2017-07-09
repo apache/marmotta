@@ -65,7 +65,7 @@ public class XPathLiteralMapper extends XPathValueMapper {
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
         if(datatype != null) {
-            return Collections.singletonList((Value)factory.createLiteral(selectedValue.trim(), factory.createURI(Namespaces.NS_XSD + datatype)));
+            return Collections.singletonList((Value)factory.createLiteral(selectedValue.trim(), factory.createIRI(Namespaces.NS_XSD + datatype)));
         } else {
             return Collections.singletonList((Value)factory.createLiteral(selectedValue.trim()));
         }

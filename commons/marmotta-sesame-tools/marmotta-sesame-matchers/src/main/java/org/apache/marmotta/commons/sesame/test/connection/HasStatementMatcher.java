@@ -21,7 +21,7 @@ import org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnection
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -32,7 +32,7 @@ import org.openrdf.repository.RepositoryException;
 public class HasStatementMatcher<T extends RepositoryConnection> extends AbstractRepositoryConnectionMatcher<T> {
 
     private final Resource subject;
-    private final URI predicate;
+    private final IRI predicate;
     private final Value object;
     private final Resource[] contexts;
     private final boolean includeInferred;
@@ -47,7 +47,7 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
-    public HasStatementMatcher(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public HasStatementMatcher(Resource subject, IRI predicate, Value object, Resource... contexts) {
         this(subject, predicate, object, true, contexts);
     }
 
@@ -62,7 +62,7 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
-    public HasStatementMatcher(Resource subject, URI predicate, Value object, boolean includeInferrred, Resource... contexts) {
+    public HasStatementMatcher(Resource subject, IRI predicate, Value object, boolean includeInferrred, Resource... contexts) {
         super();
         this.subject = subject;
         this.predicate = predicate;
@@ -94,7 +94,7 @@ public class HasStatementMatcher<T extends RepositoryConnection> extends Abstrac
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
-    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, IRI predicate, Value object, Resource... contexts) {
         return new HasStatementMatcher<>(subject, predicate, object, contexts);
     }
 }

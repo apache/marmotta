@@ -152,8 +152,8 @@ public final class IntArray implements Comparable<IntArray>, Serializable {
         private static int calcObjectHash(Value value) {
         if(value instanceof Literal) {
             int i = value.stringValue().hashCode();
-            if(((Literal) value).getLanguage() != null) {
-                i = i*31 + ((Literal) value).getLanguage().hashCode();
+            if(((Literal) value).getLanguage().orElse(null) != null) {
+                i = i*31 + ((Literal) value).getLanguage().orElse(null).hashCode();
             } else {
                 i = i*31;
             }

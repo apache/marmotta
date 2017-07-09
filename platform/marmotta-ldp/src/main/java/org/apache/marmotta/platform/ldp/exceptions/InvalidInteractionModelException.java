@@ -16,6 +16,8 @@
  */
 package org.apache.marmotta.platform.ldp.exceptions;
 
+import org.openrdf.model.IRI;
+
 
 /**
  * Invalid or unknown LDP Client Interaction Model Exception
@@ -37,7 +39,7 @@ public class InvalidInteractionModelException extends LDPException {
         this(uri.toASCIIString());
     }
 
-    public InvalidInteractionModelException(org.openrdf.model.URI uri) {
+    public InvalidInteractionModelException(org.openrdf.model.IRI uri) {
         this(uri.stringValue());
     }
 

@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.sail.SailRepositoryConnection;
@@ -62,7 +62,7 @@ public class StringTestTest extends AbstractTestBase {
     
     private String errSalt;
     
-    private URI subject, predicate;
+    private IRI subject, predicate;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -81,8 +81,8 @@ public class StringTestTest extends AbstractTestBase {
         
         errSalt = UUID.randomUUID().toString();
         
-        subject = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
-        predicate = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
+        subject = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
+        predicate = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
 
         final SailRepositoryConnection con = repository.getConnection();
         try {
@@ -100,7 +100,7 @@ public class StringTestTest extends AbstractTestBase {
     public void tearDown() throws Exception {
     }
     
-    private boolean checkTest(String ldPathTest, URI context) throws ParseException {
+    private boolean checkTest(String ldPathTest, IRI context) throws ParseException {
         final LdPathParser<Value> parser = createParserFromString(ldPathTest);
         final NodeTest<Value> test = parser.parseTest(NSS);
         return test.accept(backend, context, context);

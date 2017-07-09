@@ -29,7 +29,6 @@ import org.apache.marmotta.ldclient.model.ClientResponse;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
 import org.openrdf.model.impl.TreeModel;
-import org.openrdf.model.impl.URIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +36,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * A data provider that allows to wrap the different Youtube Videos pages, linking with the actual
@@ -101,7 +101,7 @@ public class YoutubeVideoPagesProvider implements DataProvider {
             log.error(msg);
             throw new DataRetrievalException(msg);
         } else {
-            model.add(new URIImpl(uri), new URIImpl(FOAF_PRIMARY_TOPIC), new URIImpl(YoutubeVideoProvider.YOUTUBE_BASE_URI + video_id), (Resource)null);
+            model.add(SimpleValueFactory.getInstance().createIRI(uri), SimpleValueFactory.getInstance().createIRI(FOAF_PRIMARY_TOPIC), SimpleValueFactory.getInstance().createIRI(YoutubeVideoProvider.YOUTUBE_BASE_URI + video_id), (Resource)null);
             // FIXME: add inverse triple, but maybe at the YoutubeVideoProvider
 
             ClientResponse clientResponse = new ClientResponse(200, model);

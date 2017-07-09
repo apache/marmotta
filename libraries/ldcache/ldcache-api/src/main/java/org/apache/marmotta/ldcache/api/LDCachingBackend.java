@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.api;
 
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 /**
  * Next generation caching backend API. Needs to be implemented by backend providers to offer caching support.
@@ -35,7 +35,7 @@ public interface LDCachingBackend {
      * @param resource the resource to retrieve the cache entry for
      * @return
      */
-    CacheEntry getEntry(URI resource);
+    CacheEntry getEntry(IRI resource);
 
 
     /**
@@ -44,7 +44,7 @@ public interface LDCachingBackend {
      * @param resource the resource to update
      * @param entry    the entry for the resource
      */
-    void putEntry(URI resource, CacheEntry entry);
+    void putEntry(IRI resource, CacheEntry entry);
 
 
     /**
@@ -52,7 +52,7 @@ public interface LDCachingBackend {
      *
      * @param resource the resource to remove the entry for
      */
-    void removeEntry(URI resource);
+    void removeEntry(IRI resource);
 
 
     /**

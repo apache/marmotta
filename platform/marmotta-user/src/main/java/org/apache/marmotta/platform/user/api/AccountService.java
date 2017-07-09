@@ -19,7 +19,7 @@ package org.apache.marmotta.platform.user.api;
 
 import org.apache.marmotta.platform.core.model.user.MarmottaUser;
 import org.apache.marmotta.platform.user.model.UserAccount;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import java.util.List;
 import java.util.Set;
@@ -71,7 +71,7 @@ public interface AccountService {
      * @param userResource the user resource (foaf:person)
      * @return the corresponding {@link UserAccount}, or <code>null</code> if no account present.
      */
-    UserAccount getAccount(URI userResource);
+    UserAccount getAccount(IRI userResource);
 
     /**
      * Retrieve the user account for a given {@link org.apache.marmotta.platform.core.model.user.MarmottaUser} (facaded user resource)

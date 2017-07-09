@@ -160,7 +160,7 @@ public class SnapshotRepositoryTest {
 
         RepositoryConnection connectionCheck = repository.getConnection();
         try {
-            List<Statement> c_r1_triples = asList(connectionCheck.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
+            List<Statement> c_r1_triples = asList(connectionCheck.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
             Assert.assertEquals(4, c_r1_triples.size());  // type + 3 properties
             connectionCheck.commit();
         } finally {
@@ -173,11 +173,11 @@ public class SnapshotRepositoryTest {
         RepositoryConnection snapshot1 = repository.getSnapshot(date2);
         try {
             // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 3
-            List<Statement> s1_r1_triples = asList(snapshot1.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
+            List<Statement> s1_r1_triples = asList(snapshot1.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
             Assert.assertEquals(3, s1_r1_triples.size());
 
             // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be zero
-            List<Statement> s1_r2_triples = asList(snapshot1.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
+            List<Statement> s1_r2_triples = asList(snapshot1.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
             Assert.assertEquals(0, s1_r2_triples.size());
         } finally {
             snapshot1.commit();
@@ -189,11 +189,11 @@ public class SnapshotRepositoryTest {
         try {
 
             // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 4
-            List<Statement> s2_r1_triples = asList(snapshot2.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
+            List<Statement> s2_r1_triples = asList(snapshot2.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
             Assert.assertEquals(3, s2_r1_triples.size());
 
             // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be 3
-            List<Statement> s2_r2_triples = asList(snapshot2.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
+            List<Statement> s2_r2_triples = asList(snapshot2.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
             Assert.assertEquals(3, s2_r2_triples.size());
         } finally {
             snapshot2.commit();
@@ -204,11 +204,11 @@ public class SnapshotRepositoryTest {
         RepositoryConnection snapshot3 = repository.getSnapshot(new Date());
         try {
             // query all triples for http://marmotta.apache.org/testing/ns1/R1, should be exactly 4
-            List<Statement> s3_r1_triples = asList(snapshot3.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
+            List<Statement> s3_r1_triples = asList(snapshot3.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R1"), null, null, true));
             Assert.assertEquals(4, s3_r1_triples.size());
 
             // query all triples for http://marmotta.apache.org/testing/ns1/R2, should be 3
-            List<Statement> s3_r2_triples = asList(snapshot3.getStatements(repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
+            List<Statement> s3_r2_triples = asList(snapshot3.getStatements(repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R2"), null, null, true));
             Assert.assertEquals(3, s3_r2_triples.size());
         } finally {
             snapshot3.commit();

@@ -54,7 +54,7 @@ public class FileBackend extends SesameRepositoryBackend {
         RDFFormat format = null;
 
         if(mimetype != null) {
-            format = Rio.getParserFormatForMIMEType(mimetype);
+            format = Rio.getParserFormatForMIMEType(mimetype).orElse(null);
         }
 
         try {
@@ -103,7 +103,7 @@ public class FileBackend extends SesameRepositoryBackend {
         RDFFormat format = null;
 
         if(mimetype != null) {
-            format = Rio.getParserFormatForMIMEType(mimetype);
+            format = Rio.getParserFormatForMIMEType(mimetype).orElse(null);
         }
 
         try {

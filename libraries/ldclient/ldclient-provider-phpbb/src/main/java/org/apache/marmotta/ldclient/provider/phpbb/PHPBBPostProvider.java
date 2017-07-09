@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.openrdf.model.IRI;
 
 /**
  * Wrap a PHPBB Forum Post and try to extract the content from the HTML page using typical patterns.
@@ -55,7 +56,7 @@ public class PHPBBPostProvider extends AbstractHTMLDataProvider implements DataP
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.URI resource) {
+    protected List<String> getTypes(org.openrdf.model.IRI resource) {
         return ImmutableList.of(
                 Namespaces.NS_SIOC_TYPES + "BoardPost",
                 Namespaces.NS_SIOC + "Post",
@@ -93,7 +94,7 @@ public class PHPBBPostProvider extends AbstractHTMLDataProvider implements DataP
                         final String val = elem.ownText().replaceFirst("^\\s*:", "").replaceAll("&nbsp;", " ").trim();
                         if (datatype != null)
                             return Collections.singletonList((Value) factory.createLiteral(val,
-                                    factory.createURI(Namespaces.NS_XSD + datatype)));
+                                    factory.createIRI(Namespaces.NS_XSD + datatype)));
                         else
                             return Collections.singletonList((Value) factory.createLiteral(val));
                     }

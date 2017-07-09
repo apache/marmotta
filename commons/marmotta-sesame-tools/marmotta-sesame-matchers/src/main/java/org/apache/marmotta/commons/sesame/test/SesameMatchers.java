@@ -26,7 +26,7 @@ import org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
 import org.openrdf.repository.Repository;
@@ -52,7 +52,7 @@ public class SesameMatchers {
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
-    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends RepositoryConnection> Matcher<T> hasStatement(Resource subject, IRI predicate, Value object, Resource... contexts) {
         return HasStatementMatcher.hasStatement(subject, predicate, object, contexts);
     }
 
@@ -67,7 +67,7 @@ public class SesameMatchers {
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      * @see org.openrdf.repository.RepositoryConnection#hasStatement(org.openrdf.model.Resource, org.openrdf.model.URI, org.openrdf.model.Value, boolean, org.openrdf.model.Resource...)
      */
-    public static <T extends Repository> Matcher<T> repositoryHasStatement(Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends Repository> Matcher<T> repositoryHasStatement(Resource subject, IRI predicate, Value object, Resource... contexts) {
         return RepositoryMatcher.wrap(hasStatement(subject, predicate, object, contexts));
     }
 
@@ -83,7 +83,7 @@ public class SesameMatchers {
      * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher
      * @see org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher
      */
-    public static <T extends String> Matcher<T> rdfHasStatement(RDFFormat format, String baseUri, Resource subject, URI predicate, Value object, Resource... contexts) {
+    public static <T extends String> Matcher<T> rdfHasStatement(RDFFormat format, String baseUri, Resource subject, IRI predicate, Value object, Resource... contexts) {
         return RdfStringMatcher.wrap(format, baseUri, hasStatement(subject, predicate, object, contexts));
     }
 
@@ -419,7 +419,7 @@ public class SesameMatchers {
      * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(String mimeType, String baseUri, Matcher<V> matcher) {
-        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType);
+        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType).orElse(null);
         if (format == null) throw new UnsupportedRDFormatException(mimeType);
         return RdfStringMatcher.wrap(format, baseUri, matcher);
     }
@@ -436,7 +436,7 @@ public class SesameMatchers {
      * @see org.apache.marmotta.commons.sesame.test.base.RdfStringMatcher#wrap(org.openrdf.rio.RDFFormat, String, org.hamcrest.Matcher)
      */
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(String mimeType, String baseUri, Matcher<V> matcher1, Matcher<V> matcher2) {
-        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType);
+        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType).orElse(null);
         if (format == null) throw new UnsupportedRDFormatException(mimeType);
         return RdfStringMatcher.wrap(format, baseUri, CoreMatchers.allOf(matcher1, matcher2));
     }
@@ -453,7 +453,7 @@ public class SesameMatchers {
      */
     @SafeVarargs
     public static <T extends String, V extends RepositoryConnection> Matcher<T> rdfStringMatches(String mimeType, String baseUri, Matcher<V>... matchers) {
-        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType);
+        final RDFFormat format = Rio.getParserFormatForMIMEType(mimeType).orElse(null);
         if (format == null) throw new UnsupportedRDFormatException(mimeType);
         return RdfStringMatcher.wrap(format, baseUri, CoreMatchers.allOf(matchers));
     }

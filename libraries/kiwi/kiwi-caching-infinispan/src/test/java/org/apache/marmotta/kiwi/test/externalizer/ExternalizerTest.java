@@ -96,15 +96,15 @@ public class ExternalizerTest {
 
 
     @Test
-    public void testUriResource() throws Exception {
-        marshall((KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriExternalizer());
+    public void testIriResource() throws Exception {
+        marshall((KiWiUriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8)), new UriExternalizer());
     }
 
     @Test
-    public void testCompressedUriResource() throws Exception {
-        marshall((KiWiUriResource) valueFactory.createURI(XSD.Double.stringValue()), new UriExternalizer());
-        marshall((KiWiUriResource) valueFactory.createURI(RDFS.LABEL.stringValue()), new UriExternalizer());
-        marshall((KiWiUriResource) valueFactory.createURI(OWL.SAMEAS.stringValue()), new UriExternalizer());
+    public void testCompressedIriResource() throws Exception {
+        marshall((KiWiUriResource) valueFactory.createIRI(XSD.Double.stringValue()), new UriExternalizer());
+        marshall((KiWiUriResource) valueFactory.createIRI(RDFS.LABEL.stringValue()), new UriExternalizer());
+        marshall((KiWiUriResource) valueFactory.createIRI(OWL.SAMEAS.stringValue()), new UriExternalizer());
     }
 
 
@@ -131,7 +131,7 @@ public class ExternalizerTest {
 
     @Test
     public void testTypeLiteral() throws Exception {
-        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8))), new StringLiteralExternalizer());
+        marshall((KiWiStringLiteral) valueFactory.createLiteral(RandomStringUtils.randomAscii(40),valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8))), new StringLiteralExternalizer());
     }
 
 
@@ -143,8 +143,8 @@ public class ExternalizerTest {
 
     @Test
     public void testTriple() throws Exception {
-        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource s = (KiWiUriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource p = (KiWiUriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         KiWiNode o = (KiWiNode) randomNode();
         KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
 
@@ -153,9 +153,9 @@ public class ExternalizerTest {
 
     @Test
     public void testPrefixCompressedTriple() throws Exception {
-        KiWiUriResource s = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource p = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
-        KiWiUriResource o = (KiWiUriResource) valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource s = (KiWiUriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource p = (KiWiUriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+        KiWiUriResource o = (KiWiUriResource) valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
         KiWiTriple t = (KiWiTriple) valueFactory.createStatement(s,p,o);
 
         marshall(t, new TripleExternalizer());
@@ -229,7 +229,7 @@ public class ExternalizerTest {
     protected Value randomNode() {
         Value object;
         switch(rnd.nextInt(6)) {
-            case 0: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            case 0: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
             case 1: object = valueFactory.createBNode();
                 break;
@@ -241,7 +241,7 @@ public class ExternalizerTest {
                 break;
             case 5: object = valueFactory.createLiteral(rnd.nextBoolean());
                 break;
-            default: object = valueFactory.createURI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
+            default: object = valueFactory.createIRI("http://localhost/" + RandomStringUtils.randomAlphanumeric(8));
                 break;
 
         }

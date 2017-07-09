@@ -71,11 +71,11 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
      * @throws SailException
      */
     @Override
-    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
+    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
 
         if (accept(subj)) {
             log.debug("Refreshing resource: {}", subj.stringValue());
-            final Model cached = ldcache.get((URI)subj);
+            final Model cached = ldcache.get((IRI)subj);
 
             // join the results of the cache connection and the wrapped connection in a single result
             return new UnionIteration<>(
@@ -89,7 +89,7 @@ public class GenericLinkedDataSailConnection extends NotifyingSailConnectionWrap
 
 
     private boolean accept(Resource subj) {
-        return subj != null && ResourceUtils.isURI(subj) && acceptForCaching.accept(subj);
+        return subj != null && ResourceUtils.isIRI(subj) && acceptForCaching.accept(subj);
     }
 
 }

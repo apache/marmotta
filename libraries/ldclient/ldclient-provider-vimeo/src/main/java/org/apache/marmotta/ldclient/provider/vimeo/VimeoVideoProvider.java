@@ -27,7 +27,7 @@ import org.apache.marmotta.ldclient.provider.xml.mapping.CommaSeparatedMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathLiteralMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathURIMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +124,7 @@ public class VimeoVideoProvider extends AbstractXMLDataProvider implements DataP
      * @param resource
      */
     @Override
-    protected List<String> getTypes(URI resource) {
+    protected List<String> getTypes(IRI resource) {
         return ImmutableList.of(NS_MEDIA + "MediaResource", NS_MEDIA + "VideoTrack", Namespaces.NS_LMF_TYPES + "VimeoVideo");
     }
 }

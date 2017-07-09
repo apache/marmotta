@@ -43,7 +43,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
@@ -145,27 +145,27 @@ public abstract class AbstractTestBase {
         }
     }
 
-    protected Collection<Object> evaluateRule(final String ldPath, URI context) throws ParseException {
+    protected Collection<Object> evaluateRule(final String ldPath, IRI context) throws ParseException {
         final LdPathParser<Value> parser = createParserFromString(ldPath);
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);
         final Collection<Object> values = rule.getValues(backend, context);
         return values;
     }
 
-    protected URI createURI(String uri) {
+    protected IRI createURI(String uri) {
         if (uri.matches("\\w+:[a-zA-z0-9_%-]+")) {
             final String[] s = uri.split(":");
-            return repository.getValueFactory().createURI(ns(s[0], s[1]));
+            return repository.getValueFactory().createIRI(ns(s[0], s[1]));
         } else {
-            return repository.getValueFactory().createURI(uri);
+            return repository.getValueFactory().createIRI(uri);
         }
     }
 
-    protected URI createURI(String prefix, String local) {
-        return repository.getValueFactory().createURI(ns(prefix, local));
+    protected IRI createURI(String prefix, String local) {
+        return repository.getValueFactory().createIRI(ns(prefix, local));
     }
 
-    protected Collection<Value> evaluateSelector(final String ldPath, URI context) throws ParseException {
+    protected Collection<Value> evaluateSelector(final String ldPath, IRI context) throws ParseException {
         final LdPathParser<Value> parser = createParserFromString(ldPath);
         final NodeSelector<Value> sel = parser.parseSelector(NSS);
         final Collection<Value> nodes = sel.select(backend, context, null, null);

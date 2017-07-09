@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.marmotta.commons.sesame.filter.resource.ResourceFilter;
-import org.apache.marmotta.commons.sesame.filter.resource.UriPrefixFilter;
+import org.apache.marmotta.commons.sesame.filter.resource.IriPrefixFilter;
 import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
@@ -142,7 +142,7 @@ public class KiWiLinkedDataSailOfflineTest {
 
     @Before
     public void initDatabase() throws RepositoryException {
-        cacheFilter = new UriPrefixFilter("http://localhost/");
+        cacheFilter = new IriPrefixFilter("http://localhost/");
 
         ClientConfiguration config = new ClientConfiguration();
         config.addEndpoint(new DummyEndpoint());
@@ -176,7 +176,7 @@ public class KiWiLinkedDataSailOfflineTest {
         try {
             con.begin();
 
-            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri1), null, null, true));
+            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri1), null, null, true));
 
             Assert.assertEquals(3,list1.size());
             Assert.assertThat(list1, CoreMatchers.<Statement>hasItems(
@@ -189,7 +189,7 @@ public class KiWiLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri2), null, null, true));
+            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri2), null, null, true));
 
             Assert.assertEquals(2, list2.size());
             Assert.assertThat(list2, allOf(
@@ -201,7 +201,7 @@ public class KiWiLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri3), null, null, true));
+            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri3), null, null, true));
 
             Assert.assertEquals(2, list3.size());
             Assert.assertThat(list3, allOf(

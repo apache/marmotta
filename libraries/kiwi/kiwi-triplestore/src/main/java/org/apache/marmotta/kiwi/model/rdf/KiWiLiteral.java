@@ -160,7 +160,7 @@ public abstract class KiWiLiteral extends KiWiNode implements Literal {
 
             if(!this.getLabel().equals(that.getLabel())) return false;
 
-            if(this.getLanguage() != null && !(this.getLanguage().equals(that.getLanguage()))) return false;
+            if(this.getLanguage().orElse(null) != null && !(this.getLanguage().orElse(null).equals(that.getLanguage().orElse(null)))) return false;
 
             // getDatatype should never be null, this is only for legacy support
             if(this.getDatatype()==null && that.getDatatype()!=null) return false;

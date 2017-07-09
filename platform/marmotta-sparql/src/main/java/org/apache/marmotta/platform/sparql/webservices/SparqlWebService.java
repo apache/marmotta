@@ -37,7 +37,6 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.resultio.BooleanQueryResultWriterRegistry;
 import org.openrdf.query.resultio.QueryResultIO;
-import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.query.resultio.TupleQueryResultWriterRegistry;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -65,6 +64,8 @@ import java.util.regex.Pattern;
 
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import org.openrdf.query.resultio.QueryResultFormat;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
 import static org.openrdf.rio.RDFFormat.RDFXML;
 
 /**
@@ -245,7 +246,7 @@ public class SparqlWebService {
             if (StringUtils.isBlank(query)) { //empty query
                 for(String acceptHeader : acceptHeaders) {
                     if (acceptHeader.contains("html")) {
-                        return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/squebi.html")).build();
+                        return Response.seeOther(new URI(configurationService.getServerIri() + "sparql/admin/squebi.html")).build();
                     }
                 }
 
@@ -408,7 +409,7 @@ public class SparqlWebService {
                     }
                 }
                 if (parseSubType(resultType).equals("html"))
-                    return Response.seeOther(new URI(configurationService.getServerUri() + "sparql/admin/update.html")).build();
+                    return Response.seeOther(new URI(configurationService.getServerIri() + "sparql/admin/update.html")).build();
                 else
                     return Response.status(Status.ACCEPTED).entity("no SPARQL query specified").build();
             }
@@ -481,7 +482,7 @@ public class SparqlWebService {
         ContentType _bestType = null;
         RDFFormat _format = null;
         for (ContentType ct : acceptedTypes) {
-            final RDFFormat f = Rio.getWriterFormatForMIMEType(ct.getMime());
+            final RDFFormat f = Rio.getWriterFormatForMIMEType(ct.getMime()).orElse(null);
             if (f != null) {
                 _bestType = ct;
                 _format = f;
@@ -528,7 +529,7 @@ public class SparqlWebService {
         };
         
         final ResponseBuilder responseBuilder = Response.ok().entity(entity).header(CONTENT_TYPE, format.getMime());
-        final TupleQueryResultFormat fmt = QueryResultIO.getWriterFormatForMIMEType(format.getMime());
+        final TupleQueryResultFormat fmt = (TupleQueryResultFormat)QueryResultIO.getWriterFormatForMIMEType(format.getMime()).orElse(null);
         if (fmt != null && !"html".equals(fmt.getDefaultFileExtension())) {
             responseBuilder.header("Content-Disposition", String.format("attachment; filename=\"%s.%s\"", queryType.toString().toLowerCase(), fmt.getDefaultFileExtension()));
         }

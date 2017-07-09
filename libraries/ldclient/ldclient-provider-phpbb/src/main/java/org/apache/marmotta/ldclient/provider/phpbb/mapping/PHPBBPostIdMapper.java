@@ -60,7 +60,7 @@ public class PHPBBPostIdMapper extends CssSelectorMapper {
         if(!selectedValue.startsWith("p")) throw new RuntimeException("invalid value for PHPBB Post ID; must start with p... but was "+selectedValue);
         else
             return Collections.singletonList(
-                    (Value)factory.createURI(baseUri + "?p=" + selectedValue.substring(1))
+                    (Value)factory.createIRI(baseUri + "?p=" + selectedValue.substring(1))
                     );
     }
 }

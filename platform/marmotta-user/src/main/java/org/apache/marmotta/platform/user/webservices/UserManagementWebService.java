@@ -26,7 +26,7 @@ import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -148,7 +148,7 @@ public class UserManagementWebService {
                 UserWebService.AccountPoJo apj = new UserWebService.AccountPoJo(account.getLogin(), account.getWebId());
                 apj.setRoles(account.getRoles());
 
-                RepositoryResult<Statement> triples = conn.getStatements(conn.getValueFactory().createURI(account.getWebId()),null,null,true);
+                RepositoryResult<Statement> triples = conn.getStatements(conn.getValueFactory().createIRI(account.getWebId()),null,null,true);
 
                 while(triples.hasNext()) {
                     Statement t = triples.next();
@@ -156,7 +156,7 @@ public class UserManagementWebService {
                     String prop = t.getPredicate().stringValue();
                     if (prop.startsWith(Namespaces.NS_FOAF)) {
                         Value object = t.getObject();
-                        if (object instanceof URI) {
+                        if (object instanceof IRI) {
                             apj.setFoaf(prop, String.format("<%s>", object));
                         } else if (object instanceof Literal) {
                             apj.setFoaf(prop, object.toString());
@@ -193,7 +193,7 @@ public class UserManagementWebService {
             try {
                 if (delFoaf && account.getWebId() != null) {
                     // TODO: Remove only users foaf profile?
-                    conn.remove(conn.getValueFactory().createURI(account.getWebId()),null,null);
+                    conn.remove(conn.getValueFactory().createIRI(account.getWebId()),null,null);
                 }
 
                 accountService.deleteAccount(account);
@@ -280,14 +280,14 @@ public class UserManagementWebService {
                     }
 
                     String property = Namespaces.NS_FOAF + prop;
-                    URI p = conn.getValueFactory().createURI(property);
-                    URI u = conn.getValueFactory().createURI(currentUser);
+                    IRI p = conn.getValueFactory().createIRI(property);
+                    IRI u = conn.getValueFactory().createIRI(currentUser);
                     ResourceUtils.removeProperty(conn,u, property);
                     String val = formParams.getFirst(prop);
                     if (val != null && val.length() > 0) {
                         Matcher m = PROFILE_URI_PATTERN.matcher(val);
                         if (m.matches()) {
-                            URI o = conn.getValueFactory().createURI(m.group(1));
+                            IRI o = conn.getValueFactory().createIRI(m.group(1));
                             conn.add(u,p,o,u);
                         } else {
                             Literal o = conn.getValueFactory().createLiteral(val.trim());

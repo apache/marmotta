@@ -21,11 +21,8 @@ import org.apache.marmotta.ldcache.backend.infinispan.util.DataIO;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.BNodeImpl;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +31,10 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashSet;
 import java.util.Set;
+import org.openrdf.model.impl.SimpleBNode;
+import org.openrdf.model.impl.SimpleIRI;
+import org.openrdf.model.impl.SimpleLiteral;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Add file description here!
@@ -66,11 +67,11 @@ public class ValueExternalizer implements AdvancedExternalizer<Value> {
     public Set<Class<? extends Value>> getTypeClasses() {
         Set<Class<? extends Value>> classes = new HashSet<>();
         classes.add(BNode.class);
-        classes.add(URI.class);
+        classes.add(IRI.class);
         classes.add(Literal.class);
-        classes.add(BNodeImpl.class);
-        classes.add(URIImpl.class);
-        classes.add(LiteralImpl.class);
+        classes.add(SimpleBNode.class);
+        classes.add(SimpleIRI.class);
+        classes.add(SimpleLiteral.class);
         classes.add(Value.class);
 
         return classes;
@@ -129,7 +130,7 @@ public class ValueExternalizer implements AdvancedExternalizer<Value> {
         if(type == TYPE_LITERAL) {
             Literal l = (Literal)value;
 
-            DataIO.writeString(out,l.getLanguage());
+            DataIO.writeString(out,l.getLanguage().orElse(null));
 
             if(l.getDatatype() != null) {
                 DataIO.writeString(out,l.getDatatype().stringValue());
@@ -158,19 +159,19 @@ public class ValueExternalizer implements AdvancedExternalizer<Value> {
         String label = DataIO.readString(in);
         switch (type) {
             case TYPE_URI:
-                return new URIImpl(label);
+                return SimpleValueFactory.getInstance().createIRI(label);
             case TYPE_BNODE:
-                return new BNodeImpl(label);
+                return SimpleValueFactory.getInstance().createBNode(label);
             case TYPE_LITERAL:
                 String lang  = DataIO.readString(in);
                 String dtype  = DataIO.readString(in);
 
                 if(lang != null) {
-                    return new LiteralImpl(label,lang);
+                    return SimpleValueFactory.getInstance().createLiteral(label,lang);
                 } else if(dtype != null) {
-                    return new LiteralImpl(label, new URIImpl(dtype));
+                    return SimpleValueFactory.getInstance().createLiteral(label, SimpleValueFactory.getInstance().createIRI(dtype));
                 } else {
-                    return new LiteralImpl(label);
+                    return SimpleValueFactory.getInstance().createLiteral(label);
                 }
         }
         throw new ClassNotFoundException("could not find class with type "+type);
@@ -185,7 +186,7 @@ public class ValueExternalizer implements AdvancedExternalizer<Value> {
 
     private static <C extends Value> int getType(Class<C> clazz) {
         int t;
-        if(URI.class.isAssignableFrom(clazz)) {
+        if(IRI.class.isAssignableFrom(clazz)) {
             t = TYPE_URI;
         } else if(BNode.class.isAssignableFrom(clazz)) {
             t = TYPE_BNODE;

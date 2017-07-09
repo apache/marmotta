@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepositoryConnection;
@@ -59,14 +59,14 @@ public class TextFunctionsTest extends AbstractTestBase {
     @Parameter
     public String text;
 
-    private URI subject, predicate;
+    private IRI subject, predicate;
     final private Random rnd = new Random();
 
     @Before
     public void setUp() throws RepositoryException {
 
-        subject = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
-        predicate = repository.getValueFactory().createURI(ns("foo", UUID.randomUUID().toString()));
+        subject = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
+        predicate = repository.getValueFactory().createIRI(ns("foo", UUID.randomUUID().toString()));
 
         final SailRepositoryConnection con = repository.getConnection();
         try {

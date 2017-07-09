@@ -31,7 +31,7 @@ import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.apache.marmotta.platform.user.model.UserAccount.PasswordHash;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -147,7 +147,7 @@ public class AccountServiceImpl implements AccountService {
     public UserAccount createAccount(String login, String firstName, String lastName) {
         Preconditions.checkArgument(StringUtils.isNotBlank(login), "blank/empty login not allowed");
 
-        URI webid = userService.getUser(login);
+        IRI webid = userService.getUser(login);
         if (webid == null) {
             try {
                 webid = userService.createUser(login, firstName, lastName);
@@ -208,7 +208,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserAccount getAccount(URI resource) {
+    public UserAccount getAccount(IRI resource) {
         Preconditions.checkArgument(resource != null);
 
         UserAccount account = null;
@@ -234,8 +234,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public UserAccount getAccount(MarmottaUser user) {
         Resource delegate = user.getDelegate();
-        if (delegate instanceof URI)
-            return getAccount((URI) delegate);
+        if (delegate instanceof IRI)
+            return getAccount((IRI) delegate);
         return null;
     }
 

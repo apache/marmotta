@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -84,15 +84,15 @@ public class BinaryNumericTestFunctionsTest extends AbstractTestBase {
     }
 
     private void runTest(String fkt, String pos, String neg) throws ParseException {
-        final URI start = repository.getValueFactory().createURI("http://www.example.com/Compare");
+        final IRI start = repository.getValueFactory().createIRI("http://www.example.com/Compare");
 
         ArrayList<Value> yes = new ArrayList<Value>();
         for (String p : pos.split(",")) {
-            yes.add(repository.getValueFactory().createURI(NSS.get("ex") + p.trim()));
+            yes.add(repository.getValueFactory().createIRI(NSS.get("ex") + p.trim()));
         }
         ArrayList<Value> no = new ArrayList<Value>();
         for (String p : neg.split(",")) {
-            no.add(repository.getValueFactory().createURI(NSS.get("ex") + p.trim()));
+            no.add(repository.getValueFactory().createIRI(NSS.get("ex") + p.trim()));
         }
 
 

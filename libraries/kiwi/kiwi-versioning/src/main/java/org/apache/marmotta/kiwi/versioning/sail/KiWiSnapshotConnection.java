@@ -42,7 +42,7 @@ import org.openrdf.IsolationLevel;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
@@ -118,7 +118,7 @@ public class KiWiSnapshotConnection implements SailConnection {
     }
 
     @Override
-    public void addStatement(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void addStatement(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         throw new SailReadOnlyException("snapshot sails are read-only");
     }
 
@@ -201,7 +201,7 @@ public class KiWiSnapshotConnection implements SailConnection {
     }
 
     @Override
-    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, URI pred, Value obj, final boolean includeInferred, Resource... contexts) throws SailException {
+    public CloseableIteration<? extends Statement, SailException> getStatements(Resource subj, IRI pred, Value obj, final boolean includeInferred, Resource... contexts) throws SailException {
         final KiWiResource rsubj = valueFactory.convert(subj);
         final KiWiUriResource rpred = valueFactory.convert(pred);
         final KiWiNode robj = valueFactory.convert(obj);
@@ -304,7 +304,7 @@ public class KiWiSnapshotConnection implements SailConnection {
     }
 
     @Override
-    public void removeStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void removeStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         throw new SailReadOnlyException("snapshot sails are read-only");
     }
 
@@ -378,7 +378,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      * @throws IllegalStateException If the connection has been closed.
      */
     @Override
-    public void addStatement(UpdateContext op, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void addStatement(UpdateContext op, Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         throw new SailReadOnlyException("snapshot sails are read-only");
     }
 
@@ -447,7 +447,7 @@ public class KiWiSnapshotConnection implements SailConnection {
      * @throws IllegalStateException If the connection has been closed.
      */
     @Override
-    public void removeStatement(UpdateContext op, Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
+    public void removeStatement(UpdateContext op, Resource subj, IRI pred, Value obj, Resource... contexts) throws SailException {
         throw new SailReadOnlyException("snapshot sails are read-only");
     }
 
@@ -501,7 +501,7 @@ public class KiWiSnapshotConnection implements SailConnection {
          *
          * @param subj A Resource specifying the subject, or <tt>null</tt> for a
          * wildcard.
-         * @param pred A URI specifying the predicate, or <tt>null</tt> for a
+         * @param pred A IRI specifying the predicate, or <tt>null</tt> for a
          * wildcard.
          * @param obj A Value specifying the object, or <tt>null</tt> for a
          * wildcard.
@@ -513,7 +513,7 @@ public class KiWiSnapshotConnection implements SailConnection {
          * source failed to get the statements.
          */
         @Override
-        public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, URI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
+        public CloseableIteration<? extends Statement, QueryEvaluationException> getStatements(Resource subj, IRI pred, Value obj, Resource... contexts) throws QueryEvaluationException {
             try {
                 return new ExceptionConvertingIteration<Statement, QueryEvaluationException>(
                         connection.getStatements(subj, pred, obj, inferred, contexts)

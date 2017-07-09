@@ -18,6 +18,7 @@ package org.apache.marmotta.commons.vocabulary;
 
 import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
 /**
@@ -406,7 +407,7 @@ public class FOAF {
 
 
     static{
-        ValueFactory factory = ValueFactoryImpl.getInstance();
+        ValueFactory factory = SimpleValueFactory.getInstance();
         Agent = factory.createIRI(FOAF.NAMESPACE, "Agent");
         Document = factory.createIRI(FOAF.NAMESPACE, "Document");
         Group = factory.createIRI(FOAF.NAMESPACE, "Group");

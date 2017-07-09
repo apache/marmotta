@@ -22,6 +22,7 @@ import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.helpers.AbstractRDFHandler;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
 /**
@@ -29,7 +30,7 @@ import org.openrdf.rio.helpers.RDFHandlerBase;
  *
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
-public class DummyLoaderHandler extends RDFHandlerBase implements LoaderHandler {
+public class DummyLoaderHandler extends AbstractRDFHandler implements LoaderHandler {
 
     private final long sleep;
     private final Model model;

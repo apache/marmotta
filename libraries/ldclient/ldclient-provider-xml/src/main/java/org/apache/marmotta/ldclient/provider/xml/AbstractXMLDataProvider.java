@@ -32,6 +32,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Abstract implementation of a data provider based on XML documents. Implementing classes need to provide
@@ -54,16 +55,16 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
 
 
     /**
-     * Return a list of URIs that should be added as types for each processed resource.
+     * Return a list of IRIs that should be added as types for each processed resource.
      *
      * @return
      * @param resource
      */
-    protected abstract List<String> getTypes(URI resource);
+    protected abstract List<String> getTypes(IRI resource);
 
 
     /**
-     * Provide namespace mappings for the XPath expressions from namespace prefix to namespace URI. May be overridden
+     * Provide namespace mappings for the XPath expressions from namespace prefix to namespace IRI. May be overridden
      * by subclasses as appropriate, the default implementation returns an empty map.
      *
      * @return
@@ -100,14 +101,14 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
             }
 
 
-            ValueFactory vf = new ValueFactoryImpl();
+            ValueFactory vf = SimpleValueFactory.getInstance();
 
-            Resource subject = vf.createURI(resource);
+            Resource subject = vf.createIRI(resource);
 
             for(Map.Entry<String,XPathValueMapper> mapping : getXPathMappings(requestUrl).entrySet()) {
                 XPathExpression<Object> xpath = mapping.getValue().getCompiled();
 
-                org.openrdf.model.URI predicate = triples.getValueFactory().createURI(mapping.getKey());
+                org.openrdf.model.IRI predicate = triples.getValueFactory().createIRI(mapping.getKey());
                 for(Object value : xpath.evaluate(doc)) {
                     String str_value;
                     if(value instanceof Element) {
@@ -131,10 +132,10 @@ public abstract class AbstractXMLDataProvider extends AbstractHttpProvider {
                 }
             }
 
-            org.openrdf.model.URI ptype = triples.getValueFactory().createURI(Namespaces.NS_RDF + "type");
+            org.openrdf.model.IRI ptype = triples.getValueFactory().createIRI(Namespaces.NS_RDF + "type");
 
-            for(String typeUri : getTypes(vf.createURI(resource))) {
-                Resource type_resource = vf.createURI(typeUri);
+            for(String typeUri : getTypes(vf.createIRI(resource))) {
+                Resource type_resource = vf.createIRI(typeUri);
                 triples.add(vf.createStatement(subject, ptype, type_resource));
             }
 

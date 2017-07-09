@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.platform.ldp.api;
 
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,16 +32,16 @@ public interface LdpBinaryStoreService {
 
     boolean store(String resource, InputStream stream);
 
-    boolean store(URI resource, InputStream stream);
+    boolean store(IRI resource, InputStream stream);
 
     InputStream read(String resource) throws IOException;
 
-    InputStream read(URI resource) throws IOException;
+    InputStream read(IRI resource) throws IOException;
 
     String getHash(String resource);
 
-    String getHash(URI uri);
+    String getHash(IRI uri);
 
-    boolean delete(URI uri);
+    boolean delete(IRI uri);
     boolean delete(String resource);
 }

@@ -84,7 +84,7 @@ public class LDTemplate {
 
             Resource context = null;
             if(cmd.hasOption("context")) {
-                context = backend.createURI(cmd.getOptionValue("context"));
+                context = backend.createIRI(cmd.getOptionValue("context"));
             }
 
             BufferedWriter out = null;

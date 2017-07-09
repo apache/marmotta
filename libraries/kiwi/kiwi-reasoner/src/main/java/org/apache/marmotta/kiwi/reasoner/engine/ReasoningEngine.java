@@ -42,7 +42,7 @@ import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.sail.SailConnection;
 import org.openrdf.sail.SailException;
@@ -605,7 +605,7 @@ public class ReasoningEngine implements TransactionListener {
                 Map<VariableField,KiWiNode> binding = row.getBindings();
 
                 Resource subject = null;
-                URI property = null;
+                IRI property = null;
                 Value object;
 
                 if(rule.getHead().getSubject() != null && rule.getHead().getSubject().isVariableField()) {

@@ -39,7 +39,7 @@ import org.apache.marmotta.platform.ldp.util.RandomUriGenerator;
 import org.apache.marmotta.platform.ldp.util.SlugUriGenerator;
 import org.jboss.resteasy.spi.NoLogWebApplicationException;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -139,12 +139,12 @@ public class LdpWebService {
 
     protected void initialize(@Observes SesameStartupEvent event) {
         log.info("Starting up LDP WebService Endpoint");
-        String root = UriBuilder.fromUri(configurationService.getBaseUri()).path(LdpWebService.PATH).build().toASCIIString();
+        String root = UriBuilder.fromUri(configurationService.getBaseIri()).path(LdpWebService.PATH).build().toASCIIString();
         try {
             final RepositoryConnection conn = sesameService.getConnection();
             try {
                 conn.begin();
-                ldpService.init(conn, conn.getValueFactory().createURI(root));
+                ldpService.init(conn, conn.getValueFactory().createIRI(root));
                 log.debug("Created LDP root container <{}>", root);
                 conn.commit();
             } finally {
@@ -219,7 +219,7 @@ public class LdpWebService {
                         return resp;
                     } else {
                         log.debug("Client is asking for a RDF-Serialisation of LDP-NS <{}>, sending meta-data", resource);
-                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE), preferHeader);
+                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime()).orElse(RDFFormat.TURTLE), preferHeader);
                         conn.commit();
                         return resp;
                     }
@@ -234,7 +234,7 @@ public class LdpWebService {
                         return resp;
                     } else {
                         log.debug("Client is asking for a RDF-Serialisation of LDP-NS <{}>, sending meta-data", resource);
-                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime(), RDFFormat.TURTLE), preferHeader);
+                        final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(rdfContentType.getMime()).orElse(RDFFormat.TURTLE), preferHeader);
                         conn.commit();
                         return resp;
                     }
@@ -252,7 +252,7 @@ public class LdpWebService {
                     conn.commit();
                     return resp;
                 } else {
-                    final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(bestType.getMime(), RDFFormat.TURTLE), preferHeader);
+                    final Response.ResponseBuilder resp = buildGetResponseSourceResource(conn, resource, Rio.getWriterFormatForMIMEType(bestType.getMime()).orElse(RDFFormat.TURTLE), preferHeader);
                     conn.commit();
                     return resp;
                 }
@@ -749,19 +749,19 @@ public class LdpWebService {
             List<Statement> statements = ldpService.getLdpTypes(connection, resource);
             for (Statement stmt : statements) {
                 Value o = stmt.getObject();
-                if (o instanceof URI && o.stringValue().startsWith(LDP.NAMESPACE)) {
+                if (o instanceof IRI && o.stringValue().startsWith(LDP.NAMESPACE)) {
                     rb.link(o.stringValue(), LINK_REL_TYPE);
                 }
             }
 
-            final URI rdfSource = ldpService.getRdfSourceForNonRdfSource(connection, resource);
+            final IRI rdfSource = ldpService.getRdfSourceForNonRdfSource(connection, resource);
             if (rdfSource != null) {
                 // Sec. 5.2.8.1 and 5.2.3.12
                 rb.link(rdfSource.stringValue(), LINK_REL_DESCRIBEDBY);
                 // This is not covered by the Spec, but is very convenient to have
                 rb.link(rdfSource.stringValue(), LINK_REL_META);
             }
-            final URI nonRdfSource = ldpService.getNonRdfSourceForRdfSource(connection, resource);
+            final IRI nonRdfSource = ldpService.getNonRdfSourceForRdfSource(connection, resource);
             if (nonRdfSource != null) {
                 // This is not covered by the Spec, but is very convenient to have
                 rb.link(nonRdfSource.stringValue(), LINK_REL_CONTENT);

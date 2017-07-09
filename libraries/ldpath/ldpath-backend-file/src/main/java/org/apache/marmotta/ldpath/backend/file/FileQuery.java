@@ -93,7 +93,7 @@ public class FileQuery {
 
             Resource context = null;
             if(cmd.hasOption("context")) {
-                context = backend.getRepository().getValueFactory().createURI(cmd.getOptionValue("context"));
+                context = backend.getRepository().getValueFactory().createIRI(cmd.getOptionValue("context"));
             }
 
             if(backend != null && context != null) {

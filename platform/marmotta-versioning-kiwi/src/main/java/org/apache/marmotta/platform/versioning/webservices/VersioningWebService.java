@@ -45,7 +45,7 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.SystemStartupEvent;
 import org.apache.marmotta.platform.versioning.services.VersioningSailProvider;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
@@ -109,7 +109,7 @@ public class VersioningWebService {
             RepositoryConnection conn = sesameService.getConnection();
             try {
                 if(resource_uri != null) {
-                    URI resource = conn.getValueFactory().createURI(resource_uri);
+                    IRI resource = conn.getValueFactory().createIRI(resource_uri);
                     if(resource != null && resource instanceof KiWiUriResource) {
 
                         if(dateFrom == null && dateTo == null) {
