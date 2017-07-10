@@ -22,9 +22,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openrdf.model.Statement;
 import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.RDFHandlerBase;
 
 import java.io.IOException;
+import org.openrdf.rio.helpers.AbstractRDFHandler;
 
 /**
  * Add file description here!
@@ -50,12 +50,12 @@ public class GeonamesParserTest {
     public void testFormat() throws ClassNotFoundException {
         Class.forName("org.apache.marmotta.loader.rio.GeonamesFormat");
 
-        RDFFormat f = Rio.getParserFormatForMIMEType("text/vnd.geonames.rdf");
+        RDFFormat f = Rio.getParserFormatForMIMEType("text/vnd.geonames.rdf").orElse(null);
 
         Assert.assertEquals(GeonamesFormat.FORMAT, f);
     }
 
-    private static class MockHandler extends RDFHandlerBase {
+    private static class MockHandler extends AbstractRDFHandler {
         boolean hasStatements = false;
 
         @Override

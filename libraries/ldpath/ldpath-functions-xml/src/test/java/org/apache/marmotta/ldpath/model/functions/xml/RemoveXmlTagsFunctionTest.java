@@ -27,7 +27,7 @@ import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -45,7 +45,7 @@ public class RemoveXmlTagsFunctionTest extends AbstractTestBase {
     public void testRemoveTags() throws ParseException {
         String result = "A quiz is a form of game or mind sport in which the players (as individuals or in teams) attempt to answer questions correctly.";
 
-        final URI context = repository.getValueFactory().createURI(NSS.get("ex") + "Text");
+        final IRI context = repository.getValueFactory().createIRI(NSS.get("ex") + "Text");
 
         final LdPathParser<Value> parser = createParserFromString("fn:removeTags(foo:formatted) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);

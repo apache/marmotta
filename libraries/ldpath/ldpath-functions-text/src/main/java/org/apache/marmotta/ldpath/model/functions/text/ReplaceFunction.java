@@ -62,7 +62,7 @@ public class ReplaceFunction<Node> extends SelectorFunction<Node> {
                 final String replaced = pattern.matcher(string).replaceAll(replace);
 
                 if (backend.isURI(node)) {
-                    result.add(backend.createURI(replaced));
+                    result.add(backend.createIRI(replaced));
                 } else if (backend.isLiteral(node)) {
                     final Locale lang = backend.getLiteralLanguage(node);
                     final URI type = backend.getLiteralType(node);

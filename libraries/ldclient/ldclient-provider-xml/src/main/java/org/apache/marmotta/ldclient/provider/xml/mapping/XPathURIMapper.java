@@ -51,6 +51,6 @@ public class XPathURIMapper extends XPathValueMapper {
      */
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
-        return Collections.singletonList((Value)factory.createURI(selectedValue));
+        return Collections.singletonList((Value)factory.createIRI(selectedValue));
     }
 }

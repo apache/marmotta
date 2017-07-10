@@ -76,7 +76,7 @@ public class CssDateLiteralMapper extends CssTextLiteralMapper {
             } else {
                 dateString = value;
             }
-            return Collections.singletonList((Value) factory.createLiteral(dateString, factory.createURI(Namespaces.NS_XSD + datatype)));
+            return Collections.singletonList((Value) factory.createLiteral(dateString, factory.createIRI(Namespaces.NS_XSD + datatype)));
         } else
             return Collections.emptyList();
     }

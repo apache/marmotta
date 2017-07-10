@@ -215,11 +215,11 @@ public class LdPathParser<Node> {
         }
 
         public Node resolveURI(URI uri) {
-            return backend.createURI(uri.toString());
+            return backend.createIRI(uri.toString());
         }
 
         public Node resolveResource(String uri) throws ParseException {
-            return backend.createURI(uri);
+            return backend.createIRI(uri);
         }
 
         public Node resolveResource(String prefix, String local) throws ParseException {

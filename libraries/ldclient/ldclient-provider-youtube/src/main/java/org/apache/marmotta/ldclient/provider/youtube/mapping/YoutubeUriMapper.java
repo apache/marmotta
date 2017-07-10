@@ -57,12 +57,12 @@ public class YoutubeUriMapper extends XPathValueMapper {
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
         if(selectedValue.startsWith("http://gdata.youtube.com/feeds/api/videos") && selectedValue.indexOf('?') >= 0) {
-            return Collections.singletonList((Value)factory.createURI(selectedValue.substring(0,selectedValue.indexOf('?'))));
+            return Collections.singletonList((Value)factory.createIRI(selectedValue.substring(0,selectedValue.indexOf('?'))));
         } else if(selectedValue.startsWith("http://www.youtube.com/v/")) {
             String[] p_components = selectedValue.split("/");
             String video_id = p_components[p_components.length-1];
 
-            return Collections.singletonList((Value)factory.createURI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
+            return Collections.singletonList((Value)factory.createIRI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
         } else if(selectedValue.startsWith("http://www.youtube.com/watch")) {
             try {
                 URI uri = new URI(selectedValue);
@@ -77,12 +77,12 @@ public class YoutubeUriMapper extends XPathValueMapper {
                 }
 
                 if(video_id != null) {
-                    return Collections.singletonList((Value)factory.createURI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
+                    return Collections.singletonList((Value)factory.createIRI("http://gdata.youtube.com/feeds/api/videos/"+video_id));
                 }
             } catch (URISyntaxException e) {
-                return Collections.singletonList((Value)factory.createURI(selectedValue));
+                return Collections.singletonList((Value)factory.createIRI(selectedValue));
             }
         }
-        return Collections.singletonList((Value)factory.createURI(selectedValue));
+        return Collections.singletonList((Value)factory.createIRI(selectedValue));
     }
 }

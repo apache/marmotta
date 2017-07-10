@@ -19,7 +19,7 @@ package org.apache.marmotta.ldcache.backend.file.util;
 
 import org.apache.marmotta.commons.util.HashUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
 
 import java.io.*;
@@ -36,7 +36,7 @@ public class FileBackendUtils {
 		// static access only
 	}
 
-	public static File getMetaFile(URI resource, File baseDir) {
+	public static File getMetaFile(IRI resource, File baseDir) {
 		return getMetaFile(resource.stringValue(), baseDir);
 	}
 
@@ -89,7 +89,7 @@ public class FileBackendUtils {
 			try {
 				final CacheEntry ce = new CacheEntry();
 				
-				ce.setResource(valueFactory.createURI(br.readLine()));
+				ce.setResource(valueFactory.createIRI(br.readLine()));
 				ce.setLastRetrieved(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
 				ce.setExpiryDate(new Date(Long.parseLong(br.readLine().replaceFirst("#.*$", "").trim())));
 				ce.setUpdateCount(Integer.parseInt(br.readLine().replaceFirst("#.*$", "").trim()));

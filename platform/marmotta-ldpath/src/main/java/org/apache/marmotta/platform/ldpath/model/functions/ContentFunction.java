@@ -22,7 +22,6 @@ import org.apache.marmotta.platform.core.api.content.ContentService;
 import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.LiteralImpl;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -31,6 +30,7 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Add file description here!
@@ -86,7 +86,7 @@ public class ContentFunction extends AutoRegisteredLDPathFunction {
                             if(type.matches(allowedType)) {
                                 byte[] data = contentService.getContentData(r,type);
                                 String content = new String(data);
-                                result.add(new LiteralImpl(content));
+                                result.add(SimpleValueFactory.getInstance().createLiteral(content));
                                 break;
                             }
                         }

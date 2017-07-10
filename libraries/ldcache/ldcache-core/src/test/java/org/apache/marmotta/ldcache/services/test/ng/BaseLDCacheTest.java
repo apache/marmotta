@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.StringWriter;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Base LDCache test
@@ -53,7 +54,7 @@ public abstract class BaseLDCacheTest {
 
     protected LDCache ldcache;
 
-    protected ValueFactory valueFactory = ValueFactoryImpl.getInstance();
+    protected ValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     /**
      * Needs to be implemented by tests to provide the correct backend. Backend needs to be properly initialised.
@@ -107,20 +108,20 @@ public abstract class BaseLDCacheTest {
         String uri2 = "http://localhost/resource2";
         String uri3 = "http://localhost/resource3";
 
-        ldcache.refresh(valueFactory.createURI(uri1));
+        ldcache.refresh(valueFactory.createIRI(uri1));
 
-        Assert.assertTrue(ldcache.contains(valueFactory.createURI(uri1)));
-        Assert.assertEquals(3, ldcache.get(valueFactory.createURI(uri1)).size());
+        Assert.assertTrue(ldcache.contains(valueFactory.createIRI(uri1)));
+        Assert.assertEquals(3, ldcache.get(valueFactory.createIRI(uri1)).size());
 
-        ldcache.refresh(valueFactory.createURI(uri2));
+        ldcache.refresh(valueFactory.createIRI(uri2));
 
-        Assert.assertTrue(ldcache.contains(valueFactory.createURI(uri2)));
-        Assert.assertEquals(2, ldcache.get(valueFactory.createURI(uri2)).size());
+        Assert.assertTrue(ldcache.contains(valueFactory.createIRI(uri2)));
+        Assert.assertEquals(2, ldcache.get(valueFactory.createIRI(uri2)).size());
 
-        ldcache.refresh(valueFactory.createURI(uri3));
+        ldcache.refresh(valueFactory.createIRI(uri3));
 
-        Assert.assertTrue(ldcache.contains(valueFactory.createURI(uri3)));
-        Assert.assertEquals(2, ldcache.get(valueFactory.createURI(uri3)).size());
+        Assert.assertTrue(ldcache.contains(valueFactory.createIRI(uri3)));
+        Assert.assertEquals(2, ldcache.get(valueFactory.createIRI(uri3)).size());
     }
 
 
@@ -129,7 +130,7 @@ public abstract class BaseLDCacheTest {
         Assume.assumeTrue(ldcache.getClient().ping(uri));
 
 
-        Model model = ldcache.get(valueFactory.createURI(uri));
+        Model model = ldcache.get(valueFactory.createIRI(uri));
 
         Assert.assertTrue(model.size() > 0);
 

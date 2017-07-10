@@ -23,7 +23,7 @@ import org.apache.marmotta.commons.http.MarmottaHttpUtils;
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -136,7 +136,7 @@ public class LinkedDataEndpointServiceImpl implements LinkedDataEndpointService 
      * @param resource the KiWiUriResource to check.
      */
     @Override
-    public Endpoint getEndpoint(URI resource) {
+    public Endpoint getEndpoint(IRI resource) {
         for(Endpoint endpoint : listEndpoints()) {
             if (endpoint.handles(resource.stringValue())) return endpoint;
         }

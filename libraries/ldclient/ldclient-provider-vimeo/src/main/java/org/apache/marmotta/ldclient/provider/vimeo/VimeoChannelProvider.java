@@ -22,7 +22,7 @@ import org.apache.marmotta.ldclient.api.provider.DataProvider;
 import org.apache.marmotta.ldclient.provider.xml.AbstractXMLDataProvider;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathURIMapper;
 import org.apache.marmotta.ldclient.provider.xml.mapping.XPathValueMapper;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +111,7 @@ public class VimeoChannelProvider extends AbstractXMLDataProvider implements Dat
      * @param resource
      */
     @Override
-    protected List<String> getTypes(URI resource) {
+    protected List<String> getTypes(IRI resource) {
         return Collections.singletonList(NS_MEDIA + "Collection");
     }
 }

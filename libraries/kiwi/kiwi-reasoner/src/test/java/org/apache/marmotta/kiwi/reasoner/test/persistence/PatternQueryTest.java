@@ -44,7 +44,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -107,11 +107,11 @@ public class PatternQueryTest {
         try {
             ValueFactory v = con.getValueFactory();
 
-            con.add(v.createURI(SUBJECT1), v.createURI(PREDICATE1), v.createURI(SUBJECT2));
-            con.add(v.createURI(SUBJECT1), v.createURI(PREDICATE2), v.createLiteral(OBJECT3));
-            con.add(v.createURI(SUBJECT2), v.createURI(PREDICATE1), v.createURI(OBJECT2));
-            con.add(v.createURI(SUBJECT2), v.createURI(PREDICATE2), v.createLiteral(OBJECT4));
-            con.add(v.createURI(SUBJECT3), v.createURI(PREDICATE2), v.createLiteral(OBJECT5));
+            con.add(v.createIRI(SUBJECT1), v.createIRI(PREDICATE1), v.createIRI(SUBJECT2));
+            con.add(v.createIRI(SUBJECT1), v.createIRI(PREDICATE2), v.createLiteral(OBJECT3));
+            con.add(v.createIRI(SUBJECT2), v.createIRI(PREDICATE1), v.createIRI(OBJECT2));
+            con.add(v.createIRI(SUBJECT2), v.createIRI(PREDICATE2), v.createLiteral(OBJECT4));
+            con.add(v.createIRI(SUBJECT3), v.createIRI(PREDICATE2), v.createLiteral(OBJECT5));
 
             con.commit();
         } finally {
@@ -142,8 +142,8 @@ public class PatternQueryTest {
     @Test
     public void testSingleConstantPattern() throws Exception {
         ValueFactory v = repository.getValueFactory();
-        URI subject = v.createURI(SUBJECT1);
-        URI predicate = v.createURI(PREDICATE2);
+        IRI subject = v.createIRI(SUBJECT1);
+        IRI predicate = v.createIRI(PREDICATE2);
         Literal object = v.createLiteral(OBJECT3);
 
         Pattern p = new Pattern(new ResourceField(subject), new ResourceField(predicate), new LiteralField(object));
@@ -170,7 +170,7 @@ public class PatternQueryTest {
     @Test
     public void testSingleVariablePattern() throws Exception {
         ValueFactory v = repository.getValueFactory();
-        URI predicate = v.createURI(PREDICATE2);
+        IRI predicate = v.createIRI(PREDICATE2);
 
         Pattern p = new Pattern(new VariableField("X"), new ResourceField(predicate), new VariableField("Y"));
         KiWiReasoningConnection connection = rpersistence.getConnection();
@@ -197,8 +197,8 @@ public class PatternQueryTest {
     @Test
     public void testMultipleVariablePattern() throws Exception {
         ValueFactory v = repository.getValueFactory();
-        URI predicate1 = v.createURI(PREDICATE1);
-        URI predicate2 = v.createURI(PREDICATE2);
+        IRI predicate1 = v.createIRI(PREDICATE1);
+        IRI predicate2 = v.createIRI(PREDICATE2);
 
         VariableField x =  new VariableField("X");
         VariableField y =  new VariableField("Y");

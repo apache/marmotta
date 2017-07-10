@@ -82,11 +82,11 @@ public interface NodeBackend<Node> {
     Node createLiteral(String content, Locale language, URI type);
 
 	/**
-	 * Create a URI mode with the URI passed as argument
-	 * @param uri  URI of the resource to create
-	 * @return a URI node using the model used by this backend
+	 * Create a IRI mode with the IRI passed as argument
+	 * @param iri  IRI of the resource to create
+	 * @return a IRI node using the model used by this backend
 	 */
-    Node createURI(String uri);
+    Node createIRI(String iri);
 
 	/**
 	 * Return the lexial representation of a node. For a literal, this will be the content, for a URI node it will be the

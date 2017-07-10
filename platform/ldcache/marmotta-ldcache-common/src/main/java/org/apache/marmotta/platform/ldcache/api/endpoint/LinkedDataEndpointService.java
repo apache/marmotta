@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.ldcache.api.endpoint;
 
 import org.apache.marmotta.ldclient.api.endpoint.Endpoint;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import java.util.List;
 
@@ -75,7 +75,7 @@ public interface LinkedDataEndpointService {
      *
      * @param resource the KiWiUriResource to check.
      */
-    Endpoint getEndpoint(URI resource);
+    Endpoint getEndpoint(IRI resource);
 
     /**
      * Test whether an endpoint definition for the given url pattern already exists.

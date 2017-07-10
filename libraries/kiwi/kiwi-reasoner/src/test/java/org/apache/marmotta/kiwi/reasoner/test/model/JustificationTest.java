@@ -25,7 +25,7 @@ import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 
 import java.util.*;

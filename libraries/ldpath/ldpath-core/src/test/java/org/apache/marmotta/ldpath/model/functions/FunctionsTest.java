@@ -34,7 +34,7 @@ import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -54,7 +54,7 @@ public class FunctionsTest extends AbstractTestBase {
     public void testConcat() throws ParseException {
 
         LdPathParser<Value> parser = createParserFromString("fn:concat(foo:title, \" \", foo:subtitle) :: xsd:string; ");
-        final URI context = repository.getValueFactory().createURI("http://www.example.com/1");
+        final IRI context = repository.getValueFactory().createIRI("http://www.example.com/1");
 
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
         final Collection<Object> result = field.getValues(backend, context);
@@ -64,8 +64,8 @@ public class FunctionsTest extends AbstractTestBase {
 
     @Test
     public void testFirst() throws ParseException {
-        final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
-        final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
+        final IRI ctx1 = repository.getValueFactory().createIRI("http://www.example.com/1");
+        final IRI ctx2 = repository.getValueFactory().createIRI("http://www.example.com/2");
 
         LdPathParser<Value> parser = createParserFromString("fn:first(foo:not_valid, foo:title, foo:subtitle, foo:not_valid2) :: xsd:string; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
@@ -81,8 +81,8 @@ public class FunctionsTest extends AbstractTestBase {
 
     @Test
     public void testFirst2() throws ParseException {
-        final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
-        final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
+        final IRI ctx1 = repository.getValueFactory().createIRI("http://www.example.com/1");
+        final IRI ctx2 = repository.getValueFactory().createIRI("http://www.example.com/2");
 
         LdPathParser<Value> parser = createParserFromString("fn:first(foo:i) :: xsd:int; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
@@ -98,8 +98,8 @@ public class FunctionsTest extends AbstractTestBase {
 
     @Test
     public void testLast() throws ParseException {
-        final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
-        final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
+        final IRI ctx1 = repository.getValueFactory().createIRI("http://www.example.com/1");
+        final IRI ctx2 = repository.getValueFactory().createIRI("http://www.example.com/2");
 
         LdPathParser<Value> parser = createParserFromString("fn:last(foo:not_valid, foo:title, foo:subtitle, foo:not_valid2) :: xsd:string; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
@@ -115,8 +115,8 @@ public class FunctionsTest extends AbstractTestBase {
 
     @Test
     public void testLast2() throws ParseException {
-        final URI ctx1 = repository.getValueFactory().createURI("http://www.example.com/1");
-        final URI ctx2 = repository.getValueFactory().createURI("http://www.example.com/2");
+        final IRI ctx1 = repository.getValueFactory().createIRI("http://www.example.com/1");
+        final IRI ctx2 = repository.getValueFactory().createIRI("http://www.example.com/2");
 
         LdPathParser<Value> parser = createParserFromString("fn:last(foo:i, ex:not_here) :: xsd:int; ");
         final FieldMapping<Object, Value> field = parser.parseRule(NSS);
@@ -132,9 +132,9 @@ public class FunctionsTest extends AbstractTestBase {
 
     @Test
     public void testEq() throws ParseException {
-        final URI start = repository.getValueFactory().createURI("http://www.example.com/start");
-        final URI ex1 = repository.getValueFactory().createURI("http://www.example.com/1");
-        final URI ex2 = repository.getValueFactory().createURI("http://www.example.com/2");
+        final IRI start = repository.getValueFactory().createIRI("http://www.example.com/start");
+        final IRI ex1 = repository.getValueFactory().createIRI("http://www.example.com/1");
+        final IRI ex2 = repository.getValueFactory().createIRI("http://www.example.com/2");
 
         final LdPathParser<Value> parser = createParserFromString("ex:hasItem[fn:eq(foo:i, foo:j)]");
         final NodeSelector<Value> sel = parser.parseSelector(NSS);

@@ -35,7 +35,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.RDFHandlerBase;
+import org.openrdf.rio.helpers.AbstractRDFHandler;
 import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,7 @@ public class ModelCommons {
      * @return
      */
     public static RDFHandler createModelHandler(final Model model, final Predicate<Statement>... filters) {
-        return new RDFHandlerBase() {
+        return new AbstractRDFHandler() {
             @Override
             public void handleStatement(Statement st) throws RDFHandlerException {
                 for(Predicate<Statement> f : filters) {

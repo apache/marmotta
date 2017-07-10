@@ -28,7 +28,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
@@ -67,7 +67,7 @@ public abstract class BaseClusterTest {
 
         log.info("testing cache synchronization ...");
 
-        KiWiUriResource u = (KiWiUriResource) repositorySync1.getValueFactory().createURI("http://localhost/test1");
+        KiWiUriResource u = (KiWiUriResource) repositorySync1.getValueFactory().createIRI("http://localhost/test1");
 
 
         // give the cluster some time to performance asynchronous balancing
@@ -124,20 +124,20 @@ public abstract class BaseClusterTest {
 
         log.info("testing caches on different ports ...");
 
-        URI u = repositoryAsync1.getValueFactory().createURI("http://localhost/test1");
+        IRI u = repositoryAsync1.getValueFactory().createIRI("http://localhost/test1");
 
 
         // give the cluster some time to performance asynchronous balancing
         Thread.sleep(100);
 
         log.debug("test if resource is in cache where it was created ...");
-        URI u1 = (URI) cacheManagerAsync1.getUriCache().get("http://localhost/test1");
+        IRI u1 = (IRI) cacheManagerAsync1.getUriCache().get("http://localhost/test1");
 
         Assert.assertNotNull(u1);
         Assert.assertEquals(u,u1);
 
         log.debug("test if resource has been synced to other cache in cluster ...");
-        URI u2 = (URI) cacheManagerAsync2.getUriCache().get("http://localhost/test1");
+        IRI u2 = (IRI) cacheManagerAsync2.getUriCache().get("http://localhost/test1");
 
         Assert.assertNull(u2);
     }

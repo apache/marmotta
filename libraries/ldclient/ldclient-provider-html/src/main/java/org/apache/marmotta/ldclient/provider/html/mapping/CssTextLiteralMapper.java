@@ -79,7 +79,7 @@ public class CssTextLiteralMapper extends CssSelectorMapper {
         if (language != null)
             return Collections.singletonList((Value) factory.createLiteral(value, language.toString()));
         if (datatype != null)
-            return Collections.singletonList((Value) factory.createLiteral(value, factory.createURI(Namespaces.NS_XSD + datatype)));
+            return Collections.singletonList((Value) factory.createLiteral(value, factory.createIRI(Namespaces.NS_XSD + datatype)));
         else
             return Collections.singletonList((Value) factory.createLiteral(value));
     }

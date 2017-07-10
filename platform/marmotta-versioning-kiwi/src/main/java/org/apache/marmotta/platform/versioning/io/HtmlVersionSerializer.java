@@ -102,7 +102,7 @@ public class HtmlVersionSerializer implements VersionSerializer {
                 Version v = versions.next();
                 Map<String,String> m = new HashMap<String,String>();
                 m.put("date",v.getCommitTime().toString());
-                m.put("uri",MementoUtils.resourceURI(original.toString(), v.getCommitTime(), configurationService.getBaseUri()).toString());
+                m.put("uri",MementoUtils.resourceURI(original.toString(), v.getCommitTime(), configurationService.getBaseIri()).toString());
                 m.put("tstamp", TSTAMP.format(v.getCommitTime()));
                 vs.add(m);
             }
@@ -113,8 +113,8 @@ public class HtmlVersionSerializer implements VersionSerializer {
             String project = configurationService.getStringConfiguration("kiwi.pages.project","lmf");
             data.put("LOGO",configurationService.getStringConfiguration("kiwi.pages.project."+project+".logo","logo.png"));
             data.put("FOOTER",configurationService.getStringConfiguration("kiwi.pages.project."+project+".footer","a footer"));
-            data.put("SERVER_URL",configurationService.getServerUri());
-            data.put("baseUri", configurationService.getServerUri());
+            data.put("SERVER_URL",configurationService.getServerIri());
+            data.put("baseUri", configurationService.getServerIri());
 
             //create writer
             OutputStreamWriter writer = new OutputStreamWriter(out);

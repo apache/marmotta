@@ -33,7 +33,7 @@ import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,7 +182,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      * @return
      */
     @Override
-    public CacheEntry getEntry(URI resource) {
+    public CacheEntry getEntry(IRI resource) {
         CacheEntry entry = getEntryCache().get(resource.stringValue());
 
         log.debug("retrieved entry for resource {}: {}", resource.stringValue(), entry);
@@ -197,7 +197,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntry entry) {
+    public void putEntry(IRI resource, CacheEntry entry) {
         log.debug("updating entry for resource {} to {}", resource.stringValue(), entry);
 
         getEntryCache().put(resource.stringValue(), entry);
@@ -209,7 +209,7 @@ public class LDCachingInfinispanBackend implements LDCachingBackend {
      * @param resource the resource to remove the entry for
      */
     @Override
-    public void removeEntry(URI resource) {
+    public void removeEntry(IRI resource) {
         log.debug("removing entry for resource {}", resource.stringValue());
 
         getEntryCache().remove(resource.stringValue());

@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -71,7 +71,7 @@ public class XPathFunctionTest extends AbstractTestBase {
 
     @Test
     public void testXpathFunction() throws ParseException {
-        final URI ctx = repository.getValueFactory().createURI(NSS.get("ex") + "Quiz");
+        final IRI ctx = repository.getValueFactory().createIRI(NSS.get("ex") + "Quiz");
 
         final LdPathParser<Value> parser = createParserFromString("fn:xpath(\"/quiz/question[" +
                 index +

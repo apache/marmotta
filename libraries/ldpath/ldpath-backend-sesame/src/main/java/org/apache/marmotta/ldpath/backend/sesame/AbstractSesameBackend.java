@@ -37,8 +37,8 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
 
     private static final Logger log = LoggerFactory.getLogger(AbstractSesameBackend.class);
 
-    protected org.openrdf.model.URI createURIInternal(final ValueFactory valueFactory, String uri) {
-        return valueFactory.createURI(uri);
+    protected org.openrdf.model.IRI createURIInternal(final ValueFactory valueFactory, String uri) {
+        return valueFactory.createIRI(uri);
     }
 
     protected Literal createLiteralInternal(final ValueFactory valueFactory, String content) {
@@ -54,11 +54,11 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
         } else if(type == null) {
             return valueFactory.createLiteral(content,language.getLanguage());
         } else  {
-            return valueFactory.createLiteral(content, valueFactory.createURI(type.toString()));
+            return valueFactory.createLiteral(content, valueFactory.createIRI(type.toString()));
         }
     }
 
-    protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.URI property, boolean includeInferred, Resource... contexts)
+    protected Collection<Value> listObjectsInternal(RepositoryConnection connection, Resource subject, org.openrdf.model.IRI property, boolean includeInferred, Resource... contexts)
             throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
@@ -74,7 +74,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
         return  result;
     }
 
-    protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.URI property, Value object, boolean includeInferred, Resource... contexts)
+    protected Collection<Value> listSubjectsInternal(final RepositoryConnection connection, org.openrdf.model.IRI property, Value object, boolean includeInferred, Resource... contexts)
             throws RepositoryException {
         final ValueFactory valueFactory = connection.getValueFactory();
 
@@ -99,8 +99,8 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
      */
     @SuppressWarnings("unchecked")
     protected <T extends Value> T merge(T value, ValueFactory vf) {
-        if(value instanceof org.openrdf.model.URI) {
-            return (T)vf.createURI(value.stringValue());
+        if(value instanceof org.openrdf.model.IRI) {
+            return (T)vf.createIRI(value.stringValue());
         } else if(value instanceof BNode) {
             return (T)vf.createBNode(((BNode) value).getID());
         } else {
@@ -115,7 +115,7 @@ public abstract class AbstractSesameBackend extends SesameValueBackend implement
     public abstract Literal createLiteral(String content, Locale language, URI type);
 
     @Override
-    public abstract org.openrdf.model.URI createURI(String uri);
+    public abstract org.openrdf.model.IRI createIRI(String uri);
 
     @Override
     public abstract Collection<Value> listObjects(Value subject, Value property);

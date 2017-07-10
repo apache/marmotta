@@ -28,7 +28,7 @@ import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.events.ConfigurationChangedEvent;
 import org.apache.marmotta.platform.ldcache.api.endpoint.LinkedDataEndpointService;
 import org.apache.marmotta.platform.ldcache.model.filter.LDCacheIgnoreFilter;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.RepositoryException;
 import org.slf4j.Logger;
 
@@ -78,7 +78,7 @@ public abstract class LDCacheSailProvider implements NotifyingSailProvider {
      * @param resource
      * @return
      */
-    public boolean isCached(URI resource) throws RepositoryException {
+    public boolean isCached(IRI resource) throws RepositoryException {
         return getLDCache().contains(resource);
     }
 

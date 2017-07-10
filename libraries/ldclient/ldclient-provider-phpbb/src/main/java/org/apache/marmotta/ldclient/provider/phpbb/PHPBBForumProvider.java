@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.openrdf.model.IRI;
 
 /**
  * A wrapper that allows wrapping a whole PHPBB Forum, linking to all its topics. The resource will
@@ -58,7 +59,7 @@ public class PHPBBForumProvider extends AbstractHTMLDataProvider implements Data
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.URI resource) {
+    protected List<String> getTypes(org.openrdf.model.IRI resource) {
         return ImmutableList.of(
                 Namespaces.NS_SIOC + "Forum",
                 Namespaces.NS_SIOC + "Collection",

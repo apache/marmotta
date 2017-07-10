@@ -594,11 +594,11 @@ public class KiWiIO {
         } else {
             out.writeLong(literal.getId());
             writeContent(out, literal.getContent());
-            if(langTable.containsKey(literal.getLanguage())) {
-                out.writeByte(langTable.get(literal.getLanguage()));
+            if(langTable.containsKey(literal.getLanguage().orElse(null))) {
+                out.writeByte(langTable.get(literal.getLanguage().orElse(null)));
             } else {
                 out.writeByte(LANG_UNKNOWN);
-                DataIO.writeString(out, literal.getLanguage().get());
+                DataIO.writeString(out, literal.getLanguage().orElse(null));
             }
             writeURI(out, literal.getType());
             out.writeLong(literal.getCreated().getTime());

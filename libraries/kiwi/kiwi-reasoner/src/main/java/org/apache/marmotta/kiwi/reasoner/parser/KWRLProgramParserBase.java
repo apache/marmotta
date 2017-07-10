@@ -22,7 +22,7 @@ import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
 import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
 import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
 import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,13 +124,13 @@ public abstract class KWRLProgramParserBase {
         return Rule();
     }
 
-    protected   URI resolveResource(String uri) {
-        return valueFactory.createURI(uri);
+    protected   IRI resolveResource(String uri) {
+        return valueFactory.createIRI(uri);
     }
 
     protected Literal resolveLiteral(Object content, Locale loc, String typeUri) {
         if(typeUri != null) {
-            return valueFactory.createLiteral(content.toString(),valueFactory.createURI(typeUri));
+            return valueFactory.createLiteral(content.toString(),valueFactory.createIRI(typeUri));
         } else if(loc != null) {
             return valueFactory.createLiteral(content.toString(), loc.getLanguage());
         } else {

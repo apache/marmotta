@@ -54,7 +54,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
@@ -119,17 +119,17 @@ public class JustificationPersistenceTest {
     public void testStoreJustifications() throws Exception {
         KiWiValueFactory v = (KiWiValueFactory) repository.getValueFactory();
 
-        URI ctxb = v.createURI("http://localhost/context/default");
-        URI ctxi = v.createURI("http://localhost/context/inferred");
+        IRI ctxb = v.createIRI("http://localhost/context/default");
+        IRI ctxi = v.createIRI("http://localhost/context/inferred");
 
-        URI s1 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI s2 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI s3 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI p1 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI p2 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI o1 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI o2 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
-        URI o3 = v.createURI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI s1 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI s2 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI s3 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI p1 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI p2 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI o1 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI o2 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
+        IRI o3 = v.createIRI("http://localhost/resource/"+ RandomStringUtils.randomAlphanumeric(8));
 
 
         // first, load a sample program (it does not really matter what it actually contains, since we are not really

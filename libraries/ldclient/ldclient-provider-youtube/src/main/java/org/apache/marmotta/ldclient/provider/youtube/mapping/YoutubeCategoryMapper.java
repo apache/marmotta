@@ -54,6 +54,6 @@ public class YoutubeCategoryMapper extends XPathValueMapper {
      */
     @Override
     public List<Value> map(String resourceUri, String selectedValue, ValueFactory factory) {
-        return Collections.singletonList((Value)factory.createURI(YT_SCHEMA+selectedValue));
+        return Collections.singletonList((Value)factory.createIRI(YT_SCHEMA+selectedValue));
     }
 }

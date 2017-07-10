@@ -102,7 +102,7 @@ public class GenericLinkedDataSailOfflineTest {
         try {
             con.begin();
 
-            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri1), null, null, true));
+            List<Statement> list1 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri1), null, null, true));
 
             Assert.assertEquals(3,list1.size());
             Assert.assertThat(list1, allOf(
@@ -115,7 +115,7 @@ public class GenericLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri2), null, null, true));
+            List<Statement> list2 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri2), null, null, true));
 
             Assert.assertEquals(2, list2.size());
             Assert.assertThat(list2, allOf(
@@ -127,7 +127,7 @@ public class GenericLinkedDataSailOfflineTest {
 
             con.begin();
 
-            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createURI(uri3), null, null, true));
+            List<Statement> list3 = Iterations.asList(con.getStatements(con.getValueFactory().createIRI(uri3), null, null, true));
 
             Assert.assertEquals(2, list3.size());
             Assert.assertThat(list3, allOf(

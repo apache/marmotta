@@ -30,7 +30,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -104,9 +104,9 @@ public class KiWiHandlerTest {
         testImport(cfg, "demo-duplicates.ttl", RDFFormat.TURTLE);
 
         // check for duplicates
-        URI R1 = repository.getValueFactory().createURI("http://localhost:8080/R1");
-        URI R2 = repository.getValueFactory().createURI("http://localhost:8080/R2");
-        URI T1 = repository.getValueFactory().createURI("http://localhost:8080/T1");
+        IRI R1 = repository.getValueFactory().createIRI("http://localhost:8080/R1");
+        IRI R2 = repository.getValueFactory().createIRI("http://localhost:8080/R2");
+        IRI T1 = repository.getValueFactory().createIRI("http://localhost:8080/T1");
 
         try {
             RepositoryConnection con = repository.getConnection();

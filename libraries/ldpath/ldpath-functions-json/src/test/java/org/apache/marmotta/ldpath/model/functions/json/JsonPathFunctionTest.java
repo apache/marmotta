@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -64,7 +64,7 @@ public class JsonPathFunctionTest extends AbstractTestBase {
     @Test
     public void testJsonPathFunction() throws ParseException {
 
-        final URI ctx = repository.getValueFactory().createURI(NSS.get("ex") + "Quiz");
+        final IRI ctx = repository.getValueFactory().createIRI(NSS.get("ex") + "Quiz");
 
         final LdPathParser<Value> parser = createParserFromString("fn:jsonpath(\"" + path + "\", <http://www.w3.org/2011/content#chars>) :: xsd:string");
         final FieldMapping<Object, Value> rule = parser.parseRule(NSS);

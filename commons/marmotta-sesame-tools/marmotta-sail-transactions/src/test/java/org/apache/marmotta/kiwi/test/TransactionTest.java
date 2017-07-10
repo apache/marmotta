@@ -162,7 +162,7 @@ public class TransactionTest {
 
             // remove a resource and all its triples
             connection.begin();
-            ResourceUtils.removeResource(connection, connection.getValueFactory().createURI("http://localhost:8080/LMF/resource/hans_meier"));
+            ResourceUtils.removeResource(connection, connection.getValueFactory().createIRI("http://localhost:8080/LMF/resource/hans_meier"));
             connection.commit();
 
 

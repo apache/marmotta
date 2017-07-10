@@ -21,7 +21,7 @@ import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.util.Util;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.ContextStatementImpl;
 import org.openrdf.model.impl.StatementImpl;
@@ -132,7 +132,7 @@ public class ModelExternalizer implements AdvancedExternalizer<TreeModel> {
         int size = input.readInt();
         for(int i=0; i<size; i++) {
             Resource subject = (Resource) input.readObject();
-            URI predicate = (URI) input.readObject();
+            IRI predicate = (IRI) input.readObject();
             Value object = (Value) input.readObject();
 
             boolean hasContext = input.readBoolean();

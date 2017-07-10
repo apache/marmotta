@@ -17,7 +17,7 @@
 package org.apache.marmotta.ldcache.api;
 
 import org.openrdf.model.Model;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 /**
  * This is the next-generation API for LDCache that will become the default in Marmotta 3.3 or 4.0. For now,
@@ -37,7 +37,7 @@ public interface LDCachingService {
      * @param resource  the resource to refresh
      * @param options   options for refreshing
      */
-    void refresh(URI resource, RefreshOpts... options);
+    void refresh(IRI resource, RefreshOpts... options);
 
 
     /**
@@ -49,7 +49,7 @@ public interface LDCachingService {
      * @param options   options for refreshing
      * @return a Sesame Model holding the triples representing the resource
      */
-    Model get(URI resource, RefreshOpts... options);
+    Model get(IRI resource, RefreshOpts... options);
 
 
     /**
@@ -58,7 +58,7 @@ public interface LDCachingService {
      *
      * @param resource the resource to expire.
      */
-    void expire(URI resource);
+    void expire(IRI resource);
 
 
     /**
@@ -67,7 +67,7 @@ public interface LDCachingService {
      * @param resource the resource to check
      * @return true in case the resource is contained in the cache
      */
-    boolean contains(URI resource);
+    boolean contains(IRI resource);
 
     /**
      * Manually expire all cached resources.

@@ -27,7 +27,7 @@ import org.apache.marmotta.platform.user.api.AccountService;
 import org.apache.marmotta.platform.user.model.UserAccount;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -96,7 +96,7 @@ public class UserWebService {
         return get(userService.getCurrentUser());
     }
 
-    private Response get(URI user) {
+    private Response get(IRI user) {
         if (userService.isAnonymous(user)) {
             AccountPoJo apj = new AccountPoJo(Namespaces.ANONYMOUS_LOGIN, user.stringValue());
             return Response.ok(apj, Namespaces.MIME_TYPE_JSON).location(java.net.URI.create(user.stringValue())).build();
@@ -109,11 +109,11 @@ public class UserWebService {
                     AccountPoJo apj = new AccountPoJo(a.getLogin(), a.getWebId());
                     apj.setRoles(a.getRoles());
 
-                    for (Statement t : ResourceUtils.listOutgoing(conn,conn.getValueFactory().createURI(a.getWebId()))) {
+                    for (Statement t : ResourceUtils.listOutgoing(conn,conn.getValueFactory().createIRI(a.getWebId()))) {
                         String prop = t.getPredicate().stringValue();
                         if (prop.startsWith(Namespaces.NS_FOAF)) {
                             Value object = t.getObject();
-                            if (object instanceof org.openrdf.model.URI) {
+                            if (object instanceof org.openrdf.model.IRI) {
                                 apj.setFoaf(prop, String.format("<%s>", object));
                             } else if (object instanceof Literal) {
                                 apj.setFoaf(prop, object.toString());
@@ -151,7 +151,7 @@ public class UserWebService {
     @Path("/me")
     @Consumes(Namespaces.MIME_TYPE_FORM_URLENC)
     public Response post(MultivaluedMap<String, String> formParams) {
-        final URI currentUser = userService.getCurrentUser();
+        final IRI currentUser = userService.getCurrentUser();
         if (userService.isAnonymous(currentUser)) return Response.status(Status.FORBIDDEN).entity("anonymous is read-only").build();
 
         try {
@@ -162,7 +162,7 @@ public class UserWebService {
                     if (!acceptedFoafProperties.contains(prop)) {
                         continue;
                     }
-                    URI p = conn.getValueFactory().createURI(Namespaces.NS_FOAF + prop);
+                    IRI p = conn.getValueFactory().createIRI(Namespaces.NS_FOAF + prop);
 
                     conn.remove(currentUser,p,null);
 
@@ -170,7 +170,7 @@ public class UserWebService {
                     if (val != null && val.length() > 0) {
                         Matcher m = PROFILE_URI_PATTERN.matcher(val);
                         if (m.matches()) {
-                            URI o = conn.getValueFactory().createURI(m.group(1));
+                            IRI o = conn.getValueFactory().createIRI(m.group(1));
                             conn.add(currentUser, p, o, currentUser);
                         } else {
                             Literal o = conn.getValueFactory().createLiteral(val.trim());
@@ -214,7 +214,7 @@ public class UserWebService {
     @POST
     @Path("/me/passwd")
     public Response passwd(@FormParam("oldPasswd") String oldPwd, @FormParam("newPasswd") String newPwd) {
-        final org.openrdf.model.URI currentUser = userService.getCurrentUser();
+        final org.openrdf.model.IRI currentUser = userService.getCurrentUser();
         final UserAccount a = accountService.getAccount(currentUser);
 
         if (a == null) return Response.status(Status.NOT_FOUND).entity(String.format("No account found for <%s>", currentUser)).build();
@@ -247,10 +247,10 @@ public class UserWebService {
             try {
                 RepositoryConnection conn = sesameService.getConnection();
                 try {
-                    final URI user = userService.getUser(login);
+                    final IRI user = userService.getUser(login);
                     if (user == null) return Response.status(Status.NOT_FOUND).entity(String.format("User %s not found", login)).build();
 
-                    java.net.URI u = new java.net.URI(configurationService.getServerUri() + "resource?uri=" + URLEncoder.encode(user.stringValue(), "utf-8"));
+                    java.net.URI u = new java.net.URI(configurationService.getServerIri() + "resource?uri=" + URLEncoder.encode(user.stringValue(), "utf-8"));
 
                     return Response.seeOther(u).header(ACCEPT, types).build();
                 } finally {
@@ -294,7 +294,7 @@ public class UserWebService {
         if (login != null && !userService.getCurrentUser().equals(userService.getUser(login))) throw new AccessDeniedException();
 
         if (ref == null || "".equals(ref)) {
-            ref = configurationService.getServerUri() + configurationService.getStringConfiguration("kiwi.pages.startup");
+            ref = configurationService.getServerIri() + configurationService.getStringConfiguration("kiwi.pages.startup");
         }
         return Response.seeOther(java.net.URI.create(ref)).build();
     }
@@ -318,7 +318,7 @@ public class UserWebService {
         log.debug("Current user after logout is now: {}", userService.getCurrentUser().getLocalName());
 
         if (ref == null || "".equals(ref)) {
-            ref = configurationService.getServerUri() + configurationService.getStringConfiguration("kiwi.pages.startup");
+            ref = configurationService.getServerIri() + configurationService.getStringConfiguration("kiwi.pages.startup");
         }
         return Response.seeOther(java.net.URI.create(ref)).build();
     }

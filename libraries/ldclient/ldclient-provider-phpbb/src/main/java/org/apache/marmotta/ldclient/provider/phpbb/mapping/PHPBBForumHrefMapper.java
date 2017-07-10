@@ -49,7 +49,7 @@ public class PHPBBForumHrefMapper extends CssSelectorMapper {
                 params.put(p.getName(), p.getValue());
             }
 
-            return Collections.singletonList((Value) factory.createURI(baseUriTopic + "f=" + params.get("f")));
+            return Collections.singletonList((Value) factory.createIRI(baseUriTopic + "f=" + params.get("f")));
         } catch (URISyntaxException ex) {
             throw new RuntimeException("invalid syntax for URI", ex);
         }

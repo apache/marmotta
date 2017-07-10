@@ -18,7 +18,7 @@ package org.apache.marmotta.platform.ldp.util;
 
 import org.apache.marmotta.platform.ldp.api.LdpService;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.impl.StatementImpl;
 import org.openrdf.repository.RepositoryConnection;
@@ -40,16 +40,16 @@ public class ServerManagedPropertiesInterceptor extends RepositoryConnectionInte
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final URI managedContext;
+    private final IRI managedContext;
     private final Resource subject;
     private final Set<? extends Value> managedProperties;
-    private final Set<URI> deniedProperties;
+    private final Set<IRI> deniedProperties;
 
-    public ServerManagedPropertiesInterceptor(URI managedContext, Resource subject) {
+    public ServerManagedPropertiesInterceptor(IRI managedContext, Resource subject) {
         this(managedContext, subject, LdpService.SERVER_MANAGED_PROPERTIES);
     }
 
-    public ServerManagedPropertiesInterceptor(URI managedContext, Resource subject, Set<? extends Value> managedProperties) {
+    public ServerManagedPropertiesInterceptor(IRI managedContext, Resource subject, Set<? extends Value> managedProperties) {
         this.managedContext = managedContext;
         this.subject = subject;
         this.managedProperties = managedProperties;
@@ -57,16 +57,16 @@ public class ServerManagedPropertiesInterceptor extends RepositoryConnectionInte
     }
 
     @Override
-    public boolean add(RepositoryConnection conn, Resource subject, URI predicate, Value object, Resource... contexts) {
+    public boolean add(RepositoryConnection conn, Resource subject, IRI predicate, Value object, Resource... contexts) {
         return isManaged(conn, subject, predicate, object, "ADD");
     }
 
     @Override
-    public boolean remove(RepositoryConnection conn, Resource subject, URI predicate, Value object, Resource... contexts) {
+    public boolean remove(RepositoryConnection conn, Resource subject, IRI predicate, Value object, Resource... contexts) {
         return isManaged(conn, subject, predicate, object, "DEL");
     }
 
-    private boolean isManaged(RepositoryConnection conn, Resource subject, URI predicate, Value object, String operation) {
+    private boolean isManaged(RepositoryConnection conn, Resource subject, IRI predicate, Value object, String operation) {
         try {
             if (conn.hasStatement(subject, predicate, object, true, managedContext)) {
                 // Ignore/Strip any triple that is already present in the mgmt-context (i.e. "unchanged" props).
@@ -88,7 +88,7 @@ public class ServerManagedPropertiesInterceptor extends RepositoryConnectionInte
         return false;
     }
 
-    public Set<URI> getDeniedProperties() {
+    public Set<IRI> getDeniedProperties() {
         return Collections.unmodifiableSet(deniedProperties);
     }
 

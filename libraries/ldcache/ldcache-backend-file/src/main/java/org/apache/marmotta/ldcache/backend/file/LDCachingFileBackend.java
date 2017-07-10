@@ -22,7 +22,7 @@ import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.file.util.FileBackendUtils;
 import org.apache.marmotta.ldcache.model.CacheEntry;
 import org.openrdf.model.Model;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.TreeModel;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * File-based implementation of the next generation LDCaching Backend API
@@ -65,7 +66,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @return
      */
     @Override
-    public CacheEntry getEntry(URI resource) {
+    public CacheEntry getEntry(IRI resource) {
         try {
             // load metadata from disk
             final File dataFile = FileBackendUtils.getMetaFile(resource, storageDir);
@@ -105,7 +106,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @param entry    the entry for the resource
      */
     @Override
-    public void putEntry(URI resource, CacheEntry entry) {
+    public void putEntry(IRI resource, CacheEntry entry) {
         try {
             FileBackendUtils.writeCacheEntry(entry, storageDir);
 
@@ -135,7 +136,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
      * @param resource the resource to remove the entry for
      */
     @Override
-    public void removeEntry(URI resource) {
+    public void removeEntry(IRI resource) {
         try {
             final File metaFile = FileBackendUtils.getMetaFile(resource, storageDir);
             if (metaFile.exists()) metaFile.delete();
@@ -221,7 +222,7 @@ public class LDCachingFileBackend implements LDCachingBackend {
 
 
     private ValueFactory getValueFactory() {
-        return ValueFactoryImpl.getInstance();
+        return SimpleValueFactory.getInstance();
     }
 
 }

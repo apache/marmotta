@@ -106,7 +106,7 @@ public class SPARQLBooleanHTMLWriter implements BooleanQueryResultWriter
             byte[] queryResult = xmlOut.toByteArray();
             
             // get server uri
-            String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
+            String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerIri();
             
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
             

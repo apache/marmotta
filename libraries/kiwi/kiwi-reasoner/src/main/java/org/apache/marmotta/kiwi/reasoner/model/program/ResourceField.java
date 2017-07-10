@@ -19,7 +19,7 @@ package org.apache.marmotta.kiwi.reasoner.model.program;
 
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import java.util.Map;
 
@@ -56,7 +56,7 @@ public class ResourceField implements Field {
      */
     @Override
     public String toString(Map<String, String> namespaces) {
-        if(getResource() instanceof URI) {
+        if(getResource() instanceof IRI) {
             String uri = getResource().stringValue();
             if(namespaces != null) {
                 for(Map.Entry<String,String> ns : namespaces.entrySet()) {

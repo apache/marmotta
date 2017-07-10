@@ -38,7 +38,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
@@ -129,12 +129,12 @@ public class ReasoningSailTest {
         RepositoryConnection testCon = repository.getConnection();
         try {
             testCon.begin();
-            URI a = testCon.getValueFactory().createURI(NS + "a");
-            URI b = testCon.getValueFactory().createURI(NS + "b");
-            URI c = testCon.getValueFactory().createURI(NS + "c");
-            URI d = testCon.getValueFactory().createURI(NS + "d");
-            URI s = testCon.getValueFactory().createURI(NS + "symmetric");
-            URI t = testCon.getValueFactory().createURI(NS + "transitive");
+            IRI a = testCon.getValueFactory().createIRI(NS + "a");
+            IRI b = testCon.getValueFactory().createIRI(NS + "b");
+            IRI c = testCon.getValueFactory().createIRI(NS + "c");
+            IRI d = testCon.getValueFactory().createIRI(NS + "d");
+            IRI s = testCon.getValueFactory().createIRI(NS + "symmetric");
+            IRI t = testCon.getValueFactory().createIRI(NS + "transitive");
 
             // first reasoning round
             Assert.assertTrue("expected inferred triple does not exist", testCon.hasStatement(b,s,a,true));
@@ -187,12 +187,12 @@ public class ReasoningSailTest {
         RepositoryConnection testCon1 = repository.getConnection();
         try {
             testCon1.begin();
-            URI a = testCon1.getValueFactory().createURI(NS + "a");
-            URI b = testCon1.getValueFactory().createURI(NS + "b");
-            URI c = testCon1.getValueFactory().createURI(NS + "c");
-            URI d = testCon1.getValueFactory().createURI(NS + "d");
-            URI s = testCon1.getValueFactory().createURI(NS + "symmetric");
-            URI t = testCon1.getValueFactory().createURI(NS + "transitive");
+            IRI a = testCon1.getValueFactory().createIRI(NS + "a");
+            IRI b = testCon1.getValueFactory().createIRI(NS + "b");
+            IRI c = testCon1.getValueFactory().createIRI(NS + "c");
+            IRI d = testCon1.getValueFactory().createIRI(NS + "d");
+            IRI s = testCon1.getValueFactory().createIRI(NS + "symmetric");
+            IRI t = testCon1.getValueFactory().createIRI(NS + "transitive");
 
             // first reasoning round
             Assert.assertTrue("expected inferred triple does not exist", testCon1.hasStatement(b,s,a,true));
@@ -220,12 +220,12 @@ public class ReasoningSailTest {
         RepositoryConnection testCon2 = repository.getConnection();
         try {
             testCon2.begin();
-            URI a = testCon2.getValueFactory().createURI(NS + "a");
-            URI b = testCon2.getValueFactory().createURI(NS + "b");
-            URI c = testCon2.getValueFactory().createURI(NS + "c");
-            URI d = testCon2.getValueFactory().createURI(NS + "d");
-            URI s = testCon2.getValueFactory().createURI(NS + "symmetric");
-            URI t = testCon2.getValueFactory().createURI(NS + "transitive");
+            IRI a = testCon2.getValueFactory().createIRI(NS + "a");
+            IRI b = testCon2.getValueFactory().createIRI(NS + "b");
+            IRI c = testCon2.getValueFactory().createIRI(NS + "c");
+            IRI d = testCon2.getValueFactory().createIRI(NS + "d");
+            IRI s = testCon2.getValueFactory().createIRI(NS + "symmetric");
+            IRI t = testCon2.getValueFactory().createIRI(NS + "transitive");
 
             // first reasoning round
             Assert.assertTrue("expected inferred triple does not exist", testCon2.hasStatement(b,s,a,true));

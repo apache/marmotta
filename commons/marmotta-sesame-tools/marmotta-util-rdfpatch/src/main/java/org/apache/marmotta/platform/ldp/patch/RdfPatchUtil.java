@@ -118,7 +118,7 @@ public class RdfPatchUtil {
      */
     public static void applyPatch(RepositoryConnection connection, List<PatchLine> patch, Resource... contexts) throws RepositoryException, InvalidPatchDocumentException {
         Resource subject = null;
-        URI predicate = null;
+        IRI predicate = null;
         Value object = null;
 
         for (PatchLine patchLine : patch) {
@@ -238,7 +238,7 @@ public class RdfPatchUtil {
         }
 
         Resource pS = null;
-        URI pP = null;
+        IRI pP = null;
         Value pO = null;
         ArrayList<PatchLine> patch = new ArrayList<>(removals.size()+additions.size());
         for (Statement s : removals) {

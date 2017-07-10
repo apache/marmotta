@@ -103,7 +103,7 @@ public class SPARQLResultsHTMLWriterXSL implements TupleQueryResultWriter {
         writer.endQueryResult();
 
         // get server uri
-        String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerUri();
+        String server_uri = CDIContext.getInstance(ConfigurationService.class).getServerIri();
 
         byte[] queryResult = xmlOut.toByteArray();
 

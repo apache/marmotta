@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.net.HttpHeaders.ACCEPT;
+import org.openrdf.model.impl.SimpleValueFactory;
 import static org.openrdf.query.resultio.TupleQueryResultFormat.JSON;
 
 /**
@@ -91,7 +92,7 @@ public class SPARQLClient {
                     log.debug("SPARQL Query {} evaluated successfully",query);
                     QueryResultCollector results = new QueryResultCollector();
                     
-                    parse(response.getEntity().getContent(), TupleQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
+                    parse(response.getEntity().getContent(), TupleQueryResultFormat.JSON, results, SimpleValueFactory.getInstance());
 
                     if(!results.getHandledTuple() || results.getBindingSets().isEmpty()) {
                         return null;
@@ -110,14 +111,14 @@ public class SPARQLClient {
                                     //Map<String,String> nodeDef = (Map<String,String>) entry.getValue();
                                     Value nodeDef = nextBinding.getValue();
                                     RDFNode node = null;
-                                    if(nodeDef instanceof org.openrdf.model.URI) {
+                                    if(nodeDef instanceof org.openrdf.model.IRI) {
                                         node = new URI(nodeDef.stringValue());
                                     } else if(nodeDef instanceof org.openrdf.model.BNode) {
                                         node = new BNode(((org.openrdf.model.BNode)nodeDef).getID());
                                     } else if(nodeDef instanceof org.openrdf.model.Literal) {
                                         org.openrdf.model.Literal nodeLiteral = (org.openrdf.model.Literal)nodeDef;
-                                        if(nodeLiteral.getLanguage() != null) {
-                                            node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage());
+                                        if(nodeLiteral.getLanguage().orElse(null) != null) {
+                                            node = new Literal(nodeLiteral.getLabel(), nodeLiteral.getLanguage().orElse(null));
                                         } else if(nodeLiteral.getDatatype() != null) {
                                             node = new Literal(nodeLiteral.getLabel(), new URI(nodeLiteral.getDatatype().stringValue()));
                                         } else {
@@ -181,7 +182,7 @@ public class SPARQLClient {
                     log.debug("SPARQL ASK Query {} evaluated successfully",askQuery);
                     QueryResultCollector results = new QueryResultCollector();
                     
-                    parse(response.getEntity().getContent(), BooleanQueryResultFormat.JSON, results, ValueFactoryImpl.getInstance());
+                    parse(response.getEntity().getContent(), BooleanQueryResultFormat.JSON, results, SimpleValueFactory.getInstance());
 
                     if(!results.getHandledBoolean()) {
                         return false;
@@ -259,7 +260,7 @@ public class SPARQLClient {
         throws IOException, QueryResultParseException, QueryResultHandlerException,
         UnsupportedQueryResultFormatException
     {
-        QueryResultParser parser = QueryResultIO.createParser(format);
+        QueryResultParser parser = QueryResultIO.createTupleParser(format);
         parser.setValueFactory(valueFactory);
         parser.setQueryResultHandler(handler);
         parser.parseQueryResult(in);
@@ -282,7 +283,7 @@ public class SPARQLClient {
         throws IOException, QueryResultParseException, QueryResultHandlerException,
         UnsupportedQueryResultFormatException
     {
-        QueryResultParser parser = QueryResultIO.createParser(format);
+        QueryResultParser parser = QueryResultIO.createBooleanParser(format);
         parser.setValueFactory(valueFactory);
         parser.setQueryResultHandler(handler);
         parser.parseQueryResult(in);

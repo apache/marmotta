@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -221,8 +221,8 @@ public class VersioningRepositoryTest {
         List<Version> versions = asList(vsail.listVersions());
         Assert.assertEquals("expected 3 versions!", 3, versions.size());
 
-        URI subject = repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/R1");
-        URI predicate = repository.getValueFactory().createURI("http://marmotta.apache.org/testing/ns1/P2");
+        IRI subject = repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/R1");
+        IRI predicate = repository.getValueFactory().createIRI("http://marmotta.apache.org/testing/ns1/P2");
 
         RepositoryConnection connectionBeforeRevert = repository.getConnection();
         try {

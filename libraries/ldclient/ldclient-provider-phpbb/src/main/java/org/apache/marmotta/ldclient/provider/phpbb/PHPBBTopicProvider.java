@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.openrdf.model.IRI;
 
 /**
  * Retrieve and parse a whole PHPBB topic; will try to use paging to retrieve all relevant HTML pages. The
@@ -61,7 +62,7 @@ public class PHPBBTopicProvider extends AbstractHTMLDataProvider {
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.URI resource) {
+    protected List<String> getTypes(org.openrdf.model.IRI resource) {
         return ImmutableList.of(
                 Namespaces.NS_SIOC + "Thread",
                 Namespaces.NS_SIOC + "Collection",

@@ -22,7 +22,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.marmotta.kiwi.loader.csv.*;
 import org.apache.marmotta.kiwi.model.rdf.*;
 import org.joda.time.DateTime;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.cellprocessor.Optional;
@@ -177,7 +177,7 @@ public class MySQLLoadUtil {
         return IOUtils.toInputStream(out.toString());
     }
 
-    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, URI dtype, Locale lang, Date created) {
+    private static void createNodeList(Object[] a, Long id, Class type, String content, Double dbl, Long lng, DateTime date, Integer tzoffset, Boolean bool, IRI dtype, Locale lang, Date created) {
         a[0] = id;
         a[1] = type;
         a[2] = content;

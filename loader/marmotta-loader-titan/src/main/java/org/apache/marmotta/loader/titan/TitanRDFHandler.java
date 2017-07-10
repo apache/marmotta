@@ -176,7 +176,7 @@ public class TitanRDFHandler  implements RDFHandler {
     private Vertex addVertex(final Value value) {
         Vertex v = graph.addVertex(valueToNative(value));
 
-        if (value instanceof URI) {
+        if (value instanceof IRI) {
             v.setProperty(KIND, URI);
             v.setProperty(VALUE, value.stringValue());
         } else if (value instanceof Literal) {
@@ -186,8 +186,8 @@ public class TitanRDFHandler  implements RDFHandler {
             if (null != l.getDatatype()) {
                 v.setProperty(TYPE, l.getDatatype().stringValue());
             }
-            if (null != l.getLanguage()) {
-                v.setProperty(LANG, l.getLanguage());
+            if (null != l.getLanguage().orElse(null)) {
+                v.setProperty(LANG, l.getLanguage().orElse(null));
             }
         } else if (value instanceof BNode) {
             BNode b = (BNode) value;
@@ -227,8 +227,8 @@ public class TitanRDFHandler  implements RDFHandler {
     }
 
     public String resourceToNative(final Resource value) {
-        if (value instanceof URI) {
-            return uriToNative((URI) value);
+        if (value instanceof IRI) {
+            return uriToNative((IRI) value);
         } else if (value instanceof BNode) {
             return bnodeToNative((BNode) value);
         } else {
@@ -236,7 +236,7 @@ public class TitanRDFHandler  implements RDFHandler {
         }
     }
 
-    public String uriToNative(final URI value) {
+    public String uriToNative(final IRI value) {
         return URI_PREFIX + SEPARATOR + value.toString();
     }
 
@@ -245,10 +245,10 @@ public class TitanRDFHandler  implements RDFHandler {
     }
 
     public String literalToNative(final Literal literal) {
-        URI datatype = literal.getDatatype();
+        IRI datatype = literal.getDatatype();
 
         if (null == datatype) {
-            String language = literal.getLanguage();
+            String language = literal.getLanguage().orElse(null);
 
             if (null == language) {
                 return PLAIN_LITERAL_PREFIX + SEPARATOR + literal.getLabel();

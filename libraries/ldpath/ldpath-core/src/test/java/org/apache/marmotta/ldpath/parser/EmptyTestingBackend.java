@@ -63,7 +63,7 @@ public class EmptyTestingBackend extends
 	}
 
 	@Override
-	public String createURI(String uri) {
+	public String createIRI(String uri) {
 		return null;
 	}
 

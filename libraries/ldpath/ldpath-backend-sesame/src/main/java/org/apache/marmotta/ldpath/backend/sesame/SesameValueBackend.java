@@ -21,8 +21,6 @@ import org.apache.marmotta.ldpath.api.backend.NodeBackend;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +32,7 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 public class SesameValueBackend implements NodeBackend<Value>{
 
@@ -62,7 +61,7 @@ public class SesameValueBackend implements NodeBackend<Value>{
      */
     @Override
     public boolean isURI(Value n) {
-        return n instanceof org.openrdf.model.URI;
+        return n instanceof org.openrdf.model.IRI;
     }
 
     /**
@@ -86,8 +85,8 @@ public class SesameValueBackend implements NodeBackend<Value>{
     @Override
     public Locale getLiteralLanguage(Value n) {
         try {
-            if(((Literal)n).getLanguage() != null) {
-                return new Locale( ((Literal)n).getLanguage() );
+            if(((Literal)n).getLanguage().orElse(null) != null) {
+                return new Locale( ((Literal)n).getLanguage().orElse(null) );
             } else {
                 return null;
             }
@@ -250,7 +249,7 @@ public class SesameValueBackend implements NodeBackend<Value>{
 
     @Override
     public Literal createLiteral(String content) {
-        return new LiteralImpl(content);
+        return SimpleValueFactory.getInstance().createLiteral(content);
     }
 
     @Override
@@ -259,15 +258,15 @@ public class SesameValueBackend implements NodeBackend<Value>{
         if(language == null && type == null) {
             return createLiteral(content);
         } else if(type == null) {
-            return new LiteralImpl(content,language.getLanguage());
+            return SimpleValueFactory.getInstance().createLiteral(content,language.getLanguage());
         } else  {
-            return new LiteralImpl(content, createURI(type.toString()));
+            return SimpleValueFactory.getInstance().createLiteral(content, createIRI(type.toString()));
         }
     }
 
     @Override
-    public org.openrdf.model.URI createURI(String uri) {
-        return new URIImpl(uri);
+    public org.openrdf.model.IRI createIRI(String uri) {
+        return SimpleValueFactory.getInstance().createIRI(uri);
     }
 
 }

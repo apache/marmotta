@@ -43,6 +43,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * MediawikiProvider allows direct triplification of Mediawiki Articles and Categories.
@@ -187,7 +188,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
             final Document doc = new SAXBuilder(XMLReaders.NONVALIDATING).build(in);
 
             ArrayList<String> followUp = new ArrayList<String>();
-            final ValueFactory valueFactory = new ValueFactoryImpl();
+            final ValueFactory valueFactory = SimpleValueFactory.getInstance();
 
             switch (context) {
                 case SITE:
@@ -201,7 +202,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
                     followUp.addAll(parseArticleMeta(resource, requestUrl, doc, context, model));
                     break;
                 case CONTENT:
-                    followUp.addAll(parseRevision(valueFactory.createURI(resource), requestUrl, model, valueFactory, queryElement(doc, "/api/query/pages/page[1]/revisions"),
+                    followUp.addAll(parseRevision(valueFactory.createIRI(resource), requestUrl, model, valueFactory, queryElement(doc, "/api/query/pages/page[1]/revisions"),
                             context));
                     break;
                 /* Links from an Article */
@@ -243,8 +244,8 @@ public class MediawikiProvider extends AbstractHttpProvider {
             final String server = general.getAttributeValue("server");
             final String homepage = general.getAttributeValue("base");
 
-            final ValueFactory valueFactory = ValueFactoryImpl.getInstance();
-            final Resource subject = valueFactory.createURI(resource);
+            final ValueFactory valueFactory = SimpleValueFactory.getInstance();
+            final Resource subject = valueFactory.createIRI(resource);
 
             if (title != null) {
                 addLiteralTriple(subject, Namespaces.NS_DC_TERMS + "title", title, null, model, valueFactory);
@@ -293,8 +294,8 @@ public class MediawikiProvider extends AbstractHttpProvider {
                 return Collections.emptyList();
         }
 
-        final ValueFactory valueFactory = ValueFactoryImpl.getInstance();
-        final Resource subject = valueFactory.createURI(resource);
+        final ValueFactory valueFactory = SimpleValueFactory.getInstance();
+        final Resource subject = valueFactory.createIRI(resource);
 
         for (Element page : queryElements(doc, "/api/query/pages/page")) {
             if (page.getAttributeValue("missing") != null) {
@@ -304,7 +305,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
             final String url = page.getAttributeValue("fullurl");
             if (url != null) {
                 if (context == Context.PAGES) {
-                    addTriple(valueFactory.createURI(url), predicate, resource, model, valueFactory);
+                    addTriple(valueFactory.createIRI(url), predicate, resource, model, valueFactory);
                 } else {
                     addTriple(subject, predicate, url, model, valueFactory);
                 }
@@ -321,8 +322,8 @@ public class MediawikiProvider extends AbstractHttpProvider {
         if (page != null) {
             if (page.getAttributeValue("missing") != null) return Collections.emptyList();
 
-            final ValueFactory valueFactory = ValueFactoryImpl.getInstance();
-            final URI subject = valueFactory.createURI(resource);
+            final ValueFactory valueFactory = SimpleValueFactory.getInstance();
+            final IRI subject = valueFactory.createIRI(resource);
 
             final String title = page.getAttributeValue("title");
             final String pageId = page.getAttributeValue("pageid");
@@ -488,7 +489,7 @@ public class MediawikiProvider extends AbstractHttpProvider {
         return followUp;
     }
 
-    protected List<String> parseRevision(URI resource, String requestUrl, Model model, ValueFactory valueFactory,
+    protected List<String> parseRevision(IRI resource, String requestUrl, Model model, ValueFactory valueFactory,
                                          Element revisions, Context context) throws RepositoryException {
         List<String> followUp = Collections.emptyList();
         if (revisions == null) return followUp;
@@ -617,8 +618,8 @@ public class MediawikiProvider extends AbstractHttpProvider {
     private static void addTriple(Resource subject, String predicate, String object, Model model, ValueFactory valueFactory)
             throws RepositoryException {
         if (predicate == null || object == null) return;
-        final URI predUri = valueFactory.createURI(predicate);
-        final URI objUri = valueFactory.createURI(object);
+        final IRI predUri = valueFactory.createIRI(predicate);
+        final IRI objUri = valueFactory.createIRI(object);
 
         Statement stmt = valueFactory.createStatement(subject, predUri, objUri);
         model.add(stmt);
@@ -628,11 +629,11 @@ public class MediawikiProvider extends AbstractHttpProvider {
     private static void addLiteralTriple(Resource subject, String predicate, String label, String datatype, Model model,
                                   ValueFactory valueFactory) throws RepositoryException {
         if (predicate == null || label == null) return;
-        final URI predUri = valueFactory.createURI(predicate);
+        final IRI predUri = valueFactory.createIRI(predicate);
 
         final Literal lit;
         if (datatype != null) {
-            final URI dType = valueFactory.createURI(datatype);
+            final IRI dType = valueFactory.createIRI(datatype);
             lit = valueFactory.createLiteral(label, dType);
         } else {
             lit = valueFactory.createLiteral(label);
@@ -645,8 +646,8 @@ public class MediawikiProvider extends AbstractHttpProvider {
 
     private static void addTypeTriple(Resource subject, String type, Model model, ValueFactory valueFactory) throws RepositoryException {
         if (type == null) return;
-        final URI predUri = valueFactory.createURI(Namespaces.NS_RDF + "type");
-        final URI rdfType = valueFactory.createURI(type);
+        final IRI predUri = valueFactory.createIRI(Namespaces.NS_RDF + "type");
+        final IRI rdfType = valueFactory.createIRI(type);
 
         Statement stmt = valueFactory.createStatement(subject, predUri, rdfType);
         model.add(stmt);

@@ -20,6 +20,7 @@ package org.apache.marmotta.ldpath.backend.sesame;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Locale;
+import org.openrdf.model.IRI;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Resource;
@@ -62,14 +63,14 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
     }
 
     @Override
-    public org.openrdf.model.URI createURI(String uri) {
+    public org.openrdf.model.IRI createIRI(String uri) {
         return createURIInternal(valueFactory, uri);
     }
 
     @Override
     public Collection<Value> listObjects(Value subject, Value property) {
         try {
-            return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.URI) property, includeInferred, contexts);
+            return listObjectsInternal(connection, (Resource) subject, (org.openrdf.model.IRI) property, includeInferred, contexts);
         } catch (RepositoryException e) {
             throw new RuntimeException(
                     "error while querying Sesame repository!", e);
@@ -84,7 +85,7 @@ public class SesameConnectionBackend extends AbstractSesameBackend {
     @Override
     public Collection<Value> listSubjects(Value property, Value object) {
         try {
-            return listSubjectsInternal(connection, (org.openrdf.model.URI) property, object, includeInferred, contexts);
+            return listSubjectsInternal(connection, (org.openrdf.model.IRI) property, object, includeInferred, contexts);
         } catch (RepositoryException e) {
             throw new RuntimeException("error while querying Sesame repository!",e);
         } catch (ClassCastException e) {

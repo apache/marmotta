@@ -23,7 +23,7 @@ import org.apache.marmotta.platform.core.util.CDIContext;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
 import org.openrdf.model.BNode;
 import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 /**
  * Accept only resources that are considered "not cached", i.e. do not have an entry in the caching table.
@@ -71,7 +71,7 @@ public class MarmottaNotCachedFilter implements ResourceFilter {
             return true;
         }
 
-        URI uri = (URI)resource;
+        IRI uri = (IRI)resource;
 
         return !cacheSailProvider.getLDCache().contains(uri);
 

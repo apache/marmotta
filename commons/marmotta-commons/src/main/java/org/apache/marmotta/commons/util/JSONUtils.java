@@ -56,8 +56,8 @@ public class JSONUtils {
             if(literal.getDatatype() != null) {
                 nodeRep.put(DATATYPE,literal.getDatatype().stringValue());
             }
-            if(literal.getLanguage() != null) {
-                nodeRep.put(LANG,literal.getLanguage().get());
+            if(literal.getLanguage().orElse(null) != null) {
+                nodeRep.put(LANG,literal.getLanguage().orElse(null));
             }
         } else if(node instanceof IRI) {
             nodeRep.put(TYPE,IRI);

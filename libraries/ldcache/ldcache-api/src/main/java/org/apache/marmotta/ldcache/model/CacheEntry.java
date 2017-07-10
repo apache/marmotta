@@ -19,13 +19,13 @@ package org.apache.marmotta.ldcache.model;
 
 import org.apache.marmotta.commons.util.DateUtils;
 import org.openrdf.model.Model;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * The cache entry for a URI resource managed by the Linked Data Cache. Contains maintenance information about
+ * The cache entry for a IRI resource managed by the Linked Data Cache. Contains maintenance information about
  * the resource, i.e. when it has been retrieved last, when to retrieve it next, etc.
  * <p/>
  * User: Sebastian Schaffert
@@ -34,9 +34,9 @@ public class CacheEntry implements Serializable {
 
     protected Model triples;
     /**
-     * The URI resource managed by this cache entry.
+     * The IRI resource managed by this cache entry.
      */
-    private URI resource;
+    private IRI resource;
 
     /**
      * The date when this resource has been retrieved the last time.
@@ -67,16 +67,16 @@ public class CacheEntry implements Serializable {
 
 
     /**
-     * The URI resource managed by this cache entry.
+     * The IRI resource managed by this cache entry.
      */
-    public URI getResource() {
+    public IRI getResource() {
         return resource;
     }
 
     /**
-     * The URI resource managed by this cache entry.
+     * The IRI resource managed by this cache entry.
      */
-    public void setResource(URI resource) {
+    public void setResource(IRI resource) {
         this.resource = resource;
     }
 

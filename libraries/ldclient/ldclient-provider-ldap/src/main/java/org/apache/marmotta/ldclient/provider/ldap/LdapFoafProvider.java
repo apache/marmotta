@@ -38,7 +38,7 @@ import org.apache.marmotta.ldclient.provider.ldap.mapping.LiteralPredicateFactor
 import org.apache.marmotta.ldclient.provider.ldap.mapping.PredicateObjectFactory;
 import org.apache.marmotta.ldclient.provider.ldap.mapping.UriPredicateFactory;
 import org.openrdf.model.Model;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.TreeModel;
@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * LdapFoafProvider maps LDAP accounts to foaf:Person instances
@@ -151,19 +152,19 @@ public class LdapFoafProvider implements DataProvider {
             final LdapConnection ldap = openLdapConnection(endpoint);
 
             Model model = new TreeModel();
-            ValueFactory vf = ValueFactoryImpl.getInstance();
+            ValueFactory vf = SimpleValueFactory.getInstance();
             String userDN = buildDN(prefix, account, ldap);
 
             Map<String, java.util.List<String>> accountData = getAccountData(userDN, ldap);
 
-            final URI subject = vf.createURI(resource);
+            final IRI subject = vf.createIRI(resource);
             for (String attr : MAPPING.keySet()) {
                 if (!accountData.containsKey(attr)) {
                     continue;
                 }
 
                 final PredicateObjectFactory factory = MAPPING.get(attr);
-                final URI predicate = factory.createPredicate(vf);
+                final IRI predicate = factory.createPredicate(vf);
 
                 for (String val : accountData.get(attr)) {
                     for (Value object : factory.createObjects(val, vf)) {

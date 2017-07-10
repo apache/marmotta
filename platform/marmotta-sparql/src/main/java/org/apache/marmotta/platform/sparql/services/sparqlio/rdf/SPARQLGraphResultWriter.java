@@ -38,6 +38,7 @@ import org.openrdf.rio.RioSetting;
 import org.openrdf.rio.WriterConfig;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import java.util.Optional;
 
 /**
  * SPARQL graph result writer for Sesame RIO
@@ -62,7 +63,7 @@ public class SPARQLGraphResultWriter implements QueryResultWriter {
 
     public SPARQLGraphResultWriter(OutputStream outputStream, String mimeType) {
         this.outputStream = outputStream;
-        this.format = Rio.getWriterFormatForMIMEType(mimeType, RDFFormat.RDFXML);
+        this.format = Rio.getWriterFormatForMIMEType(mimeType).orElse(RDFFormat.RDFXML);
     }
 
     public RDFFormat getFormat() {
@@ -76,7 +77,7 @@ public class SPARQLGraphResultWriter implements QueryResultWriter {
     @Deprecated
     public void write(GraphQueryResult result) throws IOException {
         try {
-            QueryResultIO.write(result, format, outputStream);
+            QueryResultIO.writeGraph(result, format, outputStream);
             outputStream.flush();
             outputStream.close();
         } catch (QueryEvaluationException e) {

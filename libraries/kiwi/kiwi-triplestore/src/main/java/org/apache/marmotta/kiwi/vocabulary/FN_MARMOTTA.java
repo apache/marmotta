@@ -16,11 +16,11 @@
  */
 package org.apache.marmotta.kiwi.vocabulary;
 
+import org.openrdf.model.IRI;
 import org.openrdf.model.Namespace;
-import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.NamespaceImpl;
-import org.openrdf.model.impl.ValueFactoryImpl;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.vocabulary.FN;
 
 /**
@@ -45,45 +45,45 @@ public class FN_MARMOTTA {
 
 
 
-    public static final URI SEARCH_FULLTEXT;
+    public static final IRI SEARCH_FULLTEXT;
 
-    public static final URI QUERY_FULLTEXT;
+    public static final IRI QUERY_FULLTEXT;
 
-    // URIs for SPARQL built-in functions, used internally by marmotta
-    public static final URI RAND;
-    public static final URI UUID;
-    public static final URI STRUUID;
-    public static final URI NOW;
-    public static final URI YEAR;
-    public static final URI MONTH;
-    public static final URI DAY;
-    public static final URI HOURS;
-    public static final URI MINUTES;
-    public static final URI SECONDS;
-    public static final URI TIMEZONE;
-    public static final URI TZ;
-    public static final URI MD5;
-    public static final URI SHA1;
-    public static final URI SHA256;
-    public static final URI SHA384;
-    public static final URI SHA512;
+    // IRIs for SPARQL built-in functions, used internally by marmotta
+    public static final IRI RAND;
+    public static final IRI UUID;
+    public static final IRI STRUUID;
+    public static final IRI NOW;
+    public static final IRI YEAR;
+    public static final IRI MONTH;
+    public static final IRI DAY;
+    public static final IRI HOURS;
+    public static final IRI MINUTES;
+    public static final IRI SECONDS;
+    public static final IRI TIMEZONE;
+    public static final IRI TZ;
+    public static final IRI MD5;
+    public static final IRI SHA1;
+    public static final IRI SHA256;
+    public static final IRI SHA384;
+    public static final IRI SHA512;
 
 
     // statistics functions (supported by e.g. PostgreSQL)
-    public static final URI STDDEV;
-    public static final URI VARIANCE;
+    public static final IRI STDDEV;
+    public static final IRI VARIANCE;
 
 
     static {
-        ValueFactory f = new ValueFactoryImpl();
+        ValueFactory f = SimpleValueFactory.getInstance();
 
-        SEARCH_FULLTEXT = f.createURI(NAMESPACE,"fulltext-search");
-        QUERY_FULLTEXT = f.createURI(NAMESPACE,"fulltext-query");
+        SEARCH_FULLTEXT = f.createIRI(NAMESPACE,"fulltext-search");
+        QUERY_FULLTEXT = f.createIRI(NAMESPACE,"fulltext-query");
 
-        RAND      = f.createURI(NAMESPACE,"rand");
-        UUID      = f.createURI(NAMESPACE,"uuid");
-        STRUUID   = f.createURI(NAMESPACE,"struuid");
-        NOW       = f.createURI(NAMESPACE,"now");
+        RAND      = f.createIRI(NAMESPACE,"rand");
+        UUID      = f.createIRI(NAMESPACE,"uuid");
+        STRUUID   = f.createIRI(NAMESPACE,"struuid");
+        NOW       = f.createIRI(NAMESPACE,"now");
         YEAR      = FN.YEAR_FROM_DATETIME;
         MONTH     = FN.MONTH_FROM_DATETIME;
         DAY       = FN.DAY_FROM_DATETIME;
@@ -91,14 +91,14 @@ public class FN_MARMOTTA {
         MINUTES   = FN.MINUTES_FROM_DATETIME;
         SECONDS   = FN.SECONDS_FROM_DATETIME;
         TIMEZONE  = FN.TIMEZONE_FROM_DATETIME;
-        TZ        = f.createURI(NAMESPACE,"tz");
-        MD5       = f.createURI(NAMESPACE,"md5");
-        SHA1      = f.createURI(NAMESPACE,"sha1");
-        SHA256    = f.createURI(NAMESPACE,"sha256");
-        SHA384    = f.createURI(NAMESPACE,"sha384");
-        SHA512    = f.createURI(NAMESPACE,"sha512");
+        TZ        = f.createIRI(NAMESPACE,"tz");
+        MD5       = f.createIRI(NAMESPACE,"md5");
+        SHA1      = f.createIRI(NAMESPACE,"sha1");
+        SHA256    = f.createIRI(NAMESPACE,"sha256");
+        SHA384    = f.createIRI(NAMESPACE,"sha384");
+        SHA512    = f.createIRI(NAMESPACE,"sha512");
 
-        STDDEV    = f.createURI(NAMESPACE,"stddev");
-        VARIANCE  = f.createURI(NAMESPACE,"variance");
+        STDDEV    = f.createIRI(NAMESPACE,"stddev");
+        VARIANCE  = f.createIRI(NAMESPACE,"variance");
     }
 }

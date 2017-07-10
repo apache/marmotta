@@ -28,12 +28,12 @@ import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.openrdf.model.Value;
-import org.openrdf.model.impl.URIImpl;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Add file description here!
@@ -84,7 +84,7 @@ public class LDCacheBackendTest extends BaseLDCacheTest {
         if(pathExpressions.containsKey(uri)) {
             LDPath<Value> ldpath = new LDPath<Value>(createLDPathBackend());
 
-            Collection<String> results = Collections2.transform(ldpath.pathQuery(new URIImpl(uri), pathExpressions.get(uri), Collections.EMPTY_MAP), ValueCommons.stringValue());
+            Collection<String> results = Collections2.transform(ldpath.pathQuery(SimpleValueFactory.getInstance().createIRI(uri), pathExpressions.get(uri), Collections.EMPTY_MAP), ValueCommons.stringValue());
 
             Assert.assertThat(results, Matchers.hasItem(pathResults.get(uri)));
 

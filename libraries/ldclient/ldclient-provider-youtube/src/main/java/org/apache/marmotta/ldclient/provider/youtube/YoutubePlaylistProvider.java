@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.openrdf.model.IRI;
 
 /**
  * Support YouTube Playlists as data source; they are mapped to collections in the Media Ontology
@@ -162,7 +163,7 @@ public class YoutubePlaylistProvider extends AbstractXMLDataProvider implements 
      * @param resource
      */
     @Override
-    protected List<String> getTypes(org.openrdf.model.URI resource) {
+    protected List<String> getTypes(org.openrdf.model.IRI resource) {
         return ImmutableList.of(NS_MEDIA + "Collection", Namespaces.NS_LMF_TYPES + "YoutubePlaylist");
     }
 

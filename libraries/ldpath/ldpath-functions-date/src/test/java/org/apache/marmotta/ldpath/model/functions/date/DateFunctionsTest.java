@@ -29,7 +29,7 @@ import org.apache.marmotta.ldpath.test.AbstractTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.URI;
+import org.openrdf.model.IRI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
@@ -42,8 +42,8 @@ public class DateFunctionsTest extends AbstractTestBase {
 
     private Date now;
     private Date first;
-    private URI uri;
-    private URI prop;
+    private IRI uri;
+    private IRI prop;
 
     @Before
     public void loadData() throws RepositoryException, RDFParseException, IOException {
@@ -51,8 +51,8 @@ public class DateFunctionsTest extends AbstractTestBase {
         now = new Date(1000*(System.currentTimeMillis() / 1000));
         first = new Date(now.getTime() - 1000l * delta);
 
-        uri = repository.getValueFactory().createURI(NSS.get("ex") + now.getTime());
-        prop = repository.getValueFactory().createURI(NSS.get("foo") + "hasPiH"); // Point in History
+        uri = repository.getValueFactory().createIRI(NSS.get("ex") + now.getTime());
+        prop = repository.getValueFactory().createIRI(NSS.get("foo") + "hasPiH"); // Point in History
 
         final SailRepositoryConnection con = repository.getConnection();
 

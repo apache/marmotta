@@ -67,7 +67,7 @@ public class PHPBBTopicHrefMapper extends CssSelectorMapper {
                 params.put(p.getName(),p.getValue());
             }
 
-            return Collections.singletonList((Value)factory.createURI(baseUriTopic + "t=" + params.get("t")));
+            return Collections.singletonList((Value)factory.createIRI(baseUriTopic + "t=" + params.get("t")));
         } catch (URISyntaxException ex) {
             throw new RuntimeException("invalid syntax for URI",ex);
         }
