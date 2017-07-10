@@ -545,8 +545,8 @@
             <artifactId>marmotta-rio-rss</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.jsonld-java</groupId>
-            <artifactId>jsonld-java-sesame</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-jsonld</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.marmotta</groupId>

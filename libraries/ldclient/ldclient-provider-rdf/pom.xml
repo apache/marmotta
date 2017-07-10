@@ -86,8 +86,8 @@
             <artifactId>sesame-rio-n3</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.jsonld-java</groupId>
-            <artifactId>jsonld-java-sesame</artifactId>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-rio-jsonld</artifactId>
         </dependency>
 
 

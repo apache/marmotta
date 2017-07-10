@@ -1246,6 +1246,11 @@
             </dependency>
             <dependency>
                 <groupId>org.openrdf.sesame</groupId>
+                <artifactId>sesame-rio-jsonld</artifactId>
+                <version>${sesame.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openrdf.sesame</groupId>
                 <artifactId>sesame-rio-rdfjson</artifactId>
                 <version>${sesame.version}</version>
             </dependency>
@@ -1521,11 +1526,6 @@
                 <groupId>org.mnode.ical4j</groupId>
                 <artifactId>ical4j-vcard</artifactId>
                 <version>0.9.6.2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.jsonld-java</groupId>
-                <artifactId>jsonld-java-sesame</artifactId>
-                <version>0.5.1</version>
             </dependency>
 
             <!-- Freemarker -->
