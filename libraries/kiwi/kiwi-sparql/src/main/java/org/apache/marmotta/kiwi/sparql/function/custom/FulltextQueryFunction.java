@@ -24,7 +24,6 @@ import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.algebra.evaluation.ValueExprEvaluationException;
-import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
 
 /**
  * A SPARQL function for doing a full-text search on the content of a string using a query language with boolean operators.
@@ -46,13 +45,6 @@ import org.openrdf.query.algebra.evaluation.function.FunctionRegistry;
  * @author Sebastian Schaffert (sschaffert@apache.org)
  */
 public class FulltextQueryFunction implements NativeFunction {
-
-    // auto-register for SPARQL environment
-    static {
-        if(!FunctionRegistry.getInstance().has(FN_MARMOTTA.QUERY_FULLTEXT.toString())) {
-            FunctionRegistry.getInstance().add(new FulltextQueryFunction());
-        }
-    }
 
     @Override
     public Value evaluate(ValueFactory valueFactory, Value... args) throws ValueExprEvaluationException {
