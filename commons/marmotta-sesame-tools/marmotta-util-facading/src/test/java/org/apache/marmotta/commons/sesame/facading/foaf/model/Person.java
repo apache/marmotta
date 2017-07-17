@@ -25,7 +25,7 @@ import org.apache.marmotta.commons.sesame.facading.annotations.RDFFilter;
 import org.apache.marmotta.commons.sesame.facading.annotations.RDFType;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Sample facade to describe a foaf:Person

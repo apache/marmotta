@@ -17,11 +17,10 @@
  */
 package org.apache.marmotta.kiwi.reasoner.model.program;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.Resource;
-import org.openrdf.model.IRI;
-
 import java.util.Map;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * Add file description here!

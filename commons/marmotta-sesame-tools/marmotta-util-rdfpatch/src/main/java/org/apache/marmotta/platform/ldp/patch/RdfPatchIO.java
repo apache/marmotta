@@ -17,16 +17,22 @@
  */
 package org.apache.marmotta.platform.ldp.patch;
 
-import org.apache.commons.io.output.StringBuilderWriter;
-import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
-import org.openrdf.model.*;
-import org.openrdf.rio.turtle.TurtleUtil;
-
-import java.io.*;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.output.StringBuilderWriter;
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.rio.turtle.TurtleUtil;
 
 /**
  * Serialize/Write an rdf-patch document

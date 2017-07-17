@@ -18,7 +18,7 @@
 package org.apache.marmotta.commons.sesame.filter.statement;
 
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.Statement;
 
 /**
  * Add file description here!

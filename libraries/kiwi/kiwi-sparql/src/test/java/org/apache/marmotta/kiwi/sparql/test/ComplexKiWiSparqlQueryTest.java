@@ -24,9 +24,9 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.query.parser.sparql.ComplexSPARQLQueryTest;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.sail.SailRepository;
+import org.eclipse.rdf4j.query.parser.sparql.ComplexSPARQLQueryTest;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 
 /**
  * Run the Sesame Complex SPARQL Query Test Suite.
@@ -75,16 +75,16 @@ public class ComplexKiWiSparqlQueryTest extends ComplexSPARQLQueryTest {
     @Override
     public void testSES2154SubselectOptional() throws Exception {
     }
-    
+
     @Test
     @Ignore("FIXME: MARMOTTA-603: problem while translating to SQL")
     @Override
     public void testSES2373SubselectOptional() throws Exception {
     }
-    
+
 @Ignore("FIXME: Validate +inf and -inf in literal values.")
     @Override
     public void testSES1979MinMaxInf() throws Exception {
     }
-     
+
 }

@@ -19,10 +19,10 @@ package org.apache.marmotta.loader.context;
 
 import org.apache.marmotta.loader.api.LoaderHandler;
 import org.apache.marmotta.loader.wrapper.LoaderHandlerWrapper;
-import org.openrdf.model.Statement;
-import org.openrdf.model.IRI;
-import org.openrdf.model.impl.ContextStatementImpl;
-import org.openrdf.rio.RDFHandlerException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.ContextStatementImpl;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 
 /**
  * A handler adding a pre-defined context to each statement

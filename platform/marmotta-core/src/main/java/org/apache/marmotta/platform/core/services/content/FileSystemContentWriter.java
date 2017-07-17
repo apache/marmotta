@@ -35,9 +35,9 @@ import org.apache.marmotta.platform.core.api.config.ConfigurationService;
 import org.apache.marmotta.platform.core.api.content.ContentWriter;
 import org.apache.marmotta.platform.core.api.triplestore.SesameService;
 import org.apache.marmotta.platform.core.model.content.MediaContentItem;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 import sun.net.www.MimeEntry;
 import sun.net.www.MimeTable;
@@ -167,7 +167,7 @@ public class FileSystemContentWriter implements ContentWriter {
                 String path = mci.getContentPath();
 
                 if(path == null) {
-                    if(resource instanceof org.openrdf.model.IRI && resource.stringValue().startsWith("file:")) {
+                    if(resource instanceof org.eclipse.rdf4j.model.IRI && resource.stringValue().startsWith("file:")) {
                         try {
                             URI uri = new URI(resource.stringValue());
                             path = uri.getPath();

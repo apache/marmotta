@@ -17,6 +17,11 @@
 
 package org.apache.marmotta.kiwi.sparql.sail;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.KiWiConnection;
@@ -24,18 +29,16 @@ import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiSailConnection;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.sail.*;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
-import org.openrdf.sail.helpers.SailConnectionWrapper;
-import org.openrdf.sail.helpers.SailWrapper;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
+import org.eclipse.rdf4j.sail.helpers.SailConnectionWrapper;
+import org.eclipse.rdf4j.sail.helpers.SailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Add file description here!

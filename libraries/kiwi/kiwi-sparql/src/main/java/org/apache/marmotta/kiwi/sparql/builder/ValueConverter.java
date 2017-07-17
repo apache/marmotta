@@ -18,7 +18,7 @@
 package org.apache.marmotta.kiwi.sparql.builder;
 
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * Convert Sesame Values to KiWiNodes. Usually implemented through a KiWiValueFactory, but can also be provided

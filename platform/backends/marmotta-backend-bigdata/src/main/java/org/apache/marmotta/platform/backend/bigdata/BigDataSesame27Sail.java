@@ -16,35 +16,32 @@
  */
 package org.apache.marmotta.platform.backend.bigdata;
 
+import com.bigdata.rdf.sail.BigdataSail;
+import com.bigdata.rdf.store.AbstractTripleStore;
 import info.aduna.iteration.CloseableIteration;
-
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.algebra.TupleExpr;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailChangedEvent;
-import org.openrdf.sail.SailChangedListener;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailBase;
-import org.openrdf.sail.helpers.NotifyingSailConnectionBase;
-import org.openrdf.sail.helpers.SailBase;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailChangedEvent;
+import org.eclipse.rdf4j.sail.SailChangedListener;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailBase;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionBase;
+import org.eclipse.rdf4j.sail.helpers.SailBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.bigdata.rdf.sail.BigdataSail;
-import com.bigdata.rdf.store.AbstractTripleStore;
 
 /**
  * Add file description here!

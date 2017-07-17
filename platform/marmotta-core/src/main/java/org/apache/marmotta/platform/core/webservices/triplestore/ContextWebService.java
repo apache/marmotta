@@ -88,13 +88,13 @@ public class ContextWebService {
         try {
             if(labels == null) {
                 ArrayList<String> res = new ArrayList<>();
-                for(org.openrdf.model.IRI r : contextService.listContexts(filter != null)) {
+                for(org.eclipse.rdf4j.model.IRI r : contextService.listContexts(filter != null)) {
                     res.add(r.stringValue());
                 }
                 return Response.ok().entity(res).build();
             } else {
                 ArrayList<Map<String,Object>> result = new ArrayList<>();
-                for(org.openrdf.model.IRI r : contextService.listContexts(filter != null)) {
+                for(org.eclipse.rdf4j.model.IRI r : contextService.listContexts(filter != null)) {
                     Map<String,Object> ctxDesc = new HashMap<>();
                     ctxDesc.put("uri",r.stringValue());
                     ctxDesc.put("label", contextService.getContextLabel(r));

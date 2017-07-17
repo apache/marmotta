@@ -18,7 +18,7 @@
 package org.apache.marmotta.ldcache.api;
 
 import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Next generation caching backend API. Needs to be implemented by backend providers to offer caching support.

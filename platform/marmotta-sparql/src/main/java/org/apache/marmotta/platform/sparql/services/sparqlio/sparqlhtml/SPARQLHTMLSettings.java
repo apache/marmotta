@@ -18,8 +18,8 @@
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
 import org.apache.marmotta.platform.core.api.templating.TemplatingService;
-import org.openrdf.rio.RioSetting;
-import org.openrdf.rio.helpers.RioSettingImpl;
+import org.eclipse.rdf4j.rio.RioSetting;
+import org.eclipse.rdf4j.rio.helpers.RioSettingImpl;
 
 /**
  * Contains settings relevant to SPARQL HTML Query Results Writers.

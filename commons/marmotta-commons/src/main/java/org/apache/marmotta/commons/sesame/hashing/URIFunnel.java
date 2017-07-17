@@ -19,9 +19,8 @@ package org.apache.marmotta.commons.sesame.hashing;
 
 import com.google.common.hash.Funnel;
 import com.google.common.hash.PrimitiveSink;
-import org.openrdf.model.URI;
-
 import java.nio.charset.Charset;
+import org.eclipse.rdf4j.model.URI;
 
 /**
  * Implementation of a Guava Funnel for Sesame URIs

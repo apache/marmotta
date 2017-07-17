@@ -18,12 +18,12 @@
 package org.apache.marmotta.ostrich.sail.test;
 
 import org.apache.marmotta.ostrich.sail.OstrichSail;
+import org.eclipse.rdf4j.sail.RDFStoreTest;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.openrdf.sail.RDFStoreTest;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
 
 /**
  * Add file description here!

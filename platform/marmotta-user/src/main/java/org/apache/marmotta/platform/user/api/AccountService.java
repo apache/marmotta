@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.platform.user.api;
 
-import org.apache.marmotta.platform.core.model.user.MarmottaUser;
-import org.apache.marmotta.platform.user.model.UserAccount;
-import org.openrdf.model.IRI;
-
 import java.util.List;
 import java.util.Set;
+import org.apache.marmotta.platform.core.model.user.MarmottaUser;
+import org.apache.marmotta.platform.user.model.UserAccount;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Service to manage UserAccounts. {@link UserAccount}s are used to manage login and access to the

@@ -29,10 +29,10 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 import org.apache.marmotta.commons.sesame.model.StatementCommons;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
 
 /**
  * A triple table that allows efficient in-memory operations over large collections of triples. This can be used as

@@ -31,8 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.core.api.importer.ImportService;
 import org.apache.marmotta.platform.core.api.importer.Importer;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 import org.slf4j.Logger;
 
 /**

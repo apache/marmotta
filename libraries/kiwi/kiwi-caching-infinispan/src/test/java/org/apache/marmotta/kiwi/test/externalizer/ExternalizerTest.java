@@ -17,12 +17,34 @@
 
 package org.apache.marmotta.kiwi.test.externalizer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.commons.vocabulary.XSD;
-import org.apache.marmotta.kiwi.infinispan.externalizer.*;
+import org.apache.marmotta.kiwi.infinispan.externalizer.BNodeExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.BooleanLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.DateLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.DoubleLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.IntLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.StringLiteralExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.TripleExternalizer;
+import org.apache.marmotta.kiwi.infinispan.externalizer.UriExternalizer;
 import org.apache.marmotta.kiwi.infinispan.remote.CustomJBossMarshaller;
-import org.apache.marmotta.kiwi.model.rdf.*;
+import org.apache.marmotta.kiwi.model.rdf.KiWiAnonResource;
+import org.apache.marmotta.kiwi.model.rdf.KiWiIntLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
+import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
+import org.apache.marmotta.kiwi.model.rdf.KiWiUriResource;
 import org.apache.marmotta.kiwi.test.TestValueFactory;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.infinispan.commons.marshall.AdvancedExternalizer;
 import org.infinispan.commons.marshall.StreamingMarshaller;
 import org.infinispan.configuration.cache.CacheMode;
@@ -35,15 +57,8 @@ import org.infinispan.manager.EmbeddedCacheManager;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.vocabulary.OWL;
-import org.openrdf.model.vocabulary.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.Random;
 
 /**
  * Test the different externalizer implementations we provide for Infinispan

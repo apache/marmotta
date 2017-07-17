@@ -17,7 +17,7 @@
  */
 package org.apache.marmotta.commons.sesame.model;
 
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.URI;
 
 /**
  * Add file description here!

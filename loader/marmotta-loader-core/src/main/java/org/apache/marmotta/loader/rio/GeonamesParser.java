@@ -17,19 +17,24 @@
 
 package org.apache.marmotta.loader.rio;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.rio.*;
-import org.openrdf.rio.helpers.RDFParserBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import org.openrdf.rio.helpers.AbstractRDFParser;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.rio.ParseErrorListener;
+import org.eclipse.rdf4j.rio.ParserConfig;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A specialised RDF parser for Geonames data. Geonames dumps are usually a big text file with a complete

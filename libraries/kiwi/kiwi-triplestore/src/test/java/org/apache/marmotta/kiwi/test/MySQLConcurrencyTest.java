@@ -17,22 +17,20 @@
 
 package org.apache.marmotta.kiwi.test;
 
+import java.sql.SQLException;
+import java.util.Random;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.persistence.mysql.MySQLDialect;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.helper.DBConnectionChecker;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.SailException;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.SailException;
-import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.Random;
-
 import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
+import org.slf4j.LoggerFactory;
 
 /**
  * This test starts many triplestore operations in parallel to check if concurrent operations will break things,

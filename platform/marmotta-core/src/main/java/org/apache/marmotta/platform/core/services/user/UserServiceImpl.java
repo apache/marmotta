@@ -39,9 +39,9 @@ import org.apache.marmotta.platform.core.model.user.MarmottaUser;
 import org.apache.marmotta.platform.core.qualifiers.user.AdminUser;
 import org.apache.marmotta.platform.core.qualifiers.user.AnonymousUser;
 import org.apache.marmotta.platform.core.qualifiers.user.CurrentUser;
-import org.openrdf.model.IRI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 
 /**

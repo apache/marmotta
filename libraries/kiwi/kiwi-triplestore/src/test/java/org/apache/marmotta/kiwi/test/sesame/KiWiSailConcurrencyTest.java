@@ -19,13 +19,13 @@ package org.apache.marmotta.kiwi.test.sesame;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConcurrencyTest;
+import org.eclipse.rdf4j.sail.SailException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConcurrencyTest;
-import org.openrdf.sail.SailException;
 
 /**
  * Run the Sesame {@link SailConcurrencyTest} suite.

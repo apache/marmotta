@@ -17,8 +17,12 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.collect;
 
-import org.openrdf.query.algebra.*;
-import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
+import org.eclipse.rdf4j.query.algebra.Distinct;
+import org.eclipse.rdf4j.query.algebra.Projection;
+import org.eclipse.rdf4j.query.algebra.Reduced;
+import org.eclipse.rdf4j.query.algebra.TupleExpr;
+import org.eclipse.rdf4j.query.algebra.Union;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
 * Find distinct/reduced in a tuple expression.

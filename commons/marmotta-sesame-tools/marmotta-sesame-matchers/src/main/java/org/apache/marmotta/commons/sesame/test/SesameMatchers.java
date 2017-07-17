@@ -23,17 +23,17 @@ import org.apache.marmotta.commons.sesame.test.connection.HasStatementMatcher;
 import org.apache.marmotta.commons.sesame.test.sparql.SparqlAskMatcher;
 import org.apache.marmotta.commons.sesame.test.sparql.SparqlGraphQueryMatcher;
 import org.apache.marmotta.commons.sesame.test.sparql.SparqlTupleQueryMatcher;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.openrdf.model.Resource;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.openrdf.query.BindingSet;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
 
 /**
  * Collection of useful Matchers for Sesame.

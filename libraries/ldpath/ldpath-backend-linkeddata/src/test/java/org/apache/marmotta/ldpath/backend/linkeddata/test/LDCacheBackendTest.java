@@ -18,6 +18,10 @@
 package org.apache.marmotta.ldpath.backend.linkeddata.test;
 
 import com.google.common.collect.Collections2;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.marmotta.commons.sesame.model.ValueCommons;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.infinispan.LDCachingInfinispanBackend;
@@ -25,15 +29,10 @@ import org.apache.marmotta.ldcache.services.test.ng.BaseLDCacheTest;
 import org.apache.marmotta.ldpath.LDPath;
 import org.apache.marmotta.ldpath.api.backend.RDFBackend;
 import org.apache.marmotta.ldpath.backend.linkeddata.LDCacheBackend;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.openrdf.model.Value;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Add file description here!

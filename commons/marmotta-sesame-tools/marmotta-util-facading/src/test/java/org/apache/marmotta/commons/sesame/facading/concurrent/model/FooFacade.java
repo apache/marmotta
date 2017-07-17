@@ -19,7 +19,7 @@ package org.apache.marmotta.commons.sesame.facading.concurrent.model;
 
 import org.apache.marmotta.commons.sesame.facading.annotations.RDF;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
-import org.openrdf.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 
 public interface FooFacade extends Facade {
     

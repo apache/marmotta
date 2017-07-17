@@ -17,9 +17,8 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.openrdf.model.Resource;
-
 import java.util.Date;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * KiWiResources correspond to RDF resources. A KiWi resource is either an anonymous 

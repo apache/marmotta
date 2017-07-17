@@ -18,17 +18,6 @@
 package org.apache.marmotta.ldcache.backend.kiwi.persistence;
 
 import info.aduna.iteration.CloseableIteration;
-import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
-import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
-import org.apache.marmotta.kiwi.persistence.KiWiConnection;
-import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
-import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
-import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
-import org.apache.marmotta.ldcache.model.CacheEntry;
-import org.openrdf.model.IRI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Closeable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,6 +26,16 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
+import org.apache.marmotta.kiwi.model.rdf.KiWiResource;
+import org.apache.marmotta.kiwi.persistence.KiWiConnection;
+import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
+import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
+import org.apache.marmotta.ldcache.backend.kiwi.model.KiWiCacheEntry;
+import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.model.IRI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add file description here!

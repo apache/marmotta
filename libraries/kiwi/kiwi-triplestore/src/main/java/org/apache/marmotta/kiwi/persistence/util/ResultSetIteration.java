@@ -17,11 +17,10 @@
  */
 package org.apache.marmotta.kiwi.persistence.util;
 
-import info.aduna.iteration.CloseableIteration;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 
 /**
  * A wrapper class for creating ClosableIterations from a SQL JDBC ResultSet. Takes a

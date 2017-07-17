@@ -17,19 +17,18 @@
  */
 package org.apache.marmotta.commons.sesame.transactions.sail;
 
+import java.util.Collection;
+import java.util.Date;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSailConnection;
 import org.apache.marmotta.commons.sesame.transactions.model.TransactionData;
-import org.openrdf.model.Statement;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailConnectionListener;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailConnectionListener;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Date;
 
 /**
  * This is an extended version of the KiWi triple store connection with support for transaction tracking. It offers the

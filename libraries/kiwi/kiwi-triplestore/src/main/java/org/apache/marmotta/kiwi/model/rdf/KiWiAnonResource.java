@@ -17,9 +17,8 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.openrdf.model.BNode;
-
 import java.util.Date;
+import org.eclipse.rdf4j.model.BNode;
 
 /**
  * The KiWiAnonResaource represents the anonymous RDF resource.

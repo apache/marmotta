@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.commons.sesame.filter.resource;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.IRI;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * A filter only accepting resources starting with a given prefix.

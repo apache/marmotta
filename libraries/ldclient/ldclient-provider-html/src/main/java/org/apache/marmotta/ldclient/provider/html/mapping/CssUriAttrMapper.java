@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldclient.provider.html.mapping;
 
-import org.jsoup.nodes.Element;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
 
 public class CssUriAttrMapper extends CssSelectorMapper {
 

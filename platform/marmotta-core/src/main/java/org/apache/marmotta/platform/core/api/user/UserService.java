@@ -18,7 +18,7 @@
 package org.apache.marmotta.platform.core.api.user;
 
 import org.apache.marmotta.platform.core.exception.UserExistsException;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Manages the user-resources (BASE_URL/users/*)

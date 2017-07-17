@@ -17,20 +17,20 @@
 
 package org.apache.marmotta.kiwi.sparql.evaluation;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
 import java.io.IOException;
 import java.nio.channels.ClosedByInterruptException;
 import org.apache.marmotta.kiwi.sparql.sail.KiWiSparqlSailConnection;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryInterruptedException;
-import org.openrdf.query.algebra.evaluation.TripleSource;
-import org.openrdf.sail.SailException;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryInterruptedException;
+import org.eclipse.rdf4j.query.algebra.evaluation.TripleSource;
+import org.eclipse.rdf4j.sail.SailException;
 
 /**
  * TripleSource implementation based on a KiWi triple store.

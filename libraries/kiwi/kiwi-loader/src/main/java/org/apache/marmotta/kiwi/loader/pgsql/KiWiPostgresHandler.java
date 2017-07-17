@@ -16,19 +16,18 @@
  */
 package org.apache.marmotta.kiwi.loader.pgsql;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.sql.SQLException;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.kiwi.loader.KiWiLoaderConfiguration;
 import org.apache.marmotta.kiwi.loader.generic.KiWiBatchHandler;
 import org.apache.marmotta.kiwi.persistence.util.ScriptRunner;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandler;
 import org.postgresql.copy.PGCopyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.sql.SQLException;
 
 /**
  * A fast-lane RDF import handler for PostgreSQL backends. This importer takes advantage of the PostgreSQL COPY command

@@ -16,8 +16,8 @@
  */
 package org.apache.marmotta.ldcache.api;
 
-import org.openrdf.model.Model;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 
 /**
  * This is the next-generation API for LDCache that will become the default in Marmotta 3.3 or 4.0. For now,

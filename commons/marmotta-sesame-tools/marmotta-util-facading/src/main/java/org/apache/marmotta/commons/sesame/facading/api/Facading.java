@@ -18,8 +18,8 @@ package org.apache.marmotta.commons.sesame.facading.api;
 
 import java.util.Collection;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * Offers methods for loading and proxying KiWiFacades. A KiWi Facade is an interface that defines a Java

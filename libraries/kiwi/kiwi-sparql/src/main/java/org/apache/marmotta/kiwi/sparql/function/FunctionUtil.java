@@ -18,9 +18,9 @@
 package org.apache.marmotta.kiwi.sparql.function;
 
 import org.apache.marmotta.kiwi.vocabulary.FN_MARMOTTA;
-import org.openrdf.model.IRI;
-import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.vocabulary.FN;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.FN;
 
 /**
  * Add file description here!

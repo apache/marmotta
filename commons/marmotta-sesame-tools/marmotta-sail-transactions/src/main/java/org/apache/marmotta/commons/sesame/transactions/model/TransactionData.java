@@ -17,11 +17,10 @@
  */
 package org.apache.marmotta.commons.sesame.transactions.model;
 
-import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
-import org.openrdf.model.Statement;
-
 import java.util.Date;
 import java.util.UUID;
+import org.apache.marmotta.commons.sesame.tripletable.TripleTable;
+import org.eclipse.rdf4j.model.Statement;
 
 /**
  * Hold the data recorded in a transaction, i.e. the list of added and removed triples.

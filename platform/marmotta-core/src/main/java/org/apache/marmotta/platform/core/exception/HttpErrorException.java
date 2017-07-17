@@ -18,14 +18,12 @@
 package org.apache.marmotta.platform.core.exception;
 
 import com.google.common.collect.ImmutableMap;
-import edu.emory.mathcs.backport.java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
+import static com.google.common.net.HttpHeaders.ACCEPT;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.google.common.net.HttpHeaders.ACCEPT;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 
 /**
  * HTTP Error Exception

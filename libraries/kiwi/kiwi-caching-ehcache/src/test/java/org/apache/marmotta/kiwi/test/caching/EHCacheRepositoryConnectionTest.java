@@ -21,13 +21,13 @@ import org.apache.marmotta.kiwi.config.CachingBackends;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
 import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnectionTest;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openrdf.IsolationLevels;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnectionTest;
-import org.openrdf.repository.sail.SailRepository;
 
 /**
  * Run the {@link org.openrdf.repository.RepositoryConnectionTest}s.

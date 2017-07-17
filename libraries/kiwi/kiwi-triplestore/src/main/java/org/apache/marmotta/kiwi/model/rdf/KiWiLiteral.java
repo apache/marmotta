@@ -25,9 +25,9 @@ import java.util.Optional;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.commons.util.DateUtils;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.datatypes.XMLDatatypeUtil;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
 /**
  * KiWiLiterals store literal information from the knowledge base. They directly

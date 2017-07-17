@@ -17,10 +17,14 @@
  */
 package org.apache.marmotta.kiwi.reasoner.test.parser;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import org.apache.marmotta.kiwi.reasoner.model.program.Program;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParserBase;
-import org.apache.marmotta.kiwi.test.RepositoryTest;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,14 +34,8 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Add file description here!

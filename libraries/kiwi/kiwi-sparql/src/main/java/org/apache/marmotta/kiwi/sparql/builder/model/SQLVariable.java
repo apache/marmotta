@@ -17,13 +17,12 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.model;
 
-import org.apache.marmotta.kiwi.sparql.builder.ValueType;
-import org.openrdf.query.algebra.ValueExpr;
-
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.marmotta.kiwi.sparql.builder.ValueType;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
 
 /**
  * Representation of a SPARQL variable in SQL. A SPARQL variable will always be translated into a column alias

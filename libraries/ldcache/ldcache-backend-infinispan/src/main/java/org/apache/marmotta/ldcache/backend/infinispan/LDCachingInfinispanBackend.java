@@ -17,11 +17,14 @@
 
 package org.apache.marmotta.ldcache.backend.infinispan;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.marmotta.ldcache.api.LDCachingBackend;
 import org.apache.marmotta.ldcache.backend.infinispan.io.ModelExternalizer;
 import org.apache.marmotta.ldcache.backend.infinispan.io.ValueExternalizer;
 import org.apache.marmotta.ldcache.model.CacheEntry;
+import org.eclipse.rdf4j.model.IRI;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
@@ -33,12 +36,8 @@ import org.infinispan.distribution.ch.SyncConsistentHashFactory;
 import org.infinispan.eviction.EvictionStrategy;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.openrdf.model.IRI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Add file description here!

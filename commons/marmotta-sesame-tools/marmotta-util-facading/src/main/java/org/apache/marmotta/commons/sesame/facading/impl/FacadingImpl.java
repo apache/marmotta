@@ -26,10 +26,10 @@ import org.apache.marmotta.commons.sesame.facading.annotations.RDFType;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.model.Facade;
 import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FacadingImpl implements Facading {
 
-    private static final IRI RDF_TYPE = org.openrdf.model.vocabulary.RDF.TYPE;
+    private static final IRI RDF_TYPE = org.eclipse.rdf4j.model.vocabulary.RDF.TYPE;
 
 
     private static Logger log = LoggerFactory.getLogger(FacadingImpl.class);

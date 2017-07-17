@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Locale;
 import org.apache.marmotta.commons.sesame.facading.util.FacadeUtils;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
 
 class FacadingInvocationHelper {
     private FacadingInvocationHelper() {

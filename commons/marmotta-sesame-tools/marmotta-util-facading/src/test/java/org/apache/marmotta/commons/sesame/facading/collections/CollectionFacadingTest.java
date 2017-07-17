@@ -25,13 +25,13 @@ import org.apache.marmotta.commons.sesame.facading.AbstractFacadingTest;
 import org.apache.marmotta.commons.sesame.facading.FacadingFactory;
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.collections.model.CollectionFacade;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.hasItems;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 public class CollectionFacadingTest extends AbstractFacadingTest {
 

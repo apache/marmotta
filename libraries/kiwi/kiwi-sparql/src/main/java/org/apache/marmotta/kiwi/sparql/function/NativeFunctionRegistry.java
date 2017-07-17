@@ -17,8 +17,8 @@
 
 package org.apache.marmotta.kiwi.sparql.function;
 
-import info.aduna.lang.service.ServiceRegistry;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.common.lang.service.ServiceRegistry;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Registry for natively supported functions

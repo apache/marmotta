@@ -17,17 +17,20 @@
  */
 package org.apache.marmotta.platform.ldp.patch.parser;
 
+import java.util.Iterator;
+import java.util.List;
 import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.FOAF;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.*;
-import org.openrdf.model.vocabulary.FOAF;
-
-import java.util.Iterator;
-import java.util.List;
-import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Testing the RdfPatchParserImpl

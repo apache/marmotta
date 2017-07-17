@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Set;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * The context (named graphs in LMF, formerly "knowledge space" in KiWi) service offers convenience
@@ -162,7 +162,7 @@ public interface ContextService {
      * Return the number of triples for the context.
      * @param context
      */
-    long getContextSize(org.openrdf.model.IRI context);
+    long getContextSize(org.eclipse.rdf4j.model.IRI context);
     
     /**
      * Import content into the context

@@ -17,19 +17,18 @@
  */
 package org.apache.marmotta.commons.sesame.contextaware;
 
+import org.apache.marmotta.commons.sesame.AbstractContextTest;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import info.aduna.iteration.CloseableIteration;
-
-import org.apache.marmotta.commons.sesame.AbstractContextTest;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.Resource;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
 
 /**
  * @author Jakob Frank <jakob@apache.org>

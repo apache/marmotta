@@ -61,7 +61,7 @@ package org.apache.marmotta.kiwi.reasoner.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.InputStream;
-import org.openrdf.model.*;
+import org.eclipse.rdf4j.model.*;
 import java.util.*;
 import org.apache.marmotta.kiwi.reasoner.model.program.*;
 

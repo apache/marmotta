@@ -25,10 +25,10 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import org.apache.marmotta.platform.core.api.io.MarmottaIOService;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParserRegistry;
-import org.openrdf.rio.RDFWriterRegistry;
-import org.openrdf.rio.Rio;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParserRegistry;
+import org.eclipse.rdf4j.rio.RDFWriterRegistry;
+import org.eclipse.rdf4j.rio.Rio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

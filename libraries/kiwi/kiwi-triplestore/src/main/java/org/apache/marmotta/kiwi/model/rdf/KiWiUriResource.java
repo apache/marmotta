@@ -20,7 +20,7 @@ package org.apache.marmotta.kiwi.model.rdf;
 import com.google.common.base.Preconditions;
 import java.util.Date;
 import org.apache.marmotta.commons.sesame.model.IRICommons;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Add file description here!

@@ -17,15 +17,14 @@
  */
 package org.apache.marmotta.ldclient.provider.html.mapping;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.jsoup.nodes.Element;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.jsoup.nodes.Element;
 
 public class CssTextLiteralMapper extends CssSelectorMapper {
 

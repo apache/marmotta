@@ -17,17 +17,16 @@
  */
 package org.apache.marmotta.platform.ldp.patch;
 
-import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
-import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
-import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
-import org.junit.Assert;
-import org.junit.Test;
-import org.openrdf.model.vocabulary.DCTERMS;
-
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.apache.marmotta.platform.ldp.patch.parser.ParseException;
+import org.apache.marmotta.platform.ldp.patch.parser.RdfPatchParserImpl;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Testing {@link org.apache.marmotta.platform.ldp.patch.RdfPatchIO}

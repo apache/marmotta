@@ -22,8 +22,8 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.Set;
 import org.apache.marmotta.platform.core.exception.io.MarmottaImportException;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 
 /**

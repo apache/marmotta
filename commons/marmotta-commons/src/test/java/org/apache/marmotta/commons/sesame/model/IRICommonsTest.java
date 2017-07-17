@@ -19,6 +19,11 @@ package org.apache.marmotta.commons.sesame.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import static org.hamcrest.CoreMatchers.equalTo;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
@@ -27,11 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.openrdf.model.IRI;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.memory.MemoryStore;
 
 @RunWith(Parameterized.class)
 public class IRICommonsTest {

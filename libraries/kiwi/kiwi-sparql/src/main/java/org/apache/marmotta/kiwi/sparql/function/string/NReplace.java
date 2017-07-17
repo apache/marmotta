@@ -23,7 +23,7 @@ import org.apache.marmotta.kiwi.persistence.h2.H2Dialect;
 import org.apache.marmotta.kiwi.persistence.pgsql.PostgreSQLDialect;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
-import org.openrdf.query.algebra.evaluation.function.string.Replace;
+import org.eclipse.rdf4j.query.algebra.evaluation.function.string.Replace;
 
 /**
  * Add file description here!

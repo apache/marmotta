@@ -17,20 +17,19 @@
  */
 package org.apache.marmotta.platform.ldpath.model.functions;
 
-import org.apache.marmotta.ldpath.api.backend.RDFBackend;
-import org.apache.marmotta.platform.core.api.content.ContentService;
-import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.slf4j.Logger;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import org.openrdf.model.impl.SimpleValueFactory;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import org.apache.marmotta.ldpath.api.backend.RDFBackend;
+import org.apache.marmotta.platform.core.api.content.ContentService;
+import org.apache.marmotta.platform.ldpath.api.AutoRegisteredLDPathFunction;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.slf4j.Logger;
 
 /**
  * Add file description here!

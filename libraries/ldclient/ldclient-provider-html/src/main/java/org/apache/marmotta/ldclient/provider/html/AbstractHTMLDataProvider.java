@@ -17,18 +17,6 @@
  */
 package org.apache.marmotta.ldclient.provider.html;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.apache.marmotta.ldclient.api.provider.DataProvider;
-import org.apache.marmotta.ldclient.exception.DataRetrievalException;
-import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
-import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.ValueFactoryImpl;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -36,7 +24,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.openrdf.model.impl.SimpleValueFactory;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.apache.marmotta.ldclient.api.provider.DataProvider;
+import org.apache.marmotta.ldclient.exception.DataRetrievalException;
+import org.apache.marmotta.ldclient.provider.html.mapping.JSoupMapper;
+import org.apache.marmotta.ldclient.services.provider.AbstractHttpProvider;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Generic implementation of an HTML data provider capable of mapping XPath expressions from HTML documents to

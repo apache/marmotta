@@ -20,7 +20,7 @@ package org.apache.marmotta.commons.sesame.hashing;
 import com.google.common.hash.Funnel;
 import com.google.common.hash.PrimitiveSink;
 import java.nio.charset.Charset;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Implementation of a Guava Funnel for Sesame IRIs

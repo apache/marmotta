@@ -18,13 +18,13 @@
 package org.apache.marmotta.commons.sesame.test.connection;
 
 import org.apache.marmotta.commons.sesame.test.base.AbstractRepositoryConnectionMatcher;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.openrdf.model.Resource;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Value;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 /**
  * Has Statement Matcher

@@ -17,13 +17,17 @@
  */
 package org.apache.marmotta.ldcache.sail;
 
-import info.aduna.iteration.CloseableIteration;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
 import org.apache.marmotta.ldcache.services.LDCache;
-import org.openrdf.model.*;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailConnectionWrapper;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailConnectionWrapper;
 
 /**
  * Add file description here!

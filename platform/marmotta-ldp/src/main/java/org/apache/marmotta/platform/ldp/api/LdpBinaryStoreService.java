@@ -17,11 +17,9 @@
  */
 package org.apache.marmotta.platform.ldp.api;
 
-import org.openrdf.model.IRI;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  *  LDP Store Service

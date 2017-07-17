@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.ldclient.provider.xml.mapping;
 
-import org.apache.marmotta.commons.sesame.model.Namespaces;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.marmotta.commons.sesame.model.Namespaces;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Takes a comma separated list and converts it into a list of literals

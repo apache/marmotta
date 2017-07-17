@@ -17,14 +17,17 @@
 
 package org.apache.marmotta.loader.core.test;
 
+import java.io.IOException;
 import org.apache.marmotta.loader.rio.GeonamesFormat;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.AbstractRDFHandler;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.*;
-
-import java.io.IOException;
-import org.openrdf.rio.helpers.AbstractRDFHandler;
 
 /**
  * Add file description here!

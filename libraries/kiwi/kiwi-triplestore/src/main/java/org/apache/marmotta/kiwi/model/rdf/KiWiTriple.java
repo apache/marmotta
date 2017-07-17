@@ -21,7 +21,7 @@ import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
-import org.openrdf.model.Statement;
+import org.eclipse.rdf4j.model.Statement;
 
 /**
  * KiWiTriples are one of the core concepts of the KiWi system. They

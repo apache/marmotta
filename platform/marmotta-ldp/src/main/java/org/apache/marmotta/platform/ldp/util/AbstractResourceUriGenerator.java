@@ -19,8 +19,8 @@ package org.apache.marmotta.platform.ldp.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.marmotta.platform.ldp.api.LdpService;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

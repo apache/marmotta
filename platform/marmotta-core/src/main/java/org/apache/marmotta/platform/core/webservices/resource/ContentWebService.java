@@ -59,10 +59,10 @@ import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
 import org.apache.marmotta.platform.core.model.config.CoreOptions;
 import org.apache.marmotta.platform.core.qualifiers.event.ContentCreated;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendContentTypes;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * Content Web Services

@@ -17,13 +17,12 @@
  */
 package org.apache.marmotta.commons.sesame.filter.resource;
 
-import org.openrdf.model.Resource;
-import org.openrdf.model.IRI;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * A filter only accepting URI resources where the URI matches one of the configured patterns.

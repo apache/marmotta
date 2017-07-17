@@ -17,11 +17,11 @@
  */
 package org.apache.marmotta.commons.sesame.contextaware;
 
-import org.openrdf.model.Resource;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.SailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.SailWrapper;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.SailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.SailWrapper;
 
 /**
  * A SAIL wrapper that allows overriding any context given in repository operations

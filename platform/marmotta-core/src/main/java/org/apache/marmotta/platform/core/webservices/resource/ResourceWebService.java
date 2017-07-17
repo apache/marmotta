@@ -69,10 +69,10 @@ import static org.apache.marmotta.platform.core.model.config.CoreOptions.LINKEDD
 import static org.apache.marmotta.platform.core.model.config.CoreOptions.LINKEDDATA_REDIRECT_PUT;
 import static org.apache.marmotta.platform.core.model.config.CoreOptions.LINKEDDATA_REDIRECT_STATUS;
 import static org.apache.marmotta.platform.core.webservices.resource.ResourceWebServiceHelper.appendMetaTypes;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.slf4j.Logger;
 
 /**

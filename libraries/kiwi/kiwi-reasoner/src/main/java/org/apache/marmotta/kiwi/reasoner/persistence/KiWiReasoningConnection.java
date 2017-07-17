@@ -17,7 +17,18 @@
  */
 package org.apache.marmotta.kiwi.reasoner.persistence;
 
-import info.aduna.iteration.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.marmotta.kiwi.caching.CacheManager;
 import org.apache.marmotta.kiwi.model.rdf.KiWiNode;
 import org.apache.marmotta.kiwi.model.rdf.KiWiTriple;
@@ -26,19 +37,26 @@ import org.apache.marmotta.kiwi.persistence.KiWiDialect;
 import org.apache.marmotta.kiwi.persistence.KiWiPersistence;
 import org.apache.marmotta.kiwi.persistence.util.ResultSetIteration;
 import org.apache.marmotta.kiwi.persistence.util.ResultTransformerFunction;
-import org.apache.marmotta.kiwi.reasoner.model.program.*;
+import org.apache.marmotta.kiwi.reasoner.model.program.Field;
+import org.apache.marmotta.kiwi.reasoner.model.program.Filter;
+import org.apache.marmotta.kiwi.reasoner.model.program.Justification;
+import org.apache.marmotta.kiwi.reasoner.model.program.LiteralField;
+import org.apache.marmotta.kiwi.reasoner.model.program.Pattern;
+import org.apache.marmotta.kiwi.reasoner.model.program.Program;
+import org.apache.marmotta.kiwi.reasoner.model.program.ResourceField;
+import org.apache.marmotta.kiwi.reasoner.model.program.Rule;
+import org.apache.marmotta.kiwi.reasoner.model.program.VariableField;
 import org.apache.marmotta.kiwi.reasoner.model.query.QueryResult;
 import org.apache.marmotta.kiwi.reasoner.parser.KWRLProgramParser;
 import org.apache.marmotta.kiwi.reasoner.parser.ParseException;
-import org.openrdf.model.ValueFactory;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.EmptyIteration;
+import org.eclipse.rdf4j.common.iteration.Iteration;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.common.iteration.IteratorIteration;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * Extends the basic KiWiConnection by functionalities for storing, deleting and querying reasoner programs and rules

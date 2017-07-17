@@ -26,9 +26,9 @@ import java.util.Locale;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.joda.time.DateTime;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
 
 /**
  * Utility methods for working with literals.

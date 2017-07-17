@@ -17,15 +17,14 @@
  */
 package org.apache.marmotta.commons.sesame.transactions.sail;
 
-import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
-import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionListener;
+import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 
 /**
  * This is an extended version of the KiWi triple store with support for transaction tracking. It offers the

@@ -17,6 +17,10 @@
 package org.apache.marmotta.platform.ldcache.services.kiwi;
 
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import javax.enterprise.context.ApplicationScoped;
 import org.apache.marmotta.commons.sesame.filter.NotFilter;
 import org.apache.marmotta.commons.sesame.filter.OneOfFilter;
 import org.apache.marmotta.commons.sesame.filter.SesameFilter;
@@ -26,16 +30,11 @@ import org.apache.marmotta.ldcache.services.LDCache;
 import org.apache.marmotta.ldclient.api.ldclient.LDClientService;
 import org.apache.marmotta.platform.core.model.filter.MarmottaLocalFilter;
 import org.apache.marmotta.platform.ldcache.api.ldcache.LDCacheSailProvider;
-import org.openrdf.model.Resource;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.helpers.NotifyingSailWrapper;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A sail provider service that allows wrapping a transparent Linked Data caching component around the

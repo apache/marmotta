@@ -16,8 +16,6 @@
  */
 package org.apache.marmotta.platform.ldp.exceptions;
 
-import org.openrdf.model.IRI;
-
 
 /**
  * Invalid or unknown LDP Client Interaction Model Exception

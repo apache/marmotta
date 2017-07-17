@@ -17,8 +17,8 @@
  */
 package org.apache.marmotta.platform.core.api.triplestore;
 
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.helpers.SailWrapper;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.helpers.SailWrapper;
 
 /**
  * An interface implemented by all modules that provide sail wrappers for the sesame sail stack.

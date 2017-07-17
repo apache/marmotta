@@ -21,11 +21,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.platform.core.api.user.UserService;
 import org.apache.marmotta.platform.core.exception.UserExistsException;
 import org.apache.marmotta.platform.core.test.base.EmbeddedMarmotta;
+import org.eclipse.rdf4j.model.IRI;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openrdf.model.IRI;
 
 /**
  * Add file description here!

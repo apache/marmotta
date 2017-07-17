@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.platform.ldp.patch.parser;
 
-import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
-import org.openrdf.model.ValueFactory;
-
 import java.util.List;
+import org.apache.marmotta.platform.ldp.patch.model.PatchLine;
+import org.eclipse.rdf4j.model.ValueFactory;
 
 /**
  * Parser for the {@code application/rdf-patch} format.

@@ -17,11 +17,10 @@
 
 package org.apache.marmotta.platform.core.jaxrs.exceptionmappers;
 
-import org.openrdf.repository.RepositoryException;
-
 import javax.enterprise.context.Dependent;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * Map RepositoryExceptions to a internal server error and return the default error object

@@ -16,11 +16,10 @@
  */
 package org.apache.marmotta.commons.sesame.rio.ical;
 
-import org.openrdf.rio.RDFFormat;
-
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
+import org.eclipse.rdf4j.rio.RDFFormat;
 
 /**
  * ICal Format is using ical4j for parsing.

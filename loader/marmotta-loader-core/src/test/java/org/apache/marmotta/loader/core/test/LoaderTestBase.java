@@ -17,6 +17,11 @@
 
 package org.apache.marmotta.loader.core.test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -26,19 +31,16 @@ import org.apache.marmotta.loader.core.MarmottaLoader;
 import org.apache.marmotta.loader.core.test.dummy.DummyLoaderBackend;
 import org.apache.marmotta.loader.core.test.dummy.DummyLoaderHandler;
 import org.apache.marmotta.loader.wrapper.LoaderHandlerWrapper;
-import org.junit.*;
-import org.openrdf.model.Model;
-import org.openrdf.model.IRI;
-import org.openrdf.rio.RDFHandlerException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import org.openrdf.model.impl.SimpleValueFactory;
 
 /**
  * Add file description here!

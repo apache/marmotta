@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.platform.core.api.content;
 
-import org.apache.marmotta.platform.core.exception.MarmottaException;
-import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
-import org.openrdf.model.Resource;
-
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.marmotta.platform.core.exception.MarmottaException;
+import org.apache.marmotta.platform.core.exception.WritingNotSupportedException;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * User: Thomas Kurz

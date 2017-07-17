@@ -17,17 +17,16 @@
 
 package org.apache.marmotta.platform.core.test.base;
 
-import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
-import org.apache.marmotta.platform.core.qualifiers.inject.Fallback;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.NotifyingSail;
-import org.openrdf.sail.Sail;
-import org.openrdf.sail.memory.MemoryStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import org.apache.marmotta.platform.core.api.triplestore.StoreProvider;
+import org.apache.marmotta.platform.core.qualifiers.inject.Fallback;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.NotifyingSail;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A triple store provider for tests. Uses a Sesame in-memory store for holding triples.

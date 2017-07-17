@@ -30,18 +30,17 @@ import org.apache.marmotta.client.model.rdf.BNode;
 import org.apache.marmotta.client.model.rdf.Literal;
 import org.apache.marmotta.client.model.rdf.RDFNode;
 import org.apache.marmotta.client.model.rdf.URI;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.model.impl.LinkedHashModel;
-import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.impl.ValueFactoryImpl;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.UnsupportedRDFormatException;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 
 /**
  * Parse RDF/JSON into a map-based representation.
@@ -81,7 +80,7 @@ public class RDFJSONParser {
 
             for (Resource subject : model.subjects()) {
                 Metadata m = new Metadata(subject.stringValue());
-                for (org.openrdf.model.IRI property : model.filter(subject, null, null).predicates()) {
+                for (org.eclipse.rdf4j.model.IRI property : model.filter(subject, null, null).predicates()) {
                     Set<RDFNode> propValue = new HashSet<RDFNode>();
                     for (Value value : model.filter(subject, property, null).objects()) {
                         propValue.add(parseRDFJSONNode(value));
@@ -135,12 +134,12 @@ public class RDFJSONParser {
     public static RDFNode parseRDFJSONNode(Value value) {
         RDFNode object;
 
-        if (value instanceof org.openrdf.model.IRI) {
+        if (value instanceof org.eclipse.rdf4j.model.IRI) {
             object = new URI(value.stringValue());
         } else if (value instanceof BNode) {
             object = new BNode(value.stringValue());
         } else {
-            org.openrdf.model.Literal literal = (org.openrdf.model.Literal) value;
+            org.eclipse.rdf4j.model.Literal literal = (org.eclipse.rdf4j.model.Literal) value;
             if (literal.getLanguage().orElse(null) != null) {
                 object = new Literal(literal.getLabel(), literal.getLanguage().orElse(null));
             } else if (literal.getDatatype() != null) {
@@ -159,9 +158,9 @@ public class RDFJSONParser {
         for (Map.Entry<String, Metadata> subject : data.entrySet()) {
             Resource subjectResource = stringToResource(subject.getKey(), vf);
             for (Map.Entry<String, Set<RDFNode>> predicate : subject.getValue().entrySet()) {
-                org.openrdf.model.IRI predicateURI = vf.createIRI(predicate.getKey());
+                org.eclipse.rdf4j.model.IRI predicateURI = vf.createIRI(predicate.getKey());
                 for (RDFNode objectNode : predicate.getValue()) {
-                    org.openrdf.model.Value objectValue;
+                    org.eclipse.rdf4j.model.Value objectValue;
                     if (objectNode instanceof Literal) {
                         if (((Literal) objectNode).getLanguage() != null) {
                             objectValue = vf.createLiteral(((Literal) objectNode).getContent(),
@@ -192,7 +191,7 @@ public class RDFJSONParser {
         }
     }
 
-    private static org.openrdf.model.Resource stringToResource(String resource, ValueFactory vf) {
+    private static org.eclipse.rdf4j.model.Resource stringToResource(String resource, ValueFactory vf) {
         if (resource.startsWith("_:")) {
             return vf.createBNode(resource.substring(2));
         } else {

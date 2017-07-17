@@ -17,8 +17,11 @@
  */
 package org.apache.marmotta.kiwi.reasoner.sail;
 
-import info.aduna.iteration.CloseableIteration;
-import info.aduna.iteration.ExceptionConvertingIteration;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.marmotta.commons.sesame.transactions.api.TransactionalSail;
 import org.apache.marmotta.commons.sesame.transactions.wrapper.TransactionalSailWrapper;
 import org.apache.marmotta.kiwi.reasoner.engine.ReasoningConfiguration;
@@ -32,16 +35,12 @@ import org.apache.marmotta.kiwi.reasoner.parser.ParseException;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningConnection;
 import org.apache.marmotta.kiwi.reasoner.persistence.KiWiReasoningPersistence;
 import org.apache.marmotta.kiwi.sail.KiWiStore;
-import org.openrdf.sail.SailException;
-import org.openrdf.sail.StackableSail;
+import org.eclipse.rdf4j.common.iteration.CloseableIteration;
+import org.eclipse.rdf4j.common.iteration.ExceptionConvertingIteration;
+import org.eclipse.rdf4j.sail.SailException;
+import org.eclipse.rdf4j.sail.StackableSail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This sail adds the KWRL reasoner to the stack of sails. Because the reasoner is tightly coupled with the

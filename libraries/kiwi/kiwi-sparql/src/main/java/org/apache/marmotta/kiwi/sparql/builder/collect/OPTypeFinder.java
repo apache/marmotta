@@ -24,17 +24,17 @@ import org.apache.marmotta.commons.sesame.model.Namespaces;
 import org.apache.marmotta.kiwi.sparql.builder.ValueType;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunction;
 import org.apache.marmotta.kiwi.sparql.function.NativeFunctionRegistry;
-import org.openrdf.model.Literal;
-import org.openrdf.query.algebra.FunctionCall;
-import org.openrdf.query.algebra.If;
-import org.openrdf.query.algebra.Label;
-import org.openrdf.query.algebra.Lang;
-import org.openrdf.query.algebra.LocalName;
-import org.openrdf.query.algebra.SameTerm;
-import org.openrdf.query.algebra.Str;
-import org.openrdf.query.algebra.ValueConstant;
-import org.openrdf.query.algebra.ValueExpr;
-import org.openrdf.query.algebra.helpers.AbstractQueryModelVisitor;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.query.algebra.FunctionCall;
+import org.eclipse.rdf4j.query.algebra.If;
+import org.eclipse.rdf4j.query.algebra.Label;
+import org.eclipse.rdf4j.query.algebra.Lang;
+import org.eclipse.rdf4j.query.algebra.LocalName;
+import org.eclipse.rdf4j.query.algebra.SameTerm;
+import org.eclipse.rdf4j.query.algebra.Str;
+import org.eclipse.rdf4j.query.algebra.ValueConstant;
+import org.eclipse.rdf4j.query.algebra.ValueExpr;
+import org.eclipse.rdf4j.query.algebra.helpers.AbstractQueryModelVisitor;
 
 /**
  * Determine the operand type of a value expression. Get the coerced value by calling coerce().

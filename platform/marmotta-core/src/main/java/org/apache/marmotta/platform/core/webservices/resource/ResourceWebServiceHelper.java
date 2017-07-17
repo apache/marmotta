@@ -26,8 +26,8 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.marmotta.commons.http.ContentType;
 import org.apache.marmotta.platform.core.api.config.ConfigurationService;
-import org.openrdf.model.IRI;
-import org.openrdf.model.Resource;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Resource;
 
 /**
  * Helper methods shared accross the difference resource web services

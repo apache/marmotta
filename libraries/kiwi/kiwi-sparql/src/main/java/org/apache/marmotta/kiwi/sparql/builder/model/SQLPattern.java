@@ -17,9 +17,9 @@
 
 package org.apache.marmotta.kiwi.sparql.builder.model;
 
-import org.openrdf.model.Resource;
-import org.openrdf.query.algebra.StatementPattern;
-import org.openrdf.query.algebra.Var;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.query.algebra.StatementPattern;
+import org.eclipse.rdf4j.query.algebra.Var;
 
 import java.util.EnumMap;
 import java.util.List;

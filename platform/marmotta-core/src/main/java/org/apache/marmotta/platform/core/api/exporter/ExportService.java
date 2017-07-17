@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
 import org.apache.marmotta.platform.core.exception.io.UnsupportedExporterException;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * Methods for writing triple data into different targets using different exporters.

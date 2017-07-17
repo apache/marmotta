@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.kiwi.model.rdf;
 
-import org.openrdf.model.Namespace;
-
 import java.io.Serializable;
 import java.util.Date;
+import org.eclipse.rdf4j.model.Namespace;
 
 /**
  * The KiWiNamespace is used to store namespaces from RDF 

@@ -17,12 +17,11 @@
  */
 package org.apache.marmotta.ldcache.model;
 
-import org.apache.marmotta.commons.util.DateUtils;
-import org.openrdf.model.Model;
-import org.openrdf.model.IRI;
-
 import java.io.Serializable;
 import java.util.Date;
+import org.apache.marmotta.commons.util.DateUtils;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 
 /**
  * The cache entry for a IRI resource managed by the Linked Data Cache. Contains maintenance information about

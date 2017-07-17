@@ -18,7 +18,7 @@ package org.apache.marmotta.commons.sesame.facading;
 
 import org.apache.marmotta.commons.sesame.facading.api.Facading;
 import org.apache.marmotta.commons.sesame.facading.impl.FacadingImpl;
-import org.openrdf.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
 
 /**
  * A factory to simplify the creation of facading services.

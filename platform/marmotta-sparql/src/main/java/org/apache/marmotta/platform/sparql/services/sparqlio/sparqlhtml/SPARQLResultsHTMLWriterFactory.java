@@ -18,10 +18,9 @@
 package org.apache.marmotta.platform.sparql.services.sparqlio.sparqlhtml;
 
 import java.io.OutputStream;
-
-import org.openrdf.query.resultio.TupleQueryResultFormat;
-import org.openrdf.query.resultio.TupleQueryResultWriter;
-import org.openrdf.query.resultio.TupleQueryResultWriterFactory;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultFormat;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultWriter;
+import org.eclipse.rdf4j.query.resultio.TupleQueryResultWriterFactory;
 
 /**
  * A {@link TupleQueryResultWriterFactory} for writers of SPARQL HTML query

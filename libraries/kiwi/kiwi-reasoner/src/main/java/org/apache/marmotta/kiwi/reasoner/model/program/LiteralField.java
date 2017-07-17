@@ -17,10 +17,9 @@
  */
 package org.apache.marmotta.kiwi.reasoner.model.program;
 
-import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
-import org.openrdf.model.Literal;
-
 import java.util.Map;
+import org.apache.marmotta.kiwi.model.rdf.KiWiLiteral;
+import org.eclipse.rdf4j.model.Literal;
 
 /**
  * Add file description here!

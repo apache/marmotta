@@ -18,8 +18,8 @@
 package org.apache.marmotta.loader.wrapper;
 
 import org.apache.marmotta.loader.api.LoaderHandler;
-import org.openrdf.model.Statement;
-import org.openrdf.rio.RDFHandlerException;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 
 /**
  * Add file description here!

@@ -17,7 +17,9 @@
  */
 package org.apache.marmotta.kiwi.versioning.test;
 
-import info.aduna.iteration.Iterations;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.marmotta.kiwi.config.KiWiConfiguration;
 import org.apache.marmotta.kiwi.model.rdf.KiWiStringLiteral;
@@ -30,6 +32,8 @@ import org.apache.marmotta.kiwi.test.junit.KiWiDatabaseRunner;
 import org.apache.marmotta.kiwi.versioning.model.Version;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningConnection;
 import org.apache.marmotta.kiwi.versioning.persistence.KiWiVersioningPersistence;
+import org.eclipse.rdf4j.common.iteration.Iterations;
+import static org.hamcrest.Matchers.hasItems;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,12 +41,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-
-import static org.hamcrest.Matchers.hasItems;
 
 /**
  * This test checks if the database persistence for the versioning functionality works properly.

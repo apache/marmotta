@@ -17,10 +17,9 @@
 
 package org.apache.marmotta.loader.rio;
 
-import org.openrdf.rio.RDFFormat;
-
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import org.eclipse.rdf4j.rio.RDFFormat;
 
 /**
  * Add file description here!

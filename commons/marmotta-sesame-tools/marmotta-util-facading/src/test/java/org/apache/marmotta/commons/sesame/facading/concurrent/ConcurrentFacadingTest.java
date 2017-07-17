@@ -26,13 +26,13 @@ import org.apache.marmotta.commons.sesame.facading.concurrent.model.FooFacade;
 import org.apache.marmotta.commons.sesame.facading.concurrent.model.TypeFacade;
 import org.apache.marmotta.commons.sesame.repository.ResourceUtils;
 import org.apache.marmotta.commons.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openrdf.model.IRI;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
 
 public class ConcurrentFacadingTest extends AbstractFacadingTest {
 
